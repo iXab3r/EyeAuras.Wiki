@@ -2,7 +2,7 @@
 title: С чего начать?
 description: 
 published: true
-date: 2024-02-20T18:30:55.652Z
+date: 2024-02-20T18:31:24.322Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-20T14:01:34.128Z
@@ -31,11 +31,11 @@ dateCreated: 2024-02-20T14:01:34.128Z
 ### 3. WebUI Overlay
 Самый продвинутый вариант скриптов. Помимо всего, что доступно в действиях/триггерах, WebUI позволяет вам написать кастомный пользовательский интерфейс с кнопками, рычажками и полями ввода. UI технология, которая используется для отрисовки называется [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) и на 2024 год это лучшее, что инфраструктура **.NET** может предложить. У самой технологии есть несколько проблем, так как идеала не существует, но EyeAuras предлагает несколько решений, который сглаживают эти проблемы и, в конечном счете, ваши возможности ограничены лишь фантазией. Ниже несколько примеров разных форм, которые собраны на **WebUI**
 
-![](https://i.imgur.com/iaKm2Br.png =x500) ![](https://i.imgur.com/D7Nxmv7.png =x200) 
+![](https://i.imgur.com/iaKm2Br.png =x500) ![](https://cdn.discordapp.com/attachments/1170312651621023755/1197134740906577981/image.png?ex=65ba299b&is=65a7b49b&hm=40f31b17035b500a9973b6bbc5e6e25a882a9a7fd76961cd26e730481bd0c28a& =x300) ![](https://telegra.ph/file/d83bcbeeac554d2e9b939.png =x300)
 
-![](https://cdn.discordapp.com/attachments/846848467795836969/1168590651798069379/image.png?ex=655251da&is=653fdcda&hm=260bde6f1673493c9ec42573c205716289afdd032c2cc710ba8146fbec1e2793 =x200)
+![](https://cdn.discordapp.com/attachments/846848467795836969/1168590651798069379/image.png?ex=655251da&is=653fdcda&hm=260bde6f1673493c9ec42573c205716289afdd032c2cc710ba8146fbec1e2793 =x200) ![](https://i.imgur.com/D7Nxmv7.png =x200) 
 
-![](https://cdn.discordapp.com/attachments/1170312651621023755/1197134740906577981/image.png?ex=65ba299b&is=65a7b49b&hm=40f31b17035b500a9973b6bbc5e6e25a882a9a7fd76961cd26e730481bd0c28a& =x300) ![](https://telegra.ph/file/d83bcbeeac554d2e9b939.png =x300)
+
 
 
 
