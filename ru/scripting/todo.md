@@ -2,7 +2,7 @@
 title: Какие статьи нужны?
 description: 
 published: true
-date: 2024-02-20T19:58:16.457Z
+date: 2024-02-20T20:38:06.578Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-18T22:39:16.329Z
@@ -12,13 +12,13 @@ dateCreated: 2024-02-18T22:39:16.329Z
 Все скрипты кладем в папку Guides/имя_примера/...
 В идеале большую часть каждого скрипта бы еще прямо в гайде прикладывать, для индексации и поиска.
 
-## [Описание скриптов v3](/ru/scripting/getting-started) 
+## ~~[Описание скриптов v3](/ru/scripting/getting-started)~~
 Как устроены, что поддерживается и т.п. Техническое душнилово.  
 Нужно упомянуть v2 *ц, но вкратце
 
 ---
 
-## [Hello, World!](/ru/scripting/examples/basic/hello-world)
+## ~~[Hello, World!](/ru/scripting/examples/basic/hello-world)~~
 Куда же без него, просто печатаем в **Event Log** одну строчку
 
 ---
@@ -42,7 +42,11 @@ dateCreated: 2024-02-18T22:39:16.329Z
 
 ---
 
-## Работа с аурами - как найти, как работать с ними
+## ~~Работа с аурами - как найти, как работать с ними~~
+https://wiki.eyeauras.net/ru/scripting/examples/basic/find-aura
+https://wiki.eyeauras.net/ru/scripting/api/IAuraAccessor
+https://wiki.eyeauras.net/ru/scripting/api/IAuraTreeScriptingApi
+
 Чтобы получить доступ к триггерам и действиям, нужно сначала найти ауры, в которых они находятся.
 Обзор службы AuraTree, ее методов и т.п. Здесь же нужно описать как прочитать какие-то свойства триггеров (состояние и т.п.)
 https://docs.eyeauras.net/api/EyeAuras.Scripting.Api.IAuraTreeScriptingApi.html
