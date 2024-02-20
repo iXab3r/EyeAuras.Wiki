@@ -2,7 +2,7 @@
 title: Какие статьи нужны?
 description: 
 published: true
-date: 2024-02-20T20:38:06.578Z
+date: 2024-02-20T22:27:22.639Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-18T22:39:16.329Z
@@ -31,7 +31,9 @@ dateCreated: 2024-02-18T22:39:16.329Z
 
 ---
 
-## Сохранение состояния между запусками скрипта - глобальные переменные
+## ~~Сохранение состояния между запусками скрипта - глобальные переменные~~
+https://wiki.eyeauras.net/ru/scripting/examples/basic/variables
+
 Большинству скриптов надо где-то сохранять промежуточные данные
 Нужно описать что такое: 
 - локальные переменные (`var ... = ...`)
@@ -49,7 +51,6 @@ https://wiki.eyeauras.net/ru/scripting/api/IAuraTreeScriptingApi
 
 Чтобы получить доступ к триггерам и действиям, нужно сначала найти ауры, в которых они находятся.
 Обзор службы AuraTree, ее методов и т.п. Здесь же нужно описать как прочитать какие-то свойства триггеров (состояние и т.п.)
-https://docs.eyeauras.net/api/EyeAuras.Scripting.Api.IAuraTreeScriptingApi.html
 
 ---
 
