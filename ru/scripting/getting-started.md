@@ -2,7 +2,7 @@
 title: С чего начать?
 description: 
 published: true
-date: 2024-02-20T18:39:53.419Z
+date: 2024-02-20T18:43:28.401Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-20T14:01:34.128Z
@@ -17,6 +17,8 @@ dateCreated: 2024-02-20T14:01:34.128Z
 Сама программа построена на платформе [**.NET**](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview). Это великолепная и динамично развивающаяся платформа, которая хороша практически во всем. Соответственно, в качестве скриптового языка используется самая последняя версия [C#](https://learn.microsoft.com/en-us/dotnet/csharp/). 
 
 Каждый скрипт, который вы пишете, будет скомпилирован с использованием [Roslyn](https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/). Большая часть головной боли, связанной с тем, как подключать файлы, что можно делать, а что нельзя и тому подобные вещи уже решены в самой программе, так что вам остается только сосредоточиться на работе с самим скриптом. 
+
+![](https://upload.wikimedia.org/wikipedia/commons/d/d2/C_Sharp_Logo_2023.svg =x100) ![](https://devblogs.microsoft.com/aspnet/wp-content/uploads/sites/16/2019/04/BrandBlazor_nohalo_1000x.png =x100) ![](https://upload.wikimedia.org/wikipedia/commons/2/2a/Roslyn.png =x100)
 
 
 # Как начать писать скрипты?
