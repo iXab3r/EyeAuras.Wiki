@@ -2,7 +2,7 @@
 title: С чего начать?
 description: 
 published: true
-date: 2024-02-20T18:31:24.322Z
+date: 2024-02-20T18:39:53.419Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-20T14:01:34.128Z
@@ -45,3 +45,11 @@ dateCreated: 2024-02-20T14:01:34.128Z
 ---
 У каждого в этом доме есть имя, к примеру, если хочется двинуть мышку, то нужно обратиться к [ISendInputUnstableScriptingApi](https://docs.eyeauras.net/api/EyeAuras.Roxy.Api.ISendInputUnstableScriptingApi.html) и вызвать [MouseMoveTo](https://docs.eyeauras.net/api/EyeAuras.Roxy.Api.ISendInputUnstableScriptingApi.MouseMoveTo.html#EyeAuras_Roxy_Api_ISendInputUnstableScriptingApi_MouseMoveTo_System_Int32_System_Int32_). Если хочется проиграть звук, то это нам к [IPlaySoundScriptingApi](https://docs.eyeauras.net/api/EyeAuras.DefaultAuras.Scripting.IPlaySoundScriptingApi.html). Ответственности всех разные и, как и в жизни, чтобы все получалось очень важно знать правильные имена :) 
 В этой документации будут перечислены основные и наиболее полезные, однако полный спектр перечислять смысла нет - в Nuget пакете EyeAuras.SDK перечислено абсолютно все, что можно использовать и что будет доступно вашим скриптам. 
+
+# Внешние зависимости - [Nuget](https://www.nuget.org/)
+Если бы каждый программист писал все с нуля, мы бы до сих пор коллективно переизобретали колесо. Поэтому в скриптах есть полная поддержка внешних пакетов. В инфраструктуре **.NET** почти все хранится в [NuGet'e](https://www.nuget.org/), как официальные библиотеки, так и неофициальные. Есть десятки списков полезных пакетов, начать можно с [этого](https://github.com/quozd/awesome-dotnet). 
+В скриптах можно подключить практически любые из них. Пока что есть исключения, но я работаю над их устранением. 
+> 20 февраля 2024 
+> На данный момент поддержка внешних библиотек включена только для alpha-тестеров. Как только этот функционал стабилизируется, он будет включен для всех остальных. я думаю в начале-середине марта эти ограничения будут сняты.
+{.is-warning}
+
