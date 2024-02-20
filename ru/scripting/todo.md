@@ -2,7 +2,7 @@
 title: Какие статьи нужны?
 description: 
 published: true
-date: 2024-02-20T14:02:59.409Z
+date: 2024-02-20T19:58:16.457Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-18T22:39:16.329Z
@@ -18,7 +18,7 @@ dateCreated: 2024-02-18T22:39:16.329Z
 
 ---
 
-## Hello, World!
+## [Hello, World!](/ru/scripting/examples/basic/hello-world)
 Куда же без него, просто печатаем в **Event Log** одну строчку
 
 ---
