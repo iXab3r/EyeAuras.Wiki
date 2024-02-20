@@ -1,8 +1,8 @@
 ---
-title: вв
+title: IVariablesScriptingApi
 description: 
 published: true
-date: 2024-02-20T21:30:29.037Z
+date: 2024-02-20T21:30:58.091Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-20T21:30:29.037Z
