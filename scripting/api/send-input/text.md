@@ -2,7 +2,7 @@
 title: Typing text
 description: 
 published: true
-date: 2024-02-20T11:40:08.262Z
+date: 2024-02-20T11:44:30.589Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-20T11:40:08.262Z
