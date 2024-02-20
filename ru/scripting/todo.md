@@ -2,7 +2,7 @@
 title: Какие статьи нужны?
 description: 
 published: true
-date: 2024-02-20T22:27:22.639Z
+date: 2024-02-20T22:29:52.393Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-18T22:39:16.329Z
@@ -25,9 +25,9 @@ dateCreated: 2024-02-18T22:39:16.329Z
 
 
 ## Сверх-короткий обзор синтаксиса C# и как это сочетается с программой (песочница)
-Циклы, условия, сверх-сжатый чат-гпт гайд по языку
+https://wiki.eyeauras.net/ru/scripting/sandbox
 
-Песочница - https://docs.eyeauras.net/api/EyeAuras.Scripting.Api.ScriptSandbox.html
+Циклы, условия, сверх-сжатый чат-гпт гайд по языку
 
 ---
 
