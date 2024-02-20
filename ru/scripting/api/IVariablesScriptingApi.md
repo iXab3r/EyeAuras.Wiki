@@ -2,7 +2,7 @@
 title: IVariablesScriptingApi
 description: 
 published: true
-date: 2024-02-20T21:30:58.091Z
+date: 2024-02-20T23:36:36.940Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-20T21:30:29.037Z
@@ -17,26 +17,6 @@ dateCreated: 2024-02-20T21:30:29.037Z
 /// Working with <see cref="ScriptVariable{T}"/> provides a strongly-typed approach to accessing variables, ensuring type safety at compile time and reducing runtime errors.
 /// It simplifies the process of manipulating variables within scripts, offering both readability and maintainability benefits.
 /// </remarks>
-/// <example>
-/// Creating a ScriptVariable for a counter and incrementing its value:
-/// <code>
-/// // Assuming 'api' is an instance of IVariablesScriptingApi
-/// var counter = api.Get&lt;int&gt;("path/to/aura", "counter");
-///
-/// // Increment the counter if it exists, or initialize it to 1
-/// if (counter.HasValue)
-/// {
-///     counter.Set(counter.Value + 1);
-/// }
-/// else
-/// {
-///     counter.Set(1);
-/// }
-///
-/// Console.WriteLine($"Counter value: {counter.Value}");
-/// </code>
-/// This example demonstrates how to interact with a variable named "counter" in a strongly-typed manner, making the code both more expressive and less prone to type mismatch errors.
-/// </example>
 public interface IVariablesScriptingApi : IScriptingApi, IVariablesAccessor
 {
 		/// <summary>
