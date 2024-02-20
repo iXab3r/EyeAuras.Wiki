@@ -2,7 +2,7 @@
 title: С чего начать?
 description: 
 published: true
-date: 2024-02-20T19:29:48.928Z
+date: 2024-02-20T19:30:53.772Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-20T14:01:34.128Z
@@ -36,6 +36,10 @@ dateCreated: 2024-02-20T14:01:34.128Z
 ![](https://i.imgur.com/iaKm2Br.png =x500) ![](https://cdn.discordapp.com/attachments/1170312651621023755/1197134740906577981/image.png?ex=65ba299b&is=65a7b49b&hm=40f31b17035b500a9973b6bbc5e6e25a882a9a7fd76961cd26e730481bd0c28a& =x300) ![](https://telegra.ph/file/d83bcbeeac554d2e9b939.png =x300)
 
 ![](https://cdn.discordapp.com/attachments/846848467795836969/1168590651798069379/image.png?ex=655251da&is=653fdcda&hm=260bde6f1673493c9ec42573c205716289afdd032c2cc710ba8146fbec1e2793 =x200) ![](https://i.imgur.com/D7Nxmv7.png =x200) 
+
+> 20 февраля 2024 
+> на момент написания статьи WebUI пока что использует более старую версию скриптов, это будет исправлено в ближайшие недели. 
+{.is-warning}
 
 
 # Службы-службы
