@@ -1,0 +1,24 @@
+<!--
+title: Критические изменения в скриптах
+description: 
+published: true
+date: 2022-11-02T20:14:28.703Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-11-02T20:13:23.893Z
+-->
+
+<p>В данной секции описаны изменения, которые влияют на работоспособность скриптов в C# Action/Trigger</p>
+<p>&nbsp;</p>
+<h3>1.2.3821</h3>
+<p>Что меняется?</p>
+<p><strong>IAuraTrigger IsEnabled</strong></p>
+<p>Как именно?&nbsp;</p>
+<p>Тип поменялся с <strong>bool </strong>на <strong>bool?&nbsp;</strong></p>
+<p>Что делать?</p>
+<ul>
+  <li>Теперь нужно уточнять какое состояние вы ожидаете</li>
+</ul>
+<pre><code class="language-cs">if (trigger.IsActive) или if (!trigger.IsActive)
+// =&gt;
+if (trigger.IsActive == true) или if (trigger.IsActive == false)</code></pre>

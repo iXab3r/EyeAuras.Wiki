@@ -1,0 +1,33 @@
+<!--
+title: Window Is Active
+description:  becomes active when the specified window, identified by a Window Matching Expression, is in the foreground and active. It becomes inactive when the window is minimized or not active, and switches to 'Unknown' if the window is not present in the system.
+published: true
+date: 2023-06-18T12:12:24.126Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-06-18T12:12:23.045Z
+-->
+
+<p>The <code><strong>Window Is Active</strong></code> trigger is &nbsp;used to detect whether a specific window, identified by a Window Matching Expression, is in the foreground and active.</p>
+<h3><strong>Overview</strong></h3>
+<p>This trigger works in three different states:</p>
+<ol>
+  <li><strong>Active</strong>: When the specified window is in the foreground and is currently active, the trigger state is <code><strong>Active</strong></code>.</li>
+  <li><strong>Inactive</strong>: If the window is minimized or not active, the trigger state switches to <code><strong>Inactive</strong></code>.</li>
+  <li><strong>Unknown</strong>: If the specified window is not present in the system at all, the trigger state switches to <code><strong>Unknown</strong></code>. This means that EyeAuras doesn't have enough information to determine whether the window is active or not.</li>
+</ol>
+<p>&nbsp;</p>
+<h3><strong>Options</strong></h3>
+<ul>
+  <li><strong>Target Window</strong>: This option allows you to specify the window you want to check the state for. You can use a Window Matching Expression to define the window. You can learn more about Window Matching Expressions on our <a href="https://wiki.eyeauras.net/e/en/window-matching-expressions"><u>wiki page</u></a>.</li>
+</ul>
+<p>&nbsp;</p>
+<h3><strong>Example Use Case</strong></h3>
+<p>This trigger is a great way to make your workspace more dynamic and adaptive to your current focus.&nbsp;</p>
+<ul>
+  <li><strong>FPS Custom Key Binding</strong>: Let's say you have a favorite First-Person Shooter game, such as CS:GO. You want to bind a hotkey that activates an overlay showing a map of the current game level, but only when CS:GO is the active window. You create an aura with the <code><strong>Window Is Active</strong></code> trigger using the Window Matching Expression for CS:GO. Then, in the hotkey configuration, you link this hotkey to the aura, making it functional only when CS:GO is active.</li>
+  <li><strong>MMORPG Quick Macros</strong>: For Massively Multiplayer Online Role-Playing Games (MMORPGs) like World of Warcraft, you may have several macros or special actions you frequently use. You can set up auras with the <code><strong>Window Is Active</strong></code> trigger for World of Warcraft and link each aura to a unique hotkey. These hotkeys can then trigger quick actions or macros, but only when World of Warcraft is the active window.</li>
+  <li><strong>Racing Game Car Setup</strong>: In racing games like Forza Horizon, you might want a hotkey that opens your car setup or customization menu. You set up an aura with the <code><strong>Window Is Active</strong></code> trigger for Forza Horizon, and then you link a hotkey to this aura. This hotkey is then functional only when Forza Horizon is the active window.</li>
+  <li><strong>Fortnite Layout Change</strong>: Let's say you have a particular layout or HUD you want to use specifically when playing Fortnite. You can set the <code><strong>Window Is Active</strong></code> trigger with the Window Matching Expression matching Fortnite's window. When Fortnite becomes active and is in the foreground, EyeAuras will activate this trigger and load your designated layout.</li>
+  <li><strong>Streaming Alert</strong>: If you are streaming your gameplay and have a specific alert or effect you want to trigger when you open a particular game, set the <code><strong>Window Is Active</strong></code> trigger with the Window Matching Expression for that game. When the game becomes the active window, EyeAuras can trigger an alert, start a specific stream layout, or perform any other set action.</li>
+</ul>

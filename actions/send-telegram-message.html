@@ -1,0 +1,30 @@
+<!--
+title: Send Telegram Message
+description: allows you to connect to Telegram and send messages via the Telegram framework
+published: true
+date: 2023-06-18T15:01:40.616Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-06-18T15:01:39.519Z
+-->
+
+<p>The "Send Telegram Message" Action in EyeAuras allows you to connect to Telegram and send messages via the Telegram framework. Please note that it's not currently possible to send messages impersonating a real user.</p>
+<p>&nbsp;</p>
+<h3><strong>Options:</strong></h3>
+<p><strong>Telegram Bot Token:</strong> This is the ID of the Telegram bot that you've created. For more details on how to configure this, please check the following link: <a href="https://wiki.eyeauras.net/en/triggers/telegram-message"><u>Telegram Message Trigger</u></a>.</p>
+<p><strong>Telegram Chat ID:</strong> This is the ID of the chat where you want to send your message.</p>
+<p><strong>SOCKS5 Proxy:</strong> If needed, you can connect to a proxy to send your message. The proxy should be provided in the following format: username:password@host:port.</p>
+<p><strong>Message Format:</strong> You can choose between Text, HTML, Markdown, or MarkdownV2 for your message format. Here is a brief explanation of each one:</p>
+<ul>
+  <li><strong>Text</strong>: The simplest format, plain text with no special formatting.</li>
+  <li><strong>HTML</strong>: Use HTML tags for formatting your message, such as bold, italics, hyperlinks, etc.</li>
+  <li><strong>Markdown / MarkdownV2</strong>: Use markdown syntax for formatting. Markdown is a lightweight markup language for creating formatted text. For more details about the specifics of Telegram's markdown syntax, refer to the <a href="https://core.telegram.org/bots/api#markdown-style"><u>Telegram API</u></a>.</li>
+</ul>
+<p><strong>Text:</strong> This is the actual content of the message you want to send.</p>
+<p>There is currently no limitation on message size, but keep in mind that excessively long messages might be harder to read or could be truncated by Telegram on the receiving end.</p>
+<p>&nbsp;</p>
+<h3>Gaming applications</h3>
+<p><strong>Game Status Notifications:</strong> Using the Send Telegram Message action, gamers can configure EyeAuras to send notifications about their game status to a Telegram group. For example, when a level is completed or when a game is saved, a message could be sent to notify friends or fellow gamers.</p>
+<p><strong>Team Communication:</strong> For team-based games, players can set up EyeAuras to send messages to their team's Telegram chat whenever certain in-game events occur, such as acquiring an important item or reaching a critical location. This would facilitate real-time updates and better team coordination.</p>
+<p><strong>Streaming Alerts:</strong> Streamers can use the action to send messages to their Telegram channel each time they start or end their live stream. This can keep their followers updated about their streaming schedule.</p>
+<p><strong>Game Statistics Sharing:</strong> Gamers can set up EyeAuras to automatically send their gaming statistics, like high scores or completed achievements, to a Telegram group, helping them to share their progress and compete with friends.</p>

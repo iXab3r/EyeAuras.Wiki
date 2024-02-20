@@ -1,0 +1,38 @@
+<!--
+title: Network Message
+description:  listens for user-specified messages sent across EyeAuras instances, allowing for synchronized control and data sharing
+published: true
+date: 2023-06-18T13:14:09.010Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-06-18T13:14:07.916Z
+-->
+
+<h3><strong>Overview</strong></h3>
+<p>The Network Message trigger allows an instance of EyeAuras to listen for messages sent from another instance. The instances communicate through uniquely identified channels. Users can utilize <a href="https://wiki.eyeauras.net/e/en/text-match-expressions"><u>Text Match Expressions</u></a> to create conditions that activate or deactivate the trigger based on the content of the received message.</p>
+<p>&nbsp;</p>
+<h3><strong>Usage</strong></h3>
+<p>To set up a Network Message trigger:</p>
+<ol>
+  <li>Select or generate a unique ID for the channel you want to listen to. You can manually enter the ID or click the button to generate it automatically.</li>
+  <li>Choose the <a href="https://wiki.eyeauras.net/e/en/text-match-expressions"><u>Text Match Expression</u></a> to specify the conditions for the message content.</li>
+</ol>
+<p>By default, the trigger changes its state (Active or Inactive) whenever a message fulfilling the Text Match Expression condition is received. Alternatively, you can opt to set a different Text Match Expression for deactivation by checking the "Deactivate on message" box.</p>
+<p>&nbsp;</p>
+<h3><strong>Considerations</strong></h3>
+<ul>
+  <li>The program requires internet access as the communication between instances is facilitated through EyeAuras' servers.</li>
+  <li>The choice between the "Server Hub" (RU or EU) doesn't affect the reception of messages but could influence the latency.</li>
+  <li>The maximum size for a single message is 100Kb.</li>
+</ul>
+<p>&nbsp;</p>
+<h3><strong>Examples</strong></h3>
+<p><strong>Multi-Character MMO Control</strong></p>
+<p>Suppose you're controlling multiple characters in an MMO running on separate PCs. By setting a HotkeyIsActive trigger and "Send network message" action, you can control all your characters simultaneously. Sending the message "start" would make your characters follow you, assist, gather loot, etc. Sending "stop" halts their actions.</p>
+<p><strong>Information Gathering</strong></p>
+<p>In a similar setting, you could configure your bots to listen to a specific message, e.g., "report". Upon receiving this message, they could send back information such as their online time, total amount of EXP/gold farmed since the last report, etc. This allows for quick and efficient information gathering without the need to individually log into each PC.</p>
+<p><strong>Remote Control for Presentation</strong></p>
+<p>In a professional setting, you could use EyeAuras to remotely control a presentation. You can configure your EyeAuras instance to listen for messages such as "next", "previous", or "slide_number". These can be linked to actions that simulate pressing the right/left arrow keys or inputting a specific slide number, effectively allowing you to control the presentation remotely.</p>
+<p><strong>Home Automation System</strong></p>
+<p>If you have a home automation system set up with the help of EyeAuras, you could use the Network Message trigger to synchronize actions across different systems. For instance, a message like "lights_on" could activate triggers that switch on lights in different rooms.</p>
+<p>The Network Message trigger, paired with the "Send network message" action, provides a powerful tool for communication and synchronization between different EyeAuras instances. This feature is highly flexible, allowing users to establish complex network protocols and remote control setups tailored to their needs.</p>

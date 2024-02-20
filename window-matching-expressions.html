@@ -1,0 +1,50 @@
+<!--
+title: Window Match Expressions
+description: A user interface in EyeAuras, enabling selection of specific windows using a custom expression.
+published: true
+date: 2023-06-18T17:36:42.711Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-06-18T11:57:49.061Z
+-->
+
+<p>The Window Matching Expression Control is a concept and a user interface component in EyeAuras. It allows you to define an expression to select specific window(s) based on various criteria. These expressions are supported across all actions/triggers in EyeAuras and allow you to control where to send inputs, what window should be active, what window to screenshot/record, etc.</p>
+<figure class="image"><img src="/eyeauras_zjebk8jadf.png"></figure>
+<h3>Components</h3>
+<p>This control includes three components:</p>
+<p><strong>Window Selection Dropdown</strong>: Clicking a small icon triggers a dropdown list of all active windows. Selecting a window from this list generates a matching expression by window handle or title.</p>
+<p><strong>Expression Input Box</strong>: A text input field for entering a matching expression. The system parses this expression to determine the window(s) to select.</p>
+<p><strong>Picked Window Display</strong>: This area displays the selected window(s) based on the defined expression. A tooltip with detailed window information appears when hovering over the display, aiding refinement of the expression.</p>
+<p>&nbsp;</p>
+<h3><strong>Creating a Matching Expression</strong></h3>
+<p>Expressions can be manually entered into the input box. The system interprets these expressions as matching criteria. Here are examples:</p>
+<ul>
+  <li><strong>Plain text</strong>: Entering "test" matches all windows with "test" in the title, using a case-insensitive partial-match search.</li>
+  <li><strong>Strict text match</strong>: Quoting text with single (' ') or double (" ") quotes enforces an exact, case-sensitive match. For example, 'test' matches windows titled "test" only.</li>
+  <li><strong>Regular expression match</strong>: Text formatted as /expression/ is treated as a regular expression to match window titles based on patterns.</li>
+  <li><strong>By handle</strong>: You can specify the window's handle directly. Hexadecimal (e.g., 0xA) or "&amp;H" prefixed (e.g., &amp;HA) inputs match a window by its handle. Note that handles can change each time the window or application restarts.</li>
+  <li><strong>By Index</strong>: Adding "#number" to an expression selects a window by its index. For example, "test #2" selects the second window with "test" in its title. "#2" selects the second window in the dropdown list.</li>
+</ul>
+<p>The system then shows the selected window(s) in the Picked Window Display.</p>
+<p>The Window Matching Expression Control simplifies the process of customizing your experience with EyeAuras.</p>
+<p>&nbsp;</p>
+<h3>Examples</h3>
+<p>Expression: <code><strong>"Explorer"</strong></code> Result: Matches the window titled exactly "Explorer".</p>
+<p>Expression: <code><strong>"/fire/"</strong></code> Result: Matches all windows with "fire" in their title, ignoring case sensitivity.</p>
+<p>Expression: <code><strong>"Explorer" #2</strong></code> Result: Matches the second window titled exactly "Explorer".</p>
+<p>Expression: <code><strong>"Mail" #1</strong></code> Result: Matches the first window titled "Mail".</p>
+<p>Expression: <code><strong>0x5A</strong></code> Result: Matches the window with handle hexadecimal value 5A.</p>
+<p>Expression: <code><strong>"paint"</strong></code> Result: Matches all windows with "paint" in their title.</p>
+<p>Expression: <code><strong>"/^Notepad/"</strong></code> Result: Matches all windows where the title begins with "Notepad".</p>
+<p>Expression: <code><strong>&amp;H2B</strong></code> Result: Matches the window with handle hexadecimal value 2B.</p>
+<p>Expression: <code><strong>"/chrome$/"</strong></code> Result: Matches all windows where the title ends with "chrome".</p>
+<p>Expression: <code><strong>"Calculator" #3</strong></code> Result: Matches the third window titled exactly "Calculator".</p>
+<p>Expression: <code><strong>"Excel" #1</strong></code> Result: Matches the first window titled "Excel".</p>
+<p>Expression: <code><strong>"/Microsoft/"</strong></code> Result: Matches all windows with "Microsoft" in their title, ignoring case sensitivity.</p>
+<p>Expression: <code><strong>0xA1F</strong></code> Result: Matches the window with handle hexadecimal value A1F.</p>
+<p>Expression: <code><strong>"/^Google Chrome/"</strong></code> Result: Matches all windows where the title begins with "Google Chrome".</p>
+<p>Expression: <code><strong>#5</strong></code> Result: Matches the fifth window in the dropdown list.</p>
+<p>Expression: <code><strong>"Firefox #2"</strong></code> Result: Matches the second window titled exactly "Firefox".</p>
+<p>Expression: <code><strong>&amp;H7C</strong></code> Result: Matches the window with handle hexadecimal value 7C.</p>
+<p>Expression: <code><strong>#1</strong></code> Result: Matches the first window in the dropdown list.</p>
+<p>Expression: <code><strong>"/.*/"</strong></code> Result: Matches all windows as it's a regular expression for any character.</p>

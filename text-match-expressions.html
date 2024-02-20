@@ -1,0 +1,51 @@
+<!--
+title: Text Matching Expressions
+description: Powerful tool enabling text condition validation through Regex, Text, and Lambda evaluators.
+published: true
+date: 2023-10-22T20:01:54.216Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-06-18T12:37:30.883Z
+-->
+
+<p>Text Match Expressions in EyeAuras are versatile tools for validating and matching text-based conditions specified by users. There are three types of evaluators available: <strong>Regex</strong>, <strong>Text</strong>, and <strong>Lambda</strong>.&nbsp;</p>
+<p>These could be encountered in <a href="/en/triggers/images/text-search">Text Search</a>, <a href="/en/triggers/network-message">Network Message</a>, <a href="/en/triggers/telegram-message">Telegram Message</a> and some other types of triggers</p>
+<p>&nbsp;</p>
+<h3><strong>Text Evaluator</strong></h3>
+<p>The Text Evaluator works by performing a direct comparison with the specified text. It is case-sensitive, but you can choose to make it case-insensitive if you prefer.</p>
+<figure class="image"><img src="/eyeauras_ruxbjypgds.png"></figure>
+<p>Here are some examples of how you can use the Text Evaluator:</p>
+<ul>
+  <li><strong>Match "Hello World"</strong> Text to match: <code><strong>Hello World</strong></code> This will match only the exact string "Hello World".</li>
+  <li><strong>Match numeric string</strong> Text to match: <code><strong>12345</strong></code>&nbsp; This will match the string "12345". Note that it will not match the number 12345 typed without the quotes.</li>
+  <li><strong>Case insensitive match</strong> Text to match: <code><strong>HELLO</strong></code>&nbsp; With case-insensitivity turned on, this will match "hello", "Hello", "HELLO", etc.</li>
+  <li><strong>Match a sentence</strong> Text to match: <code><strong>The quick brown fox jumps over the lazy dog</strong></code>&nbsp;This will match the entire sentence exactly as it is.</li>
+</ul>
+<p>&nbsp;</p>
+<h3><strong>Regex Evaluator</strong></h3>
+<p>The Regex Evaluator allows you to utilize <a href="https://regex101.com/">regular expressions</a> for more complex and flexible text matching conditions.</p>
+<figure class="image"><img src="/eyeauras_jb1lvsh9pz.png"></figure>
+<p>Here are a few examples:</p>
+<p><strong>Match any number</strong> Regex to match: <code><strong>\d+</strong></code> This will match any string that represents a number, e.g., "123", "45678", etc.</p>
+<p><strong>Match any word</strong> Regex to match: <code><strong>\b\w+\b</strong></code> This will match any string that represents a word, e.g., "Hello", "World", etc.</p>
+<p><strong>Match any two letters</strong> Regex to match: <code><strong>\b[a-zA-Z]{2}\b</strong></code> This will match any string that represents exactly two letters, e.g., "ab", "cd", etc.</p>
+<p><strong>Match any three numbers</strong> Regex to match: <code><strong>\b\d{3}\b</strong></code> This will match any string that represents exactly three numbers, e.g., "123", "456", etc.</p>
+<p><strong>Match any word starting with a specific letter</strong> Regex to match: <code><strong>\bH\w*\b</strong></code> This will match any string that represents a word starting with the letter "H", e.g., "Hello", "Hi", etc.</p>
+<p><strong>Match any word ending with a specific letter</strong> Regex to match: <code><strong>\b\w*e\b</strong></code> This will match any string that represents a word ending with the letter "e", e.g., "code", "node", etc.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3><strong>Lambda Evaluator</strong></h3>
+<p>The Lambda Evaluator is a powerful tool that enables you to write <strong>C# Lambda</strong> Expressions. This evaluator essentially converts a string to a boolean based on the conditions you set, offering a broad range of possibilities.</p>
+<p>For example, you can create a lambda expression to check if a string is empty, if it contains specific characters, or even if it can be parsed into a number within a certain range.</p>
+<figure class="image"><img src="/eyeauras_i9f6mfq9lz.png"></figure>
+<p>Here are a few examples:</p>
+<ul>
+  <li><strong>Check if the string is empty</strong> Lambda expression: <code><strong>text =&gt; string.IsNullOrEmpty(text)</strong></code> This will return <code><strong>True</strong></code> for an empty string or <code><strong>Null</strong></code>, and <code><strong>False</strong></code> otherwise.</li>
+  <li><strong>Check if the string contains "Hello"</strong> Lambda expression: <code><strong>text =&gt; text.Contains("Hello")</strong></code> This will return <code><strong>True</strong></code> if the string contains "Hello", and <code><strong>False</strong></code> otherwise.</li>
+  <li><strong>Check if the string length is less than 5</strong> Lambda expression: <code><strong>text =&gt; text.Length &lt; 5</strong></code> This will return <code><strong>True</strong></code> if the string length is less than 5, and <code><strong>False</strong></code> otherwise.</li>
+  <li><strong>Check if the string, when parsed into a number, is within a certain range</strong> Lambda expression: <code><strong>text =&gt; double.Parse(text) &gt;= 1 &amp;&amp; double.Parse(text) &lt;= 100</strong></code> This will return <code><strong>True</strong></code> if the string can be parsed into a number between 1 and 100, and <code><strong>False</strong></code> otherwise.</li>
+</ul>
+<p>&nbsp;</p>
+<h3>Test Mode</h3>
+<p>Test Mode is a valuable feature that allows you to enter a string value and verify that your expression functions as expected, reducing the chance of errors. You can use it to fine-tune your expressions to suit your needs.</p>
+<p>Remember that all evaluators operate on strings, and they're compatible with any Unicode-compatible language. There are no limitations to the type of expressions you can create, and EyeAuras will warn you if your expression is not valid.</p>

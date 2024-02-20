@@ -1,0 +1,45 @@
+<!--
+title: AI Search
+description: uses machine learning to recognize and track objects in the specified game window, providing flexible and powerful game interaction options.
+published: true
+date: 2023-06-18T13:58:49.301Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-06-18T13:58:48.187Z
+-->
+
+<p>The AI Search Trigger in EyeAuras utilizes machine learning (AI) to detect and identify objects in captured images from a specified window. The trigger uses a pre-trained machine learning model to recognize the objects and can be tuned to activate under specific conditions based on the recognized objects.</p>
+<p>&nbsp;</p>
+<h4>Capture Options</h4>
+<p>Capture options for the AI Search Trigger are the same as for other Image Capture Triggers. They control how and when EyeAuras captures the image to process. For detailed information on how these options work, refer to the <a href="https://wiki.eyeauras.net/en/triggers/images/imagecapturetriggers"><u>Image Capture Triggers page</u></a>.</p>
+<p>&nbsp;</p>
+<h4>ML Model</h4>
+<p>The AI Search Trigger supports YOLOv3 models in ONNX format for object detection, segmentation, and classification. Detailed documentation for creating and using these models can be found <a href="https://docs.ultralytics.com/"><u>here</u></a>.</p>
+<p>&nbsp;</p>
+<h4>ML Class</h4>
+<p>Users can specify the class of objects that the trigger should identify. If your model contains metadata for class names, you can select a specific class for EyeAuras to look for. By default, the trigger will consider "any class".</p>
+<p>&nbsp;</p>
+<h4>Match Threshold</h4>
+<p>All matches with a confidence score below this threshold will be discarded. The trigger activates when there is at least one match above the specified threshold.</p>
+<p>&nbsp;</p>
+<h4>IoU Threshold</h4>
+<p>Intersection over Union (IoU) is an evaluation metric used to measure the accuracy of an object detector on a particular dataset. More about this <a href="https://www.pyimagesearch.com/2016/11/07/intersection-over-union-iou-for-object-detection/"><u>here</u></a>.</p>
+<p>&nbsp;</p>
+<h4>Calculation Threads / InterOp Threads</h4>
+<p>The number of CPU threads EyeAuras will use to get the results. More threads will yield faster results, but place a higher load on the system.</p>
+<p>&nbsp;</p>
+<h3><strong>Application in Gaming</strong></h3>
+<p>Here are some examples of how the AI Search Trigger might be used in games:</p>
+<ul>
+  <li><strong>Object Detection in Complex Games</strong>: ML Search can be used to detect complex objects in games, where static image recognition would not suffice. For instance, locating a specific type of enemy or NPC in an MMO.</li>
+  <li><strong>Dynamic Environment Interaction</strong>: ML Search can detect changes in the environment, triggering specific actions. For example, navigating a changing maze or avoiding dynamic obstacles.</li>
+  <li><strong>Image Classification for Strategy</strong>: In strategy games, ML Search can classify different types of units or buildings, allowing for strategic decisions based on the current game state.</li>
+  <li><strong>Game State Recognition</strong>: ML Search can be used to recognize different game states (like menu screens, gameplay, cutscenes, etc.) and trigger appropriate actions.</li>
+  <li><strong>Inventory Management</strong>: ML Search can be used to recognize and manage items in an inventory, useful in RPGs or survival games with complex inventory systems.</li>
+  <li><strong>Character Health Monitoring</strong>: In games where health bars might change visually or are artistically designed, ML Search can accurately detect the status of the health bar and trigger actions when health drops below a certain threshold.</li>
+  <li><strong>Enemy Recognition</strong>: ML Search can recognize specific enemy types and trigger different strategies for dealing with each type.</li>
+  <li><strong>Automated Exploration</strong>: ML Search can help navigate unknown or procedurally generated environments by identifying landmarks or path indicators.</li>
+  <li><strong>Interaction Detection</strong>: ML Search can detect when certain in-game interactions occur, such as receiving a friend request or being attacked, and react accordingly.</li>
+  <li><strong>Behavior-Based Actions</strong>: ML Search can detect behaviors or patterns in a game that may not have a distinct visual marker but might be recognizable through ML, such as detecting player movements or patterns in enemy behavior.</li>
+</ul>
+<p>For more information about training a model for use with the AI Search Trigger, refer to Yolo <a href="https://docs.ultralytics.com/tasks/detect/#train"><u>Model Training Guide</u></a>.</p>

@@ -1,0 +1,22 @@
+<!--
+title: Enabling Conditions
+description: 
+published: true
+date: 2023-02-16T20:26:29.164Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-02-16T20:13:29.512Z
+-->
+
+<p>In many-many scenarios you do not really want for <strong>ALL </strong>your auras to work - process data, do image/text search, scan files, etc. You may need only a subset of them active at any given moment under some set of conditions.</p>
+<blockquote>
+  <p>For example, imagine that you have a set of auras that scans your screen and tries to find some NPC name/image. But you know for a fact, that this NPC only spawns outside city area, which means that whenever you're standing in the city it does not make any sense to do the scanning. Moreover, outside the city doing the scan may lead to false-positive activations of your ImageSearch and nobody wants that.</p>
+</blockquote>
+<p>To solve this problem <strong>Enabling Conditions </strong>were created. At the very core they are <strong>Triggers, </strong>but serve the different purpose. Triggers are responsible for Activating/Deactivating aura and Enabling Conditions are responsible for fully disabling aura. If aura is disabled Triggers are not calculated at all thus preserving CPU/GPU resources AND protecting your scripts from undesired activations.&nbsp;</p>
+<p><strong>Enabling Conditions</strong> could be created either at:</p>
+<ul>
+  <li><strong>Folder level</strong> - ALL auras withing this folder will be affected, even inside subfolders.&nbsp;</li>
+  <li><strong>Aura level</strong> - only this specific aura will be affected</li>
+</ul>
+<p>Parent takes precedence, i.e. if <strong>Folder's </strong>conditions are not met <strong>Aura's </strong>conditions will not even be calculated and Aura will be considered <strong>disabled.</strong></p>
+<p>The same approach applies when there are multiple nested folders with different conditions - if parent folder is disabled (conditions are not met), then sub-folders will be considered disabled as well.&nbsp;</p>

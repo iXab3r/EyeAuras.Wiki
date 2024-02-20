@@ -1,0 +1,34 @@
+<!--
+title: Common Options
+description: 
+published: true
+date: 2023-06-18T16:39:19.091Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-06-18T16:39:17.957Z
+-->
+
+<p>Overlays in EyeAuras are visual indicators displayed when an Aura is active. They provide a way to add on-screen cues or instructions to guide your automation steps. Each Overlay has a set of common attributes that determine its behavior and appearance.</p>
+<p>&nbsp;</p>
+<h3><strong>IsLocked</strong></h3>
+<p>The <code><strong>IsLocked</strong></code> option allows you to control the mobility of the overlay. When an overlay is unlocked, it can be moved around the screen, and it's displayed regardless of whether the Aura that contains it is active or not. This feature is particularly useful when configuring the overlay's position and previewing its appearance.</p>
+<p>&nbsp;</p>
+<h3><strong>Position, Offset and Anchors</strong></h3>
+<p>The position of an overlay is determined by its X (horizontal) and Y (vertical) coordinates, as well as its width and height.</p>
+<p>The <code><strong>Offset</strong></code> settings (X, Y, Width, Height) are also used to define the position of an overlay. They are added to the Position values to calculate the overlay's final position. For instance, if the Position is set at (100, 100) and the Offset is (10, 20), the final position of the overlay will be (110, 120).</p>
+<p><a href="/en/coordinate-system">More information is available here</a></p>
+<p>&nbsp;</p>
+<h3><strong>Opacity</strong></h3>
+<p>The <code><strong>Opacity</strong></code> option determines the transparency of the overlay. A value of 0 makes the overlay fully transparent, while a value of 1 makes it fully opaque.</p>
+<p>&nbsp;</p>
+<h3><strong>Background Color</strong></h3>
+<p>This option allows you to specify the background color of the overlay. The overlay can also be made transparent.</p>
+<p>&nbsp;</p>
+<h3><strong>Click-through</strong></h3>
+<p>The <code><strong>Click-through</strong></code> option makes the overlay transparent to user clicks. This means that any clicks on the overlay will be registered as clicks on whatever is beneath the overlay. Please note that this option is not functional when the overlay is unlocked.</p>
+<p>&nbsp;</p>
+<h3><strong>Aspect Ratio</strong></h3>
+<p>Supported by some overlays, the <code><strong>Aspect-ratio</strong></code> feature ensures that the overlay maintains the aspect ratio of its content, such as an image, when resized.</p>
+<p>&nbsp;</p>
+<h3><strong>Border Thickness and Color</strong></h3>
+<p>You can control the thickness of the overlay's border using the <code><strong>Border thickness</strong></code> option. You can also define its color with the <code><strong>Border color</strong></code> setting.</p>

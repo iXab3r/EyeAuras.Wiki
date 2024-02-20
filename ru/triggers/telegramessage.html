@@ -1,0 +1,26 @@
+<!--
+title: Telegram Message
+description: 
+published: true
+date: 2022-11-02T15:02:56.038Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-11-02T15:01:05.360Z
+-->
+
+<p>Появилась возможность настроить реакцию программы на получение определенных сообщений в Телеграм !&nbsp;</p>
+<p>Это может быть как некая ключевая строка (поддерживается проверка по частичному совпадению, <a href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=&amp;cad=rja&amp;uact=8&amp;ved=2ahUKEwjB-vaay_z1AhWFzosKHQmKAsYQFnoECA4QAQ&amp;url=https%3A%2F%2Fru.wikipedia.org%2Fwiki%2F%25D0%25A0%25D0%25B5%25D0%25B3%25D1%2583%25D0%25BB%25D1%258F%25D1%2580%25D0%25BD%25D1%258B%25D0%25B5_%25D0%25B2%25D1%258B%25D1%2580%25D0%25B0%25D0%25B6%25D0%25B5%25D0%25BD%25D0%25B8%25D1%258F&amp;usg=AOvVaw2zFOj6HLyxtO74CJIvjl3G">регулярные выражения</a>), так и <strong>C#</strong> функции (можно выполнять любые действия над входной строкой, главное чтобы результатом функции было булевое значение).&nbsp;</p>
+<p>Для того, чтобы воспользоваться этим функционалом вам нужно будет зарегистрировать себе Телеграм бота, которому вы или кто-либо еще будет писать сообщения, на которые будет реагировать программа. Само создание бота занимает не больше 10 минут даже если вы делаете это впервые. Самая важная часть это получить токен бота, который позволит вам подписаться на сообщения от него, равно как и отправлять от его имени информацию с помощью действия <strong>Send To Telegram</strong></p>
+<p>Источники информации по регистрации:</p>
+<ul>
+  <li>Официальная документация, раздел BotFather:&nbsp;<a href="https://tlgrm.ru/docs/bots"> </a><a href="https://tlgrm.ru/docs/bots#botfather">Документация Telegram: Боты (tlgrm.ru)</a></li>
+  <li>Инструкция на SendPulse с картинками: <a href="https://sendpulse.com/ru/knowledge-base/chatbot/create-telegram-chatbot">Как подключитьTelegram чат-бот | SendPulse</a></li>
+</ul>
+<p>Есть возможность протестировать как именно будет вести себя ваше выражение если будет получен какой-либо текст.&nbsp;</p>
+<ul>
+  <li><strong>Text or expression - </strong>здесь указывается текст, регулярное выражение или C# функция, которая будет выполняться над полученным текстом<strong>&nbsp;</strong></li>
+  <li><strong>Input test text - </strong>тестовая входная строка имитирующая полученное сообщение</li>
+  <li><strong>Matching text - </strong>для регулярного выражения - первая успешно сматчившаяся группа, для текста и C# - полная входная строка в случае успешного сравнения</li>
+</ul>
+<p>&nbsp;</p>
+<figure class="image"><img src="https://eyeauras.net/uploads/ODK_Fb_Oy_76969f0b38.png"></figure>

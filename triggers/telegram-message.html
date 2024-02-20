@@ -1,0 +1,46 @@
+<!--
+title: Telegram Message
+description: listens for user-specified messages sent across Telegram channel, allowing for synchronized control and data sharing
+published: true
+date: 2023-06-18T13:18:00.478Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-12-20T17:35:23.602Z
+-->
+
+<p>This trigger allows you to configure reaction to messages in one of your Telegram channels.</p>
+<p>As with all other text-matching triggers this trigger supports <a href="https://wiki.eyeauras.net/en/text-match-expressions">Text Match Expressions</a></p>
+<p>Prior to usage of this trigger you'll have to establish Telegram bot which will maintain the channel subscription. It is quite an easy task, but could be a bit overwhelming first time you'll try to do it, luckily, there is a number of different guides out there in the web.&nbsp;</p>
+<p>The most crucial part of that process is retrieving Token, which will be used by EyeAuras to impersonate Bot and retrieve messages from the channel</p>
+<p>Helpful docs about TG bots:</p>
+<ul>
+  <li>Official docs, BotFather section:&nbsp;<a href="https://tlgrm.ru/docs/bots"> </a><a href="https://tlgrm.ru/docs/bots#botfather">Документация Telegram: Боты (tlgrm.ru)</a></li>
+  <li>Instruction with images on how to configure chat-bot: <a href="https://sendpulse.com/ru/knowledge-base/chatbot/create-telegram-chatbot">Как подключитьTelegram чат-бот | SendPulse</a></li>
+</ul>
+<figure class="image"><img src="https://eyeauras.net/uploads/ODK_Fb_Oy_76969f0b38.png"></figure>
+<p>&nbsp;</p>
+<h3>How to get Telegram Bot Token</h3>
+<ol>
+  <li>Open Telegram client (desktop/mobile does not really matter)</li>
+  <li>Find bot <strong>BotFather</strong></li>
+  <li>Type <strong>/newbot</strong></li>
+  <li>Choose and type some name for your new bot, it does not have to be unique, e.g. “MyAwesomeNewTelegramBot”</li>
+  <li>Choose and type username for your new bot, it has to be unique and has to end with “bot”, .e.g “MyAwesomeNewTelegramBot” (it will be taken and you'll have to pick something new)</li>
+  <li>That's it! If you've done everything correctly, <strong>BotFather </strong>should provide you with <strong>Bot Token</strong></li>
+</ol>
+<p>Example:</p>
+<figure class="image"><img src="/telegram_3uc3q03fas.png"></figure>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3>How to get Chat Id</h3>
+<ol>
+  <li>Create new group in Telegram or open existing one</li>
+  <li>Click on <strong>Add Member</strong> button</li>
+  <li>Find and add <strong>YOUR_BOT_NAME </strong>(username of the bot you've created previously, e.g. <strong>MyAwesomeNewTelegramBot</strong>)</li>
+  <li>Find and add <strong>Show Json Bot</strong></li>
+  <li>(optional) Click on Create - this is needed only if you're creating a new and fresh TG group</li>
+  <li><strong>Show Json Bot </strong>will print a JSON which will contain ChatId</li>
+</ol>
+<figure class="image"><img src="/telegram_ive2xr6teu.png"></figure>
+<p>&nbsp;</p>
+<p>&nbsp;</p>

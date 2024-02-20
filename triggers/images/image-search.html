@@ -1,0 +1,41 @@
+<!--
+title: Image Search
+description: allows you to specify an image for EyeAuras to search within a captured window or region. Supporting transparent images, it employs optimization techniques for efficient, fast search.
+published: true
+date: 2023-06-18T13:43:49.673Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-06-18T13:24:03.149Z
+-->
+
+<p>Image Search Trigger is a powerful tool within EyeAuras that allows you to specify an image that EyeAuras will search for within a captured window or a specific region of it. This feature even supports the search for transparent images, making it versatile and easy to use. While it's equipped with several image search optimization techniques for speed and resource efficiency, try to narrow down the search region as much as possible for optimal performance.</p>
+<p>&nbsp;</p>
+<h3><strong>Target Window</strong></h3>
+<p>This field lets you specify the window where EyeAuras should look for the image. You can do this by providing a <a href="https://wiki.eyeauras.net/e/en/window-match-expressions"><u>Window Match Expression</u></a>.</p>
+<p>&nbsp;</p>
+<h3><strong>Image</strong></h3>
+<p>This field is where you load the image you want EyeAuras to search for within the target window. This image is preserved within the trigger and it can be loaded from a file. The file itself won't affect the operation of EyeAuras once the image is loaded. Transparent images are also supported and EyeAuras will discard parts which are marked as transparent during comparison.</p>
+<p>&nbsp;</p>
+<h3><strong>Match Threshold</strong></h3>
+<p>The Match Threshold represents the level of similarity between the selected image and the captured image content from the target window. If this similarity percentage reaches or exceeds the threshold, the trigger will activate. If it falls below, it will deactivate.</p>
+<p>&nbsp;</p>
+<h3><strong>Capture Options</strong></h3>
+<p>These options, which include Max/Min FPS, region, and more, are similar to those in Color Search, ML Search, and Text Search. Use these options to refine the search process. <a href="/en/triggers/images/imagecapturetriggers">/en/triggers/images/imagecapturetriggers</a></p>
+<p>Remember, the Image Search Trigger, like all other triggers in EyeAuras, can be used in combination with any other triggers and actions. This makes it a highly versatile tool in your EyeAuras toolkit.</p>
+<p>Note: While this trigger is designed for high performance, even in negative scenarios (where the image isn't found), the cost of a search can still be significant. Therefore, refining your search region as much as possible is recommended. If your use-case involves the rotation or scaling of the image, consider using ML Search, a machine-learning-powered image search that doesn't mind such transformations.</p>
+<p>&nbsp;</p>
+<p><strong>Gaming Applications Examples:</strong></p>
+<ul>
+  <li><strong>Gameplay Automation:</strong> In a game where you need to interact with a particular icon or character, you can use the Image Search Trigger to identify the presence of that icon or character within the game window. Once identified, you can couple this trigger with an action to automate gameplay.</li>
+  <li><strong>Monitoring Application States:</strong> If a particular image or icon appears only when an application is in a certain state, you can use the Image Search Trigger to monitor that state. For example, a specific icon might appear on your email application only when you have unread mail. You could use the Image Search Trigger to activate an action when the icon appears, notifying you of the unread emails.</li>
+  <li><strong>Ability Cooldown Detection:</strong> In games with abilities or spells that go on cooldown after use, you can set an Image Search Trigger to identify the 'on-cooldown' icon. When it disappears, you can activate an action to notify you that the ability is ready.</li>
+  <li><strong>Loot Detection:</strong> In loot-based games, you can use the trigger to identify rare loot drop icons. Once identified, you can automatically play a notification, alerting you</li>
+  <li><strong>Enemy Recognition:</strong> If you're playing a game where specific enemies need to be targeted, this trigger can recognize the enemy's icon or image and then use the "Send Input" action to target them.</li>
+  <li><strong>Health/Mana Bar Monitoring:</strong> Use it to detect the 'low-health' or 'low-mana' icon in games. When detected, it can trigger an action to automatically use a health or mana potion.</li>
+  <li><strong>Player Status Monitoring:</strong> Monitor player statuses like 'Stunned', 'Silenced', etc., in MOBA or MMORPG games. When the status icon disappears, an action can be triggered to resume attack or casting spells.</li>
+  <li><strong>Mini-Map Monitoring:</strong> You can detect specific events on the mini-map such as enemy movement, pings, etc., and trigger a 'Send Network Message' action to alert your team.</li>
+  <li><strong>Item or Resource Gathering:</strong> In games where you gather resources or items, you can use the trigger to detect the 'resource depleted' or 'inventory full' icon and automatically switch to a different task.</li>
+  <li><strong>Menu Navigation:</strong> For games that require complex menu navigation, you can use the Image Search Trigger to detect specific menu icons or elements and automate the navigation process with "Send Input" action.</li>
+  <li><strong>AFK Detection:</strong> Some games display a specific icon or image when the player is AFK. You can set a trigger to detect this and automatically perform an action to prevent the AFK state.</li>
+  <li><strong>Game State Monitoring:</strong> In a game that has different phases (day/night cycle, safe zone/war zone, etc.), you can use the trigger to detect the icons representing these states and perform appropriate actions. For example, in a day/night cycle game, you could use the Image Search Trigger to activate 'night vision' when the 'night-time' icon appears.</li>
+</ul>

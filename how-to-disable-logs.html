@@ -1,0 +1,42 @@
+<!--
+title: Peformance - Logs
+description: 
+published: true
+date: 2023-06-18T14:19:51.979Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-01-17T20:54:14.310Z
+-->
+
+<p>Changing log level may positively affect application performance but will drastically reduce chances of finding/fixing potential issues via logs.&nbsp;</p>
+<p>Log level usually defines how important corresponding message is. Examples:</p>
+<ul>
+  <li>TRACE Lowest possible level, disabled by default because amount of logs will be simply unmanageable. Stuff like memory allocation is logged with this level.</li>
+  <li>DEBUG Stuff like application behaviour is logged here. Usually it's useful only for app developer</li>
+  <li>INFO Messages which could potentially be understood and interpreted by end-user</li>
+  <li>WARN This level is used when something unexpected/unusual has happened and it may potentially affect app behaviour, but it is not critical. For example, if application update server is not available it's unpleasant, but not life-threatening</li>
+  <li>ERROR Something really bad has happened. In many cases it may lead to bugs and in worst cases it may crash application</li>
+</ul>
+<p>By default, EyeAuras uses <strong>DEBUG </strong>log level.&nbsp;</p>
+<p>&nbsp;</p>
+<h4>How to change log level manually via UI</h4>
+<ol>
+  <li>Open Settings</li>
+  <li>Switch to “Only warnings and errors”</li>
+  <li>Click Save</li>
+  <li>That's it. You do not need to restart the app or do anything else - from now on, app will log only warnings and errors.</li>
+</ol>
+<figure class="image"><img src="/4w4qwwx[1].png"></figure>
+<p>&nbsp;</p>
+<h4>How to change log level manually via log4net.config</h4>
+<ol>
+  <li>Open the following directory(copy&amp;paste into Explorer): <strong>%localappdata%\EyeAuras</strong></li>
+  <li>There will be multiple versions of EyeAuras (usually there are 2 versions, latest and backup). When you start EyeAuras latest version is used in all cases.</li>
+  <li>Go to folder with latest version, e.g. for <strong>EyeAuras v1.2.4177</strong> folder will have name “<strong>app-1.2.4177</strong>”</li>
+  <li>Open file “<strong>log4net.config</strong>” in your favourite text editor</li>
+  <li>Find the following line “<strong>&lt;level value="DEBUG" /&gt;</strong>”, usually it's at the very bottom</li>
+  <li>Change <strong>“DEBUG” to “WARN”</strong></li>
+  <li>Save file</li>
+  <li>From now on, only messages of <strong>WARN </strong>and <strong>ERROR </strong>level will be saved to log files thus drastically reducing any requirements for disk I/O</li>
+</ol>
+<p>That's it. There is no need to restart EyeAuras as it will automatically apply your changes. <strong>This will work only until application will update to the next version. You will have to repeat all steps after update.</strong> There is no built-in mechanism (yet) for changing log-level.</p>

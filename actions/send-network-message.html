@@ -1,0 +1,33 @@
+<!--
+title: Send Network Message
+description: lets users transmit custom messages across specified network channels, coordinating tasks among applications or integrating third-party services.
+published: true
+date: 2023-06-18T14:40:19.890Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-06-18T14:40:18.159Z
+-->
+
+<p>The "Send Network Message" action is a powerful feature in EyeAuras that allows users to send custom messages over specified network channels. This can be useful in various contexts, such as coordinating tasks between different instances of an application, triggering events across different applications, or for integrating with third-party services and applications.</p>
+<p>&nbsp;</p>
+<h3><strong>Options:</strong></h3>
+<p><strong>Channel:</strong> This specifies the network channel that the message will be sent to. It can be any string value. The network channel works like a radio channel, where a message sent on one channel can be received by any trigger listening to that same channel. Click on a button to generate new random ID or input the channel manually if you already know it.</p>
+<p><strong>Message:</strong> This is the actual message that will be sent on the channel. It can be any string value.</p>
+<p>&nbsp;</p>
+<h3><strong>Usage:</strong></h3>
+<p><strong>Define the channel and message:</strong> In the EyeAuras interface, you can specify the network channel and the message to be sent when the action is executed.</p>
+<p><strong>Send the message:</strong> When the action is triggered, the message is sent over the specified network channel.</p>
+<p><strong>Listen for the message:</strong> Any instance of EyeAuras listening to that same channel can receive the message and trigger its own set of actions. This is done through the "<a href="/en/actions/send-network-message">Network Message Trigger</a>", which is set to listen for messages on a specified channel.</p>
+<p>The "Send Network Message" action is versatile and can be used in a variety of gaming and non-gaming contexts. For example, you could use it to synchronize actions between multiple instances of a game.</p>
+<p>Remember, in order to receive and process a network message, you must set up a "<a href="/en/actions/send-network-message">Network Message Trigger</a>" to listen to the specified channel and define the actions that should be taken upon receiving the message. You can refer to the documentation for the "<a href="/en/triggers/network-message">Network Message Trigger</a>" for more details.</p>
+<p>&nbsp;</p>
+<h3><strong>Examples</strong></h3>
+<p><strong>Multi-Character MMO Control</strong></p>
+<p>Suppose you're controlling multiple characters in an MMO running on separate PCs. By setting a HotkeyIsActive trigger and "Send network message" action, you can control all your characters simultaneously. Sending the message "start" would make your characters follow you, assist, gather loot, etc. Sending "stop" halts their actions.</p>
+<p><strong>Information Gathering</strong></p>
+<p>In a similar setting, you could configure your bots to listen to a specific message, e.g., "report". Upon receiving this message, they could send back information such as their online time, total amount of EXP/gold farmed since the last report, etc. This allows for quick and efficient information gathering without the need to individually log into each PC.</p>
+<p><strong>Remote Control for Presentation</strong></p>
+<p>In a professional setting, you could use EyeAuras to remotely control a presentation. You can configure your EyeAuras instance to listen for messages such as "next", "previous", or "slide_number". These can be linked to actions that simulate pressing the right/left arrow keys or inputting a specific slide number, effectively allowing you to control the presentation remotely.</p>
+<p><strong>Home Automation System</strong></p>
+<p>If you have a home automation system set up with the help of EyeAuras, you could use the Network Message trigger to synchronize actions across different systems. For instance, a message like "lights_on" could activate triggers that switch on lights in different rooms.</p>
+<p>The Network Message trigger, paired with the "Send network message" action, provides a powerful tool for communication and synchronization between different EyeAuras instances. This feature is highly flexible, allowing users to establish complex network protocols and remote control setups tailored to their needs.</p>

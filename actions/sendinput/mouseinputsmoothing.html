@@ -1,0 +1,31 @@
+<!--
+title: Mouse Input Smoothing
+description: 
+published: true
+date: 2022-12-26T13:58:07.389Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-12-25T20:38:37.667Z
+-->
+
+<h2>Why do I need it?</h2>
+<p>In real-world mouse movement is not instant and is usually determined by how often your device reports its position to OS. For gaming devices, it could be in range of hundreds and even thousands of input events per second.&nbsp;</p>
+<p>This makes our mouse movement to appear smooth even when you do 360-no-scope-flickshot. And applications know for a fact, that there is almost never such thing as instant “teleports" of cursor (still possible if OS or app is lagging).&nbsp;</p>
+<p>Considering the fact that EyeAuras is able to simulate mouse input it has to “mask” simulated input and make it appear to OS like “real” input. This where smoothing comes into play - it makes instant movement from point A to point B look more human by injecting dozens of extra inputs instead of straight A → B</p>
+<h2><br>How to use User Input Smoothing?</h2>
+<p>This is configured in <strong>Advanced </strong>section of <strong>SendInput/Sequence/Text</strong> actions.&nbsp;</p>
+<p>By default, smoothing is disabled. This was the only option for versions of up to <strong>1.2.4153 (Dec 2022).</strong></p>
+<p>There are multiple algorithms(described below), pick one that fits you best by trial-and-error approach. In most cases <strong>Randomized Fast</strong> should work just fine.&nbsp;</p>
+<p>&nbsp;</p>
+<h2>Smoothing algorithms</h2>
+<p>&nbsp;</p>
+<h3>Disabled</h3>
+<p>No smoothing is applied, mouse movement is instantaneous.</p>
+<p>&nbsp;</p>
+<h3>Linear</h3>
+<p>Makes linear approximation of mouse movement. Does not look very human to a naked eye, but enough to fool protection and input-detection systems in most games.&nbsp;</p>
+<figure class="image"><img src="/g100_wnd1_w5-10_s10_a1.gif"></figure>
+<p>&nbsp;</p>
+<h3>Randomized</h3>
+<p>Applies random seed to all inputs making it look much more humane.&nbsp;</p>
+<figure class="image"><img src="/g6_wnd2_w1-5_s10_a10.gif"></figure>
