@@ -2,11 +2,14 @@
 title: Hello, world!
 description: 
 published: true
-date: 2024-02-20T19:56:21.080Z
+date: 2024-02-23T23:15:16.612Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-20T19:56:21.080Z
 ---
+
+> Импортировать готовый пример можно отсюда https://eu.eyeauras.net/share/S20240223231508UC4AdkJYNJjI
+{.is-info}
 
 # Ббббаза 
 ## Создаем ауру
