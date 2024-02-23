@@ -2,7 +2,7 @@
 title: Как найти цвет
 description: 
 published: true
-date: 2024-02-23T22:58:56.886Z
+date: 2024-02-23T23:01:14.212Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-23T22:58:56.886Z
@@ -12,6 +12,10 @@ dateCreated: 2024-02-23T22:58:56.886Z
 > Импортировать готовый пример можно отсюда https://eu.eyeauras.net/share/S20240223225316w1ZpWARHUMIf
 {.is-info}
 
+1. Создаем ауру(в примере называется FindColor), кидаем в нее триггер Color Search
+2. В триггере указываем где искать, какой цвет и т.п. 
+3. Создаем ауру со скриптом
+4. Копипастим, запускаем, если все хорошо - скрипт напечатает координаты найденной зоны
 
 ```csharp
 var trigger = AuraTree.FindAuraByPath(@".\FindColor") // находим ауру по имени
