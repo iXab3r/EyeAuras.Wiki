@@ -2,23 +2,23 @@
 title: Как найти цвет
 description: 
 published: true
-date: 2024-02-23T23:01:14.212Z
+date: 2024-02-23T23:03:50.178Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-23T22:58:56.886Z
 ---
 
 ## Выводим координаты найденного цветного прямоугольника
-> Импортировать готовый пример можно отсюда https://eu.eyeauras.net/share/S20240223225316w1ZpWARHUMIf
+> Импортировать готовый пример можно отсюда https://eu.eyeauras.net/share/S20240223230313LBOJUBwnUmRU
 {.is-info}
 
-1. Создаем ауру(в примере называется FindColor), кидаем в нее триггер Color Search
+1. Создаем ауру(в примере называется ColorSearch), кидаем в нее триггер Color Search
 2. В триггере указываем где искать, какой цвет и т.п. 
 3. Создаем ауру со скриптом
 4. Копипастим, запускаем, если все хорошо - скрипт напечатает координаты найденной зоны
 
 ```csharp
-var trigger = AuraTree.FindAuraByPath(@".\FindColor") // находим ауру по имени
+var trigger = AuraTree.FindAuraByPath(@".\ColorSearch") // находим ауру по имени
     .Triggers.Items // перебираем все триггеры
     .OfType<IColorSearchTrigger>() // и находим триггеры "Поиск цвета"
     .First(); // из всех берем первый, если не найдено - будет ошибка
