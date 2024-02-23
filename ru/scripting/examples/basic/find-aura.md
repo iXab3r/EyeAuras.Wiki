@@ -1,8 +1,8 @@
 ---
-title: Как найти ауру?
+title: Как найти ауру
 description: 
 published: true
-date: 2024-02-20T21:12:30.594Z
+date: 2024-02-23T23:12:42.645Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-20T20:35:06.280Z
