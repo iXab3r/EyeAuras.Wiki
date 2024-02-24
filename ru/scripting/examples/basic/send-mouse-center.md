@@ -2,13 +2,12 @@
 title: Переводим мышь в центр экрана
 description: 
 published: true
-date: 2024-02-24T00:47:33.928Z
+date: 2024-02-24T00:47:44.678Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-24T00:47:33.928Z
 ---
 
-## Переводим курсор в центр экрана
 > Импортировать готовый пример можно отсюда https://eu.eyeauras.net/share/S202402240046520BBKcR6QKL07
 {.is-info}
 
