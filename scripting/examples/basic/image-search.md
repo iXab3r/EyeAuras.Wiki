@@ -6,13 +6,13 @@
 1. Create an aura (named ImageSearch in the example) and add the Image Search trigger to it.
 2. Specify what to search for, where, etc., in the trigger.
 3. Create an aura with a script.
-4. Copy and paste the script, run it, and if everything is fine, the script will print the coordinates.
+4. Copy and paste the code, run it, and if everything is correct, the script will print the coordinates.
 
 ```csharp
 var trigger = AuraTree.FindAuraByPath(@".\ImageSearch") // find the aura by name
     .Triggers.Items // iterate through all triggers
-    .OfType<IImageSearchTrigger>() // find triggers of type "Image Search"
-    .First(); // take the first one, an error will occur if not found
+    .OfType<IImageSearchTrigger>() // find triggers for "Image Search"
+    .First(); // take the first one; an error will occur if not found
 
 var matchResult = trigger.Refresh(); // instruct the trigger to perform the search
 
@@ -22,7 +22,7 @@ if (matchResult.Detected.Success == false) {
     return;
 }
 
-// found the color, get the local (window) coordinates
+// found the image, get the local (window) coordinates
 var localRect = matchResult.Detected.Bounds.Value;
 
 // convert to screen coordinates

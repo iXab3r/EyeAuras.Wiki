@@ -10,8 +10,8 @@
 5. Pressing `F3` will move the cursor to the center of the primary screen.
 
 ```csharp
-var sendInputApi = GetService<ISendInputUnstableScriptingApi>(); // needed for sending input
-var screenSize = System.Windows.Forms.SystemInformation.PrimaryMonitorSize; // get the size of the primary screen
+var sendInputApi = GetService<ISendInputUnstableScriptingApi>(); // needed for input sending
+var screenSize = System.Windows.Forms.SystemInformation.PrimaryMonitorSize; // get the primary screen size
 Log.Info($"Primary monitor size: {screenSize}");
 
 sendInputApi.MouseMoveTo(screen

@@ -13,7 +13,7 @@
 
 ```csharp
 var sendInputApi = GetService<ISendInputUnstableScriptingApi>(); 
-sendInputApi.Text("Hello, world!"); // types with the default interval (random, 1-5ms)
+sendInputApi.Text("Hello, world!"); // types with the standard interval (random, 1-5ms)
 
 sendInputApi.KeyPressDelay = new RandomInteger(5, 15); // changes the interval to 5-15ms
 sendInputApi.Text("\nthis one is a bit slower"); 
@@ -21,5 +21,5 @@ sendInputApi.Text("\nthis one is a bit slower");
 sendInputApi.Text("\nand this one is very slow!", delayMs: 30); // types with a 30ms interval
 ```
 
-> In the example, the special character `\n` at the beginning of the lines indicates a line break.
+> In the example, special character `\n` at the beginning of the lines indicates a line break.
 {.is-info}

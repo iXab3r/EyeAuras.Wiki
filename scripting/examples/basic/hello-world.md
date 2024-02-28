@@ -4,7 +4,7 @@
 {.is-info}
 
 ## Creating an Aura
-Well, there's no screenshot here, sorry.
+Well, no screenshot here, sorry.
 
 ## Creating a C# Script Action
 ![](https://i.imgur.com/mz7CUzL.png)
@@ -13,16 +13,17 @@ Well, there's no screenshot here, sorry.
 ```csharp
 Log.Info("Hello, world!");
 ```
+
 ## Pressing Run
 ![](https://i.imgur.com/VP8JnWk.png)
 
 ## Voila!
 ![](https://i.imgur.com/JeZXXU8.png)
 
-Congratulations, this was officially the first step towards mighty scripts of the future.
+Congratulations, this was officially the first step towards powerful scripts of the future.
 
 # Oh, Manually Clicking Run Isn't Cool
-To make it not so straightforward, let's make our script run only when a certain key is pressed, for example, let it be `F1`.
+To make it a bit more interesting, let's set up our script to run only when a specific key is pressed, for example, let it be `F1`.
 
 ## Adding the HotkeyIsActive Trigger to the Aura
 ![](https://i.imgur.com/j7ma0e1.png)
@@ -30,7 +31,7 @@ To make it not so straightforward, let's make our script run only when a certain
 ## Switching it to `Click/Hold` mode and setting it to `F1`
 ![](https://i.imgur.com/s3eKrnp.png)
 
-`Click/Hold` is needed to deactivate the trigger immediately after pressing. That is, by pressing `F1` twice, we will execute our script twice. The `Toggle` mode would toggle the trigger on and off with each press, and since our action is in the OnEnter block, double pressing would execute our script only **once**.
+`Click/Hold` is used to deactivate the trigger immediately after pressing. So, by pressing `F1` twice, we will execute our script twice. The `Toggle` mode would toggle the trigger on and off with each press. Since our action is in the OnEnter block, double pressing would execute our script only **once**.
 
 ## All Set!
-Now, every time you press `F1`, your script will print to the `Event Log`. Of course, this is not the most exciting thing we can do, but we'll cover more in the following examples.
+Now, every time you press `F1`, your script will print to the `Event Log`. Of course, this is not the most exciting thing we can do, but we'll explore more in the following examples.

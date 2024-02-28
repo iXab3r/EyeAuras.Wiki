@@ -42,26 +42,3 @@ public interface IVariablesScriptingApi : IScriptingApi, IVariablesAccessor
     ScriptVariable<T> Get<T>(IHasVariables source, string variableName);
     
     /// <summary>
-    /// Gets the total number of variables managed by the accessor.
-    /// </summary>
-    int Count { get; }
-
-    /// <summary>
-    /// Determines whether a variable with the specified name exists.
-    /// </summary>
-    /// <param name="variableName">The name of the variable to check.</param>
-    /// <returns>true if the variable exists; otherwise, false.</returns>
-    bool Contains(string variableName);
-
-    /// <summary>
-    /// Adds a new variable or updates an existing variable with the specified value.
-    /// </summary>
-    /// <typeparam name="T">The type of the variable's value.</typeparam>
-    /// <param name="variableName">The name of the variable.</param>
-    /// <param name="value">The value of the variable.</param>
-    void AddOrUpdate<T>(string variableName, T value);
-
-    /// <summary>
-    /// Adds a new variable or updates an existing variable with a value determined by the updater function.
-    /// </summary>
-    /// <typeparam name="T">The

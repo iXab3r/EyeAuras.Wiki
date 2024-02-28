@@ -1,37 +1,38 @@
 ---
 title: Sandbox
-description: Overview of the sandbox functionality for running scripts.
+description: An explanation of the sandbox where scripts are executed, its purpose, and the basic functionalities it provides.
 published: true
 date: 2024-02-20T19:26:43.431Z
-tags: sandbox, logging, sleep, dependency injection
+tags: sandbox, logging, sleep method, dependency injection
 editor: markdown
 dateCreated: 2024-02-20T19:26:43.431Z
 ---
 
 # What Is It Exactly?
-The sandbox is where your scripts are executed. From a code perspective, it is a class that all user scripts inherit from and have some level of control over.
+The sandbox is where your scripts run. From a code perspective, it's a class that all user scripts inherit from and have some level of control over.
 
 # Why Is It Needed?
 ### Stores **state** between runs
 When you create a property or service, draw an image on the screen, or recognize text, the sandbox saves and reuses data from previous runs to avoid redundant creations. This improves performance and simplifies script writing.
 
-### Cleans up script garbage
-When a script finishes its work, it's good practice to clean up - free up memory, erase screen messages, etc. However, nobody likes cleaning up, so let the robots do it for us. However, not everything created by scripts can be cleaned up automatically. This will be covered in a separate article on resource management.
+### Cleans up after the script
+When a script finishes its job, it's good practice to clean up - free up memory, erase screen messages, etc. However, nobody likes cleaning up, so let robots do it for us. Yet, not everything created by scripts can be cleaned up automatically. This will be covered in a separate article on resource management.
 ![e0219e2e257a9878d5b6b2323dcb9c37.jpg](/assets/e0219e2e257a9878d5b6b2323dcb9c37.jpg =x200)
-
-### Provides a set of basic functionality
-To make life easier, every script by default includes a set of basic services - the ability to write logs, work with program files, etc. However, to avoid accumulating unnecessary weight, this functionality is very limited. It is assumed that the user uses the GetService<> method to add any necessary capabilities to the script. More on this below.
-
+ 
+### Provides a set of basic functionalities
+To make life easier, every script comes with a default set of basic services - the ability to write logs, work with program files, etc. However, to avoid accumulating unnecessary weight, this functionality is very limited. It is assumed that the user uses the `GetService<>` method to add any necessary capabilities to the script. More on this below.
+ 
 # What's in the Code
-Let's look at the methods and properties that any script has.
+Let's explore the methods and properties present in any script.
+
 
 ## Logging
 ```csharp
 IFluentLog Log { get; }
 ```
-Almost every script needs to provide some feedback at some point in its life cycle - current variable values, debug messages, etc.
-`Log` is responsible for this. It allows you to write messages to program log files and the `Event Log` window.
-Each log line has one of the **levels**: **Debug**, **Info**, **Warn**, **Error**. The higher the level, the more important the message, with **Error** being the most critical. By default, messages from **Info** level and above are displayed in the `Event Log`.
+Almost every script needs to provide some feedback at some point - current variable values, debug messages, etc. 
+`Log` handles this. It allows you to write messages to program log files or the `Event Log` window.
+Each log line has one of the following **levels**: **Debug**, **Info**, **Warn**, **Error**. The higher the level, the more important the message, with **Error** being the most critical. In the `Event Log`, you can adjust which level of messages to display. By default, it shows **Info** and above.
 
 ```csharp 
 Log.Info("Hello!"); 
@@ -52,8 +53,9 @@ Sleep(2000); // pause the script for 2 seconds
 Sleep(TimeSpan.FromMilliseconds(100)); // pause for 100 milliseconds
 ```
 
-> If for any reason the program requests the script to stop (e.g., the script aura is unloaded), `Sleep` will be interrupted in advance, and the script will be stopped.
+> If for any reason the program requests the script to stop (e.g., the script aura is unloaded), `Sleep` will be interrupted in advance, and the script will stop.
 {.is-info}
+
 
 ![](https://i.imgur.com/TYwJwzi.png =x300)
 
@@ -62,8 +64,8 @@ Sleep(TimeSpan.FromMilliseconds(100)); // pause for 100 milliseconds
 T GetService<T>()
 ```
 The most powerful method in the sandbox. It connects your script to the outside world and allows access to various parts of the program's functionality.
-By using `GetService`, you can request threads from the program, pulling which will give you a specific effect.
-In place of a thousand words:
+By using `GetService`, you can request threads from the program, pulling which will yield different effects.
+In short:
 
 ```csharp
 var sendInput = GetService<ISendInputUnstableScriptingApi>();
