@@ -1,3 +1,13 @@
+---
+title: IAuraAccessor
+description: Definition of the IAuraAccessor interface in C#
+published: true
+date: 2024-02-20T20:32:18.477Z
+tags: C#, Interface, Programming
+editor: markdown
+dateCreated: 2024-02-20T20:32:05.134Z
+---
+
 ```csharp
 public interface IAuraAccessor : IHasId, ICanBeLoaded, ICanBeArchived, IHasTimestamp, IHasVariables, IHasPath
 {

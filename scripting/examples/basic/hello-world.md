@@ -1,15 +1,24 @@
-# Hello, world!
+---
+title: Hello, world!
+description: Step-by-step guide to creating the legendary Hello, world script in C# and setting it to run on a hotkey press.
+published: true
+date: 2024-02-23T23:15:46.402Z
+tags: scripting, C#, automation, hotkey, tutorial
+editor: markdown
+dateCreated: 2024-02-20T19:56:21.080Z
+---
 
-> You can import the ready-made example from here: [Hello, World! Example](https://eu.eyeauras.net/share/S20240223231508UC4AdkJYNJjI)
-{.is-info}
+# Hello, World - Printing the Legendary Hello, World
+
+> You can import the ready-made example from here: [Hello, World Example](https://eu.eyeauras.net/share/S20240223231508UC4AdkJYNJjI){.is-info}
 
 ## Creating an Aura
-Well, no screenshot here, sorry.
+Well, a screenshot is a must here, sorry.
 
 ## Creating a C# Script Action
 ![](https://i.imgur.com/mz7CUzL.png)
 
-## Entering the Code (in some versions, the newly created script will already contain this code)
+## Typing in the Code (in some fresh versions, the newly created script may already contain this code)
 ```csharp
 Log.Info("Hello, world!");
 ```
@@ -20,18 +29,19 @@ Log.Info("Hello, world!");
 ## Voila!
 ![](https://i.imgur.com/JeZXXU8.png)
 
-Congratulations, this was officially the first step towards powerful scripts of the future.
+Congratulations, this was officially the first step towards mighty scripts of the future.
 
 # Oh, Manually Clicking Run Isn't Cool
-To make it a bit more interesting, let's set up our script to run only when a specific key is pressed, for example, let it be `F1`.
+
+To make it a bit more interesting, let's set up our script to run only when a specific key, for example, `F1`, is pressed.
 
 ## Adding the HotkeyIsActive Trigger to the Aura
 ![](https://i.imgur.com/j7ma0e1.png)
 
-## Switching it to `Click/Hold` mode and setting it to `F1`
+## Switching it to `Click/Hold` mode and specifying `F1`
 ![](https://i.imgur.com/s3eKrnp.png)
 
-`Click/Hold` is used to deactivate the trigger immediately after pressing. So, by pressing `F1` twice, we will execute our script twice. The `Toggle` mode would toggle the trigger on and off with each press. Since our action is in the OnEnter block, double pressing would execute our script only **once**.
+`Click/Hold` is used to deactivate the trigger immediately after pressing. So, by pressing `F1` twice, we will execute our script twice. The `Toggle` mode would toggle the trigger on and off with each press. Since our action is in the OnEnter block, pressing twice would execute our script only **once**.
 
-## All Set!
-Now, every time you press `F1`, your script will print to the `Event Log`. Of course, this is not the most exciting thing we can do, but we'll explore more in the following examples.
+## That's It!
+Now, every time you press `F1`, your script will print in the `Event Log`. Of course, this might not be the most exciting thing we can do, but more on that in the following examples.

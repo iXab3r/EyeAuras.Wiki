@@ -1,6 +1,15 @@
-## Tracking the Mouse
+---
+title: Tracking Mouse Cursor
+description: Tracking the mouse cursor and displaying an overlay near it.
+published: true
+date: 2024-02-24T00:08:49.173Z
+tags: mouse cursor, overlay, C# Script, EyeAuras
+editor: markdown
+dateCreated: 2024-02-24T00:08:49.173Z
+---
 
-> You can import the ready-made example from here: [Mouse Tracking Example](https://eu.eyeauras.net/share/S20240224000701ZxH9BwnuQbRX)
+## Displaying an Overlay Near the Cursor
+> You can import a ready-made example from here: https://eu.eyeauras.net/share/S20240224000701ZxH9BwnuQbRX
 {.is-info}
 
 1. Create an aura.
@@ -15,8 +24,8 @@
 var sendInputApi = GetService<ISendInputUnstableScriptingApi>(); // to get cursor coordinates
 var overlayApi = GetService<IOnScreenCanvasScriptingApi>(); // for overlay rendering
 
-var canvas = overlayApi.Create() // create a "canvas" to draw the overlay
-    .AddTo(ExecutionAnchors); // specify to clear the canvas upon script completion
+var canvas = overlayApi.Create() // create a canvas for overlay rendering
+    .AddTo(ExecutionAnchors); // specify to clear the canvas when the script finishes
 
 var rectangle = canvas
     .AddRectangle() // add a rectangle
@@ -34,9 +43,9 @@ while (!cancellationToken.IsCancellationRequested){
     rectangle.Location = sendInputApi.CursorPosition;
 }
 
-// This is where we end up when the script is commanded to stop
+// This is where we will end up when the script is commanded to stop
 Log.Info("Completed tracking");
 ```
 
-> Naturally, the overlay can render not only squares. It can be anything - text, images, even videos.
+> Naturally, the overlay can render not only squares. It can be anything - text, image, even video.
 {.is-info}
