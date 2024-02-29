@@ -2,7 +2,7 @@
 title: Prerequisites
 description: 
 published: true
-date: 2023-11-12T14:29:02.883Z
+date: 2024-02-29T09:49:41.065Z
 tags: 
 editor: markdown
 dateCreated: 2023-10-29T18:35:33.765Z
@@ -45,7 +45,7 @@ pip install opencv-python numpy matplotlib shapely onnxruntime
 ```
 8. Install [CVAT Command Line Interface](https://opencv.github.io/cvat/docs/api_sdk/cli/) 
 ```bash
-pip install cvat-cli
+pip install cvat-cli cvat_sdk
 ```
 9. Verify that CVAT CLI has been installed correctly by running version check, should print the version number to console
 ```bash
