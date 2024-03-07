@@ -2,7 +2,7 @@
 title: Ноды
 description: что такое, как работают и с чем готовить
 published: true
-date: 2024-03-07T23:48:31.175Z
+date: 2024-03-07T23:48:50.481Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-07T15:12:13.483Z
@@ -18,7 +18,7 @@ dateCreated: 2024-03-07T15:12:13.483Z
  
 
 ## Какие бывают
-- [Root](/ru/behavior-trees/nodes/root) 
+- [Root](/ru/behavior-trees/nodes/root) - корень всего дерева, содержит общие настройки
 - [Sequence](/ru/behavior-trees/nodes/sequence) - обходит дочерние ноды до тех пор, пока не найдут ту, которая вернет `Failure`
 - [Selector](/ru/behavior-trees/nodes/selector) - обходит дочерние ноды до тех пор, пока не найдет ту, которая вернет `Success`
 - [Wait](/ru/behavior-trees/nodes/wait) - приостанавливает выполнение дерева на указанное время
