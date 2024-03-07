@@ -2,7 +2,7 @@
 title: Ноды
 description: что такое, как работают и с чем готовить
 published: true
-date: 2024-03-07T15:20:46.732Z
+date: 2024-03-07T23:48:31.175Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-07T15:12:13.483Z
@@ -19,6 +19,14 @@ dateCreated: 2024-03-07T15:12:13.483Z
 
 ## Какие бывают
 - [Root](/ru/behavior-trees/nodes/root) 
-- [Sequence](/ru/behavior-trees/nodes/sequence) - обходит дочерние ноды до тех пор, пока не найдут ту, которая вернет **Failure**
-- [Selector](/ru/behavior-trees/nodes/selector) - обходит дочерние ноды до тех пор, пока не найдет ту, которая вернет **Success**
-- TBA
+- [Sequence](/ru/behavior-trees/nodes/sequence) - обходит дочерние ноды до тех пор, пока не найдут ту, которая вернет `Failure`
+- [Selector](/ru/behavior-trees/nodes/selector) - обходит дочерние ноды до тех пор, пока не найдет ту, которая вернет `Success`
+- [Wait](/ru/behavior-trees/nodes/wait) - приостанавливает выполнение дерева на указанное время
+- [Cooldown](/ru/behavior-trees/nodes/cooldown) - предотвращает слишком частое выполнение той или иной ноды
+- [Inverter](/ru/behavior-trees/nodes/inverter) - инвертирует состояние дочерней ноды (`Success` => `Failure` и наоборот)
+- [Force Failure](/ru/behavior-trees/nodes/force-failure) - выполняет дочернюю ноду, но всегда возвращает `Failure`
+- [Force Success](/ru/behavior-trees/nodes/force-success) - выполняет дочернюю ноду, но всегда возвращает `Success`
+- [Until Success](/ru/behavior-trees/nodes/until-success) - выполняет дочернюю ноду до тех пор, пока она не вернет `Success`
+- [Fixed Status](/ru/behavior-trees/nodes/fixed-status) - вспомогательная нода, позволяет жестко задать статус, который вернет нода, помогает при отладке/настройке
+- [Сomment](/ru/behavior-trees/nodes/comment) - позволяет писать комментарии к логике прямо в дереве
+
