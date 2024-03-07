@@ -2,7 +2,7 @@
 title: Inverter
 description: 
 published: true
-date: 2024-03-07T23:20:52.810Z
+date: 2024-03-07T23:20:59.465Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-07T23:20:14.981Z
@@ -30,6 +30,3 @@ dateCreated: 2024-03-07T23:20:14.981Z
 2. Если дочерний узел вернул `Success`, Inverter вернет `Failure`.
 3. Если дочерний узел вернул `Failure`, Inverter вернет `Success`.
 4. Если дочерний узел вернул `Running`, Inverter также вернет `Running`.
-
-**Примечание:**
-Inverter полезен, когда необходимо инвертировать результат выполнения какой-либо задачи или условия.
