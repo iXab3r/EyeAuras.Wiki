@@ -1,8 +1,8 @@
 ---
 title: Selector
-description: 
+description: 1 or 2 or 3
 published: true
-date: 2024-03-07T15:10:44.356Z
+date: 2024-03-07T15:21:11.573Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-07T14:54:10.206Z
