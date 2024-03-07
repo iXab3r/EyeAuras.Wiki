@@ -1,8 +1,8 @@
 ---
 title: Ноды
-description: 
+description: что такое, как работают и с чем готовить
 published: true
-date: 2024-03-07T15:20:33.721Z
+date: 2024-03-07T15:20:46.732Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-07T15:12:13.483Z
