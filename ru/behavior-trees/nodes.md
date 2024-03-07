@@ -1,8 +1,8 @@
 ---
-title: Что такое ноды?
+title: Ноды
 description: 
 published: true
-date: 2024-03-07T15:20:11.096Z
+date: 2024-03-07T15:20:33.721Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-07T15:12:13.483Z
