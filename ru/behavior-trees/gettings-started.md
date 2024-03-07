@@ -2,7 +2,7 @@
 title: С чего начать
 description: 
 published: true
-date: 2024-03-07T14:42:12.562Z
+date: 2024-03-07T14:42:35.613Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-07T14:06:44.950Z
@@ -66,7 +66,7 @@ dateCreated: 2024-03-07T14:06:44.950Z
 ![With cooldown](https://i.imgur.com/wOfn1jU.png =x600)
 
 По аналогичной схеме можно добавлять и любую другую ноду из всего доступного арсенала, к примеру, вот так выглядит дерево(в двух вариантах) на персонажа в `Lineage 2`, который сам выбирает цели, собирает ресурсы и дерется с мобами. За счет использования нод, которые контролируют как обходится дерево, можно добавить очень сложной логики
-![bt_l2.spoil.old.png](/assets/bt_l2.spoil.old.png =x600)
+![bt_l2.spoil.old.png](/assets/bt_l2.spoil.old.png)
 А вот этот вариант больше использует скрипты для выполнения действие - наиболее гибкий вариант, но требует знания `C#` и [скриптов](/ru/scripting/getting-started)
-![bt_l2_spoil.png](/assets/bt_l2_spoil.png =x600)
+![bt_l2_spoil.png](/assets/bt_l2_spoil.png)
 
