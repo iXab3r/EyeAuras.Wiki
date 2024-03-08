@@ -2,7 +2,7 @@
 title: Ноды
 description: что такое, как работают и с чем готовить
 published: true
-date: 2024-03-07T23:48:50.481Z
+date: 2024-03-08T00:00:15.036Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-07T15:12:13.483Z
@@ -19,6 +19,8 @@ dateCreated: 2024-03-07T15:12:13.483Z
 
 ## Какие бывают
 - [Root](/ru/behavior-trees/nodes/root) - корень всего дерева, содержит общие настройки
+- [Aura Is Active](/ru/behavior-trees/nodes/aura-is-active) - позволяет аказывать одну или несколько аур, которые будут служить условиями для ноды
+- [Execute Aura](/ru/behavior-trees/nodes/execute-aura) - позволяет указывать ауру, действия которой будут выполнены при запуске ноды
 - [Sequence](/ru/behavior-trees/nodes/sequence) - обходит дочерние ноды до тех пор, пока не найдут ту, которая вернет `Failure`
 - [Selector](/ru/behavior-trees/nodes/selector) - обходит дочерние ноды до тех пор, пока не найдет ту, которая вернет `Success`
 - [Wait](/ru/behavior-trees/nodes/wait) - приостанавливает выполнение дерева на указанное время
