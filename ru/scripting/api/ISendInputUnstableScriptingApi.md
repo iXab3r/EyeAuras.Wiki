@@ -2,7 +2,7 @@
 title: ISendInputUnstableScriptingApi
 description: 
 published: true
-date: 2024-02-23T21:58:16.489Z
+date: 2024-03-09T15:55:44.899Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-23T21:58:16.489Z
@@ -12,7 +12,7 @@ dateCreated: 2024-02-23T21:58:16.489Z
 /// <summary>
 /// Provides an interface for simulating user input, including mouse and keyboard actions.
 /// </summary>
-public interface ISendInputUnstableScriptingApi : IScriptingApi, IInputDeviceStateAdaptor
+public interface ISendInputUnstableScriptingApi : IScriptingApi
 {
     /// <summary>
     /// Gets or sets the identifier for the input simulator to use.
@@ -25,17 +25,17 @@ public interface ISendInputUnstableScriptingApi : IScriptingApi, IInputDeviceSta
     string InputSmootherId { get; set; }
     
     /// <summary>
-    /// Gets or sets the delay range (in milliseconds) between key presses.
+    /// Gets or sets the delay range (in milliseconds) between key down and up event.
     /// </summary>
     RandomInteger KeyPressDelay { get; set; }
     
     /// <summary>
-    /// Gets or sets the delay range (in milliseconds) between mouse clicks.
+    /// Gets or sets the delay range (in milliseconds) before releasing mouse button.
     /// </summary>
     RandomInteger ClickDelay { get; set; }
     
     /// <summary>
-    /// Gets or sets the delay range (in milliseconds) for a double-click action.
+    /// Gets or sets the delay range (in milliseconds) for a mouse double-click action.
     /// </summary>
     RandomInteger DoubleClickDelay { get; set; }
     
@@ -74,27 +74,27 @@ public interface ISendInputUnstableScriptingApi : IScriptingApi, IInputDeviceSta
     /// <summary>
     /// Simulates a left mouse button click.
     /// </summary>
-    /// <param name="clickDelayMs">Optional delay (in milliseconds) before the click. Uses <see cref="ClickDelay"/> if not specified.</param>
+    /// <param name="clickDelayMs">Optional delay (in milliseconds) before releasing the button. Uses ClickDelay if not specified.</param>
     void MouseLeftClick(int? clickDelayMs = default);
     
     /// <summary>
     /// Simulates a double-click using the left mouse button.
     /// </summary>
-    /// <param name="clickDelayMs">Optional delay (in milliseconds) for each click. Uses <see cref="ClickDelay"/> if not specified.</param>
-    /// <param name="dblClickDelayMs">Optional delay (in milliseconds) between the two clicks. Uses <see cref="DoubleClickDelay"/> if not specified.</param>
+    /// <param name="clickDelayMs">Optional delay (in milliseconds) before releasing the button. Uses ClickDelay if not specified.</param>
+    /// <param name="dblClickDelayMs">Optional delay (in milliseconds) between the two clicks. Uses DoubleClickDelay if not specified.</param>
     void MouseLeftDoubleClick(int? clickDelayMs = default, int? dblClickDelayMs = default);
     
     /// <summary>
     /// Simulates a right mouse button click.
     /// </summary>
-    /// <param name="clickDelayMs">Optional delay (in milliseconds) before the click. Uses <see cref="ClickDelay"/> if not specified.</param>
+    /// <param name="clickDelayMs">Optional delay (in milliseconds) before releasing the button. Uses ClickDelay if not specified.</param>
     void MouseRightClick(int? clickDelayMs = default);
     
     /// <summary>
     /// Simulates a mouse button click.
     /// </summary>
     /// <param name="button">The mouse button to simulate.</param>
-    /// <param name="clickDelayMs">Optional delay (in milliseconds) before the click. Uses <see cref="ClickDelay"/> if not specified.</param>
+    /// <param name="clickDelayMs">Optional delay (in milliseconds) before releasing the button. Uses ClickDelay if not specified.</param>
     void MouseClick(MouseButton button = default, int? clickDelayMs = default);
     
     /// <summary>
@@ -113,7 +113,7 @@ public interface ISendInputUnstableScriptingApi : IScriptingApi, IInputDeviceSta
     /// Simulates pressing and releasing a keyboard key.
     /// </summary>
     /// <param name="key">The key to simulate.</param>
-    /// <param name="keyPressDelay">Optional delay (in milliseconds) before the key press. Uses <see cref="KeyPressDelay"/> if not specified.</param>
+    /// <param name="keyPressDelay">Optional delay (in milliseconds) before releasing the button. Uses KeyPressDelay if not specified.</param>
     void KeyPress(Key key, int? keyPressDelay = default);
     
     /// <summary>
@@ -133,55 +133,14 @@ public interface ISendInputUnstableScriptingApi : IScriptingApi, IInputDeviceSta
     /// </summary>
     /// <param name="gesture">The gesture to simulate.</param>
     /// <param name="inputEventType">The type of input event to simulate (e.g., key press, key down, key up).</param>
-    /// <param name="keyPressDelay">Optional delay (in milliseconds) before the gesture. Uses <see cref="KeyPressDelay"/> if not specified.</param>
+    /// <param name="keyPressDelay">Optional delay (in milliseconds) before releasing the button, works only for KeyPress events. Uses KeyPressDelay if not specified.</param>
     void Gesture(HotkeyGesture gesture, InputEventType inputEventType, int? keyPressDelay = default);
 
     /// <summary>
     /// Simulates typing a string of text.
     /// </summary>
     /// <param name="text">The text to type.</param>
-    /// <param name="delayMs">Optional delay (in milliseconds) between each character. Uses <see cref="KeyPressDelay"/> if not specified.</param>
+    /// <param name="delayMs">Optional delay (in milliseconds) between each character. Uses KeyPressDelay if not specified.</param>
     void Text(string text, int? delayMs = default);
-    
-    /// <summary>Determines whether the specified key is up or down.</summary>
-    /// <param name="keyCode">The <see cref="T:WindowsInput.Native.VirtualKeyCode" /> for the key.</param>
-    /// <returns>
-    /// 	<c>true</c> if the key is down; otherwise, <c>false</c>.
-    /// </returns>
-    bool IsKeyDown(VirtualKeyCode keyCode);
-
-    /// <summary>Determines whether the specified key is up or down.</summary>
-    /// <param name="keyCode">The <see cref="T:WindowsInput.Native.VirtualKeyCode" /> for the key.</param>
-    /// <returns>
-    /// 	<c>true</c> if the key is up; otherwise, <c>false</c>.
-    /// </returns>
-    bool IsKeyUp(VirtualKeyCode keyCode);
-
-    /// <summary>
-    /// Determines whether the physical key is up or down at the time the function is called regardless of whether the application thread has read the keyboard event from the message pump.
-    /// </summary>
-    /// <param name="keyCode">The <see cref="T:WindowsInput.Native.VirtualKeyCode" /> for the key.</param>
-    /// <returns>
-    /// 	<c>true</c> if the key is down; otherwise, <c>false</c>.
-    /// </returns>
-    bool IsHardwareKeyDown(VirtualKeyCode keyCode);
-
-    /// <summary>
-    /// Determines whether the physical key is up or down at the time the function is called regardless of whether the application thread has read the keyboard event from the message pump.
-    /// </summary>
-    /// <param name="keyCode">The <see cref="T:WindowsInput.Native.VirtualKeyCode" /> for the key.</param>
-    /// <returns>
-    /// 	<c>true</c> if the key is up; otherwise, <c>false</c>.
-    /// </returns>
-    bool IsHardwareKeyUp(VirtualKeyCode keyCode);
-
-    /// <summary>
-    /// Determines whether the toggling key is toggled on (in-effect) or not.
-    /// </summary>
-    /// <param name="keyCode">The <see cref="T:WindowsInput.Native.VirtualKeyCode" /> for the key.</param>
-    /// <returns>
-    /// 	<c>true</c> if the toggling key is toggled on (in-effect); otherwise, <c>false</c>.
-    /// </returns>
-    bool IsTogglingKeyInEffect(VirtualKeyCode keyCode);
 }
 ```
