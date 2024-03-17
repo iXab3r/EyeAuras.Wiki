@@ -2,7 +2,7 @@
 title: ISendInputUnstableScriptingApi
 description: 
 published: true
-date: 2024-03-09T15:55:44.899Z
+date: 2024-03-17T16:28:37.270Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-23T21:58:16.489Z
@@ -142,5 +142,17 @@ public interface ISendInputUnstableScriptingApi : IScriptingApi
     /// <param name="text">The text to type.</param>
     /// <param name="delayMs">Optional delay (in milliseconds) between each character. Uses KeyPressDelay if not specified.</param>
     void Text(string text, int? delayMs = default);
+
+    /// <summary>
+    /// Returns status of a mouse button - whether it is pressed (down) or not
+    /// </summary>
+    /// <param name="button">The button which has to be checked</param>
+    bool IsMouseDown(MouseButton button = default);
+
+    /// <summary>
+    /// Returns status of a key - whether it is pressed (down) or not
+    /// </summary>
+    /// <param name="key">The key which has to be checked</param>
+    bool IsKeyDown(Key key);
 }
 ```
