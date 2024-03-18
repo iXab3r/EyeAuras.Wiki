@@ -2,7 +2,7 @@
 title: Remote desktops bypass inputs
 description: 
 published: true
-date: 2024-03-15T04:04:28.330Z
+date: 2024-03-18T15:27:50.713Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-15T03:34:12.220Z
@@ -29,7 +29,9 @@ Start by downloading the EyeAuras application from our website. Get it here: [Ey
 ### 5. Configuration :wrench:
 
 Open EyeAuras, go to settings and change Input Redirect Simulation to TetherScript Driver
-
+![screenshot_43.png](/screenshot_43.png)
+When you apply changes - you will see redirects buttons on bottom panel to enable \ disable redirects.
+![screenshot_42.png](/screenshot_42.png)
 ### 5. Troubleshooting :wrench:
 
 If you encounter a bug where the camera spins non-stop, go to your game's settings (L2 settings) and disable "Enable Controller" under Settings -> Configuration.
