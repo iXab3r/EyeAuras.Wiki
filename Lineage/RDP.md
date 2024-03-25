@@ -2,7 +2,7 @@
 title: Remote desktops bypass inputs
 description: 
 published: true
-date: 2024-03-25T20:25:36.644Z
+date: 2024-03-25T20:26:03.773Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-15T03:34:12.220Z
@@ -14,7 +14,7 @@ Follow these simple steps to get started:
 
 ### 1. Download EyeAuras :arrow_down:
 
-Start by downloading the EyeAuras application from our website. Get it here: [EyeAuras Download](eyeauras.net/download)
+Start by downloading the EyeAuras application from our website. Get it here: [EyeAuras Download](https://eyeauras.net/download)
 
 ### 2. Register & Purchase License :key:
 
