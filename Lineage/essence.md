@@ -2,7 +2,7 @@
 title: Lineage 2 Essence
 description: 
 published: true
-date: 2024-03-25T20:19:37.171Z
+date: 2024-03-25T20:28:15.091Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-25T14:49:39.889Z
@@ -14,11 +14,11 @@ Follow these simple steps to get started:
 
 ### 1. Download EyeAuras :arrow_down:
 
-Start by downloading the EyeAuras application from our website. Get it here: [EyeAuras Download](https://eyeauras.net/download)
+Start by downloading the EyeAuras application from our website. Get it here: [EyeAuras Download](https://eu.eyeauras.net/download)
 
 ### 2. Register & Purchase License :key:
 
-- Create your account and, if necessary, purchase a license to unlock all features. Begin here: [EyeAuras Login](https://eyeauras.net/login)
+- Create your account and, if necessary, purchase a license to unlock all features. Begin here: [EyeAuras Login](https://eu.eyeauras.net/login)
 
 ### 3. Input Methods :computer:
 
