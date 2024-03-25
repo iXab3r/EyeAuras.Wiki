@@ -2,7 +2,7 @@
 title: Remote desktops bypass inputs
 description: 
 published: true
-date: 2024-03-25T20:29:11.083Z
+date: 2024-03-25T20:31:55.841Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-15T03:34:12.220Z
@@ -36,6 +36,10 @@ When you apply changes - you will see redirects buttons on bottom panel to enabl
 
 If you encounter a bug where the camera spins non-stop, go to your game's settings (L2 settings) and disable "Enable Controller" under Settings -> Configuration.
 
-### 6. Video Guide :clapper:
+### 6. Recommended remote software - Parsec 
+
+- You can download it here [Download Parsec](https://wiki.eyeauras.net/en/Lineage/parsec)
+	More info [here](https://wiki.eyeauras.net/en/Lineage/parsec)
+### 7. Video Guide :clapper:
 
 For visual learners, we have prepared a comprehensive video guide to walk you through the setup process and usage.
