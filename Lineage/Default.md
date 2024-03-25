@@ -2,7 +2,7 @@
 title: Lineage 2 Default
 description: 
 published: true
-date: 2024-03-15T03:17:03.072Z
+date: 2024-03-25T20:28:49.007Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-15T02:39:36.765Z
@@ -14,11 +14,11 @@ Follow these simple steps to get started:
 
 ### 1. Download EyeAuras :arrow_down:
 
-Start by downloading the EyeAuras application from our website. Get it here: [EyeAuras Download](https://eyeauras.net/download)
+Start by downloading the EyeAuras application from our website. Get it here: [EyeAuras Download](https://eu.eyeauras.net/download)
 
 ### 2. Register & Purchase License :key:
 
-- Create your account and, if necessary, purchase a license to unlock all features. Begin here: [EyeAuras Login](https://eyeauras.net/login)
+- Create your account and, if necessary, purchase a license to unlock all features. Begin here: [EyeAuras Login](https://eu.eyeauras.net/login)
 
 ### 3. Input Methods :computer:
 
@@ -35,7 +35,7 @@ If you encounter a bug where the camera spins non-stop, go to your game's settin
 
 ### 5. Script Pack :package:
 
-Access a specialized script pack for low rate chronicle servers here: [Script Pack Download](https://eyeauras.net/share/S202403150219539BfeOJ0eRl1q)
+Access a specialized script pack for low rate chronicle servers here: [Script Pack Download](https://eu.eyeauras.net/share/S202403150219539BfeOJ0eRl1q)
 
 ### 6. Video Guide :clapper:
 
