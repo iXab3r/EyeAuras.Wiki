@@ -2,7 +2,7 @@
 title: Remote desktops bypass inputs
 description: 
 published: true
-date: 2024-03-25T20:31:55.841Z
+date: 2024-03-25T20:32:42.053Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-15T03:34:12.220Z
@@ -38,7 +38,7 @@ If you encounter a bug where the camera spins non-stop, go to your game's settin
 
 ### 6. Recommended remote software - Parsec 
 
-- You can download it here [Download Parsec](https://wiki.eyeauras.net/en/Lineage/parsec)
+- You can download it here [Download Parsec](https://parsec.app/downloads)
 	More info [here](https://wiki.eyeauras.net/en/Lineage/parsec)
 ### 7. Video Guide :clapper:
 
