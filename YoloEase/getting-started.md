@@ -2,16 +2,17 @@
 title: Getting Started
 description: CVATAAT: Your Quick Guide
 published: true
-date: 2024-03-26T22:46:57.605Z
+date: 2024-03-26T22:53:00.618Z
 tags: 
 editor: markdown
 dateCreated: 2023-10-29T19:14:56.548Z
 ---
 
-## Why Use YoloEase
-Using ML for game bots can make them smarter. Object detection and classification help bots recognize in-game items better. But starting with ML can be tough. That's where YoloEase comes in.
+# YoloEase
+is a tool that automates Yolo 8+ training process. It can leverage annotation capabilities of [CVAT](https://www.cvat.ai/) (any server will work, by default it uses [unofficial](https://cvat.eyeauras.net/) instance but you can change it at any time).
+Wiki is located here - https://wiki.eyeauras.net/en/YoloEase/getting-started
 
-> The tool is currently in early-alpha stage. Any [feedback](https://wiki.eyeauras.net/en/contacts) is highly appreciated
+> The tool is currently in early alpha stage. Any [feedback](https://wiki.eyeauras.net/en/contacts) is highly appreciated
 {.is-warning}
 
 ## Let's Get Started
@@ -21,19 +22,20 @@ Using ML for game bots can make them smarter. Object detection and classificatio
 4. Dive into [training](/en/YoloEase/how-to-use-automatic-trainer) using the automatic trainer.
 5. Deploy and utilize your trained model!
 
-## How it streamlines the process
-- **Datasets**: Select your images for training. Rest assured, YoloEase treats these as read-only.
-- **Configuration**: Define your base model, training settings, and other preferences. This setup is utilized once your data is prepped and ready.
-- **Image Management**: YoloEase automatically categorizes your images (e.g., annotated, unannotated, "broken", "outliers"), ensuring efficient use of resources and no redundant work. All you have to do is throw in more images whenever needed.
-- **Annotation Cycle**: Annotate a set of images using CVAT and YoloEase automaticaly will re-train the model for you.
+First you setup CVAT/Dataset/model settings
+![Main window](https://i.imgur.com/Mm7J8nc.png =x400)
 
-## **Training Made Easy**:
-1. **Start**: Click 'Start'. YoloEase begins by checking tasks and annotations.
-2. **Build Your Dataset**: YoloEase links your local game images with annotations for training.
-3. **Train Now**: If you've got finished annotations, model training starts.
-4. **See Your Model in Action**: After training, your model predicts on all your images. You can check the results right away!
-5. **Add Annotations**: Add new images for annotations anytime. With a good model already, use 'Auto-annotate' for quick annotations you can tweak in CVAT editor later.
-6. **Keep Improving**: Finish your annotations, and YoloEase will start the new training cycle, taking into consideration newer data.
-With YoloEase, you get a straightforward tool that takes you from image annotations to a trained game bot model.
+Then you can start creating annotation tasks. When new task is created you can pick an option to pre-annotate the batch and/or pick only those images which will benefit model the most
+![Task Settings](https://i.imgur.com/a9owC7c.png =x400)
+
+As soon as the program will detect that something has changed - settings, annotations, images - it will re-train the model right away. As soon as the model will be ready you can use it to pre-annotate next batch
+![Training process](https://i.imgur.com/gunKrAJ.png =x500)
+
+
+## How it streamlines the process
+- **Datasets**: Select your unannotated images for training. YoloEase treats these as read-only. Images/videos are supported. 
+- **Image Management**: YoloEase automatically categorizes your images (e.g., annotated, unannotated, "broken", "outliers"), ensuring efficient use of resources and no redundant work. All you have to do is throw in more images whenever needed.
+- **Configuration**: Define your base model, training settings, and other preferences. This setup is utilized once your data is prepped and ready.
+- **Annotation Cycle**: Annotate a set of images using CVAT and YoloEase automaticaly will re-train the model for you as soon as it will detect that new annotations are available.
 
 
