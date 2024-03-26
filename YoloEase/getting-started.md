@@ -2,7 +2,7 @@
 title: Getting Started
 description: CVATAAT: Your Quick Guide
 published: true
-date: 2024-03-26T13:25:49.232Z
+date: 2024-03-26T22:31:53.507Z
 tags: 
 editor: markdown
 dateCreated: 2023-10-29T19:14:56.548Z
