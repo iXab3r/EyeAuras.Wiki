@@ -2,7 +2,7 @@
 title: Getting Started
 description: CVATAAT: Your Quick Guide
 published: true
-date: 2024-03-26T22:53:00.618Z
+date: 2024-03-26T22:55:37.234Z
 tags: 
 editor: markdown
 dateCreated: 2023-10-29T19:14:56.548Z
@@ -17,7 +17,7 @@ Wiki is located here - https://wiki.eyeauras.net/en/YoloEase/getting-started
 
 ## Let's Get Started
 1. Install the necessary [prerequisites](/en/YoloEase/prerequisites).
-2. Download latest version of EyeAuras ```https://eyeauras.net/download```. Preferably **Alpha**. YoloEase is distributed as a part of it *for now*. 
+2. Download latest version [here](https://github.com/iXab3r/YoloEase/releases/)
 3. [Setup](/en/YoloEase/how-to-setup-project) CVAT and YoloEase projects. These will be used together for different parts of the process.
 4. Dive into [training](/en/YoloEase/how-to-use-automatic-trainer) using the automatic trainer.
 5. Deploy and utilize your trained model!
