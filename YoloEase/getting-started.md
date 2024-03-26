@@ -2,7 +2,7 @@
 title: Getting Started
 description: CVATAAT: Your Quick Guide
 published: true
-date: 2024-03-26T22:31:53.507Z
+date: 2024-03-26T22:46:57.605Z
 tags: 
 editor: markdown
 dateCreated: 2023-10-29T19:14:56.548Z
@@ -14,6 +14,12 @@ Using ML for game bots can make them smarter. Object detection and classificatio
 > The tool is currently in early-alpha stage. Any [feedback](https://wiki.eyeauras.net/en/contacts) is highly appreciated
 {.is-warning}
 
+## Let's Get Started
+1. Install the necessary [prerequisites](/en/YoloEase/prerequisites).
+2. Download latest version of EyeAuras ```https://eyeauras.net/download```. Preferably **Alpha**. YoloEase is distributed as a part of it *for now*. 
+3. [Setup](/en/YoloEase/how-to-setup-project) CVAT and YoloEase projects. These will be used together for different parts of the process.
+4. Dive into [training](/en/YoloEase/how-to-use-automatic-trainer) using the automatic trainer.
+5. Deploy and utilize your trained model!
 
 ## How it streamlines the process
 - **Datasets**: Select your images for training. Rest assured, YoloEase treats these as read-only.
@@ -30,16 +36,4 @@ Using ML for game bots can make them smarter. Object detection and classificatio
 6. **Keep Improving**: Finish your annotations, and YoloEase will start the new training cycle, taking into consideration newer data.
 With YoloEase, you get a straightforward tool that takes you from image annotations to a trained game bot model.
 
-## Features
-- **Workspace Isolation**: Each project is maintained in its dedicated workspace, allowing for version control, rollbacks, and performance comparisons.
-- **Diverse Image Sources**: Add images from multiple sources. While currently supporting local sources, future updates will expand this capability.
-- **Unified Image Storage**: YoloEase consolidates images from all sources, creating a centralized workspace for ease of access.
-- **Intelligent Annotation**: If a model version already exists, YoloEase can utilize it to pre-annotate images, potentially saving annotation time.
-- **Batch Selection Modes**: Choose from "Random" or the more strategic "Active Learning" method to select the next batch of images for maximum model improvement.
 
-## Let's Get Started
-1. Install the necessary [prerequisites](/en/YoloEase/prerequisites).
-2. Download latest version of EyeAuras ```https://eyeauras.net/download```. Preferably **Alpha**. YoloEase is distributed as a part of it *for now*. 
-3. [Setup](/en/YoloEase/how-to-setup-project) CVAT and YoloEase projects. These will be used together for different parts of the process.
-4. Dive into [training](/en/YoloEase/how-to-use-automatic-trainer) using the automatic trainer.
-5. Deploy and utilize your trained model!
