@@ -2,7 +2,7 @@
 title: Network Message
 description:  listens for user-specified messages sent across EyeAuras instances, allowing for synchronized control and data sharing
 published: true
-date: 2023-06-18T13:14:09.010Z
+date: 2024-03-28T10:32:41.096Z
 tags: 
 editor: ckeditor
 dateCreated: 2023-06-18T13:14:07.916Z
@@ -18,6 +18,18 @@ dateCreated: 2023-06-18T13:14:07.916Z
   <li>Choose the <a href="https://wiki.eyeauras.net/e/en/text-match-expressions"><u>Text Match Expression</u></a> to specify the conditions for the message content.</li>
 </ol>
 <p>By default, the trigger changes its state (Active or Inactive) whenever a message fulfilling the Text Match Expression condition is received. Alternatively, you can opt to set a different Text Match Expression for deactivation by checking the "Deactivate on message" box.</p>
+<p>&nbsp;</p>
+<h3>Network messages broadcasting functionality (early-early alpha)</h3>
+<p><a href="https://wiki.eyeauras.net/en/actions/send-network-message">Send Message</a> / <a href="https://wiki.eyeauras.net/en/triggers/network-message">Network Message</a> action/trigger pair is a powerful tool that can help you to build your own controllable network of inter-connected EyeAuras. This has been available for a few years at that point and is used mostly for multi-boxing (on multiple PCs) purposes.</p>
+<p>What was always a problem is latency - all messages had to come through one of EyeAuras servers, which introduced latency. New broadcasting mode allows you to use your <strong>local network</strong> to exchange messages between PCs. This basically eliminates any latency.</p>
+<p>The feature is still in early alpha and very rough on configuration side of things - you have to specify IP range manually. In final version this will probably be done automatically by software.</p>
+<p>To use this new feature, set <strong>ChannelId</strong> to:</p>
+<ul>
+  <li>On <strong>Server</strong> EyeAuras (one that listens for messages) - set <strong>broadcast://255.255.255.255/anychannelname</strong></li>
+  <li>On <strong>Client</strong> EyeAuras (one which sends messages) - set <strong>broadcast://192.168.1.255/anychannelname</strong></li>
+</ul>
+<p><strong>Important! 192.168.1.255 is an example, replace 192.168.1 with your actual subnet. You can leave the final “255” intact as this instructs the program to broadcast the message to whole subnet rather than to a specific IP</strong></p>
+<p>p.s. by default, the program uses port <strong>53082</strong> for communications, you can pick any other port if you want right after <strong>IP</strong> in <strong>ChannelId</strong> (e.g. <strong>broadcast://172.16.15.255:55055/mychannel</strong>)</p>
 <p>&nbsp;</p>
 <h3><strong>Considerations</strong></h3>
 <ul>
