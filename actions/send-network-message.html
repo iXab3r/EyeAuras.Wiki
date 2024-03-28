@@ -2,7 +2,7 @@
 title: Send Network Message
 description: lets users transmit custom messages across specified network channels, coordinating tasks among applications or integrating third-party services.
 published: true
-date: 2023-06-18T14:40:19.890Z
+date: 2024-03-28T10:32:28.637Z
 tags: 
 editor: ckeditor
 dateCreated: 2023-06-18T14:40:18.159Z
@@ -20,6 +20,18 @@ dateCreated: 2023-06-18T14:40:18.159Z
 <p><strong>Listen for the message:</strong> Any instance of EyeAuras listening to that same channel can receive the message and trigger its own set of actions. This is done through the "<a href="/en/actions/send-network-message">Network Message Trigger</a>", which is set to listen for messages on a specified channel.</p>
 <p>The "Send Network Message" action is versatile and can be used in a variety of gaming and non-gaming contexts. For example, you could use it to synchronize actions between multiple instances of a game.</p>
 <p>Remember, in order to receive and process a network message, you must set up a "<a href="/en/actions/send-network-message">Network Message Trigger</a>" to listen to the specified channel and define the actions that should be taken upon receiving the message. You can refer to the documentation for the "<a href="/en/triggers/network-message">Network Message Trigger</a>" for more details.</p>
+<p>&nbsp;</p>
+<h3>Network messages broadcasting functionality (early-early alpha)</h3>
+<p><a href="https://wiki.eyeauras.net/en/actions/send-network-message">Send Message</a> / <a href="https://wiki.eyeauras.net/en/triggers/network-message">Network Message</a> action/trigger pair is a powerful tool that can help you to build your own controllable network of inter-connected EyeAuras. This has been available for a few years at that point and is used mostly for multi-boxing (on multiple PCs) purposes.</p>
+<p>What was always a problem is latency - all messages had to come through one of EyeAuras servers, which introduced latency. New broadcasting mode allows you to use your <strong>local network</strong> to exchange messages between PCs. This basically eliminates any latency.</p>
+<p>The feature is still in early alpha and very rough on configuration side of things - you have to specify IP range manually. In final version this will probably be done automatically by software.</p>
+<p>To use this new feature, set <strong>ChannelId</strong> to:</p>
+<ul>
+  <li>On <strong>Server</strong> EyeAuras (one that listens for messages) - set <strong>broadcast://255.255.255.255/anychannelname</strong></li>
+  <li>On <strong>Client</strong> EyeAuras (one which sends messages) - set <strong>broadcast://192.168.1.255/anychannelname</strong></li>
+</ul>
+<p><strong>Important! 192.168.1.255 is an example, replace 192.168.1 with your actual subnet. You can leave the final “255” intact as this instructs the program to broadcast the message to whole subnet rather than to a specific IP</strong></p>
+<p>p.s. by default, the program uses port <strong>53082</strong> for communications, you can pick any other port if you want right after <strong>IP</strong> in <strong>ChannelId</strong> (e.g. <strong>broadcast://172.16.15.255:55055/mychannel</strong>)</p>
 <p>&nbsp;</p>
 <h3><strong>Examples</strong></h3>
 <p><strong>Multi-Character MMO Control</strong></p>
