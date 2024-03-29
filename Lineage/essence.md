@@ -2,7 +2,7 @@
 title: Lineage 2 Essence
 description: 
 published: true
-date: 2024-03-29T09:00:29.389Z
+date: 2024-03-29T09:01:49.132Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-25T14:49:39.889Z
@@ -44,8 +44,14 @@ If you encounter a bug where the camera spins non-stop, go to your game's settin
 
 - How to install
 
+---
+
+
 <iframe width="560" height="315" src="https://www.youtube.com/embed/bNJ4rGeqNoE?si=gOMR_COeLkkkjTzU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 - How to import simple scripts for Lineage 2 Essence with auto return on flags
+
+---
+
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/S1lQF56-AIA?si=oeoN1wc5dCRHqe0t" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
