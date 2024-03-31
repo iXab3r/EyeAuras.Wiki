@@ -2,7 +2,7 @@
 title: Send Telegram Message
 description: allows you to connect to Telegram and send messages via the Telegram framework
 published: true
-date: 2024-03-31T21:51:55.826Z
+date: 2024-03-31T21:53:52.979Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T15:01:39.519Z
@@ -14,18 +14,18 @@ The "Send Telegram Message" Action in EyeAuras allows you to connect to Telegram
 
 To setup Telegram notifications you have to do 3 things:
 
-1.  Create Telegram Bot - it will be used to send you notifications. This is how you'll get **Telegram Bot Token.** You can either use an existing bot or create a new one following instruction below
-2.  Create a group or add your Telegram Bot to existing group - this is where messages will be sent. You can add another bot named **Show Json Bot** to get **Telegram Chat Id** of the group.
-3.  Configure Send Telegram Message by putting in **Telegram Bot Token** and **Telegram Chat Id**
+1.  Create Telegram Bot - it will be used to send you notifications. This is how you'll get `Telegram Bot Token`. You can either use an existing bot or create a new one following instruction below
+2.  Create a group or add your Telegram Bot to existing group - this is where messages will be sent. You can add another bot named `Show Json Bot` to get `Telegram Chat Id` of the group.
+3.  Configure Send Telegram Message by putting in `Telegram Bot Token` and `Telegram Chat Id`
 
 ### How to get Telegram Bot Token
 
 1.  Open Telegram client (desktop/mobile does not really matter)
-2.  Find bot **BotFather**
-3.  Type **/newbot**
-4.  Choose and type some name for your new bot, it does not have to be unique, e.g. “MyAwesomeNewTelegramBot”
-5.  Choose and type username for your new bot, it has to be unique and has to end with “bot”, .e.g “MyAwesomeNewTelegramBot” (it will be taken and you'll have to pick something new)
-6.  That's it! If you've done everything correctly, **BotFather** should provide you with **Bot Token**
+2.  Find bot `BotFather`
+3.  Type `/newbot`
+4.  Choose and type some name for your new bot, it does not have to be unique, e.g. `MyAwesomeNewTelegramBot`
+5.  Choose and type username for your new bot, it has to be unique and has to end with “bot”, .e.g `MyAwesomeNewTelegramBot` (it will be taken and you'll have to pick something new)
+6.  That's it! If you've done everything correctly, `BotFather` should provide you with `Bot Token`
 
 Example:
 
@@ -35,8 +35,8 @@ Example:
 
 1.  Create new group in Telegram or open existing one
 2.  Click on **Add Member** button
-3.  Find and add **YOUR\_BOT\_NAME** (username of the bot you've created previously, e.g. **MyAwesomeNewTelegramBot**)
-4.  Find and add **Show Json Bot**
+3.  Find and add `YOUR_BOT_NAME` (username of the bot you've created previously, e.g. `MyAwesomeNewTelegramBot`)
+4.  Find and add `Show Json Bot` (important! Name must be exactly that, there are many different bots with similar names)
 5.  (optional) Click on Create - this is needed only if you're creating a new and fresh TG group
 6.  **Show Json Bot** will print a JSON which will contain ChatId
 
