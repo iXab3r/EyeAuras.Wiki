@@ -2,7 +2,7 @@
 title: Telegram Message
 description: listens for user-specified messages sent across Telegram channel, allowing for synchronized control and data sharing
 published: true
-date: 2024-03-31T21:58:25.215Z
+date: 2024-03-31T21:59:28.899Z
 tags: 
 editor: markdown
 dateCreated: 2022-12-20T17:35:23.602Z
@@ -10,7 +10,7 @@ dateCreated: 2022-12-20T17:35:23.602Z
 
 This trigger allows you to configure reactions on receiving messages in some Telegram group. 
 
-> Use [Send Telegram Message action](/en/actions/telegram-message) to automatically send notifications about _something_
+> Use [Send Telegram Message action](/en/actions/send-telegram-message) to automatically send notifications about _something_
 {.is-info}
 
 # Trigger settings
