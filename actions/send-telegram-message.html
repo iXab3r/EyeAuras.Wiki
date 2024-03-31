@@ -2,7 +2,7 @@
 title: Send Telegram Message
 description: allows you to connect to Telegram and send messages via the Telegram framework
 published: true
-date: 2023-06-18T15:01:40.616Z
+date: 2024-03-31T21:47:44.620Z
 tags: 
 editor: ckeditor
 dateCreated: 2023-06-18T15:01:39.519Z
@@ -10,7 +10,39 @@ dateCreated: 2023-06-18T15:01:39.519Z
 
 <p>The "Send Telegram Message" Action in EyeAuras allows you to connect to Telegram and send messages via the Telegram framework. Please note that it's not currently possible to send messages impersonating a real user.</p>
 <p>&nbsp;</p>
-<h3><strong>Options:</strong></h3>
+<h1>Setting up Telegram Bot / Group</h1>
+<p>To setup Telegram notifications you have to do 3 things:</p>
+<ol>
+  <li>Create Telegram Bot - it will be used to send you notifications. This is how you'll get <strong>Telegram Bot Token. </strong>You can either use an existing bot or create a new one following instruction below</li>
+  <li>Create a group or add your Telegram Bot to existing group - this is where messages will be sent. You can add another bot named <strong>Show Json Bot </strong>to get <strong>Telegram Chat Id </strong>of the group.</li>
+  <li>Configure Send Telegram Message by putting in <strong>Telegram Bot Token </strong>and <strong>Telegram Chat Id</strong></li>
+</ol>
+<p>&nbsp;</p>
+<h3>How to get Telegram Bot Token</h3>
+<ol>
+  <li>Open Telegram client (desktop/mobile does not really matter)</li>
+  <li>Find bot <strong>BotFather</strong></li>
+  <li>Type <strong>/newbot</strong></li>
+  <li>Choose and type some name for your new bot, it does not have to be unique, e.g. “MyAwesomeNewTelegramBot”</li>
+  <li>Choose and type username for your new bot, it has to be unique and has to end with “bot”, .e.g “MyAwesomeNewTelegramBot” (it will be taken and you'll have to pick something new)</li>
+  <li>That's it! If you've done everything correctly, <strong>BotFather </strong>should provide you with <strong>Bot Token</strong></li>
+</ol>
+<p>Example:</p>
+<figure class="image"><img src="/telegram_3uc3q03fas.png"></figure>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3>How to get Chat Id</h3>
+<ol>
+  <li>Create new group in Telegram or open existing one</li>
+  <li>Click on <strong>Add Member</strong> button</li>
+  <li>Find and add <strong>YOUR_BOT_NAME </strong>(username of the bot you've created previously, e.g. <strong>MyAwesomeNewTelegramBot</strong>)</li>
+  <li>Find and add <strong>Show Json Bot</strong></li>
+  <li>(optional) Click on Create - this is needed only if you're creating a new and fresh TG group</li>
+  <li><strong>Show Json Bot </strong>will print a JSON which will contain ChatId</li>
+</ol>
+<figure class="image"><img src="/telegram_ive2xr6teu.png"></figure>
+<p>&nbsp;</p>
+<h1>Action options</h1>
 <p><strong>Telegram Bot Token:</strong> This is the ID of the Telegram bot that you've created. For more details on how to configure this, please check the following link: <a href="https://wiki.eyeauras.net/en/triggers/telegram-message"><u>Telegram Message Trigger</u></a>.</p>
 <p><strong>Telegram Chat ID:</strong> This is the ID of the chat where you want to send your message.</p>
 <p><strong>SOCKS5 Proxy:</strong> If needed, you can connect to a proxy to send your message. The proxy should be provided in the following format: username:password@host:port.</p>
