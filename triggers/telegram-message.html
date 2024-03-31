@@ -2,22 +2,21 @@
 title: Telegram Message
 description: listens for user-specified messages sent across Telegram channel, allowing for synchronized control and data sharing
 published: true
-date: 2023-06-18T13:18:00.478Z
+date: 2024-03-31T21:45:59.981Z
 tags: 
 editor: ckeditor
 dateCreated: 2022-12-20T17:35:23.602Z
 -->
 
 <p>This trigger allows you to configure reaction to messages in one of your Telegram channels.</p>
-<p>As with all other text-matching triggers this trigger supports <a href="https://wiki.eyeauras.net/en/text-match-expressions">Text Match Expressions</a></p>
-<p>Prior to usage of this trigger you'll have to establish Telegram bot which will maintain the channel subscription. It is quite an easy task, but could be a bit overwhelming first time you'll try to do it, luckily, there is a number of different guides out there in the web.&nbsp;</p>
-<p>The most crucial part of that process is retrieving Token, which will be used by EyeAuras to impersonate Bot and retrieve messages from the channel</p>
-<p>Helpful docs about TG bots:</p>
-<ul>
-  <li>Official docs, BotFather section:&nbsp;<a href="https://tlgrm.ru/docs/bots"> </a><a href="https://tlgrm.ru/docs/bots#botfather">Документация Telegram: Боты (tlgrm.ru)</a></li>
-  <li>Instruction with images on how to configure chat-bot: <a href="https://sendpulse.com/ru/knowledge-base/chatbot/create-telegram-chatbot">Как подключитьTelegram чат-бот | SendPulse</a></li>
-</ul>
-<figure class="image"><img src="https://eyeauras.net/uploads/ODK_Fb_Oy_76969f0b38.png"></figure>
+<p>&nbsp;</p>
+<h1>Setting up Telegram Bot / Group</h1>
+<p>To setup Telegram notifications you have to do 3 things:</p>
+<ol>
+  <li>Create Telegram Bot - it will be used to send you notifications. This is how you'll get <strong>Telegram Bot Token. </strong>You can either use an existing bot or create a new one following instruction below</li>
+  <li>Create a group or add your Telegram Bot to existing group - this is where messages will be sent. You can add another bot named <strong>Show Json Bot </strong>to get <strong>Telegram Chat Id </strong>of the group.</li>
+  <li>Configure Send Telegram Message by putting in <strong>Telegram Bot Token </strong>and <strong>Telegram Chat Id</strong></li>
+</ol>
 <p>&nbsp;</p>
 <h3>How to get Telegram Bot Token</h3>
 <ol>
@@ -42,5 +41,15 @@ dateCreated: 2022-12-20T17:35:23.602Z
   <li><strong>Show Json Bot </strong>will print a JSON which will contain ChatId</li>
 </ol>
 <figure class="image"><img src="/telegram_ive2xr6teu.png"></figure>
+<p>&nbsp;</p>
+<h1>Trigger settings</h1>
+<p>As with all other text-matching triggers this trigger supports <a href="https://wiki.eyeauras.net/en/text-match-expressions">Text Match Expressions</a></p>
+<p>Prior to usage of this trigger you'll have to establish Telegram bot which will maintain the channel subscription. It is quite an easy task, but could be a bit overwhelming first time you'll try to do it, luckily, there is a number of different guides out there in the web.&nbsp;</p>
+<p>The most crucial part of that process is retrieving Token, which will be used by EyeAuras to impersonate Bot and retrieve messages from the channel</p>
+<p>Helpful docs about TG bots:</p>
+<ul>
+  <li>Official docs, BotFather section:&nbsp;<a href="https://tlgrm.ru/docs/bots"> </a><a href="https://tlgrm.ru/docs/bots#botfather">Документация Telegram: Боты (tlgrm.ru)</a></li>
+  <li>Instruction with images on how to configure chat-bot: <a href="https://sendpulse.com/ru/knowledge-base/chatbot/create-telegram-chatbot">Как подключитьTelegram чат-бот | SendPulse</a></li>
+</ul>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
