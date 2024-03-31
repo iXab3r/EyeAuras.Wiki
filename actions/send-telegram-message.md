@@ -2,13 +2,19 @@
 title: Send Telegram Message
 description: allows you to connect to Telegram and send messages via the Telegram framework
 published: true
-date: 2024-03-31T21:53:52.979Z
+date: 2024-03-31T21:55:48.680Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T15:01:39.519Z
 ---
 
-The "Send Telegram Message" Action in EyeAuras allows you to connect to Telegram and send messages via the Telegram framework. Please note that it's not currently possible to send messages impersonating a real user.
+The "Send Telegram Message" Action in EyeAuras allows you to connect to **Telegram** and send messages via the Telegram Bot framework.
+
+> Use [Telegram Message trigger](/en/triggers/telegram-message) to configure reactions to messages send by this action or other users in a group.
+{.is-info}
+
+Please note that it's not currently possible to send messages impersonating a real user.
+
 
 # Setting up Telegram Bot / Group
 
