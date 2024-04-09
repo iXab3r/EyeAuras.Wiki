@@ -2,7 +2,7 @@
 title: Custom UI (HTML+C#)
 description: allows user-developed, feature-rich, unique applications within EyeAuras using familiar web technologies and C#
 published: true
-date: 2024-04-09T18:09:35.910Z
+date: 2024-04-09T18:09:38.180Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T17:26:53.242Z
