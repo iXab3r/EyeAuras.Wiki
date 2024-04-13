@@ -2,7 +2,7 @@
 title: WindowImageProcessedEventArgs
 description: 
 published: true
-date: 2024-04-13T11:37:08.113Z
+date: 2024-04-13T11:37:29.406Z
 tags: 
 editor: markdown
 dateCreated: 2024-04-13T11:37:08.113Z
