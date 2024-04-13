@@ -2,13 +2,13 @@
 title: WindowImageProcessedEventArgs
 description: 
 published: true
-date: 2024-04-13T11:37:29.406Z
+date: 2024-04-13T11:37:45.249Z
 tags: 
 editor: markdown
 dateCreated: 2024-04-13T11:37:08.113Z
 ---
 
-```
+```csharp
 /// <summary>
 /// Represents the event arguments for an image processing trigger, containing the results
 /// and transformations required to map detected objects from local to screen coordinates.
