@@ -2,7 +2,7 @@
 title: Пермиссионная модель
 description: 
 published: true
-date: 2024-04-22T09:31:44.051Z
+date: 2024-04-22T09:32:18.152Z
 tags: 
 editor: markdown
 dateCreated: 2024-04-20T10:52:21.002Z
