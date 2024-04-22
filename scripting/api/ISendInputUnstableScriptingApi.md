@@ -1,13 +1,12 @@
 ---
 title: ISendInputUnstableScriptingApi
-description: Interface for simulating user input, including mouse and keyboard actions, with various settings for delays and cursor control.
+description: 
 published: true
-date: 2024-03-17T16:28:30.053Z
-tags: user input, mouse actions, keyboard actions, scripting api, cursor control
+date: 2024-03-17T16:28:37.270Z
+tags: user input, simulation, mouse actions, keyboard actions, scripting API
 editor: markdown
-dateCreated: 2024-02-28T13:04:42.575Z
+dateCreated: 2024-02-23T21:58:16.489Z
 ---
-
 ```csharp
 /// <summary>
 /// Provides an interface for simulating user input, including mouse and keyboard actions.
