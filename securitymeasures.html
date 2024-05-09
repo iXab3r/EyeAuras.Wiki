@@ -2,7 +2,7 @@
 title: Anti-detection
 description: 
 published: true
-date: 2024-05-03T08:21:49.441Z
+date: 2024-05-09T22:15:25.495Z
 tags: 
 editor: ckeditor
 dateCreated: 2022-12-20T17:27:54.469Z
@@ -14,8 +14,11 @@ dateCreated: 2022-12-20T17:27:54.469Z
 <h2>No injection!</h2>
 <p>Everything that application does it does without altering game or its files. This ensures that any active kind of protection which periodically checks for installed hooks and such will show nothing. The only way to detect the app is by finding it in the system and counter-measures against it are constantly improving.</p>
 <p>&nbsp;</p>
-<h2>Encrypted container</h2>
+<h2>Container encryption</h2>
 <p>Application is packed into a single encrypted executable, which lacks any signatures and all the files that are needed for app to work are packed right into the app itself.</p>
+<p>&nbsp;</p>
+<h2>Modules encryption</h2>
+<p>Each and every operation that the app can do is shipped as a separate “module” - computer-vision, input simulation, communications, all of these are packed into separate libraries each of which has unique signature every new version.</p>
 <p>&nbsp;</p>
 <h2>"Security Measures" option</h2>
 <p>This option sits in app Settings and enables few additional steps that try to protect the program from detection. Application start-up time will increase, in some cases it may take for up to 1 extra minute.&nbsp;</p>
