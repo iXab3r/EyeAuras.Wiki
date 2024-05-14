@@ -1,8 +1,8 @@
 ---
-title: Send Input
+title: (legacy) Send Input
 description:  lets users emulate a single input event
 published: true
-date: 2024-05-14T09:38:51.916Z
+date: 2024-05-14T09:38:56.650Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T16:03:09.798Z
