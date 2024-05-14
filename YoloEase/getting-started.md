@@ -1,8 +1,8 @@
 ---
 title: Getting Started
-description: CVATAAT: Your Quick Guide
+description: YoloEase: Your Quick Guide
 published: true
-date: 2024-03-26T22:55:37.234Z
+date: 2024-05-14T17:08:10.932Z
 tags: 
 editor: markdown
 dateCreated: 2023-10-29T19:14:56.548Z
