@@ -2,13 +2,15 @@
 title: Window Is Active
 description:  becomes active when the specified window, identified by a Window Matching Expression, is in the foreground and active. It becomes inactive when the window is minimized or not active, and switches to 'Unknown' if the window is not present in the system.
 published: true
-date: 2024-05-14T11:05:04.342Z
+date: 2024-05-14T11:05:55.872Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T12:12:23.045Z
 ---
 
 The `**Window Is Active**` trigger is  used to detect whether a specific window, identified by a Window Matching Expression, is in the foreground and active.
+
+![Window Is Active Trigger](https://s3.eyeauras.net/media/2024/05/EyeAuras_TntB9EP1WPMvNOEe.png)
 
 ### **Overview**
 
