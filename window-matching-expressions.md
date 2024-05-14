@@ -2,7 +2,7 @@
 title: Window Match Expressions
 description: A user interface in EyeAuras, enabling selection of specific windows using a custom expression.
 published: true
-date: 2024-05-14T11:14:59.400Z
+date: 2024-05-14T11:15:01.093Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T11:57:49.061Z
