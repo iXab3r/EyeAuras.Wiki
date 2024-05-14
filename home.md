@@ -2,7 +2,7 @@
 title: Home
 description: EyeAuras is a software tool designed to create and manage "auras," which are scripts or functions that can automate tasks, process data, or enhance user interaction with their computer or applications
 published: true
-date: 2024-05-14T19:41:27.656Z
+date: 2024-05-14T19:41:49.903Z
 tags: 
 editor: markdown
 dateCreated: 2022-11-15T15:02:45.417Z
@@ -17,7 +17,7 @@ EyeAuras is [computer-vision](/triggers/images/imagecapturetriggers) and [machin
 ## Main concept
 
 -   **Aura** \- combination of Triggers, Actions, Overlays and Enabling conditions. This is what you'll share with others, and this does the actual work.
--   [Enabling conditions](/en/enabling-conditions)
+-   [Enabling conditions](/features/enabling-conditions)
 -   **Triggers** \- any kind of state which could be described in Active/NotActive terms. This could be Hotkey (pressed/unpressed or toggle),  foreground Window check (active/not active), Image/Text/Color search result(matched/not matched).  Aura Active/NotActive state is a combination of states of her child Triggers. Trigger has three states:
     -   Active - this means that condition is met, e.g. for WindowIsActive trigger this means that Window with matching title is Active
     -   Not Active - this means that conditions is not met
