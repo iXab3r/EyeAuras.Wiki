@@ -2,7 +2,7 @@
 title: Home
 description: EyeAuras is a software tool designed to create and manage "auras," which are scripts or functions that can automate tasks, process data, or enhance user interaction with their computer or applications
 published: true
-date: 2024-05-14T19:39:32.400Z
+date: 2024-05-14T19:40:24.420Z
 tags: 
 editor: markdown
 dateCreated: 2022-11-15T15:02:45.417Z
@@ -30,12 +30,12 @@ EyeAuras is [computer-vision](/triggers/images/imagecapturetriggers) and [machin
 
 ### Subsystems
 
--   [Export/Import](/en/export-import) - transfer, share, or backup EyeAuras packs across different users or devices
--   [Aura Library](/en/aura-library) - a shared collection of EyeAuras packs, available for users to discover, import, and use
--   [Window Match Expressions](/en/window-matching-expressions) - enabling selection of specific windows using a custom expression
--   [Text Match Expressions](/en/text-match-expressions) - Powerful tool enabling text condition validation through Regex, Text, and Lambda evaluators.
--   [Bindings](/en/bindings) - interconnect properties between triggers, actions, and overlays to allow for easier change of group properties and to open up new capabilities
--   [Default Properties](/en/default-properties)
+-   [Export/Import](/features/export-import) - transfer, share, or backup EyeAuras packs across different users or devices
+-   [Aura Library](/features/aura-library) - a shared collection of EyeAuras packs, available for users to discover, import, and use
+-   [Window Match Expressions](/features/window-matching-expressions) - enabling selection of specific windows using a custom expression
+-   [Text Match Expressions](/features/text-match-expressions) - Powerful tool enabling text condition validation through Regex, Text, and Lambda evaluators.
+-   [Bindings](/efeaturesn/bindings) - interconnect properties between triggers, actions, and overlays to allow for easier change of group properties and to open up new capabilities
+-   [Default Properties](/features/default-properties)
 
 ### Triggers
 
