@@ -2,13 +2,15 @@
 title: Delay
 description: allows users to control the timing between actions, including an option for randomizing delay durations
 published: true
-date: 2024-05-14T18:37:22.004Z
+date: 2024-05-14T18:37:33.237Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T14:34:33.370Z
 ---
 
 The Delay Action is a simple tool enabling users to control the timing and flow between actions. This can be particularly useful when you need a certain amount of time to pass before the next action is executed.
+
+![Delay Action](https://s3.eyeauras.net/media/2024/05/EyeAuras_18f7NSJLeiMFPOCD.png)
 
 ### **Delay in milliseconds**
 
