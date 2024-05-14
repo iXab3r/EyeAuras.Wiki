@@ -2,7 +2,7 @@
 title: Send Network Message
 description: lets users transmit custom messages across specified network channels, coordinating tasks among applications or integrating third-party services.
 published: true
-date: 2024-05-14T09:51:06.374Z
+date: 2024-05-14T09:51:08.430Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T14:40:18.159Z
