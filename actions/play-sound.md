@@ -2,7 +2,7 @@
 title: Play Sound
 description: enables users to play specified sounds or notifications via the default output device
 published: true
-date: 2024-05-14T09:49:41.332Z
+date: 2024-05-14T09:49:43.335Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T14:29:49.671Z
