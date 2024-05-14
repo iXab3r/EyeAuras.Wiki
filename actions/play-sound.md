@@ -2,16 +2,16 @@
 title: Play Sound
 description: enables users to play specified sounds or notifications via the default output device
 published: true
-date: 2024-05-14T09:49:43.335Z
+date: 2024-05-14T09:49:56.842Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T14:29:49.671Z
 ---
 
 The Play Sound Action is a feature in EyeAuras that allows the user to play a specific sound using the default output device. It's a very convenient way to get audible alerts or feedback while using the system.
+![Play Sound Action](https://s3.eyeauras.net/media/2024/05/EyeAuras_Cd0NOjfW7gmIOFqx.png)
 
 Here are the options available in the Play Sound Action:
-
 **Notification**
 
 This option allows you to choose a sound to play. You can either select a sound from a predefined list of notifications embedded into EyeAuras, or load a sound from a file. If you load a sound from a file, that sound will be stored inside the action, so it's okay if the original file is renamed or deleted afterwards.
