@@ -2,7 +2,7 @@
 title: Home
 description: EyeAuras is a software tool designed to create and manage "auras," which are scripts or functions that can automate tasks, process data, or enhance user interaction with their computer or applications
 published: true
-date: 2024-05-14T18:43:29.632Z
+date: 2024-05-14T18:43:52.186Z
 tags: 
 editor: markdown
 dateCreated: 2022-11-15T15:02:45.417Z
@@ -14,7 +14,7 @@ dateCreated: 2022-11-15T15:02:45.417Z
 
 ![](/eyeauras_tw5l8cdz4c.png)
 
-![](https://eyeauras.net/assets/img/appimages/EyeAuras_4GhOU01VKp.png)
+![](https://eyeauras.net/assets/img/appimages/EyeAuras_4GhOU01VKp.png =x600)
 
 ## Main concept
 
