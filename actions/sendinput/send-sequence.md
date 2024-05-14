@@ -2,7 +2,7 @@
 title: Send Sequence
 description: allows users to design complex sequences of inputs and delays that can be replayed when required
 published: true
-date: 2024-05-14T09:34:19.654Z
+date: 2024-05-14T09:35:06.849Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T15:45:55.532Z
@@ -29,7 +29,7 @@ Please note that some input methods might not work as expected depending on the 
 **Show Notification While Executing**: If enabled, a floating notification will appear at the top of the screen for the duration of the action's execution.
 
 ### **Record User Inputs**
-
+![Record input form](https://s3.eyeauras.net/media/2024/05/iJx6RWqBJo5OwLLx.png)
 The Record User Inputs feature in the Send Sequence action provides an easy way for users to capture and replicate their interactions with an application. It can record keyboard keypresses, mouse clicks, and mouse positions at a configurable interval.
 
 Here's how you can use this feature:
