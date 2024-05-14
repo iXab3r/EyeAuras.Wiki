@@ -2,7 +2,7 @@
 title: (legacy) Send Text
 description:  allows users to input a predefined text as a series of individual inputs or paste it as a single action using the clipboard
 published: true
-date: 2024-05-14T09:38:36.235Z
+date: 2024-05-14T09:38:38.227Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T15:31:49.359Z
