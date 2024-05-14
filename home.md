@@ -2,7 +2,7 @@
 title: Home
 description: EyeAuras is a software tool designed to create and manage "auras," which are scripts or functions that can automate tasks, process data, or enhance user interaction with their computer or applications
 published: true
-date: 2024-05-14T19:41:49.903Z
+date: 2024-05-14T19:42:22.064Z
 tags: 
 editor: markdown
 dateCreated: 2022-11-15T15:02:45.417Z
@@ -66,7 +66,7 @@ EyeAuras is [computer-vision](/triggers/images/imagecapturetriggers) and [machin
 -   [**Delay**](/en/actions/delay) \- waits for some time before proceeding to the next action
 -   [**Send To Telegram**](/en/actions/send-telegram-message) - sends message to Telegram channel
 -   [**Send Message**](/en/actions/send-network-message) - sends network message through EyeAuras infrastructure to a specified Channel. All other instances of EyeAuras on other computers can subscribe and process these messages via Message Subscription trigger
--   **C# Script** \- custom scripts that use the latest version of C# language with full access to internal EyeAuras API. As soon as API will be stabilized there will be examples/docs.
+-   [**C# Script**](/en/scripting/getting-started) \- custom scripts that use the latest version of C# language with full access to internal EyeAuras API. As soon as API will be stabilized there will be examples/docs.
 
 ### Overlays
 
