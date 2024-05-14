@@ -2,13 +2,15 @@
 title: Window Exists
 description: activates when a specific window, identified through a window matching expression, is present in the system, and deactivates when the window is no longer found.
 published: true
-date: 2024-05-14T11:04:33.463Z
+date: 2024-05-14T11:04:46.600Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T11:51:38.910Z
 ---
 
 The `**Window Exists**` trigger is designed to monitor the state of a particular window in the system. This trigger activates when the specified window is found in the system and deactivates when the window is no longer present or can't be found.
+
+![Window Exists Trigger](https://s3.eyeauras.net/media/2024/05/EyeAuras_i1HqMJPIQLu7SC7C.png)
 
 #### Target Window
 
