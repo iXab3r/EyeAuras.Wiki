@@ -2,7 +2,7 @@
 title: Home
 description: EyeAuras is a software tool designed to create and manage "auras," which are scripts or functions that can automate tasks, process data, or enhance user interaction with their computer or applications
 published: true
-date: 2024-05-14T19:41:07.743Z
+date: 2024-05-14T19:41:27.656Z
 tags: 
 editor: markdown
 dateCreated: 2022-11-15T15:02:45.417Z
@@ -53,7 +53,7 @@ EyeAuras is [computer-vision](/triggers/images/imagecapturetriggers) and [machin
 -   [**File Contains**](/en/triggers/file-contains-text) - activates when specified text is found in specified file
 -   [**Telegram Subscription**](/en/triggers/telegram-message) - activates/deactivates when specified message is received in Telegram channel
 -   [**Volume Control**](/en/triggers/volume-level) - activates/deactivates when volume level of specified audio device or process reaches specified threshold
--   **C# Script** \- custom scripts that use the latest version of C# language with full access to internal EyeAuras API. As soon as API will be stabilized there will be examples/docs.
+-   [**C# Script**](/en/scripting/getting-started) \- custom scripts that use the latest version of C# language with full access to internal EyeAuras API. As soon as API will be stabilized there will be examples/docs.
 
 ### Actions
 
