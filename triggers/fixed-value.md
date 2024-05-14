@@ -2,13 +2,15 @@
 title: Fixed Value
 description: 
 published: true
-date: 2024-05-14T10:29:07.339Z
+date: 2024-05-14T10:29:17.090Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T11:37:32.752Z
 ---
 
 The Fixed Value trigger is one of the most straightforward triggers in EyeAuras. It provides an easy way to set a trigger to a fixed state, giving you more control over your automated tasks in games or other applications.
+
+![Fixed Value Trigger](https://s3.eyeauras.net/media/2024/05/EyeAuras_dwDaZIhSanYHVRtK.png)
 
 ### **Configuration Options**
 
