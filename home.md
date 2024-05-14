@@ -2,7 +2,7 @@
 title: Home
 description: EyeAuras is a software tool designed to create and manage "auras," which are scripts or functions that can automate tasks, process data, or enhance user interaction with their computer or applications
 published: true
-date: 2024-05-14T18:43:59.960Z
+date: 2024-05-14T19:39:32.400Z
 tags: 
 editor: markdown
 dateCreated: 2022-11-15T15:02:45.417Z
@@ -10,7 +10,7 @@ dateCreated: 2022-11-15T15:02:45.417Z
 
 ![](/mainfull.png)
 
-**EyeAuras**  is an automation tool that allows you to model desired behaviour via system of Triggers and Actions. Color search, image search, OCR (text recognition),  global and conditional hotkeys in conjunction with a wide variety of ways to emulate user input bring up an extremely powerful tool to your toolset. And, as a cherry on top, you can always fallback to C# for triggers and actions. 
+EyeAuras is [computer-vision](/triggers/images/imagecapturetriggers) and [machine-learning](/triggers/images/ai-search-trigger) powered [clicker](/actions/sendinput/send-sequence) that can analyze anything that happens on the screen and perform actions such as [mouse movement](/actions/sendinput/send-sequence) and [keyboard](/actions/sendinput/send-sequence) presses on your behalf. It can also make sounds, [send messages to Telegram](/actions/send-telegram-message) and [across the Internet](/actions/send-network-message) and even [execute C# scripts](/scripting/getting-started)!
 
 ![](https://eyeauras.net/assets/img/appimages/EyeAuras_4GhOU01VKp.png =x600)
 
