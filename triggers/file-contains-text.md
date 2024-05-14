@@ -2,13 +2,15 @@
 title: File Contains Text
 description: monitors specified files, applying Text Match Expressions to detect changes and activate accordingly
 published: true
-date: 2024-05-14T10:30:27.708Z
+date: 2024-05-14T10:30:56.210Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T12:56:51.981Z
 ---
 
 **File Contains Text** is designed to monitor changes in a specific file and react based on predefined conditions. It can be particularly useful when tracking updates in configuration files, logs, or any document where changes can determine significant events or actions.
+
+![File Contains Text Trigger](https://s3.eyeauras.net/media/2024/05/EyeAuras_7j9OpEKOveRWtpG9.png)
 
 ### **Description**
 
