@@ -2,7 +2,7 @@
 title: Send Sequence
 description: allows users to design complex sequences of inputs and delays that can be replayed when required
 published: true
-date: 2024-05-14T09:34:17.199Z
+date: 2024-05-14T09:34:19.654Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T15:45:55.532Z
