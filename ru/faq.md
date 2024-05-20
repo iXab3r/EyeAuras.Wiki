@@ -2,7 +2,7 @@
 title: F.A.Q.
 description: 
 published: true
-date: 2024-05-20T09:31:22.011Z
+date: 2024-05-20T09:31:34.112Z
 tags: 
 editor: markdown
 dateCreated: 2024-05-20T09:27:14.883Z
