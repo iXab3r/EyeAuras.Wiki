@@ -2,7 +2,7 @@
 title: F.A.Q.
 description: 
 published: true
-date: 2024-05-20T09:27:14.883Z
+date: 2024-05-20T09:27:51.470Z
 tags: 
 editor: markdown
 dateCreated: 2024-05-20T09:27:14.883Z
@@ -137,19 +137,19 @@ p.s. Интерфейс программы с тех пор сильно пом�
 Канал `linqse` - https://www.youtube.com/@eyesquad-cv9ii 
 
 Фарм в Lineage 2 (это тот бот, про которого речь была выше) от `linqse`
-![](https://www.youtube.com/watch?v=6dpfccqzR8g)
+[](https://www.youtube.com/watch?v=6dpfccqzR8g)
 
 GTA5 - автоматическое распознавание капчи с помощью нейронной сети от `linqse`
-![](https://www.youtube.com/watch?v=zSMFl8-kK6U)
+[](https://www.youtube.com/watch?v=zSMFl8-kK6U)
 
 GTA5 - сбор всего, что только можно с помощью нейронных сетей от `linqse`
-![](https://www.youtube.com/watch?v=y_WT5siaRvo)
+[](https://www.youtube.com/watch?v=y_WT5siaRvo)
 
 Lineage 2 - удаленное управление ботом от `linqse`
-![](https://www.youtube.com/watch?v=udIskU5rJSU)
+[](https://www.youtube.com/watch?v=udIskU5rJSU)
 
 Lineage 2 - фарм мобов в катакомбах от `Quo`. "Паутинка" справа это визуализация логики персонажа, EyeAuras управляет двумя окнами одновременно. Извините за качество, шел 2021 год, снимали на тапок.
-![](https://www.youtube.com/watch?v=nKzTYwsas4U)
+[](https://www.youtube.com/watch?v=nKzTYwsas4U)
 
 Escape From Tarkov - ранний прототип программы, которая с помощью нейронных сетей распознает и оценивает(с помощью аукциона) предметы в Escape From Tarkov от `Tony`
 
