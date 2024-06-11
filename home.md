@@ -2,7 +2,7 @@
 title: Home
 description: EyeAuras is a software tool designed to create and manage "auras," which are scripts or functions that can automate tasks, process data, or enhance user interaction with their computer or applications
 published: true
-date: 2024-06-11T10:55:49.647Z
+date: 2024-06-11T10:56:05.151Z
 tags: 
 editor: markdown
 dateCreated: 2022-11-15T15:02:45.417Z
@@ -21,7 +21,6 @@ EyeAuras is [computer-vision](/triggers/images/imagecapturetriggers) and [machin
 
 -   **Aura** \- combination of Triggers, Actions, Overlays and Enabling conditions. This is what you'll share with others, and this does the actual work.
 -   [**Behavior Tree**](/behavior-trees/gettings-started) \- In short, behavior trees allow specifying to a robot what it should do. It's like its brain. Actions and Triggers serve as its hands and eyes.
--   [Enabling conditions](/features/enabling-conditions)
 -   **Triggers** \- any kind of state which could be described in Active/NotActive terms. This could be Hotkey (pressed/unpressed or toggle),  foreground Window check (active/not active), Image/Text/Color search result(matched/not matched).  Aura Active/NotActive state is a combination of states of her child Triggers. Trigger has three states:
     -   Active - this means that condition is met, e.g. for WindowIsActive trigger this means that Window with matching title is Active
     -   Not Active - this means that conditions is not met
@@ -31,6 +30,7 @@ EyeAuras is [computer-vision](/triggers/images/imagecapturetriggers) and [machin
     -   While Active - these will be executed repeatedly while Auras is Active
     -   On Exit - these are executed when Aura becomes Not Active
 -   **Overlays** \- always-on-top overlays which could show text, image, custom UI or anything else. Overlays are a part of Aura and are shown only while Aura is Active
+-   [**Enabling conditions**](/features/enabling-conditions)
 
 ![Behavior Trees](https://eyeauras.net/assets/img/appimages/EyeAuras_4GhOU01VKp.webp =x400)
 
