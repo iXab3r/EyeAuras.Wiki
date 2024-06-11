@@ -2,7 +2,7 @@
 title: Home
 description: EyeAuras is a software tool designed to create and manage "auras," which are scripts or functions that can automate tasks, process data, or enhance user interaction with their computer or applications
 published: true
-date: 2024-06-11T10:56:41.428Z
+date: 2024-06-11T10:57:45.092Z
 tags: 
 editor: markdown
 dateCreated: 2022-11-15T15:02:45.417Z
@@ -33,6 +33,8 @@ EyeAuras is [computer-vision](/triggers/images/imagecapturetriggers) and [machin
 -   [**Enabling conditions**](/features/enabling-conditions) - Triggers, which could be used to disable/enable Auras and Behavior Trees, e.g. disable the bot if game window does not exist
 
 ![Behavior Trees](https://eyeauras.net/assets/img/appimages/EyeAuras_4GhOU01VKp.webp =x400)
+
+---
 
 ### Subsystems
 
