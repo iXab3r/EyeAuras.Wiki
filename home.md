@@ -2,7 +2,7 @@
 title: Home
 description: EyeAuras is a software tool designed to create and manage "auras," which are scripts or functions that can automate tasks, process data, or enhance user interaction with their computer or applications
 published: true
-date: 2024-05-14T19:42:22.064Z
+date: 2024-06-11T10:53:25.222Z
 tags: 
 editor: markdown
 dateCreated: 2022-11-15T15:02:45.417Z
@@ -12,7 +12,7 @@ dateCreated: 2022-11-15T15:02:45.417Z
 
 EyeAuras is [computer-vision](/triggers/images/imagecapturetriggers) and [machine-learning](/triggers/images/ai-search-trigger) powered [clicker](/actions/sendinput/send-sequence) that can analyze anything that happens on the screen and perform actions such as [mouse movement](/actions/sendinput/send-sequence) and [keyboard](/actions/sendinput/send-sequence) presses on your behalf. It can also make sounds, [send messages to Telegram](/actions/send-telegram-message) and [across the Internet](/actions/send-network-message) and even [execute C# scripts](/scripting/getting-started)!
 
-![](https://eyeauras.net/assets/img/appimages/EyeAuras_4GhOU01VKp.png =x600)
+![Main window](https://eyeauras.net/assets/img/appimages/EyeAuras_OzDyUnmzFH.webp =x600)
 
 ## Main concept
 
@@ -27,6 +27,8 @@ EyeAuras is [computer-vision](/triggers/images/imagecapturetriggers) and [machin
     -   While Active - these will be executed repeatedly while Auras is Active
     -   On Exit - these are executed when Aura becomes Not Active
 -   **Overlays** \- always-on-top overlays which could show text, image, custom UI or anything else. Overlays are a part of Aura and are shown only while Aura is Active
+
+![Behavior Trees](https://eyeauras.net/assets/img/appimages/EyeAuras_4GhOU01VKp.webp =x400)
 
 ### Subsystems
 
