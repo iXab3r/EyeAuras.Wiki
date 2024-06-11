@@ -2,7 +2,7 @@
 title: Home
 description: EyeAuras is a software tool designed to create and manage "auras," which are scripts or functions that can automate tasks, process data, or enhance user interaction with their computer or applications
 published: true
-date: 2024-06-11T10:56:05.151Z
+date: 2024-06-11T10:56:41.428Z
 tags: 
 editor: markdown
 dateCreated: 2022-11-15T15:02:45.417Z
@@ -30,7 +30,7 @@ EyeAuras is [computer-vision](/triggers/images/imagecapturetriggers) and [machin
     -   While Active - these will be executed repeatedly while Auras is Active
     -   On Exit - these are executed when Aura becomes Not Active
 -   **Overlays** \- always-on-top overlays which could show text, image, custom UI or anything else. Overlays are a part of Aura and are shown only while Aura is Active
--   [**Enabling conditions**](/features/enabling-conditions)
+-   [**Enabling conditions**](/features/enabling-conditions) - Triggers, which could be used to disable/enable Auras and Behavior Trees, e.g. disable the bot if game window does not exist
 
 ![Behavior Trees](https://eyeauras.net/assets/img/appimages/EyeAuras_4GhOU01VKp.webp =x400)
 
