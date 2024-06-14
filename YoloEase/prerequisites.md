@@ -2,7 +2,7 @@
 title: Prerequisites
 description: 
 published: true
-date: 2024-02-29T09:49:41.065Z
+date: 2024-06-14T18:12:19.406Z
 tags: 
 editor: markdown
 dateCreated: 2023-10-29T18:35:33.765Z
@@ -14,8 +14,10 @@ dateCreated: 2023-10-29T18:35:33.765Z
 1. Install Python 3.9.0 (later versions will probably work as well)
 > Do not forget to tick "Add to PATH" / "Add Python to environment variables", if installer will offer you to do so
 {.is-warning}
+
+*for Windows x64:*
 ```
-for Windows x64: https://www.python.org/ftp/python/3.9.0/python-3.9.0-amd64.exe
+https://www.python.org/ftp/python/3.9.0/python-3.9.0-amd64.exe
 ```
 
 2. Verify that Python has installed by running version check, it should print "Python 3.9.0" (or other version)
