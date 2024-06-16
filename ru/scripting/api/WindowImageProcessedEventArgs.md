@@ -2,7 +2,7 @@
 title: WindowImageProcessedEventArgs
 description: 
 published: true
-date: 2024-04-13T11:37:45.249Z
+date: 2024-06-16T07:17:00.686Z
 tags: 
 editor: markdown
 dateCreated: 2024-04-13T11:37:08.113Z
@@ -57,6 +57,31 @@ public sealed record WindowImageProcessedEventArgs<TDetectionResult> where TDete
     public WinRectangleF ToScreen(WinRectangleF local)
     {
         return local.Transform(ViewportTransforms.WorldToScreen);
+    }
+
+    /// <summary>
+    /// Converts a rectangle from local viewport coordinates to screen coordinates.
+    /// </summary>
+    /// <param name="local">The rectangle in local viewport coordinates.</param>
+    /// <param name="anchorType">The anchor type specifying which part of the rectangle to align with the screen coordinates. Default is <see cref="RegionAnchorType.Center"/>.</param>
+    /// <returns>A point in screen coordinates.</returns>
+    public WinPoint ToScreenPoint(WinRectangle local, RegionAnchorType anchorType = RegionAnchorType.Center)
+    {
+        var screenRect = ToScreen(local);
+        var screenRectF = screenRect.ToRectangleF();
+        return screenRectF.ToPointInRegion(anchorType).ToPoint();
+    }
+     
+    /// <summary>
+    /// Converts a rectangle from local viewport coordinates to screen coordinates, allowing for fractional pixel values.
+    /// </summary>
+    /// <param name="local">The rectangle in local viewport coordinates.</param>
+    /// <param name="anchorType">The anchor type specifying which part of the rectangle to align with the screen coordinates. Default is <see cref="RegionAnchorType.Center"/>.</param>
+    /// <returns>A point in screen coordinates.</returns>
+    public WinPointF ToScreenPoint(WinRectangleF local, RegionAnchorType anchorType = RegionAnchorType.Center)
+    {
+        var screenRectF = ToScreen(local);
+        return screenRectF.ToPointInRegion(anchorType);
     }
 }
 ```
