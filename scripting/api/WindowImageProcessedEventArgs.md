@@ -2,11 +2,12 @@
 title: WindowImageProcessedEventArgs
 description: Represents the event arguments for an image processing trigger, containing the results and transformations required to map detected objects from local to screen coordinates.
 published: true
-date: 2024-04-13T11:37:45.249Z
+date: 2024-06-16T07:17:13.685Z
 tags: image processing, event arguments, coordinates transformation
 editor: markdown
-dateCreated: 2024-04-13T11:37:08.113Z
+dateCreated: 2024-04-22T09:26:21.746Z
 ---
+
 ```csharp
 /// <summary>
 /// Represents the event arguments for an image processing trigger, containing the results
@@ -57,5 +58,31 @@ public sealed record WindowImageProcessedEventArgs<TDetectionResult> where TDete
     {
         return local.Transform(ViewportTransforms.WorldToScreen);
     }
+
+    /// <summary>
+    /// Converts a rectangle from local viewport coordinates to screen coordinates.
+    /// </summary>
+    /// <param name="local">The rectangle in local viewport coordinates.</param>
+    /// <param name="anchorType">The anchor type specifying which part of the rectangle to align with the screen coordinates. Default is <see cref="RegionAnchorType.Center"/>.</param>
+    /// <returns>A point in screen coordinates.</returns>
+    public WinPoint ToScreenPoint(WinRectangle local, RegionAnchorType anchorType = RegionAnchorType.Center)
+    {
+        var screenRect = ToScreen(local);
+        var screenRectF = screenRect.ToRectangleF();
+        return screenRectF.ToPointInRegion(anchorType).ToPoint();
+    }
+     
+    /// <summary>
+    /// Converts a rectangle from local viewport coordinates to screen coordinates, allowing for fractional pixel values.
+    /// </summary>
+    /// <param name="local">The rectangle in local viewport coordinates.</param>
+    /// <param name="anchorType">The anchor type specifying which part of the rectangle to align with the screen coordinates. Default is <see cref="RegionAnchorType.Center"/>.</param>
+    /// <returns>A point in screen coordinates.</returns>
+    public WinPointF ToScreenPoint(WinRectangleF local, RegionAnchorType anchorType = RegionAnchorType.Center)
+    {
+        var screenRectF = ToScreen(local);
+        return screenRectF.ToPointInRegion(anchorType);
+    }
 }
+
 ```
