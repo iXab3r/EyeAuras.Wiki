@@ -2,15 +2,13 @@
 title: Hotkey Is Active
 description: detects and responds to the activation of a specific keyboard/mouse events
 published: true
-date: 2024-06-22T19:40:33.605Z
+date: 2024-06-22T19:41:02.799Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T11:24:31.243Z
 ---
 
-## **Description**
-
-"HotkeyIsActive" is a trigger that monitors specific keyboard or mouse input. This can be especially useful in various situations, such as gaming, where a user might want to automate certain repetitive tasks or complex actions with a single key press. It also provides an easy way for users to execute commands in applications or systems that otherwise don't offer customizable hotkey support.
+`HotkeyIsActive` is a trigger that monitors specific keyboard or mouse input. This can be especially useful in various situations, such as gaming, where a user might want to automate certain repetitive tasks or complex actions with a single key press. It also provides an easy way for users to execute commands in applications or systems that otherwise don't offer customizable hotkey support.
 
 ![HotkeyIsActive trigger](https://s3.eyeauras.net/media/2024/06/EyeAuras_tamGDBtZFzTqqvoW.png)
 
