@@ -2,7 +2,7 @@
 title: Как найти изображение
 description: 
 published: true
-date: 2024-02-23T23:07:10.725Z
+date: 2024-06-23T10:33:55.116Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-23T23:07:10.725Z
@@ -18,10 +18,8 @@ dateCreated: 2024-02-23T23:07:10.725Z
 4. Копипастим, запускаем, если все хорошо - скрипт напечатает координаты
 
 ```csharp
-var trigger = AuraTree.FindAuraByPath(@".\ImageSearch") // находим ауру по имени
-    .Triggers.Items // перебираем все триггеры
-    .OfType<IImageSearchTrigger>() // и находим триггеры "Поиск изображения"
-    .First(); // из всех берем первый, если не найдено - будет ошибка
+// находим ауру по имени и внутри нее находим триггер "Поиск изображения"
+var trigger = AuraTree.GetTriggerByPath<IImageSearchTrigger>(@".\ImageSearch");
 
 var matchResult = trigger.Refresh(); // заставляем триггер выполнить поиск
 
