@@ -2,7 +2,7 @@
 title: IAuraTreeScriptingApi
 description: Interface providing methods for interacting with the aura tree, including finding and retrieving auras, folders, and behavior trees.
 published: true
-date: 2024-06-23T10:31:52.448Z
+date: 2024-06-23T10:32:17.931Z
 tags: scripting, api, triggers, behavior trees, actions, folders, aura tree
 editor: markdown
 dateCreated: 2024-02-28T13:04:40.818Z
@@ -196,7 +196,7 @@ public interface IAuraTreeScriptingApi : IScriptingApi
     /// <code>
     /// try
     /// {
-    ///     var action = api.GetActionByPath<ISendSequenceAction>("MyAuraPath");
+    ///     var action = AuraTree.GetActionByPath<ISendSequenceAction>("MyAuraPath");
     ///     Log.Info($"Action found: {action.Name}");
     /// }
     /// catch (ArgumentException ex)
