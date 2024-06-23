@@ -2,7 +2,7 @@
 title: IAuraTreeScriptingApi
 description: 
 published: true
-date: 2024-03-05T14:37:51.466Z
+date: 2024-06-23T10:31:24.330Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-20T20:28:29.069Z
@@ -51,14 +51,14 @@ public interface IAuraTreeScriptingApi : IScriptingApi
     /// <returns>The aura at the specified path, or null if not found.</returns>
     /// <example>
     /// <code>
-    /// var aura = api.FindAuraByPath("MyFolder/Aura1");
+    /// var aura = AuraTree.FindAuraByPath("MyFolder/Aura1");
     /// if (aura != null)
     /// {
-    ///     Console.WriteLine("Aura found!");
+    ///     Log.Info("Aura found!");
     /// }
     /// else
     /// {
-    ///     Console.WriteLine("Aura not found.");
+    ///     Log.Info("Aura not found.");
     /// }
     /// </code>
     /// </example>
@@ -73,12 +73,12 @@ public interface IAuraTreeScriptingApi : IScriptingApi
     /// <code>
     /// try
     /// {
-    ///     var aura = api.GetAuraByPath("MyFolder/Aura1");
-    ///     Console.WriteLine("Aura found!");
+    ///     var aura = AuraTree.GetAuraByPath("MyFolder/Aura1");
+    ///     Log.Info("Aura found!");
     /// }
     /// catch (NotFoundException)
     /// {
-    ///     Console.WriteLine("Aura not found.");
+    ///     Log.Info("Aura not found.");
     /// }
     /// </code>
     /// </example>
@@ -91,14 +91,14 @@ public interface IAuraTreeScriptingApi : IScriptingApi
     /// <returns>The folder at the specified path, or null if not found.</returns>
     /// <example>
     /// <code>
-    /// var folder = api.FindFolderByPath("MyProject/Folders/Folder1");
+    /// var folder = AuraTree.FindFolderByPath("MyProject/Folders/Folder1");
     /// if (folder != null)
     /// {
-    ///     Console.WriteLine("Folder found!");
+    ///     Log.Info("Folder found!");
     /// }
     /// else
     /// {
-    ///     Console.WriteLine("Folder not found.");
+    ///     Log.Info("Folder not found.");
     /// }
     /// </code>
     /// </example>
@@ -113,12 +113,12 @@ public interface IAuraTreeScriptingApi : IScriptingApi
     /// <code>
     /// try
     /// {
-    ///     var folder = api.GetFolderByPath("MyProject/Folders/Folder1");
-    ///     Console.WriteLine("Folder found!");
+    ///     var folder = AuraTree.GetFolderByPath("MyProject/Folders/Folder1");
+    ///     Log.Info("Folder found!");
     /// }
     /// catch (NotFoundException)
     /// {
-    ///     Console.WriteLine("Folder not found.");
+    ///     Log.Info("Folder not found.");
     /// }
     /// </code>
     /// </example>
@@ -131,14 +131,14 @@ public interface IAuraTreeScriptingApi : IScriptingApi
     /// <returns>The behavior tree at the specified path, or null if not found.</returns>
     /// <example>
     /// <code>
-    /// var behaviorTree = api.FindBehaviorTreeByPath("MyProject/BehaviorTrees/Tree1");
+    /// var behaviorTree = AuraTree.FindBehaviorTreeByPath("MyProject/BehaviorTrees/Tree1");
     /// if (behaviorTree != null)
     /// {
-    ///     Console.WriteLine("Behavior tree found!");
+    ///     Log.Info("Behavior tree found!");
     /// }
     /// else
     /// {
-    ///     Console.WriteLine("Behavior tree not found.");
+    ///     Log.Info("Behavior tree not found.");
     /// }
     /// </code>
     /// </example>
@@ -153,12 +153,12 @@ public interface IAuraTreeScriptingApi : IScriptingApi
     /// <code>
     /// try
     /// {
-    ///     var behaviorTree = api.GetBehaviorTreeByPath("MyProject/BehaviorTrees/Tree1");
-    ///     Console.WriteLine("Behavior tree found!");
+    ///     var behaviorTree = AuraTree.GetBehaviorTreeByPath("MyProject/BehaviorTrees/Tree1");
+    ///     Log.Info("Behavior tree found!");
     /// }
     /// catch (NotFoundException)
     /// {
-    ///     Console.WriteLine("Behavior tree not found.");
+    ///     Log.Info("Behavior tree not found.");
     /// }
     /// </code>
     /// </example>
@@ -175,12 +175,12 @@ public interface IAuraTreeScriptingApi : IScriptingApi
     /// <code>
     /// try
     /// {
-    ///     var trigger = api.GetTriggerByPath<IImageSearchTrigger>("MyAuraPath");
-    ///     Console.WriteLine($"Trigger found: {trigger.Name}");
+    ///     var trigger = AuraTree.GetTriggerByPath<IImageSearchTrigger>("MyAuraPath");
+    ///     Log.Info($"Trigger found: {trigger.Name}");
     /// }
     /// catch (ArgumentException ex)
     /// {
-    ///     Console.WriteLine(ex.Message);
+    ///     Log.Info(ex.Message);
     /// }
     /// </code>
     /// </example>
@@ -198,11 +198,11 @@ public interface IAuraTreeScriptingApi : IScriptingApi
     /// try
     /// {
     ///     var action = api.GetActionByPath<ISendSequenceAction>("MyAuraPath");
-    ///     Console.WriteLine($"Action found: {action.Name}");
+    ///     Log.Info($"Action found: {action.Name}");
     /// }
     /// catch (ArgumentException ex)
     /// {
-    ///     Console.WriteLine(ex.Message);
+    ///     Log.Info(ex.Message);
     /// }
     /// </code>
     /// </example>
