@@ -2,7 +2,7 @@
 title: IAuraTreeScriptingApi
 description: 
 published: true
-date: 2024-06-23T10:31:24.330Z
+date: 2024-06-23T10:32:29.412Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-20T20:28:29.069Z
@@ -197,7 +197,7 @@ public interface IAuraTreeScriptingApi : IScriptingApi
     /// <code>
     /// try
     /// {
-    ///     var action = api.GetActionByPath<ISendSequenceAction>("MyAuraPath");
+    ///     var action = AuraTree.GetActionByPath<ISendSequenceAction>("MyAuraPath");
     ///     Log.Info($"Action found: {action.Name}");
     /// }
     /// catch (ArgumentException ex)
