@@ -2,7 +2,7 @@
 title: Window Match Expressions
 description: A user interface in EyeAuras, enabling selection of specific windows using a custom expression.
 published: true
-date: 2024-05-14T11:15:01.093Z
+date: 2024-07-13T16:10:03.452Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T11:57:49.061Z
@@ -37,41 +37,40 @@ The system then shows the selected window(s) in the Picked Window Display.
 The Window Matching Expression Control simplifies the process of customizing your experience with EyeAuras.
 
 ### Examples
+Expression: `"Explorer"` Result: Matches the window titled exactly "Explorer".
 
-Expression: `**"Explorer"**` Result: Matches the window titled exactly "Explorer".
+Expression: `"/fire/"` Result: Matches all windows with "fire" in their title, ignoring case sensitivity.
 
-Expression: `**"/fire/"**` Result: Matches all windows with "fire" in their title, ignoring case sensitivity.
+Expression: `"Explorer" #2` Result: Matches the second window titled exactly "Explorer".
 
-Expression: `**"Explorer" #2**` Result: Matches the second window titled exactly "Explorer".
+Expression: `"Mail" #1` Result: Matches the first window titled "Mail".
 
-Expression: `**"Mail" #1**` Result: Matches the first window titled "Mail".
+Expression: `0x5A` Result: Matches the window with handle hexadecimal value 5A.
 
-Expression: `**0x5A**` Result: Matches the window with handle hexadecimal value 5A.
+Expression: `"paint"` Result: Matches all windows with "paint" in their title.
 
-Expression: `**"paint"**` Result: Matches all windows with "paint" in their title.
+Expression: `"/^Notepad/"` Result: Matches all windows where the title begins with "Notepad".
 
-Expression: `**"/^Notepad/"**` Result: Matches all windows where the title begins with "Notepad".
+Expression: `&H2B` Result: Matches the window with handle hexadecimal value 2B.
 
-Expression: `**&H2B**` Result: Matches the window with handle hexadecimal value 2B.
+Expression: `"/chrome$/"` Result: Matches all windows where the title ends with "chrome".
 
-Expression: `**"/chrome$/"**` Result: Matches all windows where the title ends with "chrome".
+Expression: `"Calculator" #3` Result: Matches the third window titled exactly "Calculator".
 
-Expression: `**"Calculator" #3**` Result: Matches the third window titled exactly "Calculator".
+Expression: `"Excel" #1` Result: Matches the first window titled "Excel".
 
-Expression: `**"Excel" #1**` Result: Matches the first window titled "Excel".
+Expression: `"/Microsoft/"` Result: Matches all windows with "Microsoft" in their title, ignoring case sensitivity.
 
-Expression: `**"/Microsoft/"**` Result: Matches all windows with "Microsoft" in their title, ignoring case sensitivity.
+Expression: `0xA1F` Result: Matches the window with handle hexadecimal value A1F.
 
-Expression: `**0xA1F**` Result: Matches the window with handle hexadecimal value A1F.
+Expression: `"/^Google Chrome/"` Result: Matches all windows where the title begins with "Google Chrome".
 
-Expression: `**"/^Google Chrome/"**` Result: Matches all windows where the title begins with "Google Chrome".
+Expression: `#5` Result: Matches the fifth window in the dropdown list.
 
-Expression: `**#5**` Result: Matches the fifth window in the dropdown list.
+Expression: `"Firefox #2"` Result: Matches the second window titled exactly "Firefox".
 
-Expression: `**"Firefox #2"**` Result: Matches the second window titled exactly "Firefox".
+Expression: `&H7C` Result: Matches the window with handle hexadecimal value 7C.
 
-Expression: `**&H7C**` Result: Matches the window with handle hexadecimal value 7C.
+Expression: `#1` Result: Matches the first window in the dropdown list.
 
-Expression: `**#1**` Result: Matches the first window in the dropdown list.
-
-Expression: `**"/.*/"**` Result: Matches all windows as it's a regular expression for any character.
+Expression: `"/.*/"` Result: Matches all windows as it's a regular expression for any character.
