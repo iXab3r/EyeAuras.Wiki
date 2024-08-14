@@ -2,7 +2,7 @@
 title: AugRelease
 description: 
 published: true
-date: 2024-08-14T08:56:24.463Z
+date: 2024-08-14T08:57:33.479Z
 tags: 
 editor: markdown
 dateCreated: 2024-08-11T17:15:30.899Z
@@ -55,7 +55,7 @@ This is still in early stages and will be the recommended way of distributing yo
 
 P.S. Client-side packing will be enabled a bit later
 
-# Rework - Publish/Subscribe
+# Rework - Publish/Synchronize
 This is an enhanced version of the aura import mechanism. By providing a link to a pack (for example, [the clicker for the crypto-game Blum](https://eyeauras.net/share/S20240606142306qxWxc7fy40p6)), you can start receiving update notifications as soon as the author releases a new version. Additionally, there is an integrated system for "merging" your settings with the author's pack settings (details below).
 
 The essence of this mechanism is to make it easier and more convenient for authors to distribute updated versions of aura packs, and for users to update them. In the foreseeable future, pack settings will also include the ability to specify the program version recommended by the author, and the update mechanism will be able to download and install it.
