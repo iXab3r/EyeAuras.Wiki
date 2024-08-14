@@ -2,7 +2,7 @@
 title: AugRelease
 description: 
 published: true
-date: 2024-08-11T17:15:30.899Z
+date: 2024-08-14T08:56:24.463Z
 tags: 
 editor: markdown
 dateCreated: 2024-08-11T17:15:30.899Z
@@ -250,6 +250,7 @@ From now on, you can hover cursor over trigger state to get a better understandi
 - **[Crash]** Fixed crash in WindowSelector #EA-337
 - **[Crash]** Fixed crash in TransformAsync #EA-339
 - **[Crash]** Fixed crash in BTNodeEditorFooterMenu #EA-512  v7247 by oddessax
+- **[Crash]** Fixed(?) a nasty problem with a crash that occurred in BehaviorTree sometimes #EA-510 v7247 TransformAsync
 
 - **[Scripting]** Added [new method ToScreenPoint](https://wiki.eyeauras.net/en/scripting/api/WindowImageProcessedEventArgs)
 - **[Scripting]** Exposed properties that control OnScreenDisplay in Search Triggers, allowing you to toggle them via code.
@@ -271,7 +272,10 @@ From now on, you can hover cursor over trigger state to get a better understandi
 - **[BehaviorTree]** Made the panel with nodes collapsible + changed how nodes look (they take much less space now)
 - **[BehaviorTree]** Fixed problems with some nodes icons not being shown properly
 - **[BehaviorTree]** Improved UX when operating with many(>3) BTs simultaneously
+- **[BehaviorTree]** In BT overlay added AutoZoom option which automatically zooms in and out whenever size of an overlay changes
 
+- **[UI]** Fixed Variables not redrawing properly #EA-509  v7247 by dutiful6005
+- **[UI]** Fixed revision not being updated properly on Synchronization page after Upload
 - **[UI]** Added masking to password-protected folders
 - **[UI]** Fixed a crash which occurred when something bad (like disconnect) happened while you were trying to login (error "Edit Form")
 reduce amount of code you need to write to click on someting 
@@ -301,6 +305,9 @@ randomized time spans
 - **[Packing]** Fixed bug in Packing algorithm related to creating new directory
 - **[Packing]** Added two new options in packing - now you can bundle your personal config 
 - **[Packing]** Added option to remove icon from packed executable
+- **[Packing]** Fixed a problem with packing presets 
+- **[Packing]** Fixed a problem with non-URI resources (e.g. Sound) packing
+
 
 - **[Overlays]** Fixed a longstanding issue where overlays were sometimes sent to the background. This fix affects all overlays in the program, 
 - **[Image/Color/ML Search]** Fixed a problem with dissapearing Effects #EA-377 by `linqse` and `Rowenor`
