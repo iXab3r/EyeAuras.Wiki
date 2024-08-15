@@ -2,7 +2,7 @@
 title: Печатаем переменные прямо на экране
 description: 
 published: true
-date: 2024-08-15T19:33:14.411Z
+date: 2024-08-15T19:46:10.206Z
 tags: 
 editor: markdown
 dateCreated: 2024-08-15T19:33:14.411Z
@@ -11,10 +11,16 @@ dateCreated: 2024-08-15T19:33:14.411Z
 ```csharp
 using EyeAuras.Shared.ScreenOverlay;
 
-DrawVariablesOnScreen(
-    AuraTree.FindAuraByPath("."),
-    "test1", "test2") // указываем какие именно переменные выводить, можно НЕ указывать их вообще, тогда будет печатать все
-    .AddTo(ExecutionAnchors); // не забываем указать, что это все творчество нужно стереть по завершении скрипта
+var onScreenHelper = 
+    GetService<VariablesOnScreenHelper>() // создадим наш хелпер
+    .AddTo(ExecutionAnchors); //и привяжем его к жизни скрипта, скрипта закончится - хелпер умрет
+
+onScreenHelper.Draw(
+    AuraTree.FindAuraByPath("."), // первый аргумент - откуда брать переменные, в этом случае это мы сами
+    "test1", "test4" // второй-третий-четвертый это имена переменных, которые печатать
+    ); 
+
+//onScreenHelper.Draw(AuraTree.FindAuraByPath(".")); //а вот так будет печатать вообще все переменные
 
 // код, который изображает, что он что-то печатает
 while (!cancellationToken.IsCancellationRequested)
@@ -25,63 +31,81 @@ while (!cancellationToken.IsCancellationRequested)
     Sleep(1000);
 }
 
-private IDisposable DrawVariablesOnScreen(IHasVariables variablesSource, params string[] variablesToPrint)
+public sealed class VariablesOnScreenHelper : DisposableReactiveObject
 {
-    // для примера будем рисовать прямо на весь экран
-    var canvasBounds = new Rectangle(Point.Empty, System.Windows.Forms.SystemInformation.PrimaryMonitorSize);
+    private readonly IOnScreenCanvasScriptingApi onScreenCanvas;
 
-    // это API, который используется для
-    var onScreenCanvas = GetService<IOnScreenCanvasScriptingApi>();
+    public VariablesOnScreenHelper(IOnScreenCanvasScriptingApi onScreenCanvas){
+        this.onScreenCanvas = onScreenCanvas;
+    }
 
-    Log.Info($"Drawing variables on the screen({canvasBounds}): {variablesToPrint.DumpToString()}");
-    return DrawVariablesOnScreen(
-        onScreenCanvas,
-        canvasBounds,
-        variablesSource,
-        variablesToPrint);
-}
-
-private static IDisposable DrawVariablesOnScreen(
-    IOnScreenCanvasScriptingApi onScreenCanvas,
-    Rectangle canvasBounds,
-    IHasVariables variablesSource,
-    params string[] variablesToPrint)
-{
-    // сюда мы будем помещать все следы жизнедеятельности
-    // как только оверлей будет больше не нужен - дергаем якорь и он потянет все за собой
-    var anchors = new CompositeDisposable();
-
-    // создаем оверлей, на котором будем рисовать
-    var canvas = onScreenCanvas.Create().AddTo(anchors);
-
-    // создаем HTML объект, который будет отрисовываться на оверлее
-    var textOverlay = canvas
-        .AddHtmlObject()
-        .WithRect(canvasBounds); // на весь экран
-    // позицию и размеры оверлея можно менять в рантайме
-
-    // подписываемся на любое изменение переменных
-    // с точки зрения производительности это не идеально и быстрее было бы WatchCurrentValue
-    // но для упрощения кода оставим такой вариант, да и разница будет вообще неизмерима в реальных условиях
-    variablesSource.Variables
-         .Connect()
-         .Subscribe(_ =>
-         {
-             var combined =
-                 variablesToPrint.IsEmpty()
-                     ? variablesSource.Variables.Items
-                     : variablesToPrint.Select(x => variablesSource.Variables.GetOrDefault(x));
-
-             UpdateOverlay(combined);
-         })
-         .AddTo(anchors);
-
-    return anchors;
-
-
-    void UpdateOverlay(IEnumerable<AuraVariable> variables)
+    public void Draw(
+        IHasVariables variablesSource,
+        Rectangle canvasBounds,
+        params string[] variablesToPrint)
     {
-        string htmlContent = $@"""
+        DrawVariables(
+            onScreenCanvas, 
+            canvasBounds, 
+            variablesSource, 
+            variablesToPrint).AddTo(Anchors); 
+    }
+
+     public void Draw(
+        IHasVariables variablesSource,
+        params string[] variablesToPrint)
+    {
+          // для примера будем рисовать прямо на весь экран
+        var canvasBounds = new Rectangle(Point.Empty, System.Windows.Forms.SystemInformation.PrimaryMonitorSize);
+
+        DrawVariables(
+            onScreenCanvas, 
+            canvasBounds, 
+            variablesSource, 
+            variablesToPrint).AddTo(Anchors); 
+    }
+
+    private static IDisposable DrawVariables(
+        IOnScreenCanvasScriptingApi onScreenCanvas,
+        Rectangle canvasBounds,
+        IHasVariables variablesSource,
+        params string[] variablesToPrint)
+    {
+        // сюда мы будем помещать все следы жизнедеятельности
+        // как только оверлей будет больше не нужен - дергаем якорь и он потянет все за собой
+        var anchors = new CompositeDisposable();
+
+        // создаем оверлей, на котором будем рисовать
+        var canvas = onScreenCanvas.Create().AddTo(anchors);
+
+        // создаем HTML объект, который будет отрисовываться на оверлее
+        var textOverlay = canvas
+            .AddHtmlObject()
+            .WithRect(canvasBounds); // на весь экран
+                                     // позицию и размеры оверлея можно менять в рантайме
+
+        // подписываемся на любое изменение переменных
+        // с точки зрения производительности это не идеально и быстрее было бы WatchCurrentValue
+        // но для упрощения кода оставим такой вариант, да и разница будет вообще неизмерима в реальных условиях
+        variablesSource.Variables
+             .Connect()
+             .Subscribe(_ =>
+             {
+                 var combined =
+                     variablesToPrint.IsEmpty()
+                         ? variablesSource.Variables.Items
+                         : variablesToPrint.Select(x => variablesSource.Variables.GetOrDefault(x));
+
+                 UpdateOverlay(combined.Where(x => !string.IsNullOrEmpty(x.Name)));
+             })
+             .AddTo(anchors);
+
+        return anchors;
+
+
+        void UpdateOverlay(IEnumerable<AuraVariable> variables)
+        {
+            string htmlContent = $@"""
 <div class='w-100 h-100 d-flex' style='align-items: flex-start; justify-content: center; padding-top: 20px;'>
     <div class='alert alert-light' role='alert'>
         <table class='table table-striped'>
@@ -89,7 +113,8 @@ private static IDisposable DrawVariablesOnScreen(
         </table>
     </div>
 </div>""";
-        textOverlay.WithHtml(htmlContent);
+            textOverlay.WithHtml(htmlContent);
+        }
     }
 }
 ```
