@@ -2,11 +2,17 @@
 title: Печатаем переменные прямо на экране
 description: 
 published: true
-date: 2024-08-15T19:46:10.206Z
+date: 2024-08-15T19:50:03.212Z
 tags: 
 editor: markdown
 dateCreated: 2024-08-15T19:33:14.411Z
 ---
+
+Из интересного:
+- Если вы зареференсите эту ауру, то класс `VariablesOnScreenHelper` будет вам доступен где угодно
+- Обратите внимание, что класс `VariablesOnScreenHelper` в конструкторе хочет `IOnScreenCanvasScriptingApi`, а мы его не передаем. GetService<> сделает это за нас
+- Работа с Anchors (якорями) - это концепт, который позволяет связывать жизненный цикл разных объектов, в этом случае, добавляя себя в список ExecutionAnchors как бы говорим "Я живу только пока живы ExecutionAnchors"
+- Добавление в ExecutionAnchors самого оверлея - так он исчезнет сразу же после того, как скрипт завершится. Если бы мы добавили просто в Anchors, то оверлей жил бы пока скрипт не выгружен
 
 ```csharp
 using EyeAuras.Shared.ScreenOverlay;
