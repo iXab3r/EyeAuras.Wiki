@@ -1,8 +1,8 @@
 ---
-title: Automating Browser
+title: Автоматизация браузера Edge через Selenium
 description: 
 published: true
-date: 2024-08-29T14:37:33.998Z
+date: 2024-08-29T14:37:53.576Z
 tags: 
 editor: markdown
 dateCreated: 2024-08-29T14:37:33.998Z
