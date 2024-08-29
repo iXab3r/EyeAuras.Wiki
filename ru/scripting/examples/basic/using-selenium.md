@@ -2,14 +2,14 @@
 title: Автоматизация браузера Edge через Selenium
 description: 
 published: true
-date: 2024-08-29T14:37:53.576Z
+date: 2024-08-29T14:43:29.064Z
 tags: 
 editor: markdown
 dateCreated: 2024-08-29T14:37:33.998Z
 ---
 
 # Использование Selenium для автоматизации браузера
-> Импортировать готовый пример можно отсюда https://eu.eyeauras.net/share/S20240223231508UC4AdkJYNJjI
+> Импортировать готовый пример можно отсюда https://eu.eyeauras.net/share/S20240829142432YXyi4jtEdmlm
 {.is-info}
 
 ## Зачем ? 
