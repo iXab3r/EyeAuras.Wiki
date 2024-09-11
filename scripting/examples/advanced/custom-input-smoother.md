@@ -2,11 +2,12 @@
 title: How to Add Mouse Movement Smoothing
 description: 
 published: true
-date: 2024-07-01T20:34:21.401Z
-tags: mouse movement, smoothing, algorithms, input, programming
+date: 2024-09-11T20:54:40.417Z
+tags: input, programming, mouse movement, smoothing, algorithms
 editor: markdown
-dateCreated: 2024-07-01T20:20:30.551Z
+dateCreated: 2024-07-01T21:50:13.798Z
 ---
+
 # Adding Mouse Movement Smoothing
 By default, the mouse "teleports" from point A to point B, which is not always the desired behavior. This is where "smoothers" come to the rescue - tools that can plan mouse movement based on some logic.
 The algorithm itself can vary. By default, the program includes algorithms from BenLand (`BenLandUserInputSmoother`) and Kalon (`KalonUserInputSmoother`).
@@ -22,7 +23,7 @@ SendInput.InputSmootherId = "BenLandRandomizedFast"; // specify the Smoother Id 
 ```
 
 ## Example where we implement our own smoothing
-> You can import the ready-made example from here: [link](https://eyeauras.net/share/S20240701201856mfdkUQbqEY1k)
+> You can import the ready-made example from here: https://eyeauras.net/share/S20240701201856mfdkUQbqEY1k
 {.is-info}
 
 1. Create an aura with a script
