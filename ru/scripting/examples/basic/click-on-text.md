@@ -2,7 +2,7 @@
 title: Как нажать на распознанное слово
 description: 
 published: true
-date: 2024-09-11T21:03:45.385Z
+date: 2024-09-11T21:04:35.270Z
 tags: 
 editor: markdown
 dateCreated: 2024-09-11T21:03:45.385Z
@@ -33,7 +33,7 @@ var textToClickOn =
     .Where(x => x.Text == "HVDK") //or any other logic
     .FirstOrDefault();
 if (textToClickOn == default){
-    throw new ArgumentException("Failed to find valid text");
+    throw new ArgumentException("Failed to find text segment matching your conditions");
 }
 
 var textLocationOnScreen = data.ToScreen(textToClickOn.Region);
