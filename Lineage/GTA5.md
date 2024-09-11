@@ -2,7 +2,7 @@
 title: GTA5
 description: 
 published: true
-date: 2024-09-11T15:07:32.289Z
+date: 2024-09-11T15:08:44.386Z
 tags: 
 editor: markdown
 dateCreated: 2024-09-11T15:06:23.936Z
@@ -18,6 +18,6 @@ dateCreated: 2024-09-11T15:06:23.936Z
 ![](http://files.eyesquad.net/screenshots/11-09-2024/Discord_tRNKShE2GYG74pgRIecTtoNII.png)
 
 
-# Отключение Optimization for Window Games
+# Отключение Optimization for Windowed Games
 
 ![](http://files.eyesquad.net/screenshots/11-09-2024/Discord_kvqBHaMReyO1ATkhWLoispdYu.png)
