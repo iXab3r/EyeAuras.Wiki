@@ -2,12 +2,11 @@
 title: How to Add Mouse Movement Smoothing
 description: 
 published: true
-date: 2024-09-11T20:54:40.417Z
-tags: input, programming, mouse movement, smoothing, algorithms
+date: 2024-07-01T20:34:21.401Z
+tags: mouse movement, smoothing, algorithms, custom input smoother
 editor: markdown
-dateCreated: 2024-07-01T21:50:13.798Z
+dateCreated: 2024-07-01T20:20:30.551Z
 ---
-
 # Adding Mouse Movement Smoothing
 By default, the mouse "teleports" from point A to point B, which is not always the desired behavior. This is where "smoothers" come to the rescue - tools that can plan mouse movement based on some logic.
 The algorithm itself can vary. By default, the program includes algorithms from BenLand (`BenLandUserInputSmoother`) and Kalon (`KalonUserInputSmoother`).
@@ -15,7 +14,7 @@ These algorithms have some parameters that you can adjust, but even by default, 
 - `BenLandLinearFast` - moves the mouse from point A to point B in a straight line
 - `BenLandRandomizedFast` - adds some deviation at the starting point of the trajectory
 
-By specifying `InputSmootherId` in the code, you can instruct the simulator to smooth mouse movements.
+By specifying `InputSmootherId` in the code, you can instruct the simulator to smooth out mouse movements
 
 ```csharp
 ISendInputUnstableScriptingApi SendInput { get; } = GetService<ISendInputUnstableScriptingApi>(); // needed for input sending
@@ -49,7 +48,7 @@ Log.Info($"Movement completed, cursor is at: {SendInput.CursorPosition}");
 
 /// <summary>
 /// This class contains the essence of our smoother.
-/// It adds NumberOfPoints points between the starting and target positions.
+/// It adds NumberOfPoints points between the starting and ending points of movement.
 /// A "real" smoother can use things like Bezier curves or any other logic
 /// </summary>
 class CustomInputSmoother : IUserInputSmoother
