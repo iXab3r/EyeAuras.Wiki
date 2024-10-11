@@ -2,7 +2,7 @@
 title: Image Effects
 description: post-processing - color removal, blue, filtering
 published: true
-date: 2024-05-03T09:24:24.272Z
+date: 2024-10-11T16:37:03.589Z
 tags: image capture effects
 editor: markdown
 dateCreated: 2024-05-03T09:24:24.272Z
@@ -76,3 +76,16 @@ Could be used to reduce size of a captured image to reduce computation power req
 ## Resize, in pixels
 Allows to resize image to specified size. This is especially useful when you're working with machine-learning models, which are trained on a specific set of images. By applying letterboxing, you can keep dimensions intact and make models work better. 
 ![](https://i.imgur.com/O0ffYCH.png =x400)
+
+## Binary Threshold
+This effect converts image to black-and-white and highlights _some_ othe those.
+Play around with different separation techniques to pick which one will be better for your specific case
+
+![](https://s3.eyeauras.net/media/2024/10/ur9WuXU3SmlWKVsR.png)
+
+The most detailed guide on this has OpenCV. It is for Python but has a lot of illustrations.
+https://learnopencv.com/opencv-threshold-python-cpp/
+https://medium.com/@manik.butex41/an-introduction-to-thresholding-operations-in-opencv-64aff0cb2826
+
+## Color Quantization (alpha)
+This effect reduces number of colors present in the image. Makes further analysis more simple.
