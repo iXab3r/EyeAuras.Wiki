@@ -1,12 +1,13 @@
 ---
-title: Where to Begin?
+title: Getting started
 description: 
 published: true
-date: 2024-09-11T21:05:31.704Z
-tags: Macros, Automation, Logic, Auras, C# Scripts, Behavior Trees
+date: 2024-10-17T21:49:56.876Z
+tags: automation, auras, behavior trees, logic, macros, c# scripts
 editor: markdown
-dateCreated: 2024-09-11T13:25:48.468Z
+dateCreated: 2024-10-17T21:49:33.129Z
 ---
+
 # What are Macros?
 This is one of the four ways to customize automation logic and make decisions on when, what, and where to click.
 
