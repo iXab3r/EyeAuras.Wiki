@@ -2,7 +2,7 @@
 title: Prerequisites
 description: 
 published: true
-date: 2024-08-18T16:14:39.298Z
+date: 2024-10-24T16:44:18.036Z
 tags: 
 editor: markdown
 dateCreated: 2023-10-29T18:35:33.765Z
@@ -43,7 +43,7 @@ explorer .
 [![Prediction results](https://i.imgur.com/SrwvqFM.png =x150)](https://i.imgur.com/SrwvqFM.png)
 7. Install Python dependencies
 ```bash
-pip install opencv-python numpy matplotlib shapely onnxruntime==1.16.0
+pip install opencv-python numpy matplotlib shapely onnxruntime==1.18.0
 ```
 8. Install [CVAT Command Line Interface](https://opencv.github.io/cvat/docs/api_sdk/cli/) 
 ```bash
