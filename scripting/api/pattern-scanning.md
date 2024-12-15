@@ -2,7 +2,7 @@
 title: Pattern Scanning
 description: 
 published: true
-date: 2024-12-15T10:55:40.847Z
+date: 2024-12-15T10:56:55.901Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-15T10:55:40.847Z
@@ -70,8 +70,6 @@ var criticalOffset = memory.GetOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00
    - Combine a byte array with a mask to specify which bytes are fixed (`x`) and which are wildcards (`?`).
    - Example:
      ```csharp
-     var bytes = ;
-     var mask = ;
      var pattern = BytePattern.FromMaskedPattern(new byte[] { 0x55, 0x8B, 0xEC, 0x00, 0x08 }, "xxx??");
      ```
      Matches any sequence starting with `55 8B EC`, followed by any two bytes.
