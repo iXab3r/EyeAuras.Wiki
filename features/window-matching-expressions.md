@@ -2,7 +2,7 @@
 title: Window Match Expressions
 description: A user interface in EyeAuras, enabling selection of specific windows using a custom expression.
 published: true
-date: 2024-07-13T16:10:03.452Z
+date: 2024-12-25T17:01:11.820Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T11:57:49.061Z
@@ -35,6 +35,18 @@ Expressions can be manually entered into the input box. The system interprets th
 The system then shows the selected window(s) in the Picked Window Display.
 
 The Window Matching Expression Control simplifies the process of customizing your experience with EyeAuras.
+
+
+### Ownership filtering
+For many years, Window Selector has been filtering-out all windows, which were under EA control. 
+This is now an optional feature, which could be disabled by adding `[ownedBy=any]` to the [expression](https://wiki.eyeauras.net/en/features/window-matching-expressions), e.g.
+`My Window [ownedBy=any]` 
+will filter out and scan through ALL windows, which are present in the system, even if they were created by EyeAuras. 
+
+Another filter of a similar type which was added allows to capture so-called Tool windows, e.g. Overlays usually have this type.
+By default, such windows are ignored and can add them as potential candidates by appending `[type=any]` at the end of match expression, e.g.
+`My Overlay [ownedBy=any][type=any]` 
+would capture any window/overlay which has title `My Overlay`.
 
 ### Examples
 Expression: `"Explorer"` Result: Matches the window titled exactly "Explorer".
