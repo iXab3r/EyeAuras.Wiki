@@ -2,13 +2,13 @@
 title: How to Press Random Key
 description: 
 published: true
-date: 2025-01-04T18:42:33.221Z
+date: 2025-01-04T18:42:46.105Z
 tags: 
 editor: markdown
 dateCreated: 2025-01-04T18:42:33.221Z
 ---
 
-## Running an Arbitrary Program/Game
+## How to Press Random Key
 
 1. Create an aura.
 2. Add `HotkeyIsActive` to it and bind it to a convenient button (this will be our on/off switch, in the example it's `F3`), change the activation type to `Click/Hold`.
