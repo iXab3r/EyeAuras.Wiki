@@ -2,7 +2,7 @@
 title: Показываем всплывающее сообщение на экране
 description: 
 published: true
-date: 2025-02-06T10:07:34.788Z
+date: 2025-02-06T10:10:02.759Z
 tags: 
 editor: markdown
 dateCreated: 2025-02-06T10:06:21.149Z
@@ -29,4 +29,4 @@ notificationManager.Show("test");
 ```
 
 ![Результат работы](https://s3.eyeauras.net/media/2025/02/I0bceQwhw4GWyE3j.png)
-![Примеры других сообщений](https://s3.eyeauras.net/media/2025/02/WfZDEhqzDozO44YE.png)
+![Примеры других сообщений](https://s3.eyeauras.net/media/2025/02/all_styles.gif)
