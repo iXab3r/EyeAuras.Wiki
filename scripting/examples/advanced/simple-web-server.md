@@ -2,7 +2,7 @@
 title: Simple Web Server
 description: 
 published: true
-date: 2025-03-02T23:25:27.998Z
+date: 2025-03-02T23:27:03.637Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-02T23:25:27.998Z
@@ -21,7 +21,7 @@ There are multiple steps to make everything work
 - pick some free port, 52080 for HTTP and 52443 for HTTPS could be a good choice, but you can change them to whatever you want
 
 ## Example 
-> You can import the ready-made example from here: https://eu.eyeauras.net/share/S20250227194343PPMhqedSZnTo
+> You can import the ready-made example from here: https://eu.eyeauras.net/share/S20250302232655ULHlLljgYANa
 {.is-info}
 
 1. Create an aura with a script
