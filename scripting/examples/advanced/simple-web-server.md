@@ -2,7 +2,7 @@
 title: Simple Web Server
 description: 
 published: true
-date: 2025-03-02T23:27:03.637Z
+date: 2025-03-02T23:37:11.763Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-02T23:25:27.998Z
@@ -35,6 +35,8 @@ There are multiple steps to make everything work
 The most obvious examply is controlling what happens in EA remotely OR feeding some informationg gathered by EA, such us results of image searchers, text searcher, etc somewhere, maybe to another instance of EA polling that data... Or some other script.
 
 Another example could be controlling your injection-based bot that way - considering this is a full-blown web-server, you can build any kind of transport on top of it.
+
+![Example](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_gYj4E9YMIQxNRqNe.png)
 
 **Script.csx**
 ```csharp
