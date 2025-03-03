@@ -2,7 +2,7 @@
 title: Web Server with Controllers
 description: 
 published: true
-date: 2025-03-02T23:41:52.118Z
+date: 2025-03-03T00:11:41.656Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-02T23:41:52.118Z
@@ -24,7 +24,7 @@ Set of steps is quite similar to what we saw earlier, with one important twist -
 - You can have multiple Controllers with different Routes, Methods and Arguments - AspNet will take care of routing and picking the best method **for you**
 
 ## Example 
-> You can import the ready-made example from here: https://eu.eyeauras.net/share/S20250302232655ULHlLljgYANa
+> You can import the ready-made example from here: https://eyeauras.net/share/S20250302232729tsMgRqVRO6Gr
 {.is-info}
 
 1. Create an aura with a script
