@@ -2,7 +2,7 @@
 title: Protection of C# Scripts
 description: Prevents interference in your scripts' functioning and protects your intellectual property
 published: true
-date: 2025-03-12T01:36:45.761Z
+date: 2025-03-12T01:43:29.790Z
 tags: c#, script protection, intellectual property, software security, code obfuscation, script compilation
 editor: markdown
 dateCreated: 2025-03-12T01:36:07.305Z
@@ -10,7 +10,7 @@ dateCreated: 2025-03-12T01:36:07.305Z
 
 # 🔒 Script Protection in EyeAuras
 
-## **Important:** Script protection is an optional feature intended for pack authors who want to hide the implementation details of their scripts. By default, scripts are stored in text form and compiled as needed.
+## **Important:** Script protection is an optional feature intended for pack authors who want to hide the implementation details of their scripts. 
 
 > During the alpha test, access is limited. To gain access to the functionality, **[contact me](/en/contacts)**.
 {.is-info}
