@@ -2,13 +2,12 @@
 title: 📐 Система координат
 description: describes coordinate system used in Actions and Triggers
 published: true
-date: 2025-03-12T23:42:15.159Z
+date: 2025-03-12T23:42:31.568Z
 tags: coordinates, triggers, actions
 editor: markdown
 dateCreated: 2024-05-14T19:19:13.716Z
 ---
 
-```markdown
 # 📐 Блок координат в EyeAuras
 
 **Блок координат** используется в различных действиях и триггерах. Он позволяет:
