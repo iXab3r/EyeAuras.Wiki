@@ -2,7 +2,7 @@
 title: Паки
 description: Упаковываем ваши ауры и скрипты для более удобного распространения
 published: true
-date: 2025-03-12T02:39:37.462Z
+date: 2025-03-12T02:41:18.797Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-12T02:36:08.421Z
@@ -23,19 +23,19 @@ dateCreated: 2025-03-12T02:36:08.421Z
 
 ## 🚀 Как создать свой Пак?
 1. 🖊 Нажмите ПКМ по папке, которую хотите запаковать, и выберите **`Publish`**.  
-   ![Right click -> Publish](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_bq0a7eVSQ9BKw337.png)
+   ![Right click -> Publish](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_bq0a7eVSQ9BKw337.png =x200)
 
 2. 💾 В открывшемся окне нажмите **`Publish folder`**.  
-   ![Press Publish button](https://s3.eyeauras.net/media/2025/03/EyeAuras_jUc5dtIKmpmoZbw5.png)
+   ![Press Publish button](https://s3.eyeauras.net/media/2025/03/EyeAuras_jUc5dtIKmpmoZbw5.png =x150)
 
 3. 🟢 Если всё прошло хорошо, появится зелёный значок с надписью **`sync`**.  
-   ![Synced](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_gXZvzr9Bq2WDvppS.png)
+   ![Synced](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_gXZvzr9Bq2WDvppS.png =x200)
 
 4. 🔗 Чтобы скачать пак, откройте ссылку справа от пака.
    ![Navigate to pack](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_cq93pPKwMCu5MUZQ.png)
 
 5. 📥 На открывшейся странице нажмите **`Download portable pack`** для скачивания ZIP-архива.
-   ![Download pack](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_QH1tYoEBoCemep3b.png)
+   ![Download pack](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_QH1tYoEBoCemep3b.png =x200)
 
 ---
 
@@ -45,7 +45,7 @@ dateCreated: 2025-03-12T02:36:08.421Z
 - **`Prefer Packed`** ➔ Делает акцент на загрузке упакованной версии, скрывая импорт скриптов (хотя импорт остаётся доступным).
 - **`Packed Only`** ➔ Позволяет **только** скачать Пак, без возможности импорта.
 
-![Опция упаковки](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_bJkfO2dFN6UYcplP.png)
+![Опция упаковки](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_bJkfO2dFN6UYcplP.png =x200)
 
 ---
 
