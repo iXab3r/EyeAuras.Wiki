@@ -2,7 +2,7 @@
 title: How to Query Chat GPT
 description: 
 published: true
-date: 2025-03-17T22:25:58.483Z
+date: 2025-03-17T22:38:10.124Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-17T22:25:15.654Z
@@ -50,7 +50,7 @@ void Main()
             try
             {
                 var jpegBytes = inputImage.ToJpegData();
-                var visionResult = RecognizeImage(chatClient, fileClient, jpegBytes);
+                var visionResult = RecognizeImage(chatClient, jpegBytes);
 
                 Log.Info($"🔍 Recognition Result: {visionResult}");
             }
@@ -66,7 +66,6 @@ void Main()
 
 string RecognizeImage(
     OpenAI.Chat.ChatClient client,
-    OpenAI.Files.OpenAIFileClient fileClient,
     byte[] jpegBytes)
 {
     var imageBytes = BinaryData.FromBytes(jpegBytes);
@@ -80,5 +79,4 @@ string RecognizeImage(
     ChatCompletion completion = client.CompleteChat(messages);
     return completion.Content[0].Text;
 }
-
 ```
