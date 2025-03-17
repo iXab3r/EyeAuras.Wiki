@@ -2,7 +2,7 @@
 title: How to Query Chat GPT
 description: 
 published: true
-date: 2025-03-17T22:25:15.654Z
+date: 2025-03-17T22:25:58.483Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-17T22:25:15.654Z
@@ -31,7 +31,6 @@ void Main()
     Log.Info("Hello, World!");
 
     OpenAIClient openAIClient = new OpenAIClient("<your-api-key-here>");
-    var fileClient = openAIClient.GetOpenAIFileClient();
     var chatClient = openAIClient.GetChatClient("gpt-4o");
     var trigger = GetService<IEyeEntityFactory>()
         .Create<IImageSearchTrigger>(new ImageSearchTriggerProperties()
