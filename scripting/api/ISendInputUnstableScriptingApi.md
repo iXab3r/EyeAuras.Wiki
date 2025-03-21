@@ -2,11 +2,15 @@
 title: ISendInputUnstableScriptingApi
 description: 
 published: true
-date: 2024-03-17T16:28:37.270Z
-tags: user input, simulation, mouse actions, keyboard actions, scripting API
+date: 2025-03-21T23:36:48.505Z
+tags: user input, mouse actions, keyboard actions, scripting api, simulation
 editor: markdown
-dateCreated: 2024-02-23T21:58:16.489Z
+dateCreated: 2024-02-28T13:04:42.575Z
 ---
+
+> DEPRECATED - updated API is [here](/scripting/api/ISendInputScriptingApi) 
+{.is-warning}
+
 ```csharp
 /// <summary>
 /// Provides an interface for simulating user input, including mouse and keyboard actions.
