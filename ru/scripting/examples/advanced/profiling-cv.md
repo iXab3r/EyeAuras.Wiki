@@ -1,8 +1,8 @@
 ---
 title: Профилирование на примере Computer Vision API
-description: 
+description: замеряем производительность
 published: true
-date: 2025-03-22T15:03:07.266Z
+date: 2025-03-22T15:03:29.317Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-22T15:03:07.266Z
