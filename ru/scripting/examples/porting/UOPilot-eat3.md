@@ -2,7 +2,7 @@
 title: Порт с UOPilot #1
 description: 
 published: true
-date: 2025-03-23T13:10:35.553Z
+date: 2025-03-23T13:12:16.620Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-23T13:10:35.553Z
@@ -173,6 +173,7 @@ var cv = ComputerVision
 SendInputWindow.TargetWindow = window; //этот SendInput будет работать с окном
 
 //эта строчка заставит скрипт ждать, пока он не будет выключен
+//более эффективный эквивалент while(true) {}
 cancellationToken.WaitHandle.WaitOne();
 
 void MainScript()
