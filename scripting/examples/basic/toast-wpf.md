@@ -1,8 +1,8 @@
 ---
-title: Untitled Page
+title: Toasts
 description: 
 published: true
-date: 2025-03-23T22:21:44.199Z
+date: 2025-03-23T22:21:57.666Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-23T22:21:44.199Z
