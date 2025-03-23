@@ -2,18 +2,17 @@
 title: Порт с UOPilot #1
 description: 
 published: true
-date: 2025-03-23T22:14:16.266Z
+date: 2025-03-23T22:19:52.241Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-23T13:10:35.553Z
 ---
 
-# What is This?
-An example of a UO Pilot script and how its nearly identical equivalent can be implemented in EyeAuras.
+# Что это ?
+Пример скрипта на UO Pilot и как его практически полный эквивалент может выглядеть в EyeAuras.
+Единственное отличие - я перенес отображение статусных сообщений в лог. 
 
-The only difference is that I moved status message display to the log.
-
-An alternative approach would be to use the [Toast API](/en/scripting/examples/basic/toast-wpf), OnScreenCanvas API, or [BlazorWindows](/en/scripting/blazor-windows/getting-started), but for displaying a single line of text, these options seem excessive.
+Альтернатива была бы использовать [Toast API](/ru/scripting/examples/basic/toast-wpf), OnScreenCanvas API или [BlazorWindows](/ru/scripting/blazor-windows/getting-started), но просто для отображения строки текста это все кажется перебором.
 
 # UO Pilot
 
@@ -22,81 +21,81 @@ An alternative approach would be to use the [Toast API](/en/scripting/examples/b
 SetWorkingDir %A_ScriptDir%
 SetTitleMatchMode, Fast
 
-; Variables for storing cursor coordinates
+; Переменные для хранения координат курсора
 global CursorX := 0
 global CursorY := 0
-global Toggle := 0 ; Toggle for enabling/disabling the script
+global Toggle := 0 ; Переключатель для включения/выключения
 
-; Create GUI for displaying text on screen
-Gui, +AlwaysOnTop +ToolWindow -Caption +E0x20 ; Always on top, no title bar, clickable
-Gui, Add, Text, vStatusText, Script Disabled ; Text that will be updated
-Gui, Show, NoActivate X0 Y0, StatusWindow ; Show the window without activating it
+; Создаем GUI для вывода текста на экран
+Gui, +AlwaysOnTop +ToolWindow -Caption +E0x20 ; Всегда поверх окон, без заголовка, кликабельно
+Gui, Add, Text, vStatusText, Скрипт выключен ; Текст, который будет обновляться
+Gui, Show, NoActivate X0 Y0, StatusWindow ; Показываем окно без активации в углу экрана
 
-; Hotkey F5: Save cursor coordinates
+; Горячая клавиша F5: запись координат курсора
 F5::
     CoordMode, Mouse, Screen
     MouseGetPos, CursorX, CursorY
-    GuiControl,, StatusText, Coordinates saved: X=%CursorX%, Y=%CursorY%
-    Sleep, 2000 ; Show message for 2 seconds
-    GuiControl,, StatusText, Script Disabled
+    GuiControl,, StatusText, Координаты сохранены: X=%CursorX%, Y=%CursorY%
+    Sleep, 2000 ; Показываем сообщение 2 секунды
+    GuiControl,, StatusText, Скрипт выключен
 return
 
-; Hotkey F3: Run script once
+; Горячая клавиша F3: однократное выполнение скрипта
 F3::
     Gosub, MainScript
 return
 
-; Hotkey F6: Start/Stop loop
+; Горячая клавиша F6: запуск/остановка цикла
 F6::
-    Toggle := !Toggle ; Toggle state
+    Toggle := !Toggle ; Переключаем состояние
     if (Toggle) {
-        GuiControl,, StatusText, Script Enabled
-        SetTimer, RunMainScript, 100 ; Run timer every 100 ms
+        GuiControl,, StatusText, Скрипт включен
+        SetTimer, RunMainScript, 100 ; Запускаем таймер каждые 100 мс
     } else {
-        GuiControl,, StatusText, Script Disabled
-        SetTimer, RunMainScript, Off ; Stop timer
+        GuiControl,, StatusText, Скрипт выключен
+        SetTimer, RunMainScript, Off ; Останавливаем таймер
     }
 return
 
-; Timer to run the main script
+; Таймер для выполнения основного скрипта
 RunMainScript:
     Gosub, MainScript
 return
 
-; Move GUI around screen
+; Перемещение GUI по экрану
 ~LButton::
-    MouseGetPos, StartMouseX, StartMouseY ; Save initial mouse coordinates
-    Gui, +LastFound ; Get ID of the last created GUI
-    WinGetPos, GuiStartX, GuiStartY, GuiW, GuiH ; Save initial window coordinates
-    ; Check if click occurred inside the window
+    MouseGetPos, StartMouseX, StartMouseY ; Сохраняем начальные координаты мыши
+    Gui, +LastFound ; Получаем ID последнего созданного GUI
+    WinGetPos, GuiStartX, GuiStartY, GuiW, GuiH ; Сохраняем начальные координаты окна
+    ; Проверяем, что клик произошел внутри окна
     if (StartMouseX >= GuiStartX && StartMouseX <= GuiStartX + GuiW && StartMouseY >= GuiStartY && StartMouseY <= GuiStartY + GuiH) {
-        While GetKeyState("LButton", "P") { ; While LMB is held down
-            MouseGetPos, CurrentMouseX, CurrentMouseY ; Get current mouse coordinates
-            ; Calculate offset
+        While GetKeyState("LButton", "P") { ; Пока зажата ЛКМ
+            MouseGetPos, CurrentMouseX, CurrentMouseY ; Получаем текущие координаты мыши
+            ; Вычисляем смещение
             OffsetX := CurrentMouseX - StartMouseX
             OffsetY := CurrentMouseY - StartMouseY
-            ; New window coordinates
+            ; Новые координаты окна
             NewGuiX := GuiStartX + OffsetX
             NewGuiY := GuiStartY + OffsetY
-            Gui, Show, x%NewGuiX% y%NewGuiY% NoActivate ; Move the window
-            Sleep, 20 ; Small delay to reduce load
+            Gui, Show, x%NewGuiX% y%NewGuiY% NoActivate ; Перемещаем окно
+            Sleep, 20 ; Небольшая задержка для снижения нагрузки
         }
     }
 return
 
-; Main script logic
+; Основной код скрипта
 MainScript:
     WinActivate, TL.exe
     Sleep, 2500
-
+    
     SendInput, {f}
     Sleep, 300
-
+    
     CoordMode, Mouse, Screen
     Click, 1005, 1005
     CoordMode, Mouse, Window
     Sleep, 200
-
+    
     if !MyImageSearch(FoundX, FoundY, 640, 186, 1237, 939, "Vegetarian.bmp")
     {
         Sleep, 1000
@@ -104,29 +103,29 @@ MainScript:
         {
             if !MyImageSearch(FoundX, FoundY, 640, 186, 1237, 939, "Vegetarian1.bmp")
             {
-                GuiControl,, StatusText, Object 'Vegetarian' not found!
+                GuiControl,, StatusText, Объект "Vegetarian" не найден!
                 Sleep, 2000
-                GuiControl,, StatusText, Script Disabled
+                GuiControl,, StatusText, Скрипт выключен
                 return
             }
         }
     }
     Click, %FoundX%, %FoundY%
     Sleep, 200
-
+    
     Click, 1499, 1004
     Sleep, 200
-
+    
     SendInput, {Esc}
     Sleep, 200
-
+    
     Sleep, 600
     CoordMode, Mouse, Screen
     Click, right, %CursorX%, %CursorY%
     CoordMode, Mouse, Window
 return
 
-; Image search function
+; Функция поиска изображения
 MyImageSearch(ByRef FoundX, ByRef FoundY, X1, Y1, X2, Y2, ImageFile)
 {
     CoordMode, Pixel, Window
