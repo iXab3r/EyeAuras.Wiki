@@ -2,7 +2,7 @@
 title: Песочница
 description: 
 published: true
-date: 2024-02-20T19:26:43.431Z
+date: 2025-03-23T11:44:49.173Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-20T19:26:43.431Z
@@ -60,7 +60,7 @@ Sleep(TimeSpan.FromMilliseconds(100)); //приостанавливаем на 1
 
 ![](https://i.imgur.com/TYwJwzi.png =x300)
 
-## Dependency Injection
+## [Dependency Injection](/ru/scripting/dependency-injection)
 ```csharp
 T GetService<T>()
 ```
