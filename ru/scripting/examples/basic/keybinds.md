@@ -2,7 +2,7 @@
 title: Keybinds
 description: настраиваем хоткеи
 published: true
-date: 2025-03-23T10:26:51.743Z
+date: 2025-03-23T11:21:04.386Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-22T23:50:12.023Z
@@ -90,7 +90,8 @@ KeyUp — метод сработает в момент отпускания к�
 Теперь не важно одновременно с какими клавишами вы нажимаете `D`, она всегда будет заменяться на `R`. 
 
 ```csharp
-[Dependency] ISendInputScriptingApi SendInput {get;}
+
+ISendInputScriptingApi SendInput {get; init;} //initialize SendInput API
 
 [Keybind(Hotkey = "d", ActivationType = KeybindActivationType.KeyDown, IgnoreModifiers = true)]
 public void OnKeyDownForD(){
