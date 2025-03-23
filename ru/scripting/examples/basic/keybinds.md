@@ -2,7 +2,7 @@
 title: Keybinds
 description: настраиваем хоткеи
 published: true
-date: 2025-03-23T09:59:27.825Z
+date: 2025-03-23T10:26:51.743Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-22T23:50:12.023Z
@@ -10,9 +10,7 @@ dateCreated: 2025-03-22T23:50:12.023Z
 
 # Что такое Keybinds?
 
-Keybind (горячая клавиша) позволяет привязать выполнение определенной функции к нажатию клавиши или комбинации клавиш.
-
-Это полезно, когда вам нужно быстро активировать определенное действие, например, запустить макрос, выполнить команду.
+Keybinds позволяют привязать выполнение определенной функции к нажатию клавиши или комбинации клавиш. 
 
 ## Как это работает?
 
@@ -32,6 +30,8 @@ public void HandleKeyWithInjectedServices(IAuraEventLoggingService loggingServic
     loggingService.LogMessage(new AuraEvent(){ Text = "Сообщение", Loglevel = FluentLogLevel.Info });
 }
 ```
+
+> ВАЖНО! Keybinds работают только пока работает скрипт!
 
 ---
 
@@ -56,6 +56,22 @@ public void HandleKeyWithInjectedServices(IAuraEventLoggingService loggingServic
 [Keybind("Ctrl+2", IgnoreModifiers = false)] // Сработает ТОЛЬКО для Ctrl+2
 ```
 
+## Как работает ActivationType
+
+Параметр ActivationType позволяет указать, когда именно должен срабатывать ваш обработчик:
+
+KeyDown — метод сработает в момент нажатия клавиши
+
+KeyUp — метод сработает в момент отпускания клавиши
+
+Примеры:
+
+```csharp
+[Keybind("F1", ActivationType = KeyDown)] // Вызовет метод при нажатии клавиши F1
+[Keybind("F2", ActivationType = KeyUp)]   // Вызовет метод при отпускании клавиши F2
+```
+
+
 ## Как работает `SuppressKey`
 
 Если `SuppressKey = true`, нажатие клавиши не будет передано другим приложениям. Это полезно, когда нужно обработать клавишу исключительно внутри вашего скрипта.
@@ -69,7 +85,25 @@ public void HandleKeyWithInjectedServices(IAuraEventLoggingService loggingServic
 
 Это помогает избежать "утечек" нажатий клавиш при нестандартных ситуациях.
 
-## Обработка нажатий в ПАРАЛЛЕЛЬ
+# Remapping
+С помощью комбинации вышеуказанных параметров можно сделать полный ремаппинг одной клавиши на другую, к примеру.
+Теперь не важно одновременно с какими клавишами вы нажимаете `D`, она всегда будет заменяться на `R`. 
+
+```csharp
+[Dependency] ISendInputScriptingApi SendInput {get;}
+
+[Keybind(Hotkey = "d", ActivationType = KeybindActivationType.KeyDown, IgnoreModifiers = true)]
+public void OnKeyDownForD(){
+    SendInput.KeyDown(Key.R);
+}
+
+[Keybind(Hotkey = "d", ActivationType = KeybindActivationType.KeyUp, IgnoreModifiers = true)]
+public void OnKeyUpForD(){
+    SendInput.KeyUp(Key.R);
+}
+```
+
+# Как работают обработчики нажатий
 Система поддерживает параллельную обработку нажатий. Это означает, что даже при быстром нажатии нескольких клавиш одновременно или при частых нажатиях одной и той же клавиши обработка выполняется независимо друг от друга.
 
 ### Организуем очередь нажатий
