@@ -2,13 +2,13 @@
 title: 📦 Packs
 description: Packaging your auras and scripts for easier distribution
 published: true
-date: 2025-03-12T22:11:12.195Z
-tags: EyeAuras,  Packaging,  Scripts,  Distribution,  Automation
+date: 2025-03-31T10:47:22.275Z
+tags: eyeauras, automation, scripts, packaging, distribution
 editor: markdown
-dateCreated: 2025-03-12T02:36:08.421Z
+dateCreated: 2025-03-13T00:32:43.365Z
 ---
----
-```
+
+
 # ❓ Packs in EyeAuras
 
 **📦 What is a Pack?**
