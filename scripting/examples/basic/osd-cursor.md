@@ -2,7 +2,7 @@
 title: OSD Drawing the cursor
 description: 
 published: true
-date: 2025-03-31T18:02:42.036Z
+date: 2025-03-31T18:03:18.405Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-31T18:02:42.036Z
@@ -17,36 +17,6 @@ This script demonstrates how to draw a small, live-updating rectangle around the
 ### 📦 API Overview
 
 EyeAuras exposes a scripting API for creating lightweight on-screen visuals:
-
-```csharp
-public interface IOnScreenCanvasScriptingApi : IScriptingApi
-{
-    IOnScreenCanvas Create();
-}
-```
-
-```csharp
-public interface IOnScreenCanvas : IOnScreenObject
-{
-    IObservableCache<IOnScreenObject, OnScreenObjectId> ObjectsById { get; }
-
-    void AddOrUpdate(IOnScreenObject overlayObject);
-    void Remove(IOnScreenObject overlayObject);
-    void Clear();
-    void ShowDevTools();
-}
-```
-
-```csharp
-public interface IOnScreenObject : IDisposableReactiveObject
-{
-    OnScreenObjectId Id { get; }
-    WinPoint Location { get; set; }
-    WinSize Size { get; set; }
-    float Opacity { get; set; }
-    bool IsVisible { get; set; }
-}
-```
 
 These APIs allow you to create, manipulate, and remove lightweight on-screen overlays, which are perfect for scripting HUDs, tracking UI elements, debug helpers, or cursor markers.
 
