@@ -2,7 +2,7 @@
 title: Скрипты
 description: 
 published: true
-date: 2025-05-06T00:23:17.719Z
+date: 2025-05-06T00:24:55.111Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-06T00:23:17.719Z
@@ -115,3 +115,53 @@ private IEnumerator<NodeStatus> Run()
 по сути теперь прямо в деревьях появились еще и [Корутины из Unity](https://docs.unity3d.com/6000.1/Documentation/Manual/coroutines.html) 
 
 ## Real-life example
+Вот живая иллюстрация как это работает на практике. Задача - в рамках одной из веток логики добежать до NPC (MapDevice) и начать диалог его(кликнуть на него). 
+1) Находим NPC в списке объектов вокруг
+2) Проверяем насколько мы далеко от него
+3) Если далеко - бежим к нему
+4) Как только подбежали - открываем и ждем, пока появится окно диалога  
+
+```csharp
+  private IEnumerator<NodeStatus> Run()
+{
+    var mapDevice = GameController
+        .Entities
+        .Where(x => x.Type is EntityType.IngameIcon && x.IsTargetable && x.TryGetComponent<MinimapIcon>(out var minimapIcon) && minimapIcon.Name == "MapDevice")
+        .FirstOrDefault();
+
+    if (mapDevice == null)
+    {
+        Log.Warn("Map Device not found");
+        yield return NodeStatus.Failure;
+        yield break;
+    }
+
+    const float minDistanceToDevice = 20;
+    if (mapDevice.DistancePlayer > minDistanceToDevice)
+    {
+        Log.Info($"Moving to {mapDevice.GridPos} from {Player.GridPosition}");
+        PF.AddDestination(mapDevice.GridPos, PfDestinationType.Interact, minDistanceToDevice);
+
+        while (mapDevice.DistancePlayer > minDistanceToDevice)
+        {
+            Log.Info($"Still moving to {mapDevice.GridPos} from {Player.GridPosition}, distance: {mapDevice.DistancePlayer}");
+            yield return NodeStatus.Running; //while we're running return... Running
+        }
+    }
+    else
+    {
+        Log.Info($"Player is close enough to map device, distance: {mapDevice.DistancePlayer}");
+    }
+
+    var center = CameraManager.WorldToScreen(mapDevice.BoundsCenterPos);
+    SendInput.MouseClick(center.ToPoint());
+
+    while (!AtlasManager.IsActive)
+    {
+        //wait until atlas is visible
+        yield return NodeStatus.Running;
+    }
+
+    yield return NodeStatus.Success;
+}
+```
