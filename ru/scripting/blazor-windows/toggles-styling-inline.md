@@ -1,8 +1,8 @@
 ---
-title: 7. Подключаем CSS - Inline
+title: 8. Подключаем CSS - Inline
 description: 
 published: true
-date: 2025-05-11T23:33:14.488Z
+date: 2025-05-11T23:35:13.069Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-11T15:48:02.521Z
