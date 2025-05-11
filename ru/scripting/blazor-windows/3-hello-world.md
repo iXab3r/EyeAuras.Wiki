@@ -2,32 +2,14 @@
 title: 3. Hello, World
 description: 
 published: true
-date: 2025-05-11T10:13:54.072Z
+date: 2025-05-11T13:35:34.925Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-11T01:13:28.765Z
 ---
 
-# Создаем первый C# Overlay
-Все очень просто:
-- Создаем новую ауру
-![New aura](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_KBChU81nd6.png)
-
-- Добавляем в нее `C# Overlay v3`
-![New Overlay](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_xVFX70YeoA.png)
-
-- Готово
-
-По сути в этот момент у вас уже есть первый вполне рабочий интерактивный пользовательский интерфейс.
-![v3](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_UVQrNGj5te.png)
-
-Если нажать на кнопку `Click Me`, то вы увидите, что счетчик в программе начнет обновляться!
-![clickme](https://s3.eyeauras.net/media/2025/05/ltZnDlxcvJ.gif)
-
-Давайте разберем как это происходит
-
 # Составные части
-Когда вы добавляли новый оверлей, автоматически были созданы и добавлены несколько файлов, каждый из которых очень важен для программы.
+Когда вы добавили новый оверлей, автоматически были созданы и добавлены несколько файлов, каждый из которых очень важен для программы.
 ![Header](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_uPjkmxmv2r.png)
 
 ## Script.csx
