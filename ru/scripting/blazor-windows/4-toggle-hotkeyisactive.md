@@ -1,8 +1,8 @@
 ---
-title: 3.  Создаем переключатель
+title: 4.  Создаем переключатель
 description: 
 published: true
-date: 2025-05-11T14:24:53.840Z
+date: 2025-05-11T23:34:11.847Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-11T14:24:53.840Z
