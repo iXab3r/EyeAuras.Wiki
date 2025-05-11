@@ -2,13 +2,11 @@
 title: 2. BlazorWindows и WebView2
 description: 
 published: true
-date: 2025-05-11T00:47:25.172Z
+date: 2025-05-11T13:37:01.674Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-11T00:47:25.172Z
 ---
-
-Архитектура UI Overlay: как работает WebView2 и Blazor в EyeAuras[1]
 
 # Как работают Blazor Windows и оверлеи
 Во [вводной части цикла](/scripting/blazor-windows/getting-started) я рассказывал про Blazor, HTML и CSS. Однако для того, чтобы всю эту красоту отобразить на экране нам нужен какой-то инструмент, который превратит наш набор скриптов и кода в кнопки, формы и все остальное. И вот здесь на помощь приходит [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2) - встраиваемый браузер от компании Microsoft. 
