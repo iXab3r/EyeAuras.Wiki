@@ -1,8 +1,8 @@
 ---
-title: 7. Подключаем CSS файл - HeadContent
+title: 8. Подключаем CSS файл - HeadContent
 description: 
 published: true
-date: 2025-05-11T16:12:56.395Z
+date: 2025-05-11T23:33:24.507Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-11T16:12:56.395Z
