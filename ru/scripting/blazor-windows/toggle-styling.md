@@ -1,8 +1,8 @@
 ---
-title: 6. Кастомизируем переключатели
+title: 7. Кастомизируем переключатели
 description: 
 published: true
-date: 2025-05-11T15:25:51.158Z
+date: 2025-05-11T23:34:46.647Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-11T15:23:20.489Z
