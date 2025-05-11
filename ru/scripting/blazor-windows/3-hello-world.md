@@ -1,8 +1,8 @@
 ---
-title: 3. `Hello, World` overlay-style
+title: 3. Составные части
 description: 
 published: true
-date: 2025-05-11T13:40:33.869Z
+date: 2025-05-11T13:41:03.732Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-11T01:13:28.765Z
