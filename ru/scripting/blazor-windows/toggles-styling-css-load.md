@@ -1,8 +1,8 @@
 ---
-title: 8. Подключаем CSS файл - LoadCss
+title: 10. Подключаем CSS файл - LoadCss
 description: 
 published: true
-date: 2025-05-11T16:22:32.324Z
+date: 2025-05-11T23:35:36.798Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-11T16:22:32.324Z
