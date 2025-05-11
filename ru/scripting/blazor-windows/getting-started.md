@@ -2,13 +2,13 @@
 title: С чего начать?
 description: 
 published: true
-date: 2025-05-11T13:36:20.391Z
+date: 2025-05-11T13:36:39.466Z
 tags: 
 editor: markdown
 dateCreated: 2024-11-04T00:26:45.232Z
 ---
 
-# Использование внутри EyeAuras
+# Blazor в контексте EyeAuras
 На момент ноября 2024, в EA существует два основных пути как вы можете использовать Blazor для своих нужд.
 
 ## C# Overlay
