@@ -2,57 +2,60 @@
 title: Getting Process list
 description: 
 published: true
-date: 2025-05-11T00:12:14.976Z
+date: 2025-05-11T00:13:27.986Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-11T00:12:14.976Z
 ---
 
-## Getting the list of running processes
+## Получение списка запущенных процессов
 
-We'll start with a very simple task - what if we want to list running processes on local machine?
+Начнём с очень простой задачи — что если мы хотим получить список запущенных процессов на локальной машине?
 
-In classic C# this is solved by [Process.GetProcesses()](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.getprocesses?view=net-8.0)
+В классическом C# это решается вызовом [Process.GetProcesses()](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.getprocesses?view=net-8.0)
 
-But as we're operating withing EyeAuras API, we have to take a bit different approach, which will allow
-us to very easily switch between different memory reading techniques.
+Но так как мы работаем в рамках API EyeAuras, нам придётся использовать немного другой подход, который позволит нам очень легко переключаться между различными способами чтения памяти.
 
-### The simplest appoach - equivalent of working via `Process`
+### Самый простой способ — эквивалент работы через `Process`
 ```csharp
 using EyeAuras.Memory;
 
 var processes = LocalProcess.GetProcesses();
 Log.Info(processes.DumpToNamedTable("Processes"));
-```
-As a result of running that script, you should see something like this in `EventLog` - list with a very-very basic information about running processes, containing their `ProcessId` (aka `PID`) and `ProcessName`
+````
+
+В результате выполнения этого скрипта вы должны увидеть нечто подобное в `EventLog` — список с очень базовой информацией о запущенных процессах, содержащей их `ProcessId` (или `PID`) и `ProcessName`.
 ![Event Log](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_1k4NSsZyzm.png)
 
-### Using LeechCore PMEM driver
-Now, we'll use a different approach and instead of using `LocalProcess` as our entry point, we'll call `LCProcess` ([LeechCore](https://github.com/ufrisk/LeechCore) Process). LeechCore is a fantastic library developed by [Ulf Frisk](https://github.com/ufrisk). 
+### Использование LeechCore PMEM-драйвера
 
-Internally, it has multiple different techniques of reading target (not only local, "target") system memory, including, of course, process information.
+Теперь мы используем другой подход — вместо `LocalProcess` как точки входа, мы вызовем `LCProcess` ([LeechCore](https://github.com/ufrisk/LeechCore)). LeechCore — это отличная библиотека, разработанная [Ulf Frisk](https://github.com/ufrisk).
 
-For you, end user, the matter of switching to a different memory reading approach is a matter of switching a single class, adding namespace and supplying valid startup arguments.
+Внутри у неё реализованы различные методы чтения памяти целевой (не только локальной) системы, включая, конечно, информацию о процессах.
 
-For this example, we'll supply the library with `-device pmem` command line, which makes it load and use [WinPMEM](https://github.com/Velocidex/WinPmem) driver.
+Для конечного пользователя переключение между методами чтения памяти сводится к замене одного класса, добавлению пространства имён и указанию аргументов запуска.
+
+В этом примере мы передадим библиотеке командную строку `-device pmem`, что заставит её загрузить и использовать драйвер [WinPMEM](https://github.com/Velocidex/WinPmem).
 
 ```csharp
 using EyeAuras.Memory;
-using EyeAuras.Memory.MPFS; //note the new namespace we've added - this is where LCProcess resides
+using EyeAuras.Memory.MPFS; // обратите внимание на новое пространство имён — LCProcess находится здесь
 
 var processes = LCProcess.GetProcesses("-device", "pmem");
 Log.Info(processes.DumpToNamedTable("Processes"));
 ```
-I'll omit the result as it should be exactly the same as they were before.
 
+Результат можно опустить — он должен быть точно таким же, как и ранее.
 
-### Using LeechCore Hyper-V
-Lets do something cool here. Lets try to read list of processes running **INSIDE** Hyper-V Virtual Machine (aka `Guest`) from `Host`.
-For simplicity, I'll pick ID of the very first VM we have here (id=0), in your case you may have to pick other ID.
+### Использование LeechCore Hyper-V
+
+Сделаем кое-что интересное — попробуем получить список процессов, запущенных **ВНУТРИ** виртуальной машины Hyper-V (гостевой системы) из хостовой.
+
+Для простоты я выберу ID первой попавшейся виртуалки (id=0), в вашем случае может понадобиться другой ID.
+
 ```csharp
 using EyeAuras.Memory;
 using EyeAuras.Memory.MPFS;
-
 
 var processes = LCProcess.GetProcesses("-device", "hvmm://id=0");
 Log.Info(processes.DumpToNamedTable("Processes"));
@@ -60,17 +63,21 @@ Log.Info(processes.DumpToNamedTable("Processes"));
 
 ![VM Processes](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_Irub5Wxahg.png)
 
-### Setting up Hyper-V Machine
-I'll post here only the most important part - do not forget to **disable** `Dynamic Memory` in VM Settings. 
+### Настройка Hyper-V машины
+
+Здесь приведу только самый важный момент — не забудьте **отключить** `Dynamic Memory` в настройках виртуальной машины.
 ![Dynamic memory](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_gOcli4xKIn.png)
 
-### Listing Hyper-V Machine
-For now, this requires running MemProcFS (which uses LeechCore) separately.
+### Получение списка виртуальных машин Hyper-V
+
+На данный момент это требует запуска MemProcFS (основанного на LeechCore) отдельно.
+
 ```bash
 MemProcFS.exe -device hvmm://listvm
 ```
 
-Here is how output could look like for a very simple scenario with a single VM:
+Вот как может выглядеть вывод в случае простой конфигурации с одной виртуальной машиной:
+
 ```bash
    Microsoft Hyper-V Virtual Machine plugin 1.2.20240329(beta) for MemProcFS (by Ulf Frisk).
 
@@ -86,3 +93,4 @@ Here is how output could look like for a very simple scenario with a single VM:
     --> [id = 0] ShadowForge (PartitionId = 0x2, Full VM)
    You selected the following virtual machine: ShadowForge
 ```
+
