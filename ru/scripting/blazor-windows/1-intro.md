@@ -1,8 +1,8 @@
 ---
-title: Введение
+title: 1. Введение
 description: 
 published: true
-date: 2025-05-11T13:31:15.490Z
+date: 2025-05-11T13:31:36.656Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-11T13:31:15.490Z
