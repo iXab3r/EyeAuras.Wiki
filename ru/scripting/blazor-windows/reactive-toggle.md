@@ -2,7 +2,7 @@
 title: 4. Механизм обновления
 description: 
 published: true
-date: 2025-05-11T14:35:20.794Z
+date: 2025-05-11T14:37:08.619Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-11T14:35:20.794Z
@@ -65,7 +65,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 </p>
 ```
 
-![Demo](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_HeGx0CejHB.gif)
+![Demo](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_W7LNmgAsPK.gif)
 
 ---
 
@@ -82,5 +82,6 @@ public partial class UserOverlay : BlazorReactiveComponent {
 событие в ChangeTrackers в метод `OnInitialized`. В нашем случае таким событием будет просто таймер - как только таймер тикает, интерфейс перерисовывается.
 Обратите внимание - такой подход никак не учитывает было ли изменения состояния или нет, он просто говорит "перерисуйся". 
 В более поздних статьях мы рассмотрим как можно оптимизировать систему через `ReactiveSection` и более точный трекинг изменений. Однако для огромного количества ситуаций текущего подхода хватит за глаза - `Blazor` очень быстрый и сделать "холостую" перерисовку при простом интерфейсе это не преступление. 
+
 
 
