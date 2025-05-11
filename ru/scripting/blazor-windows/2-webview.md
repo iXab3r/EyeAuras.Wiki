@@ -2,15 +2,15 @@
 title: 2. BlazorWindows и WebView2
 description: 
 published: true
-date: 2025-05-11T13:37:01.674Z
+date: 2025-05-11T13:39:30.725Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-11T00:47:25.172Z
 ---
 
-# Как работают Blazor Windows и оверлеи
+# Что такое Blazor Windows и как они вообще работают?
 Во [вводной части цикла](/scripting/blazor-windows/getting-started) я рассказывал про Blazor, HTML и CSS. Однако для того, чтобы всю эту красоту отобразить на экране нам нужен какой-то инструмент, который превратит наш набор скриптов и кода в кнопки, формы и все остальное. И вот здесь на помощь приходит [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2) - встраиваемый браузер от компании Microsoft. 
-Именно с ним интегрируется EyeAuras и именно на его основе работают BlazorWindows и оверлеи. 
+BlazorWindows это фреймворк, который объединяет все - WebView, HTML, C#, CSS - в единое целое и позволяет создавать интерактивные окна. Именно эта технология лежит в основе оверлеев, да и многих частей EyeAuras.
 
 ![WebView2](https://s3.eyeauras.net/media/2025/05/WebView2.drawio%20%281%29.png)
 
