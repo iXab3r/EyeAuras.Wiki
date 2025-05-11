@@ -1,8 +1,8 @@
 ---
-title: 4. Механизм обновления
+title: 5. Механизм обновления
 description: 
 published: true
-date: 2025-05-11T14:37:08.619Z
+date: 2025-05-11T23:34:26.741Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-11T14:35:20.794Z
