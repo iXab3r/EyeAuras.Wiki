@@ -2,7 +2,7 @@
 title: Reading Mem using ReadProcessMemory
 description: 
 published: true
-date: 2025-05-31T22:16:20.842Z
+date: 2025-05-31T22:17:03.345Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-10T23:09:15.299Z
@@ -36,7 +36,7 @@ There are which so-called `acquisition device` which are available in LC. You ca
 using EyeAuras.Memory;
 using EyeAuras.Memory.MPFS; //LCProcess is inside MPFS
 
-var processes = LCProcess.Custom("-device", "pmem").GetProcesses();
+var processes = LCProcess.WinPMEM().GetProcesses(); //use kernel driver
 Log.Info(processes.DumpToNamedTable("Processes"));
 ```
 
