@@ -2,7 +2,7 @@
 title: Reading Mem using ReadProcessMemory
 description: 
 published: true
-date: 2025-05-31T22:16:06.212Z
+date: 2025-05-31T22:16:20.842Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-10T23:09:15.299Z
@@ -15,7 +15,7 @@ We'll start with a very simple task - what if we want to list running processes 
 In classic C# this is solved by [Process.GetProcesses()](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.getprocesses?view=net-8.0)
 
 But as we're operating withing EyeAuras API, we have additional capabilities, which will allow
-us to very easily switch between different memory reading techniques.
+us to very easily switch between different memory reading techniques allowing to counteract any defensive measures out there.
 
 ## Using .NET primitives - equivalent of working via `Process`
 ```csharp
