@@ -2,22 +2,22 @@
 title: Reading Mem using ReadProcessMemory
 description: 
 published: true
-date: 2025-05-31T22:14:25.775Z
+date: 2025-05-31T22:16:06.212Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-10T23:09:15.299Z
 ---
 
-## Getting the list of running processes
+# Getting the list of running processes
 
 We'll start with a very simple task - what if we want to list running processes on local machine?
 
 In classic C# this is solved by [Process.GetProcesses()](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.getprocesses?view=net-8.0)
 
-But as we're operating withing EyeAuras API, we have to take a bit different approach, which will allow
+But as we're operating withing EyeAuras API, we have additional capabilities, which will allow
 us to very easily switch between different memory reading techniques.
 
-### The simplest appoach - equivalent of working via `Process`
+## Using .NET primitives - equivalent of working via `Process`
 ```csharp
 using EyeAuras.Memory;
 
@@ -27,7 +27,7 @@ Log.Info(processes.DumpToNamedTable("Processes"));
 As a result of running that script, you should see something like this in `EventLog` - list with a very-very basic information about running processes, containing their `ProcessId` (aka `PID`) and `ProcessName`
 ![Event Log](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_1k4NSsZyzm.png)
 
-### Using LeechCore
+## Using LeechCore
 Now, we'll use a different approach and instead of using `LocalProcess` as our entry point, we'll call `LCProcess` ([LeechCore](https://github.com/ufrisk/LeechCore) Process). LeechCore is a fantastic library developed by [Ulf Frisk](https://github.com/ufrisk). 
 
 There are which so-called `acquisition device` which are available in LC. You can find more arguments on his [Wiki](https://github.com/ufrisk/LeechCore/wiki)
