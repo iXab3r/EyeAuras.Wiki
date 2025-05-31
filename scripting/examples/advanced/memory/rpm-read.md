@@ -2,7 +2,7 @@
 title: Reading Mem using ReadProcessMemory
 description: 
 published: true
-date: 2025-05-31T22:17:03.345Z
+date: 2025-05-31T22:17:36.715Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-10T23:09:15.299Z
@@ -46,5 +46,5 @@ Log.Info(processes.DumpToNamedTable("Processes"));
 LCProcess.WinPMEM().GetProcesses(); //use WinPMEM Kernel driver 
 LCProcess.FPGA().GetProcesses(); //use FPGA DMA PCI-E 
 LCProcess.HyperV().GetProcesses(); //read info from the first system Hyper-V VM 
-LCProcess.Custom("-device", "pmem").GetProcesses(); //almost exact equivalent of using WinPMEM
+LCProcess.Custom("-device", "pmem").GetProcesses(); //allows to supply any custom arguments
 ```
