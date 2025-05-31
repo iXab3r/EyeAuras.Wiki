@@ -2,7 +2,7 @@
 title: Reading Mem using ReadProcessMemory
 description: 
 published: true
-date: 2025-05-10T23:09:15.299Z
+date: 2025-05-31T22:14:25.775Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-10T23:09:15.299Z
@@ -20,8 +20,6 @@ us to very easily switch between different memory reading techniques.
 ### The simplest appoach - equivalent of working via `Process`
 ```csharp
 using EyeAuras.Memory;
-using EyeAuras.Memory.MPFS;
-
 
 var processes = LocalProcess.GetProcesses();
 Log.Info(processes.DumpToNamedTable("Processes"));
@@ -29,14 +27,24 @@ Log.Info(processes.DumpToNamedTable("Processes"));
 As a result of running that script, you should see something like this in `EventLog` - list with a very-very basic information about running processes, containing their `ProcessId` (aka `PID`) and `ProcessName`
 ![Event Log](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_1k4NSsZyzm.png)
 
-### Using LeechCore PMEM driver
+### Using LeechCore
+Now, we'll use a different approach and instead of using `LocalProcess` as our entry point, we'll call `LCProcess` ([LeechCore](https://github.com/ufrisk/LeechCore) Process). LeechCore is a fantastic library developed by [Ulf Frisk](https://github.com/ufrisk). 
 
+There are which so-called `acquisition device` which are available in LC. You can find more arguments on his [Wiki](https://github.com/ufrisk/LeechCore/wiki)
 
 ```csharp
 using EyeAuras.Memory;
-using EyeAuras.Memory.MPFS;
+using EyeAuras.Memory.MPFS; //LCProcess is inside MPFS
 
-var processes = LCProcess.GetProcesses("-device", "pmem");
+var processes = LCProcess.Custom("-device", "pmem").GetProcesses();
 Log.Info(processes.DumpToNamedTable("Processes"));
 ```
 
+### Using LeechCore device-specific builders
+
+```csharp
+LCProcess.WinPMEM().GetProcesses(); //use WinPMEM Kernel driver 
+LCProcess.FPGA().GetProcesses(); //use FPGA DMA PCI-E 
+LCProcess.HyperV().GetProcesses(); //read info from the first system Hyper-V VM 
+LCProcess.Custom("-device", "pmem").GetProcesses(); //almost exact equivalent of using WinPMEM
+```
