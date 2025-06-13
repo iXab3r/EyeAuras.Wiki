@@ -2,7 +2,7 @@
 title: ImGui Drawing the cursor
 description: 
 published: true
-date: 2025-03-31T17:49:10.631Z
+date: 2025-06-13T21:46:14.167Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-31T17:49:10.631Z
@@ -98,9 +98,6 @@ internal class SampleOverlay : Overlay
             1f                    // Thickness
         );
     }
-
-    // Optional: Increase render rate if needed
-    public override int RenderDelayMs => 5; // ~200 FPS
 }
 ```
 
