@@ -2,7 +2,7 @@
 title: ImGui - С чего начать?
 description: 
 published: true
-date: 2025-06-21T21:58:28.879Z
+date: 2025-06-21T21:59:19.974Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-21T21:51:07.137Z
@@ -105,7 +105,7 @@ cancellationToken.WaitHandle.WaitOne();
 ![Toggle](https://s3.eyeauras.net/media/2025/06/EyeAuras_950pfgdzIy4pe780.gif)
 
 ## Что еще можно делать с помощью ImGui?
-На самом деле помимо рисования интерактивных окон, можно еще делать и OSD - OnScreenDisplay. 
+На самом деле помимо рисования интерактивных окон, можно еще делать и OSD - OnScreenDisplay, отрисовку чего-нибудь на экране. При этом, можно рисовать как 2D, так и 3D объекты. Вот пример - все, что вы видите реализовано на ImGui, как интерфейс, так и отрисовка на экране.
 
 
 [L2 Demo](https://youtu.be/y0u20InSjbg)
