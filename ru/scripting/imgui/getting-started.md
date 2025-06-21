@@ -2,7 +2,7 @@
 title: ImGui - С чего начать?
 description: 
 published: true
-date: 2025-06-21T21:59:19.974Z
+date: 2025-06-21T21:59:31.929Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-21T21:51:07.137Z
@@ -108,4 +108,4 @@ cancellationToken.WaitHandle.WaitOne();
 На самом деле помимо рисования интерактивных окон, можно еще делать и OSD - OnScreenDisplay, отрисовку чего-нибудь на экране. При этом, можно рисовать как 2D, так и 3D объекты. Вот пример - все, что вы видите реализовано на ImGui, как интерфейс, так и отрисовка на экране.
 
 
-[L2 Demo](https://youtu.be/y0u20InSjbg)
+![L2 Demo](https://youtu.be/y0u20InSjbg)
