@@ -2,7 +2,7 @@
 title: ImGui - Getting started
 description: 
 published: true
-date: 2025-06-22T00:31:07.908Z
+date: 2025-06-22T11:13:37.560Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-21T22:04:21.031Z
@@ -10,41 +10,65 @@ dateCreated: 2025-06-21T22:04:21.031Z
 
 # ImGui in the Context of EyeAuras
 
-**ImGui** is an incredibly powerful yet simple and intuitive library for drawing *all kinds of things*. Originally designed for in-game UI development, it quickly found use well beyond that. The [list of projects using it](https://github.com/ocornut/imgui/wiki/Software-using-dear-imgui) is impressive.
+**ImGui** is a remarkably powerful yet simple and intuitive library for drawing *stuff*. The author originally intended it for UI development in games, but it quickly found use far beyond that — the [list of adopters](https://github.com/ocornut/imgui/wiki/Software-using-dear-imgui) is quite impressive.
 
-But we're here for automation, right? So how does ImGui help us?
+But here we’re dealing with **automation**, right? So how does ImGui help us?
 
-**Answer**: ImGui is the simplest and most straightforward way to build custom UI — even easier than [Blazor Windows](/scripting/blazor-windows/getting-started).
+The answer: ImGui is the **simplest and most intuitive** way to build custom UI. It’s even easier than [Blazor Windows](/scripting/blazor-windows/getting-started).
+
+---
+
+## How to Install
+
+EyeAuras is gradually transitioning to a modular NuGet-based system so that users can include **only the features they need**. The current functionality has grown too large — image capture, analysis, effects, behavior trees, input simulation, memory reading, audio processing, Blazor UIs… almost no mini-app uses even half of it.
+
+So we're moving various features into NuGet packages that you can install just like any other.
+
+```csharp
+#r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
+ 
+using EyeAuras.ImGuiSdk; // required for registration methods
+using ImGuiNET;          // access to ImGui APIs
+using System.Numerics;   // for Vector2/Vector3 use with ImGui
+
+AddNewExtension<ImGuiContainerExtensions>(); // registers IImGuiExperimentalApi and others
+
+var osd = GetService<IImGuiExperimentalApi>() // creates the ImGui overlay
+    .AddTo(ExecutionAnchors); // ensures cleanup when script stops
+```
 
 ---
 
 ## Hello, World
 
-There are just three things you need to do to get started with ImGui:
+There are 3 things you need to do to start using ImGui:
 
-* Import the `ImGuiNET` namespace.
-* Create an `IImGuiApi` instance via `GetService`.
-* Call `AddRenderer` with a method that contains your rendering logic.
+* Import the `ImGuiNET` namespace
+* Create `IImGuiApi` via `GetService`
+* Call `AddRenderer()` with your rendering method
 
-That’s it. EyeAuras will handle the overlay and rendering loop. Your job is to define what happens inside the method passed to `AddRenderer`.
+That's it. EyeAuras will handle overlay creation and the render loop. You only need to put your logic in the method passed to `AddRenderer`.
 
-> 💡 Keep in mind: ImGui will call that method on **every single render cycle**. Don’t put `Thread.Sleep` or blocking logic there.
+> 💡 Note: Your method will be called **on every frame**, so avoid sleeping or long blocking code.
 
 ```csharp
+#r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
+ 
+using EyeAuras.ImGuiSdk;
 using ImGuiNET;
+using System.Numerics;
 
-var img = GetService<IImGuiExperimentalApi>() // Create ImGui API
-    .AddTo(ExecutionAnchors);     // Dispose when the script stops
+AddNewExtension<ImGuiContainerExtensions>();
 
-img.AddRenderer(() =>
+var osd = GetService<IImGuiExperimentalApi>()
+    .AddTo(ExecutionAnchors);
+
+osd.AddRenderer(() =>
 {
-    // This method gets called many times per second.
-    // Add your render logic here.
     ImGui.ShowDemoWindow();
 });
 
-// Wait for the script to stop
-cancellationToken.WaitHandle.WaitOne(); 
+cancellationToken.WaitHandle.WaitOne(); // keep running until script is stopped
 ```
 
 ![ImGui Demo window](https://s3.eyeauras.net/media/2025/06/EyeAuras_KXCTkIyw7EU3oo3q.gif)
@@ -53,33 +77,35 @@ cancellationToken.WaitHandle.WaitOne();
 
 ## Creating a Toggle
 
-Now let’s build something of our own. The demo window is useful for smoke testing, but not very practical.
+Let’s create something of our own. The demo window is useful for testing, but not very practical.
 
-Just like with [Blazor Windows](/scripting/blazor-windows/getting-started), let’s [create a simple toggle](/scripting/blazor-windows/4-toggle-hotkeyisactive).
+Just like in [Blazor Windows](/scripting/blazor-windows/getting-started), let’s [create a toggle](/scripting/blazor-windows/4-toggle-hotkeyisactive).
 
 ### What needs to be done?
 
-* Create the overlay with `IImGuiApi` as usual.
-* Pass in your render method using `AddRenderer`.
-* In the rendering code, draw a checkbox and some status text.
+* Create the `IImGuiApi` overlay
+* Pass a rendering method to `AddRenderer`
+* Draw a checkbox and some text inside the render method
 
-And that’s it. No need to manage state, no event handlers, no delay timers. ImGui is declarative and stateless. The syntax might be a bit unfamiliar at first, but ChatGPT knows ImGui well — feel free to ask anything.
+And that’s it! No state management, no sleep calls, no click processing — it’s all immediate mode. The syntax might seem odd at first, but ChatGPT knows ImGui **very well**, so don’t hesitate to ask questions.
 
 ```csharp
-using System.Numerics;
+#r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
+
+using EyeAuras.ImGuiSdk; 
 using ImGuiNET;
+using System.Numerics;
 
 [Inject] IAuraTreeScriptingApi AuraTree { get; init; }
 
-IHotkeyIsActiveTrigger Trigger
-{
-    get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
-}
+IHotkeyIsActiveTrigger Trigger => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
 
-var img = GetService<IImGuiExperimentalApi>() // Create ImGui API
-    .AddTo(ExecutionAnchors);     // Dispose when script stops
+AddNewExtension<ImGuiContainerExtensions>();
 
-img.AddRenderer(() =>
+var osd = GetService<IImGuiExperimentalApi>()
+    .AddTo(ExecutionAnchors);
+
+osd.AddRenderer(() =>
 {
     ImGui.Begin("My UI");
 
@@ -107,7 +133,6 @@ img.AddRenderer(() =>
     ImGui.End();
 });
 
-// Wait for the script to stop
 cancellationToken.WaitHandle.WaitOne();
 ```
 
@@ -115,14 +140,14 @@ cancellationToken.WaitHandle.WaitOne();
 
 ---
 
-## What Else Can You Do with ImGui?
+## What Else Can You Do With ImGui?
 
-Beyond interactive windows, ImGui also lets you create **OSD (On-Screen Display)** elements — drawing directly to the screen. Both 2D and 3D overlays are possible.
+Besides drawing interactive windows, ImGui can also be used for **OSD (On-Screen Display)** — drawing overlays directly onto the screen. You can render both **2D** and **3D** objects.
 
-Everything you see in the example below — the UI and screen overlays — is implemented using ImGui:
+Here's an example — everything you see is rendered using ImGui, including both UI and screen overlays:
 
-🎬 [L2 Demo on YouTube](https://www.youtube.com/watch?v=y0u20InSjbg)
+📺 [L2 Demo](https://www.youtube.com/watch?v=y0u20InSjbg)
 
 ---
 
-Let me know if you'd like this styled as documentation for internal use or linked into a script hub.
+Let me know if you'd like this converted into a docs page or integrated into EyeAuras script templates.
