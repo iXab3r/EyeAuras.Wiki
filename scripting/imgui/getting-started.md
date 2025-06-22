@@ -2,7 +2,7 @@
 title: ImGui - Getting started
 description: 
 published: true
-date: 2025-06-21T22:04:21.031Z
+date: 2025-06-22T00:31:07.908Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-21T22:04:21.031Z
@@ -33,7 +33,7 @@ That’s it. EyeAuras will handle the overlay and rendering loop. Your job is to
 ```csharp
 using ImGuiNET;
 
-var img = GetService<IImGuiApi>() // Create ImGui API
+var img = GetService<IImGuiExperimentalApi>() // Create ImGui API
     .AddTo(ExecutionAnchors);     // Dispose when the script stops
 
 img.AddRenderer(() =>
@@ -76,7 +76,7 @@ IHotkeyIsActiveTrigger Trigger
     get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
 }
 
-var img = GetService<IImGuiApi>() // Create ImGui API
+var img = GetService<IImGuiExperimentalApi>() // Create ImGui API
     .AddTo(ExecutionAnchors);     // Dispose when script stops
 
 img.AddRenderer(() =>
