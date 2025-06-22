@@ -2,7 +2,7 @@
 title: ImGui - С чего начать?
 description: 
 published: true
-date: 2025-06-21T21:59:56.571Z
+date: 2025-06-22T00:30:53.448Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-21T21:51:07.137Z
@@ -28,7 +28,7 @@ p.s. Keep in mind, that ImGui will call that method ON EVERY render cycle. So no
 ```csharp
 using ImGuiNET;
 
-var img = GetService<IImGuiApi>() //create ImGui API
+var img = GetService<IImGuiExperimentalApi>() //create ImGui API
     .AddTo(ExecutionAnchors); //destroy when script stops
 
 img.AddRenderer(() =>
@@ -67,7 +67,7 @@ IHotkeyIsActiveTrigger Trigger
     get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
 }
 
-var img = GetService<IImGuiApi>() //create ImGui API
+var img = GetService<IImGuiExperimentalApi>() //create ImGui API
     .AddTo(ExecutionAnchors); //destroy when script stops
 
 img.AddRenderer(() =>
