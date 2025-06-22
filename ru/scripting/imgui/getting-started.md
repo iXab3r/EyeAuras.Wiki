@@ -2,7 +2,7 @@
 title: ImGui - С чего начать?
 description: 
 published: true
-date: 2025-06-22T00:30:53.448Z
+date: 2025-06-22T11:12:23.456Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-21T21:51:07.137Z
@@ -15,6 +15,23 @@ dateCreated: 2025-06-21T21:51:07.137Z
 Ответ - ImGui это самый простой и понятный способ реализовать свой кастомный UI. Даже проще чем [Blazor Windows](/scripting/blazor-windows/getting-started). 
 
 
+## Как подключить
+EyeAuras постепенно переходит на систему нугет-пакетов для того, чтобы пользователи могли подключать только тот функционал, который им требуется. На данный момент количество разнообразного функционала, которое присутствует в программе, уже слишком велико - работа с захватом изображения, анализом, эффекты, деревья поведения, симуляторы ввода, чтение памяти, работа со звуком, работа с Blazor. Нет ни одной известной мне мини-аппки, которая бы использовала хотя бы половину. 
+Так что я буду постепенно выносить отдельные блоки функционала в NuGet пакеты, которые можно будет подключать в программу как и любые другие. 
+
+```csharp
+#r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
+ 
+using EyeAuras.ImGuiSdk; //root ImGuiSdk namespace needed to add registrations (see below)
+using ImGuiNET; //that namespace is needed to get access to ImGui itself
+using System.Numerics; //most of ImGui methods work with Vector2/3, so this comes in handy
+
+AddNewExtension<ImGuiContainerExtensions>(); //this is register IImGuiExperimentalApi and other classes
+
+var osd = GetService<IImGuiExperimentalApi>() //create ImGui API - this will show empty OSD
+    .AddTo(ExecutionAnchors); //ensure that you'll hide OSD when script stops or gets stopped
+```
+
 ## Hello, World
 There are 3 things you have to do to start working with ImGui:
 - import `ImGuiNET` namespace 
@@ -26,12 +43,18 @@ some logic into the method which you've passed to `AddRenderer`
 p.s. Keep in mind, that ImGui will call that method ON EVERY render cycle. So no sleeps there. 
 
 ```csharp
-using ImGuiNET;
+#r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
+ 
+using EyeAuras.ImGuiSdk; //root ImGuiSdk namespace needed to add registrations (see below)
+using ImGuiNET; //that namespace is needed to get access to ImGui itself
+using System.Numerics; //most of ImGui methods work with Vector2/3, so this comes in handy
 
-var img = GetService<IImGuiExperimentalApi>() //create ImGui API
-    .AddTo(ExecutionAnchors); //destroy when script stops
+AddNewExtension<ImGuiContainerExtensions>(); //this is register IImGuiExperimentalApi and other classes
 
-img.AddRenderer(() =>
+var osd = GetService<IImGuiExperimentalApi>() //create ImGui API - this will show empty OSD
+    .AddTo(ExecutionAnchors); //ensure that you'll hide OSD when script stops or gets stopped
+
+osd.AddRenderer(() =>
 {
     //this method will be called many-many times per second
     //you can put any logic here
@@ -57,8 +80,11 @@ cancellationToken.WaitHandle.WaitOne();
 На этом в принципе и все. Как видите очнеь просто - никакого хранения состояний, никаких задержек, обработки кликов и т.п. Синтаксис может поначалу вызывать вопросы, но чат гпт ОЧЕНЬ хорошо знает ImGui, так что не стеснятесь.
 
 ```csharp
-using System.Numerics;
+#r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
+ 
+using EyeAuras.ImGuiSdk; 
 using ImGuiNET;
+using System.Numerics; 
 
 [Inject] IAuraTreeScriptingApi AuraTree { get; init; }
 
@@ -67,10 +93,12 @@ IHotkeyIsActiveTrigger Trigger
     get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
 }
 
-var img = GetService<IImGuiExperimentalApi>() //create ImGui API
-    .AddTo(ExecutionAnchors); //destroy when script stops
+AddNewExtension<ImGuiContainerExtensions>(); 
 
-img.AddRenderer(() =>
+var osd = GetService<IImGuiExperimentalApi>() //create ImGui API - this will show empty OSD
+    .AddTo(ExecutionAnchors); //ensure that you'll hide OSD when script stops or gets stopped
+
+osd.AddRenderer(() =>
 {
     ImGui.Begin("My UI");
 
