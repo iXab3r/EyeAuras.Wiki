@@ -2,7 +2,7 @@
 title: Common Options
 description: 
 published: true
-date: 2024-05-14T18:37:43.796Z
+date: 2025-06-25T23:49:34.061Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T15:26:34.441Z
@@ -52,7 +52,4 @@ There are many different input methods. Most of them are available even for unre
 -   **Low-Level Input Injection/Windows Input** Uses modified versions of inputs which are harder to detect and can bypass some protections.
 -   **TetherScript Driver** Uses TetherScript driver to simulate inputs. Requires ControlMyJoystick software to be installed. Despite not being free, the software only needs to be installed - no purchase required. Download it [_here_](https://tetherscript.com/controlmyjoystick-home/).
 -   **Input Driver** Uses a publicly available custom keyboard/mouse driver, which might be detected by some advanced protection systems.
--   **Virtual Driver** A less-known custom keyboard/mouse driver. Compatibility may vary depending on your hardware.
 -   **Granny's Send Input** Uses a very old and time-proven simulation method which sometimes gets missed by anti-cheats due to its age. **Old, but not obsolete** ©
--   **KMBox B+ Pro (COM)** Uses a special hardware which must be purchased separately. [Learn more here](https://letmegooglethat.com/?q=kmbox+b%2B+pro) 
--   **Usb2Kbd Device** Uses Arduino-based hardware keyboard/mouse emulator. An additional device from Amazon (~$10) is required, along with a firmware provided by us. Detailed instructions on how to flash it onto the device will be provided later. [_Buy the device here_](https://www.amazon.com/Ferwooh-Downloader-Programmer-Microcontroller-Adapter/dp/B08DTRPT1Z/).
