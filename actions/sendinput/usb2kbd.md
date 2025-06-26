@@ -2,7 +2,7 @@
 title: Creating your own Usb2Kbd
 description: 
 published: true
-date: 2025-06-26T22:57:26.033Z
+date: 2025-06-26T23:00:45.690Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-26T21:39:17.968Z
@@ -154,4 +154,6 @@ You’ve got a ready-to-use input emulator!
 💡 **Tip**: Set `Usb2Kbd` on the **folder level** — it will apply to all auras/macros inside
 
 ![Folder properties](https://s3.eyeauras.net/media/2025/06/EyeAuras_X3t0uKQGRPWRfFLN.png)
-```
+
+# Demo
+![Text input via Usb2Kbd](https://s3.eyeauras.net/media/2025/06/EyeAuras_JDZlg740lGwiPBED.gif)
