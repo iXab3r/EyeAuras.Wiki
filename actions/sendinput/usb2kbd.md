@@ -2,7 +2,7 @@
 title: Creating your own Usb2Kbd
 description: 
 published: true
-date: 2025-06-26T22:55:20.068Z
+date: 2025-06-26T22:57:26.033Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-26T21:39:17.968Z
@@ -35,7 +35,7 @@ Additionally, the original DLLs had multiple bugs that had to be patched on the 
 # Instructions
 
 ### Download the archive with prerequisites
-Download link: –
+Download link: https://s3.eyeauras.net/media/2025/06/usb2kbd.zip
 
 ### Prepare the target device – short JP2
 Pick one of the devices — doesn't matter which. Initially, both are the same. One will become your Usb2Kbd device, the other will act as the programmer.
