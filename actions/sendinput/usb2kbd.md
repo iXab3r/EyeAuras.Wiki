@@ -2,7 +2,7 @@
 title: Creating your own Usb2Kbd
 description: 
 published: true
-date: 2025-06-26T23:04:45.326Z
+date: 2025-06-26T23:05:46.103Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-26T21:39:17.968Z
@@ -157,4 +157,4 @@ You’ve got a ready-to-use input emulator!
 
 # Demo
 ![SendSequence via Usb2Kbd](https://s3.eyeauras.net/media/2025/06/EyeAuras_JDZlg740lGwiPBED.gif =x400)
-![Macro via Usb2Kbd](https://s3.eyeauras.net/media/2025/06/EyeAuras_ErWZbRhxLmhdb47W.gif =x400)
+![Macro via Usb2Kbd](https://s3.eyeauras.net/media/2025/06/EyeAuras_ErWZbRhxLmhdb47W.gif =x500)
