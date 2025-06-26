@@ -2,7 +2,7 @@
 title: Прошиваем Usb2Kbd
 description: 
 published: true
-date: 2025-06-26T23:01:01.136Z
+date: 2025-06-26T23:04:34.422Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-26T22:51:54.882Z
@@ -116,4 +116,5 @@ p.s. После того, как вы прошьете **Target (1)**, ламп�
 ![Folder properties](https://s3.eyeauras.net/media/2025/06/EyeAuras_X3t0uKQGRPWRfFLN.png)
 
 # Демо
-![Text input via Usb2Kbd](https://s3.eyeauras.net/media/2025/06/EyeAuras_JDZlg740lGwiPBED.gif)
+![SendSequence via Usb2Kbd](https://s3.eyeauras.net/media/2025/06/EyeAuras_JDZlg740lGwiPBED.gif =x400)
+![Macro via Usb2Kbd](https://s3.eyeauras.net/media/2025/06/EyeAuras_ErWZbRhxLmhdb47W.gif =x400)
