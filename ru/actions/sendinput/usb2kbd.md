@@ -2,7 +2,7 @@
 title: Прошиваем Usb2Kbd
 description: 
 published: true
-date: 2025-06-26T22:57:11.686Z
+date: 2025-06-26T23:01:01.136Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-26T22:51:54.882Z
@@ -115,3 +115,5 @@ p.s. После того, как вы прошьете **Target (1)**, ламп�
 - Удобнее всего выбрать `Usb2Kbd` на уровне папки - так он будет применяться ко всем аурам/деревьям/макросам внутри нее
 ![Folder properties](https://s3.eyeauras.net/media/2025/06/EyeAuras_X3t0uKQGRPWRfFLN.png)
 
+# Демо
+![Text input via Usb2Kbd](https://s3.eyeauras.net/media/2025/06/EyeAuras_JDZlg740lGwiPBED.gif)
