@@ -2,7 +2,7 @@
 title: Aim Trainer 2D ML Aimbot+ESP ImGui
 description: 1.7.8523+
 published: true
-date: 2025-06-27T21:28:56.695Z
+date: 2025-06-27T21:35:44.374Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-27T21:27:31.399Z
@@ -10,7 +10,7 @@ dateCreated: 2025-06-27T21:27:31.399Z
 
 # What Is This?
 
-This example shows **how to build a simple 2D aimbot with an ESP overlay** (drawing on screen) using **EyeAuras**, a scripting SDK, and **ImGui**, a library for building UIs in games or apps.
+This example shows **how to build a simple 2D aimbot with an ESP overlay** (drawing on screen) using **ImGui**, a library for building UIs in games or apps.
 
 ---
 
@@ -92,6 +92,3 @@ osd.AddRenderer(() =>
 cancellationToken.WaitHandle.WaitOne(); 
 ```
 
----
-
-Let me know if you want a visual explanation or diagram next!
