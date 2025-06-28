@@ -2,7 +2,7 @@
 title: Yolo 11 FullScreen ESP ImGui
 description: 1.7.8527+
 published: true
-date: 2025-06-28T09:04:25.549Z
+date: 2025-06-28T09:23:03.531Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-28T09:04:25.549Z
@@ -10,25 +10,50 @@ dateCreated: 2025-06-28T09:04:25.549Z
 
 # What Is This?
 
-This example shows **how to create a fullscreen ESP overlay** using **ImGui** and a **YOLO v11s ML model** for real-time object detection. It draws bounding boxes and labels over detected objects and displays the current FPS.
+This example demonstrates how to build a **fullscreen ESP overlay** using **YOLOv11s** (a machine learning model for object detection) with **ImGui**, a real-time UI library. It runs on top of your desktop and highlights objects detected in a specific screen region.
+
+It also features a hotkey (F1) to enable or disable detection live while it's running.
+
+> 📺 Try it on a video: [Target Tracking - YouTube](https://www.youtube.com/watch?v=rTqg2hEjGdE)
 
 ---
 
-## ⚙️ What This Code Does
+## 💡 Key Features
 
-* Loads a **pretrained YOLO model** for object detection
-* Runs inference on the **entire screen**
-* Draws a **bounding box and label** over each prediction
-* Shows **FPS counter** in the top-right corner
-* All UI is rendered using **ImGui** and **EyeAuras SDK**
+- Uses **YOLOv11s ONNX model** for fast ML object detection
+- Shows **bounding boxes + labels** over detected targets
+- Renders an **FPS counter** (top-right)
+- Toggles overlay on/off using `F1` hotkey
+- Only scans a **defined screen region** for performance
 
 ---
+
+## 🧰 Technologies Used
+
+- [EyeAuras.ImGuiSdk](https://www.nuget.org/packages/EyeAuras.ImGuiSdk)
+- [ImGui.NET](https://github.com/mellinoe/ImGui.NET)
+- EyeAuras APIs: CV (Computer Vision), ImGui, Input, Logging
+
+---
+
+## 🔍 What to Expect
+
+When enabled, the script:
+
+- Continuously scans a defined region of your screen or the entire screen
+- Uses ML to detect targets in that area
+- Draws bounding boxes and labels using **ImGui**
+- Displays a real-time FPS counter
+- Lets you pause/resume detection with `F1`
+
+---
+
 
 ## 🧪 Example Code
 
 ```csharp
 //this is a simple fullscreen ESP using Yolo 11s model for https://aimtrainer.io/target-tracking
-
+//open this YT video https://www.youtube.com/watch?v=rTqg2hEjGdE
 #r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
 #r "nuget:ImGui.NET, 1.91.6.1"
 
@@ -60,21 +85,39 @@ osd.AddRenderer(() =>
     var pos = new Vector2(screenBounds.Right - textSize.X - 10, 10);
     drawList.AddText(ImGui.GetFont(), fontSize, pos, Color.Yellow.ToImGuiColor(), fpsText);
 
+    if (!IsEnabled){
+        Sleep(10);
+        return;
+    }
+
     // Perform ML-search
-    var result = cv.MLSearchRaw(mlModelPath);
+    var result = cv.MLSearchRaw(mlModelPath); //scan entire screen 
+    //or you can use Context Menu => Pick region to insert custom region - this will drastically improve quality 
+    //var result = cv.MLSearchRaw(mlModelPath, new Rectangle(893, 226, 2028, 1135)); 
+
     var predictions = result.Detected.Predictions.Where(x => x.Score > 0.7).ToArray();
 
     if (!predictions.Any()) return;
 
     foreach (var prediction in predictions)
     {
-        osd.DrawFrame(prediction.Rectangle, Color.AliceBlue);
+        var predictionBounds = result.ToScreen(prediction.Rectangle);
+        osd.DrawFrame(predictionBounds, Color.AliceBlue);
 
-        var topLeft = new Vector2(prediction.Rectangle.Left, prediction.Rectangle.Top);
+        var topLeft = new Vector2(predictionBounds.Left, predictionBounds.Top);
         var label = $"{prediction.Label.Name} ({prediction.Score:P1})";
         drawList.AddText(topLeft, Color.White.ToImGuiColor(), label);
     }
 });
 
 cancellationToken.WaitHandle.WaitOne();
+
+public bool IsEnabled {get; set;}
+
+[Keybind(Hotkey = "F1", SuppressKey = true)] 
+public void HandleKeyWithInjectedServices(IAuraEventLoggingService loggingService){
+    var newIsEnabled = !IsEnabled;
+    Log.Info($"Key pressed, IsEnabled: {IsEnabled} => {newIsEnabled}");
+    IsEnabled = newIsEnabled;    
+}
 ```
