@@ -2,7 +2,7 @@
 title: Yolo 11 FullScreen ESP ImGui
 description: 1.7.8527+
 published: true
-date: 2025-06-28T13:29:37.478Z
+date: 2025-06-28T13:43:54.832Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-28T09:04:25.549Z
@@ -80,18 +80,29 @@ osd.AddRenderer(() =>
 
     // ➕ Draw FPS in top-right corner of the capture area
     float fps = ImGui.GetIO().Framerate;
-    var captureAreaBounds = CaptureRegion.IsEmpty 
-        ? System.Windows.Forms.Screen.PrimaryScreen.Bounds 
+    var captureAreaBounds = CaptureRegion.IsEmpty
+        ? System.Windows.Forms.Screen.PrimaryScreen.Bounds
         : CaptureRegion;
     osd.DrawFrame(captureAreaBounds, Color.Purple);
 
     string fpsText = $"FPS: {fps:F1}";
     float fontSize = ImGui.GetFontSize() * 3f; // x3 size
     var textSize = ImGui.CalcTextSize(fpsText) * 3f; // also scale position
-    var pos = new Vector2(captureAreaBounds.Right - textSize.X - 10, captureAreaBounds.Top + 10);
-    drawList.AddText(ImGui.GetFont(), fontSize, pos, Color.Yellow.ToImGuiColor(), fpsText);
+    drawList.AddText(
+        ImGui.GetFont(),
+        fontSize,
+        new Vector2(captureAreaBounds.Right - textSize.X - 10, captureAreaBounds.Top + 10),
+        Color.Yellow.ToImGuiColor(),
+        fpsText);
+    drawList.AddText(
+        ImGui.GetFont(),
+        fontSize,
+        new Vector2(captureAreaBounds.Left + 10, captureAreaBounds.Top + 10),
+        IsEnabled ? Color.Purple.ToImGuiColor() : Color.Yellow.ToImGuiColor(),
+        $"F1 - {(IsEnabled ? "Stop" : "Start")}, F2 - Select Region");
 
-    if (!IsEnabled){
+    if (!IsEnabled)
+    {
         Sleep(10);
         return;
     }
@@ -117,23 +128,33 @@ osd.AddRenderer(() =>
 
 cancellationToken.WaitHandle.WaitOne();
 
-public bool IsEnabled {get; set;}
+public bool IsEnabled { get; set; } = true;
 
-public Rectangle CaptureRegion {get;set;}
+public Rectangle CaptureRegion { get; set; }
 
 [Keybind(Hotkey = "F1", SuppressKey = true)]
-public void HandleF1(){
+public void HandleF1()
+{
     var newIsEnabled = !IsEnabled;
     Log.Info($"F1 pressed, IsEnabled: {IsEnabled} => {newIsEnabled}");
     IsEnabled = newIsEnabled;
 }
 
 [Keybind(Hotkey = "F2", SuppressKey = true)]
-public async Task HandleF2(EyeAuras.Shared.Osd.IOsdSelectionService osdSelectionService){
+public async Task HandleF2(EyeAuras.Shared.Osd.IOsdSelectionService osdSelectionService)
+{
     Log.Info($"F2 pressed");
-    var selection = await osdSelectionService.PickRegion();
-    Log.Info($"Selection result: {selection}");
-    CaptureRegion = selection.Region;
-    Log.Info($"New capture region: {CaptureRegion}");
+    try
+    {
+        var selection = await osdSelectionService.PickRegion();
+        Log.Info($"Selection result: {selection}");
+        CaptureRegion = selection.Region;
+        Log.Info($"New capture region: {CaptureRegion}");
+    }
+    catch (OperationCanceledException)
+    {
+        Log.Info($"Selection cancelled");
+
+    }
 }
 ```
