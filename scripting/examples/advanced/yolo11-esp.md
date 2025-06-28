@@ -2,7 +2,7 @@
 title: Yolo 11 FullScreen ESP ImGui
 description: 1.7.8527+
 published: true
-date: 2025-06-28T09:27:53.705Z
+date: 2025-06-28T09:58:55.804Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-28T09:04:25.549Z
@@ -14,7 +14,7 @@ This example demonstrates how to build a **fullscreen ESP overlay** using **YOLO
 
 It also features a hotkey (F1) to enable or disable detection live while it's running.
 
-> Seen it in action here: [Demo](https://eyeauras.net/viewer?url=https://s3.eyeauras.net/media/2025/06/EyeAuras_Ysg57Vun9q2Hmuvu.mp4)
+> Seen it in action here: [Demo](https://onelineplayer.com/player?autoplay=true&autopause=false&muted=true&loop=true&url=https%3A%2F%2Fs3.eyeauras.net%2Fmedia%2F2025%2F06%2FEyeAuras_Ysg57Vun9q2Hmuvu.mp4&poster=&time=true&progressBar=true&overlay=true&muteButton=true&fullscreenButton=true&style=light&quality=auto&playButton=true)
 
 > 📺 Try it on a video: [Target Tracking - YouTube](https://www.youtube.com/watch?v=rTqg2hEjGdE)
 
