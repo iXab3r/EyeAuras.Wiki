@@ -2,7 +2,7 @@
 title: Yolo 11 FullScreen ESP ImGui
 description: 1.7.8527+
 published: true
-date: 2025-06-28T09:58:55.804Z
+date: 2025-06-28T13:29:37.478Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-28T09:04:25.549Z
@@ -22,10 +22,11 @@ It also features a hotkey (F1) to enable or disable detection live while it's ru
 
 ## 💡 Key Features
 
+- `F1` Toggle capture/processing on/off
+- `F2` Manually select capture area
 - Uses **YOLOv11s ONNX model** for fast ML object detection
 - Shows **bounding boxes + labels** over detected targets
 - Renders an **FPS counter** (top-right)
-- Toggles overlay on/off using `F1` hotkey
 - Only scans a **defined screen region** for performance
 
 ---
@@ -72,19 +73,22 @@ var osd = GetService<IImGuiExperimentalApi>()
 
 var mlModelPath = @"https://s3.eyeauras.net/public/eyeauras-ml/yolo/yolov11s.onnx";
 
+Log.Info("Working...");
 osd.AddRenderer(() =>
 {
     var drawList = ImGui.GetBackgroundDrawList();
 
-    // ➕ Draw FPS in top-right corner
+    // ➕ Draw FPS in top-right corner of the capture area
     float fps = ImGui.GetIO().Framerate;
-    var screenBounds = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
-    osd.DrawFrame(screenBounds, Color.Purple);
+    var captureAreaBounds = CaptureRegion.IsEmpty 
+        ? System.Windows.Forms.Screen.PrimaryScreen.Bounds 
+        : CaptureRegion;
+    osd.DrawFrame(captureAreaBounds, Color.Purple);
 
     string fpsText = $"FPS: {fps:F1}";
     float fontSize = ImGui.GetFontSize() * 3f; // x3 size
     var textSize = ImGui.CalcTextSize(fpsText) * 3f; // also scale position
-    var pos = new Vector2(screenBounds.Right - textSize.X - 10, 10);
+    var pos = new Vector2(captureAreaBounds.Right - textSize.X - 10, captureAreaBounds.Top + 10);
     drawList.AddText(ImGui.GetFont(), fontSize, pos, Color.Yellow.ToImGuiColor(), fpsText);
 
     if (!IsEnabled){
@@ -93,9 +97,8 @@ osd.AddRenderer(() =>
     }
 
     // Perform ML-search
-    var result = cv.MLSearchRaw(mlModelPath); //scan entire screen 
-    //or you can use Context Menu => Pick region to insert custom region - this will drastically improve quality 
-    //var result = cv.MLSearchRaw(mlModelPath, new Rectangle(893, 226, 2028, 1135)); 
+    //or you can use Context Menu => Pick region to insert custom region - this will drastically improve quality
+    var result = cv.MLSearchRaw(mlModelPath, CaptureRegion);
 
     var predictions = result.Detected.Predictions.Where(x => x.Score > 0.7).ToArray();
 
@@ -116,10 +119,21 @@ cancellationToken.WaitHandle.WaitOne();
 
 public bool IsEnabled {get; set;}
 
-[Keybind(Hotkey = "F1", SuppressKey = true)] 
-public void HandleKeyWithInjectedServices(IAuraEventLoggingService loggingService){
+public Rectangle CaptureRegion {get;set;}
+
+[Keybind(Hotkey = "F1", SuppressKey = true)]
+public void HandleF1(){
     var newIsEnabled = !IsEnabled;
-    Log.Info($"Key pressed, IsEnabled: {IsEnabled} => {newIsEnabled}");
-    IsEnabled = newIsEnabled;    
+    Log.Info($"F1 pressed, IsEnabled: {IsEnabled} => {newIsEnabled}");
+    IsEnabled = newIsEnabled;
+}
+
+[Keybind(Hotkey = "F2", SuppressKey = true)]
+public async Task HandleF2(EyeAuras.Shared.Osd.IOsdSelectionService osdSelectionService){
+    Log.Info($"F2 pressed");
+    var selection = await osdSelectionService.PickRegion();
+    Log.Info($"Selection result: {selection}");
+    CaptureRegion = selection.Region;
+    Log.Info($"New capture region: {CaptureRegion}");
 }
 ```
