@@ -2,7 +2,7 @@
 title: Common Options
 description: 
 published: true
-date: 2025-06-25T23:49:34.061Z
+date: 2025-07-14T13:17:06.899Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T15:26:34.441Z
@@ -49,7 +49,8 @@ There are many different input methods. Most of them are available even for unre
 
 -   **Windows Input** Uses Windows SendInput API to simulate key presses. This simple method is used by a variety of different software and can be easily detected. However, it is also commonly used, which can make it harder to attribute to "botting".
 -   **Windows Message API** Uses Windows PostMessage API to simulate inputs. This legacy method is ignored by most modern applications, but can be used to send input to an application not in the foreground.
--   **Low-Level Input Injection/Windows Input** Uses modified versions of inputs which are harder to detect and can bypass some protections.
--   **TetherScript Driver** Uses TetherScript driver to simulate inputs. Requires ControlMyJoystick software to be installed. Despite not being free, the software only needs to be installed - no purchase required. Download it [_here_](https://tetherscript.com/controlmyjoystick-home/).
+-   **TetherScript Driver** Uses TetherScript driver to simulate inputs. Requires ControlMyJoystick software to be installed. Despite not being free, the software only needs to be installed - no purchase required. [More info...](https://wiki.eyeauras.net/ru/actions/sendinput/tetherscript) 
+-   **Usb2Kbd Hardware Emulator** Uses Arduino-based programmable hardware input device. [More info...](https://wiki.eyeauras.net/ru/actions/sendinput/usb2kbd) 
 -   **Input Driver** Uses a publicly available custom keyboard/mouse driver, which might be detected by some advanced protection systems.
+-   **Low-Level Input Injection/Windows Input** Uses modified versions of inputs which are harder to detect and can bypass some protections.
 -   **Granny's Send Input** Uses a very old and time-proven simulation method which sometimes gets missed by anti-cheats due to its age. **Old, but not obsolete** ©
