@@ -1,8 +1,8 @@
 ---
 title: TetherScript
-description: 
+description: simulate inputs via driver
 published: true
-date: 2025-07-14T13:12:58.586Z
+date: 2025-07-14T13:13:25.943Z
 tags: 
 editor: markdown
 dateCreated: 2025-07-14T13:12:58.586Z
