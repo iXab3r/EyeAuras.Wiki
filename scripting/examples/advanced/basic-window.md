@@ -2,14 +2,14 @@
 title: Basic Window
 description: 
 published: true
-date: 2025-02-27T19:39:18.853Z
+date: 2025-07-16T12:58:02.149Z
 tags: 
 editor: markdown
 dateCreated: 2025-02-27T19:39:18.852Z
 ---
 
 # Blazor Window
-All user-controlled windows in EyeAuras are powered by its internal framework called BlazerWindows. 
+All user-controlled windows in EyeAuras are powered by its internal framework called BlazorWindows. 
 They are easy to create, thread-safe and fully support Blazor, bringing in best from two worlds(native/web dev) together.
 Syntax highlighting in Razor files is still rough on edges, so for anything more serious than `Hello, world`, I would recommend to use Component with code-behind. Then in `.cs` you will have a proper highlighting.
 
