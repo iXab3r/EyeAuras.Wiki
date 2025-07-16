@@ -2,13 +2,13 @@
 title: IImGuiExperimentalApi
 description: Interface providing methods for creating/drawing custom elements on the screen
 published: true
-date: 2025-07-16T10:36:31.172Z
+date: 2025-07-16T10:42:20.621Z
 tags: 
 editor: markdown
 dateCreated: 2025-07-16T10:36:31.172Z
 ---
 
-> IMPORTANT! This API is shipped as a separate NuGet package which you have to reference in the script first!
+> IMPORTANT! This API is shipped as a separate NuGet package which you have to reference in the script first! Recommend to pick the latest available version.
 {.is-info}
 
 ```csharp
