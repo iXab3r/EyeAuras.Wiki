@@ -1,8 +1,8 @@
 ---
-title: Reading Mem using ReadProcessMemory
+title: Getting the list of running processes
 description: 
 published: true
-date: 2025-05-31T22:18:34.358Z
+date: 2025-08-06T17:18:21.144Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-10T23:09:15.299Z
