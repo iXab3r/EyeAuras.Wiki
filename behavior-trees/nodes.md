@@ -2,11 +2,12 @@
 title: Nodes
 description: what they are, how they work, and what to prepare with
 published: true
-date: 2024-03-08T10:20:41.733Z
-tags: behavior trees, nodes, logic, programming
+date: 2025-08-17T09:32:19.811Z
+tags: programming, behavior trees, nodes, logic
 editor: markdown
-dateCreated: 2024-03-07T15:12:13.483Z
+dateCreated: 2024-03-10T17:11:18.598Z
 ---
+
 The behavior tree consists entirely of nodes ("nods"), each of which can do something - press buttons, check conditions, and so on.
 
 ## Success/Failure
@@ -21,7 +22,7 @@ All nodes return a status based on the execution results, which can be:
 - [Selector](/behavior-trees/nodes/selector) - iterates through child nodes until it finds one that returns `Success`.
 - [Aura Is Active](/behavior-trees/nodes/aura-is-active) - allows specifying one or more auras that will serve as conditions for the node.
 - [Execute Aura](/behavior-trees/nodes/execute-aura) - specifies an aura whose actions will be executed when the node is launched.
-- [Key Press](/behavior-trees/nodes/key-press) - presses a key or key combination.
+- [Key Press](/behavior-trees/nodes/keypress) - presses a key or key combination.
 - [Wait](/behavior-trees/nodes/wait) - pauses the execution of the tree for a specified time.
 - [Cooldown](/behavior-trees/nodes/cooldown) - prevents too frequent execution of a particular node.
 - [Inverter](/behavior-trees/nodes/inverter) - inverts the state of the child node (`Success` => `Failure` and vice versa).
