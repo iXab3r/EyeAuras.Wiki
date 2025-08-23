@@ -2,11 +2,16 @@
 title: Getting Started
 description: 
 published: true
-date: 2024-03-06T23:54:22.868Z
-tags: scripts, C#, .NET, Blazor, Roslyn, WebUI, Dependency Injection, NuGet
+date: 2025-08-23T00:13:57.665Z
+tags: c#, .net, roslyn, blazor, webui, dependency injection, nuget, scripts
 editor: markdown
-dateCreated: 2024-02-20T14:01:34.128Z
+dateCreated: 2024-02-28T12:56:22.746Z
 ---
+
+# Hello, world!
+Who wants to jump straight into action - live example [here](/scripting/examples/basic/hello-world), you may find it useful if you're new to C# world.
+And [this one](/scripting/examples/basic/image-search) is a bit more complex and closer to EyeAuras internals.
+
 # What are scripts?
 
 Since its inception, the program has had the ability to write custom code in **C#**. In the early versions (around spring 2021), it was very painful and inconvenient, but still possible. The second version was released in spring 2023 and introduced features such as the ability to use an external IDE for writing programs and significantly enhanced scripting capabilities, for example, creating a full-fledged [custom user interface](/en/overlays/custom-ui) using [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor). Essentially, this unlocked the potential to write powerful scripts, although there were still many obstacles and "peculiarities."
