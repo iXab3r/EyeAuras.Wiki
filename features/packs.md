@@ -2,7 +2,7 @@
 title: 📦 Packs
 description: Packaging your auras and scripts for easier distribution
 published: true
-date: 2025-03-31T10:47:22.275Z
+date: 2025-09-02T10:14:01.733Z
 tags: eyeauras, automation, scripts, packaging, distribution
 editor: markdown
 dateCreated: 2025-03-13T00:32:43.365Z
@@ -81,7 +81,7 @@ Briefly:
 - **📦 Binaries Only** ➔ Scripts are excluded, only binary files are included.
 
 ## ⚙️ Setting - C# Script Protection
-This option regulates how much EyeAuras will attempt to protect your scripts from prying eyes. More about script protection - [here](/ru/features/script-protection).
+This option regulates how much EyeAuras will attempt to protect your scripts from prying eyes. More about script protection - [here](/features/script-protection).
 
 # ❓ Frequently Asked Questions
 **💡 What happens if I forget to enable protection when packaging?**
