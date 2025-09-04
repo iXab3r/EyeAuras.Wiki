@@ -2,7 +2,7 @@
 title: DMA
 description: Integration with DMA/FPGA-cards
 published: true
-date: 2025-09-04T08:35:10.078Z
+date: 2025-09-04T08:39:30.107Z
 tags: 
 editor: markdown
 dateCreated: 2025-07-16T11:25:58.112Z
@@ -63,12 +63,16 @@ However — in many real-world cases, **DMA is so far outside the detection surf
 From a scripting perspective, **nothing changes**. You use the same `IMemory` interface:
 
 ```csharp
+using EyeAuras.Memory.MPFS;
+
 var processList = LCProcess.FPGA().GetProcesses(); //get list of processes by reading it via DMA device
 Log.Info($"Processes: \n\t{processList.DumpToTable()}"); // dump process list to the log
 ```
 
 And here is how you can open up the process and read some value from the memory via DMA device
 ```csharp
+using EyeAuras.Memory.MPFS;
+
 var process = LCProcess.FPGA().ByProcessName("game.exe");
 var playerHp = process.Memory.Read<int>(process.Memory.BaseAddress + 0x1C4);
 if (playerHp < 30)
