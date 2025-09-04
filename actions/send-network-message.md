@@ -2,7 +2,7 @@
 title: Send Network Message
 description: lets users transmit custom messages across specified network channels, coordinating tasks among applications or integrating third-party services.
 published: true
-date: 2025-09-04T09:03:23.374Z
+date: 2025-09-04T09:03:56.013Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T14:40:18.159Z
@@ -57,7 +57,7 @@ To use this new feature, set **ChannelId** to:
 p.s. by default, the program uses port **53082** for communications, you can pick any other port if you want right after **IP** in **ChannelId** (e.g. **broadcast://172.16.15.255:55055/mychannel**)
 
 
-### Real-Life botting setup example using Broadcasting
+# Real-Life botting setup example using Broadcasting
 Prerequisites:
 - 1 Main PC which will be controlling 5 "Child" PCs with bots
 - Child PCs are Hyper-V virtual machines
@@ -69,7 +69,7 @@ To be able to do that we have to configure static IPs on virtual machines - we'l
 In Hyper-V, by default, Virtual Switch is set to bridge mode, which does not really work for us - it does not register VMs as devices on your router, so you can't really send anything to them. That is why we have to do som reconfiguration.
 
 
-#### Setting up static IPs on virtual machines
+## Setting up static IPs on virtual machines
 
 1) Open Virtual Switch Manager
 External, Create Virtual Switch
