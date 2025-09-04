@@ -2,7 +2,7 @@
 title: DMA
 description: Интеграция с DMA
 published: true
-date: 2025-07-16T11:24:57.943Z
+date: 2025-09-04T08:34:36.401Z
 tags: 
 editor: markdown
 dateCreated: 2025-07-16T11:22:07.985Z
@@ -41,14 +41,19 @@ PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJiYWNrZ3JvdW5kOiB0
 С точки зрения скрипта, **всё выглядит так же**, как при использовании обычного `IMemory` интерфейса. Пример:
 
 ```csharp
-var playerHp = CoreMem.Read<int>(playerBase + 0x1C4);
+var processList = LCProcess.FPGA().GetProcesses(); //get list of processes by reading it via DMA device
+Log.Info($"Processes: \n\t{processList.DumpToTable()}"); // dump process list to the log
+```
+
+А вот так можно открыть процесс и вычитать какое-то значение из памяти посредством DMA. 
+```csharp
+var process = LCProcess.FPGA().ByProcessName("game.exe");
+var playerHp = process.Memory.Read<int>(process.Memory.BaseAddress + 0x1C4);
 if (playerHp < 30)
 {
     Log.Warn($"Low HP: {playerHp}");
 }
 ```
-
-Всё: `CoreMem` теперь может быть DMA-драйвером, `playerBase` — это физический адрес или виртуальный с трансляцией, но тебе об этом даже думать не надо. EyeAuras всё скроет.
 
 ## Аппаратная часть
 Для полноценной работы потребуется **FPGA-плата**, совместимая с LeechCore - в наше время 99% плат совместимы с LC, так что промазать сложно.
