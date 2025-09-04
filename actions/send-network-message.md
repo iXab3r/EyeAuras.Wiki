@@ -2,7 +2,7 @@
 title: Send Network Message
 description: lets users transmit custom messages across specified network channels, coordinating tasks among applications or integrating third-party services.
 published: true
-date: 2025-09-04T09:03:56.013Z
+date: 2025-09-04T09:09:23.338Z
 tags: 
 editor: markdown
 dateCreated: 2023-06-18T14:40:18.159Z
@@ -57,17 +57,32 @@ To use this new feature, set **ChannelId** to:
 p.s. by default, the program uses port **53082** for communications, you can pick any other port if you want right after **IP** in **ChannelId** (e.g. **broadcast://172.16.15.255:55055/mychannel**)
 
 
-# Real-Life botting setup example using Broadcasting
+# Real-Life Botting Setup example
 Prerequisites:
 - 1 Main PC which will be controlling 5 "Child" PCs with bots
-- Child PCs are Hyper-V virtual machines
+- 5 Child PCs are running follow-bots and are receiving commands like "get into portal", "accept party", etc
 
 Goal:
-- We want to be able to send commands to Child PCs WITHOUT central EyeAuras server to eliminate latency
+- We want to be able to send commands to Child PCs from the Main PC
+
+The setup itself is quite simple:
+- pick some unique channel name - the default generated one is enough
+- setup Child PCs to listen for differend commands received via Network Message trigger 
+- use Send Network Message on the Main PC to Child PCs - usually done by hotkeys
+
+That is literally it. Messages will be sent and distributed through EyeAuras servers, latency is usually 30-50ms which is more then enough for normal botting setups.
+If you want to go lower than that - read below.
+
+# Real-Life Botting Setup example via LAN, without EyeAuras central server
+Prerequisites:
+- 1 Main PC which will be controlling 5 "Child" PCs with bots
+- 5 Child PCs are Hyper-V virtual machines
+
+Goal:
+- We want to be able to send commands to Child PCs WITHOUT using central EyeAuras server to eliminate any latency
 
 To be able to do that we have to configure static IPs on virtual machines - we'll be sending commands directly to them so have to know their addresses.
 In Hyper-V, by default, Virtual Switch is set to bridge mode, which does not really work for us - it does not register VMs as devices on your router, so you can't really send anything to them. That is why we have to do som reconfiguration.
-
 
 ## Setting up static IPs on virtual machines
 
