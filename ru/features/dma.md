@@ -2,7 +2,7 @@
 title: DMA
 description: Интеграция с DMA
 published: true
-date: 2025-09-04T08:34:36.401Z
+date: 2025-09-04T08:39:14.895Z
 tags: 
 editor: markdown
 dateCreated: 2025-07-16T11:22:07.985Z
@@ -41,12 +41,16 @@ PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJiYWNrZ3JvdW5kOiB0
 С точки зрения скрипта, **всё выглядит так же**, как при использовании обычного `IMemory` интерфейса. Пример:
 
 ```csharp
+using EyeAuras.Memory.MPFS;
+
 var processList = LCProcess.FPGA().GetProcesses(); //get list of processes by reading it via DMA device
 Log.Info($"Processes: \n\t{processList.DumpToTable()}"); // dump process list to the log
 ```
 
 А вот так можно открыть процесс и вычитать какое-то значение из памяти посредством DMA. 
 ```csharp
+using EyeAuras.Memory.MPFS;
+
 var process = LCProcess.FPGA().ByProcessName("game.exe");
 var playerHp = process.Memory.Read<int>(process.Memory.BaseAddress + 0x1C4);
 if (playerHp < 30)
