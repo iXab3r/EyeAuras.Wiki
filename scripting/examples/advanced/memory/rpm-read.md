@@ -2,7 +2,7 @@
 title: Getting the list of running processes
 description: 
 published: true
-date: 2025-08-06T17:18:21.144Z
+date: 2025-09-04T08:42:25.753Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-10T23:09:15.299Z
@@ -43,6 +43,9 @@ Log.Info(processes.DumpToNamedTable("Processes"));
 ### Using LeechCore device-specific builders
 
 ```csharp
+using EyeAuras.Memory;
+using EyeAuras.Memory.MPFS; 
+
 LCProcess.WinPMEM().GetProcesses(); //use WinPMEM Kernel driver 
 LCProcess.WinPMEM().WithAdditionalArguments("-printf", "-v").GetProcesses(); //same, but with verbose logging
 
@@ -52,4 +55,15 @@ LCProcess.HyperV().GetProcesses(); //read info from the first system Hyper-V VM
 
 //or go full-custom with LeechCore args
 LCProcess.Custom("-device", "pmem").GetProcesses(); //allows to supply any custom arguments
+```
+
+### Using DMA-devices
+DMA is supported by integration with LeechCore - just use `.FPGA()` type of `LCProcess`
+
+```csharp
+using EyeAuras.Memory;
+using EyeAuras.Memory.MPFS; 
+
+var processList = LCProcess.FPGA().GetProcesses(); //get list of processes by reading it via DMA device
+Log.Info($"Processes: \n\t{processList.DumpToTable()}"); // dump process list to the log
 ```
