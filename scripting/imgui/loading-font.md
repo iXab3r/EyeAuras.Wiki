@@ -1,19 +1,19 @@
 ---
-title: Loading TTF via Static Class
+title: Loading TTF from Resources
 description: 
 published: true
-date: 2025-10-17T15:02:22.115Z
+date: 2025-10-17T15:03:32.027Z
 tags: 
 editor: markdown
 dateCreated: 2025-10-17T14:56:23.969Z
 ---
 
-> Import from here https://eyeauras.net/share/S202510171500516QI82emjTckw
+> Import from here https://eyeauras.net/share/S20251017145259ohZrQPvSZJoF
 {.is-info}
 
-In this example we load Robot font into ImGui using static class with raw data
+In this example we load Robot font into ImGui using embedded resources
 
-![Example of embedded resource](https://s3.eyeauras.net/media/2025/10/EyeAuras_SdQBF6VcjL.png)
+![Example of embedded resource](https://s3.eyeauras.net/media/2025/10/EyeAuras_nMZAqZ6YHR.png)
 
 ![Imgui with updated font](https://s3.eyeauras.net/media/2025/10/EyeAuras_yzz7IrmjnJ.png)
 
@@ -26,7 +26,10 @@ using ImGuiNET; //that namespace is needed to get access to ImGui itself
 var osd = GetService<IImGuiExperimentalApi>() //create ImGui API - this will show empty OSD
     .AddTo(ExecutionAnchors); //ensure that you'll hide OSD when script stops or gets stopped
 
-osd.AddFontFromMemoryTTF(EmbeddedBinaryData.RobotoRegularTtf); //loading the font itself
+var fontData = GetService<IScriptFileProvider>()
+    .ReadAllBytes("Roboto-Regular.ttf"); //loading font data from resources
+
+osd.AddFontFromMemoryTTF(fontData); //loading the font itself
 
 osd.AddRenderer(() =>
 {
