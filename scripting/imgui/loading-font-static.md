@@ -2,13 +2,13 @@
 title: Loading TTF from Static Class
 description: 
 published: true
-date: 2025-10-17T15:04:15.921Z
+date: 2025-10-17T15:07:01.487Z
 tags: 
 editor: markdown
 dateCreated: 2025-10-17T15:02:40.336Z
 ---
 
-> Import from here https://eyeauras.net/share/S20251017150354WR5lKszBW24m
+> Import from here https://eyeauras.net/share/S20251017150654moSdG8zUyQ4D
 {.is-info}
 
 In this example we load Robot font into ImGui using static class with raw data
