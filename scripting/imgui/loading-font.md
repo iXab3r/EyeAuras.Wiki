@@ -2,7 +2,7 @@
 title: Loading TTF via Static Class
 description: 
 published: true
-date: 2025-10-17T15:02:10.469Z
+date: 2025-10-17T15:02:22.115Z
 tags: 
 editor: markdown
 dateCreated: 2025-10-17T14:56:23.969Z
@@ -11,7 +11,7 @@ dateCreated: 2025-10-17T14:56:23.969Z
 > Import from here https://eyeauras.net/share/S202510171500516QI82emjTckw
 {.is-info}
 
-In this example we load Robot font into ImGui using embedded resources
+In this example we load Robot font into ImGui using static class with raw data
 
 ![Example of embedded resource](https://s3.eyeauras.net/media/2025/10/EyeAuras_SdQBF6VcjL.png)
 
