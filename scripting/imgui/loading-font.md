@@ -2,7 +2,7 @@
 title: Loading TTF from Resources
 description: 
 published: true
-date: 2025-10-17T14:56:23.969Z
+date: 2025-10-17T14:57:36.838Z
 tags: 
 editor: markdown
 dateCreated: 2025-10-17T14:56:23.969Z
@@ -15,6 +15,7 @@ In this example we load Robot font into ImGui using embedded resources
 
 ![Example of embedded resource](https://s3.eyeauras.net/media/2025/10/EyeAuras_nMZAqZ6YHR.png)
 
+![Imgui with updated font](https://s3.eyeauras.net/media/2025/10/EyeAuras_yzz7IrmjnJ.png)
 
 ```csharp
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.17" //EyeAuras v8825+ is required
