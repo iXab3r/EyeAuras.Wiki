@@ -2,13 +2,13 @@
 title: Loading TTF from Resources
 description: 
 published: true
-date: 2025-10-17T15:03:32.027Z
+date: 2025-10-17T15:08:32.678Z
 tags: 
 editor: markdown
 dateCreated: 2025-10-17T14:56:23.969Z
 ---
 
-> Import from here https://eyeauras.net/share/S20251017145259ohZrQPvSZJoF
+> Import from here https://eyeauras.net/share/S20251017150828zhuomztM9lbi
 {.is-info}
 
 In this example we load Robot font into ImGui using embedded resources
