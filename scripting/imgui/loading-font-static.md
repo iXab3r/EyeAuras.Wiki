@@ -1,8 +1,8 @@
 ---
-title: Loading TTF via Static Class
+title: Loading TTF from Static Class
 description: 
 published: true
-date: 2025-10-17T15:04:04.440Z
+date: 2025-10-17T15:04:15.921Z
 tags: 
 editor: markdown
 dateCreated: 2025-10-17T15:02:40.336Z
