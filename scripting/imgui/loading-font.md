@@ -1,8 +1,8 @@
 ---
-title: Loading TTF from Resources
+title: Loading Custom TTF Font from Resources
 description: 
 published: true
-date: 2025-10-17T15:08:32.678Z
+date: 2025-10-19T13:51:15.016Z
 tags: 
 editor: markdown
 dateCreated: 2025-10-17T14:56:23.969Z
