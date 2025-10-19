@@ -2,7 +2,7 @@
 title: Интеграция с IDE (Rider/Visual Studio)
 description: Export/Live Import
 published: true
-date: 2025-10-19T16:56:48.206Z
+date: 2025-10-19T16:57:15.817Z
 tags: 
 editor: markdown
 dateCreated: 2025-10-19T16:35:51.518Z
@@ -24,7 +24,7 @@ dateCreated: 2025-10-19T16:35:51.518Z
 В декабре 2024 появился прототип [экспортировать](https://wiki.eyeauras.net/en/changelogs/7930) и на протяжении года он постепенно совершенствовался и разростался. 
 
 На данный момент размер самого большого бота, который реализован с использованием этого подхода уже превышает 23000 строк и при этом использует практически все, что было разработано для EyeAuras за все эти годы. Так что думаю на этом этапе этот функционал уже достаточно стабилен и рекомендуем к использованию для реальных проектов.  
-![Bot example](https://s3.eyeauras.net/media/2025/10/rider64_NlTMZAX9e4.png)
+![Bot example](https://s3.eyeauras.net/media/2025/10/rider64_NlTMZAX9e4.png =x500)
 
 # Пример
 Работать будем с [Hello, World](https://wiki.eyeauras.net/en/scripting/examples/basic/hello-world) - никакой принципиальной разницы нет, все ауры ведут себя примерно одинаково. 
