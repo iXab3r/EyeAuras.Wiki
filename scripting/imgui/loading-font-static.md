@@ -1,8 +1,8 @@
 ---
-title: Loading TTF from Static Class
+title: Loading Custom TTF Font from Static Class
 description: 
 published: true
-date: 2025-10-17T15:07:01.487Z
+date: 2025-10-19T13:51:25.693Z
 tags: 
 editor: markdown
 dateCreated: 2025-10-17T15:02:40.336Z
