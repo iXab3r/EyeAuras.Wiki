@@ -2,7 +2,7 @@
 title: Интеграция с IDE (Rider/Visual Studio)
 description: Export/Live Import
 published: true
-date: 2025-10-19T16:35:51.518Z
+date: 2025-10-19T16:56:48.206Z
 tags: 
 editor: markdown
 dateCreated: 2025-10-19T16:35:51.518Z
@@ -92,6 +92,8 @@ EyeAuras загрузит этот солюшен, извлечет из нег�
 ![C# Overlay Live](https://s3.eyeauras.net/media/2025/10/EyeAuras_4geb5IBg7R.gif =x300)
 
 Код оверлея, как и обычного скрипта, можно так же экспортировать и далее сделать `Live Import` - тогда любые изменения, которые вы будете делать в IDE, в режиме реального времени будут подтягиваться и отображаться в окне оверлея. 
+
+![C# Overlay in Rider](https://s3.eyeauras.net/media/2025/10/Discord_uec9o89iub.gif =x400)
 
 ## Open in IDE
 ![Open in IDE](https://s3.eyeauras.net/media/2025/10/EyeAuras_C1aJ9hBHCB.png)
