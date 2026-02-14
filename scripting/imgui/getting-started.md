@@ -2,7 +2,7 @@
 title: ImGui - Getting started
 description: 
 published: true
-date: 2026-02-14T13:58:35.103Z
+date: 2026-02-14T16:30:30.911Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-21T22:04:21.031Z
@@ -52,7 +52,7 @@ That's it. EyeAuras will handle overlay creation and the render loop. You only n
 > 💡 Note: Your method will be called **on every frame**, so avoid sleeping or long blocking code.
 
 ```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.42"
  
 using EyeAuras.ImGuiSdk;
 using ImGuiNET;
@@ -90,7 +90,7 @@ Just like in [Blazor Windows](/scripting/blazor-windows/getting-started), let’
 And that’s it! No state management, no sleep calls, no click processing — it’s all immediate mode. The syntax might seem odd at first, but ChatGPT knows ImGui **very well**, so don’t hesitate to ask questions.
 
 ```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.42"
 
 using EyeAuras.ImGuiSdk; 
 using ImGuiNET;
