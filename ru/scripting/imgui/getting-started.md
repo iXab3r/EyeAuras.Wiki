@@ -2,7 +2,7 @@
 title: ImGui - С чего начать?
 description: 
 published: true
-date: 2025-06-22T11:12:23.456Z
+date: 2026-02-14T13:58:51.808Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-21T21:51:07.137Z
@@ -20,7 +20,7 @@ EyeAuras постепенно переходит на систему нугет-
 Так что я буду постепенно выносить отдельные блоки функционала в NuGet пакеты, которые можно будет подключать в программу как и любые другие. 
 
 ```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.42"
  
 using EyeAuras.ImGuiSdk; //root ImGuiSdk namespace needed to add registrations (see below)
 using ImGuiNET; //that namespace is needed to get access to ImGui itself
