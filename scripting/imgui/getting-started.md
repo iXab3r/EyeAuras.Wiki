@@ -2,7 +2,7 @@
 title: ImGui - Getting started
 description: 
 published: true
-date: 2025-06-22T11:13:37.560Z
+date: 2026-02-14T13:58:35.103Z
 tags: 
 editor: markdown
 dateCreated: 2025-06-21T22:04:21.031Z
@@ -25,7 +25,7 @@ EyeAuras is gradually transitioning to a modular NuGet-based system so that user
 So we're moving various features into NuGet packages that you can install just like any other.
 
 ```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.42"
  
 using EyeAuras.ImGuiSdk; // required for registration methods
 using ImGuiNET;          // access to ImGui APIs
