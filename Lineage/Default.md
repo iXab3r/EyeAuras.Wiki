@@ -2,7 +2,7 @@
 title: Lineage 2 Default
 description: 
 published: true
-date: 2024-03-25T20:28:49.007Z
+date: 2026-03-30T21:11:11.693Z
 tags: 
 editor: markdown
 dateCreated: 2024-03-15T02:39:36.765Z
@@ -25,7 +25,7 @@ Start by downloading the EyeAuras application from our website. Get it here: [Ey
 Depending on the server's anticheat level, select an appropriate input method:
 
 - For servers with **low anticheat**: Use Windows Input or Windows Message API for background key sending.
-- For servers with **Active Anticheat** or other strong anticheats: Download this free driver to ensure compatibility. [Download Driver](https://tetherscript.com/controlmyjoystick-download/)
+- For servers with **Active Anticheat** or other strong anticheats: Download this free driver to ensure compatibility. [Download Driver](https://s3.eyeauras.net/media/2024/10/HVDK%20Standard%202.1.exe)
 
   After installing, navigate to `C:\Program Files (x86)\ControlMyJoystick 5.5.78.50\Driver\Joystick` and run the uninstall batch file as administrator.
 
