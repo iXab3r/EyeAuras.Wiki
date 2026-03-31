@@ -1,3 +1,13 @@
+---
+title: AGENTS
+description: 
+published: false
+date: 2026-03-31T00:14:11.289Z
+tags: 
+editor: markdown
+dateCreated: 2026-03-31T00:13:33.096Z
+---
+
 # EyeAuras.Wiki instructions
 
 These instructions apply to everything under `Submodules/EyeAuras.Wiki`.
