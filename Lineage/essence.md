@@ -1,57 +1,55 @@
 ---
 title: Lineage 2 Essence
-description: 
+description: Documentation for Lineage 2 Essence
 published: true
-date: 2026-03-30T21:11:30.518Z
-tags: 
+date: 2026-04-01T01:06:56.008Z
+tags: ai-translated
 editor: markdown
 dateCreated: 2024-03-25T14:49:39.889Z
 ---
+# Lineage 2 Essence Guide
 
-## Lineage 2 Essence info :video_game:
+Below is a short quick-start guide.
 
-Follow these simple steps to get started:
+## 1. Download EyeAuras
 
-### 1. Download EyeAuras :arrow_down:
+First, download the EyeAuras app from our website: [EyeAuras Download](https://eu.eyeauras.net/download)
 
-Start by downloading the EyeAuras application from our website. Get it here: [EyeAuras Download](https://eu.eyeauras.net/download)
+## 2. Register and buy a license
 
-### 2. Register & Purchase License :key:
+Create an account and, if needed, purchase a license to unlock all features. You can get started here: [EyeAuras Login](https://eu.eyeauras.net/login)
 
-- Create your account and, if necessary, purchase a license to unlock all features. Begin here: [EyeAuras Login](https://eu.eyeauras.net/login)
+## 3. Choose your input method
 
-### 3. Input Methods :computer:
+Depending on the server's anti-cheat level, choose the appropriate input method:
 
-Depending on the server's anticheat level, select an appropriate input method:
+- For servers with **low anticheat**, use Windows Input or the Windows Message API to send keys in the background.
+- For servers with **Active Anticheat** or other strong anti-cheat systems, download this free compatibility driver: [Download Driver](https://s3.eyeauras.net/media/2024/10/HVDK%20Standard%202.1.exe)
 
-- For servers with **low anticheat**: Use Windows Input or Windows Message API for background key sending.
-- For servers with **Active Anticheat** or other strong anticheats: Download this free driver to ensure compatibility. [Download Driver](https://s3.eyeauras.net/media/2024/10/HVDK%20Standard%202.1.exe)
+After installation, go to `C:\Program Files (x86)\ControlMyJoystick 5.5.78.50\Driver\Joystick` and run the uninstall batch file as administrator.
 
-  After installing, navigate to `C:\Program Files (x86)\ControlMyJoystick 5.5.78.50\Driver\Joystick` and run the uninstall batch file as administrator.
+## 4. Troubleshooting
 
-### 4. Troubleshooting :wrench:
+If you run into a bug where the camera starts spinning endlessly, open the game settings (L2 settings) and disable `Enable Controller` under Settings -> Configuration.
 
-If you encounter a bug where the camera spins non-stop, go to your game's settings (L2 settings) and disable "Enable Controller" under Settings -> Configuration.
+## 5. Script
 
-### 5. Script :package:
+- You can get a simple script for Essence here: [Essence auto flags](https://eu.eyeauras.net/share/S20240325120506y5CPVmuwLvC3)
+- Just copy the link and import it into EyeAuras.
+- If step 3 is unclear, you can install TetherScript in one click.
 
-- Simple script for Essence you can get here: [Essence auto flags](https://eu.eyeauras.net/share/S20240325120506y5CPVmuwLvC3)
-- Just copy link and import into EyeAuras.
-- 1 button install TetherScript if you don't understand step 3.
- ![image](https://i.imgur.com/S2ba3Hn.png)
+![image](https://i.imgur.com/S2ba3Hn.png)
 
-### 6. Video Guide :clapper:
+## 6. Video guides
 
-- How to install
+### Installation
 
 ---
-
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/bNJ4rGeqNoE?si=gOMR_COeLkkkjTzU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-- How to import simple scripts for Lineage 2 Essence with auto return on flags
+### How to import simple scripts for Lineage 2 Essence with automatic return to flags
 
 ---
-
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/S1lQF56-AIA?si=oeoN1wc5dCRHqe0t" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
