@@ -1,120 +1,103 @@
 ---
-title: IVariablesScriptingApi
+title: API скриптовых переменных
 description: 
 published: true
-date: 2024-02-20T23:36:36.940Z
-tags: 
+date: 2025-05-07T20:54:10.624Z
+tags: ai-translated
 editor: markdown
 dateCreated: 2024-02-20T21:30:29.037Z
 ---
-
 ```csharp
 /// <summary>
-/// Defines an API for scripting interactions that involve accessing and manipulating variables within a scriptable environment.
-/// This interface extends the basic variable access capabilities with script-focused functionalities, allowing for strongly-typed variable interactions.
+/// Определяет API для взаимодействия со скриптами, связанных с доступом к переменным и управлением ими в скриптуемой среде.
+/// Этот интерфейс расширяет базовые возможности доступа к переменным, добавляя функции, ориентированные на сценарии, и позволяя работать с переменными в строгой типизации.
 /// </summary>
 /// <remarks>
-/// Working with <see cref="ScriptVariable{T}"/> provides a strongly-typed approach to accessing variables, ensuring type safety at compile time and reducing runtime errors.
-/// It simplifies the process of manipulating variables within scripts, offering both readability and maintainability benefits.
+/// Использование <see cref="ScriptVariable{T}"/> предоставляет строго типизированный способ доступа к переменным, обеспечивая проверку типов на этапе компиляции и снижая количество ошибок во время выполнения.
+/// Это упрощает работу с переменными в скриптах и делает код более читаемым и удобным для поддержки.
 /// </remarks>
 public interface IVariablesScriptingApi : IScriptingApi, IVariablesAccessor
 {
-		/// <summary>
-    /// Gets the collection of variables. 
-    /// This property provides access to the variables stored within the object, allowing for operations such as adding, removing, or updating variables.
-    /// </summary>
-    /// <value>The hierarchical source cache of variables indexed by string keys.</value>
-    IHierarchicalSourceCache<AuraVariable, string> Variables { [NotNull] get; }
-    
     /// <summary>
-    /// Gets or sets the variable associated with the specified key.
+    /// Возвращает строго типизированный <see cref="ScriptVariable{T}"/>, связанный с указанной аурой и именем переменной.
     /// </summary>
-    /// <param name="key">The key of the variable to get or set.</param>
-    /// <value>The variable associated with the specified key. Can be null if no variable is associated with the key.</value>
-    object this[string key] { [CanBeNull] get; [CanBeNull] set; }
+    /// <typeparam name="T">Тип значения переменной.</typeparam>
+    /// <param name="itemPath">Путь, идентифицирующий ауру.</param>
+    /// <param name="variableName">Имя переменной.</param>
+    /// <returns>Экземпляр строго типизированного <see cref="ScriptVariable{T}"/>.</returns>
+    ScriptVariable<T> Get<T>(string itemPath, string variableName);
 
     /// <summary>
-    /// Retrieves a strongly-typed <see cref="ScriptVariable{T}"/> associated with a given aura and variable name.
+    /// Возвращает строго типизированный <see cref="ScriptVariable{T}"/> из указанного источника, реализующего <see cref="IHasVariables"/>.
     /// </summary>
-    /// <typeparam name="T">The type of the variable's value.</typeparam>
-    /// <param name="auraPath">The path identifying the aura.</param>
-    /// <param name="variableName">The name of the variable.</param>
-    /// <returns>A strongly-typed <see cref="ScriptVariable{T}"/> instance.</returns>
-    ScriptVariable<T> Get<T>(string auraPath, string variableName);
-
-    /// <summary>
-    /// Retrieves a strongly-typed <see cref="ScriptVariable{T}"/> from a specific source that implements <see cref="IHasVariables"/>.
-    /// </summary>
-    /// <typeparam name="T">The type of the variable's value.</typeparam>
-    /// <param name="source">The source object containing the variable.</param>
-    /// <param name="variableName">The name of the variable.</param>
-    /// <returns>A strongly-typed <see cref="ScriptVariable{T}"/> instance.</returns>
+    /// <typeparam name="T">Тип значения переменной.</typeparam>
+    /// <param name="source">Объект-источник, содержащий переменную.</param>
+    /// <param name="variableName">Имя переменной.</param>
+    /// <returns>Экземпляр строго типизированного <see cref="ScriptVariable{T}"/>.</returns>
     ScriptVariable<T> Get<T>(IHasVariables source, string variableName);
     
-    /// <summary>
-    /// Gets the total number of variables managed by the accessor.
+     /// <summary>
+    /// Возвращает общее количество переменных, которыми управляет этот accessor.
     /// </summary>
     int Count { get; }
 
     /// <summary>
-    /// Determines whether a variable with the specified name exists.
+    /// Проверяет, существует ли переменная с указанным именем.
     /// </summary>
-    /// <param name="variableName">The name of the variable to check.</param>
-    /// <returns>true if the variable exists; otherwise, false.</returns>
+    /// <param name="variableName">Имя переменной для проверки.</param>
+    /// <returns>true, если переменная существует; иначе false.</returns>
     bool Contains(string variableName);
 
     /// <summary>
-    /// Adds a new variable or updates an existing variable with the specified value.
+    /// Добавляет новую переменную или обновляет существующую переменную указанным значением.
     /// </summary>
-    /// <typeparam name="T">The type of the variable's value.</typeparam>
-    /// <param name="variableName">The name of the variable.</param>
-    /// <param name="value">The value of the variable.</param>
+    /// <typeparam name="T">Тип значения переменной.</typeparam>
+    /// <param name="variableName">Имя переменной.</param>
+    /// <param name="value">Значение переменной.</param>
     void AddOrUpdate<T>(string variableName, T value);
 
     /// <summary>
-    /// Adds a new variable or updates an existing variable with a value determined by the updater function.
+    /// Добавляет новую переменную или обновляет существующую переменную значением, определяемым функцией обновления.
     /// </summary>
-    /// <typeparam name="T">The type of the variable's value.</typeparam>
-    /// <param name="variableName">The name of the variable.</param>
-    /// <param name="value">The initial value to use if the variable does not exist.</param>
-    /// <param name="updater">A function to calculate the new value based on the current value.</param>
+    /// <typeparam name="T">Тип значения переменной.</typeparam>
+    /// <param name="variableName">Имя переменной.</param>
+    /// <param name="value">Начальное значение, которое будет использовано, если переменная не существует.</param>
+    /// <param name="updater">Функция, вычисляющая новое значение на основе текущего значения.</param>
     void AddOrUpdate<T>(string variableName, T value, Func<T,T> updater);
 
     /// <summary>
-    /// Tries to get the value of a variable of a specified type.
+    /// Пытается получить значение переменной указанного типа.
     /// </summary>
-    /// <typeparam name="T">The expected type of the variable's value.</typeparam>
-    /// <param name="variableName">The name of the variable.</param>
-    /// <param name="result">When this method returns, contains the value of the variable if found; otherwise, the default value for the type.</param>
-    /// <returns>true if the variable was found; otherwise, false.</returns>
+    /// <typeparam name="T">Ожидаемый тип значения переменной.</typeparam>
+    /// <param name="variableName">Имя переменной.</param>
+    /// <param name="result">При успешном выполнении метода содержит значение переменной; в противном случае — значение по умолчанию для данного типа.</param>
+    /// <returns>true, если переменная найдена; иначе false.</returns>
     bool TryGetValue<T>(string variableName, out T result);
 
     /// <summary>
-    /// Gets the value of a variable of a specified type, returning a default value if the variable is not found.
+    /// Возвращает значение переменной указанного типа, либо значение по умолчанию, если переменная не найдена.
     /// </summary>
-    /// <typeparam name="T">The expected type of the variable's value.</typeparam>
-    /// <param name="variableName">The name of the variable.</param>
-    /// <param name="defaultValue">The default value to return if the variable is not found.</param>
-    /// <returns>The value of the variable if found; otherwise, <paramref name="defaultValue"/>.</returns>
+    /// <typeparam name="T">Ожидаемый тип значения переменной.</typeparam>
+    /// <param name="variableName">Имя переменной.</param>
+    /// <param name="defaultValue">Значение по умолчанию, которое будет возвращено, если переменная не найдена.</param>
+    /// <returns>Значение переменной, если она найдена; иначе <paramref name="defaultValue"/>.</returns>
     T GetValue<T>(string variableName, T defaultValue);
 
     /// <summary>
-    /// Gets the value of a variable of a specified type. Throws an exception if the variable is not found.
+    /// Возвращает значение переменной указанного типа. Если переменная не найдена, выбрасывается исключение.
     /// </summary>
-    /// <typeparam name="T">The expected type of the variable's value.</typeparam>
-    /// <param name="variableName">The name of the variable.</param>
-    /// <returns>The value of the variable.</returns>
-    /// <exception cref="KeyNotFoundException">Thrown if the variable is not found.</exception>
+    /// <typeparam name="T">Ожидаемый тип значения переменной.</typeparam>
+    /// <param name="variableName">Имя переменной.</param>
+    /// <returns>Значение переменной.</returns>
+    /// <exception cref="KeyNotFoundException">Выбрасывается, если переменная не найдена.</exception>
     T GetValue<T>(string variableName);
 
     /// <summary>
-    /// Gets a <see cref="ScriptVariable{T}"/> wrapper for a variable, facilitating advanced interactions.
+    /// Возвращает обёртку <see cref="ScriptVariable{T}"/> для переменной, упрощающую более продвинутое взаимодействие.
     /// </summary>
-    /// <typeparam name="T">The type of the variable's value.</typeparam>
-    /// <param name="variableName">The name of the variable.</param>
-    /// <returns>A <see cref="ScriptVariable{T}"/> instance for the specified variable.</returns>
+    /// <typeparam name="T">Тип значения переменной.</typeparam>
+    /// <param name="variableName">Имя переменной.</param>
+    /// <returns>Экземпляр <see cref="ScriptVariable{T}"/> для указанной переменной.</returns>
     ScriptVariable<T> Get<T>(string variableName);
 }
-
-
 ```
