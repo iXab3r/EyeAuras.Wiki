@@ -1,35 +1,39 @@
 ---
-title: 4.  Создаем переключатель
+title: 4. Создание переключателя
 description: 
 published: true
-date: 2025-05-11T23:34:11.847Z
-tags: 
+date: 2025-08-17T09:21:21.000Z
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T14:24:53.840Z
 ---
+# Управление аурой через UI
 
-# Как управлять аурой через UI
-А теперь давайте решим очень частую задачу - мы хотим повесить где-нибудь на экране кнопку, которая будет 
-включать и выключать определенный функционал.
+Разберём типичную задачу: нужно разместить на экране кнопку, которая будет включать и выключать определённую функциональность.
 
-## Решение через HotkeyIsActive Trigger
-Стандартное решение в таких ситуациях это
-- создать ауру
-- кинуть в нее HotkeyIsActive триггер
-- забиндить хоткей
-В целом на этом и все - при нажатии на хоткей состояние ауры будет включаться-выключаться.
+## Вариант через триггер HotkeyIsActive
 
-## Решение через C# Overlay
-Создаем еще один оверлей. Именно в нем мы будем отрисовывать кнопку.
+Стандартный способ:
+
+- создайте ауру
+- добавьте триггер `HotkeyIsActive`
+- назначьте горячую клавишу
+
+Готово: при нажатии хоткея состояние ауры будет переключаться.
+
+## Вариант через C# Overlay
+
+Можно сделать и отдельную кнопку в интерфейсе. Для этого создадим ещё один overlay и нарисуем кнопку там.
 
 ## UserOverlay.cs
+
 ```csharp
 public partial class UserOverlay : BlazorReactiveComponent {
 
     [Inject]
     public IAuraTreeScriptingApi AuraTree { get; init; }
 
-    public IHotkeyIsActiveTrigger Trigger 
+    public IHotkeyIsActiveTrigger Trigger
     {
         get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
     }
@@ -43,6 +47,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 ```
 
 ## UserOverlay.razor
+
 ```csharp
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
@@ -50,8 +55,8 @@ public partial class UserOverlay : BlazorReactiveComponent {
 <h3 class="text-center shadow-1">Toggle Trigger</h3>
 
 <div class="text-center mt-4">
-    <ToggleButton 
-              @bind-IsChecked="@TriggerIsActive" 
+    <ToggleButton
+              @bind-IsChecked="@TriggerIsActive"
               Class="btn btn-secondary">
        Trigger is Active
     </ToggleButton>
@@ -71,29 +76,26 @@ public partial class UserOverlay : BlazorReactiveComponent {
 ---
 
 # Разбор
-Давайте подробно разберем что у нас здесь есть
 
-Разберем что тут у нас есть
+Теперь посмотрим, как это работает подробнее.
+
 ## UserOverlay.cs
+
 ```csharp
  [Inject]
  public IAuraTreeScriptingApi AuraTree { get; init; }
 ```
-EyeAuras активно использует подход в разработке, который называется Dependency Injection, подробно о нем я писал [здесь](/scripting/dependency-injection).
-Если вкратце, с его помощью мы можем получить доступ к тем или иным частям программы. 
-В данном конкретном случае мы говорим "Мне нужен доступ к дереву аур" и EyeAuras при выполнении скрипта гарантирует, что он будет доступен. 
-Так как мы собираемся изменять состояние одной из аур, без дерева аур никак.
+
+EyeAuras активно использует Dependency Injection. Подробнее об этом можно прочитать [здесь](/ru/scripting/dependency-injection). Если коротко, этот механизм даёт доступ к разным частям программы. В данном случае мы запрашиваем доступ к дереву аур. EyeAuras сама гарантирует, что при запуске скрипта оно будет доступно. Поскольку мы собираемся менять состояние ауры, нам нужен именно доступ к дереву аур.
 
 ```csharp
-public IDefaultTrigger Trigger 
+public IDefaultTrigger Trigger
 {
    get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
 }
 ```
-Здесь мы создаем свойство, при обращении к которому код обратится к дереву аур и попробует найти там ауру с именем `TargetAura`, которая лежит в той же папке, где и оверлей (`./` следует использовать как раз для таких случаев). Правила поиска пути совпадают с теми, которые испольузуются в системах файлов. Одна точка - текущая папка, две точки - выход на уровень выше и т.п. Поддерживаются как прямые, так и обратные слэши в путях (Windows и Unix-style). 
 
-Однако это не все. Если бы мы просто хотели найти ауру по пути, то следовало бы использовать `GetAuraByPath`, мы же здесь хотим найти не только ауру, но и сразу извлечь из этой ауры триггер определенного типа. В нашем случае это `IHotkeyIsActiveTrigger` - триггер типа `HotkeyIsActive`.
-Если или аура, или триггер не будут найдены - EyeAuras кинет исключение и вы это увидите.
+Это свойство ищет ауру с именем `TargetAura`, расположенную в той же папке (`./`), и получает из неё триггер типа `IHotkeyIsActiveTrigger`. Правила путей здесь такие же, как в файловой системе: `./` — текущая папка, `..` — родительская и т. д. Поддерживаются и прямые, и обратные слэши. Если аура или триггер не найдены, EyeAuras выбросит исключение.
 
 ```csharp
   public bool TriggerIsActive
@@ -102,29 +104,31 @@ public IDefaultTrigger Trigger
         set => Trigger.TriggerValue = value;
     }
 ```
-И последний блок кода в этом файле - здесь мы и меняем состояние триггера. 
-- При вызове `Get` мы находим триггер и считываем текущее состояние
-- При вызове `Set` мы записываем новое состояние
-> Обратите внимание, не у всех триггеров есть `TriggerValue`, который можно изменять извне, однако **у всех** триггеров есть свойство `IsActive`, которое позволяет **считать** текущее состояние. Особенно это полезно во всяких триггерах типа ImageSearch/MLSearch и т.п., чтобы понять нашли они что-нибудь или нет
+
+Здесь мы читаем и задаём состояние триггера.
+
+- `get` находит триггер и читает его текущее значение
+- `set` записывает новое значение
+
+> Не у всех триггеров `TriggerValue` доступен для записи, но у **всех** триггеров есть `IsActive`, чтобы **читать** их состояние. Это полезно, например, для триггеров вроде ImageSearch/MLSearch, если нужно проверить, нашли ли они что-нибудь.
 
 ## UserOverlay.razor
+
 ```html
 @using PoeShared.Blazor.Controls
 ```
 
-`ToggleButton` это компонент, который отрисовывает кнопку-переключатель с двумя состояниями (ВКЛ/ВЫКЛ). Находится эта кнопка в пространстве имен `PoeShared.Blazor.Controls`, поэтому чтобы она стала нам доступна, в заголовочной части файла мы пишем `@using PoeShared.Blazor.Controls` и теперь все, что там находится станет нам доступно в коде
+`ToggleButton` — это компонент, который отображает кнопку с двумя состояниями (ON/OFF). Он находится в пространстве имён `PoeShared.Blazor.Controls`, поэтому для доступа к нему мы добавляем `@using PoeShared.Blazor.Controls`.
 
 ```html
-<ToggleButton 
-              @bind-IsChecked="@TriggerIsActive" 
+<ToggleButton
+              @bind-IsChecked="@TriggerIsActive"
               Class="btn btn-secondary">
    Trigger is Active
 </ToggleButton>
 ```
-Здесь мы указываем, что в данном месте формы нужно отрисовать компонент `ToggleButton`. 
-Самая важная часть здесь это `@bind-IsChecked="@TriggerIsActive"` - она указывает компоненту, откуда именно брать состояние кнопки и куда его записывать. 
-Теперь при отрисовке кнопки она считает состояние из `TriggerIsActive`, вызвав `Get`, а при клике на кнопку - запишет новое состояние, вызвав `Set`
 
+Здесь мы просим Blazor отрисовать `ToggleButton`. Ключевая часть — `@bind-IsChecked="@TriggerIsActive"`, она связывает состояние кнопки с нашим свойством. Во время рендера берётся значение `TriggerIsActive`, а при нажатии новое значение записывается обратно.
 
 ```html
 @if (TriggerIsActive){
@@ -133,5 +137,5 @@ public IDefaultTrigger Trigger
    <span class="text-warning shadow-1">Trigger is currently not active</span>
 }
 ```
-Этот блок кода отрисовывает или один, или другой текст в зависимости от того, включен сейчас триггер или нет. Обратите внимание, что при нажатии на кнопку одновременно перерисовывается и текст. 
 
+Этот блок показывает разный текст в зависимости от того, активен триггер или нет. Обратите внимание: при нажатии на кнопку текст тоже обновляется.
