@@ -1,45 +1,49 @@
 ---
-title: Remote desktops bypass inputs
-description: 
+title: Bypassing Input Restrictions on Remote Desktops
+description: How input restriction bypass works in remote desktop sessions.
 published: true
-date: 2026-03-30T21:11:58.668Z
-tags: 
+date: 2026-04-01T01:04:16.477Z
+tags: ai-translated
 editor: markdown
 dateCreated: 2024-03-15T03:34:12.220Z
 ---
+# Remote Desktop Bypass for Lineage 2
 
-## Lineage 2 Remote Desktop bypass :video_game:
+To get started, follow these simple steps.
 
-Follow these simple steps to get started:
+## 1. Download EyeAuras
 
-### 1. Download EyeAuras :arrow_down:
+First, download the EyeAuras app from our website: [EyeAuras Download](https://eu.eyeauras.net/download)
 
-Start by downloading the EyeAuras application from our website. Get it here: [EyeAuras Download](https://eu.eyeauras.net/download)
+## 2. Register and purchase a license
 
-### 2. Register & Purchase License :key:
+- Create an account and, if needed, purchase a license to unlock all features. You can get started here: [EyeAuras Login](https://eu.eyeauras.net/login)
 
-- Create your account and, if necessary, purchase a license to unlock all features. Begin here: [EyeAuras Login](https://eu.eyeauras.net/login)
+## 3. Set up Input Redirects
 
-### 3. Input Redirects :computer:
+- Download this free driver for compatibility: [Download Driver](https://s3.eyeauras.net/media/2024/10/HVDK%20Standard%202.1.exe)
 
-- Download this free driver to ensure compatibility. [Download Driver](https://s3.eyeauras.net/media/2024/10/HVDK%20Standard%202.1.exe)
+- After installing it, go to `C:\Program Files (x86)\ControlMyJoystick 5.5.78.50\Driver\Joystick` and run the uninstall `.bat` file as administrator.
 
-  After installing, navigate to `C:\Program Files (x86)\ControlMyJoystick 5.5.78.50\Driver\Joystick` and run the uninstall batch file as administrator.
+## 4. Configure EyeAuras
 
-### 5. Configuration :wrench:
+Open EyeAuras, go to Settings, and change `Input Redirect Simulation` to `TetherScript Driver`.
 
-Open EyeAuras, go to settings and change Input Redirect Simulation to TetherScript Driver
 ![screenshot_43.png](/screenshot_43.png)
-When you apply changes - you will see redirects buttons on bottom panel to enable \ disable redirects.
+
+After applying the changes, redirect toggle buttons will appear in the bottom panel so you can enable or disable redirection.
+
 ![screenshot_42.png](/screenshot_42.png)
-### 5. Troubleshooting :wrench:
 
-If you encounter a bug where the camera spins non-stop, go to your game's settings (L2 settings) and disable "Enable Controller" under Settings -> Configuration.
+## 5. Troubleshooting
 
-### 6. Recommended remote software - Parsec 
+If you run into a bug where the camera keeps spinning, open the game settings (L2 settings) and disable `Enable Controller` under `Settings -> Configuration`.
 
-- You can download it here [Download Parsec](https://parsec.app/downloads)
-	More info [here](https://wiki.eyeauras.net/en/Lineage/parsec)
-### 7. Video Guide :clapper:
+## 6. Recommended remote access software: Parsec
 
-For visual learners, we have prepared a comprehensive video guide to walk you through the setup process and usage.
+- Download it here: [Download Parsec](https://parsec.app/downloads)
+- Read more: [here](https://wiki.eyeauras.net/en/Lineage/parsec)
+
+## 7. Video guide
+
+If you prefer visual instructions, we have prepared a detailed video guide for setup and usage.
