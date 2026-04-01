@@ -1,19 +1,18 @@
 ---
-title: 10. Подключаем CSS файл - LoadCss
-description: 
+title: 10. Подключение CSS-файла — LoadCss
+description: Как подключить CSS-файл с помощью LoadCss
 published: true
-date: 2025-05-11T23:35:36.798Z
-tags: 
+date: 2025-08-17T09:21:21.000Z
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T16:22:32.324Z
 ---
+# Альтернативный способ подключить CSS
 
-# Альтернативный вариант загрузки CSS
+## LoadCss — загрузка из кода
 
-## LoadCss - загрузка из кода
+В EyeAuras есть набор инструментов `IJsPoeBlazorUtils`. Как и `IAuraTreeScriptingApi`, его можно внедрить в компонент и использовать методы для загрузки CSS во время выполнения.
 
-В EyeAuras есть набор инструментов, который называется `IJsPoeBlazorUtils` - ровно как и `IAuraTreeScriptingApi`, его можно подключить в ваш компонент
-и дальше использовать один из его методов для загрузки CSS в рантайме.
 ```csharp
 /// <summary>
 /// Loads CSS file dynamically
@@ -21,10 +20,12 @@ dateCreated: 2025-05-11T16:22:32.324Z
 Task LoadCss(string cssPath);
 ```
 
-Ключевым отличием от подключения CSS через `HeadContent` и `Inline` здесь будет то, что _вы_ контролируете момент, когда подгружается CSS-файл. Это может быть загрузка страницы, может быть нажатие кнопки, может быть переключение стиля в UI - что угодно. Весь контроль на вашей стороне. 
+Главное отличие от `HeadContent` или inline-стилей в том, что момент загрузки CSS контролируете именно вы. Это может быть загрузка страницы, нажатие кнопки, переключение темы — что угодно. Полный контроль остается за вами.
+
 ![Demo](https://s3.eyeauras.net/media/2025/05/OTFy9w6Fgm.png)
 
 ## UserOverlay.cs
+
 ```csharp
 public partial class UserOverlay : BlazorReactiveComponent {
 
@@ -50,12 +51,13 @@ public partial class UserOverlay : BlazorReactiveComponent {
     {
         await base.OnInitializedAsync();
 
-        await PoeblazorUtils.LoadCss("Styles.css");
+        await PoeBlazorUtils.LoadCss("Styles.css");
     }
 }
 ```
 
 ## UserOverlay.razor
+
 ```html
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
@@ -63,8 +65,8 @@ public partial class UserOverlay : BlazorReactiveComponent {
 <h3 class="text-center shadow-1">CSS via HeadContent</h3>
 
 <div class="text-center mt-4">
-    <ToggleButton 
-        @bind-IsChecked="@TriggerIsActive" 
+    <ToggleButton
+        @bind-IsChecked="@TriggerIsActive"
         Class="btn custom-button">
                 Trigger is Active
     </ToggleButton>
@@ -72,6 +74,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 ```
 
 ## Styles.css
+
 ```css
 .custom-button {
     background: lime;
@@ -84,19 +87,22 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 # Разбор
 
-## UserOverlay.cs 
+## UserOverlay.cs
+
 ```csharp
 [Inject]
 public PoeShared.Blazor.Services.IJsPoeBlazorUtils PoeBlazorUtils { get; init; }
 ```
-По аналогии с `IAuraTreeScriptingApi` мы подключаем еще один сервис, через который и будем загружать CSS.
+
+Как и в случае с `IAuraTreeScriptingApi`, здесь мы внедряем еще один сервис — для загрузки CSS.
 
 ```csharp
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        await PoeblazorUtils.LoadCss("Styles.css");
+        await PoeBlazorUtils.LoadCss("Styles.css");
     }
 ```
-В данном случае я выбрал загрузку CSS  сразу после того как компонент был инициализирован, т.е. все службы подготовлены и т.п. Однако это происходит ДО того, как компонент отрисован. Более подробно об этом есть в этой [статье от Microsoft](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-9.0)
+
+Здесь CSS загружается сразу после инициализации компонента: сервисы уже готовы, но сам рендеринг еще не произошел. Подробнее о жизненном цикле компонента можно прочитать в [статье Microsoft](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-9.0).

@@ -1,77 +1,85 @@
 ---
-title: Home
-description: 
+title: Главная
+description: EyeAuras — программный инструмент для создания и управления «аурами» — скриптами и функциями, которые автоматизируют задачи, обрабатывают данные и улучшают взаимодействие с компьютером и приложениями
 published: true
-date: 2024-05-14T19:48:22.105Z
-tags: 
+date: 2026-02-13T11:42:11.801Z
+tags: ai-translated
 editor: markdown
 dateCreated: 2022-11-02T14:50:20.232Z
 ---
-
 ![](/mainfull.png)
 
-EyeAuras это [кликер](/actions/sendinput/send-sequence), испольщующий [компьютерное зрение](/triggers/images/imagecapturetriggers) и [нейронные сети](/triggers/images/ai-search-trigger), который может анализировать все, что происходит на экране, и выполнять действия, такие как [перемещение мыши](/actions/sendinput/send-sequence) и [нажатие клавиш](/actions/sendinput/send-sequence) от вашего имени. Он также может воспроизводить звуки, [отправлять сообщения в Telegram](/actions/send-telegram-message) и [через Интернет](/actions/send-network-message), и даже [выполнять скрипты C#](/scripting/getting-started)!
+# EyeAuras
 
-![](https://eyeauras.net/assets/img/appimages/EyeAuras_4GhOU01VKp.png =x600)
+[EyeAuras](https://eyeauras.net/) — это [кликер](/ru/actions/sendinput/send-sequence) на базе [компьютерного зрения](/ru/triggers/images/imagecapturetriggers) и [машинного обучения](/ru/triggers/images/ai-search-trigger). Он умеет анализировать всё, что происходит на экране, и выполнять действия за вас: [двигать мышь](/ru/actions/sendinput/send-sequence), [нажимать клавиши](/ru/actions/sendinput/send-sequence), воспроизводить звуки, [отправлять сообщения в Telegram](/ru/actions/send-telegram-message) и [по Интернету](/ru/actions/send-network-message), а также [выполнять C#-скрипты](/ru/scripting/getting-started)!
 
-## Основная концепция
+![Main window](https://eyeauras.net/assets/img/appimages/EyeAuras_OzDyUnmzFH.webp =x400)
 
--   **Аура** \- комбинация Триггеров, Действий, Оверлеев и Enabling Conditions. Это то, чем вы будете делиться с другими, и то, что выполняет основную работу.
--   [Enabling Conditions](/features/enabling-conditions)
--   **Триггеры** \- любой тип состояния, который можно описать в терминах Активно/Неактивно. Это может быть Горячая клавиша (нажата/не нажата или переключена), проверка активного окна (активно/не активно), результат поиска изображения/текста/цвета (совпадает/не совпадает). Состояние Активно/Неактивно Ауры является комбинацией состояний ее дочерних Триггеров. Триггер имеет три состояния:
-    -   Active - это означает, что условие выполнено, например, для триггера WindowIsActive это означает, что окно с совпадающим заголовком активно
-    -   Inactive - это означает, что условие не выполнено
-    -   Unknown - это означает, что по какой-то причине невозможно определить состояние триггера. Например, если окно, указанное в ImageSearch, не найдено, то соответствующий триггер будет иметь состояние Unknown, так как невозможно выполнить сравнение без фактического изображения.
--   **Действия** \- показ уведомлений, нажатие клавиш/мыши, отправка сообщений в Telegram или электронной почты - все это считается Действием и может использоваться внутри Ауры. Действия могут быть назначены на одну из 3 групп:
-    -   On Enter - выполняются, когда Аура становится Активной
-    -   While Active - выполняются повторно, пока Аура активна
-    -   On Exit - выполняются, когда Аура становится Неактивной
--   **Оверлеи** \- всегда поверх оверлеи, которые могут показывать текст, изображение, пользовательский интерфейс или что-то еще. Оверлеи являются частью Ауры и отображаются только тогда, когда Аура активна
+---
 
-### Подсистемы
+## Основные понятия
 
--   [Export/Import](/features/export-import) - передача, обмен или резервное копирование пакетов EyeAuras между различными пользователями или устройствами
--   [Aura Library](/aura-library) - общая коллекция пакетов EyeAuras, доступная для пользователей для открытия, импорта и использования
--   [Window Match Expressions](/features/window-matching-expressions) - позволяет выбирать конкретные окна с использованием пользовательского выражения
--   [Text Match Expressions](/features/text-match-expressions) - мощный инструмент, позволяющий проверять условия текста с помощью Regex, Text и Lambda оценщиков.
--   [Bindings](/features/bindings) - связывает свойства между триггерами, действиями и оверлеями для облегчения изменения групповых свойств и открытия новых возможностей
--   [Default Properties](/features/default-properties)
+- **Aura** — комбинация Triggers, Actions, Overlays и Enabling conditions. Именно ауры вы будете делиться с другими пользователями, и именно они выполняют основную работу.
+- [**Behavior Tree**](/ru/behavior-trees/gettings-started) — если кратко, это способ описать, что должен делать бот. Это его «мозг», а Actions и Triggers выступают в роли «рук» и «глаз».
+- **Triggers** — любые состояния, которые можно описать как Active/NotActive. Например: Hotkey (нажата/не нажата или переключатель), проверка окна на переднем плане (активно/не активно), результат поиска Image/Text/Color (найдено/не найдено). Состояние Aura Active/NotActive определяется комбинацией состояний её дочерних Triggers. У Trigger есть три состояния:
+    - Active — условие выполнено. Например, для WindowIsActive это означает, что окно с подходящим заголовком сейчас активно.
+    - Not Active — условие не выполнено.
+    - Unknown — по какой-то причине состояние нельзя вычислить. Например, если окно, указанное в ImageSearch, не найдено, соответствующий Trigger получит состояние Unknown, потому что без реального изображения сравнение выполнить невозможно.
+- **Actions** — показ уведомлений, нажатия клавиш и мыши, отправка сообщений в Telegram или e-mail — всё это считается Action и может использоваться внутри Aura. Actions можно назначать в одну из трёх групп:
+    - On Enter — выполняются, когда Aura становится Active.
+    - While Active — выполняются повторно, пока Aura остаётся Active.
+    - On Exit — выполняются, когда Aura становится Not Active.
+- **Overlays** — always-on-top-оверлеи, которые могут показывать текст, изображения, кастомный UI и многое другое. Overlays являются частью Aura и отображаются только пока Aura находится в состоянии Active.
+- [**Enabling conditions**](/ru/features/enabling-conditions) — Triggers, которые можно использовать для включения и отключения Auras и Behavior Trees. Например, чтобы отключать бота, если окно игры не существует.
 
-### Триггеры
+![Behavior Trees](https://eyeauras.net/assets/img/appimages/EyeAuras_4GhOU01VKp.webp =x400)
 
--   [Fixed Value](/en/triggers/fixed-value) - самый примитивный триггер, вы можете управлять его состоянием, выбирая его вручную или используя скрипты на C#
--   [Color Search](/en/triggers/images/color-search) - активен, когда средний цвет выбранной области совпадает с целевым цветом. Можно задать порог схожести.
--   [**Image Search**](/en/triggers/images/image-search) - активен, когда найдено изображение с заданной схожестью
--   [**AI/ML Search**](/en/triggers/images/ai-search-trigger) \- основанный на машинном обучении [object detection](https://docs.ultralytics.com/tasks/detect/)/[segmentation](https://docs.ultralytics.com/tasks/segment/) или [classification](https://docs.ultralytics.com/tasks/classify/), в настоящее время поддерживает только [**Yolo8**](https://docs.ultralytics.com/) **в формате ONNX**, может быть расширено позже
--   [**Text Search**](/en/triggers/images/text-search) - активен, когда распознанный текст совпадает с заданным выражением. Это может быть сравнение по Contains, regexp или C# Lambda
--   [**Aura Is Active**](/en/triggers/aura-is-active) - активен, когда связанные Ауры имеют указанное состояние (Активно/Неактивно)
--   [**Hotkey Is Active**](/en/triggers/hotkey-is-active) - активен, когда указанное сочетание клавиш удерживается или переключено
--   [**Window Is Active**](/en/triggers/window-is-active) \- активен, когда окно, соответствующее заданному выражению, активно (в переднем плане)
--   [**Window Exists**](/en/triggers/window-exists) - активен, когда окно, соответствующее заданному выражению, существует в системе
--   [**Timer**](/en/triggers/timer) \- периодически активируется на заданное время
--   [**Message Subscription**](/en/triggers/network-message) - активируется/деактивируется, когда получено указанное сообщение от веб-сервера EyeAuras. Сообщения разделены на каналы и могут быть отправлены с помощью действия SendMessage
--   [**File Contains**](/en/triggers/file-contains-text) - активируется, когда указанный текст найден в заданном файле
--   [**Telegram Subscription**](/en/triggers/telegram-message) - активируется/деактивируется, когда получено указанное сообщение в Telegram канале
--   [**Volume Control**](/en/triggers/volume-level) - активируется/деактивируется, когда уровень громкости указанного аудиоустройства или процесса достигает заданного порога
--   [**C# Script**](/en/scripting/getting-started) \- пользовательские скрипты, использующие последнюю версию языка C# с полным доступом к внутреннему API EyeAuras. Как только API будет стабилизирован, будут примеры и документация.
+---
 
-### Actions
+## Подсистемы
 
--   [**Send**](/en/actions/sendinput/options) \- эмулирует ввод пользователя - перемещение мыши, клики, нажатия клавиш и т.д. Поддерживает несколько методов ввода, начиная от самых простых, которые используют WinAPI, и до аппаратного уровня эмуляции, использующего физическое устройство Usb2Kbd.
-    -   [Input](/en/actions/sendinput/send-input) \- генерирует одно событие клавиатуры/мыши
-    -   [Text](/en/actions/sendinput/send-text) - вводит указанный текст либо через буфер обмена, либо печатая каждый символ по отдельности
-    -   [Sequence](/en/actions/sendinput/send-sequence) - воспроизводит указанную последовательность нажатий клавиш, кликов мыши и перемещений мыши
--   [**Play Sound**](/en/actions/play-sound) - воспроизводит указанный звук
--   [**Win Activate**](/en/actions/win-activate) - активирует указанное окно
--   [**Delay**](/en/actions/delay) \- ждет некоторое время перед выполнением следующего действия
--   [**Send To Telegram**](/en/actions/send-telegram-message) - отправляет сообщение в канал Telegram
--   [**Send Message**](/en/actions/send-network-message) - отправляет сетевое сообщение через инфраструктуру EyeAuras на указанный канал. Все другие экземпляры EyeAuras на других компьютерах могут подписаться и обрабатывать эти сообщения через триггер Message Subscription
--   [**C# Script**](/en/scripting/getting-started) \- пользовательские скрипты, использующие последнюю версию языка C# с полным доступом к внутреннему API EyeAuras. Как только API будет стабилизирован, будут примеры и документация.
+- [Export/Import](/ru/features/export-import) — перенос, обмен и резервное копирование паков EyeAuras между разными пользователями и устройствами
+- [Aura Library](/ru/aura-library) — общая библиотека паков EyeAuras, где пользователи могут находить, импортировать и использовать готовые решения
+- [Window Match Expressions](/ru/features/window-matching-expressions) — выбор конкретных окон с помощью пользовательских выражений
+- [Text Match Expressions](/ru/features/text-match-expressions) — мощный инструмент для проверки текстовых условий через Regex, Text и Lambda-вычислители
+- [Bindings](/ru/features/bindings) — связывают свойства между triggers, actions и overlays, упрощая массовое изменение параметров и открывая новые возможности
+- [Default Properties](/ru/features/default-properties)
 
-### Overlays
+## Triggers
 
--   [**Text**](/en/overlays/text) \- показывает текст, содержимое может быть изменено вручную или с помощью скриптов C#
--   [**Image**](/en/overlays/image) \- показывает изображение, поддерживаются анимированные/прозрачные GIF-файлы
--   [**Replica**](/en/overlays/replica) \- создает визуальную копию в реальном времени любого указанного окна или его подрегиона. Это позволяет клонировать части пользовательского интерфейса (например, переносить таймеры перезарядки ближе к центру экрана) или показывать уменьшенную версию проигрывателя YouTube во время фарма
--   [**Dependencies Viewer**](/en/overlays/dependencies-viewer) \- инструмент отладки, который можно использовать для проверки состояний связанных Аур. Очень полезен для отладки сложных моделей.
--   [**Custom UI**](/en/overlays/custom-ui) \- позволяет разработать полноценный пользовательский интерфейс с использованием комбинации [Microsoft Razor Pages](https://learn.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-7.0&tabs=visual-studio) (html+css+js) и **C#** для интеграции его в EyeAuras.
+- [Fixed Value](/ru/triggers/fixed-value) — самый простой trigger; его состояние можно менять вручную или через C#-скрипты
+- [Color Search](/ru/triggers/images/color-search) — становится active, когда средний цвет выбранной области совпадает с Target color. Можно задать порог схожести.
+- [**Image Search**](/ru/triggers/images/image-search) — становится active, когда заданное изображение найдено с указанной степенью сходства
+- [**AI/ML Search**](/ru/triggers/images/ai-search-trigger) — поиск на базе машинного обучения: [object detection](https://docs.ultralytics.com/tasks/detect/), [segmentation](https://docs.ultralytics.com/tasks/segment/) или [classification](https://docs.ultralytics.com/tasks/classify/). Сейчас поддерживается только [**Yolo8**](https://docs.ultralytics.com/) **в формате ONNX**, позже список может быть расширен
+- [**Text Search**](/ru/triggers/images/text-search) — становится active, когда распознанный текст совпадает с заданным выражением. Поддерживается сравнение через Contains, regexp или C# Lambda
+- [**Aura Is Active**](/ru/triggers/aura-is-active) — становится active, когда связанные Auras находятся в указанном состоянии (Active/NotActive)
+- [**Hotkey Is Active**](/ru/triggers/hotkey-is-active) — становится active, когда указанная комбинация клавиш зажата или включена как toggle
+- [**Window Is Active**](/ru/triggers/window-is-active) — становится active, когда окно, подходящее под указанное выражение, активно (находится на переднем плане)
+- [**Window Exists**](/ru/triggers/window-exists) — становится active, когда в системе существует окно, подходящее под указанное выражение
+- [**Timer**](/ru/triggers/timer) — периодически активируется на заданное время
+- [**Message Subscription**](/ru/triggers/network-message) — активируется и деактивируется при получении указанного сообщения с веб-сервера EyeAuras. Сообщения разделяются по Channels и могут отправляться через Action SendMessage
+- [**File Contains**](/ru/triggers/file-contains-text) — активируется, когда в указанном файле найден заданный текст
+- [**Telegram Subscription**](/ru/triggers/telegram-message) — активируется и деактивируется при получении указанного сообщения в Telegram-канале
+- [**Volume Control**](/ru/triggers/volume-level) — активируется и деактивируется, когда уровень громкости указанного аудиоустройства или процесса достигает заданного порога
+- [**C# Script**](/ru/scripting/getting-started) — пользовательские скрипты на последней версии C# с полным доступом к внутреннему API EyeAuras. Когда API стабилизируется, появятся примеры и документация
+
+## Actions
+
+- [**Send**](/ru/actions/sendinput/options) — эмулирует пользовательский ввод: движение мыши, клики, нажатия клавиш и т. д. Поддерживает несколько методов ввода — от базовых, работающих через WinAPI, до аппаратной эмуляции с использованием физического устройства Usb2Kbd.
+    - [Input](/ru/actions/sendinput/send-input) — генерирует одно событие клавиатуры или мыши
+    - [Text](/ru/actions/sendinput/send-text) — вводит указанный текст через буфер обмена или посимвольно
+    - [Sequence](/ru/actions/sendinput/send-sequence) — воспроизводит заданную последовательность нажатий клавиш, кликов мыши и движений мыши
+- [**Play Sound**](/ru/actions/play-sound) — воспроизводит указанный звук
+- [**Win Activate**](/ru/actions/win-activate) — активирует указанное окно
+- [**Delay**](/ru/actions/delay) — ждёт некоторое время перед переходом к следующему действию
+- [**Send To Telegram**](/ru/actions/send-telegram-message) — отправляет сообщение в Telegram-канал
+- [**Send Message**](/ru/actions/send-network-message) — отправляет сетевое сообщение через инфраструктуру EyeAuras в указанный Channel. Все остальные экземпляры EyeAuras на других компьютерах могут подписаться на эти сообщения и обрабатывать их через Trigger Message Subscription
+- [**C# Script**](/ru/scripting/getting-started) — пользовательские скрипты на последней версии C# с полным доступом к внутреннему API EyeAuras. Когда API стабилизируется, появятся примеры и документация
+
+## Overlays
+
+- [**Text**](/ru/overlays/text) — показывает текст; содержимое можно менять вручную или через C#-скрипты
+- [**Image**](/ru/overlays/image) — показывает изображение; поддерживаются анимированные и прозрачные GIF
+- [**Replica**](/ru/overlays/replica) — создаёт визуальный клон любого указанного окна или его части в реальном времени. Это позволяет, например, вынести кулдауны ближе к центру экрана или показывать уменьшенную версию YouTube-плеера во время фарма
+- [**Dependencies Viewer**](/ru/overlays/dependencies-viewer) — инструмент отладки, с помощью которого можно проверять состояния связанных Auras. Очень полезен при разборе сложных моделей.
+- [**Custom UI**](/ru/overlays/custom-ui) — позволяет создавать полноценный пользовательский интерфейс, используя сочетание [Microsoft Razor Pages](https://learn.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-7.0&tabs=visual-studio) (html+css+js) и **C#**, чтобы связать всё это внутри EyeAuras
