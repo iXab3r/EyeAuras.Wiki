@@ -1,69 +1,89 @@
 ---
 title: Permission Model
-description: 
+description: Overview of the EyeAuras permission model
 published: true
-date: 2024-04-22T09:32:18.152Z
-tags: permissions, folder restrictions, user privileges, folder ownership, password protection
+date: 2024-04-22T09:35:30.260Z
+tags: permissions, folder restrictions, user privileges, folder ownership, password protection, ai-translated
 editor: markdown
 dateCreated: 2024-04-20T10:52:21.002Z
 ---
-## What is this about?
-You can set specific restrictions for each folder:
-- Default / No restrictions: no limitations, any user can do anything with the folder.
-- Configurable: users can edit existing auras/trees but cannot add new ones or delete old elements.
-- Read-Only: users can only view the folder's contents but cannot modify them.
-- Private: users cannot even view the contents.
+# Why use folder restrictions?
 
-> The folder owner can do anything with it; restrictions do not apply to them.
+In some cases—especially if your aura pack relies on complex logic—it makes sense to put restrictions on folders. This helps users clearly see where they are expected to make changes and which parts should be left alone, reducing the classic “I changed something here and now nothing works” problem.
+
+Restrictions can also be useful if you want to hide how a particular feature is implemented, to make copying harder or to prevent users from working around your scripts.
+
+# Available restriction levels
+
+You can assign one of the following restriction levels to each folder:
+
+- **Default / No restrictions**: no restrictions at all; the user can do anything with the folder
+- **Configurable**: the user can edit existing auras/trees, but cannot add new items or delete existing ones
+- **Read-Only**: the user can only view the folder contents and cannot modify them
+- **Private**: the user cannot even view the folder contents
+
+> The folder owner can always do anything with it. Restrictions do not apply to the owner.
 {.is-info}
 
-## Why?
-In some cases, especially if your pack is based on complex logic, it makes sense to impose restrictions on folders. This way, users can see where their intervention is expected and which parts should not be touched, thus avoiding issues like "I changed something here and now it doesn't work."
-In some cases, you may want to hide how you implemented a particular functionality to prevent copying or resistance.
+# How the permissions system works
 
-## How does it work?
-Currently, the permission mechanism consists of three things:
-- Folder owner: the user who initially set the restrictions. They have full control over the folder, being able to change its contents in any way and add/remove restrictions.
-- Folder password (optional): the folder owner can optionally set a password that temporarily elevates the current user's privileges to the maximum level. This can be used, for example, to make changes without logging back into their account.
-- Level of restrictions: as mentioned above, the Default/Configurable/Read-Only/Private levels determine what is available to regular users.
+At the moment, the permissions system consists of 3 parts:
 
-In the context menu of each folder, there is a Permissions section where you can choose the level of restrictions you want to set.
+- **Folder owner**: the user who originally applied the restrictions. This user has full control over the folder—they can change its contents in any way and can also add or remove restrictions.
+- **Folder password (optional)**: the folder owner can set a password that temporarily raises the current user's privileges to the maximum level. This can be useful, for example, if you need to make changes without logging back into your own account.
+- **Restriction level**: as described above, these are the Default / Configurable / Read-Only / Private modes that define what a regular user is allowed to do.
+
+Each folder has a **Permissions** section in its context menu, where you can choose the restriction level you want to apply.
+
 > This feature is only available to authorized users.
 {.is-info}
 
 ![](https://i.imgur.com/Z9qXakW.png)
 
-After setting the level of restrictions, the folder's header will indicate the selected level and by whom.
+After you set a restriction level, the folder header will show which level is selected and who owns it.
 
-This is how the header looks when you own the folder.
+This is what the header looks like when **you** own the folder.  
 ![](https://i.imgur.com/WhQhQou.png)
-And this is how it looks when someone else owns it.
+
+And this is how it looks when the folder is owned by **someone else**.  
 ![](https://i.imgur.com/oAiE2Ws.png)
 
-## How to set a password
-If you have sufficient rights, there will be an `Add password` button in the folder's header.
+# How to set a password for a folder
+
+If you have sufficient permissions, the folder header will include an `Add password` button.
+
 ![add password](https://i.imgur.com/SoOHI6y.png)
 
-After setting the password, the "Unlock" functionality will be available, which unlocks the folder with the password.
+Once a password is set, an `Unlock` option becomes available, allowing the folder to be unlocked with that password.
+
 ![unlock](https://i.imgur.com/hfnrqwb.png)
 
-If the folder is unlocked, you can lock it again or remove the password altogether.
+If the folder is currently unlocked, you can lock it again or remove the password entirely.
+
 ![lock/remove password](https://i.imgur.com/7F3Rm7l.png)
 
-## More details on settings
+# Restriction levels in detail
 
-# Default
-By default, no restrictions are imposed on the folder - you can delete and add elements such as auras and behavior trees.
+## Default
+
+By default, a folder has no restrictions. You can add and remove items such as auras and behavior trees.
+
 ![](https://i.imgur.com/cqH4pvI.png)
 
-# Configurable
-At this restriction level, you cannot delete or add elements, but you can modify the settings of existing ones, for example, change the capture zone or window name.
+## Configurable
+
+At this restriction level, you cannot add or delete items, but you can still modify the settings of existing ones—for example, changing the capture area or the window name.
+
 ![](https://i.imgur.com/49AsqnH.png)
 
-# Read-Only
-In this mode, the folder's contents cannot be modified - neither adding/deleting anything nor editing the settings of existing auras.
+## Read-Only
+
+In this mode, the folder contents cannot be changed at all: you cannot add or remove anything, and you also cannot edit the settings of existing auras.
+
 ![](https://i.imgur.com/a8mrtb4.png)
 
-# Private
-The private mode hides auras' contents from view - they cannot be changed or exported.
+## Private
+
+Private mode hides the aura contents from view. They cannot be modified or exported.
+
 ![](https://i.imgur.com/Yjnrr82.png)
