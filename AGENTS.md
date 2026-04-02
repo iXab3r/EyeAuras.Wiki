@@ -115,6 +115,17 @@ Rules:
 - For new files, prefer adding meaningful tags when the expected format is clear from nearby files.
 - Preserve existing metadata unless there is a good reason to update it.
 
+## Technical/internal files
+
+Technical files such as `AGENTS.md` and similar workflow/instruction documents are treated differently from normal published wiki pages.
+
+Rules:
+
+- If a technical markdown file uses frontmatter, set `published: false`.
+- Do **not** translate technical/internal files into other languages.
+- Technical/internal files should stay in **English only**.
+- Do not create `/ru/` copies of technical guidance files unless explicitly requested by the user.
+
 ## Changelog rules
 
 Use `changelogs/9377.md` and `ru/changelogs/9377.md` as the current preferred format reference.
@@ -158,12 +169,38 @@ When working on changelogs:
 ## Working with translations
 
 - English root pages are the default source unless the task clearly starts from Russian content.
+- When both English and Russian versions exist, treat the **newer** one as the golden source.
+- When syncing an older counterpart to a newer one, do **not** rewrite the older document from scratch unless that is truly necessary.
+- Prefer incremental sync:
+  - add missing sections
+  - update changed facts
+  - fix stale links, screenshots, examples, and wording where needed
 - When translating, preserve:
   - section order
   - screenshots
   - examples
   - links, adjusted for language path where needed
 - Keep the Russian and English pages conceptually aligned, but do not force word-for-word translation if a cleaner phrasing is better in that language.
+- Add `ai-translated` to the `tags:` field of any document created or updated through AI-assisted translation/sync.
+- When processing translation backlog, start from the **newest** unsynced documents first.
+- Maintain `ai-writing-style-state.md` as the current style snapshot for AI-assisted writing and translation.
+
+## Writing style
+
+- Prefer the Russian wiki style as the main writing reference when a Russian version exists.
+- Use `ai-writing-style-state.md` as the evolving style snapshot derived from non-AI-authored documents.
+- Follow that style when creating new translated pages or syncing older ones.
+- Favor:
+  - simple, direct phrasing
+  - short paragraphs
+  - practical structure
+  - clear “what it is / how to start / when to use” sectioning
+  - user-facing explanations over literal translation
+  - practical product-doc flow when relevant:
+    - what it is
+    - what it does
+    - what it cannot do yet
+    - what to read next
 
 ## Legacy and generated files
 
