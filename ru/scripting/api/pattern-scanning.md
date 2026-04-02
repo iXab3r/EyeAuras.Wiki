@@ -1,26 +1,29 @@
 ---
-title: Pattern scanning
-description: 
+title: Сканирование паттернов
+description: Обзор сканирования паттернов и поиска сигнатур.
 published: true
-date: 2024-12-15T10:54:50.446Z
-tags: 
+date: 2024-12-15T10:56:55.901Z
+tags: ai-translated
 editor: markdown
 dateCreated: 2024-12-15T10:54:50.446Z
 ---
+## Что такое сканирование по паттерну?
 
-## What is Pattern Scanning?
-Pattern scanning is a method used to search for specific byte sequences in memory. It’s useful for finding functions, data, or code that doesn’t always stay at the same location when a program is running.
+Сканирование по паттерну — это способ поиска определённых последовательностей байтов в памяти. Такой подход удобен, когда нужно найти функции, данные или участки кода, которые не всегда находятся по одному и тому же адресу во время работы программы.
 
-### Why is it Needed?
-1. **Dynamic Locations**: Programs often load code and data into different places each time they run. Pattern scanning helps find what you’re looking for, no matter where it ends up.
-2. **Unique Matches**: Patterns are like fingerprints—they help identify specific areas in memory based on unique byte sequences.
+### Зачем это нужно?
+
+1. **Динамические адреса**: программы часто загружают код и данные в разные места при каждом запуске. Сканирование по паттерну помогает находить нужные данные независимо от того, куда они были загружены в этот раз.
+2. **Уникальные совпадения**: паттерны работают как отпечатки пальцев — они позволяют находить конкретные области памяти по уникальным последовательностям байтов.
 
 ---
 
 ## `BytePattern`
-The `BytePattern` class has been added to support multiple ways of defining patterns. These updates make it easier to work with different types of patterns commonly used in scanning memory.
 
-Pattern scanning is available on any type implementing `IMemory` interface, e.g.
+Класс `BytePattern` был добавлен, чтобы поддерживать несколько способов задания паттернов. Благодаря этому удобнее работать с разными форматами паттернов, которые обычно используются при сканировании памяти.
+
+Сканирование по паттерну доступно для любого типа, реализующего интерфейс `IMemory`, например:
+
 ```csharp
 using var process = LocalProcess.ByProcessName("pathofexile"); //uses naive RPM under the hood
 Log.Info($"Process: {process}");
@@ -41,45 +44,44 @@ var offsetsByPattern = memory.FindOffset(playerPattern, targetPattern);
 var criticalOffset = memory.GetOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00")); 
 ```
 
-### Supported Pattern Types
-1. **Byte Arrays**:
-   - Define patterns using exact byte values.
-   - Example: 
+### Поддерживаемые типы паттернов
+
+1. **Массивы байтов**:
+   - Паттерн задаётся точными значениями байтов.
+   - Пример:
    ```csharp
    var pattern = BytePattern.FromPattern(new byte[] {0x55, 0x8B, 0xEC});
    ```
-   matches exactly those bytes.
+   точно совпадает с этими байтами.
 
-2. **C-Style Patterns**:
-   - Use escape sequences like `\xAA\xBB\xCC`, like in C-Style patterns.
-   - Example:  
+2. **Паттерны в стиле C**:
+   - Используются escape-последовательности вида `\xAA\xBB\xCC`, как в C-style паттернах.
+   - Пример:
    ```csharp
    var pattern = BytePattern.FromTemplate("\x55\x8B\xEC");
    ```
-   is equivalent to the byte array `[0x55, 0x8B, 0xEC]`.
+   эквивалентен массиву байтов `[0x55, 0x8B, 0xEC]`.
 
-3. **Hexadecimal Strings with Wildcards**:
-   - Define patterns as hex strings with `??` for wildcards (any byte).
-   - Example: 
+3. **Шестнадцатеричные строки с wildcard-символами**:
+   - Паттерн задаётся как hex-строка, где `??` означает wildcard (любой байт).
+   - Пример:
    ```csharp
    var pattern = BytePattern.FromTemplate("55 8B ?? 83");
-   ``` 
-   matches any sequence starting with `55 8B`, followed by any byte, and then `83`.
+   ```
+   совпадает с любой последовательностью, которая начинается с `55 8B`, затем содержит любой байт, а после него — `83`.
 
-4. **Masked Patterns**:
-   - Combine a byte array with a mask to specify which bytes are fixed (`x`) and which are wildcards (`?`).
-   - Example:
+4. **Маскированные паттерны**:
+   - Паттерн задаётся комбинацией массива байтов и маски, где фиксированные байты обозначаются как `x`, а wildcard — как `?`.
+   - Пример:
      ```csharp
-     var bytes = ;
-     var mask = ;
      var pattern = BytePattern.FromMaskedPattern(new byte[] { 0x55, 0x8B, 0xEC, 0x00, 0x08 }, "xxx??");
      ```
-     Matches any sequence starting with `55 8B EC`, followed by any two bytes.
+     Совпадает с любой последовательностью, которая начинается с `55 8B EC`, после чего идут любые два байта.
 
-5. **Templates with Offsets**:
-   - Define patterns using a template and mark the match offset with `^`.
-   - Example: 
+5. **Шаблоны со смещением**:
+   - Паттерн задаётся через шаблон, а символ `^` отмечает смещение внутри найденного совпадения.
+   - Пример:
    ```csharp
    var pattern = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
-   ``` 
-   sets the offset right before `EC` (skipping `3` bytes). That means after the pattern is found, final offset will be `Offset + 3`
+   ```
+   задаёт смещение прямо перед `EC` (то есть пропускает `3` байта). Это значит, что после нахождения паттерна итоговый offset будет `Offset + 3`
