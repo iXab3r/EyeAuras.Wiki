@@ -1,95 +1,103 @@
 ---
-title: Protection of C# Scripts
-description: Prevents interference in your scripts' functioning and protects your intellectual property
+title: C# Script Protection
+description: Prevents tampering with your scripts and protects your intellectual property
 published: true
-date: 2025-03-12T01:43:29.790Z
-tags: c#, script protection, intellectual property, software security, code obfuscation, script compilation
+date: 2025-03-12T22:11:21.972Z
+tags: c#, script protection, intellectual property, software security, code obfuscation, script compilation, ai-translated
 editor: markdown
 dateCreated: 2025-03-12T01:36:07.305Z
 ---
+#  Script Protection in EyeAuras
 
-# 🔒 Script Protection in EyeAuras
+## Important
 
-## **Important:** Script protection is an optional feature intended for pack authors who want to hide the implementation details of their scripts. 
+Script protection is an optional feature for pack authors who want to hide their script implementation details. By default, scripts are stored as plain text and compiled only when needed.
 
-> During the alpha test, access is limited. To gain access to the functionality, **[contact me](/en/contacts)**.
+> Alpha testing is still in progress, so access is currently limited. To get access to this functionality, **[contact me](/en/contacts)**.
 {.is-info}
 
-EyeAuras allows users to write their own C# scripts, which are stored in text form by default as part of the user configuration and are only compiled when needed. This is convenient for development but poses risks: someone may peek at your code or even change it without your knowledge.
+EyeAuras lets users write custom C# scripts. By default, those scripts are stored as plain text as part of the user config and compiled only when necessary. That is convenient during development, but it also creates risks: someone may inspect your code or even modify it without your knowledge.
 
-### 📦 Packing and Pre-compilation
-When Packing, you have the option to enable pre-compilation of scripts—this functionality pre-compiles scripts into a binary format and adds them to the finished pack along with the program. In this form, the script text is absent—only executable modules remain. This improves performance and is worth enabling even if you are not particularly concerned about protection.
+##  Packing and precompilation
 
-**For an experienced programmer, compilation is not a barrier to studying the code!**  
-There are many tools that allow performing the reverse process (decompilation) and obtaining the source program in almost identical form. Therefore, EyeAuras offers protection mechanisms for already compiled code.
+When using Packing, you can enable script precompilation. This compiles your scripts into binary format ahead of time and includes them in the finished pack together with the app. In that form, the script text is no longer present — only executable modules remain. This improves performance, so it is worth enabling even if protection is not your main concern.
 
-> Important! After changing the packing settings, do not forget to perform an `Upload`—your settings affect only the **NEXT** revision of the pack!
+**For an experienced programmer, compilation is not a real barrier to understanding code.**  
+There are plenty of tools that can reverse the process (decompilation) and recover source code in an almost identical form. That is why EyeAuras also provides protection mechanisms for already compiled code.
+
+> Important! After changing Packing settings, do not forget to click `Upload` — your changes only affect the **NEXT** pack revision.
 {.is-info}
 
-![Packaging options](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_jfOmqT7V4x4xqgqS.png)
+![Packaging options](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_jfOmqT7V4x4xqgqS.png =x400)
 
-### 🛡️ Script Protection Options
+##  Script protection modes
+
 EyeAuras offers three levels of protection for your code:
 
-- **⬜ None** — No protection. Scripts are stored and compiled as-is, without changes.
-- **🚀 Performance First** — Performance priority. The code is protected and is still not understandable without special skills, but the focus is on stability and speed. In this mode, obfuscation and data encryption are applied.
-- **🧱 Security First** — Security priority. Maximum protection is applied in this mode: obfuscation, data encryption, code encryption, partial virtualization, integrity check mechanism.
+- **⬜ None** — No protection. Scripts are stored and compiled as-is, without modification.
+- ** Performance First** — Prioritizes performance. The code is protected and still not easy to understand without specific skills, but the focus is on stability and speed. This mode applies obfuscation and data encryption.
+- ** Security First** — Prioritizes security. This mode applies maximum protection: obfuscation, data encryption, code encryption, partial virtualization, and an integrity-check mechanism.
 
-### 🛠️ Protection Methods
-EyeAuras uses powerful tools to protect scripts:
+##  Protection methods
 
-- **🌀 Obfuscation** — the code is tangled to make it harder to understand. Clear and simple names are turned into unreadable ones, the structure of the code itself is altered to complicate understanding (but without changing functionality!), and string and numeric values are encrypted, making data extraction a rather laborious process.
-- **🔁 Virtualization** — parts of the code are turned into special bytecode executed inside a virtual machine. This significantly complicates hacking.
-- **🔐 Encryption** — the finished module is additionally encrypted, further complicating study.
+EyeAuras uses several powerful techniques to protect scripts:
 
-### 🤔 Why is this important?
-1. **🛡️ Security of your code** — protection prevents attackers from stealing your unique algorithm or logic.
-2. **💰 Protection of commercial solutions** — if your script is part of a paid feature or product, protection will help prevent its illegal distribution.
-3. **✅ Licensing** — if you use the [Sublicenses](/features/sublicenses) mechanism, which allows you to issue **you** (the user) licenses for packs, code protection is especially important since part of the license verification is located in the code.
+- ** Obfuscation** — the code is transformed to make it much harder to understand. Clear, readable names become unreadable, the structure of the code is reshaped to make analysis harder (without changing functionality), and string and numeric values are encrypted, making data extraction much more difficult.
+- ** Virtualization** — parts of the code are converted into a special bytecode executed inside a virtual machine. This makes reverse engineering significantly harder.
+- ** Encryption** — the final module is additionally encrypted, making it even more difficult to inspect.
 
-The choice of protection level depends on your goals: if maximum speed is important, choose **🚀 Performance First**; if security is more important, choose **🧱 Security First**. In the future, when receiving the first feedback, this will still be adjustable.
+##  Why this matters
 
-### Tips
-- The obfuscator never breaks a public contract. If you have a `public` class declared, then all `public` methods, properties, and fields of this class will not be renamed. If you want to achieve the highest degree of protection, always declare classes as `internal` so the obfuscator understands it can do anything with them.
-- If you have some part of the code, especially critical to performance, you can use the [Obfuscate](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.obfuscationattribute?view=net-9.0) attribute to indicate to the obfuscator that this code should not be touched.
+1. ** Protecting your code** — protection makes it much harder for attackers to steal your unique logic or algorithms.
+2. ** Protecting commercial solutions** — if your script is part of a paid feature or product, protection helps prevent unauthorized redistribution.
+3. ** Licensing** — if you use the [Sublicenses](/features/sublicenses) mechanism, which allows **you** (the user) to issue licenses for packs, code protection becomes especially important because part of the license validation logic lives in code.
 
-# FAQ
+Choose the protection level based on your priorities: if maximum speed matters most, use ** Performance First**; if security matters more, use ** Security First**. This may still be adjusted further as early feedback comes in.
+
+## Tips
+
+- The obfuscator never breaks the public contract. If you declare a `public` class, then all `public` methods, properties, and fields in that class will keep their names. If you want the highest possible level of protection, declare classes as `internal` whenever you can — that tells the obfuscator it is free to transform them aggressively.
+- If part of your code is especially performance-sensitive, you can use the [Obfuscate](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.obfuscationattribute?view=net-9.0) attribute to tell the obfuscator not to touch that code.
+
+## FAQ
 
 **Q: What happens if I forget to enable protection during packing?**  
-- A: In this case, your scripts will be packed in the standard form (just compiled without additional protection). They are still harder to study than text versions, but this does not provide a high level of protection.
+- A: In that case, your scripts will be packed in the standard form: compiled, but without additional protection. They will still be harder to inspect than plain-text versions, but this will not provide a high level of protection.
 
-**Q: If I don't have scripts in the pack, will Protection help?**  
-- A: No, this functionality works only with scripts and does not interact with ordinary actions/triggers and nodes.
+**Q: If my pack has no scripts, will protection help?**  
+- A: No. This feature only works with scripts and does not affect regular actions, triggers, or nodes.
 
 **Q: Does protection affect performance?**  
-- A: Yes, but in the overwhelming majority of cases, it will be barely noticeable, if noticeable at all.
+- A: Yes, but in the overwhelming majority of cases it will be barely noticeable, if noticeable at all.
 
-**Q: Does protection guarantee complete safety?**  
-- A: No. Nothing is absolute in nature, however, the amount of effort a hacker will need to apply is greatly increased, we are talking about the difference between "getting the source code in half an hour" and "not getting the source code ever, possibly getting something remotely similar to it someday." Even for very experienced developers, this task is usually not straightforward—a very specific set of skills is needed to even start solving it.
+**Q: Does protection guarantee complete security?**  
+- A: No. Nothing in the real world is absolute. However, it increases the amount of effort required to break it by a large margin. We are talking about the difference between “getting the source code in half an hour” and “never getting the source code at all, and maybe someday recovering something only vaguely similar.” Even for very experienced programmers, this is usually not something they can solve directly — it requires a very specific skill set just to begin working on it.
 
-**Q: Do I need to think about protection myself or will EyeAuras take care of it?**  
-- A: Thinking is still necessary. The protection system is applied to **your** source code and tries to turn it into a black box that _does something_ but is very difficult to understand how exactly. However, if you do not approach the input and output data carefully, you can still be hacked. For example, it's not worth transmitting ultra-secret data in clear form over HTTP that you store on your server—they can still be caught and read.
+**Q: Do I need to think about security myself, or will EyeAuras handle everything for me?**  
+- A: You still need to think about it. The protection system is applied on top of **your** source code and tries to turn it into a black box that _does something_, but is very hard to understand internally. However, if you do not handle input and output data carefully, you can still be compromised. For example, you should not send extremely sensitive data over HTTP in plain text if that data is stored on your server — it can still be intercepted and read.
 
-**Q: What to do if my protected pack suddenly stops working?**  
-- A: If the problem occurred after enabling protection:
-  - Make sure you are not using hard-coded names of classes, methods, and properties—they will be changed during obfuscation. In the vast majority of situations, the obfuscator can understand the context of usage and will change strings, but in some cases, analysis is powerless (for example, string concatenation).
-  - If you are using the **Security First** mode, try **Performance First** and check how the behavior changes. In any case, [contact me](/en/contacts) and we will figure it out.
+**Q: What should I do if my protected pack suddenly stops working?**  
+- A: If the problem started after enabling protection:
+  - Make sure you are not using hardcoded class, method, or property names — they may change during obfuscation. In most situations, the obfuscator can understand the usage context and update strings too, but in some cases static analysis is not enough (for example, string concatenation).
+  - If you are using **Security First**, try **Performance First** and see how the behavior changes. In any case, [contact me](/en/contacts) and we will investigate.
 
-**Q: Can I verify how protected my pack is?**  
-- A: There is no direct tool for testing protection in EyeAuras, but you can try using popular decompilers (like dnSpy or dotPeek) to evaluate for yourself how difficult it is to restore your code.
+**Q: Can I test how well my pack is protected?**  
+- A: EyeAuras does not currently include a direct protection testing tool, but you can try popular decompilers such as dnSpy or dotPeek to evaluate for yourself how difficult it is to reconstruct your code.
 
-**Q: Can I enable protection only for certain scripts?**  
-- A: No, protection is applied to all scripts in the pack. This functionality may be added in the future.
+**Q: Can I enable protection only for some scripts?**  
+- A: No, protection is applied to all scripts in the pack. This may be added in the future.
 
 **Q: Can I specify which methods or classes should be protected?**  
-- A: You can use the [Obfuscate](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.obfuscationattribute?view=net-9.0) attribute to specify methods, classes, and properties that should NOT be protected.
+- A: You can use the [Obfuscate](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.obfuscationattribute?view=net-9.0) attribute to specify methods, classes, and properties that should **NOT** be protected.
 
-# Example of Path of Exile 2 Helper Pack - Auto HP/MP
+## Example: Path of Exile 2 Helper - Auto HP/MP pack
+
 https://eyeauras.net/share/S20241213181401RaWLZLE430e6
 
-Take the same method `EnsureWindowIsInsideScreenBounds`—it is quite simple and ensures that if, for some reason, the bot window is out of screen bounds, it is positioned in the center.
+Let’s take the same method, `EnsureWindowIsInsideScreenBounds`. It is fairly simple: if the bot window ends up outside the screen for some reason, the method moves it back to the center.
 
-Here is how it looks in its original text form.
+Here is the original plain-text version:
+
 ```csharp
 private void EnsureWindowIsInsideScreenBounds()
 {
@@ -126,7 +134,8 @@ private void EnsureWindowIsInsideScreenBounds()
 }
 ```
 
-Here's how it looks in decompiled form (`Script Protection` = `None`)—slightly less readable but insignificantly:
+Here is the decompiled version (`Script Protection` = `None`) — slightly less readable, but not by much:
+
 ```csharp
 // Token: 0x06000084 RID: 132 RVA: 0x00005C68 File Offset: 0x00003E68
 private void EnsureWindowIsInsideScreenBounds()
@@ -173,7 +182,8 @@ private void EnsureWindowIsInsideScreenBounds()
 }
 ```
 
-And now, apply obfuscation to it (`Performance First`):
+Now let’s apply obfuscation (`Performance First`):
+
 ```csharp
 // Token: 0x06000086 RID: 134 RVA: 0x00008424 File Offset: 0x00006624
 private void \uF71C\uE8CB\uF729\uF528\uF733\uECFF\uED61\uE8DD\uE3B9\uEBEC\uEF0D\uEF13()
@@ -265,7 +275,7 @@ private void \uF71C\uE8CB\uF729\uF528\uF733\uECFF\uED61\uE8DD\uE3B9\uEBEC\uEF0D\
 		{
 			IFluentLog log = this.Log;
 			defaultInterpolatedStringHandler..ctor(\uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEB29\uEEDD.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BE(30), \uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEB29\uEEDD.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BE(1));
-			defaultInterpolatedStringHandler.AppendLiteral(\uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEEDC.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BA(10217));
+			defaultInterpolatedStringHandler.AppendLiteral(\uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEB29\uEEDC.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BA(10217));
 			defaultInterpolatedStringHandler.AppendFormatted<Rectangle>(rectangle2);
 			log.Info(defaultInterpolatedStringHandler.ToStringAndClear());
 			num4 = -6;
@@ -315,9 +325,9 @@ private void \uF71C\uE8CB\uF729\uF528\uF733\uECFF\uED61\uE8DD\uE3B9\uEBEC\uEF0D\
 				{
 					IFluentLog log2 = this.Log;
 					defaultInterpolatedStringHandler..ctor(\uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEB29\uEEDD.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BE(60), \uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEB29\uEEDD.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BE(4));
-					defaultInterpolatedStringHandler.AppendLiteral(\uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEEDC.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BA(10065));
+					defaultInterpolatedStringHandler.AppendLiteral(\uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEB29\uEEDC.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BA(10065));
 					defaultInterpolatedStringHandler.AppendFormatted<Rectangle>(rectangle);
-					defaultInterpolatedStringHandler.AppendLiteral(\uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEEDC.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BA(10006));
+					defaultInterpolatedStringHandler.AppendLiteral(\uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEB29\uEEDC.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BA(10006));
 					defaultInterpolatedStringHandler.AppendFormatted<Rectangle>(workingArea);
 					log2.Warn(defaultInterpolatedStringHandler.ToStringAndClear());
 					num5 = -4;
@@ -340,7 +350,7 @@ private void \uF71C\uE8CB\uF729\uF528\uF733\uECFF\uED61\uE8DD\uE3B9\uEBEC\uEF0D\
 	{
 		IFluentLog log3 = this.Log;
 		defaultInterpolatedStringHandler..ctor(\uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEB29\uEEDD.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BE(47), \uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEB29\uEEDD.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BE(1));
-		defaultInterpolatedStringHandler.AppendLiteral(\uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEEDC.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BA(10009));
+		defaultInterpolatedStringHandler.AppendLiteral(\uF744\uE158\uE9D5\uF663\uE9B4\uE5B0\uE89D\uE381\uF018\uE2BD\uEB29\uEEDC.\uE057\uED84\uE170\uF871\uEA8E\uE42A\uECDD\uF1D7\uF489\uEC92\uE642\uF2BA(10009));
 		defaultInterpolatedStringHandler.AppendFormatted<Rectangle>(workingArea);
 		log3.Warn(defaultInterpolatedStringHandler.ToStringAndClear());
 	}
@@ -360,7 +370,8 @@ private void \uF71C\uE8CB\uF729\uF528\uF733\uECFF\uED61\uE8DD\uE3B9\uEBEC\uEF0D\
 }
 ```
 
-And here is the same method (presumably...) in `Security First` mode. The code is not only obfuscated, as in the previous version but also encrypted.
+And here is the same method (presumably...) in `Security First` mode. In this case, the code is not only obfuscated as in the previous example, but also encrypted.
+
 ```csharp
 // Token: 0x06000086 RID: 134 RVA: 0x000049C4 File Offset: 0x00002BC4
 private void \uF5D1\uF8EB\uF0A0\uF126\uE1AD\uE6ED\uE599\uE94C\uE27D\uF25B\uE418\uECFF()

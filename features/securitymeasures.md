@@ -1,34 +1,35 @@
 ---
-title: Anti-detection
-description: 
+title: Detection Evasion
+description: Methods and guidance for avoiding detection
 published: true
-date: 2024-05-14T11:16:55.906Z
-tags: 
+date: 2025-03-12T23:19:10.881Z
+tags: безопасность, защита, программирование, ai-translated
 editor: markdown
 dateCreated: 2022-12-20T17:27:54.469Z
 ---
+Because the program may be blocked by some anti-cheat systems (for example, Active Anticheat in Lineage 2), EyeAuras includes built-in tools to help reduce the risk of detection.
 
-Considering the fact that program could be a subject to block for some anti-cheating systems (e.g. for Lineage 2 it is Active Anticheat), there are some built-in tools to avoid detection. 
+**IMPORTANT! EyeAuras must be started BEFORE launching your game.**
 
-**IMPORTANT! EyeAuras must be launched PRIOR to start of your game.** 
+## No injection
 
-## No injection!
+Everything the app does, it does without modifying the game or its files. This means that any active protection system that periodically checks for installed hooks and similar changes will not find anything there.
 
-Everything that application does it does without altering game or its files. This ensures that any active kind of protection which periodically checks for installed hooks and such will show nothing. The only way to detect the app is by finding it in the system and counter-measures against it are constantly improving.
+The only way to detect the app is to find it on the system itself, and protection against that is being continuously improved.
 
-## Container encryption - first layer of protection
+## Container encryption — first layer of protection
 
-Application is packed into a single encrypted executable, which lacks any signatures and all the files that are needed for app to work are packed right into the app itself.
+The application is packaged as a single encrypted executable with no signatures, and all files required for its operation are embedded directly into the application itself.
 
-## Modules encryption - second layer of protection
+## Module encryption — second layer of protection
 
-Each and every operation that the app can do is shipped as a separate “module” - computer-vision, input simulation, communications, all of these are packed into separate libraries each of which has unique signature every new version.
+Every operation the app can perform is implemented as a separate “module” — computer vision, input emulation, communication, and so on. These are packed into separate libraries, each with a unique signature for every new version.
 
 ## "Security Measures" option
 
-This option sits in app Settings and enables few additional steps that try to protect the program from detection. Application start-up time will increase, in some cases it may take for up to 1 extra minute. 
+This option is available in the application settings and enables several additional steps intended to protect the program from detection. Startup time will increase, and in some cases this may add up to 1 extra minute.
 
 ## Additional tips
 
--   The safest way to bot is using multiple PCs and streaming - that way EyeAuras is never running on the same PC where a game resides, making detection practically impossible, especially if you'll do some extra steps such as pick hardware input emulator (KMBox or Usb2Kbd)
--   If possible, prefer to use [packed](https://wiki.eyeauras.net/en/changelogs/6736) version of scripts. This is the new development and is still at early stages, but by packing auras and scripts, we can make detection extremely hard.
+- The safest way to use any bot is with multiple PCs and streaming. In that setup, EyeAuras never runs on the same PC as the game, which makes detection nearly impossible, especially if you also take extra steps such as choosing a hardware input emulation device (KMBox or Usb2Kbd).
+- Whenever possible, prefer the [packed](https://wiki.eyeauras.net/en/changelogs/6736) version of scripts. By packing auras and scripts, we can make detection extremely difficult.

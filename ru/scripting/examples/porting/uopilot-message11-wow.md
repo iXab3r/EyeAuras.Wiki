@@ -1,16 +1,12 @@
 ---
-title: Порт с UOPilot #2 - WoW
-description: 
+title: UOPilot #2 — WoW
+description: Второй материал по UOPilot для WoW.
 published: true
-date: 2025-03-23T15:59:09.828Z
-tags: 
+date: 2025-03-23T22:15:13.718Z
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-03-23T15:59:09.828Z
 ---
-
-# Что это ?
-Пример скрипта на UO Pilot и как его практически полный эквивалент может выглядеть в EyeAuras - я старался делать минимум изменений, чтобы было понятно что во что превратилось.
-
 # UO Pilot
 
 ```js
@@ -252,7 +248,8 @@ if #login > 3 or #disc > 10 or #world1 > 90
 end_if
 ```
 
-# EyeAuras C# Script
+# Скрипт EyeAuras на C#
+
 ```csharp
 ISendInputScriptingApi SendInput { get; init; }
 

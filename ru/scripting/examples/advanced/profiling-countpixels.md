@@ -1,28 +1,31 @@
 ---
 title: Профилирование CV API CountPixels
-description: замеряем производительность
+description: 
 published: true
-date: 2025-03-23T17:11:21.975Z
-tags: 
+date: 2025-03-23T22:03:55.335Z
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-03-23T17:08:22.651Z
 ---
+# Что именно мы сравниваем?
 
-# Что будем сравнивать?
-Два метода подсчета пикселей определенного цвета. Оба метода описаны прямо в теле скрипта и работают с BGR (blue-green-red) картинкой.
+Мы сравниваем два способа подсчёта пикселей заданного цвета. Оба метода определены прямо в скрипте и работают с изображениями в формате BGR (blue-green-red).
 
-## CountPixelsNaive
-Использует `Image<Bgr, byte>` `GetPixel(x,y)`, который под капотом использует `CvInvoke.cvGet2D`
+## `CountPixelsNaive`
 
-## CountPixelsNaiveMem
-Использует чтение из памяти напрямую
+Этот метод использует `Image<Bgr, byte>` и вызов `GetPixel(x, y)`, который внутри опирается на `CvInvoke.cvGet2D`.
 
-Алгоритм сравнения одинаковый - просчитываем "расстояние" между цветами, попиксельно. 
+## `CountPixelsNaiveMem`
 
-# Давайте сразу глянем на результаты
-Как видно, метод с чтением памяти(**163.31ms**) более чем **В ДВА РАЗА** быстрее, чем `CvInvoke.cvGet2D`(**397.3ms**) и эта разница будет только увеличиваться с увеличением размера полотна. При этом код не значительно сложнее - потребовалось всего лишь объявить дополнительную структуру `BgrByteColor`, описывающую цвет, в остальном код почти такой же. 
+Этот метод читает данные напрямую из памяти.
 
+В обоих случаях используется одна и та же логика: для каждого пикселя вычисляется «расстояние» между цветами.
 
+# Сразу к результатам
+
+Как видно, метод с чтением из памяти (**163.31ms**) работает более чем **в 2 раза** быстрее, чем `CvInvoke.cvGet2D` (**397.3ms**). И с увеличением размера изображения этот разрыв будет только расти.
+
+При этом сам код не становится заметно сложнее: основное изменение — добавление вспомогательной структуры `BgrByteColor` для представления цвета. Вся остальная логика остаётся почти такой же.
 
 ```bash
 DESKTOP-PK81KT3 at 3/23/2025 4:54:39 PM
@@ -38,11 +41,13 @@ Test1\FindColor CV Profiler 0ms
 >> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Refresh 163.31ms
 ```
 
-## А можно ли быстрее? 
-Однозначно можно - в процессоре есть огромное количество полезных инструкций, которые можно использовать для блочных операций (а у нас как раз такая). 
-Еще один способ - делать этот же расчет на GPU, однако там начинаются неочевидные моменты, к примеру, картинку нужно сначала скопировать в GPU, а это тоже занимает время, так что нужно проводить измерения. А еще есть всякие полезные технологии, которые мы могли бы использовать, но эта тема сама по себе повод для отдельной статьи.
+## Можно ли сделать ещё быстрее?
 
-# Пример
+Да. Современные CPU поддерживают множество полезных инструкций для эффективной работы с блоками данных — а это как раз наш случай. Ещё один вариант — перенести вычисления на GPU, но здесь появляются дополнительные нюансы. Например, передача изображения на GPU тоже занимает время, поэтому без замеров производительности не обойтись.
+
+Кроме того, существует много других техник оптимизации, но это уже тема для отдельной статьи.
+
+# Пример кода
 
 ```csharp
 using Emgu.CV;
@@ -52,7 +57,7 @@ using StackExchange.Profiling;
 
 var targetWindow = GetService<IWindowSelector>().GetWindow("Aim Trainer");
 
-//this API is used to do Computer Vision stuff (image/text/color/ml search)
+// This API is used to perform Computer Vision operations (image/text/color/ML search)
 var cv = GetService<IComputerVisionExperimentalScriptingApi>()
     .ForWindow(targetWindow)
     .EnableProfiling();
@@ -60,33 +65,30 @@ var cv = GetService<IComputerVisionExperimentalScriptingApi>()
 var targetColor = Color.FromArgb(255, 88, 35);
 var bgrTargetColor = new Bgr(targetColor.B, targetColor.G, targetColor.R);
 
-//first call will ALWAYS be a bit slower
+// The first call is ALWAYS slower due to initialization
 cv.ProcessPixels(img =>
 {
-
-    Log.Info($"Initialization pass");
+    Log.Info("Initialization pass");
 });
 
 cv.ProcessPixels(img =>
 {
-
     Log.Info($"Processing image via Naive method: {img.Size}");
     var countPixels = CountPixelsNaive(img, bgrTargetColor, 100);
 });
 
 cv.ProcessPixels(img =>
 {
-
     Log.Info($"Processing image via Naive Mem method: {img.Size}");
     var countPixels = CountPixelsNaiveMem(img, bgrTargetColor, 100);
 });
 
 Log.Info($"Results:\n{cv.Profiler.RenderPlainText()}");
 
-
+// Naive Method
 static int CountPixelsNaive(Image<Bgr, byte> image, Bgr color, Percentage similarity)
 {
-    var tolerance = (1 - similarity.ToDecimal()) * 255.0; // Convert percentage similarity to intensity threshold
+    var tolerance = (1 - similarity.ToDecimal()) * 255.0;
     var count = 0;
 
     for (var y = 0; y < image.Height; y++)
@@ -104,9 +106,10 @@ static int CountPixelsNaive(Image<Bgr, byte> image, Bgr color, Percentage simila
     return count;
 }
 
+// Memory-Based Method
 static int CountPixelsNaiveMem(Image<Bgr, byte> image, Bgr color, Percentage similarity)
 {
-    var tolerance = (1 - similarity.ToDecimal()) * 255.0; // Convert percentage similarity to intensity threshold
+    var tolerance = (1 - similarity.ToDecimal()) * 255.0;
     var memory = image.Mat.AsReadOnlySpan2D<BgrByteColor>();
     var colorAsVector = new BgrByteColor((byte)color.Blue, (byte)color.Green, (byte)color.Red);
 
@@ -126,7 +129,7 @@ static int CountPixelsNaiveMem(Image<Bgr, byte> image, Bgr color, Percentage sim
     return count;
 }
 
-
+// Color Matching Logic
 private static bool IsColorMatch(Bgr pixel, Bgr targetColor, double tolerance)
 {
     double distance = Math.Sqrt(
@@ -147,6 +150,7 @@ private static bool IsColorMatch(BgrByteColor pixel, BgrByteColor targetColor, d
     return distance <= tolerance;
 }
 
+// BgrByteColor Struct
 private readonly record struct BgrByteColor
 {
     public BgrByteColor(byte blue, byte green, byte red)
