@@ -2,10 +2,10 @@
 title: AI Writing Style State
 description: Internal style snapshot for AI-assisted documentation work in EyeAuras.Wiki
 published: false
-date: 2026-03-31T00:35:00.000Z
+date: 2026-04-02T18:18:26.815Z
 tags: internal, style, translation
 editor: markdown
-dateCreated: 2026-03-31T00:35:00.000Z
+dateCreated: 2026-04-02T10:32:07.901Z
 ---
 
 # AI Writing Style State
