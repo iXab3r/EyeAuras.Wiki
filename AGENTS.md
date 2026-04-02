@@ -153,6 +153,9 @@ When working on changelogs:
 
 - Prefer updating or creating **both** language versions together.
 - Keep the build number the same in both files.
+- In changelog frontmatter, `title` must be **only** the full version string, for example `1.6.8123`.
+- Do **not** prefix changelog `title` with localized or descriptive labels such as `Version`, `Release`, `Patch`, `Changelog`, `Версия`, `Патч`, `Обновление`, or `Сборка`.
+- Do **not** translate or localize changelog `title` between EN and RU. The `title` should stay identical in both languages because it is just the version number.
 - Focus on user-facing changes, not raw commit noise.
 - Keep the format concise unless the release is clearly a larger milestone.
 
