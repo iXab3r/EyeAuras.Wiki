@@ -111,6 +111,7 @@ dateCreated: 2026-03-31T00:00:00.000Z
 Rules:
 
 - Keep frontmatter present on normal wiki pages and changelogs.
+- In frontmatter/header values, do **not** use `:` inside the value text because it breaks parsing. Rephrase the value instead.
 - Do not omit the `tags:` field.
 - For new files, prefer adding meaningful tags when the expected format is clear from nearby files.
 - Preserve existing metadata unless there is a good reason to update it.
