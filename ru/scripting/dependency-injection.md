@@ -22,17 +22,22 @@ dateCreated: 2025-03-23T11:44:34.759Z
 
 ## Способы получения сервисов через DI
 
-### 1. `init`-свойства (рекомендуется)
+### 1. `[Inject]` + `init` (рекомендуется)
 
-Использование свойств с `init` — простой и безопасный способ получить зависимости. Такие свойства инициализируются **один раз при запуске скрипта** и не могут быть изменены позже.
+Использование `init`-свойств с атрибутом `[Inject]` — простой и безопасный способ получить зависимости. Такие свойства инициализируются **один раз при запуске скрипта** и не могут быть изменены позже.
 
 Пример:
 ```csharp
-ISendInputScriptingApi SendInput { get; init; } // Automatically initialized when the script starts
+[Inject] public ISendInputScriptingApi SendInput { get; init; }
 
-SendInput.MouseMoveTo(200, 100); // Moves the mouse to X200 Y100
-SendInput.MouseRightClick(); // Performs a right mouse click
+SendInput.MouseMoveTo(200, 100);
+SendInput.MouseRightClick();
 ```
+
+Здесь важно вот что:
+
+- `init` означает "свойство можно заполнить только при инициализации"
+- `[Inject]` говорит EyeAuras, что это свойство нужно заполнить через DI
 
 ---
 
@@ -42,10 +47,10 @@ SendInput.MouseRightClick(); // Performs a right mouse click
 
 Пример:
 ```csharp
-[Dependency] ISendInputScriptingApi SendInput { get; set; }
+[Dependency] public ISendInputScriptingApi SendInput { get; set; }
 
-SendInput.MouseMoveTo(200, 100); // Moves the mouse to X200 Y100
-SendInput.MouseRightClick(); // Performs a right mouse click
+SendInput.MouseMoveTo(200, 100);
+SendInput.MouseRightClick();
 ```
 
 Когда стоит использовать `Dependency`?
@@ -61,15 +66,15 @@ SendInput.MouseRightClick(); // Performs a right mouse click
 Пример для управления мышью:
 ```csharp
 var sendInput = GetService<ISendInputScriptingApi>();
-sendInput.MouseMoveTo(200, 100); // Moves the mouse to X200 Y100
-sendInput.MouseRightClick(); // Performs a right mouse click
+sendInput.MouseMoveTo(200, 100);
+sendInput.MouseRightClick();
 ```
 
 Пример для воспроизведения звуков:
 ```csharp
-using PoeShared.Audio.Services; // Don't forget to include the namespace
+using PoeShared.Audio.Services;
 var sound = GetService<IPlaySoundScriptingApi>();
-sound.PlaySound(AudioNotificationType.Minions); // Plays a sound
+sound.PlaySound(AudioNotificationType.Minions);
 ```
 
 Когда стоит использовать `GetService`?
@@ -80,6 +85,13 @@ sound.PlaySound(AudioNotificationType.Minions); // Plays a sound
 
 ## Какой способ выбрать?
 
--  Используйте `init`-свойства, если нужен самый простой способ получить доступ к сервисам.
+-  Используйте `[Inject]` + `init`, если нужен самый простой способ получить доступ к сервисам и вы не планируете менять свойство позже.
 -  Используйте `[Dependency]`, если хотите иметь возможность менять сервисы во время работы скрипта.
 -  Используйте `GetService`, если сервис нужен временно или может динамически меняться.
+
+Если речь уже не про получение существующего сервиса, а про регистрацию **своих** сервисов и библиотек, смотрите отдельную статью: [Script Container Extensions](/ru/scripting/script-container-extensions).
+
+Примеры:
+
+- [Отслеживание мыши с overlay](/ru/scripting/examples/basic/mouse-track-with-overlay)
+- [Печать переменных прямо на экране](/ru/scripting/examples/basic/print-variables-on-screen)
