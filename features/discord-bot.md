@@ -1,6 +1,6 @@
 ---
 title: Discord Bot
-description: How to use the EyeAuras Bot in Discord: DMs, channel mentions, privacy, and limitations
+description: How to use the EyeAuras Bot in Discord DMs, channel mentions, privacy, and limitations
 published: true
 date: 2026-04-04T00:00:00.000Z
 tags: discord, bot, ai, support, ai-translated
