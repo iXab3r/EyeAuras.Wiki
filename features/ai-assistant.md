@@ -1,359 +1,316 @@
 ---
-title: 🤖 AI Assistant
-description: Built-in AI chat in EyeAuras, OpenAI and OpenAI-compatible profiles, docs search, and EyeAuras Gateway
+title: AI Assistant
+description: Built-in AI chat in EyeAuras with OpenAI/OpenAI-compatible profiles, EyeAuras Gateway, and help with documentation and scripts
 published: true
-date: 2026-03-29T00:00:00.000Z
-tags: 
+date: 2026-04-04T00:00:00.000Z
+tags: ai, assistant, gateway, ai-translated
 editor: markdown
 dateCreated: 2026-03-29T00:00:00.000Z
 ---
-
-> Early alpha feature. It is already usable, but the UI, EyeAuras Gateway access, and the plugin set will continue to evolve.
+> Early alpha feature. It is already usable, but the interface, gateway flows, and some AI capabilities are still changing actively.
 {.is-warning}
 
-# What is it
-EyeAuras now includes a built-in **AI Assistant**.
+# What this is
+EyeAuras has a built-in **AI Assistant** — a separate `AI` tab right inside the app.
 
-It is a dedicated tab inside the app where you can:
+At this point, it is no longer just “a chat with a model.” The assistant can use the wiki as context, understands EyeAuras itself much better, and is increasingly useful for questions about scripts, the API, and configuration.
 
-- ask questions about EyeAuras itself
-- search through the documentation
-- later get help with scripts, auras, and automation directly inside the app
+The better the wiki gets, the smarter the built-in AI becomes. In other words, the documentation and the AI are evolving together.
 
-The core idea is simple: AI should not live in some separate browser tab. It should live inside EyeAuras itself.
+![AI Tab](https://s3.eyeauras.net/media/2026/04/EyeAuras_vuJB3YPFza.png)
 
-![AI Chat Panel](https://s3.eyeauras.net/media/2026/03/EyeAuras_DzRWqPXjls.png)
+## What is already especially useful
+- ask questions about EyeAuras itself and quickly figure out where a specific setting lives
+- find the right wiki article or section for a specific topic
+- get more practical help with EyeAuras scripts and API usage
+- switch between different AI profiles for different scenarios
+- use either your own key or `EyeAuras Gateway`
 
-# What it can already do
-Right now the most useful and practical scenario is **asking questions about EyeAuras documentation**.
+If you want to try it on something practical right away, these are good starter questions:
 
-For example, you can ask:
+- `How do I get the coordinates of a detected image?`
+- `What is the best way to send keys from a script?`
+- `How should I store an API key for an AI profile in EyeAuras?`
+- `Where can I read about best practices for Script.csx?`
 
-- how to do something in EyeAuras
-- where a certain setting is located
-- how a specific feature works
-- which approach makes more sense for your task: auras, macros, behavior trees, or scripts
+I also strongly recommend this newer article:
+- [FAQ and best practices for EyeAuras scripts](/scripting/best-practices)
 
-If the docs knowledge base is enabled, the AI will try to answer using the wiki and show where the information came from.
-
-![AI Chat Example](https://s3.eyeauras.net/media/2026/03/EyeAuras_xKafNwKD2V.png)
-
-## Good first questions
-If you just want to try it, these are good first prompts:
-
-- `How do I make an aura that searches for an image on screen?`
-- `How do I get the coordinates of the found image?`
-- `How do I package my project into a pack?`
-- `What is EyePad and how is it different from the normal mode?`
-- `How do I use sublicenses for my mini-app?`
-
-The more specific the question is, the more useful the answer usually becomes.
-
-# How to start
+# Getting started
 ## 1. Open the `AI` tab
-In the new EyeAuras interface there is now a dedicated `AI` tab.
+In the new EyeAuras UI, there is a dedicated tab for it.
 
-## 2. Select a profile
-A profile is just a set of settings that tells EyeAuras:
+## 2. Choose a profile
+A profile defines how EyeAuras will talk to the model:
 
-- which AI provider to use
+- which provider to use
+- which endpoint to use
 - which model to use
-- which endpoint to call
-- where the key should come from
+- where to get the key or token from
 
-## 3. Make sure it says `Key Available`
-If the profile is configured correctly, you should see a green `Key Available` status on the right.
+In newer builds, there is usually already a regular `OpenAI` profile and an EyeAuras gateway profile.
 
-If it says `Unavailable`, EyeAuras could not resolve the key yet or the profile is not fully configured.
+## 3. Check the `Key Available` status
+If the profile is configured correctly, you will see a green `Key Available` status on the right.
+
+If it says `Unavailable`, EyeAuras could not get a key or token yet, or the profile is not filled out completely.
 
 ## 4. Click `Start Session`
-That starts the AI chat and you can begin asking questions.
+This opens the AI chat, and you can start asking questions.
+
+## 5. If needed, open `Show Settings`
+This is where the more technical options live: docs knowledge base, local docs cache, MCP, browser automation, and so on.
 
 # AI profiles
-All connection settings are grouped under `Manage Profiles`.
+All connection settings are grouped in the `Manage Profiles` window.
 
-You can create multiple profiles for different use cases. For example:
+This is the best place to:
 
-- one for OpenAI
-- one for local Ollama
-- one for EyeAuras Gateway
-
-That makes it easy to switch between them directly from the AI tab.
-
-![AI Profiles - OpenAI](https://s3.eyeauras.net/media/2026/03/EyeAuras_ZwkvBDfsZA.png)
+- create a new profile
+- switch between `OpenAI`, `EyeAuras Gateway`, `Ollama`, and other OpenAI-compatible endpoints
+- change the model, endpoint, and key storage method
 
 ## The simplest setup options
-These are the three main setups that are worth knowing for normal users right now.
-
 ### 1. Direct API key
-This is the most straightforward option.
-
-You paste the key directly into the `API Key` field and EyeAuras uses it as-is.
+The most straightforward option is to paste the key directly into `API Key`.
 
 Pros:
 
-- fully transparent
-- you are in direct control of your budget
-- nothing extra is required on the EyeAuras side
+- everything is fully transparent
+- you stay in full control of your budget
+- it does not depend on EyeAuras infrastructure
 
 Cons:
 
-- the key lives directly in the profile
-- in most cases, using an environment variable is cleaner
+- the secret is stored directly in the profile
+- for long-term use, an environment variable is usually more convenient
 
-### 2. API key through an environment variable
-This is the recommended option if you already have your own OpenAI key.
+### 2. Key via environment variable
+This is usually the best option if you already have your own OpenAI key.
 
-Instead of putting the raw key into the profile, you reference an environment variable such as:
+Example:
 
 ```text
 %OPENAI_API_KEY%
 ```
 
-EyeAuras will resolve the key from there.
-
 Pros:
 
-- the raw key is not stored directly in the profile
-- one key can be reused across multiple profiles
-- it is usually the cleanest setup
+- the key is not stored in plain form inside the profile
+- it is easier to reuse the same key
+- it is easier to maintain multiple profiles
 
-### 3. EyeAuras Token through EyeAuras Gateway
-This is a separate option for people who do not want to deal with a direct OpenAI key or who want to use the EyeAuras-side infrastructure.
+### 3. `EyeAuras Gateway`
+This is a separate option for users who want to try AI through EyeAuras infrastructure without setting up their own OpenAI account directly.
 
-At the moment the setup looks like this:
+Right now, this is the closest thing to “free AI” inside EyeAuras, and the current testing phase is already open to anyone interested.
 
-- put `%EYEAURAS_TOKEN%` into `API Key`
+To join the current alpha, just message **Xab3r** in Discord DMs.
+
+If you want to configure the profile manually, the basic setup is:
+
+- set `API Key` to `%EYEAURAS_TOKEN%`
 - set `Endpoint` to `https://eu.openai.eyeauras.net`
 
-Example:
+In newer builds, the gateway profile is usually created by default, so in most cases you do not need to configure anything manually.
 
-![AI Profiles - EyeAuras Gateway](https://s3.eyeauras.net/media/2026/03/EyeAuras_ZvwDEL4jNj.png)
+![EyeAuras Gateway Profile](https://s3.eyeauras.net/media/2026/04/EyeAuras_eSthNpc63A.png)
 
-Important:
+A few things are important to understand right away:
 
-- this access is currently available only **selectively**
-- to get it enabled, you need to contact **Xab3r**
-- after alpha, this route will become available to everyone
-- that is also when free limits will appear
-- the exact limit values still need to be tuned over time
+- the gateway is still evolving
+- work is in progress to provide free limits to all EyeAuras users
+- later, if you want more limits, you will be able to top them up through the website
+- at the same time, the option to use a normal OpenAI endpoint with **your own key** is not going anywhere
 
-One more important point: this is an **option**, not the main or required setup.
+That is an important part of the overall idea.
 
-If you prefer to fully control costs yourself, you can always use **your own API key** and keep the budget in your own hands.
+`EyeAuras Gateway` is not meant to replace your own OpenAI key, and it is not a way to force everyone into a single setup. Its main purpose is convenience, an easier starting point, and solving OpenAI access issues for users in Russia.
 
-Also note that the current gateway endpoint is temporary. The address will change later and the setup is expected to become simpler.
+Here is what chat through the gateway looks like inside EyeAuras:
 
-## OpenAI-compatible endpoints and local Ollama
-Besides OpenAI, EyeAuras can also work with OpenAI-compatible APIs.
+![EyeAuras Gateway Chat](https://s3.eyeauras.net/media/2026/04/EyeAuras_SD8w4Ut06Q.png)
 
-The most obvious example is local `Ollama`.
+## OpenAI-compatible APIs and local Ollama
+In addition to OpenAI, EyeAuras can also work with OpenAI-compatible APIs.
+
+The clearest example is local `Ollama`.
 
 A typical setup looks like this:
 
 - `Endpoint`: `http://localhost:11434/v1`
 - `Model Id`: for example `llama3`
-- `API Key`: not required
+- `API Key`: usually not required
 
-This is useful if you want to:
+This is convenient if you want to:
 
 - run a model locally on your own machine
 - avoid depending on an external API
-- experiment without separate cloud costs
-
-If a profile is configured for `Ollama`, EyeAuras does not require an API key and simply talks to the configured endpoint.
-
-# Why EyeAuras Gateway exists
-At first glance it might seem easier to always use your own OpenAI key. In many cases, that is absolutely true.
-
-But EyeAuras Gateway exists for a few reasons:
-
-- to provide a simpler entry point for people who only use AI occasionally and do not want to deal with a separate OpenAI account right away
-- to make AI access easier in places where direct OpenAI usage may be inconvenient because of network restrictions
-- in the future, to allow topping up an EyeAuras balance instead of setting up separate billing on the OpenAI side
-
-This part is still under construction, but that is the overall idea: make AI inside EyeAuras easier and closer to normal users.
+- experiment freely
 
 # What the profile settings mean
-Here is the short version of the profile fields in `Manage Profiles`.
+Below is a quick explanation of the main fields in `Manage Profiles`.
 
 ## `Name`
-This is just the label shown in the profile list.
+The profile name shown in the list.
 
-It is best to use short, clear names such as:
+It is best to use clear names, for example:
 
 - `OpenAI gpt-5.4`
-- `OpenAI cheap`
 - `Gateway`
 - `Ollama local`
 
 ## `API Key`
-This is the secret source the profile should use.
+The source of the secret or token.
 
-It can be:
+This can be:
 
-- a raw key
-- an environment-variable reference such as `%OPENAI_API_KEY%`
-- `%EYEAURAS_TOKEN%` for the EyeAuras Gateway scenario
+- the key itself
+- an environment variable, for example `%OPENAI_API_KEY%`
+- `%EYEAURAS_TOKEN%` for the `EyeAuras Gateway` scenario
 
 ## `Endpoint`
-This is the API address.
+The API address.
 
-You usually do **not** need to touch it for standard OpenAI usage.
-
-But it matters for setups such as:
+For standard OpenAI, it is usually best not to change it. But it is required for:
 
 - EyeAuras Gateway
 - Ollama
-- your own proxy
+- self-hosted proxy
 - any other OpenAI-compatible endpoint
 
 ## `Model Id`
-This is the actual model id, for example `gpt-5.4`, `gpt-5.4-nano`, or `llama3`.
+The model identifier, for example `gpt-5.4`, `gpt-5.4-mini`, or `llama3`.
 
-If you are not sure, leave the recommended template value.
+If you are not sure, it is best to keep the recommended value from the template.
 
 ## `API Type`
-This defines which API shape EyeAuras will use for requests.
+Defines which API EyeAuras will use to send requests.
 
-For most users, the best move is to keep the template default.
+The simplest way to think about it is:
 
-The simple mental model is:
-
-- `Responses` - the newer option
-- `ChatCompletions` - the compatibility mode
+- `Responses` — the more modern option
+- `ChatCompletions` — compatibility mode
 
 ## `Reasoning Effort`
-This controls how much deliberate reasoning the model should spend before answering.
+Controls how deeply the model will “think” before answering.
 
-Very roughly:
-
-- less reasoning = faster and cheaper
-- more reasoning = potentially smarter, but slower and more expensive
-
-If you do not want to think about it, just keep the template default.
+If you do not want to dig into it, just keep the default template value.
 
 ## `Max Context Tokens`
-This is a technical field used for local context-size monitoring.
+A technical field for local control over context size.
 
-Most users can safely ignore it.
+Most users can leave this alone.
 
 ## `Function Calling`
-This allows the model to use built-in EyeAuras tools and plugins.
+Allows the model to use EyeAuras built-in tools.
 
-In most cases it should stay enabled, because that is how the AI gets access to the docs and other future capabilities.
+In most cases, it is best to leave this enabled, because this is how the AI gets access to docs, session memory, and other useful capabilities.
 
 ## `Key Available`
-This is the quick status that tells you whether the profile is ready.
+A quick indicator that the profile is ready to use.
 
-If it is green, EyeAuras was able to resolve the key or confirm that the endpoint-based profile is usable.
+If the status is red, the cause is usually one of these:
 
-If it is red, check:
+- the environment variable name is incorrect
+- there is no available token yet for `%EYEAURAS_TOKEN%`
+- the endpoint for `Ollama` or the gateway was not set
 
-- whether the environment variable name is correct
-- whether an EyeAuras account token is currently available
-- whether the endpoint is set correctly for Ollama or Gateway
+# The `Show Settings` window
+This is what the AI settings window currently looks like:
 
-# What is already working today
-## 1. Docs search
-Right now this is the main practical mode.
+![AI Settings](https://s3.eyeauras.net/media/2026/04/EyeAuras_rFFX1fryIO.png)
 
-EyeAuras can download and index the documentation, then use it as a local knowledge base for answers.
+This is where the more technical options live:
 
-That makes the AI especially useful when you want to quickly understand:
+- `Docs Knowledge Base` — enables the local wiki knowledge base
+- `Artifact Store` — allows the AI to save artifacts if the backend supports it
+- `Docs Repository` — the git repository used to pull the wiki
+- `Docs Path` — local path for the docs cache
+- `MCP Port` — port for the local MCP server
+- `Enable MCP On Startup` — automatically start MCP after the app launches
+- `Enable Browser Automation` — enables the browser automation layer for AI tools
+- `Browser Debug Port` — browser debug port for automation scenarios
 
-- how a feature works
-- where to find the right article
-- which approach fits your task better
+For the usual “ask a question about EyeAuras” use case, you normally do not need to configure any of this.
 
-## 2. Basic in-app AI chat
-The AI already runs directly inside EyeAuras, not just as some separate experiment.
+The most practical things to know:
 
-That means the in-app AI foundation is already there:
+- `Docs Knowledge Base` is best left enabled
+- `Browser Automation` requires an app restart after saving
+- `Docs Path` only matters if you intentionally want to move the local docs cache
 
-- the tab
-- the profiles
-- session startup
-- the chat itself
-- the plugin surface
+# What already works well
+## 1. Questions about the documentation
+This is still the most useful mode.
 
-The next steps build on top of that.
+If the question can be grounded in the wiki, the built-in AI usually answers better and with more confidence.
 
-## 3. Scripting plugin - coming soon
-The plugin that will help with **writing scripts** directly from inside EyeAuras is currently in **closed testing**.
+## 2. Scripting help has become much more useful
+The assistant now understands EyeAuras-specific context much better instead of only giving generic “C# advice.”
 
-Timeline:
+That is why these are especially helpful right now:
 
-- `Coming Soon`
-- planned for **early April 2026**
+- EyeAuras API articles
+- examples from the scripting section
+- [FAQ and best practices](/scripting/best-practices)
 
-That is expected to be the next major step after the current docs-focused mode.
+## 3. There is already a proper in-app chat
+There is now a full working layer inside the program:
 
-## 4. Other plugins already exist, but are not finished yet
-The system is already moving toward deeper plugins, including automating EyeAuras itself.
+- `AI` tab
+- profiles
+- endpoint switching
+- session start
+- tools / function calling
+- docs knowledge base
 
-In other words, the direction is gradually shifting from:
+## 4. `EyeAuras Bot` in Discord is developing in parallel
+If you want similar help not inside the app but directly in Discord, there is now a separate public alpha:
 
-- `answer my question from the docs`
+- [EyeAuras Bot in Discord](/features/discord-bot)
 
-toward:
-
-- `help me actually do this inside EyeAuras`
-
-And this is not only about the main app. The same layer will also be available to **mini-app authors**, which means it will become possible to build products where AI is already included by default with relatively little extra work.
-
-# Advanced note
-If you are a normal user, you can safely skip this section.
-
-This is what the advanced AI settings currently look like:
-
-![AI Settings](https://s3.eyeauras.net/media/2026/03/EyeAuras_XRmnapQKHp.png)
-
-These extra options are available there:
-
-- `Docs Knowledge Base` - enables local documentation search
-- `Docs Repository` - where the wiki repository should be pulled from
-- `Docs Path` - where the local docs copy should live
-- `Artifact Store` - technical storage used by some AI flows
-- `Enable Browser Automation` - enables the browser automation layer for AI tools
-- `MCP Port` and `Browser Debug Port` - technical ports for integrations and tool surfaces
-
-For the normal "ask EyeAuras something" scenario, you usually do **not** need to touch any of this.
-
-There will be separate detailed documentation for these features later.
+# What to keep in mind for now
+- this is still alpha
+- answer quality depends directly on the quality of the wiki
+- the AI can suggest direction and provide examples, but it does not “verify on your machine” that the code actually ran
+- if your question is too broad, it is better to immediately specify the build, the feature name, and the exact result you want
 
 # FAQ
-## Do I need an OpenAI account
+## Do I need an OpenAI account?
 Not necessarily.
 
-There are three basic options:
+The basic options are:
 
 - use your own OpenAI key
-- use local Ollama
-- use EyeAuras Gateway through Xab3r if you have alpha access to it
+- use local `Ollama`
+- use `EyeAuras Gateway` if you have access to the current alpha
 
-## Do I have to use EyeAuras Gateway
+## Do I have to use `EyeAuras Gateway`?
 No.
 
-It is an extra option, not a required one.
+It is an additional convenience option, not a required workflow.
 
-If you want to keep the budget fully under your own control, use your own key.
+If you want to control costs yourself, use your own key and a regular OpenAI endpoint.
 
-## Why does it say `Unavailable`
-Usually it is one of these:
-
-- EyeAuras could not resolve the key from the referenced environment variable
-- there is no active EyeAuras account token available for `%EYEAURAS_TOKEN%`
-- the `Ollama` endpoint is missing or not reachable
-
-## What is the easiest way to start
+## Where should a normal user start?
 The simplest path is:
 
 - open `Manage Profiles`
-- create an OpenAI profile
-- set `%OPENAI_API_KEY%`
-- pick one of the template models
+- choose the regular `OpenAI` profile or the EyeAuras gateway profile
+- check `Key Available`
 - click `Start Session`
 
-If you do not have your own key but want to try the EyeAuras Gateway route, you can contact [Xab3r](/contacts).
+## Why does it say `Unavailable`?
+Usually the reason is one of these:
 
+- EyeAuras could not find the key in the specified environment variable
+- `%EYEAURAS_TOKEN%` is not available yet
+- the endpoint is incorrect
+- for `Ollama`, the local server is not running
+
+## What to read next
+- [EyeAuras Bot in Discord](/features/discord-bot)
+- [FAQ and best practices for EyeAuras scripts](/scripting/best-practices)
+- [Getting started with scripting](/scripting/getting-started)
+- [Contacts](/contacts)
