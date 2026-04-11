@@ -2,10 +2,10 @@
 title: 🧠 AI Codex Coding Assistant
 description: Что такое встроенный Codex-режим в EyeAuras, чем он отличается от обычного AI Assistant, что такое threads и что он умеет уже сейчас
 published: true
-date: 2026-04-11T00:00:00.000Z
-tags: ai, codex, assistant, scripting, ai-translated
+date: 2026-04-11T14:39:09.378Z
+tags: scripting, ai, ai-translated, assistant, codex
 editor: markdown
-dateCreated: 2026-04-11T00:00:00.000Z
+dateCreated: 2026-04-11T13:45:45.683Z
 ---
 
 > Ранний альфа-функционал. Уже вполне практичный, но runtime, auth-сценарии и часть tooling еще активно дорабатываются. На текущий момент самый надежный путь для `Codex` - `OpenAI`-профиль в режиме `API Key`. Это может быть как прямой `OpenAI`, так и профиль `EyeAuras Gateway / AiGateway`.
@@ -25,7 +25,7 @@ dateCreated: 2026-04-11T00:00:00.000Z
 
 Для простых вопросов по wiki и настройкам обычный `AI Assistant` часто проще, быстрее и дешевле.
 
-![Start Codex Session](https://s3.eyeauras.net/media/2026/04/EyeAuras_TyMJnKr1Rb.png =x600)
+![Start Codex Session](https://s3.eyeauras.net/media/2026/04/EyeAuras_TyMJnKr1Rb.png =x200)
 
 ## Чем он отличается от обычного `AI Assistant`
 - обычный `AI Assistant` лучше подходит для быстрых вопросов, поиска по wiki и общего in-app chat
@@ -96,7 +96,7 @@ dateCreated: 2026-04-11T00:00:00.000Z
 - уровень `reasoning`
 - возможность позже открыть thread снова или отправить его в архив
 
-![Codex Threads](https://s3.eyeauras.net/media/2026/04/EyeAuras_PcLPt8SCFy.png =x600)
+![Codex Threads](https://s3.eyeauras.net/media/2026/04/EyeAuras_PcLPt8SCFy.png =x200)
 
 ## Можно ли держать несколько `threads` одновременно
 Да.
