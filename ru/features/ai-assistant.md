@@ -18,7 +18,11 @@ dateCreated: 2026-03-29T00:00:00.000Z
 
 Чем качественнее становится wiki, тем умнее становится и встроенный AI. Поэтому документация и AI здесь развиваются вместе.
 
-![AI Tab](https://s3.eyeauras.net/media/2026/04/EyeAuras_vuJB3YPFza.png)
+![AI Tab](https://s3.eyeauras.net/media/2026/04/EyeAuras_vuJB3YPFza.png =x600)
+
+Если нужен не просто быстрый чат, а более тяжелый режим именно для coding-задач, теперь есть отдельная статья:
+
+- [AI Codex Coding Assistant](/ru/features/ai-codex-coding-assistant)
 
 ## Что особенно полезно уже сейчас
 - задать вопрос про сам EyeAuras и быстро понять, где искать нужную настройку
@@ -115,7 +119,7 @@ dateCreated: 2026-03-29T00:00:00.000Z
 
 Обычно в новых сборках gateway-профиль уже создается по умолчанию, так что чаще всего руками ничего делать не нужно.
 
-![EyeAuras Gateway Profile](https://s3.eyeauras.net/media/2026/04/EyeAuras_eSthNpc63A.png)
+![EyeAuras Gateway Profile](https://s3.eyeauras.net/media/2026/04/EyeAuras_eSthNpc63A.png =x600)
 
 Важно понимать несколько вещей сразу:
 
@@ -130,7 +134,7 @@ dateCreated: 2026-03-29T00:00:00.000Z
 
 Вот так выглядит чат через gateway внутри EyeAuras:
 
-![EyeAuras Gateway Chat](https://s3.eyeauras.net/media/2026/04/EyeAuras_SD8w4Ut06Q.png)
+![EyeAuras Gateway Chat](https://s3.eyeauras.net/media/2026/04/EyeAuras_SD8w4Ut06Q.png =x600)
 
 ## OpenAI-compatible и локальная Ollama
 Кроме OpenAI, EyeAuras умеет работать и с OpenAI-compatible API.
@@ -220,7 +224,7 @@ dateCreated: 2026-03-29T00:00:00.000Z
 # Окно `Show Settings`
 Вот так сейчас выглядит окно AI-настроек:
 
-![AI Settings](https://s3.eyeauras.net/media/2026/04/EyeAuras_rFFX1fryIO.png)
+![AI Settings](https://s3.eyeauras.net/media/2026/04/EyeAuras_rFFX1fryIO.png =x600)
 
 Здесь лежат уже более технические параметры:
 
@@ -271,6 +275,11 @@ dateCreated: 2026-03-29T00:00:00.000Z
 
 - [EyeAuras Bot в Discord](/ru/features/discord-bot)
 
+## 5. Для сложных technical/coding-задач теперь есть отдельный режим `Codex`
+Если обычный AI-чат нужен как справочник и быстрый помощник, то `Codex` больше заточен под сложные задачи, отдельные `threads` и более глубокую работу с техническим контекстом.
+
+- [AI Codex Coding Assistant](/ru/features/ai-codex-coding-assistant)
+
 # Что пока важно иметь в виду
 - это все еще альфа
 - качество ответов напрямую зависит от качества wiki
@@ -311,6 +320,7 @@ dateCreated: 2026-03-29T00:00:00.000Z
 - для `Ollama` не запущен локальный сервер
 
 ## Что почитать дальше
+- [AI Codex Coding Assistant](/ru/features/ai-codex-coding-assistant)
 - [EyeAuras Bot в Discord](/ru/features/discord-bot)
 - [FAQ и лучшие практики для скриптов EyeAuras](/ru/scripting/best-practices)
 - [С чего начать со scripting](/ru/scripting/getting-started)
