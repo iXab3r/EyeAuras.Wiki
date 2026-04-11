@@ -1,90 +1,132 @@
 ---
-title: ↩ Export / ↪ Import
-description: Transfer, share, or back up EyeAuras packages between different users or devices
+title: Export and Import
+description: How to save, publish, or import a pack in EyeAuras
 published: true
-date: 2025-03-12T23:37:31.169Z
-tags: ауры, экспорт, импорт, обмен, резервное копирование, ai-translated
+date: 2026-04-11T12:00:00.000Z
+tags: ауры, экспорт, импорт, обмен, резервное копирование, ai-translated, паки
 editor: markdown
 dateCreated: 2023-06-18T18:28:27.203Z
 ---
-# Exporting and Importing Auras in EyeAuras
+# Export and Import in EyeAuras
 
-**EyeAuras** provides a convenient way to share auras with other users through **Export** and **Import**. This lets you:
+In simple terms:
 
-- Upload your auras to the EyeAuras server and share them by link.
-- Import auras from a link or from a JSON file.
+- `Export` is used to save your pack locally or publish it with a shareable link.
+- `Import` is used to load a pack from a link or from a file.
 
-This guide explains how it works step by step.
+This is useful for three common tasks:
 
----
+- sharing auras with another person;
+- moving them to another PC;
+- creating a backup.
 
-## Exporting auras
+> Important: a link to a published pack is usually public. Do not include passwords, tokens, or any other secrets in it.
 
-To export an aura:
+## Export
 
-1. Select the aura in the **AuraTree**.
-2. Click **"Share"** in the top-right corner of the EyeAuras window, or use the **Ctrl + S** hotkey.
-3. The **"Export Aura"** window will open.
+To open the export window, select an aura or folder in the tree and click `Share` in the top-right corner of EyeAuras. Quick shortcut: `Ctrl + S`.
 
-In this window, you can:
+### Publish a new pack
 
-- Upload the aura to the EyeAuras server.
-- Get a unique sharing link. For example: [This link](https://eyeauras.net/share/S20230604122817NvnkCMZ1X2qJ).
+If the link field is empty, EyeAuras will create a new pack.
 
-**Important:** The link is public, so avoid exporting sensitive data such as passwords.
+On the `Overview` tab, you can set:
 
-> If you want to update an existing aura, you can specify its ID during export. This will replace the old version with the new one.
+- the pack name;
+- the description;
+- the description in Markdown format.
 
-![Export UI](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_LBifIfafcoLZOGKi.gif)
+![Editing the pack name and description](https://s3.eyeauras.net/media/2026/04/EyeAuras_0eqyEd4cQl.png =x600)
 
----
+The `Pack Options` tab contains settings for the pack itself: compatibility, distribution policy, script packaging mode, and other parameters. A more detailed explanation of these settings is available in the [Packs](/features/packs) article.
 
-## Importing auras
+![Editing pack settings during export](https://s3.eyeauras.net/media/2026/04/EyeAuras_6Ib89kDGV9.png =x600)
 
-To import an aura:
+After publishing, EyeAuras will give you a link that you can send to someone else.
 
-1. Click the **"Import"** button on the toolbar on the left side of the **EyeAuras** window.
-2. In the window that opens, the app will automatically try to parse the contents of your clipboard.
-3. You can also paste JSON or an aura link manually.
+### Update an already published pack
 
-> EyeAuras will automatically detect the data format and offer the appropriate import option.
+If you paste a link to an existing pack into the `Destination` field, EyeAuras switches to update mode.
 
----
+In this mode, the app:
 
-## Managing aura IDs
+- loads information about the pack;
+- shows its owner;
+- lets you update the pack with a new revision.
 
-Each aura has its own **unique identifier** (ID). If an ID conflict is detected during import, for example if you already have an aura with the same ID, the app will offer two options:
+Only the owner can update a pack. If the pack belongs to another user, EyeAuras will show that and will not let you change metadata or click `Update`.
 
-- **Replace:** The new aura will replace the old one.
-- **Change identifier:** The app will assign a new ID to the imported aura and automatically update all internal references so everything continues working correctly.
+![Updating an existing pack and checking ownership](https://s3.eyeauras.net/media/2026/04/EyeAuras_2ayTMoUOpH.png =x600)
 
----
+### Save without publishing
 
-## FAQ
+If you do not want to upload the pack to the website, use `Local export`.
 
-**How many auras can I export in one package?**
-- Unregistered users can upload up to **5 MB** of data, while registered users can upload up to **100 MB**.
+- `Save to file...` saves a local JSON file.
+- `Copy JSON` copies the same JSON to the clipboard.
 
-**Can I protect my package with a password?**
-- Yes. The "Private Auras" feature lets you restrict access with a password. However, the safest option is to use scripts, since they have [their own protection](/features/script-protection) at a much higher level than regular auras.
+This is convenient for backups, sending through a messenger, or moving data between your own devices.
 
-**What happens if I update an aura with the same identifier?**
-- The old version will be replaced with the new one.
+## Import
 
-**Will changing the identifier affect whether the aura works?**
-- No. EyeAuras will automatically update all internal references in the imported auras. References in existing auras will remain unchanged.
+To open the import window, click `Import` in the left panel of EyeAuras.
 
-**Can I preview an aura before importing it?**
-- Yes. The "Import Aura" window lets you preview the contents before adding them to your project.
+You can use any of these as the source:
 
-**Can I transfer auras without uploading them to the server?**
-- Yes. You can select an aura, press **Ctrl + C**, and send the JSON file in any way you like, for example through a messenger app. Another user can then paste that JSON into the import window.
+- a link to a published pack;
+- a local export file;
+- an install script, if the pack was prepared in that format.
 
-**Can I import individual auras from a shared package?**
-- At the moment, only the entire package can be imported.
+![Import window](https://s3.eyeauras.net/media/2026/04/EyeAuras_1QpMi38ffV.png =x600)
 
-**How is the folder structure preserved during export and import?**
-- Folders are preserved together with their paths, similar to how it works in Windows File Explorer.
+### Import from a link
 
-**Can I export or import individual aura components?**
-- Yes. Click **"Copy"** in the header of the item, for example a trigger or action. The app will copy that item's JSON definition, which can then be pasted into another aura or shared with another user.
+Paste the link into the `Source` field. EyeAuras will then be able to fetch information about the pack. After that, click `Download` to load its contents and open the preview.
+
+In the preview, you can check in advance:
+
+- which auras and folders will be imported;
+- the pack name;
+- the description;
+- the author's pack options.
+
+![Pack preview after pasting a link](https://s3.eyeauras.net/media/2026/04/EyeAuras_RsqOrNqzmX.png =x600)
+
+### What the Import Options do
+
+The screenshot below shows the import options window.
+
+![Import options](https://s3.eyeauras.net/media/2026/04/EyeAuras_lVrq3hdYQj.png =x600)
+
+- `Prefer packed version` tells EyeAuras to load the `packed` version of the pack if the author prepared one. In code, this is a separate variant of the pack contents (`packedContent`). It is usually used for a prepacked, prebuilt, or less open version of the pack. If the pack policy requires this mode, EyeAuras enables it automatically.
+- `Subscribe to Updates` does more than just copy the pack once. It links your local folder to the source pack by URL. The current version is downloaded immediately, and later the same pack can be updated from the same source. This is closely tied to how packs work, see [Packs](/features/packs) for details.
+- `Local Clone` appears only together with update subscriptions. EyeAuras creates a local clone with separate internal IDs, so you can keep several copies of the same pack side by side. This clone stays linked to the update source, but it is treated as a local copy and is not suitable for normal republishing.
+
+### If EyeAuras finds conflicts
+
+If you already have similar auras, EyeAuras will ask what you want to do:
+
+- `Replace` replaces existing auras with the imported ones;
+- `Copy` keeps the old auras and adds new copies;
+- `Ignore Conflicts` skips conflicting items and imports everything else.
+
+## Which option should you choose
+
+- If you just need a one-time copy of a pack, import it without a subscription.
+- If you want to receive new versions from the same source, enable `Subscribe to Updates`.
+- If you want to keep several copies of the same pack side by side, enable `Subscribe to Updates` and `Local Clone`.
+- If you do not want to use the website, export to JSON and import from a file.
+
+## Quick answers
+
+**Can I import a pack without using the website?**  
+Yes. You can open a local JSON file or paste JSON manually.
+
+**Can I update someone else’s pack?**  
+No. In the current EyeAuras logic, only the owner can update a pack.
+
+**Can I preview the contents before importing?**  
+Yes. That is what `Preview`, `Overview`, and `Pack Options` are for.
+
+**Can I import only part of a pack?**  
+At the moment, the entire pack is imported as a whole.
