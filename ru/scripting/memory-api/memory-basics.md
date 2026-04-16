@@ -2,7 +2,7 @@
 title: Memory basics
 description: Практические основы чтения и записи памяти через Memory API в C#-скриптах EyeAuras
 published: true
-date: 2026-04-16T19:47:25.505Z
+date: 2026-04-16T20:25:50.318Z
 tags: scripting, c#, memory, reverse-engineering, pointers, performance
 editor: markdown
 dateCreated: 2026-04-16T19:10:09.373Z
@@ -135,7 +135,7 @@ var mana = process.Memory.Read<int>(playerBase + 0x18);
 3. снова читаем указатель
 4. в конце читаем уже нужное значение
 
-![Пример pointer chain от статического адреса до значения HP](/assets/memory-pointer-chain.svg)
+![Пример pointer chain от статического адреса до значения HP](https://s3.eyeauras.net/media/2026/04/memory-pointer-chain.svg)
 
 Если записать этот маршрут в коде, получится такая идея:
 
