@@ -135,15 +135,7 @@ var mana = process.Memory.Read<int>(playerBase + 0x18);
 3. снова читаем указатель
 4. в конце читаем уже нужное значение
 
-![](/assets/memory-pointer-chain.svg)
-
-Короткий разбор этого примера:
-
-1. У нас есть `Module`, внутри которого известен статический адрес. Это и есть наша первая устойчивая точка входа.
-2. По этому адресу лежит pointer на `EntityList`.
-3. У `EntityList` берем поле по `+0x10` и читаем следующий pointer. Он ведет на `Entity`.
-4. У `Entity` берем поле по `+0x20` и снова читаем pointer. Он ведет на `Monster`.
-5. У `Monster` по `+0x18` уже лежит само значение `HP`.
+![Пример pointer chain от статического адреса до значения HP](/assets/memory-pointer-chain.svg)
 
 Если записать этот маршрут в коде, получится такая идея:
 
@@ -294,7 +286,7 @@ var actors = process.Memory.Read<ActorEntry>(actorsArrayAddress, actorCount);
 
 ## Какой способ чтения выбрать
 
-![](/assets/memory-read-paths.svg)
+![Сравнение Read<T> и ReadManaged<T> для native и managed layout](/assets/memory-read-paths.svg)
 
 Это одно из самых важных различий во всей теме. Но здесь не обязательно запоминать термины, достаточно понять практическое правило.
 
