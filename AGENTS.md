@@ -198,7 +198,6 @@ For custom technical diagrams such as `memory-*`, `pointer-*`, `struct-*`, and s
 - keep typography monospace for technical labels inside the image
 - keep labels very short; prefer symbols, type names, offsets, and compact identifiers over sentence-like captions
 - put stage names above the main rectangles/cards rather than inside them when that improves clarity
-- put longer explanation in the markdown below the image, not inside the SVG
 - every locally created explainer image should have meaningful markdown alt text, not an empty `![](...)`
 - prefer practical examples over jargon-heavy labels; `string`, `IntPtr`, `ByValTStr`, `Vector3`, `HP`, `Entity`, `Monster` are better than overly abstract placeholders
 - when contrasting two APIs or two concepts, prefer a side-by-side layout with mirrored panels and a clear center divider such as `VS`

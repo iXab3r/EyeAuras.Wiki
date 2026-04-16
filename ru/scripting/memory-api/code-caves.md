@@ -12,8 +12,6 @@ dateCreated: 2026-04-16T15:56:00.000Z
 
 `Code cave` — это свободный участок внутри PE-модуля, обычно заполненный нулями. Его можно использовать под данные, небольшой payload, trampoline или служебный буфер. По общей идее полезны [Code Caves & DLL's](https://gamehacking.academy/pages/3/04/), [DLL Memory Hack](https://gamehacking.academy/pages/3/03/) и [DLL Injector](https://gamehacking.academy/pages/7/01/).
 
-EyeAuras не делает из этого "магическую" операцию. API просто умеет найти подходящие участки через `EnumerateCodeCaves(...)`.
-
 ## Как искать
 
 Искать `code cave` нужно на памяти конкретного модуля:

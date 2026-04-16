@@ -25,16 +25,25 @@ Memory API нужен, когда вы хотите читать не экран
 
 ## Какие backend'ы уже есть
 
-- `LocalProcess` — обычный локальный процесс через WinAPI. Это нормальная первая точка входа. С защищёнными процессами он не подходит.
+- `LocalProcess` — обычный локальный процесс через WinAPI. Это нормальная первая точка входа. С защищёнными процессами он не подходит. Подробнее: [LocalProcess](/ru/scripting/memory-api/backends/local-process).
 - `NativeLocalProcess` — тот же локальный сценарий, но поверх handle, который вы уже получили своим способом.
-- `LCProcess` — backend через MemProcFS и LeechCore. Основной сценарий здесь это `DMA`, обычно через `FPGA`. По теме полезны [Ulf Frisk](https://github.com/ufrisk), [LeechCore](https://github.com/ufrisk/LeechCore), [MemProcFS](https://github.com/ufrisk/MemProcFS) и [PCILeech](https://github.com/ufrisk/pcileech).
+- `LCProcess` — backend через MemProcFS и LeechCore. Основной сценарий здесь это `DMA`, обычно через `FPGA`. Подробнее: [LCProcess](/ru/scripting/memory-api/backends/lc-process). По теме полезны [Ulf Frisk](https://github.com/ufrisk), [LeechCore](https://github.com/ufrisk/LeechCore), [MemProcFS](https://github.com/ufrisk/MemProcFS) и [PCILeech](https://github.com/ufrisk/pcileech).
 - `KDProcess` — backend через kernel driver. Нужен там, где обычного WinAPI уже мало.
 
 > `KernelDriver` сейчас в закрытом бета-тесте. Если вы автор пака и вам нужен доступ, напишите мне отдельно. `FPGA` и `DMA` сценарии уже доступны всем желающим.
 {.is-warning}
 
-> Если у вас свой драйвер или свой способ чтения памяти, его тоже можно встроить в Memory API. Для этого есть отдельные точки расширения.
+> Если у вас свой драйвер или свой способ чтения памяти, его тоже можно встроить в Memory API. Для этого есть отдельные точки расширения: [Кастомный IProcess](/ru/scripting/memory-api/backends/custom-process) и [Кастомные memory backend](/ru/scripting/memory-api/backends/custom-memory-backends).
 {.is-info}
+
+## Куда читать дальше по backend'ам и расширению
+
+Если вам нужна не только базовая работа с `LocalProcess`, а более конкретный сценарий, удобнее всего идти так:
+
+- для обычного локального чтения и user-mode контроля: [LocalProcess](/ru/scripting/memory-api/backends/local-process)
+- для `DMA`, `MemProcFS` и `LeechCore`: [LCProcess](/ru/scripting/memory-api/backends/lc-process)
+- если хотите подключить свой драйвер, bridge или внешний reader как полноценный процесс: [Кастомный IProcess](/ru/scripting/memory-api/backends/custom-process)
+- если хотите оборачивать уже существующий backend в кэш, логирование, статистику или другие decorator-слои: [Кастомные memory backend](/ru/scripting/memory-api/backends/custom-memory-backends)
 
 ## Что значит `IProcess`
 
@@ -42,6 +51,11 @@ Memory API нужен, когда вы хотите читать не экран
 
 - `IProcess` — объект, который представляет процесс
 - `IProcessMemory` — объект, через который вы работаете с памятью процесса
+
+Если вы читаете эту страницу именно как автор интеграции, дальше обычно полезно смотреть две статьи:
+
+- [Кастомный IProcess](/ru/scripting/memory-api/backends/custom-process) — если хотите подключить новый источник памяти как полноценный process-wrapper
+- [Кастомные memory backend](/ru/scripting/memory-api/backends/custom-memory-backends) — если хотите добавить кэширование, логирование, статистику или другой низкоуровневый слой поверх уже существующего backend'а
 
 Для старта достаточно помнить простую связку:
 
