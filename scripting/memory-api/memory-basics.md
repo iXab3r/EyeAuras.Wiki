@@ -1,20 +1,20 @@
 ---
 title: Memory basics
-description: Practical basics of reading and writing memory through the Memory API in EyeAuras C# scripts
+description: Practical basics of reading and writing memory with the Memory API in EyeAuras C# scripts
 published: true
-date: 2026-04-16T19:47:25.505Z
+date: 2026-04-16T20:25:50.318Z
 tags: scripting, c#, memory, reverse-engineering, pointers, performance, ai-translated
 editor: markdown
 dateCreated: 2026-04-16T19:10:09.373Z
 ---
-# Memory Basics for the Memory API
+# Memory basics for the Memory API
 
-This page covers the basics of working with memory: how to read and write values, what `static pointer`, `pointer chain`, and `offsets` mean, how to work with strings and buffers, and which reading approach to choose in C#.
+This page covers the absolute basics: how to read and write memory, what `static pointer`, `pointer chain`, and `offsets` mean, how to work with strings and buffers, and which read path to choose in C#.
 
-At a high level, you only need three ideas:
+If you only remember three ideas, make it these:
 
 - there is an address in memory
-- that address contains either the value itself or a pointer to another location
+- that address either contains the value itself or a pointer to somewhere else
 - your C# struct must match how the data is actually laid out in memory
 
 If you want some extra background, these are very useful:
@@ -23,9 +23,9 @@ If you want some extra background, these are very useful:
 - [Dynamic Memory Allocation](https://gamehacking.academy/pages/2/08/)
 - [External Memory Hack](https://gamehacking.academy/pages/3/02/)
 
-## Getting started
+## Where to start
 
-Usually, you open a process and work through `process.Memory`:
+In most cases, you open a process and work through `process.Memory`:
 
 ```csharp
 using System.Diagnostics;
@@ -39,16 +39,16 @@ var speed = process.Memory.Read<float>(someSpeedAddress);
 process.Memory.Write(someFlagAddress, 1);
 ```
 
-In EyeAuras, `process.Memory` is the main layer for memory access. Through it, you can:
+In EyeAuras, `process.Memory` is the main layer for memory access. You use it to:
 
 - read numbers and structs
 - read raw bytes
 - write values back
-- follow a pointer chain
+- walk pointer chains
 
 ## Reading and writing simple values
 
-For simple cases, these are the methods you will use most of the time:
+For most simple cases, these are the methods you need:
 
 - `Read<T>(address)` — read a single value
 - `Read<T>(address, count)` — read an array of values
@@ -66,17 +66,17 @@ process.Memory.Write(someAddress, 123);
 process.Memory.Write(someAddress + 4, new byte[] { 0x90, 0x90, 0x90, 0x90 });
 ```
 
-This path works best for:
+This path is the best fit for:
 
 - `int`, `float`, `long`, `byte`
 - `bool`, if you know its exact size in memory
-- simple `struct` types made of numbers, pointers, and other similarly simple `struct` types
+- simple `struct` types made of numbers, pointers, and other equally simple `struct` types
 
-If your struct already contains `string`, a normal `byte[]`, or anything similar, you will usually want `ReadManaged<T>(...)` instead. There is a separate section for that below.
+If your struct already contains `string`, a regular `byte[]`, or something similar, look at `ReadManaged<T>(...)` instead. There is a separate section on that below.
 
 ## Static pointers, offsets, and pointer chains
 
-### What a static pointer is
+### What is a static pointer
 
 A `static pointer` is an address you can reliably reconstruct from something more stable than “just a number from Cheat Engine”. Usually that means:
 
@@ -92,17 +92,17 @@ var playerManagerPtrAddress = new IntPtr(mainModule.BaseAddress.ToInt64() + 0x12
 var playerManager = process.Memory.ReadPointer(playerManagerPtrAddress);
 ```
 
-The idea is that the module base can change between launches, while the `RVA` inside that module stays the same. So instead of thinking:
+The idea is that the module base can change between launches, but the `RVA` inside that module stays the same. So instead of thinking like this:
 
 - “I need address `0x12345678`”
 
-you usually think:
+you usually think like this:
 
 - “I need `game.exe + 0x123456`”
 
-### What an offset is
+### What is an offset
 
-An `offset` is a position inside a structure or object.
+An `offset` is a displacement inside a struct or object.
 
 If you have:
 
@@ -117,32 +117,24 @@ var health = process.Memory.Read<int>(playerBase + 0x10);
 var mana = process.Memory.Read<int>(playerBase + 0x18);
 ```
 
-### What a pointer chain is
+### What is a pointer chain
 
-A `pointer chain` is when an address does not contain the final value, but a pointer to the next object.
+A `pointer chain` is when an address does not hold the final value, but a pointer to the next object.
 
-In simple terms:
+In the simplest form:
 
 - address A leads to object B
 - inside B, an offset contains address C
-- inside C, the actual value is stored
+- inside C, you finally have the value you want
 
 A typical path looks like this:
 
 1. read a pointer
 2. add an offset
 3. read another pointer
-4. finally read the actual value
+4. read the final value at the end
 
-![](/assets/memory-pointer-chain.svg)
-
-Short walkthrough of this example:
-
-1. We have a `Module` with a known static address inside it. That is our first stable entry point.
-2. That address contains a pointer to `EntityList`.
-3. From `EntityList`, we take the field at `+0x10` and read the next pointer. It points to `Entity`.
-4. From `Entity`, we take the field at `+0x20` and read another pointer. It points to `Monster`.
-5. In `Monster`, the actual `HP` value is stored at `+0x18`.
+![Example of a pointer chain from a static address to an HP value](https://s3.eyeauras.net/media/2026/04/memory-pointer-chain.svg)
 
 In code, that idea looks like this:
 
@@ -154,9 +146,9 @@ var hp = process.Memory.ReadPointerChain<int>(
     0x18);
 ```
 
-The address and offsets here are just examples. The important part is the pattern: each step either reads a pointer, or, at the end, reads the final value.
+The address and offsets here are just examples. The point is not the specific numbers, but that each step either reads a pointer or, at the very end, reads the actual value.
 
-EyeAuras provides ready-made methods for this:
+EyeAuras has built-in helpers for this:
 
 - `ReadPointer(...)`
 - `ReadPointer32(...)`
@@ -171,13 +163,13 @@ var health = process.Memory.ReadPointerChain<int>(
     0x18);
 ```
 
-For a 32-bit layout, use `ReadPointer32(...)` and `ReadPointerChain32<T>(...)`. Otherwise, you will simply read pointers using the wrong size.
+For a 32-bit layout, use `ReadPointer32(...)` and `ReadPointerChain32<T>(...)`. Otherwise, you will simply read pointers with the wrong size.
 
-Important: if the chain contains `null`, `ReadPointerChain<T>(...)` returns `default` instead of throwing an exception. That is convenient, but it can also hide logic errors, so in more complex scenarios it is often useful to log intermediate addresses separately.
+Important: if the chain hits `null`, `ReadPointerChain<T>(...)` returns `default` instead of throwing an exception. That is convenient, but it can hide logic errors, so in more complex cases it is often useful to log intermediate addresses separately.
 
 ## Strings and encodings
 
-The Memory API has three main helpers for strings:
+The Memory API has three main string helpers:
 
 - `ReadString(...)` — `UTF-8`
 - `ReadStringA(...)` — single-byte `ASCII` / ANSI-style string
@@ -196,7 +188,7 @@ Practical rules here:
 - if the memory uses the wrong encoding, you will get garbage even if the address is correct
 - `WriteString(...)` currently writes a `UTF-8` string with a trailing `\0`
 
-If the string is not stored separately but is a fixed field inside a struct, it is almost always better to read it through `ReadManaged<T>(...)`. See the separate page: [C# Struct Layout](/scripting/memory-api/csharp-structures).
+If the string is not stored separately but sits inside a struct as a fixed field, it is almost always better to read it through `ReadManaged<T>(...)`. There is a separate page for that: [C# Struct Layout](/scripting/memory-api/csharp-structures).
 
 Useful background on strings and marshaling:
 
@@ -215,13 +207,13 @@ That means these bytes:
 
 represent `int = 1`, not `16777216`.
 
-For normal memory reading in Windows, you almost never need to reverse bytes manually. In practice, for a typical Windows game, this is something you mostly just remember and move on.
+For normal memory reading on Windows, you almost never need to reverse bytes manually. In other words, in a regular Windows game, this is usually something you can just remember once and move on.
 
 But if you are:
 
 - reading a dump from another architecture
 - working with your own backend
-- parsing big-endian network or file structures
+- parsing network or file structures that use big-endian
 
 then endianness becomes something you need to handle explicitly.
 
@@ -240,14 +232,14 @@ Useful link:
 
 The most common mistake in memory scripts is reading too many tiny pieces one field at a time.
 
-A bad path looks like this:
+A bad pattern:
 
 - 30 separate `Read<int>(...)` calls every tick
 
-Usually, it is better to:
+A better approach is usually:
 
-- read one larger block of memory
-- parse it locally afterward
+- read one larger memory block
+- parse it locally afterwards
 
 ```csharp
 var buffer = new byte[0x400];
@@ -260,42 +252,42 @@ if (process.Memory.TryRead(playerBase, buffer.AsSpan()))
 }
 ```
 
-If you have an array of same-type elements, it is often more convenient to read it directly as an array of structs:
+If you have an array of the same element type, it is often more convenient to read it directly as a struct array:
 
 ```csharp
 var actors = process.Memory.Read<ActorEntry>(actorsArrayAddress, actorCount);
 ```
 
-Under the hood, `MemoryAccessor` already does several useful things:
+Under the hood, `MemoryAccessor` already does a few useful things:
 
 - uses `stackalloc` for small buffers
 - uses `ArrayPool<byte>` for some unmanaged reads
-- tries to avoid unnecessary temporary arrays where it can work through `Span<T>` instead
+- tries to avoid unnecessary temporary arrays when it can work through `Span<T>`
 
-Even so, batching still matters. In this kind of task, the fastest optimization is usually not “write smarter C#”, but “reduce the number of actual process memory reads”.
+Even with that, batching still matters. The fastest optimization in this kind of work is usually not “write smarter C#”, but “reduce the number of real process memory accesses”.
 
 ## Multithreading
 
 Multiple readers at the same time are generally fine. EyeAuras tests include both multiple sequential readers and multiple parallel readers.
 
-But it is important to understand the boundary here:
+But it is important to understand where the real boundary is:
 
-- the API itself can usually handle parallel reads
+- the API itself can usually read in parallel
 - the target process may still change data between your reads
 
-So the problem is usually not that `MemoryAccessor` “breaks under threading”, but that the data in the process may already have changed by that point.
+So the problem is usually not that `MemoryAccessor` “breaks under threads”, but that the process data may already have changed by the time you read it.
 
 Practical advice:
 
-- if you need a consistent snapshot, read the block in one piece
-- if your backend supports it and the scenario is safe, you can temporarily freeze the process separately
-- do not split one logical object into dozens of unrelated reads across different threads without a good reason
+- if you need a consistent snapshot, read the block in one go
+- if your backend supports it and the scenario is safe, you can freeze the process separately for a moment
+- do not split one logical object into dozens of unrelated reads from different threads without a reason
 
-## Which reading path should you use
+## Which read path should you choose
 
-![](/assets/memory-read-paths.svg)
+![Comparison of Read<T> and ReadManaged<T> for native and managed layout](/assets/memory-read-paths.svg)
 
-This is one of the most important distinctions in the whole topic. But you do not need to memorize the terms — the practical rule is enough.
+This is one of the most important distinctions in the whole topic. But you do not need to memorize the terms if you remember the practical rule.
 
 ### Option 1 - the fast path
 
@@ -306,21 +298,21 @@ This includes:
 - `Read<T>(..., count)`
 - `Write<T>(...)`
 
-Use this when the structure is simple. For example, it contains only:
+Use it when the struct is simple. For example, it contains only:
 
 - numbers
 - pointers
 - `fixed`
 - `InlineArray`
-- other similarly simple structures
+- other equally simple structs
 
-And this path is not a good fit if it already contains:
+And this path is **not** a good fit if the struct already contains:
 
 - `string`
-- a normal `byte[]`
+- regular `byte[]`
 - other reference-type fields
 
-This is the fastest option.
+This is the fastest path.
 
 ### Option 2 - the flexible path
 
@@ -330,7 +322,7 @@ This includes:
 - `TryReadManaged<T>(...)`
 - `TryWriteManaged<T>(...)`
 
-Use this when the structure is more “C#-style”. For example, if it contains:
+Use it when the struct is more “C#-style”. For example, when it contains:
 
 - `[MarshalAs(UnmanagedType.ByValArray, ...)]`
 - `[MarshalAs(UnmanagedType.ByValTStr, ...)]`
@@ -341,17 +333,17 @@ This path is much more flexible, but slower.
 
 Short rule:
 
-- if the structure is simple, use regular `Read<T>(...)`
+- if the struct is simple, use regular `Read<T>(...)`
 - if it contains strings, `MarshalAs`, or a more complex layout, use `ReadManaged<T>(...)`
 
-If you are unsure:
+If you are not sure:
 
-- first try describing the structure as a simple one
+- first try describing the struct as a simple one
 - if you run into strings or fixed managed fields, switch to `ReadManaged<T>(...)`
 
 ## What to read next
 
-- [Memory API - Getting Started](/scripting/memory-api/getting-started)
+- [Memory API - Getting started](/scripting/memory-api/getting-started)
 - [C# Struct Layout](/scripting/memory-api/csharp-structures)
 - [PE basics](/scripting/memory-api/pe-basics)
 - [Pattern Scanning](/scripting/memory-api/pattern-scanning)
