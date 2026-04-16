@@ -2,7 +2,7 @@
 title: Memory basics
 description: Практические основы чтения и записи памяти через Memory API в C#-скриптах EyeAuras
 published: true
-date: 2026-04-16T20:25:50.318Z
+date: 2026-04-16T20:27:13.679Z
 tags: scripting, c#, memory, reverse-engineering, pointers, performance
 editor: markdown
 dateCreated: 2026-04-16T19:10:09.373Z
@@ -286,7 +286,7 @@ var actors = process.Memory.Read<ActorEntry>(actorsArrayAddress, actorCount);
 
 ## Какой способ чтения выбрать
 
-![Сравнение Read<T> и ReadManaged<T> для native и managed layout](/assets/memory-read-paths.svg)
+![Сравнение Read и ReadManaged для native и managed layout](memory-read-paths.svg)
 
 Это одно из самых важных различий во всей теме. Но здесь не обязательно запоминать термины, достаточно понять практическое правило.
 
