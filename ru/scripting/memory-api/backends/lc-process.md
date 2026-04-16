@@ -2,10 +2,10 @@
 title: LCProcess
 description: Acquisition backend через MemProcFS, LeechCore, Hyper-V и FPGA
 published: true
-date: 2026-04-16T18:25:00.000Z
-tags: c#, scripting, memory, reverse-engineering, backend, lcprocess, mpfs, ai-translated
+date: 2026-04-16T20:34:31.247Z
+tags: scripting, c#, ai-translated, memory, reverse-engineering, backend, lcprocess, mpfs
 editor: markdown
-dateCreated: 2026-04-16T18:25:00.000Z
+dateCreated: 2026-04-16T19:10:00.986Z
 ---
 
 # `LCProcess`
@@ -38,9 +38,9 @@ dateCreated: 2026-04-16T18:25:00.000Z
 
 Если ничего из этого не нужно, почти всегда проще начать с `LocalProcess`.
 
-## Какие режимы есть
+# Какие режимы есть
 
-### `FPGA`
+## FPGA
 
 Это основной сценарий для `LCProcess`. Именно ради него этот backend чаще всего и берут.
 
@@ -63,7 +63,7 @@ using var process = LCProcess.FPGA().ByProcessName("game.exe");
 - [PCILeech FPGA](https://github.com/ufrisk/pcileech-fpga)
 - [PCILeech FPGA Wiki](https://github.com/ufrisk/pcileech-fpga/wiki)
 
-### `Hyper-V`
+## Hyper-V
 
 Это второй по важности сценарий. Здесь хост читает память гостевой Windows-машины снаружи.
 
@@ -93,7 +93,7 @@ using var process = LCProcess.HyperV()
 - [MemProcFS VM Wiki](https://github.com/ufrisk/MemProcFS/wiki/VM)
 - [MemProcFS CommandLine Wiki](https://github.com/ufrisk/MemProcFS/wiki/_CommandLine)
 
-### `WinPMEM`
+## WinPMEM
 
 `WinPMEM` полезен как более простой локальный вход в ту же acquisition-модель:
 
@@ -111,7 +111,7 @@ using var process = LCProcess.WinPMEM().ByProcessId(1234);
 - [LeechCore WinPMEM device docs](https://github.com/ufrisk/LeechCore/wiki/Device_WinPMEM)
 - [WinPMEM](https://github.com/Velocidex/WinPmem)
 
-### `Custom`
+## Custom
 
 Если готовых builder'ов мало, можно уйти в свои аргументы LeechCore:
 
@@ -129,7 +129,7 @@ using var process = LCProcess.Custom("-device", "hvmm://id=0")
 - [LeechCore API](https://github.com/ufrisk/LeechCore/wiki/LeechCore_API)
 - [LeechCore Python API](https://github.com/ufrisk/LeechCore/wiki/LeechCore_API_Python)
 
-## Что даёт `LCProcess`
+# Что даёт LCProcess
 
 Несмотря на acquisition-природу, сверху вы получаете знакомую модель:
 
