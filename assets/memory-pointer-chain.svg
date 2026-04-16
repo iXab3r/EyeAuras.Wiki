@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="500" viewBox="0 0 1400 500" role="img" aria-labelledby="title desc">
-  <title id="title">Pointer chain</title>
-  <desc id="desc">Compact pointer chain with short labels only.</desc>
+  <title id="title">PTR</title>
+  <desc id="desc">PTR / HP</desc>
   <defs>
     <style>
       .bg { fill: #0b1220; }
@@ -11,13 +11,8 @@
       .chip-amber { fill: #0b1220; stroke: #f59e0b; stroke-width: 2; }
       .chip-rose { fill: #0b1220; stroke: #fb7185; stroke-width: 2; }
       .mono { fill: #f8fafc; font-family: Consolas, Menlo, monospace; }
-      .ui { fill: #e5e7eb; font-family: Segoe UI, Arial, sans-serif; }
-      .muted { fill: #94a3b8; font-family: Segoe UI, Arial, sans-serif; }
       .line { stroke: #38bdf8; stroke-width: 4; fill: none; marker-end: url(#arrow); }
-      .dot { fill: #38bdf8; }
-      .accent { fill: #14b8a6; }
-      .accent2 { fill: #60a5fa; }
-      .accent3 { fill: #fb7185; }
+      .label { fill: #0b1220; stroke-width: 2; }
     </style>
     <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
       <path d="M0,0 L10,5 L0,10 Z" fill="#38bdf8" />
@@ -36,58 +31,51 @@
 
   <rect class="frame" x="36" y="36" width="1328" height="428" rx="26"/>
 
-  <g transform="translate(70 160)">
-    <rect class="card" x="0" y="0" width="170" height="180" rx="22"/>
-    <rect class="chip" x="25" y="24" width="120" height="42" rx="14"/>
-    <text class="mono" x="85" y="45" font-size="24" font-weight="700" text-anchor="middle" dominant-baseline="middle">MOD</text>
-    <text class="ui" x="85" y="94" font-size="18" text-anchor="middle" dominant-baseline="middle">BASE</text>
-    <circle class="accent" cx="48" cy="134" r="7"/>
-    <circle class="accent2" cx="85" cy="134" r="7"/>
-    <circle class="accent3" cx="122" cy="134" r="7"/>
-    <text class="mono" x="85" y="158" font-size="18" text-anchor="middle" dominant-baseline="middle">+A0</text>
+  <text class="mono" x="170" y="108" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle">Module</text>
+  <g transform="translate(60 135)">
+    <rect class="card" x="0" y="0" width="220" height="220" rx="22"/>
+    <rect class="chip" x="40" y="56" width="140" height="40" rx="14"/>
+    <rect class="chip" x="40" y="112" width="140" height="40" rx="14"/>
+    <text class="mono" x="110" y="76" font-size="18" text-anchor="middle" dominant-baseline="middle">Static</text>
+    <text class="mono" x="110" y="132" font-size="18" text-anchor="middle" dominant-baseline="middle">0x140123456</text>
   </g>
 
-  <path class="line" d="M240 250 C276 250, 286 250, 320 250"/>
-  <rect class="chip" x="268" y="205" width="52" height="36" rx="12"/>
-  <text class="mono" x="294" y="223" font-size="18" text-anchor="middle" dominant-baseline="middle">+10</text>
+  <path class="line" d="M280 290 C308 290, 322 290, 380 290"/>
+  <rect class="label" x="294" y="206" width="72" height="34" rx="12"/>
+  <text class="mono" x="330" y="223" font-size="18" text-anchor="middle" dominant-baseline="middle">+0x10</text>
 
-  <g transform="translate(360 120)">
-    <rect class="card" x="0" y="0" width="210" height="240" rx="22"/>
-    <rect class="chip" x="45" y="26" width="120" height="46" rx="14"/>
-    <text class="mono" x="105" y="49" font-size="26" font-weight="700" text-anchor="middle" dominant-baseline="middle">PTR</text>
-    <rect class="chip" x="42" y="100" width="126" height="52" rx="14"/>
-    <text class="mono" x="105" y="126" font-size="22" text-anchor="middle" dominant-baseline="middle">0x10</text>
-    <text class="ui" x="105" y="184" font-size="18" text-anchor="middle" dominant-baseline="middle">PTR</text>
-    <circle class="accent2" cx="46" cy="183" r="7"/>
-    <circle class="accent2" cx="164" cy="183" r="7"/>
+  <text class="mono" x="490" y="108" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle">EntityList</text>
+  <g transform="translate(380 135)">
+    <rect class="card" x="0" y="0" width="220" height="220" rx="22"/>
+    <rect class="chip" x="40" y="56" width="140" height="40" rx="14"/>
+    <rect class="chip" x="40" y="112" width="140" height="40" rx="14"/>
+    <text class="mono" x="110" y="76" font-size="18" text-anchor="middle" dominant-baseline="middle">PTR</text>
+    <text class="mono" x="110" y="132" font-size="18" text-anchor="middle" dominant-baseline="middle">0x10</text>
   </g>
 
-  <path class="line" d="M570 250 C606 250, 616 250, 650 250"/>
-  <rect class="chip" x="598" y="205" width="52" height="36" rx="12"/>
-  <text class="mono" x="624" y="223" font-size="18" text-anchor="middle" dominant-baseline="middle">+20</text>
+  <path class="line" d="M600 290 C628 290, 642 290, 700 290"/>
+  <rect class="label" x="614" y="206" width="72" height="34" rx="12"/>
+  <text class="mono" x="650" y="223" font-size="18" text-anchor="middle" dominant-baseline="middle">+0x20</text>
 
-  <g transform="translate(690 120)">
-    <rect class="card" x="0" y="0" width="210" height="240" rx="22"/>
-    <rect class="chip" x="45" y="26" width="120" height="46" rx="14"/>
-    <text class="mono" x="105" y="49" font-size="26" font-weight="700" text-anchor="middle" dominant-baseline="middle">PTR</text>
-    <rect class="chip" x="42" y="100" width="126" height="52" rx="14"/>
-    <text class="mono" x="105" y="126" font-size="22" text-anchor="middle" dominant-baseline="middle">0x20</text>
-    <text class="ui" x="105" y="184" font-size="18" text-anchor="middle" dominant-baseline="middle">PTR</text>
-    <circle class="accent2" cx="46" cy="183" r="7"/>
-    <circle class="accent2" cx="164" cy="183" r="7"/>
+  <text class="mono" x="810" y="108" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle">Entity</text>
+  <g transform="translate(700 135)">
+    <rect class="card" x="0" y="0" width="220" height="220" rx="22"/>
+    <rect class="chip" x="40" y="56" width="140" height="40" rx="14"/>
+    <rect class="chip" x="40" y="112" width="140" height="40" rx="14"/>
+    <text class="mono" x="110" y="76" font-size="18" text-anchor="middle" dominant-baseline="middle">PTR</text>
+    <text class="mono" x="110" y="132" font-size="18" text-anchor="middle" dominant-baseline="middle">0x20</text>
   </g>
 
-  <path class="line" d="M900 250 C936 250, 946 250, 980 250"/>
-  <rect class="chip-amber" x="928" y="205" width="52" height="36" rx="12"/>
-  <text class="mono" x="954" y="223" font-size="18" text-anchor="middle" dominant-baseline="middle">+18</text>
+  <path class="line" d="M920 290 C948 290, 962 290, 1020 290"/>
+  <rect class="label" x="934" y="206" width="72" height="34" rx="12"/>
+  <text class="mono" x="970" y="223" font-size="18" text-anchor="middle" dominant-baseline="middle">+0x18</text>
 
-  <g transform="translate(1020 145)">
-    <rect class="card" x="0" y="0" width="260" height="210" rx="22"/>
-    <path d="M62 54 C62 39, 74 28, 90 28 C104 28, 114 36, 120 47 C126 36, 136 28, 150 28 C166 28, 178 39, 178 54 C178 84, 120 120, 120 120 C120 120, 62 84, 62 54 Z" fill="#fb7185"/>
-    <text class="mono" x="120" y="154" font-size="28" font-weight="700" text-anchor="middle" dominant-baseline="middle">HP</text>
-    <rect class="chip-rose" x="72" y="166" width="96" height="32" rx="12"/>
-    <text class="mono" x="120" y="182" font-size="18" text-anchor="middle" dominant-baseline="middle">742</text>
+  <text class="mono" x="1130" y="108" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle">Monster</text>
+  <g transform="translate(1020 135)">
+    <rect class="card" x="0" y="0" width="220" height="220" rx="22"/>
+    <rect class="chip-rose" x="40" y="56" width="140" height="40" rx="14"/>
+    <rect class="chip-rose" x="40" y="112" width="140" height="40" rx="14"/>
+    <text class="mono" x="110" y="76" font-size="18" text-anchor="middle" dominant-baseline="middle">HP</text>
+    <text class="mono" x="110" y="132" font-size="18" text-anchor="middle" dominant-baseline="middle">742</text>
   </g>
-
-  <text class="muted" x="700" y="420" font-size="18" text-anchor="middle">PTR  +  offsets  =  value</text>
 </svg>

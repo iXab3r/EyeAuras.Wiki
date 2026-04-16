@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="460" viewBox="0 0 1400 460" role="img" aria-labelledby="title desc">
+  <title id="title">Read paths</title>
+  <desc id="desc">C versus C# read paths.</desc>
+  <defs>
+    <style>
+      .bg { fill: #0b1220; }
+      .grid { stroke: rgba(148, 163, 184, 0.08); stroke-width: 1; }
+      .frame { fill: #111827; stroke: #334155; stroke-width: 2; }
+      .panelL { fill: #052e2b; stroke: #14b8a6; stroke-width: 2; }
+      .panelR { fill: #172554; stroke: #60a5fa; stroke-width: 2; }
+      .chipL { fill: #0b1220; stroke: #14b8a6; stroke-width: 2; }
+      .chipR { fill: #0b1220; stroke: #60a5fa; stroke-width: 2; }
+      .badgeL { fill: #14b8a6; }
+      .badgeR { fill: #60a5fa; }
+      .badgeText { fill: #0b1220; font-family: Consolas, Menlo, monospace; font-weight: 700; }
+      .mono { fill: #f8fafc; font-family: Consolas, Menlo, monospace; }
+      .muted { fill: #94a3b8; font-family: Segoe UI, Arial, sans-serif; }
+    </style>
+    <linearGradient id="bgGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1400" height="460" fill="url(#bgGlow)"/>
+  <g opacity="0.9">
+    <path class="grid" d="M0 80H1400M0 160H1400M0 240H1400M0 320H1400M0 400H1400"/>
+    <path class="grid" d="M140 0V460M280 0V460M420 0V460M560 0V460M700 0V460M840 0V460M980 0V460M1120 0V460M1260 0V460"/>
+  </g>
+
+  <rect class="frame" x="34" y="34" width="1332" height="392" rx="26"/>
+
+  <g transform="translate(70 66)">
+    <rect class="panelL" x="0" y="0" width="560" height="308" rx="24"/>
+    <circle class="badgeL" cx="56" cy="44" r="22"/>
+    <text class="badgeText" x="56" y="44" font-size="18" text-anchor="middle" dominant-baseline="middle">C</text>
+    <text class="mono" x="280" y="56" font-size="32" font-weight="700" text-anchor="middle" dominant-baseline="middle">Read&lt;T&gt;</text>
+    <text class="muted" x="280" y="86" font-size="16" text-anchor="middle">raw copy</text>
+
+    <rect class="chipL" x="32" y="106" width="150" height="46" rx="14"/>
+    <text class="mono" x="114" y="125" font-size="20" text-anchor="middle" dominant-baseline="middle">int</text>
+    <rect class="chipL" x="198" y="106" width="150" height="46" rx="14"/>
+    <text class="mono" x="280" y="125" font-size="20" text-anchor="middle" dominant-baseline="middle">float</text>
+    <rect class="chipL" x="364" y="106" width="150" height="46" rx="14"/>
+    <text class="mono" x="446" y="125" font-size="20" text-anchor="middle" dominant-baseline="middle">IntPtr</text>
+
+    <rect class="chipL" x="32" y="172" width="150" height="46" rx="14"/>
+    <text class="mono" x="107" y="195" font-size="20" text-anchor="middle" dominant-baseline="middle">Vector3</text>
+    <rect class="chipL" x="198" y="172" width="150" height="46" rx="14"/>
+    <text class="mono" x="273" y="195" font-size="18" text-anchor="middle" dominant-baseline="middle">byte[0x40]</text>
+    <rect class="chipL" x="364" y="172" width="150" height="46" rx="14"/>
+    <text class="mono" x="439" y="195" font-size="18" text-anchor="middle" dominant-baseline="middle">SimpleStruct</text>
+
+    <text class="muted" x="280" y="268" font-size="17" text-anchor="middle">native / C</text>
+  </g>
+
+  <rect x="660" y="170" width="80" height="80" rx="24" fill="#0b1220" stroke="#475569" stroke-width="2"/>
+  <text class="mono" x="700" y="209" font-size="28" font-weight="700" text-anchor="middle" dominant-baseline="middle">VS</text>
+
+  <g transform="translate(770 66)">
+    <rect class="panelR" x="0" y="0" width="560" height="308" rx="24"/>
+    <circle class="badgeR" cx="56" cy="44" r="22"/>
+    <text class="badgeText" x="56" y="44" font-size="16" text-anchor="middle" dominant-baseline="middle">C#</text>
+    <text class="mono" x="280" y="56" font-size="28" font-weight="700" text-anchor="middle" dominant-baseline="middle">ReadManaged&lt;T&gt;</text>
+    <text class="muted" x="280" y="86" font-size="16" text-anchor="middle">marshal fields</text>
+
+    <rect class="chipR" x="32" y="106" width="150" height="46" rx="14"/>
+    <text class="mono" x="114" y="125" font-size="20" text-anchor="middle" dominant-baseline="middle">string</text>
+    <rect class="chipR" x="198" y="106" width="150" height="46" rx="14"/>
+    <text class="mono" x="280" y="125" font-size="20" text-anchor="middle" dominant-baseline="middle">ByValTStr</text>
+    <rect class="chipR" x="364" y="106" width="150" height="46" rx="14"/>
+    <text class="mono" x="446" y="125" font-size="20" text-anchor="middle" dominant-baseline="middle">MarshalAs</text>
+
+    <rect class="chipR" x="32" y="172" width="150" height="46" rx="14"/>
+    <text class="mono" x="107" y="195" font-size="20" text-anchor="middle" dominant-baseline="middle">ByValArray</text>
+    <rect class="chipR" x="198" y="172" width="150" height="46" rx="14"/>
+    <text class="mono" x="273" y="195" font-size="20" text-anchor="middle" dominant-baseline="middle">InlineArray</text>
+    <rect class="chipR" x="364" y="172" width="150" height="46" rx="14"/>
+    <text class="mono" x="439" y="195" font-size="20" text-anchor="middle" dominant-baseline="middle">RichStruct</text>
+
+    <text class="muted" x="280" y="268" font-size="17" text-anchor="middle">managed / C#</text>
+  </g>
+</svg>

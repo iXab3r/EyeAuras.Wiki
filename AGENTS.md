@@ -170,6 +170,72 @@ When working on changelogs:
   - Russian pages usually link to `/ru/features/...`, `/ru/scripting/...`, `/ru/changelogs/...`
 - For changelog RU/EN cross-links, use the explicit `/ru/...` and `/en/...` style already used in recent changelogs.
 
+## Image workflow
+
+When creating, redrawing, or substantially editing images for the wiki:
+
+- always delegate the image creation/editing step to a sub-agent rather than doing it inline in the main rollout
+- always validate the final image by actual visual inspection, not only by reading the source file contents
+- if the source format is not directly previewable in the current tools, convert it to a previewable format first and then inspect it visually
+- before considering the image work complete, show the final image result in chat so the user can visually confirm it
+- repeated visual elements of the same kind should use consistent sizing and spacing
+- label-boxes and chips that represent the same kind of data should use the same width/padding rule unless there is a strong reason not to
+- arrows, connectors, labels, and text boxes must not overlap each other unless the overlap is clearly intentional and visually clean
+- labels and captions inside images should be in English unless the user explicitly asks for another language
+
+These rules apply especially to:
+
+- locally created SVG diagrams
+- generated screenshots, mockups, and visual explainers
+- any image where layout, centering, clipping, or text fit matters
+
+### Diagram style for technical SVGs
+
+For custom technical diagrams such as `memory-*`, `pointer-*`, `struct-*`, and similar explainer SVGs, prefer one consistent visual language so new diagrams can be generated quickly and still match the existing set.
+
+- use a dark background with a subtle grid and one rounded outer frame
+- use rounded cards, panels, chips, and badges; avoid sharp-cornered boxes unless the diagram specifically needs a harsher look
+- keep typography monospace for technical labels inside the image
+- keep labels very short; prefer symbols, type names, offsets, and compact identifiers over sentence-like captions
+- put stage names above the main rectangles/cards rather than inside them when that improves clarity
+- put longer explanation in the markdown below the image, not inside the SVG
+- prefer practical examples over jargon-heavy labels; `string`, `IntPtr`, `ByValTStr`, `Vector3`, `HP`, `Entity`, `Monster` are better than overly abstract placeholders
+- when contrasting two APIs or two concepts, prefer a side-by-side layout with mirrored panels and a clear center divider such as `VS`
+- use small badges for conceptual domains when helpful, for example `C`, `C#`, `x64`, `DMA`, `API`
+- use color as semantic grouping, not decoration:
+  - teal/cyan for native or low-level flows
+  - blue for managed or higher-level flows
+  - rose/red for final values, hot fields, or warning-like targets
+- keep cards of the same role the same size
+- keep chips of the same role the same size
+- center labels inside cards and chips both horizontally and vertically
+- avoid empty placeholder boxes when a realistic example can be shown instead
+- for locally created SVG diagrams under `/assets`, do not force markdown image width caps unless the user explicitly asks for them
+
+For memory-chain diagrams specifically:
+
+- prefer left-to-right flow
+- show stable entry point first, then pointer hops, then the final value
+- use consistent hex notation for addresses and offsets
+- prefer a real-looking static address over an unexplained leading offset when that makes the chain easier to understand
+- if the image shows only the route, add a short numbered walkthrough right below the image in markdown
+
+## Numeric notation
+
+When documenting technical concepts such as memory, pointers, offsets, RVAs, addresses, masks, and binary-related values:
+
+- use hexadecimal notation consistently
+- include the `0x` prefix
+- when a leading plus sign is needed for an offset, format it as `+0x20`, not `+20`
+- do not mix `0x20`, `+20`, `20h`, or bare `20` for the same kind of technical value inside the same page or image
+
+Use decimal notation only for normal human-facing counts or values where decimal is the clearer default, such as:
+
+- version numbers
+- counts of items
+- time in seconds or milliseconds when written as plain UI text
+- human-readable example values such as `HP = 742`, unless the context specifically requires hexadecimal
+
 ## Working with translations
 
 - English root pages are the default source unless the task clearly starts from Russian content.
