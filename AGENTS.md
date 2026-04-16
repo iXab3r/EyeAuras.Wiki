@@ -194,6 +194,9 @@ When working on changelogs:
 - Prefer the Russian wiki style as the main writing reference when a Russian version exists.
 - Use `ai-writing-style-state.md` as the evolving style snapshot derived from non-AI-authored documents.
 - Follow that style when creating new translated pages or syncing older ones.
+- Treat brevity as a hard requirement. If a point is already clear, do not restate it in nearby sections.
+- Prefer one strong explanation over three similar ones. Merge overlapping sections instead of repeating the same contrast or caveat.
+- When editing, actively remove low-value recap, duplicated framing, and repeated “why this matters” paragraphs unless each repetition adds new information.
 - Favor:
   - simple, direct phrasing
   - short paragraphs

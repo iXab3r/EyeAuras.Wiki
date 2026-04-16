@@ -229,6 +229,70 @@ Log.Info($"Connection state: {eyeHub.ConnectionState}");
 
 Практически это позволяет собрать полностью свой экран логина, свой профиль, свои статусы подключения и вообще не выводить стандартный UI EyeAuras пользователю напрямую.
 
+### Что теперь можно читать из `ActiveLicense`
+Кроме базового `Username`, в лицензии теперь доступны и другие подписанные поля:
+
+- `UserId` - стабильный идентификатор пользователя из подписанной лицензии
+- `Roles` - роли пользователя, если они были выданы сервером
+- `HardwareId` - hardware id, который попал в лицензию
+- `AppVersion` - версия приложения, для которой была выдана лицензия
+- `StartsAt` - момент начала действия лицензии
+
+Если нужен именно стабильный идентификатор пользователя для вашего собственного кода, своей БД, своего backend или привязки пользовательских данных, берите именно `UserId`, а не `Username`.
+
+Минимальный пример через `ILicenseAccessor`:
+
+```csharp
+var license = GetService<ILicenseAccessor>();
+
+Log.Info($"Username: {license.Username}");
+Log.Info($"UserId: {license.UserId}");
+Log.Info($"HardwareId: {license.HardwareId}");
+Log.Info($"AppVersion: {license.AppVersion}");
+Log.Info($"StartsAt: {license.StartsAt}");
+Log.Info($"Roles: {string.Join(", ", license.Roles)}");
+```
+
+Если вы уже работаете через `IEyeHubService`, получить `UserId` можно и так:
+
+```csharp
+var eyeHub = GetService<IEyeHubService>();
+var userId = eyeHub.ActiveLicense.UserId;
+
+Log.Info($"Current user id: {userId}");
+```
+
+В крайнем случае можно читать и отдельные raw-атрибуты через `GetAttribute(...)`, но это уже скорее запасной путь:
+
+```csharp
+var license = GetService<ILicenseAccessor>();
+var userId = license.GetAttribute("UserId");
+```
+
+### Что теперь можно читать из саблицензии
+У элементов в `ShareSublicenses` теперь есть явный `MaximumSessions`.
+
+Это полезно, если вы хотите:
+
+- показать пользователю лимит прямо в своем UI
+- логировать или диагностировать состояние лицензии
+- подстроить свое поведение под конфигурацию ключа
+
+Пример:
+
+```csharp
+var license = GetService<ILicenseAccessor>();
+
+foreach (var sublicense in license.ShareSublicenses)
+{
+    Log.Info($"ShareId: {sublicense.ShareId}");
+    Log.Info($"MaximumSessions: {sublicense.MaximumSessions}");
+    Log.Info($"ExpiresAt: {sublicense.ExpiresAt}");
+}
+```
+
+Важно: читать metadata из `ShareSublicenses` нормально, но принимать решение о том, выдан ли доступ к паку прямо сейчас, все равно нужно через `ISublicenseManager` и `lease`, как описано ниже.
+
 # Для авторов паков: важно обновить код проверки
 > Если у вас уже есть пак с саблицензиями, обязательно прочитайте этот блок.
 {.is-warning}
