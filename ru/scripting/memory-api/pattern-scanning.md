@@ -39,15 +39,26 @@ using var memory = process.MemoryOfModule("kernel32.dll");
 - маркер `^`, который отмечает точку интереса внутри совпадения
 
 ```csharp
-var exact = BytePattern.FromPattern(new byte[] { 0x55, 0x8B, 0xEC });
-var hex = BytePattern.FromTemplate("55 8B EC");
-var wildcards = BytePattern.FromTemplate("55 8B ?? 83");
-var cStyle = BytePattern.FromTemplate(@"\x55\x8B\xEC");
-var masked = BytePattern.FromMaskedPattern(new byte[] { 0x55, 0x8B, 0xEC, 0x00, 0x08 }, "xxx??");
-var withOffset = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
+var exact = BytePattern.FromPattern(new byte[] { 0x48, 0x85, 0xC0, 0x74, 0x0A });
+var hex = BytePattern.FromTemplate("48 85 C0 74 0A");
+var wildcards = BytePattern.FromTemplate("48 85 ?? 74 0A");
+var cStyle = BytePattern.FromTemplate(@"\x48\x85\xC0\x74\x0A");
+var masked = BytePattern.FromMaskedPattern(new byte[] { 0x48, 0x85, 0xC0, 0x74, 0x0A }, "xxxxx");
+var withOffset = BytePattern.FromTemplate("48 ^ 85 C0 74 0A");
 ```
 
-`^` особенно полезен, когда вам нужен не старт совпадения, а конкретный байт внутри инструкции.
+В примере ниже мы будем использовать один и тот же паттерн `48 85 C0 74 0A`, чтобы было проще связать схему, код и результат поиска.
+
+`^` особенно полезен, когда вам нужен не старт совпадения, а конкретный байт внутри инструкции. Например, `48 ^ 85 C0 74 0A` вернет offset не на первый `48`, а на следующий байт `85`.
+
+![](/assets/pattern-scan-match.svg)
+
+Короткий разбор этой схемы:
+
+1. Внутри блока `Memory` лежит обычная последовательность байтов.
+2. Подсвеченный фрагмент `48 85 C0 74 0A` это и есть найденный `match`.
+3. Стрелка показывает старт совпадения. Именно от этой точки обычно и считается найденный `offset`.
+4. Дальше вы уже решаете, что делать с этим местом: читать инструкцию как опорную точку, прибавлять смещение или идти к нужному адресу через pointer chain.
 
 ## Как искать
 
@@ -58,7 +69,7 @@ var withOffset = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
 - `FindOffsets(...)` и `GetOffsets(...)` — то же самое для нескольких сигнатур
 
 ```csharp
-var pattern = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
+var pattern = BytePattern.FromTemplate("48 85 C0 74 0A");
 var offset = memory.FindOffset(pattern);
 
 if (offset >= 0)
@@ -74,6 +85,8 @@ if (offset >= 0)
 - `VA` — абсолютный адрес в процессе
 
 Если вы ищете внутри `MemoryOfModule(...)`, абсолютный адрес обычно считается как `memory.BaseAddress + offset`.
+
+Если взять схему выше, `FindOffset(BytePattern.FromTemplate("48 85 C0 74 0A"))` вернет offset на первый подсвеченный байт `48`.
 
 ## Что выбрать: `Find*` или `Get*`
 

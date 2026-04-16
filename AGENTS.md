@@ -210,6 +210,13 @@ For custom technical diagrams such as `memory-*`, `pointer-*`, `struct-*`, and s
 - keep chips of the same role the same size
 - center labels inside cards and chips both horizontally and vertically
 - avoid empty placeholder boxes when a realistic example can be shown instead
+- arrows and pointers should align to the meaningful anchor point of the target element rather than approximately to its visual middle
+- when the target is a specific cell, chip, byte-box, or similar discrete rectangle, the default anchor should usually be the nearest meaningful edge while keeping the arrow tip outside the rectangle
+- leave a small visible gap between the arrow tip and the target border unless the diagram specifically needs direct contact or penetration into the target
+- for label-to-target callout arrows, prefer a clean single axis when possible, for example a straight vertical line from the label to the target
+- center the arrow relative to the intended target anchor, for example centered over the target cell when pointing to its top edge
+- keep arrowheads compact; they should feel like a continuation of the shaft rather than a detached triangle
+- if needed, move the label/pill slightly so the arrow can stay clean, aligned, and readable instead of forcing an awkward diagonal
 - for locally created SVG diagrams under `/assets`, do not force markdown image width caps unless the user explicitly asks for them
 
 For memory-chain diagrams specifically:

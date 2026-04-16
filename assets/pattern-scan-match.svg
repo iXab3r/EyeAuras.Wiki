@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="420" viewBox="0 0 1400 420" role="img" aria-labelledby="title desc">
+  <title id="title">Pattern match</title>
+  <desc id="desc">Memory bytes with one highlighted pattern match and an arrow to its start.</desc>
+  <defs>
+    <style>
+      .bg { fill: #0b1220; }
+      .grid { stroke: rgba(148, 163, 184, 0.08); stroke-width: 1; }
+      .frame { fill: #111827; stroke: #334155; stroke-width: 2; }
+      .card { fill: #0f172a; stroke: #475569; stroke-width: 2; }
+      .cell { fill: #0b1220; stroke: #475569; stroke-width: 1.5; }
+      .cellMatch { fill: #12324a; stroke: #38bdf8; stroke-width: 2; }
+      .mono { fill: #f8fafc; font-family: Consolas, Menlo, monospace; }
+      .muted { fill: #94a3b8; font-family: Segoe UI, Arial, sans-serif; }
+      .accent { fill: #38bdf8; }
+      .arrow { stroke: #38bdf8; stroke-width: 4; fill: none; marker-end: url(#head); }
+      .pill { fill: #0b1220; stroke: #38bdf8; stroke-width: 2; }
+    </style>
+    <marker id="head" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#38bdf8"/>
+    </marker>
+    <linearGradient id="bgGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1400" height="420" fill="url(#bgGlow)"/>
+  <g opacity="0.9">
+    <path class="grid" d="M0 70H1400M0 140H1400M0 210H1400M0 280H1400M0 350H1400"/>
+    <path class="grid" d="M140 0V420M280 0V420M420 0V420M560 0V420M700 0V420M840 0V420M980 0V420M1120 0V420M1260 0V420"/>
+  </g>
+
+  <rect class="frame" x="34" y="34" width="1332" height="352" rx="26"/>
+
+  <text class="mono" x="124" y="92" font-size="20" font-weight="700" text-anchor="start" dominant-baseline="middle">Memory</text>
+
+  <rect class="card" x="110" y="130" width="1180" height="150" rx="22"/>
+
+  <rect class="pill" x="577" y="88" width="120" height="34" rx="12"/>
+  <text class="mono" x="637" y="105" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle">Match</text>
+
+  <path class="arrow" d="M637 122 L637 170"/>
+
+  <g transform="translate(146 176)">
+    <g>
+      <rect class="cell" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">48</text>
+    </g>
+    <g transform="translate(66 0)">
+      <rect class="cell" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">8B</text>
+    </g>
+    <g transform="translate(132 0)">
+      <rect class="cell" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">05</text>
+    </g>
+    <g transform="translate(198 0)">
+      <rect class="cell" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">11</text>
+    </g>
+    <g transform="translate(264 0)">
+      <rect class="cell" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">22</text>
+    </g>
+    <g transform="translate(330 0)">
+      <rect class="cell" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">33</text>
+    </g>
+    <g transform="translate(396 0)">
+      <rect class="cell" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">44</text>
+    </g>
+    <g transform="translate(462 0)">
+      <rect class="cellMatch" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">48</text>
+    </g>
+    <g transform="translate(528 0)">
+      <rect class="cellMatch" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">85</text>
+    </g>
+    <g transform="translate(594 0)">
+      <rect class="cellMatch" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">C0</text>
+    </g>
+    <g transform="translate(660 0)">
+      <rect class="cellMatch" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">74</text>
+    </g>
+    <g transform="translate(726 0)">
+      <rect class="cellMatch" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">0A</text>
+    </g>
+    <g transform="translate(792 0)">
+      <rect class="cell" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">89</text>
+    </g>
+    <g transform="translate(858 0)">
+      <rect class="cell" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">41</text>
+    </g>
+    <g transform="translate(924 0)">
+      <rect class="cell" x="0" y="0" width="58" height="44" rx="10"/>
+      <text class="mono" x="29" y="22" font-size="18" text-anchor="middle" dominant-baseline="middle">20</text>
+    </g>
+  </g>
+
+  <text class="muted" x="648" y="318" font-size="16" text-anchor="middle">48 85 C0 74 0A</text>
+</svg>
