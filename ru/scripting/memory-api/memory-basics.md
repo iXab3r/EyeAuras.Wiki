@@ -2,16 +2,16 @@
 title: Memory basics
 description: Практические основы чтения и записи памяти через Memory API в C#-скриптах EyeAuras
 published: true
-date: 2026-04-16T20:05:00.000Z
-tags: c#, scripting, memory, reverse-engineering, pointers, performance
+date: 2026-04-16T19:47:25.505Z
+tags: scripting, c#, memory, reverse-engineering, pointers, performance
 editor: markdown
-dateCreated: 2026-04-16T20:05:00.000Z
+dateCreated: 2026-04-16T19:10:09.373Z
 ---
 
 # Memory basics для Memory API
 
 Эта страница про самую базовую практику: как читать и писать память, что такое static pointer, pointer chain и offsets, как работать со строками и буферами, и какой способ чтения выбирать в C#.
-
+ 
 Если коротко, здесь нам нужны всего три идеи:
 
 - есть адрес в памяти
