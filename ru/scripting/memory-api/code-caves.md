@@ -84,4 +84,5 @@ var execCave = moduleMemory.EnumerateCodeCaves(
 
 - [PE basics](/ru/scripting/memory-api/pe-basics)
 - [Pattern Scanning](/ru/scripting/memory-api/pattern-scanning)
+- [DLL inject](/ru/scripting/memory-api/dll-inject)
 - [Memory API - С чего начать](/ru/scripting/memory-api/getting-started)

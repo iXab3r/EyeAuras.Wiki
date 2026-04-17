@@ -92,6 +92,11 @@ For normal wiki pages, prefer this structure:
 
 Do not create markdown pages without a clear top-level heading after frontmatter.
 
+Formatting notes:
+
+- do not put inline-code backticks inside markdown headings such as `## \`manual mapping\`` because the current wiki renderer may treat the inline-code markup as winning over the heading markup
+- for headings, prefer plain heading text without inline-code formatting; explain exact API/type names in the paragraph or list right below the heading
+
 ## Frontmatter rules
 
 Markdown files should include YAML frontmatter similar to this:
@@ -165,6 +170,7 @@ When working on changelogs:
 - Links to `s3.eyeauras.net` images must be inserted as **full absolute URLs**.
 - Do not shorten or localize those image links.
 - Prefer existing `s3.eyeauras.net` media links over adding new local image files unless explicitly requested.
+- In markdown image alt text, link labels, and similar visible descriptions, avoid special characters that are known to break or confuse the wiki renderer, especially `<` and `>`.
 - Preserve working internal links and keep language-specific links aligned:
   - English pages usually link to `/features/...`, `/scripting/...`, `/changelogs/...`
   - Russian pages usually link to `/ru/features/...`, `/ru/scripting/...`, `/ru/changelogs/...`

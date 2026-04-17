@@ -169,7 +169,7 @@ finally
 
 ## Зачем нужен `DLL inject`
 
-Пока вы читаете память снаружи, вы в основном наблюдаете за процессом. `DLL inject` нужен, когда код должен выполняться уже внутри целевой программы: вызывать её внутренние функции, ставить хуки, делать `code cave`, строить internal-логику. Если хотите быстро понять этот переход, посмотрите [DLL Memory Hack](https://gamehacking.academy/pages/3/03/), [DLL Injector](https://gamehacking.academy/pages/7/01/), [Code Caves & DLL's](https://gamehacking.academy/pages/3/04/) и [Triggerbot](https://gamehacking.academy/pages/5/05/).
+Пока вы читаете память снаружи, вы в основном наблюдаете за процессом. `DLL inject` нужен, когда код должен выполняться уже внутри целевой программы: вызывать её внутренние функции, ставить хуки, делать `code cave`, строить internal-логику. Отдельная статья с разбором вариантов, `manual mapping` и особенностей запуска здесь: [DLL inject](/ru/scripting/memory-api/dll-inject). Если нужен внешний фон, полезны [DLL Memory Hack](https://gamehacking.academy/pages/3/03/), [DLL Injector](https://gamehacking.academy/pages/7/01/), [Code Caves & DLL's](https://gamehacking.academy/pages/3/04/) и [Triggerbot](https://gamehacking.academy/pages/5/05/).
 
 ## Что читать дальше
 
@@ -178,6 +178,7 @@ finally
 - [PE basics](/ru/scripting/memory-api/pe-basics)
 - [Pattern Scanning](/ru/scripting/memory-api/pattern-scanning)
 - [Code Cave](/ru/scripting/memory-api/code-caves)
+- [DLL inject](/ru/scripting/memory-api/dll-inject)
 - [LocalProcess](/ru/scripting/memory-api/backends/local-process)
 - [LCProcess](/ru/scripting/memory-api/backends/lc-process)
 - [Кастомный IProcess](/ru/scripting/memory-api/backends/custom-process)
