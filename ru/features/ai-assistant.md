@@ -1,9 +1,9 @@
 ---
 title: 🤖 AI Assistant
-description: Встроенный AI-чат в EyeAuras, профили OpenAI/OpenAI-compatible, EyeAuras Gateway и помощь по документации и скриптам
+description: Встроенный AI-чат в EyeAuras, профили OpenAI/OpenAI-compatible, EyeAuras Gateway, Agent Guidance, MCP и помощь по документации и скриптам
 published: true
-date: 2026-04-04T00:00:00.000Z
-tags: ai, assistant, gateway, ai-translated
+date: 2026-04-21T22:30:00.000Z
+tags: ai, assistant, gateway, mcp, guidance, ai-translated
 editor: markdown
 dateCreated: 2026-03-29T00:00:00.000Z
 ---
@@ -30,6 +30,8 @@ dateCreated: 2026-03-29T00:00:00.000Z
 - получить более предметную помощь по скриптам и API EyeAuras
 - переключаться между разными AI-профилями под разные сценарии
 - использовать либо свой ключ, либо `EyeAuras Gateway`
+- подготовить `Agent Guidance` для внешних AI coding tools
+- при необходимости поднять локальный `MCP helper` для более точного контекста
 
 Если хочется попробовать его на чем-то максимально практичном, хороший старт - это вопросы вроде:
 
@@ -244,6 +246,68 @@ dateCreated: 2026-03-29T00:00:00.000Z
 - `Docs Knowledge Base` лучше держать включенным
 - `Browser Automation` требует перезапуска приложения после сохранения
 - `Docs Path` имеет смысл трогать только если вы сознательно хотите перенести локальный docs cache
+
+# Agent Guidance
+`Agent Guidance` - это страница в `Show Settings`, которая помогает внешним AI coding tools лучше понимать EyeAuras.
+
+ELI5: вместо того чтобы каждый раз объяснять агенту "что такое EyeAuras, где лежит wiki, какие API использовать и как подключиться к MCP", EyeAuras собирает готовую папку `guidance-pack`.
+
+Эту папку можно открыть, сохранить в архив или добавить рядом с C# проектом / `.sln`. Проектный `AGENTS.md` при этом **не трогается** - все инструкции лежат внутри самой папки guidance pack.
+
+![Agent Guidance](https://s3.eyeauras.net/media/2026/04/EyeAuras_y9R4GuIA9N.png =x600)
+
+Это полезно, если вы работаете с:
+
+- Codex
+- Claude Code
+- Cursor
+- другим AI-агентом, который умеет читать `AGENTS.md`
+- C# проектом или экспортированным workspace, где используются `EyeAuras.SDK` / ref assemblies
+
+Что делает EyeAuras:
+
+- собирает локальный guidance pack с wiki, примерами, SDK-заметками, metadata и статусом MCP
+- кладет внутрь `AGENTS.md` как entry point для AI-агента
+- кладет внутрь `README.md`, `manifest.json`, `mcp-status.json` и папку `docs/`
+- умеет сохранить весь pack в zip-архив
+- умеет скопировать весь pack в C# проект или solution в папку `generated/ai`
+- не меняет ваш проектный `AGENTS.md` и не перезаписывает ваши правила
+
+Практический сценарий:
+
+1. Откройте `AI` -> `Show Settings` -> `Agent Guidance`.
+2. Нажмите `Rebuild`, чтобы создать или обновить guidance pack.
+3. Нажмите `Open Guidance Pack`, если хотите посмотреть папку руками.
+4. Нажмите `Export Guidance Pack`, если хотите сохранить pack в zip-архив.
+5. Нажмите `Add to C# Project` или `Add to Solution`, если хотите скопировать pack рядом с выбранным `.csproj` или `.sln`.
+6. Откройте `generated/ai` или экспортированную папку во внешнем AI coding tool.
+
+![Guidance Pack Actions](https://s3.eyeauras.net/media/2026/04/EyeAuras_R4JvFSFixc.png =x600)
+
+При добавлении в C# проект EyeAuras копирует pack в:
+
+```text
+generated/ai
+```
+
+Если выбрать `.sln`, EyeAuras попытается найти C# проект с таким же именем, как у solution, и положить guidance pack рядом с ним.
+
+Внутри этой папки есть собственный `AGENTS.md`, поэтому агент может начать именно с него, а затем искать по `docs/`.
+
+![Guidance Pack Folder](https://s3.eyeauras.net/media/2026/04/EyeAuras_pW0O4jRT9q.png =x600)
+
+Папка `generated/ai` считается управляемой EyeAuras и при повторном `Add to C# Project` / `Add to Solution` заменяется целиком. Не храните там свои файлы.
+
+Если вы включили или выключили MCP, нажмите `Rebuild`, чтобы записать свежий MCP status в guidance pack.
+
+Важно: `Agent Guidance` не заменяет ваши правила проекта. Это скорее переносимая папка с EyeAuras-контекстом. Если в вашем проекте уже есть свои правила, они остаются вашими и EyeAuras их не редактирует.
+
+## MCP helper
+`MCP` можно воспринимать как маленький локальный мостик между EyeAuras и AI-агентом.
+
+Обычный guidance pack дает агенту документацию и правила. `MCP helper` добавляет живой endpoint, через который агент может делать более точечные запросы к EyeAuras: например, спросить о текущем состоянии программы, окнах или доступных объектах/символах.
+
+Для простого "объясни настройку" или "найди статью" MCP обычно не нужен. Его стоит включать, когда внешнему агенту нужно не только читать docs, но и аккуратно спросить сам EyeAuras о текущем состоянии.
 
 # Что реально работает уже сейчас
 ## 1. Вопросы по документации
