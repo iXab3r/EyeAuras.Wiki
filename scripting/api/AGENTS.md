@@ -116,6 +116,13 @@ Use this shape when practical:
   module-private assets.
 - `core/blazor.md` - PoeShared.Blazor reactive components, `ReactiveSection`,
   dynamic view resolution, content repository, and JS utilities.
+- `core/logging.md` - `IFluentLog`, log4net bridges, app/service logging,
+  script event log routing, logger context, and log-based timing helpers.
+- `core/login-and-licensing.md` - custom login UI, key login,
+  `IEyeHubService`, `ILicenseAccessor`, `LoginWidget`, and modern sublicense
+  lease flows.
+- `core/profiling.md` - MiniProfiler timing trees, startup/app/script/CV
+  profiling, JetBrains dotTrace/dotMemory captures, and report workflows.
 - `core/reactivity.md` - PropertyBinder, Rx/ReactiveUI, DynamicData,
   `SourceList`/`SourceCache`, reactive bindings, and collection
   synchronization.
@@ -263,6 +270,22 @@ Use this shape when practical:
   `ReactiveSection`, `ReactiveTrackerList`, `BlazorContentPresenter`,
   `IBlazorViewRepository`, `IBlazorContentRepository`, `IJsPoeBlazorUtils`.
 
+- Logging:
+  `IFluentLog`, `FluentLogLevel`, `Debug/Info/Warn/Error`,
+  `TypeExtensions.PrepareLogger`, `WithPrefix`, `WithSuffix`,
+  `WithMinLogLevelOverride`, `WithAction`, `WithLogAction`,
+  `BenchmarkTimer`, `CreateProfiler`, `SharedLog`, `ObservableAppender`,
+  `FluentLogger`, `Log4NetLoggerProvider`; script-container `IFluentLog` and
+  `AuraScriptSandbox.Log` route to script events, while `PrepareLogger()`
+  creates normal app/log4net loggers.
+
+- Profiling:
+  use MiniProfiler for targeted timing trees (`MiniProfiler.Step`,
+  `IProfilerProvider.GetOrAdd`, `ProfilerProvider.Startup`,
+  `RenderPlainText`, `StepInfo`, `StepDebug`); use JetBrains dotTrace through
+  `IPerformanceProfilerService` / `IProfilerViewModel` for whole-process CPU
+  captures; use JetBrains dotMemory for memory snapshots and leak analysis.
+
 - Reactivity:
   `Binder<TContext>`, `Bind`, `BindIf`, `WhenAnyValue`, `ReactiveCommand`,
   `ObservableAsPropertyHelper`, `SourceList<T>`, `SourceCache<T, TKey>`,
@@ -322,6 +345,13 @@ Use this shape when practical:
   `PackAurasConfig`, `PackDistributionPolicy`, `PackScriptCompilationMode`,
   `PackScriptProtectionMode`, `IShareProvider`, `AuraShareId`,
   `ISublicenseManager`, `ISublicenseLease`, `IEyeHubService`, `LoginWidget`.
+
+- Login and licensing:
+  `IEyeHubService.PerformLogin(username, password)`,
+  `IEyeHubService.PerformLogin(key, key)` for key login,
+  `IEyeHubService.ActivateLicenseKey(key)` for existing accounts,
+  `ILicenseAccessor` for profile/license projection, and
+  `ISublicenseManager.Rent(AuraShareId)` for paid-pack runtime leases.
 
 - Optional ImGui SDK:
   `IImGuiExperimentalApi`, `ImGuiWindowManager`,

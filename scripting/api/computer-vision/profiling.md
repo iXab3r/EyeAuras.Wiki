@@ -13,6 +13,10 @@ Reference map for measuring script and computer-vision performance with
 MiniProfiler-backed APIs, CV profiling helpers, manual steps, and profiler
 output.
 
+For broader profiler selection, startup/app-level MiniProfiler usage, and
+JetBrains dotTrace/dotMemory capture workflows, start with
+`core/profiling.md`.
+
 ## User Intents
 
 - Find why a CV loop is slow.
@@ -131,6 +135,7 @@ output.
 
 ## Related Maps
 
+- `core/profiling.md`
 - `computer-vision/images.md`
 - `ml/ai.md`
 - `osd/screen-overlay.md`

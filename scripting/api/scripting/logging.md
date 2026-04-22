@@ -24,6 +24,11 @@ Reference map for adding useful diagnostic logging to scripts and mini-apps.
 
 - Top-level script code has a host-provided `Log` member.
 - `Log` is not a global C# API. Ordinary classes do not get it automatically.
+- There are two common `IFluentLog` routes in script work. The host-provided
+  script logger, also registered in the script container, is script-level
+  logging and appears in the EyeAuras event viewer. A logger created with
+  `typeof(MyType).PrepareLogger()` is an independent app/log4net logger and
+  normally goes to files or other configured appenders instead.
 - Helper classes should receive `IFluentLog` through a constructor, method
   parameter, property injection, or a DI registration.
 - App/library code can create an independent logger with
@@ -60,6 +65,10 @@ Reference map for adding useful diagnostic logging to scripts and mini-apps.
 - `TypeExtensions.PrepareLogger()` - create a logger from a normal C# type.
 - `DisposableReactiveObjectWithLogger` - reactive/disposable base class with a
   lazily-created type logger for service-style objects.
+- `AuraScriptRunner<TSandbox>` - creates the script-level logger and registers
+  it as `IFluentLog` in the script child container.
+- `AuraScriptSandbox.Log` / `IAuraScriptSandbox.Log` - script-level fluent log
+  exposed to top-level scripts and routed into script events.
 
 ## Common Flows
 
@@ -101,6 +110,16 @@ public sealed class EntityReader
 }
 ```
 
+### Resolve The Script Container Log
+
+```csharp
+var workerLog = GetService<IFluentLog>().WithPrefix("Worker");
+workerLog.Info("Worker initialized");
+```
+
+In an Aura script this resolves the same script-level logging route that backs
+the top-level `Log` member, so messages appear in the EyeAuras event viewer.
+
 ### Create A Logger In App Or Library Code
 
 ```csharp
@@ -114,6 +133,10 @@ public sealed class MyService
     }
 }
 ```
+
+This creates a normal app/log4net logger. Use it when the type owns independent
+app diagnostics. Do not use it in a script helper when the message is expected
+to appear in the script event viewer; pass the script `Log` instead.
 
 ### Avoid Expensive Debug Messages
 
@@ -146,6 +169,9 @@ if (Log.IsDebugEnabled)
 - Prefer prefixes for repeated helpers or multiple attached windows/processes.
 - Prefer lazy log messages for tables, dumps, screenshots, or memory scans.
 - Prefer passing `IFluentLog` into ordinary helper classes.
+- Prefer the script `Log` or script-container `IFluentLog` for messages users
+  should see in the EyeAuras event viewer.
+- Prefer `PrepareLogger()` for independent app/library diagnostics.
 - Prefer a few high-signal logs around branches and failures in small scripts.
 
 ## Avoid
@@ -158,6 +184,7 @@ if (Log.IsDebugEnabled)
 - Avoid turning every state change into an `Info` message.
 - Avoid using `PrepareLogger()` inside script helpers when passing the script
   logger would preserve better script context.
+- Avoid assuming a normal type logger will show up as a script event.
 
 ## Research Anchors
 
@@ -170,8 +197,10 @@ if (Log.IsDebugEnabled)
 - `WithAction`
 - `WithLogAction`
 - `CreateProfiler`
+- `AuraScriptRunner<TSandbox>`
 - `AuraScriptSandbox.Log`
 - `IAuraScriptSandbox.Log`
+- `TypeExtensions.PrepareLogger`
 
 ## Search Synonyms
 
@@ -191,6 +220,7 @@ if (Log.IsDebugEnabled)
 ## Related Maps
 
 - `scripting/runtime.md`
+- `core/logging.md`
 - `scripting/container-extensions.md`
 - `scripting/reactive-lifetime.md`
 - `scripting/project-workflow.md`

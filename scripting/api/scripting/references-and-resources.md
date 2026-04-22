@@ -54,6 +54,8 @@ and how those pieces behave during export/import.
 - Exported project files should keep embedded resource items in the `.csproj`.
 - Import/live-import scans project resource metadata and preserves relative
   paths.
+- During import/live-import, paths declared as `EmbeddedResource` are owned by
+  the resource pipeline, not imported again as ordinary text documents.
 - `ScriptEmbeddedResourceFileProvider` maps manifest names back to path-like
   names.
 - Resource lookup supports full manifest names, relative paths, dotted paths,

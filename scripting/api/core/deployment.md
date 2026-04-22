@@ -168,6 +168,9 @@ For paid mini-apps, the usual hardening direction is:
 - `ILicenseAccessor` - current license projection and legacy sublicense list.
 - `LoginWidget` - ready-made Blazor login widget for custom UI.
 
+For the detailed custom login/profile flow, including key login via
+`PerformLogin(key, key)`, see `core/login-and-licensing.md`.
+
 ## Prefer
 
 - Prefer local export for backups and one-off transfer.
@@ -228,6 +231,7 @@ For paid mini-apps, the usual hardening direction is:
 
 - `core/eyeauras-structure.md`
 - `core/app-runtime-contexts.md`
+- `core/login-and-licensing.md`
 - `core/configuration-persistence.md`
 - `scripting/runtime.md`
 - `recipes/bot-memory-imgui-interface.md`

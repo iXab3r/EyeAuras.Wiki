@@ -52,7 +52,8 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
 ## API Details
 
 - `IBlazorWindow` - main window contract; `Show`, `ShowDialog`, `Close`,
-  `ShowDevTools`, `ViewType`, `DataContext`, `Container`.
+  `ShowDevTools`, `ViewType`, `DataContext`, `Container`,
+  `AdditionalFiles`, `AdditionalFileProvider`, `RegisterFileProvider`.
 - `IBlazorWindowController` - visual and behavior properties.
 - `IBlazorWindowNativeController` - `GetWindowHandle`, `GetWindowRect`,
   `SetWindowRect`.
@@ -62,6 +63,15 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
   DataContext-based view resolution.
 - `BlazorReactiveComponent` / `BlazorReactiveComponent<T>` - common base for
   reactive Razor components.
+- `IBlazorContentRepository` - app/global list of Blazor CSS/JS files inserted
+  into hosted WebViews.
+- `IRootContentFileProvider` - root/static-web-asset lookup for files referenced
+  by Blazor content.
+- `IScriptFileProvider` - script/project resource file provider.
+- `ScriptEmbeddedResourceFileProvider` - exposes embedded script assembly
+  resources through `IScriptFileProvider`.
+- `ScriptBlazorWindowConfigurator` - registers the script file provider with
+  script-owned Blazor windows.
 - `IJsPoeBlazorUtils.LoadCss(...)` - load CSS into the WebView at runtime.
 - `IJsPoeBlazorUtils.LoadScript(...)` - load plain JavaScript into the WebView
   at runtime.
@@ -85,11 +95,82 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
   debugging.
 - CSS can be inline, loaded declaratively through `HeadContent`, or loaded
   programmatically through `LoadCss`.
+- Bootstrap and the standard EyeAuras/PoeShared Blazor styles are normally
+  registered by the host. Prefer these classes before adding custom CSS.
 - JavaScript can be loaded through `LoadScript`; module-style JS follows normal
   Blazor/JS interop rules.
-- Script embedded resources are available to Blazor windows by relative path.
+- Script embedded resources are exposed through `IScriptFileProvider` and
+  registered with script-owned Blazor windows by `ScriptBlazorWindowConfigurator`.
+  They are available by relative path once the provider is attached.
 - Multiple toggles or repeated controls should be backed by explicit properties
   or item view-models, not copy-pasted hardcoded accessors.
+
+## CSS And Static Assets
+
+Blazor scoped CSS can be fragile in script-owned or dynamic windows. `.razor.css`
+files are usually compiled into an assembly-level `*.styles.css` file, and the
+scope attributes may not line up with generated child DOM, dynamic components,
+third-party component markup, or content loaded through runtime composition.
+
+Preferred order:
+
+1. Use no custom CSS when possible. Bootstrap and standard EyeAuras/PoeShared
+   styles are already available in normal Blazor windows.
+2. Use normal global CSS for reusable UI shells, dynamic components, and
+   third-party component styling.
+3. Add CSS/JS/images to the specific `IBlazorWindow.AdditionalFiles` collection
+   when the asset belongs to one window instance.
+4. Add shared CSS/JS through `IBlazorContentRepository.AdditionalFiles` when it
+   belongs to the app/module as a whole.
+5. Use `IJsPoeBlazorUtils.LoadCss(...)` or `LoadScript(...)` when a component
+   must load an asset on demand during its lifecycle.
+
+Per-window files are usually the best fit for mini-apps and script-created
+dialogs:
+
+```csharp
+var window = dialogApi.CreateWindow<MyWindow>(viewModel);
+window.AdditionalFiles = ImmutableArray.Create<IFileInfo>(
+    new RefFileInfo("my-window.css"),
+    new RefFileInfo("my-window.js"));
+window.Show();
+```
+
+If files come from a provider instead of individual references, attach the
+provider to the window:
+
+```csharp
+window.RegisterFileProvider(scriptFileProvider).AddTo(window.Anchors);
+```
+
+For global/module-level styles, register files once with the Blazor content
+repository:
+
+```csharp
+var repository = container.Resolve<IBlazorContentRepository>();
+repository.AdditionalFiles.Add(new RefFileInfo("MyModule.styles.css"));
+repository.AdditionalFiles.Add(new RefFileInfo("assets/my-module.css"));
+```
+
+For lifecycle-controlled loading inside a component:
+
+```razor
+@inject IJsPoeBlazorUtils BlazorUtils
+
+@code {
+    protected override async Task OnAfterFirstRenderAsync()
+    {
+        await base.OnAfterFirstRenderAsync();
+        await BlazorUtils.LoadCss("assets/my-window.css");
+    }
+}
+```
+
+Embedded script resources flow through `ScriptEmbeddedResourceFileProvider` into
+`IScriptFileProvider`. Script-owned windows get that provider registered by
+`ScriptBlazorWindowConfigurator`, so Razor, CSS, JS, image, font, and other
+resource paths can be resolved from the script project or compiled embedded
+resources without manually copying files next to the application.
 
 ## Common Flows
 
@@ -114,9 +195,21 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
 
 1. Add CSS/JS/images as embedded resources in the script project.
 2. Reference images/videos by relative path from Razor.
-3. Use `HeadContent` for declarative CSS, or `LoadCss` when code controls
-   loading time.
-4. Use `LoadScript` for plain JavaScript files or URLs.
+3. Prefer `IBlazorWindow.AdditionalFiles` for CSS/JS that belongs to one
+   window instance.
+4. Use `IBlazorContentRepository.AdditionalFiles` for app/module-wide CSS/JS.
+5. Use `HeadContent` for simple declarative CSS links, or `LoadCss` when code
+   controls loading time.
+6. Use `LoadScript` for plain JavaScript files or URLs.
+
+### Embedded Resources In Script Windows
+
+1. Add files to the script project as embedded resources or project resources.
+2. Let the script runtime expose them through `IScriptFileProvider`.
+3. For script-created Blazor windows, rely on `ScriptBlazorWindowConfigurator`
+   or call `window.RegisterFileProvider(scriptFileProvider)` directly.
+4. Reference the resource by its normalized relative path from Razor, CSS, JS,
+   `AdditionalFiles`, or `LoadCss` / `LoadScript`.
 
 ## Prefer
 
@@ -127,6 +220,12 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
 - Prefer `DataContext`/view-models for non-trivial components.
 - Prefer embedded resources and relative paths for CSS/JS/images shipped with a
   mini-app.
+- Prefer Bootstrap and built-in EyeAuras/PoeShared classes before adding
+  custom CSS.
+- Prefer `IBlazorWindow.AdditionalFiles` for per-window CSS/JS assets.
+- Prefer `IBlazorContentRepository.AdditionalFiles` for app/module-wide CSS/JS.
+- Prefer normal global CSS over scoped `.razor.css` when styling dynamic
+  components, child component DOM, or third-party component markup.
 - Prefer `recipes/bot-memory-imgui-interface.md` when Blazor windows are
   part of a larger ImGui-rooted script app.
 - Prefer `osd/screen-overlay.md` for drawing over the desktop.
@@ -143,6 +242,10 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
   use the OSD/screen-overlay APIs for that.
 - Avoid remote CSS/JS dependencies when a mini-app should work offline or be
   portable.
+- Avoid relying on scoped `.razor.css` for dynamic windows when the generated
+  `*.styles.css` file is not registered, or when the final DOM is generated by
+  child/third-party components.
+- Avoid page-specific global CSS names without a stable prefix.
 
 ## Research Anchors
 
@@ -151,8 +254,10 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
   `IBlazorWindowAccessor`, `BlazorContentPresenter`,
   `IBlazorViewRepository`, `BlazorViewAttribute`, `ShowDevTools`,
   `BlazorReactiveComponent`, `IJsPoeBlazorUtils`, `LoadCss`,
-  `LoadScript`, `HeadContent`, `ToggleButton`,
-  `ScriptBlazorWindowConfigurator`.
+  `LoadScript`, `HeadContent`, `ToggleButton`, `IBlazorContentRepository`,
+  `IRootContentFileProvider`, `IScriptFileProvider`,
+  `ScriptEmbeddedResourceFileProvider`, `ScriptBlazorWindowConfigurator`,
+  `AdditionalFiles`, `AdditionalFileProvider`, `RegisterFileProvider`.
 
 ## Search Synonyms
 
@@ -166,6 +271,15 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
 - HeadContent
 - LoadCss
 - LoadScript
+- AdditionalFiles
+- AdditionalFileProvider
+- RegisterFileProvider
+- IBlazorContentRepository
+- IScriptFileProvider
+- embedded resources
+- scoped CSS
+- razor.css
+- styles.css
 - BlazorReactiveComponent
 - ToggleButton
 - custom title bar
