@@ -2,11 +2,14 @@
 title: ISendInputScriptingApi
 description: 
 published: true
-date: 2025-03-21T23:36:13.915Z
+date: 2026-04-21T00:00:00.000Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-21T23:36:13.915Z
 ---
+
+> AI-first navigation: see [AI Input, Hooks, Hotkeys](./windows-subsystems/input-hooks-hotkeys), [AI Window Handles](./windows-subsystems/window-handles), and [AI OSD Selection](./osd/selection) for input routing, target windows, hooks, and selection workflows.
+{.is-info}
 
 ```csharp
 /// <summary>

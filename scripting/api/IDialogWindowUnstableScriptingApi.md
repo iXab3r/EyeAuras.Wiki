@@ -2,11 +2,14 @@
 title: IDialogWindowUnstableScriptingApi
 description: 
 published: true
-date: 2025-10-19T16:05:00.000Z
+date: 2026-04-21T00:00:00.000Z
 tags: 
 editor: markdown
 dateCreated: 2024-11-03T23:15:54.436Z
 ---
+
+> AI-first navigation: see [AI Blazor Windows](./windows-subsystems/blazor-windows) for the window-hosting model and when to use dialog windows versus overlay or ImGui surfaces.
+{.is-info}
 
 ```csharp
 

@@ -2,11 +2,14 @@
 title: IComputerVisionExperimentalScriptingApi
 description: 
 published: true
-date: 2025-03-27T10:24:08.517Z
+date: 2026-04-21T00:00:00.000Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-21T23:37:38.346Z
 ---
+
+> AI-first navigation: see [AI Computer Vision / Images](./computer-vision/images), [AI Screen Overlay / Blazor OSD](./osd/screen-overlay), and [AI ML and AI APIs](./ml/ai) for related capture, image processing, and model-facing APIs.
+{.is-info}
 
 ```csharp
 /// <summary>

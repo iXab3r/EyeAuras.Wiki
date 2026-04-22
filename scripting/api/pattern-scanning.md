@@ -2,11 +2,14 @@
 title: Pattern Scanning
 description: 
 published: true
-date: 2024-12-15T10:56:55.901Z
+date: 2026-04-21T00:00:00.000Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-15T10:55:40.847Z
 ---
+
+> AI-first navigation: see [AI Memory / Processes](./memory/processes) for process attachment, pointer access, readers, and where pattern scanning fits in memory workflows.
+{.is-info}
 
 ## What is Pattern Scanning?
 Pattern scanning is a method used to search for specific byte sequences in memory. It’s useful for finding functions, data, or code that doesn’t always stay at the same location when a program is running.

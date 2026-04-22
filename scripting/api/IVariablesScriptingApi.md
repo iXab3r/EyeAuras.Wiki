@@ -2,11 +2,14 @@
 title: IVariablesScriptingApi
 description: 
 published: true
-date: 2025-05-07T20:54:10.624Z
+date: 2026-04-21T00:00:00.000Z
 tags: 
 editor: markdown
 dateCreated: 2024-02-28T13:04:44.376Z
 ---
+
+> AI-first navigation: see [AI Scripting Runtime](./scripting/runtime) and [AI Core Runtime Contexts](./core/app-runtime-contexts) for where variables live relative to scripts, auras, and regular C# helper classes.
+{.is-info}
 
 ```csharp
 /// <summary>

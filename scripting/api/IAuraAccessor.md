@@ -2,11 +2,14 @@
 title: IAuraAccessor
 description: Definition of the IAuraAccessor interface in C#
 published: true
-date: 2024-02-20T20:32:18.477Z
+date: 2026-04-21T00:00:00.000Z
 tags: C#, Interface, Programming
 editor: markdown
 dateCreated: 2024-02-20T20:32:05.134Z
 ---
+
+> AI-first navigation: see [AI Scripting Runtime](./scripting/runtime), [AI Auras Overview](./auras/overview), [AI Aura Actions](./auras/actions), and [AI Aura Triggers](./auras/triggers) for how aura accessors fit into script workflows.
+{.is-info}
 
 ```csharp
 public interface IAuraAccessor : IHasId, ICanBeLoaded, ICanBeArchived, IHasTimestamp, IHasVariables, IHasPath

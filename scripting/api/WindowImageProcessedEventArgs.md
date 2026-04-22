@@ -2,11 +2,14 @@
 title: WindowImageProcessedEventArgs
 description: Represents the event arguments for an image processing trigger, containing the results and transformations required to map detected objects from local to screen coordinates.
 published: true
-date: 2025-03-21T23:35:26.504Z
+date: 2026-04-21T00:00:00.000Z
 tags: image processing, event arguments, coordinates transformation
 editor: markdown
 dateCreated: 2024-04-22T09:26:21.746Z
 ---
+
+> AI-first navigation: see [AI Computer Vision / Images](./computer-vision/images) for image-processing events, capture surfaces, and related OpenCV-style workflows.
+{.is-info}
 
 ```csharp
 /// <summary>

@@ -2,11 +2,14 @@
 title: Memory API
 description: 
 published: true
-date: 2025-09-20T21:17:57.774Z
+date: 2026-04-21T00:00:00.000Z
 tags: 
 editor: markdown
 dateCreated: 2025-09-20T21:17:57.774Z
 ---
+
+> AI-first navigation: see [AI Memory / Processes](./memory/processes) for process readers and attachment patterns, [AI Frida SDK](./nuget/frida-sdk) for optional Frida/CAgent APIs, and [AI ReProcess](./reverse-engineering/reprocess) for reverse-engineering UI integration.
+{.is-info}
 
 ```csharp
 

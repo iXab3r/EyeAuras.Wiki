@@ -2,7 +2,7 @@
 title: FAQ and Best Practices
 description: Short guidelines for writing C# scripts in EyeAuras
 published: true
-date: 2026-04-02T12:00:00.000Z
+date: 2026-04-22T00:00:00.000Z
 tags: c#, scripting, faq, best-practices, ai-translated
 editor: markdown
 dateCreated: 2026-04-02T12:00:00.000Z
@@ -10,6 +10,9 @@ dateCreated: 2026-04-02T12:00:00.000Z
 # EyeAuras Script FAQ and Best Practices
 
 EyeAuras scripts are regular C# code that runs inside the EyeAuras runtime environment. They work well both for tiny 20-line utilities and for larger solutions that can later grow into a [pack](/features/packs) or a [mini-app](/features/mini-app).
+
+> For AI-assisted API research, start from [AI Discovery Maps](/scripting/api/AGENTS). They route broad questions to focused maps and separate base SDK concepts from optional packages such as ImGui SDK and Frida SDK.
+{.is-info}
 
 ## The most important distinction: `Script.csx` vs regular classes
 
@@ -56,7 +59,7 @@ So the rule is simple:
 
 - `Script.csx` is a special EyeAuras entry point
 - related classes are regular C# classes
-- if a related class needs services, pass them through the constructor, properties, or create them with `GetService<T>()`
+- if a related class needs services, obtain them in `Script.csx` or another runtime composition point and pass them through the constructor or properties
 
 This is important for both humans and AI: not every part of the project has the same “magic” capabilities.
 
@@ -950,6 +953,10 @@ A good time to switch is when:
 
 That is exactly what [Export / Import / Live Import](/scripting/ide-integration) is for.
 
+For app-like script projects with a bot loop, custom script runtime, ImGui root
+UI, Blazor tool windows, profiles, and buffered config saves, use the
+[ImGui memory bot recipe](/scripting/api/recipes/imgui-memory-bot-custom-scripting).
+
 One practical detail: `Export` clears the target folder before exporting the project, so do not export into a directory that contains important files.
 
 If you regularly write or maintain large scripts, it is highly recommended to work in a setup like `IDE + AI + EyeAuras MCP`. My personal choice right now is `Rider + AI Assistant/Codex + EyeAuras MCP`, but `Visual Studio` and `VS Code` are also perfectly workable options.
@@ -1110,6 +1117,7 @@ Examples:
 
 - [Getting started](/scripting/getting-started)
 - [Sandbox](/scripting/sandbox)
+- [ImGui memory bot recipe](/scripting/api/recipes/imgui-memory-bot-custom-scripting)
 - [Hotkeys](/scripting/keybinds)
 - [Dependency Injection](/scripting/dependency-injection)
 - [Script Container Extensions](/scripting/script-container-extensions)

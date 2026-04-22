@@ -12,6 +12,16 @@ dateCreated: 2026-03-31T00:13:33.096Z
 
 These instructions apply to everything under `Submodules/EyeAuras.Wiki`.
 
+## API Discovery Docs
+
+Most AI-first API documentation lives under `/scripting/api`.
+
+Start with `/scripting/api/AGENTS.md` when working on scripting APIs, SDK-facing
+examples, mini-apps, optional NuGet packages, windows/OSD/input, memory,
+computer vision, ML, reverse-engineering, auras, triggers, actions, overlays, or
+recipes. That file is the routing map for API discovery docs and should be kept
+in sync when new API-focused pages are added.
+
 ## Language layout
 
 - The wiki uses **English as the default/root language**.

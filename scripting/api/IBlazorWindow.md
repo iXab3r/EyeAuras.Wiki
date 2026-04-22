@@ -2,11 +2,14 @@
 title: IBlazorWindow
 description: 
 published: true
-date: 2025-05-07T20:56:27.448Z
+date: 2026-04-21T00:00:00.000Z
 tags: 
 editor: markdown
 dateCreated: 2025-05-07T20:56:27.448Z
 ---
+
+> AI-first navigation: see [AI Blazor Windows](./windows-subsystems/blazor-windows). For click-through screen annotations use [AI Screen Overlay / Blazor OSD](./osd/screen-overlay); for the optional ImGui package use [AI ImGui SDK](./nuget/imgui-sdk).
+{.is-info}
 
 ```csharp
 /// <summary>

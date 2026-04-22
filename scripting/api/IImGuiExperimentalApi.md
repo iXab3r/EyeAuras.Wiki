@@ -2,11 +2,14 @@
 title: IImGuiExperimentalApi
 description: Interface providing methods for creating/drawing custom elements on the screen
 published: true
-date: 2025-07-16T10:42:20.621Z
+date: 2026-04-21T00:00:00.000Z
 tags: 
 editor: markdown
 dateCreated: 2025-07-16T10:36:31.172Z
 ---
+
+> AI-first navigation: see [AI ImGui SDK](./nuget/imgui-sdk) for the optional NuGet package, render loop concepts, and how ImGui differs from Blazor windows and Blazor OSD.
+{.is-info}
 
 > IMPORTANT! This API is shipped as a separate NuGet package which you have to reference in the script first! Recommend to pick the latest available version.
 {.is-info}

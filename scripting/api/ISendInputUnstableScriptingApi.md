@@ -2,11 +2,14 @@
 title: ISendInputUnstableScriptingApi
 description: 
 published: true
-date: 2025-03-21T23:36:48.505Z
+date: 2026-04-21T00:00:00.000Z
 tags: user input, mouse actions, keyboard actions, scripting api, simulation
 editor: markdown
 dateCreated: 2024-02-28T13:04:42.575Z
 ---
+
+> AI-first navigation: see [AI Input, Hooks, Hotkeys](./windows-subsystems/input-hooks-hotkeys), [AI Window Handles](./windows-subsystems/window-handles), and [AI OSD Selection](./osd/selection) for unstable input helpers and related low-level services.
+{.is-info}
 
 > DEPRECATED - updated API is [here](/scripting/api/ISendInputScriptingApi) 
 {.is-warning}

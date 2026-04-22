@@ -2,11 +2,14 @@
 title: IAuraTreeScriptingApi
 description: Reference for the `IAuraTreeScriptingApi` scripting interface.
 published: true
-date: 2024-06-23T10:32:29.412Z
+date: 2026-04-21T00:00:00.000Z
 tags: scripting, api, triggers, behavior trees, actions, folders, aura tree, ai-translated
 editor: markdown
 dateCreated: 2024-02-28T13:04:40.818Z
 ---
+
+> AI-first navigation: see [AI Scripting Runtime](./scripting/runtime), [AI Auras Overview](./auras/overview), and [AI Aura Entities](./auras/entities) for tree navigation, entities, registration, and runtime infrastructure.
+{.is-info}
 # IAuraTreeScriptingApi
 
 `IAuraTreeScriptingApi` provides access to the Aura Tree from scripts. It lets you work with auras, folders, and behavior trees, either by safely searching for them or by retrieving them directly and handling errors through exceptions.
