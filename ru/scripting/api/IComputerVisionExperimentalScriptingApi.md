@@ -1,122 +1,123 @@
 ---
-title: Экспериментальный API сценариев компьютерного зрения
-description: Интерфейс экспериментального API для сценариев компьютерного зрения.
+title: Экспериментальный API компьютерного зрения
+description: Документация по экспериментальному API компьютерного зрения для скриптов
 published: true
-date: 2025-03-27T10:24:08.517Z
+date: 2026-04-21T00:00:00.000Z
 tags: ai-translated
 editor: markdown
 dateCreated: 2025-03-21T23:37:38.346Z
 ---
+Навигация для AI-first сценариев: см. [AI Computer Vision / Images](./computer-vision/images), [AI Screen Overlay / Blazor OSD](./osd/screen-overlay) и [AI ML and AI APIs](./ml/ai) — там собраны связанные API для захвата, обработки изображений и работы с моделями.
+{.is-info}
+
 ```csharp
 /// <summary>
-/// ВАЖНО! Этот API пока экспериментальный и может измениться. Возможны неудобства
-/// и ломающие изменения.
-/// Предоставляет методы для задач компьютерного зрения: поиск изображений,
-/// поиск пикселей, распознавание текста и предсказания на основе ML
-/// в указанных областях экрана.
+/// IMPORTANT! This API is a subject to change and is still experimental. Apologies for possible inconveniences
+/// and potential breaking changes
+/// Provides methods for performing computer vision-related tasks such as image search, 
+/// pixel search, text recognition, and ML-based predictions within specified screen regions.
 /// </summary>
 public interface IComputerVisionExperimentalScriptingApi : IScriptingApi
 {
     /// <summary>
-    /// Возвращает экземпляр CV API, который ОБХОДИТ механизм кеширования — в этом случае
-    /// вы полностью отвечаете за последствия сами. Это может дать немного лучшую производительность,
-    /// если у вас один Script управляет всем. Совершенно не подходит для использования в BT/Macros.
+    /// Returns instance of CV API which BYPASS caching mechanism - with it you are on your
+    /// own. This will provide a bit better performance for a case when you have a single Script
+    /// controlling everything. Absolutely not applicable for BTs/Macros usage.
     /// </summary>
     /// <returns></returns>
     public IComputerVisionExperimentalScriptingApi WithoutCaching();
     
     /// <summary>
-    /// Создаёт accessor ComputerVision для основного экрана
+    /// Creates ComputerVision accessor for a primary screen
     /// </summary>
     /// <returns></returns>
     public ICvAccessor ForScreen();
     
     /// <summary>
-    /// Создаёт accessor ComputerVision для окна, указанного через window handle
+    /// Creates ComputerVision accessor for a window specified by window handle
     /// </summary>
     /// <returns></returns>
     public ICvAccessor ForWindow(IWindowHandle targetWindow);
 
     /// <summary>
-    /// Создаёт accessor ComputerVision для окна с определённым заголовком/process name/window и т. д.
+    /// Creates ComputerVision accessor for a window with a specific title/process name/window/etc
     /// </summary>
-    /// <param name="args">Содержит параметры, например целевое окно, FPS и т. д.</param>
+    /// <param name="args">Contains parameters such as target window, FPS, etc</param>
     /// <returns></returns>
     public ICvAccessor For(ComputerVisionAccessorArgs args);
 }
 
 /// <summary>
-/// ВАЖНО! Этот API пока экспериментальный и может измениться. Возможны неудобства
-/// и ломающие изменения.
-/// Предоставляет методы для задач компьютерного зрения: поиск изображений,
-/// поиск пикселей, распознавание текста и предсказания на основе ML
-/// в указанных областях экрана.
+/// IMPORTANT! This API is a subject to change and is still experimental. Apologies for possible inconveniences
+/// and potential breaking changes
+/// Provides methods for performing computer vision-related tasks such as image search, 
+/// pixel search, text recognition, and ML-based predictions within specified screen regions.
 /// </summary>
 public interface ICvAccessor : IDisposable
 {
     /// <summary>
-    /// Включает или отключает режим On-Screen Display (OSD) для визуализации найденных элементов в реальном времени.
+    /// Enables or disables the On-Screen Display (OSD) mode for visualizing detected elements in real-time.
     /// </summary>
     bool IsOsdEnabled { get; set; }
 
     /// <summary>
-    /// Задаёт количество кадров в секунду (FPS) для режима On-Screen Display (OSD).
-    /// Определяет, как часто обновляется OSD.
+    /// Specifies the frames per second (FPS) for the On-Screen Display (OSD) mode. 
+    /// Controls how frequently OSD updates occur.
     /// </summary>
     float OsdFps { get; set; }
 
     /// <summary>
-    /// Включает или отключает профилирование производительности. Полезно для поиска узких мест.
+    /// Enables or disables performance profiling. Useful for finding out bottlenecks
     /// </summary>
     bool IsProfilingEnabled { get; set; }
 
     /// <summary>
-    /// Предоставляет доступ к механизму профилирования Computer-Vision, чтобы вы могли выполнять дополнительные замеры.
+    /// Provides access to Computer-Vision profiling mechanism, allowing you to do additional measures
     /// </summary>
     MiniProfiler Profiler { get; }
 
     /// <summary>
-    /// Ищет изображение в указанной области экрана.
+    /// Searches for an image within a specified region of the screen.
     /// </summary>
-    /// <param name="imageFilePath">Путь к файлу изображения, которое нужно найти.</param>
-    /// <param name="similarityThreshold">Порог похожести изображения, 0-100, 100 = точное совпадение</param>
-    /// <param name="region">Область экрана/внутри окна для анализа.</param>
-    /// <returns>Rectangle с координатами найденного изображения. Если совпадение не найдено — Empty.</returns>
+    /// <param name="imageFilePath">Path to the image file to search for.</param>
+    /// <param name="similarityThreshold">Image similarity threshold, 0-100, 100 = exact match</param>
+    /// <param name="region">The region on the screen/inside window to analyze.</param>
+    /// <returns>A Rectangle representing the matched image's location. Empty if no match is found.</returns>
     WindowImageProcessedEventArgs<IImageSearchDetectionResult> ImageSearchRaw(
         string imageFilePath,
         Percentage? similarityThreshold = default,
         Rectangle region = default);
 
     /// <summary>
-    /// Ищет пиксель указанного цвета в заданной области экрана.
+    /// Searches for a pixel of a specified color within a defined screen region.
     /// </summary>
-    /// <param name="color">Цвет для поиска.</param>
-    /// <param name="similarityThreshold">Порог похожести пикселя, 0-100, 100 = точное совпадение</param>
-    /// <param name="region">Область, в которой нужно искать цвет.</param>
-    /// <returns>Координаты первого найденного пикселя. Если ничего не найдено, возвращает Point.Empty.</returns>
+    /// <param name="color">The color to search for.</param>
+    /// <param name="similarityThreshold">Pixel similarity threshold, 0-100, 100 = exact match</param>
+    /// <param name="region">The region to scan for the color.</param>
+    /// <returns>The location of the first found pixel. Returns Point.Empty if not found.</returns>
     WindowImageProcessedEventArgs<IColorSearchDetectionResult> PixelSearchRaw(
         Color color,
         Percentage? similarityThreshold = default,
         Rectangle region = default);
 
     /// <summary>
-    /// Извлекает текст из указанной области экрана с помощью Optical Character Recognition (OCR).
+    /// Extracts text from a specified region of the screen using Optical Character Recognition (OCR).
     /// </summary>
-    /// <param name="includeTextSegments">Если включено, будут добавлены текстовые сегменты (~сегменты уровня слов)</param>
-    /// <param name="region">Область экрана/внутри окна для анализа.</param>
-    /// <returns>Строка с распознанным текстом.</returns>
+    /// <param name="includeTextSegments">If set, will include Text segments (~word-level segments)</param>
+    /// <param name="region">The region on the screen/inside window to analyze.</param>
+    /// <returns>A string containing the detected text.</returns>
     WindowImageProcessedEventArgs<ITextSearchDetectionResult> TextSearchRaw(
         bool includeTextSegments = false,
         Rectangle region = default);
 
     /// <summary>
-    /// Выполняет предсказание модели машинного обучения (ML) в указанной области экрана.
+    /// Performs machine learning (ML) model prediction within a specified screen region.
     /// </summary>
-    /// <param name="mlModelFilePath">Путь к файлу ML-модели.</param>
-    /// <param name="confidenceThreshold">Порог уверенности: чем выше, тем точнее совпадение и тем меньше результатов</param>
-    /// <param name="iouThreshold">Порог Intersection-over-Union. Подробнее: https://www.v7labs.com/blog/intersection-over-union-guide</param>
-    /// <param name="region">Область экрана/внутри окна для анализа.</param>
-    /// <returns>Массив найденных объектов с предсказаниями.</returns>
+    /// <param name="mlModelFilePath">Path to the ML model file.</param>
+    /// <param name="confidenceThreshold">Confidence threshold, higher - better match, lower number of results</param>
+    /// <param name="iouThreshold">Intersection-over-Union threshold. More on it here https://www.v7labs.com/blog/intersection-over-union-guide</param>
+    /// <param name="region">The region on the screen/inside window to analyze.</param>
+    /// <returns>An array of detected objects with predictions.</returns>
     WindowImageProcessedEventArgs<IMLSearchDetectionResult> MLSearchRaw(
         string mlModelFilePath,
         Percentage? confidenceThreshold = default,
@@ -124,51 +125,50 @@ public interface ICvAccessor : IDisposable
         Rectangle region = default);
 
     /// <summary>
-    /// Ищет изображение в указанной области экрана.
+    /// Searches for an image within a specified region of the screen.
     /// </summary>
-    /// <param name="imageFilePath">Путь к файлу изображения, которое нужно найти.</param>
-    /// <param name="similarityThreshold">Порог похожести изображения, 0-100, 100 = точное совпадение</param>
-    /// <param name="region">Область экрана/внутри окна для анализа.</param>
-    /// <returns>Rectangle с координатами найденного изображения. Если совпадение не найдено — Empty.</returns>
+    /// <param name="imageFilePath">Path to the image file to search for.</param>
+    /// <param name="similarityThreshold">Image similarity threshold, 0-100, 100 = exact match</param>
+    /// <param name="region">The region on the screen/inside window to analyze.</param>
+    /// <returns>A Rectangle representing the matched image's location. Empty if no match is found.</returns>
     Rectangle ImageSearch(
         string imageFilePath,
         Percentage? similarityThreshold = default,
         Rectangle region = default);
 
     /// <summary>
-    /// Ищет пиксель указанного цвета в заданной области экрана.
+    /// Searches for a pixel of a specified color within a defined screen region.
     /// </summary>
-    /// <param name="color">Цвет для поиска.</param>
-    /// <param name="similarityThreshold">Порог похожести пикселя, 0-100, 100 = точное совпадение</param>
-    /// <param name="region">Область, в которой нужно искать цвет.</param>
-    /// <returns>Координаты первого найденного пикселя. Если ничего не найдено, возвращает Point.Empty.</returns>
+    /// <param name="color">The color to search for.</param>
+    /// <param name="similarityThreshold">Pixel similarity threshold, 0-100, 100 = exact match</param>
+    /// <param name="region">The region to scan for the color.</param>
+    /// <returns>The location of the first found pixel. Returns Point.Empty if not found.</returns>
     Point PixelSearch(
         Color color,
         Percentage? similarityThreshold = default,
         Rectangle region = default);
 
     /// <summary>
-    /// Подсчитывает количество пикселей в указанной области, которые совпадают с заданным цветом.
+    /// Counts the number of pixels in the specified region that match the given color.
     /// </summary>
-    /// <param name="color">Цвет, который нужно искать в указанной области.</param>
+    /// <param name="color">The color to search for within the specified region.</param>
     /// <param name="similarityThreshold">
-    /// Необязательный порог похожести, который определяет,
-    /// насколько близко цвет пикселя должен совпадать с указанным цветом.
-    /// Значение 100% требует точного совпадения, а меньшие значения допускают
-    /// некоторое отклонение по цвету.
+    /// An optional similarity threshold that determines how closely the pixel's color must match 
+    /// the specified color. A value of 100% requires an exact match, while lower values allow for 
+    /// some variance in the color.
     /// </param>
     /// <param name="region">
-    /// Необязательная прямоугольная область, ограничивающая поиск.
-    /// Если область не указана, будет просканирована вся доступная область.
+    /// An optional rectangular area to restrict the pixel count search. 
+    /// If no region is specified, the entire area will be scanned.
     /// </param>
     /// <returns>
-    /// Общее количество пикселей, совпадающих с указанным цветом в заданной области.
+    /// The total number of pixels that match the specified color within the given region.
     /// </returns>
     /// <remarks>
-    /// Этот метод может быть полезен для определения областей сплошного цвета, поиска элементов UI
-    /// или анализа визуального содержимого внутри захвата экрана.
+    /// This method can be useful for identifying areas of solid color, detecting UI elements, 
+    /// or analyzing visual content within a screen capture.
     /// 
-    /// Пример использования:
+    /// Example usage:
     /// <code>
     /// var redPixels = CountPixels(Color.Red, new Percentage(90), new Rectangle(0, 0, 800, 600));
     /// Console.WriteLine($"Found {redPixels} red pixels.");
@@ -181,18 +181,18 @@ public interface ICvAccessor : IDisposable
 
 
     /// <summary>
-    /// Обрабатывает пиксели изображения с помощью переданной функции и возвращает её результат.
+    /// Processes the image pixels using the provided function and returns the result of the function.
     /// </summary>
-    /// <typeparam name="T">Тип значения, возвращаемого функцией обработки.</typeparam>
-    /// <param name="imageProcessor">Функция, которая обрабатывает изображение и возвращает результат.</param>
-    /// <param name="region">Конкретная область изображения для обработки. Если не указана, обрабатывается всё изображение.</param>
-    /// <returns>Результат, возвращённый <paramref name="imageProcessor"/>.</returns>
+    /// <typeparam name="T">The return type of the processing function.</typeparam>
+    /// <param name="imageProcessor">A function that processes the image and returns a result.</param>
+    /// <param name="region">The specific region of the image to process. If omitted, the entire image is processed.</param>
+    /// <returns>The result returned by the <paramref name="imageProcessor"/>.</returns>
     /// <remarks>
-    /// Изображение, передаваемое в <paramref name="imageProcessor"/>, **используется совместно** несколькими компонентами системы.
-    /// Пока выполняется функция imageProcessor, изображение остаётся стабильным и не изменяется. Однако если вам нужно
-    /// изменить изображение или сохранить стабильную версию для дальнейшей обработки вне этой функции, следует клонировать изображение.
+    /// The image provided to the <paramref name="imageProcessor"/> is **shared** across multiple system components.
+    /// While inside the imageProcessor function, the image will remain stable and won't change. However, if you need to 
+    /// modify the image or retain a stable version for further processing outside the function, you should clone the image. 
     ///
-    /// Пример клонирования изображения для безопасного изменения:
+    /// Example of cloning the image for safe modification:
     /// <code>
     /// ProcessPixels(image =>
     /// {
@@ -200,21 +200,21 @@ public interface ICvAccessor : IDisposable
     /// });
     /// </code>
     ///
-    /// Это гарантирует, что ваши изменения не повлияют на другие компоненты системы, которые также используют это же общее изображение.
+    /// This ensures your modifications won’t interfere with other system components that are also using the same shared image.
     /// </remarks>
     T ProcessPixels<T>(Func<Image<Bgr, byte>, T> imageProcessor, Rectangle region = default);
 
     /// <summary>
-    /// Обрабатывает пиксели изображения с помощью переданного действия. Значение не возвращается.
+    /// Processes the image pixels using the provided action. No value is returned.
     /// </summary>
-    /// <param name="imageProcessor">Действие, которое обрабатывает изображение.</param>
-    /// <param name="region">Конкретная область изображения для обработки. Если не указана, обрабатывается всё изображение.</param>
+    /// <param name="imageProcessor">An action that processes the image.</param>
+    /// <param name="region">The specific region of the image to process. If omitted, the entire image is processed.</param>
     /// <remarks>
-    /// Изображение, передаваемое в <paramref name="imageProcessor"/>, **используется совместно** несколькими компонентами системы.
-    /// Пока выполняется функция imageProcessor, изображение остаётся стабильным и не изменяется. Однако если вам нужно
-    /// изменить изображение или сохранить стабильную версию для дальнейшей обработки вне этой функции, следует клонировать изображение.
+    /// The image provided to the <paramref name="imageProcessor"/> is **shared** across multiple system components.
+    /// While inside the imageProcessor function, the image will remain stable and won't change. However, if you need to 
+    /// modify the image or retain a stable version for further processing outside the function, you should clone the image. 
     ///
-    /// Пример клонирования изображения для безопасного изменения:
+    /// Example of cloning the image for safe modification:
     /// <code>
     /// ProcessPixels(image =>
     /// {
@@ -222,23 +222,23 @@ public interface ICvAccessor : IDisposable
     /// });
     /// </code>
     ///
-    /// Это гарантирует, что ваши изменения не повлияют на другие компоненты системы, которые также используют это же общее изображение.
+    /// This ensures your modifications won’t interfere with other system components that are also using the same shared image.
     /// </remarks>
     void ProcessPixels(Action<Image<Bgr, byte>> imageProcessor, Rectangle region = default);
 
     /// <summary>
-    /// Извлекает текст из указанной области экрана с помощью Optical Character Recognition (OCR).
+    /// Extracts text from a specified region of the screen using Optical Character Recognition (OCR).
     /// </summary>
-    /// <param name="region">Область экрана/внутри окна для анализа.</param>
-    /// <returns>Строка с распознанным текстом.</returns>
+    /// <param name="region">The region on the screen/inside window to analyze.</param>
+    /// <returns>A string containing the detected text.</returns>
     string TextSearch(Rectangle region = default);
 
     /// <summary>
-    /// Выполняет предсказание модели машинного обучения (ML) в указанной области экрана.
+    /// Performs machine learning (ML) model prediction within a specified screen region.
     /// </summary>
-    /// <param name="mlModelFilePath">Путь к файлу ML-модели.</param>
-    /// <param name="region">Область экрана/внутри окна для анализа.</param>
-    /// <returns>Массив найденных объектов с предсказаниями.</returns>
+    /// <param name="mlModelFilePath">Path to the ML model file.</param>
+    /// <param name="region">The region on the screen/inside window to analyze.</param>
+    /// <returns>An array of detected objects with predictions.</returns>
     WindowImageProcessedEventArgs<IMLSearchDetectionResult> MLSearchRaw(
         string mlModelFilePath,
         Rectangle region)
@@ -247,16 +247,16 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Выполняет предсказание модели машинного обучения (ML) в указанной области экрана.
+    /// Performs machine learning (ML) model prediction within a specified screen region.
     /// </summary>
-    /// <param name="mlModelFilePath">Путь к файлу ML-модели.</param>
-    /// <param name="confidenceThreshold">Порог уверенности: чем выше, тем точнее совпадение и тем меньше результатов</param>
-    /// <param name="iouThreshold">Порог Intersection-over-Union. Подробнее: https://www.v7labs.com/blog/intersection-over-union-guide</param>
-    /// <param name="regionX">Координата X верхнего левого угла области</param>
-    /// <param name="regionY">Координата Y верхнего левого угла области</param>
-    /// <param name="regionWidth">Ширина области</param>
-    /// <param name="regionHeight">Высота области</param>
-    /// <returns>Массив найденных объектов с предсказаниями.</returns>
+    /// <param name="mlModelFilePath">Path to the ML model file.</param>
+    /// <param name="confidenceThreshold">Confidence threshold, higher - better match, lower number of results</param>
+    /// <param name="iouThreshold">Intersection-over-Union threshold. More on it here https://www.v7labs.com/blog/intersection-over-union-guide</param>
+    /// <param name="regionX">X coordinate of top-left corner of the region</param>
+    /// <param name="regionY">Y coordinate of top-left corner of the region</param>
+    /// <param name="regionWidth">Width of the region</param>
+    /// <param name="regionHeight">Height of the region</param>
+    /// <returns>An array of detected objects with predictions.</returns>
     WindowImageProcessedEventArgs<IMLSearchDetectionResult> MLSearchRaw(
         string mlModelFilePath,
         Percentage? confidenceThreshold,
@@ -270,12 +270,12 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Выполняет предсказание модели машинного обучения (ML) в указанной области экрана.
+    /// Performs machine learning (ML) model prediction within a specified screen region.
     /// </summary>
-    /// <param name="mlModelFilePath">Путь к файлу ML-модели.</param>
-    /// <param name="confidenceThreshold">Порог уверенности: чем выше, тем точнее совпадение и тем меньше результатов</param>
-    /// <param name="region">Область экрана/внутри окна для анализа.</param>
-    /// <returns>Массив найденных объектов с предсказаниями.</returns>
+    /// <param name="mlModelFilePath">Path to the ML model file.</param>
+    /// <param name="confidenceThreshold">Confidence threshold, higher - better match, lower number of results</param>
+    /// <param name="region">The region on the screen/inside window to analyze.</param>
+    /// <returns>An array of detected objects with predictions.</returns>
     WindowImageProcessedEventArgs<IMLSearchDetectionResult> MLSearchRaw(
         string mlModelFilePath,
         Percentage? confidenceThreshold,
@@ -285,15 +285,15 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Выполняет предсказание модели машинного обучения (ML) в указанной области экрана.
+    /// Performs machine learning (ML) model prediction within a specified screen region.
     /// </summary>
-    /// <param name="mlModelFilePath">Путь к файлу ML-модели.</param>
-    /// <param name="confidenceThreshold">Порог уверенности: чем выше, тем точнее совпадение и тем меньше результатов</param>
-    /// <param name="regionX">Координата X верхнего левого угла области</param>
-    /// <param name="regionY">Координата Y верхнего левого угла области</param>
-    /// <param name="regionWidth">Ширина области</param>
-    /// <param name="regionHeight">Высота области</param>
-    /// <returns>Массив найденных объектов с предсказаниями.</returns>
+    /// <param name="mlModelFilePath">Path to the ML model file.</param>
+    /// <param name="confidenceThreshold">Confidence threshold, higher - better match, lower number of results</param>
+    /// <param name="regionX">X coordinate of top-left corner of the region</param>
+    /// <param name="regionY">Y coordinate of top-left corner of the region</param>
+    /// <param name="regionWidth">Width of the region</param>
+    /// <param name="regionHeight">Height of the region</param>
+    /// <returns>An array of detected objects with predictions.</returns>
     WindowImageProcessedEventArgs<IMLSearchDetectionResult> MLSearchRaw(
         string mlModelFilePath,
         Percentage? confidenceThreshold,
@@ -306,7 +306,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет изображение в указанной области экрана.
+    /// Searches for an image within a specified region of the screen.
     /// </summary>
     WindowImageProcessedEventArgs<IImageSearchDetectionResult> ImageSearchRaw(
         string imageFilePath,
@@ -320,7 +320,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет изображение в указанной области экрана.
+    /// Searches for an image within a specified region of the screen.
     /// </summary>
     WindowImageProcessedEventArgs<IImageSearchDetectionResult> ImageSearchRaw(
         string imageFilePath,
@@ -333,7 +333,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет изображение в указанной прямоугольной области, заданной координатами и размерами.
+    /// Searches for an image within a specified rectangular region defined by coordinates and size.
     /// </summary>
     Rectangle ImageSearch(
         string imageFilePath,
@@ -343,7 +343,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет изображение в указанной прямоугольной области, заданной координатами и размерами.
+    /// Searches for an image within a specified rectangular region defined by coordinates and size.
     /// </summary>
     Rectangle ImageSearch(
         string imageFilePath,
@@ -353,7 +353,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет изображение в указанной прямоугольной области, заданной координатами и размерами.
+    /// Searches for an image within a specified rectangular region defined by coordinates and size.
     /// </summary>
     Rectangle ImageSearch(
         string imageFilePath,
@@ -364,7 +364,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет изображение в указанной прямоугольной области, заданной координатами и размерами.
+    /// Searches for an image within a specified rectangular region defined by coordinates and size.
     /// </summary>
     Rectangle ImageSearch(string imageFilePath, int regionX, int regionY, int regionWidth, int regionHeight)
     {
@@ -372,7 +372,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет пиксель с указанным целочисленным значением цвета в заданной области.
+    /// Searches for a pixel with a specified integer color value within a defined region.
     /// </summary>
     Point PixelSearch(Color color, Rectangle region)
     {
@@ -380,7 +380,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет пиксель указанного цвета в заданной прямоугольной области.
+    /// Searches for a pixel of a specified color within a defined rectangular region.
     /// </summary>
     Point PixelSearch(Color color, int regionX, int regionY, int regionWidth, int regionHeight)
     {
@@ -388,7 +388,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет пиксель указанного цвета в заданной прямоугольной области.
+    /// Searches for a pixel of a specified color within a defined rectangular region.
     /// </summary>
     Point PixelSearch(Color color, Percentage similarityThreshold, int regionX, int regionY, int regionWidth, int regionHeight)
     {
@@ -396,7 +396,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет пиксель, используя значение цвета, представленное как integer.
+    /// Searches for a pixel using a color value represented as an integer.
     /// </summary>
     Point PixelSearch(int color)
     {
@@ -404,7 +404,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет пиксель, используя значение цвета, представленное как integer.
+    /// Searches for a pixel using a color value represented as an integer.
     /// </summary>
     Point PixelSearch(int color, Percentage similarityThreshold)
     {
@@ -412,7 +412,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет пиксель с указанным целочисленным значением цвета в заданной области.
+    /// Searches for a pixel with a specified integer color value within a defined region.
     /// </summary>
     Point PixelSearch(int color, Rectangle region)
     {
@@ -420,7 +420,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет пиксель, используя значение цвета, представленное как integer.
+    /// Searches for a pixel using a color value represented as an integer.
     /// </summary>
     Point PixelSearch(int color, Percentage similarityThreshold, Rectangle region)
     {
@@ -428,7 +428,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет пиксель с указанным целочисленным значением цвета в заданной прямоугольной области.
+    /// Searches for a pixel with a specified integer color value within a defined rectangular region.
     /// </summary>
     Point PixelSearch(int color, int regionX, int regionY, int regionWidth, int regionHeight)
     {
@@ -436,7 +436,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Ищет пиксель с указанным целочисленным значением цвета в заданной прямоугольной области.
+    /// Searches for a pixel with a specified integer color value within a defined rectangular region.
     /// </summary>
     Point PixelSearch(int color, Percentage similarityThreshold, int regionX, int regionY, int regionWidth, int regionHeight)
     {
@@ -444,7 +444,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Выполняет распознавание текста в заданной прямоугольной области.
+    /// Performs text recognition within a defined rectangular region.
     /// </summary>
     string TextSearch(int regionX, int regionY, int regionWidth, int regionHeight)
     {
@@ -452,7 +452,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Подсчитывает количество пикселей в указанной области, которые совпадают с заданным цветом.
+    /// Counts the number of pixels in the specified region that match the given color.
     /// </summary>
     int CountPixels(
         Color color,
@@ -463,7 +463,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Подсчитывает количество пикселей в указанной области, которые совпадают с заданным цветом.
+    /// Counts the number of pixels in the specified region that match the given color.
     /// </summary>
     int CountPixels(
         Color color,
@@ -473,7 +473,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Подсчитывает количество пикселей в указанной области, которые совпадают с заданным цветом.
+    /// Counts the number of pixels in the specified region that match the given color.
     /// </summary>
     int CountPixels(
         int colorArgb,
@@ -484,7 +484,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Подсчитывает количество пикселей в указанной области, которые совпадают с заданным цветом.
+    /// Counts the number of pixels in the specified region that match the given color.
     /// </summary>
     int CountPixels(
         int colorArgb,
@@ -494,7 +494,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Включает режим On-Screen Display (OSD) для визуализации найденных объектов в реальном времени.
+    /// Enables On-Screen Display (OSD) mode to visualize detected objects in real-time.
     /// </summary>
     ICvAccessor EnableOsd()
     {
@@ -503,9 +503,9 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Включает режим On-Screen Display (OSD) с указанной частотой кадров.
+    /// Enables On-Screen Display (OSD) mode with a specified frame rate.
     /// </summary>
-    /// <param name="fps">Кадров в секунду для обновления OSD.</param>
+    /// <param name="fps">Frames per second for OSD updates.</param>
     ICvAccessor EnableOsd(float fps)
     {
         OsdFps = fps;
@@ -513,7 +513,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Отключает режим On-Screen Display (OSD).
+    /// Disables On-Screen Display (OSD) mode.
     /// </summary>
     ICvAccessor DisableOsd()
     {
@@ -522,7 +522,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Включает профилирование производительности.
+    /// Enables performance profiling.
     /// </summary>
     ICvAccessor EnableProfiling()
     {
@@ -531,7 +531,7 @@ public interface ICvAccessor : IDisposable
     }
 
     /// <summary>
-    /// Отключает профилирование производительности.
+    /// Disables performance profiling.
     /// </summary>
     ICvAccessor DisableProfiling()
     {

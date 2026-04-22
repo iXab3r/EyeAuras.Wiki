@@ -1,486 +1,489 @@
 ---
 title: Интерфейс IBlazorWindow
-description: Интерфейс для работы с окнами Blazor в EyeAuras
+description: Интерфейс для окон Blazor
 published: true
-date: 2025-05-07T20:56:27.448Z
+date: 2026-04-21T00:00:00.000Z
 tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-07T20:56:27.448Z
 ---
+> Навигация для AI-first подхода: см. [AI Blazor Windows](./windows-subsystems/blazor-windows). Для аннотаций на экране с кликами используйте [AI Screen Overlay / Blazor OSD](./osd/screen-overlay); для опционального пакета ImGui см. [AI ImGui SDK](./nuget/imgui-sdk).
+{.is-info}
+
 ```csharp
 /// <summary>
-/// Определяет контракт для окна Blazor с настраиваемыми свойствами UI, событийным жизненным циклом и операциями управления состоянием окна.
+/// Defines the contract for a Blazor window with configurable UI properties, event-driven lifecycle, and window state operations.
 /// </summary>
 public interface IBlazorWindow : IBlazorWindowController, IDisposableReactiveObject, IBlazorWindowNativeController
 {
     /// <summary>
-    /// Возвращает или задаёт тип View, который будет отображаться внутри окна.
+    /// Gets or sets type of View which will be displayed within the window.
     /// </summary>
     Type ViewType { get; set; }
     
     /// <summary>
-    /// Возвращает или задаёт тип View, который будет отображаться в заголовке окна.
+    /// Gets or sets type of View which will be displayed inside title bar
     /// </summary>
     Type ViewTypeForTitleBar { get; set; }
     
     /// <summary>
-    /// Возвращает или задаёт data context, который будет назначен View.
-    /// Это устаревшее свойство, в будущих версиях будет удалено и заменено на DataContext
+    /// Gets or sets the data context which will be assigned to View.
+    /// This property is a legacy one, will be removed in future versions and is replaced with DataContext
     /// </summary>
     object DataContext { get; set; }
     
     /// <summary>
-    /// Возвращает или задаёт data context, который будет назначен View.
+    /// Gets or sets the data context which will be assigned to View.
     /// </summary>
     [Obsolete($"Replaced with {nameof(DataContext)} - to be removed in future versions")]
     [Browsable(false)]
     object ViewDataContext { get; set; }
     
     /// <summary>
-    /// Возвращает или задаёт контейнер, который окно будет использовать для разрешения View.
+    /// Gets or sets container which will be used by window to resolve the View
     /// </summary>
     IUnityContainer Container { get; set; }
     
     /// <summary>
-    /// Возвращает или задаёт список дополнительных файлов, которые будут подключены в браузере.
+    /// Gets or sets list of additional files which will be included into browser
     /// </summary>
     ImmutableArray<IFileInfo> AdditionalFiles { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт стартовое расположение окна.
+    /// Gets or sets the startup location of the window.
     /// </summary>
     WindowStartupLocation WindowStartupLocation { get; set; }
         
     /// <summary>
-    /// Возвращает или задаёт дополнительный file provider, который будет использоваться Blazor.
+    /// Gets or sets additional file provider which will be used by Blazor
     /// </summary>
     IFileProvider AdditionalFileProvider { get; set; }
 
     /// <summary>
-    /// Добавляет дополнительный file provider, который будет использоваться Blazor. Добавляется в конец списка.
-    /// Удаляется при disposal
+    /// Adds additional file provider which will be used by Blazor. Added to the end of the list.
+    /// Removed on disposal
     /// </summary>
     IDisposable RegisterFileProvider(IFileProvider fileProvider);
 
     /// <summary>
-    /// Открывает Chromium DevTools.
+    /// Shows Chromium DevTools
     /// </summary>
     void ShowDevTools();
 }
 
 /// <summary>
-/// Определяет контракт для окна Blazor с настраиваемыми свойствами UI, событийным жизненным циклом и операциями управления состоянием окна.
+/// Defines the contract for a Blazor window with configurable UI properties, event-driven lifecycle, and window state operations.
 /// </summary>
 public interface IBlazorWindowController
 {
     /// <summary>
-    /// Возвращает логгер, который можно использовать для записи сообщений от имени окна.
+    /// Gets logger which could be used to produce messages on behalf of the window
     /// </summary>
     IFluentLog Log { get; }
     
     /// <summary>
-    /// Возвращает или задаёт режим изменения размера окна, определяющий, как пользователь может менять размер окна.
+    /// Gets or sets the window resize mode, defining how the user can resize the window.
     /// </summary>
     ResizeMode ResizeMode { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт значение, указывающее, отображается ли заголовок окна и каким образом.
+    /// Gets or sets a value indicating whether the title bar is visible and how it is displayed. 
     /// </summary>
     TitleBarDisplayMode TitleBarDisplayMode { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт значение, указывающее, должно ли окно отображаться на панели задач.
+    /// Gets or sets a value indicating whether the window should appear in the taskbar.
     /// </summary>
     bool ShowInTaskbar { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт отступы вокруг содержимого окна.
+    /// Gets or sets the padding around the window content.
     /// </summary>
     Thickness Padding { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт значение, указывающее, должно ли окно быть click-through (то есть без возможности взаимодействия).
+    /// Gets or sets a value indicating whether the window should be click-through (i.e., not interactable).
     /// </summary>
     bool IsClickThrough { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт значение, указывающее, включён ли режим отладки окна.
+    /// Gets or sets a value indicating whether the window is in debug mode.
     /// </summary>
     bool IsDebugMode { get; set; }
     
     /// <summary>
-    /// Возвращает или задаёт значение, указывающее, видимо ли окно.
+    /// Gets or sets a value indicating whether the window is visible
     /// </summary>
     bool IsVisible { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт прозрачность окна.
+    /// Gets or sets the opacity of the window.
     /// </summary>
     double Opacity { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт текст заголовка окна.
+    /// Gets or sets the title text of the window.
     /// </summary>
     string Title { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт значение, указывающее, должно ли окно оставаться поверх остальных окон.
+    /// Gets or sets a value indicating whether the window should remain on top of other windows.
     /// </summary>
     bool Topmost { get; set; }
     
     /// <summary>
-    /// Возвращает или задаёт значение, указывающее, что окно НЕ должно активироваться при клике.
+    /// Gets or sets a value indicating whether the window should NOT be activated when clicked
     /// </summary>
     bool NoActivate { get; set; }
     
     /// <summary>
-    /// Возвращает или задаёт значение, указывающее, должна ли у окна быть кнопка закрытия.
+    /// Gets or sets a value indicating whether the window should have close button.
     /// </summary>
     bool ShowCloseButton { get; set; }
     
     /// <summary>
-    /// Возвращает или задаёт значение, указывающее, должна ли у окна быть кнопка сворачивания.
+    /// Gets or sets a value indicating whether the window should have minimize button.
     /// </summary>
     bool ShowMinButton { get; set; }
     
     /// <summary>
-    /// Возвращает или задаёт значение, указывающее, должна ли у окна быть кнопка разворачивания.
+    /// Gets or sets a value indicating whether the window should have maximize button.
     /// </summary>
     bool ShowMaxButton { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт горизонтальную позицию окна.
+    /// Gets or sets the horizontal position of the window.
     /// </summary>
     int Left { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт вертикальную позицию окна.
+    /// Gets or sets the vertical position of the window.
     /// </summary>
     int Top { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт ширину окна.
+    /// Gets or sets the width of the window.
     /// </summary>
     int Width { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт высоту окна.
+    /// Gets or sets the height of the window.
     /// </summary>
     int Height { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт минимальную ширину окна.
+    /// Gets or sets the minimum width of the window.
     /// </summary>
     int MinWidth { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт минимальную высоту окна.
+    /// Gets or sets the minimum height of the window.
     /// </summary>
     int MinHeight { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт максимальную ширину окна.
+    /// Gets or sets the maximum width of the window.
     /// </summary>
     int MaxWidth { get; set; }
 
     /// <summary>
-    /// Возвращает или задаёт максимальную высоту окна.
+    /// Gets or sets the maximum height of the window.
     /// </summary>
     int MaxHeight { get; set; }  
     
     /// <summary>
-    /// Возвращает или задаёт цвет фона окна. Можно использовать transparent, чтобы полностью скрыть фон.
+    /// Gets or sets background color of the window. Can use transparent to hide bg entirely.
     /// </summary>
     Color BackgroundColor { get; set; }
     
     /// <summary>
-    /// Возвращает или задаёт цвет рамки окна.
+    /// Gets or sets border color of the window. 
     /// </summary>
     Color BorderColor { get; set; }
     
     /// <summary>
-    /// Возвращает или задаёт толщину рамки окна.
+    /// Gets or sets border thickness of the window. 
     /// </summary>
     Thickness BorderThickness { get; set; }
     
     /// <summary>
-    /// Возвращает или задаёт состояние окна — minimized/maximized/normal.
+    /// Gets or sets state of the window - minimized/maximized/normal. 
     /// </summary>
     WindowState WindowState { get; set; }
 
     /// <summary>
-    /// Observable-последовательность, срабатывающая при нажатии клавиши, когда окно в фокусе.
+    /// Observable sequence for when a key is pressed while the window has focus.
     /// </summary>
     IObservable<KeyEventArgs> WhenKeyDown { get; }
 
     /// <summary>
-    /// Observable-последовательность, срабатывающая при отпускании клавиши, когда окно в фокусе.
+    /// Observable sequence for when a key is released while the window has focus.
     /// </summary>
     IObservable<KeyEventArgs> WhenKeyUp { get; }
 
     /// <summary>
-    /// Observable-последовательность, срабатывающая при нажатии клавиши до того, как ввод будет обработан другими обработчиками событий.
+    /// Observable sequence for when a key is pressed before other event handlers process the input.
     /// </summary>
     IObservable<KeyEventArgs> WhenPreviewKeyDown { get; }
 
     /// <summary>
-    /// Observable-последовательность, срабатывающая при отпускании клавиши до того, как ввод будет обработан другими обработчиками событий.
+    /// Observable sequence for when a key is released before other event handlers process the input.
     /// </summary>
     IObservable<KeyEventArgs> WhenPreviewKeyUp { get; }
     
     /// <summary>
-    /// Observable-последовательность, срабатывающая при нажатии кнопки мыши, когда окно в фокусе.
+    /// Observable sequence for when a mouse button is pressed while the window has focus.
     /// </summary>
     IObservable<MouseButtonEventArgs> WhenMouseDown { get; }
 
     /// <summary>
-    /// Observable-последовательность, срабатывающая при отпускании кнопки мыши, когда окно в фокусе.
+    /// Observable sequence for when a mouse button is released while the window has focus.
     /// </summary>
     IObservable<MouseButtonEventArgs> WhenMouseUp { get; }
 
     /// <summary>
-    /// Observable-последовательность, срабатывающая при нажатии кнопки мыши до того, как ввод будет обработан другими обработчиками событий.
+    /// Observable sequence for when a mouse button is pressed before other event handlers process the input.
     /// </summary>
     IObservable<MouseButtonEventArgs> WhenPreviewMouseDown { get; }
 
     /// <summary>
-    /// Observable-последовательность, срабатывающая при отпускании кнопки мыши до того, как ввод будет обработан другими обработчиками событий.
+    /// Observable sequence for when a mouse button is released before other event handlers process the input.
     /// </summary>
     IObservable<MouseButtonEventArgs> WhenPreviewMouseUp { get; }
     
     /// <summary>
-    /// Observable-последовательность, срабатывающая при движении мыши, когда окно в фокусе.
+    /// Observable sequence for when mouse is moved and the window is in focus.
     /// </summary>
     IObservable<MouseEventArgs> WhenMouseMove { get; }
     
     /// <summary>
-    /// Observable, срабатывающая до любых других событий при движении мыши, когда окно в фокусе.
+    /// Observable before any other events for when mouse is moved and the window is in focus.
     /// </summary>
     IObservable<MouseEventArgs> WhenPreviewMouseMove { get; }
 
     /// <summary>
-    /// Observable-последовательность, срабатывающая, когда окно полностью загружено и отрисовано.
+    /// Observable sequence for when the window is fully loaded and rendered.
     /// </summary>
     IObservable<EventArgs> WhenLoaded { get; }
     
     /// <summary>
-    /// Observable-последовательность, срабатывающая при выгрузке окна.
+    /// Observable sequence for when the window is unloaded
     /// </summary>
     IObservable<EventArgs> WhenUnloaded { get; }
 
     /// <summary>
-    /// Observable-последовательность, срабатывающая при закрытии окна.
+    /// Observable sequence for when the window is closed.
     /// </summary>
     IObservable<EventArgs> WhenClosed { get; }
 
     /// <summary>
-    /// Observable-последовательность, срабатывающая перед закрытием окна и позволяющая отменить его.
+    /// Observable sequence for when the window is about to close, allowing cancellation.
     /// </summary>
     IObservable<CancelEventArgs> WhenClosing { get; }
 
     /// <summary>
-    /// Observable-последовательность, срабатывающая при активации окна.
+    /// Observable sequence for when the window is activated.
     /// </summary>
     IObservable<EventArgs> WhenActivated { get; }
 
     /// <summary>
-    /// Observable-последовательность, срабатывающая при деактивации окна.
+    /// Observable sequence for when the window is deactivated.
     /// </summary>
     IObservable<EventArgs> WhenDeactivated { get; }
 
     /// <summary>
-    /// Событие возникает при нажатии клавиши, когда окно в фокусе.
+    /// Occurs when a key is pressed while the window has focus.
     /// </summary>
     event KeyEventHandler KeyDown;
 
     /// <summary>
-    /// Событие возникает при отпускании клавиши, когда окно в фокусе.
+    /// Occurs when a key is released while the window has focus.
     /// </summary>
     event KeyEventHandler KeyUp;
 
     /// <summary>
-    /// Событие возникает до любых других обработчиков для события нажатия клавиши.
+    /// Occurs before any other event handlers for a key-down event.
     /// </summary>
     event KeyEventHandler PreviewKeyDown;
 
     /// <summary>
-    /// Событие возникает до любых других обработчиков для события отпускания клавиши.
+    /// Occurs before any other event handlers for a key-up event.
     /// </summary>
     event KeyEventHandler PreviewKeyUp;
     
     /// <summary>
-    /// Событие возникает при нажатии кнопки мыши, когда окно в фокусе.
+    /// Occurs when a mouse button is pressed while the window has focus.
     /// </summary>
     event MouseButtonEventHandler MouseDown;
 
     /// <summary>
-    /// Событие возникает при отпускании кнопки мыши, когда окно в фокусе.
+    /// Occurs when a mouse button is released while the window has focus.
     /// </summary>
     event MouseButtonEventHandler MouseUp;
     
     /// <summary>
-    /// Событие возникает при движении мыши, когда окно в фокусе.
+    /// Occurs when mouse is moved and the window is in focus.
     /// </summary>
     event MouseEventHandler MouseMove;
 
     /// <summary>
-    /// Событие возникает до любых других обработчиков для события нажатия кнопки мыши.
+    /// Occurs before any other event handlers for a mouse-down event.
     /// </summary>
     event MouseButtonEventHandler PreviewMouseDown;
 
     /// <summary>
-    /// Событие возникает до любых других обработчиков для события отпускания кнопки мыши.
+    /// Occurs before any other event handlers for a mouse-up event.
     /// </summary>
     event MouseButtonEventHandler PreviewMouseUp;
     
     /// <summary>
-    /// Событие возникает до любых других обработчиков при движении мыши, когда окно в фокусе.
+    /// Occurs  before any other event handlers when mouse is moved and the window is in focus.
     /// </summary>
     event MouseEventHandler PreviewMouseMove;
 
     /// <summary>
-    /// Событие возникает перед закрытием окна и позволяет отменить закрытие.
+    /// Occurs when the window is about to close, providing the option to cancel.
     /// </summary>
     event CancelEventHandler Closing;
 
     /// <summary>
-    /// Событие возникает при активации окна.
+    /// Occurs when the window is activated.
     /// </summary>
     event EventHandler Activated;
 
     /// <summary>
-    /// Событие возникает при деактивации окна.
+    /// Occurs when the window is deactivated.
     /// </summary>
     event EventHandler Deactivated;
 
     /// <summary>
-    /// Событие возникает, когда окно полностью загружено и отрисовано.
+    /// Occurs when the window is fully loaded and rendered.
     /// </summary>
     event EventHandler Loaded;
 
     /// <summary>
-    /// Событие возникает при закрытии окна.
+    /// Occurs when the window is closed.
     /// </summary>
     event EventHandler Closed;
 
     /// <summary>
-    /// Планирует выполнение указанной операции в рамках обработки сообщений окна.
+    /// Schedules specific operation for execution as a part of Window message processing
     /// </summary>
     void BeginInvoke(Action action);
 
     /// <summary>
-    /// Ожидает, пока не будут обработаны все сообщения окна.
+    /// Waits until all Window messages are processed
     /// </summary>
     void WaitForIdle(TimeSpan timeout = default);
     
     /// <summary>
-    /// Сворачивает окно.
+    /// Minimizes the window
     /// </summary>
     void Minimize();
     
     /// <summary>
-    /// Разворачивает окно.
+    /// Maximizes the window
     /// </summary>
     void Maximize();
     
     /// <summary>
-    /// Возвращает окно из состояния Maximized в состояние Normal.
+    /// Restores the window from Maximized state to Normal
     /// </summary>
     void Restore();
 
     /// <summary>
-    /// Скрывает окно, делая его невидимым без закрытия.
+    /// Hides the window, making it invisible without closing it.
     /// </summary>
     void Hide();
 
     /// <summary>
-    /// Показывает окно, делая его видимым.
+    /// Shows the window, making it visible.
     /// </summary>
     void Show();
     
     /// <summary>
-    /// Активирует окно, выводя его на передний план и передавая ему фокус.
+    /// Activates the window, bringing it to front and giving focus.
     /// </summary>
     void Activate();
 
     /// <summary>
-    /// Показывает окно как модальный диалог, блокируя другие взаимодействия до его закрытия.
+    /// Shows the window as a modal dialog, blocking other interactions until closed.
     /// </summary>
     void ShowDialog(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Закрывает окно, освобождая все связанные ресурсы.
+    /// Closes the window, releasing all associated resources.
     /// </summary>
     void Close();
 
     /// <summary>
-    /// Включает возможность перетаскивать текущее окно мышью.
+    /// Enables the ability to drag the current window using the mouse.
     /// </summary>
     /// <remarks>
-    /// - При вызове этого метода окно захватывает ввод мыши.
-    /// - Пока мышь перемещается, позиция окна обновляется, что фактически позволяет перетаскивать окно.
-    /// - Операция перетаскивания прекращается, когда:
-    ///   1. Отпускается левая кнопка мыши.
-    ///   2. У возвращённого <see cref="IDisposable"/> вызывается Dispose.
+    /// - When this method is called, the window captures the mouse input.
+    /// - As the mouse moves, the window's position updates, effectively dragging the window.
+    /// - The drag operation stops when:
+    ///   1. The left mouse button is released.
+    ///   2. The returned <see cref="IDisposable"/> is disposed.
     /// 
-    /// Этот метод полезен для реализации пользовательского поведения перетаскивания окна, например для окон без рамки
-    /// или кастомных заголовков, которые не используют стандартную функциональность перетаскивания окна.
+    /// This method is useful for implementing custom window dragging behavior, such as for frameless windows or 
+    /// custom title bars that do not use the default window drag functionality.
     /// </remarks>
     /// <returns>
-    /// Экземпляр <see cref="IDisposable"/>, который можно использовать, чтобы программно остановить перетаскивание.
-    /// При Dispose этого объекта операция перетаскивания немедленно прекращается, а захват мыши освобождается.
+    /// An <see cref="IDisposable"/> instance that can be used to programmatically stop the dragging operation. 
+    /// Disposing this object will immediately stop the drag operation and release mouse capture.
     /// </returns>
     /// <example>
-    /// Пример использования:
+    /// Example usage:
     /// <code>
     /// var dragDisposable = window.EnableDragMove();
-    /// // Перетаскивание будет продолжаться, пока:
-    /// // 1. Не будет отпущена левая кнопка мыши.
-    /// // 2. Не будет вызван dragDisposable.Dispose().
+    /// // Dragging will continue until:
+    /// // 1. The left mouse button is released.
+    /// // 2. dragDisposable.Dispose() is called.
     /// </code>
     /// </example>
     IDisposable EnableDragMove();
 }
 
 /// <summary>
-/// Определяет контракт для управления нативными свойствами и операциями окна в среде Blazor,
-/// предоставляя прямой контроль над позиционированием, размерами и получением дескрипторов окна.
+/// Defines a contract for managing native window properties and operations within the Blazor environment,
+/// providing direct control over window positioning, sizing, and retrieval of window handles.
 /// </summary>
 public interface IBlazorWindowNativeController
 {
     /// <summary>
-    /// Возвращает дескриптор (HWND) нативного окна, связанного с этим экземпляром окна Blazor.
+    /// Retrieves the handle (HWND) of the native window associated with this Blazor window instance.
     /// </summary>
-    /// <returns><see cref="IntPtr"/>, представляющий дескриптор нативного окна.</returns>
+    /// <returns>An <see cref="IntPtr"/> representing the native window handle.</returns>
     IntPtr GetWindowHandle();
 
     /// <summary>
-    /// Возвращает прямоугольные границы нативного окна, включая позицию и размеры.
+    /// Gets the rectangular bounds of the native window, including position and size.
     /// </summary>
     /// <returns></returns>
     System.Drawing.Rectangle GetWindowRect();
     
     /// <summary>
-    /// Задаёт прямоугольные границы нативного окна, включая позицию и размеры.
+    /// Sets the rectangular bounds of the native window, including position and size.
     /// </summary>
-    /// <param name="windowRect">Объект <see cref="System.Drawing.Rectangle"/>, задающий новую позицию и размеры окна.</param>
+    /// <param name="windowRect">A <see cref="System.Drawing.Rectangle"/> specifying the new position and size of the window.</param>
     void SetWindowRect(System.Drawing.Rectangle windowRect);
 
     /// <summary>
-    /// Задаёт размеры нативного окна без изменения его текущей позиции.
+    /// Sets the size dimensions of the native window without altering its current position.
     /// </summary>
-    /// <param name="windowSize">Объект <see cref="System.Drawing.Size"/>, задающий новую ширину и высоту окна.</param>
+    /// <param name="windowSize">A <see cref="System.Drawing.Size"/> specifying the new width and height of the window.</param>
     void SetWindowSize(System.Drawing.Size windowSize);
 
     /// <summary>
-    /// Обновляет позицию нативного окна без изменения его размеров.
+    /// Updates the position of the native window without changing its size.
     /// </summary>
-    /// <param name="windowPos">Объект <see cref="System.Drawing.Point"/>, задающий новую позицию левого верхнего угла окна.</param>
+    /// <param name="windowPos">A <see cref="System.Drawing.Point"/> specifying the new top-left corner position of the window.</param>
     void SetWindowPos(System.Drawing.Point windowPos);
 }
 
 /// <summary>
-/// Этот интерфейс можно использовать для доступа к текущему окну Blazor из его контекста.
+/// This interface could be used to access current Blazor Window from inside its context
 /// </summary>
 public interface IBlazorWindowAccessor
 {

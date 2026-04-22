@@ -1,211 +1,276 @@
 ---
-title: IAuraTreeScriptingApi
-description: 
+title: Интерфейс IAuraTreeScriptingApi
+description: Справка по скриптовому интерфейсу `IAuraTreeScriptingApi`.
 published: true
-date: 2024-06-23T10:32:29.412Z
-tags: 
+date: 2026-04-21T00:00:00.000Z
+tags: scripting, api, triggers, behavior trees, actions, folders, aura tree, ai-translated
 editor: markdown
 dateCreated: 2024-02-20T20:28:29.069Z
 ---
+> Навигация для AI-first сценариев: см. [AI Scripting Runtime](./scripting/runtime), [AI Auras Overview](./auras/overview) и [AI Aura Entities](./auras/entities). Там описаны навигация по дереву, сущности, регистрация и инфраструктура runtime.
+{.is-info}
+
+# IAuraTreeScriptingApi
+
+`IAuraTreeScriptingApi` дает доступ к Aura Tree из скриптов. С его помощью можно работать с аурами, папками и деревьями поведения: либо безопасно искать их, либо получать напрямую и обрабатывать ошибки через исключения.
+
+Интерфейс также предоставляет коллекции всех доступных аур, папок и behavior trees, а еще позволяет получать конкретные триггеры и действия из ауры по пути.
 
 ```csharp
-
-/// <summary>
-/// Provides methods for interacting with the aura tree, including finding and retrieving auras, folders, and behavior trees. 
-/// It supports operations to both safely find elements (returning null if not found) and directly retrieve elements (throwing exceptions if not found), 
-/// accommodating scenarios that require precise control over error handling. The interface enables accessing collections of all managed auras, folders, 
-/// and behavior trees, as well as fetching specific triggers and actions associated with auras by path. This facilitates dynamic and scriptable interactions 
-/// with the application's hierarchical structure, ideal for scenarios requiring runtime navigation and manipulation of the aura tree.
-/// </summary>
 public interface IAuraTreeScriptingApi : IScriptingApi
+```
+
+## Как работает поиск по пути
+
+API поддерживает два варианта поиска:
+
+- `Find...ByPath(...)` — возвращает `null`, если объект не найден
+- `Get...ByPath(...)` — выбрасывает исключение, если объект не найден
+
+Во всех случаях `path` может быть как абсолютным, так и относительным.
+
+## Свойства
+
+### Aura
+
+Ссылка на ауру, в которой находится текущий скрипт, или `null`, если такой ауры нет.
+
+```csharp
+IAuraAccessor Aura { get; }
+```
+
+### Folder
+
+Ссылка на папку, в которой находится текущий скрипт.
+
+```csharp
+IFolderAccessor Folder { get; }
+```
+
+### Folders
+
+Содержит все папки в Aura Tree.
+
+```csharp
+IObservableList<IFolderAccessor> Folders { get; }
+```
+
+### Auras
+
+Содержит все ауры в Aura Tree.
+
+```csharp
+IObservableList<IAuraAccessor> Auras { get; }
+```
+
+### BehaviorTrees
+
+Содержит все деревья поведения в Aura Tree.
+
+```csharp
+IObservableList<IBehaviorTreeAccessor> BehaviorTrees { get; }
+```
+
+## Методы для аур
+
+### FindAuraByPath(string path)
+
+Ищет ауру по пути. Возвращает `null`, если ничего не найдено.
+
+```csharp
+IAuraAccessor FindAuraByPath(string path);
+```
+
+**Пример:**
+
+```csharp
+var aura = AuraTree.FindAuraByPath("MyFolder/Aura1");
+if (aura != null)
 {
-    /// <summary>
-    /// Contains reference to the Aura (or null) which holds the current script.
-    /// </summary>
-    IAuraAccessor Aura { get; }
+    Log.Info("Aura found!");
+}
+else
+{
+    Log.Info("Aura not found.");
+}
+```
 
-    /// <summary>
-    /// Contains reference to the Folder which holds the current script.
-    /// </summary>
-    IFolderAccessor Folder { get; }
+### GetAuraByPath(string path)
 
-    /// <summary>
-    /// Contains all folders in the Aura Tree.
-    /// </summary>
-    IObservableList<IFolderAccessor> Folders { get; }
+Получает ауру по пути. Если ничего не найдено, выбрасывает исключение.
 
-    /// <summary>
-    /// Contains all auras in the Aura Tree.
-    /// </summary>
-    IObservableList<IAuraAccessor> Auras { get; }
+```csharp
+IAuraAccessor GetAuraByPath(string path);
+```
 
-    /// <summary>
-    /// Contains all behavior trees in the Aura Tree.
-    /// </summary>
-    IObservableList<IBehaviorTreeAccessor> BehaviorTrees { get; }
+**Пример:**
 
-    /// <summary>
-    /// Finds an aura by its path. Returns null if not found.
-    /// </summary>
-    /// <param name="path">The path of the aura, either absolute or relative.</param>
-    /// <returns>The aura at the specified path, or null if not found.</returns>
-    /// <example>
-    /// <code>
-    /// var aura = AuraTree.FindAuraByPath("MyFolder/Aura1");
-    /// if (aura != null)
-    /// {
-    ///     Log.Info("Aura found!");
-    /// }
-    /// else
-    /// {
-    ///     Log.Info("Aura not found.");
-    /// }
-    /// </code>
-    /// </example>
-    IAuraAccessor FindAuraByPath(string path);
+```csharp
+try
+{
+    var aura = AuraTree.GetAuraByPath("MyFolder/Aura1");
+    Log.Info("Aura found!");
+}
+catch (NotFoundException)
+{
+    Log.Info("Aura not found.");
+}
+```
 
-    /// <summary>
-    /// Gets an aura by its path. Throws an exception if not found.
-    /// </summary>
-    /// <param name="path">The path of the aura, either absolute or relative.</param>
-    /// <returns>The aura at the specified path.</returns>
-    /// <example>
-    /// <code>
-    /// try
-    /// {
-    ///     var aura = AuraTree.GetAuraByPath("MyFolder/Aura1");
-    ///     Log.Info("Aura found!");
-    /// }
-    /// catch (NotFoundException)
-    /// {
-    ///     Log.Info("Aura not found.");
-    /// }
-    /// </code>
-    /// </example>
-    IAuraAccessor GetAuraByPath(string path);
+## Методы для папок
 
-    /// <summary>
-    /// Finds a folder by its path. Returns null if not found.
-    /// </summary>
-    /// <param name="path">The path of the folder, either absolute or relative.</param>
-    /// <returns>The folder at the specified path, or null if not found.</returns>
-    /// <example>
-    /// <code>
-    /// var folder = AuraTree.FindFolderByPath("MyProject/Folders/Folder1");
-    /// if (folder != null)
-    /// {
-    ///     Log.Info("Folder found!");
-    /// }
-    /// else
-    /// {
-    ///     Log.Info("Folder not found.");
-    /// }
-    /// </code>
-    /// </example>
-    IFolderAccessor FindFolderByPath(string path);
+### FindFolderByPath(string path)
 
-    /// <summary>
-    /// Gets a folder by its path. Throws an exception if not found.
-    /// </summary>
-    /// <param name="path">The path of the folder, either absolute or relative.</param>
-    /// <returns>The folder at the specified path.</returns>
-    /// <example>
-    /// <code>
-    /// try
-    /// {
-    ///     var folder = AuraTree.GetFolderByPath("MyProject/Folders/Folder1");
-    ///     Log.Info("Folder found!");
-    /// }
-    /// catch (NotFoundException)
-    /// {
-    ///     Log.Info("Folder not found.");
-    /// }
-    /// </code>
-    /// </example>
-    IFolderAccessor GetFolderByPath(string path);
+Ищет папку по пути. Возвращает `null`, если ничего не найдено.
 
-    /// <summary>
-    /// Finds a behavior tree by its path. Returns null if not found.
-    /// </summary>
-    /// <param name="path">The path of the behavior tree, either absolute or relative.</param>
-    /// <returns>The behavior tree at the specified path, or null if not found.</returns>
-    /// <example>
-    /// <code>
-    /// var behaviorTree = AuraTree.FindBehaviorTreeByPath("MyProject/BehaviorTrees/Tree1");
-    /// if (behaviorTree != null)
-    /// {
-    ///     Log.Info("Behavior tree found!");
-    /// }
-    /// else
-    /// {
-    ///     Log.Info("Behavior tree not found.");
-    /// }
-    /// </code>
-    /// </example>
-    IBehaviorTreeAccessor FindBehaviorTreeByPath(string path);
+```csharp
+IFolderAccessor FindFolderByPath(string path);
+```
 
-    /// <summary>
-    /// Gets a behavior tree by its path. Throws an exception if not found.
-    /// </summary>
-    /// <param name="path">The path of the behavior tree, either absolute or relative.</param>
-    /// <returns>The behavior tree at the specified path.</returns>
-    /// <example>
-    /// <code>
-    /// try
-    /// {
-    ///     var behaviorTree = AuraTree.GetBehaviorTreeByPath("MyProject/BehaviorTrees/Tree1");
-    ///     Log.Info("Behavior tree found!");
-    /// }
-    /// catch (NotFoundException)
-    /// {
-    ///     Log.Info("Behavior tree not found.");
-    /// }
-    /// </code>
-    /// </example>
-    IBehaviorTreeAccessor GetBehaviorTreeByPath(string path);
+**Пример:**
 
-    /// <summary>
-    /// Gets a trigger of a specific type by path. Throws an exception if the trigger cannot be found or does not match the specified type.
-    /// </summary>
-    /// <typeparam name="TTrigger">The type of the trigger to get.</typeparam>
-    /// <param name="path">The path to the aura containing the trigger.</param>
-    /// <returns>A trigger of the specified type.</returns>
-    /// <exception cref="ArgumentException">Thrown if the trigger of the specified type cannot be found at the given path, or if the aura does not contain any triggers at all.</exception>
-    /// <example>
-    /// <code>
-    /// try
-    /// {
-    ///     var trigger = AuraTree.GetTriggerByPath<IImageSearchTrigger>("MyAuraPath");
-    ///     Log.Info($"Trigger found: {trigger.Name}");
-    /// }
-    /// catch (ArgumentException ex)
-    /// {
-    ///     Log.Info(ex.Message);
-    /// }
-    /// </code>
-    /// </example>
-    public TTrigger GetTriggerByPath<TTrigger>(string path) where TTrigger : IAuraTrigger;
+```csharp
+var folder = AuraTree.FindFolderByPath("MyProject/Folders/Folder1");
+if (folder != null)
+{
+    Log.Info("Folder found!");
+}
+else
+{
+    Log.Info("Folder not found.");
+}
+```
 
-    /// <summary>
-    /// Gets an action of a specific type by path. Throws an exception if the action cannot be found or does not match the specified type.
-    /// </summary>
-    /// <typeparam name="TAction">The type of the action to get.</typeparam>
-    /// <param name="path">The path to the aura containing the action.</param>
-    /// <returns>An action of the specified type.</returns>
-    /// <exception cref="ArgumentException">Thrown if the action of the specified type cannot be found at the given path, or if the aura does not contain any actions at all.</exception>
-    /// <example>
-    /// <code>
-    /// try
-    /// {
-    ///     var action = AuraTree.GetActionByPath<ISendSequenceAction>("MyAuraPath");
-    ///     Log.Info($"Action found: {action.Name}");
-    /// }
-    /// catch (ArgumentException ex)
-    /// {
-    ///     Log.Info(ex.Message);
-    /// }
-    /// </code>
-    /// </example>
-    public TAction GetActionByPath<TAction>(string path) where TAction : IAuraAction;
+### GetFolderByPath(string path)
+
+Получает папку по пути. Если ничего не найдено, выбрасывает исключение.
+
+```csharp
+IFolderAccessor GetFolderByPath(string path);
+```
+
+**Пример:**
+
+```csharp
+try
+{
+    var folder = AuraTree.GetFolderByPath("MyProject/Folders/Folder1");
+    Log.Info("Folder found!");
+}
+catch (NotFoundException)
+{
+    Log.Info("Folder not found.");
+}
+```
+
+## Методы для behavior trees
+
+### FindBehaviorTreeByPath(string path)
+
+Ищет дерево поведения по пути. Возвращает `null`, если ничего не найдено.
+
+```csharp
+IBehaviorTreeAccessor FindBehaviorTreeByPath(string path);
+```
+
+**Пример:**
+
+```csharp
+var behaviorTree = AuraTree.FindBehaviorTreeByPath("MyProject/BehaviorTrees/Tree1");
+if (behaviorTree != null)
+{
+    Log.Info("Behavior tree found!");
+}
+else
+{
+    Log.Info("Behavior tree not found.");
+}
+```
+
+### GetBehaviorTreeByPath(string path)
+
+Получает дерево поведения по пути. Если ничего не найдено, выбрасывает исключение.
+
+```csharp
+IBehaviorTreeAccessor GetBehaviorTreeByPath(string path);
+```
+
+**Пример:**
+
+```csharp
+try
+{
+    var behaviorTree = AuraTree.GetBehaviorTreeByPath("MyProject/BehaviorTrees/Tree1");
+    Log.Info("Behavior tree found!");
+}
+catch (NotFoundException)
+{
+    Log.Info("Behavior tree not found.");
+}
+```
+
+## Доступ к триггерам и действиям
+
+Эти методы позволяют получить триггер или действие нужного типа из ауры по пути.
+
+### GetTriggerByPath<TTrigger>(string path)
+
+Получает триггер указанного типа.
+
+Выбрасывает `ArgumentException`, если:
+
+- триггер указанного типа не найден по заданному пути
+- в ауре вообще нет триггеров
+
+```csharp
+public TTrigger GetTriggerByPath<TTrigger>(string path) where TTrigger : IAuraTrigger;
+```
+
+**Параметр типа:**
+
+- `TTrigger` — тип триггера, который нужно получить
+
+**Пример:**
+
+```csharp
+try
+{
+    var trigger = AuraTree.GetTriggerByPath<IImageSearchTrigger>("MyAuraPath");
+    Log.Info($"Trigger found: {trigger.Name}");
+}
+catch (ArgumentException ex)
+{
+    Log.Info(ex.Message);
+}
+```
+
+### GetActionByPath<TAction>(string path)
+
+Получает действие указанного типа.
+
+Выбрасывает `ArgumentException`, если:
+
+- действие указанного типа не найдено по заданному пути
+- в ауре вообще нет действий
+
+```csharp
+public TAction GetActionByPath<TAction>(string path) where TAction : IAuraAction;
+```
+
+**Параметр типа:**
+
+- `TAction` — тип действия, которое нужно получить
+
+**Пример:**
+
+```csharp
+try
+{
+    var action = AuraTree.GetActionByPath<ISendSequenceAction>("MyAuraPath");
+    Log.Info($"Action found: {action.Name}");
+}
+catch (ArgumentException ex)
+{
+    Log.Info(ex.Message);
 }
 ```
