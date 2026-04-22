@@ -12,6 +12,9 @@ dateCreated: 2026-04-22T00:00:00.000Z
 Reference map for classes that need disposal, property-change notifications, or
 both in scripts and mini-apps.
 
+Use `core/reactivity.md` for `PropertyBinder`, Rx/ReactiveUI, DynamicData, and
+live collection patterns built on top of this lifetime model.
+
 ## User Intents
 
 - Own subscriptions, windows, process readers, timers, and child services.
@@ -155,6 +158,7 @@ should stay tied to the user's script session.
 
 ## Related Maps
 
+- `core/reactivity.md`
 - `scripting/runtime.md`
 - `scripting/logging.md`
 - `scripting/async.md`

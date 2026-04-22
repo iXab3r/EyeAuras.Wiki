@@ -114,6 +114,11 @@ Use this shape when practical:
   C# class execution contexts.
 - `core/app-modules.md` - Prism modules, module loading, dynamic modules, and
   module-private assets.
+- `core/blazor.md` - PoeShared.Blazor reactive components, `ReactiveSection`,
+  dynamic view resolution, content repository, and JS utilities.
+- `core/reactivity.md` - PropertyBinder, Rx/ReactiveUI, DynamicData,
+  `SourceList`/`SourceCache`, reactive bindings, and collection
+  synchronization.
 - `core/configuration-persistence.md` - config providers, config serializer,
   metadata wrappers, migrations, and replacements.
 - `core/deployment.md` - export/import, packs, portable packs, mini-apps,
@@ -252,6 +257,16 @@ Use this shape when practical:
 - Browser automation:
   Selenium/WebDriver controls browser DOM/session state directly and is usually
   preferable to image search or global input simulation for web pages.
+
+- Blazor foundation:
+  `BlazorReactiveComponent`, `BlazorReactiveComponent<TContext>`,
+  `ReactiveSection`, `ReactiveTrackerList`, `BlazorContentPresenter`,
+  `IBlazorViewRepository`, `IBlazorContentRepository`, `IJsPoeBlazorUtils`.
+
+- Reactivity:
+  `Binder<TContext>`, `Bind`, `BindIf`, `WhenAnyValue`, `ReactiveCommand`,
+  `ObservableAsPropertyHelper`, `SourceList<T>`, `SourceCache<T, TKey>`,
+  `Connect`, `BindToCollection`, `SourceListEx<T>`, `SourceCacheEx<T, TKey>`.
 
 - Large script projects:
   `IHostedService`, `ScriptContainerExtension`, `AuraScriptRunner<TSandbox>`,

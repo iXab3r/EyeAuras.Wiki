@@ -216,6 +216,7 @@ script body just because the exported IDE project compiles.
 
 - `core/eyeauras-structure.md`
 - `core/app-runtime-contexts.md`
+- `core/reactivity.md`
 - `recipes/recipe.md`
 - `scripting/async.md`
 - `scripting/container-extensions.md`

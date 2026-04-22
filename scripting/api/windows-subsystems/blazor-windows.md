@@ -12,6 +12,10 @@ dateCreated: 2026-04-21T00:00:00.000Z
 Reference map for Blazor-backed native windows, WebView2 hosts, dialog windows,
 Razor view resolution, custom title bars, and window automation.
 
+Use `core/blazor.md` for shared Razor component infrastructure such as
+`BlazorReactiveComponent`, `ReactiveSection`, dynamic view resolution, content
+repository, and JS utilities.
+
 Use `osd/screen-overlay.md` for click-through desktop annotations and
 `nuget/imgui-sdk.md` for optional ImGui windows.
 
@@ -172,6 +176,7 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
 ## Related Maps
 
 - `osd/screen-overlay.md`
+- `core/blazor.md`
 - `recipes/bot-memory-imgui-interface.md`
 - `nuget/imgui-sdk.md`
 - `scripting/project-workflow.md`
