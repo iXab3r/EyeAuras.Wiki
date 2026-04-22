@@ -37,6 +37,9 @@ ImGui windows, reusable content, images, fonts, and RE-style tool windows.
 - `IImGuiWindowContent` receives `ImGuiWindowCtx`.
 - ImGui font/image/markdown helpers can use embedded resources through
   `IScriptFileProvider`.
+- ImGui is process-global in practice: the native ImGui/ImGui.NET runtime is a
+  singleton-style integration inside the host process and does not support
+  multiple independent ImGui contexts or multiple library versions in one app.
 
 ## Required Setup
 
@@ -55,6 +58,23 @@ Do not assume `IImGuiExperimentalApi`, `ImGuiWindowManager`, or other ImGui SDK
 services are available just because the package compiles. Without
 `ImGuiContainerExtensions`, service resolution can fail or return an incomplete
 host setup.
+
+## Process-Global Runtime
+
+Treat ImGui as a shared host capability, not as an isolated per-script library.
+
+- There is one ImGui integration inside the process.
+- Do not reference or load multiple versions of ImGui.NET or the ImGui SDK in
+  the same EyeAuras process.
+- Do not create independent ImGui contexts from script code.
+- Do not assume a script mini-app can upgrade/downgrade ImGui separately from
+  the running host.
+- Rendering failures are high impact: a bad native call, invalid texture/font
+  usage, or unhandled exception in a render callback can destabilize or crash
+  the whole app.
+- Keep render callbacks defensive: validate input, avoid blocking work, catch
+  and log exceptions around risky sections, and dispose renderer/window
+  subscriptions with the owning script lifetime.
 
 ## API Details
 
@@ -113,6 +133,16 @@ host setup.
   - `FlexHorizontal(...)` for table-based horizontal rows.
   - `Stretched(...)` for value + fixed-width action layouts.
   - `ImGuiListClipper()` for large repeated lists.
+- Filterable tables:
+  - `TableTabState<T>` in `EyeAuras.AI.Desktop` is a reusable base for
+    ImGui tables with refresh, text/regex filtering, sorting, row selection,
+    and row context menus.
+  - Use `SelectedItem`, `HasSelectedItem`, and `SelectedRowKey` when external
+    controls such as an `Attach`, `Open`, or `Inspect` button need the current
+    row selection.
+  - Use it when a mini-app needs a searchable process/window/entity/module/
+    artifact list instead of hand-rolling table state.
+  - It is an `EyeAuras.AI.Desktop` helper, not a core ImGui.NET primitive.
 - Display helpers:
   - `DisplayPropertyGrid(...)` for object or dictionary inspection.
   - `DisplayErrors(...)` for `IHasErrorProvider`.
@@ -312,6 +342,9 @@ static bool SearchBox(string label, ref string filter)
 - Avoid unstable labels for stateful/repeated controls; unstable ids cause
   lost focus, mixed state, and wrong selection.
 - Avoid blocking or sleeping inside render callbacks.
+- Avoid bringing another ImGui.NET or ImGui SDK version into the same process.
+- Avoid unhandled exceptions escaping render callbacks; log and degrade the UI
+  instead.
 
 ## Research Anchors
 
@@ -325,9 +358,11 @@ static bool SearchBox(string label, ref string filter)
   `ImGui.GetID`, `ImGui.PushID`, `ImGui.PopID`, `GetOrAddState`,
   `ComboBoxEx`, `DropdownButton`, `ConfirmButton`, `TextField`,
   `TextFieldWithConfirmButtons`, `HotkeyEditor`, `ToggleButton`,
+  `TableTabState<T>`, `SelectedItem`, `HasSelectedItem`, `SelectedRowKey`,
   `DisplayPropertyGrid`, `MarkdownBox`, `ImageRgba32`, `ImageFromUrl`,
   `AwesomeIcon`, `TextUnformattedOutlined`, `ImGuiExtensions`,
-  `ImDrawListWorldExtensions`, `ColorExtensions`.
+  `ImDrawListWorldExtensions`, `ColorExtensions`, `ImGui context`,
+  `ImGui.NET`, `render callback exception`, `process-global singleton`.
 
 ## Search Synonyms
 
@@ -353,12 +388,20 @@ static bool SearchBox(string label, ref string filter)
 - stateful control
 - control state
 - custom ImGui control
+- filterable table
+- sortable table
+- row context menu
+- TableTabState
 - property grid
 - hotkey editor
 - markdown
 - Font Awesome
 - world to screen
 - ESP drawing
+- ImGui singleton
+- ImGui context
+- multiple ImGui versions
+- render callback exception
 
 ## Related Maps
 
@@ -367,5 +410,6 @@ static bool SearchBox(string label, ref string filter)
 - `windows-subsystems/blazor-windows.md`
 - `osd/screen-overlay.md`
 - `reverse-engineering/reprocess.md`
+- `scripting/async.md`
 - `scripting/container-extensions.md`
 - `scripting/references-and-resources.md`

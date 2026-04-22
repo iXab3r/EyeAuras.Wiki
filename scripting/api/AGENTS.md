@@ -120,11 +120,15 @@ Use this shape when practical:
   EyePad launch, script protection, and sublicensing.
 - `scripting/runtime.md` - script APIs, dependency/capability access,
   accessors, folders, variables, macros, keybinds, and helper class rules.
+- `scripting/async.md` - top-level `await`, background task safety,
+  cancellation, fire-and-forget hazards, and coroutine-style script loops.
 - `scripting/container-extensions.md` - script DI composition,
   `ScriptContainerExtension`, optional SDK registration, and service graph
   setup.
 - `scripting/logging.md` - `Log`, `IFluentLog`, log levels, helper-class
   logger passing, scoped prefixes, exception logs, and diagnostic breadcrumbs.
+- `scripting/reactive-lifetime.md` - `DisposableReactiveObject`, `Anchors`,
+  `AddTo`, `INotifyPropertyChanged`, and script/runtime NPC weaving.
 - `scripting/references-and-resources.md` - NuGet/assembly references,
   embedded resources, `IScriptFileProvider`, DLL/image/font/model assets.
 - `scripting/project-workflow.md` - export/import/live-import, IDE workflow,
@@ -207,6 +211,18 @@ Use this shape when practical:
   from `typeof(MyType).PrepareLogger()`; use levels, prefixes, lazy messages,
   and exception overloads to leave useful diagnostic breadcrumbs.
 
+- Script async:
+  top-level scripts support `async`/`await`; pass `cancellationToken` into
+  async APIs, catch/log every fire-and-forget boundary, avoid `async void`,
+  and prefer the `Coroutine` NuGet package for long-running step-based loops.
+
+- Reactive lifetime:
+  `DisposableReactiveObject` is the default base class for helper objects that
+  need `IDisposable`, `INotifyPropertyChanged`, or both; put owned resources in
+  `Anchors` with `.AddTo(Anchors)` instead of hand-writing trivial `Dispose`
+  methods. Normal app projects use `PropertyChanged.Fody`; script projects can
+  get NPC behavior from the runtime code weaver.
+
 - Script DI / composition:
   `ScriptContainerExtension` registers script-owned services;
   `AddNewExtension<T>` attaches extensions from top-level script code;
@@ -240,7 +256,8 @@ Use this shape when practical:
 - Large script projects:
   `IHostedService`, `ScriptContainerExtension`, `AuraScriptRunner<TSandbox>`,
   `AuraScriptSandbox`, `IImGuiExperimentalApi`, `IBlazorWindow`,
-  `IConfigProvider<TConfig>`, `CompositeDisposable`, `Anchors`.
+  `IConfigProvider<TConfig>`, `DisposableReactiveObject`, `CompositeDisposable`,
+  `Anchors`.
 
 - Aura entity registration:
   `IAuraRegistrator`, `IAuraRepository`, `IAuraObjectFactory`,

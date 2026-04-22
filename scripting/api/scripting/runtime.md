@@ -25,11 +25,16 @@ classes, dependency access, accessors, variables, macros, and keybind metadata.
 ## Concept Model
 
 - Top-level script code has host-provided capabilities.
+- Top-level script code can use `async`/`await`; async safety and background
+  work rules live in `scripting/async.md`.
 - Top-level script code can use `Log` directly for diagnostics.
 - `ExecutionAnchors` is a per-run disposal bucket; resources added there are
   disposed when the current script execution ends.
 - Long-lived resources that should survive across script executions belong to
   the sandbox/script lifetime (`Anchors`) or to explicit app services instead.
+- Helper objects that own resources or expose bindable state should usually
+  inherit from `DisposableReactiveObject` and use `.AddTo(Anchors)` for owned
+  disposables.
 - Ordinary C# files next to the script are normal classes.
 - Helper classes need dependencies through constructors, explicit parameters, or
   script-owned DI.
@@ -95,6 +100,12 @@ script body just because the exported IDE project compiles.
 - `ExecutionAnchors` - per-run `CompositeDisposable` for subscriptions,
   windows, trackers, and other resources that should die when the current run
   stops.
+- `DisposableReactiveObject` - base class for helper objects that need
+  `IDisposable`, `INotifyPropertyChanged`, or both.
+- `Anchors` - object-level `CompositeDisposable` used by
+  `DisposableReactiveObject`.
+- `AddTo(Anchors)` - common pattern for attaching owned resources to an
+  object-level lifetime.
 - `KeybindAttribute` - method-level hotkey metadata.
 - `ScriptContainerExtension` - script-owned DI extension.
 - `CsharpScriptActionExecutor` - object-style action base.
@@ -119,6 +130,12 @@ script body just because the exported IDE project compiles.
   - add `KeybindAttribute` to a script method.
   - use `windows-subsystems/input-hooks-hotkeys.md` for lower-level input.
 
+- Use async safely:
+  - `await` one-shot operations directly from top-level script code.
+  - pass `cancellationToken` into async APIs when available.
+  - catch/log exceptions at every fire-and-forget boundary.
+  - use `scripting/async.md` for background tasks and coroutine-style loops.
+
 - Attach a per-run subscription or helper:
   - create the disposable resource during the script run.
   - call `.AddTo(ExecutionAnchors)`.
@@ -131,6 +148,7 @@ script body just because the exported IDE project compiles.
 - Build a large script app:
   - keep `Script.cs` or `Script.csx` as a small composition root.
   - use `ScriptContainerExtension` for repeated DI setup.
+  - use `DisposableReactiveObject` for owned services/windows/readers.
   - create a child container for app-level services.
   - move lifecycle into an `IHostedService`-style coordinator.
 
@@ -143,6 +161,8 @@ script body just because the exported IDE project compiles.
 - Prefer accessors over internal model objects in scripts.
 - Prefer explicit dependencies in helper classes.
 - Prefer `ExecutionAnchors` for resources created by the current script run.
+- Prefer `DisposableReactiveObject` and object `Anchors` for helper classes
+  that own resources or expose bindable state.
 - Prefer an explicit `{ ... }` block or helper method when top-level script code
   needs disposable `using` statements/declarations.
 - Prefer `ScriptContainerExtension` for script-owned shared services.
@@ -150,6 +170,8 @@ script body just because the exported IDE project compiles.
   code would only add ceremony.
 - Prefer useful diagnostic logging around setup, selections, validation,
   failures, and cleanup.
+- Prefer `scripting/async.md` before adding background tasks, timers, or
+  long-running async loops.
 - Prefer `recipes/recipe.md` when looking for higher-level implementation
   recommendations that combine multiple API areas.
 
@@ -162,6 +184,8 @@ script body just because the exported IDE project compiles.
 - Avoid `#r` directives outside top-level script files.
 - Avoid root-level executable `using var` declarations without an explicit
   block/method scope in scripts.
+- Avoid fire-and-forget async work without cancellation, exception handling,
+  and logging.
 - Avoid creating industrial-style layers, interfaces, and factories for small
   scripts that do not need them yet.
 
@@ -181,14 +205,22 @@ script body just because the exported IDE project compiles.
 - script variable
 - keybind
 - script container extension
+- async script
+- coroutine
+- DisposableReactiveObject
+- INotifyPropertyChanged
+- NPC
+- AddTo Anchors
 
 ## Related Maps
 
 - `core/eyeauras-structure.md`
 - `core/app-runtime-contexts.md`
 - `recipes/recipe.md`
+- `scripting/async.md`
 - `scripting/container-extensions.md`
 - `scripting/logging.md`
+- `scripting/reactive-lifetime.md`
 - `scripting/references-and-resources.md`
 - `scripting/project-workflow.md`
 - `scripting/variables.md`

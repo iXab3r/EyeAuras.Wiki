@@ -58,6 +58,8 @@ Reference map for adding useful diagnostic logging to scripts and mini-apps.
 - `Log.CreateProfiler(...)` - create an `IDisposable` benchmark timer for a
   named operation.
 - `TypeExtensions.PrepareLogger()` - create a logger from a normal C# type.
+- `DisposableReactiveObjectWithLogger` - reactive/disposable base class with a
+  lazily-created type logger for service-style objects.
 
 ## Common Flows
 
@@ -190,6 +192,7 @@ if (Log.IsDebugEnabled)
 
 - `scripting/runtime.md`
 - `scripting/container-extensions.md`
+- `scripting/reactive-lifetime.md`
 - `scripting/project-workflow.md`
 - `computer-vision/profiling.md`
 - `auras/entities.md`
