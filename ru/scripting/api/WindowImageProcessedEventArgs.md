@@ -1,50 +1,51 @@
 ---
-title: WindowImageProcessedEventArgs
-description: Аргументы события для триггера обработки изображений: содержат результаты обработки и преобразования для перевода координат обнаруженных объектов из локальной системы в экранную.
+title: Аргументы события обработки изображения окна
+description: Аргументы события триггера обработки изображения с результатами распознавания и преобразованиями для перевода локальных координат в экранные.
 published: true
-date: 2025-03-21T23:35:26.504Z
+date: 2026-04-21T00:00:00.000Z
 tags: image processing, event arguments, coordinates transformation, ai-translated
 editor: markdown
 dateCreated: 2024-04-13T11:37:08.113Z
 ---
+> Для AI-first навигации см. [AI Computer Vision / Images](./computer-vision/images) — там описаны события обработки изображений, поверхности захвата и связанные workflow в стиле OpenCV.
+{.is-info}
+
 ```csharp
 /// <summary>
-/// Представляет аргументы события для триггера обработки изображения.
-/// Содержит результаты обработки и преобразования, необходимые для перевода обнаруженных объектов
-/// из локальных координат в экранные.
+/// Represents the event arguments for an image processing trigger, containing the results
+/// and transformations required to map detected objects from local to screen coordinates.
 /// </summary>
-/// <typeparam name="TDetectionResult">Тип результата триггера, содержащий сведения об обнаруженных объектах.</typeparam>
+/// <typeparam name="TDetectionResult">The type of the trigger result, encapsulating details about detected objects.</typeparam>
 public sealed record WindowImageProcessedEventArgs<TDetectionResult> where TDetectionResult : ICaptureTriggerDetectionResult
 {
     /// <summary>
-    /// Возвращает матрицы преобразования, используемые для перевода координат из локального viewport
-    /// (области окна, в которой был захвачен кадр) в экранные координаты.
-    /// Включает масштабирование, поворот и смещение.
+    /// Gets the transformation matrices used to convert coordinates from the local viewport (the region of the window where the image was captured)
+    /// to screen coordinates. This includes scaling, rotation, and offset transformations.
     /// </summary>
     public ViewportTransformationMatrices ViewportTransforms { get; init; }
     
     /// <summary>
-    /// Возвращает результат триггера обработки изображения с подробной информацией об обнаруженных объектах,
-    /// например об их расположении в локальных координатах.
+    /// Gets the result of the image processing trigger, containing detailed information about detected objects,
+    /// such as their locations in local coordinates.
     /// </summary>
     /// <example>
-    /// Это может быть экземпляр <see cref="IColorSearchDetectionResult"/>, <see cref="IImageSearchDetectionResult"/>,
-    /// <see cref="IMLSearchDetectionResult"/> или <see cref="ITextSearchDetectionResult"/> — в зависимости от используемого триггера.
+    /// This could be an instance of <see cref="IColorSearchDetectionResult"/>, <see cref="IImageSearchDetectionResult"/>,
+    /// <see cref="IMLSearchDetectionResult"/>, or <see cref="ITextSearchDetectionResult"/>, depending on the specific trigger used.
     /// </example>
     public TDetectionResult Detected { get; init; } 
     
     /// <summary>
-    /// Возвращает изображения, обработанные триггером. По умолчанию они не включаются и НЕ являются потокобезопасными.
-    /// Вы сами отвечаете за то, чтобы эти данные не обновлялись другим триггером или скриптом.
-    /// Это поведение будет изменено в будущих версиях.
+    /// Gets images which were processed by the trigger. They are not included by default and are NOT thread-safe.
+    /// You are responsible for making sure that they will not be updated by any other trigger or script.
+    /// This will be changed in the future versions.
     /// </summary>
     public ICaptureTriggerState Captured { get; init; }
     
     /// <summary>
-    /// Преобразует прямоугольник из локальных координат viewport в экранные координаты.
+    /// Converts a rectangle from local viewport coordinates to screen coordinates.
     /// </summary>
-    /// <param name="local">Прямоугольник в локальных координатах viewport, который нужно преобразовать.</param>
-    /// <returns>Прямоугольник в экранных координатах.</returns>
+    /// <param name="local">The rectangle in local viewport coordinates to convert.</param>
+    /// <returns>The rectangle in screen coordinates.</returns>
     public WinRectangle ToScreen(SharpRectangle local)
     {
         var screenRect = local.ToWinRectangle();
@@ -52,32 +53,31 @@ public sealed record WindowImageProcessedEventArgs<TDetectionResult> where TDete
     }
     
     /// <summary>
-    /// Преобразует прямоугольник из локальных координат viewport в экранные координаты.
+    /// Converts a rectangle from local viewport coordinates to screen coordinates.
     /// </summary>
-    /// <param name="local">Прямоугольник в локальных координатах viewport, который нужно преобразовать.</param>
-    /// <returns>Прямоугольник в экранных координатах.</returns>
+    /// <param name="local">The rectangle in local viewport coordinates to convert.</param>
+    /// <returns>The rectangle in screen coordinates.</returns>
     public WinRectangle ToScreen(WinRectangle local)
     {
         return local.Transform(ViewportTransforms.WorldToScreen);
     }
 
     /// <summary>
-    /// Преобразует прямоугольник из локальных координат viewport в экранные координаты,
-    /// сохраняя дробные значения пикселей.
+    /// Converts a rectangle from local viewport coordinates to screen coordinates, allowing for fractional pixel values.
     /// </summary>
-    /// <param name="local">Прямоугольник в локальных координатах viewport с точностью float.</param>
-    /// <returns>Прямоугольник в экранных координатах с точностью float.</returns>
+    /// <param name="local">The rectangle in local viewport coordinates to convert, with floating-point precision.</param>
+    /// <returns>The rectangle in screen coordinates, with floating-point precision.</returns>
     public WinRectangleF ToScreen(WinRectangleF local)
     {
         return local.Transform(ViewportTransforms.WorldToScreen);
     }
     
     /// <summary>
-    /// Преобразует прямоугольник из локальных координат viewport в экранные координаты.
+    /// Converts a rectangle from local viewport coordinates to screen coordinates.
     /// </summary>
-    /// <param name="local">Прямоугольник в локальных координатах viewport.</param>
-    /// <param name="anchorType">Тип привязки, указывающий, какая часть прямоугольника должна использоваться для вычисления экранной точки. По умолчанию — <see cref="RegionAnchorType.Center"/>.</param>
-    /// <returns>Точка в экранных координатах.</returns>
+    /// <param name="local">The rectangle in local viewport coordinates.</param>
+    /// <param name="anchorType">The anchor type specifying which part of the rectangle to align with the screen coordinates. Default is <see cref="RegionAnchorType.Center"/>.</param>
+    /// <returns>A point in screen coordinates.</returns>
     public WinPoint ToScreenPoint(SharpRectangle local, RegionAnchorType anchorType = RegionAnchorType.Center)
     {
         var screenRect = ToScreen(local);
@@ -86,11 +86,11 @@ public sealed record WindowImageProcessedEventArgs<TDetectionResult> where TDete
     }
 
     /// <summary>
-    /// Преобразует прямоугольник из локальных координат viewport в экранные координаты.
+    /// Converts a rectangle from local viewport coordinates to screen coordinates.
     /// </summary>
-    /// <param name="local">Прямоугольник в локальных координатах viewport.</param>
-    /// <param name="anchorType">Тип привязки, указывающий, какая часть прямоугольника должна использоваться для вычисления экранной точки. По умолчанию — <see cref="RegionAnchorType.Center"/>.</param>
-    /// <returns>Точка в экранных координатах.</returns>
+    /// <param name="local">The rectangle in local viewport coordinates.</param>
+    /// <param name="anchorType">The anchor type specifying which part of the rectangle to align with the screen coordinates. Default is <see cref="RegionAnchorType.Center"/>.</param>
+    /// <returns>A point in screen coordinates.</returns>
     public WinPoint ToScreenPoint(WinRectangle local, RegionAnchorType anchorType = RegionAnchorType.Center)
     {
         var screenRect = ToScreen(local);
@@ -99,12 +99,11 @@ public sealed record WindowImageProcessedEventArgs<TDetectionResult> where TDete
     }
      
     /// <summary>
-    /// Преобразует прямоугольник из локальных координат viewport в экранные координаты,
-    /// сохраняя дробные значения пикселей.
+    /// Converts a rectangle from local viewport coordinates to screen coordinates, allowing for fractional pixel values.
     /// </summary>
-    /// <param name="local">Прямоугольник в локальных координатах viewport.</param>
-    /// <param name="anchorType">Тип привязки, указывающий, какая часть прямоугольника должна использоваться для вычисления экранной точки. По умолчанию — <see cref="RegionAnchorType.Center"/>.</param>
-    /// <returns>Точка в экранных координатах с точностью float.</returns>
+    /// <param name="local">The rectangle in local viewport coordinates.</param>
+    /// <param name="anchorType">The anchor type specifying which part of the rectangle to align with the screen coordinates. Default is <see cref="RegionAnchorType.Center"/>.</param>
+    /// <returns>A point in screen coordinates.</returns>
     public WinPointF ToScreenPoint(WinRectangleF local, RegionAnchorType anchorType = RegionAnchorType.Center)
     {
         var screenRectF = ToScreen(local);

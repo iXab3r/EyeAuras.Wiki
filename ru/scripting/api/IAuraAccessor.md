@@ -1,12 +1,14 @@
 ---
-title: IAuraAccessor
-description: 
+title: Интерфейс IAuraAccessor
+description: Описание интерфейса IAuraAccessor в C#
 published: true
-date: 2024-02-20T20:32:18.477Z
-tags: 
+date: 2026-04-21T00:00:00.000Z
+tags: C#, Interface, Programming, ai-translated
 editor: markdown
 dateCreated: 2024-02-20T20:32:05.134Z
 ---
+> Если вы изучаете AI-first API-навигацию, начните с [AI Scripting Runtime](./scripting/runtime), [AI Auras Overview](./auras/overview), [AI Aura Actions](./auras/actions) и [AI Aura Triggers](./auras/triggers) — там показано, как `aura accessors` встраиваются в сценарии и рабочие процессы скриптов.
+{.is-info}
 
 ```csharp
 public interface IAuraAccessor : IHasId, ICanBeLoaded, ICanBeArchived, IHasTimestamp, IHasVariables, IHasPath
