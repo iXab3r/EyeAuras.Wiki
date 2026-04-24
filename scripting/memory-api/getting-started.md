@@ -169,5 +169,5 @@ As long as you are reading memory from the outside, you are mostly observing the
 - [Custom memory backends](/scripting/memory-api/backends/custom-memory-backends)
 - [Getting a list of running processes](/scripting/examples/advanced/memory/get-processes)
 - [Reading module exports](/scripting/examples/advanced/memory/read-exports)
-- [Pattern scanning](/scripting/api/pattern-scanning)
+- [Pattern scanning](/scripting/api/memory/pattern-scanning)
 - [Memory API](/scripting/api/memory)

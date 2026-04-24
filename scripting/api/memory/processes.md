@@ -134,6 +134,7 @@ Optional package-specific readers belong in `nuget/`.
 
 ## Related Maps
 
+- `pattern-scanning.md`
 - `windows-subsystems/window-handles.md`
 - `osd/selection.md`
 - `reverse-engineering/reprocess.md`

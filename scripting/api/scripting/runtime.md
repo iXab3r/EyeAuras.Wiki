@@ -21,6 +21,7 @@ classes, dependency access, accessors, variables, macros, and keybind metadata.
 - Bind script methods to hotkeys.
 - Open script-owned UI or use optional SDK packages.
 - Structure a large script project as an app-like system.
+- Request a controlled restart from a host that supports restart orchestration.
 
 ## Concept Model
 
@@ -43,6 +44,14 @@ classes, dependency access, accessors, variables, macros, and keybind metadata.
 - Accessors are script-safe handles for aura-tree objects.
 - Object-style actions/triggers use executor base classes rather than top-level
   script members.
+- Every script container exposes `IScriptRestartController`; unsupported hosts
+  provide `UnsupportedScriptRestartController`, which throws
+  `NotSupportedException`.
+- C# Script Action replaces the default restart controller with host-owned
+  orchestration that cancels the current action execution and queues a new one.
+- Restart requests carry durable metadata only. Scripts that need handover state
+  must write it to variables, files, or host-owned services before requesting
+  restart.
 - Small mini-apps may stay in one `Script.cs` / `Script.csx` file when the code
   remains easy to scan. A rough 300-500 line file with local helpers is often
   preferable to an artificial service graph.
@@ -108,6 +117,12 @@ script body just because the exported IDE project compiles.
   object-level lifetime.
 - `KeybindAttribute` - method-level hotkey metadata.
 - `ScriptContainerExtension` - script-owned DI extension.
+- `IScriptRestartController` - script-facing host service for controlled restart
+  requests.
+- `ScriptRestartRequest` - restart metadata such as `Reason` and optional
+  `Delay`.
+- `UnsupportedScriptRestartController` - default controller registered by hosts
+  that do not support restart orchestration.
 - `CsharpScriptActionExecutor` - object-style action base.
 - `CsharpScriptTriggerExecutor` - object-style trigger base.
 - `AuraScriptRunner<TSandbox>` - custom script runner with typed globals.
@@ -145,6 +160,16 @@ script body just because the exported IDE project compiles.
     alive; long-running scripts should have a real loop, hosted service, window,
     or app lifecycle.
 
+- Request a controlled script restart:
+  - persist handover state first, usually through `IVariablesScriptingApi`, a
+    script variable, a file, or a host-owned service.
+  - resolve `IScriptRestartController` from `GetService<T>()`.
+  - call `RequestRestartAsync(new ScriptRestartRequest { Reason = "...", Delay = ... }, cancellationToken)`.
+  - handle `NotSupportedException` when the script may run in triggers,
+    overlays, EyePad direct execution, or another unsupported host.
+  - resolve host-bound services again after restart; do not keep controller or
+    container references in static state.
+
 - Build a large script app:
   - keep `Script.cs` or `Script.csx` as a small composition root.
   - use `ScriptContainerExtension` for repeated DI setup.
@@ -166,6 +191,8 @@ script body just because the exported IDE project compiles.
 - Prefer an explicit `{ ... }` block or helper method when top-level script code
   needs disposable `using` statements/declarations.
 - Prefer `ScriptContainerExtension` for script-owned shared services.
+- Prefer resolving `IScriptRestartController` only when a restart is needed.
+- Prefer writing explicit handover state before requesting restart.
 - Prefer simple one-file scripts for small tools and prototypes when splitting
   code would only add ceremony.
 - Prefer useful diagnostic logging around setup, selections, validation,
@@ -186,6 +213,10 @@ script body just because the exported IDE project compiles.
   block/method scope in scripts.
 - Avoid fire-and-forget async work without cancellation, exception handling,
   and logging.
+- Avoid storing `IScriptRestartController`, `IScriptingApiContext`, `IEyeContext`,
+  or Unity containers in static fields; these are host/container-bound services.
+- Avoid assuming restart support outside C# Script Action unless the current host
+  or a script extension explicitly replaces `IScriptRestartController`.
 - Avoid creating industrial-style layers, interfaces, and factories for small
   scripts that do not need them yet.
 
@@ -204,6 +235,11 @@ script body just because the exported IDE project compiles.
 - macro accessor
 - script variable
 - keybind
+- restart script
+- reload script
+- self restart
+- IScriptRestartController
+- ScriptRestartRequest
 - script container extension
 - async script
 - coroutine

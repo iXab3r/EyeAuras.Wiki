@@ -20,6 +20,8 @@ surface through MCP.
 - Add docs search to a chat session.
 - Register AI-callable tools.
 - Render a reusable Blazor chat component.
+- Host a reusable Codex thread/workspace/chat surface without making Codex
+  lifecycle depend on Blazor.
 - Add speech-to-text to chat input.
 - Host tools through MCP for external clients.
 - Build a coding-agent or Responses API based integration.
@@ -45,6 +47,23 @@ surface through MCP.
   artifacts, and input surface.
 - `AiMcpSession` and `AiMcpServerHost` expose registered plugin tools as an MCP
   server.
+- `AiCodexManager` owns Codex runtime operations such as model listing, thread
+  listing, thread reading/creation, archive, and live session resolution.
+- `AiCodexSession` is the Codex-backed `AiCodingAgentSession` implementation
+  that still fits the normal `AiChatSession`/plugin/event-sink model.
+- `ICodexChatController` / `CodexChatController` are UI-agnostic Codex shell
+  controllers. They own start/stop, thread browser state, active thread
+  lifecycle, model/reasoning selection, archive confirmation, and workspace
+  attachments.
+- `CodexChatOptions` is the host adapter point for profile validation,
+  `CodexSessionOptions`, session context, plugin registration, pre-send
+  refresh, file/folder picking, and feature defaults.
+- `CodexThreadListItem` maps raw `AiCodexThreadSummary` values into
+  presentation-independent thread picker rows.
+- `CodexWorkspaceAttachment` maps selected files/directories into Codex
+  workspace access rules. Directory attachments use the selected directory as
+  writable root; file attachments keep the exact selected file path while using
+  the parent directory as writable root.
 
 ## Host / Runtime Contexts
 
@@ -88,6 +107,15 @@ surface through MCP.
 - `IAiTransportEvents` - observes request/response transport data.
 - `IAiSpeechToTextService` - UI-facing speech-to-text abstraction; core runtime
   registers a no-op implementation, desktop runtime registers the real service.
+- `IAiCodingAgentManager` / `AiCodexManager` - Codex lifecycle and persisted
+  thread operations.
+- `ICodexChatController` - reusable, UI-agnostic Codex surface controller.
+- `CodexChatOptions` - host configuration delegate record for Codex controller
+  startup, session creation, plugins, request preparation, and workspace picking.
+- `CodexThreadListItem.FromSummary` - reusable mapper from raw Codex summaries
+  to thread-browser display state.
+- `CodexWorkspaceAttachment.CreateValidated` - validates and normalizes selected
+  workspace files/folders.
 
 ## Profiles
 
@@ -134,6 +162,16 @@ surface through MCP.
 - `AiChatComponent.BeforeSend` can run app-specific logic before sending.
 - `AiChatComponent.InputFooterContent` can add host-specific controls.
 - `AiChatInputComponent` handles text input and speech-related UI.
+- `CodexChatComponent` is a Codex-specific Blazor shell that composes loading
+  state, `CodexThreadBrowser`, optional `CodexWorkspacePanel`, and the existing
+  generic `AiChatComponent`.
+- `CodexThreadBrowser` renders active/archived thread filtering, compact/all
+  toggling, busy/status badges, and two-step archive confirmation from
+  `ICodexChatController`.
+- `CodexWorkspacePanel` renders selected file/folder attachments and delegates
+  add/remove actions back to `ICodexChatController`.
+- Keep Codex-specific lifecycle in `ICodexChatController`; keep
+  `AiChatComponent` provider-agnostic.
 
 ## Common Flows
 
@@ -167,12 +205,31 @@ surface through MCP.
 4. Start the host and give external MCP clients the endpoint URL.
 5. Stop and dispose the host/session when the feature is disabled.
 
+### Reusable Codex Chat Surface
+
+1. Create a `CodexChatController` with `AiEngine`, `IAiCodingAgentManager`, and
+   host-specific `CodexChatOptions`.
+2. Implement options delegates for profile/auth validation,
+   `CodexSessionOptions`, optional `IAiSessionContext`, plugin registration,
+   pre-send refresh, and optional file/folder picking.
+3. Start the controller and render thread/workspace state through any view
+   technology. Blazor hosts can use `CodexChatComponent`.
+4. If using Blazor chat, adapt `ICodexChatController.ActiveSession` into
+   `AiChatViewModel`, seed `CodexActiveThread.TranscriptItems`, and pass the
+   view model to `CodexChatComponent`.
+5. Call `ICodexChatController.PrepareActiveSessionForRequestAsync` from
+   `AiChatComponent.BeforeSend`.
+6. Dispose view-specific chat adapters when `SessionRemoving` fires, then
+   dispose the controller.
+
 ## Assembly / Package Hints
 
 - Core namespace: `EyeAuras.AI`.
 - Plugin namespace: `EyeAuras.AI.SemanticKernel`.
 - Retrieval namespace: `EyeAuras.AI.BM25`.
 - UI namespace: `EyeAuras.AI.UI`.
+- Codex runtime/controller namespace: `EyeAuras.AI.CodingAgents.Codex`.
+- Codex Blazor shell namespace: `EyeAuras.AI.UI.Codex`.
 - Desktop scripting namespace: `EyeAuras.AI.Desktop.Scripting`.
 - MCP namespace: `EyeAuras.AI.Mcp`.
 - Responses namespace: `EyeAuras.AI.ResponsesAPI`.
@@ -187,6 +244,10 @@ surface through MCP.
 - Prefer `AiDocsKnowledgeBasePlugin` for local markdown docs instead of
   hand-built prompt stuffing.
 - Prefer `AiChatViewModel` + `AiChatComponent` for reusable Blazor chat UI.
+- Prefer `ICodexChatController` + `CodexChatOptions` for reusable Codex
+  lifecycle/thread/workspace surfaces.
+- Prefer `CodexThreadListItem` and `CodexWorkspaceAttachment` over duplicating
+  app-specific thread/workspace DTOs.
 - Prefer `AiFunctionInvocationPolicy` for risky tools.
 - Prefer `IAiEventSink` events for UI/telemetry instead of parsing logs.
 
@@ -199,6 +260,10 @@ surface through MCP.
 - Avoid long-running tool methods without `CancellationToken` support.
 - Avoid putting machine-local documentation paths in shared docs or prompts.
 - Avoid mixing AI chat session lifetime into unrelated UI component lifetime.
+- Avoid adding Codex-specific lifecycle or thread browser behavior to
+  `AiChatComponent`.
+- Avoid making Codex controller logic depend on Blazor types such as
+  `RenderFragment`, Razor components, or UI view models.
 
 ## Research Anchors
 
@@ -219,6 +284,14 @@ surface through MCP.
 - `Bm25Document`
 - `AiChatViewModel`
 - `AiChatComponent`
+- `ICodexChatController`
+- `CodexChatController`
+- `CodexChatOptions`
+- `CodexThreadListItem`
+- `CodexWorkspaceAttachment`
+- `CodexChatComponent`
+- `CodexThreadBrowser`
+- `CodexWorkspacePanel`
 - `IAiSpeechToTextService`
 - `IScriptAiChatSessionFactory`
 - `IScriptAiChatSessionConfigurator`
@@ -250,6 +323,9 @@ surface through MCP.
 - artifact store
 - speech to text
 - coding agent
+- Codex chat
+- Codex thread browser
+- Codex workspace attachment
 
 ## Related Maps
 

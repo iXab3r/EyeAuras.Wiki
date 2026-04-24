@@ -21,6 +21,8 @@ ordinary C# classes.
 - Build a reusable service graph for bot/UI/tool code.
 - Share managers, state, readers, and UI services across multiple panels.
 - Avoid manually constructing a large object graph with `new`.
+- Override host services such as `IScriptRestartController` for custom restart
+  orchestration or tests.
 
 ## Concept Model
 
@@ -35,6 +37,13 @@ ordinary C# classes.
   container extension is added.
 - Mini-app projects usually have one script-level extension that wires all
   domain services and optional SDK extensions.
+- Host-provided services can be replaced by script container extensions when the
+  host intentionally exposes that service as overridable.
+- `IScriptRestartController` is always registered by the runner. Unsupported
+  hosts register `UnsupportedScriptRestartController`; supported hosts such as
+  C# Script Action replace it with their own controller.
+- Host-bound service overrides should be scoped to the script child container and
+  should not store host objects in static state.
 - A script does not need a custom extension just because it has several local
   helpers. For small 300-500 line tools, direct setup in `Script.cs` / `Script.csx`
   can be clearer than a container layer.
@@ -68,6 +77,10 @@ ordinary C# classes.
   instances.
 - `Container.AsServiceCollection()` - bridge when a package exposes
   Microsoft.Extensions.DependencyInjection registrations.
+- `IScriptRestartController` - overridable host service for controlled restart
+  requests.
+- `ScriptRestartRequest` - restart metadata passed to the controller.
+- `UnsupportedScriptRestartController` - default unsupported implementation.
 
 ## Common Flows
 
@@ -95,6 +108,15 @@ ordinary C# classes.
 4. Pass script APIs into constructors instead of reading host members directly.
 5. Keep disposal ownership with the script run, sandbox, or app service.
 
+### Override Restart Handling
+
+1. Implement `IScriptRestartController`.
+2. Register it from a `ScriptContainerExtension`.
+3. Persist handover state before accepting a restart request.
+4. Coordinate the actual restart with the host or test harness.
+5. Keep the controller scoped to the script container; do not store host-bound
+   controller/context/container objects in static fields.
+
 ## Prefer
 
 - Prefer one clear mini-app composition extension over scattered registrations.
@@ -106,6 +128,8 @@ ordinary C# classes.
 - Prefer small top-level scripts that only compose and start the mini-app.
 - Prefer no custom container extension for small scripts unless shared services,
   optional SDK registration, or repeated setup make it useful.
+- Prefer replacing host services only through documented contracts such as
+  `IScriptRestartController`.
 
 ## Avoid
 
@@ -118,6 +142,7 @@ ordinary C# classes.
   setup.
 - Avoid forcing one service access pattern everywhere. Use the pattern that fits
   the current host context.
+- Avoid static references to host-bound services registered from extensions.
 - Avoid turning every script into an app framework. Add DI boundaries only when
   they remove real duplication or make lifetime ownership clearer.
 
@@ -132,6 +157,9 @@ ordinary C# classes.
 - `AddNewExtensionIfNotExists`
 - `ScriptContainerExtensionScriptVisitor`
 - `ScriptContainerExtensionRuntimeVisitor`
+- `IScriptRestartController`
+- `ScriptRestartRequest`
+- `UnsupportedScriptRestartController`
 - `ImGuiContainerExtensions`
 - `FridaContainerExtensions`
 - `UnityContainer`
@@ -154,6 +182,9 @@ ordinary C# classes.
 - property injection
 - Unity container
 - script service graph
+- restart controller
+- controlled restart
+- host orchestration
 
 ## Related Maps
 

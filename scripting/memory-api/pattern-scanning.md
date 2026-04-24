@@ -104,4 +104,4 @@ Using the diagram above as an example, `FindOffset(BytePattern.FromTemplate("48 
 
 - [PE basics](/scripting/memory-api/pe-basics)
 - [Code Cave](/scripting/memory-api/code-caves)
-- [API pattern scanning](/scripting/api/pattern-scanning)
+- [API pattern scanning](/scripting/api/memory/pattern-scanning)
