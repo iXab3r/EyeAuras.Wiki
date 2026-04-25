@@ -121,6 +121,15 @@ session.AddOrUpdatePlugin("workspace", new WorkspaceSummaryPlugin(index));
   approval mode, and approval callback.
 - `AiToolCallFilter` - runtime enforcement and telemetry for Semantic Kernel
   tool calls.
+- `AiScriptingModeToolsPluginBase` - shared base for source-mode-specific
+  scripting plugin adapters such as in-memory and disk-backed EyePad surfaces.
+- `AiScriptingInMemoryToolsPlugin` - prefixed in-memory scripting surface with
+  `script_inmemory_*` inspection, edit, diagnostics, symbol, and NuGet/package
+  analysis tools.
+- `AiScriptingOnDiskToolsPlugin` - prefixed disk-backed scripting surface with
+  `script_ondisk_*` diagnostics, semantic lookup, symbol documentation, and
+  package/reference analysis tools; file text discovery and source edits remain
+  the responsibility of filesystem/workspace tools.
 
 ## Retrieval Plugins
 
@@ -218,6 +227,7 @@ tools.
 - `AiDocsKnowledgeBasePlugin`
 - `AiArtifactStorePlugin`
 - `AiScriptingToolsPlugin`
+- `AiScriptingModeToolsPluginBase`
 - `AiScriptingInMemoryToolsPlugin`
 - `AiScriptingOnDiskToolsPlugin`
 - `ReToolsPlugin`

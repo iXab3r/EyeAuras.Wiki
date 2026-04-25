@@ -2,7 +2,7 @@
 title: AI Runtime APIs
 description: AI-first map of chat sessions, model profiles, retrieval, MCP, and Blazor chat UI.
 published: true
-date: 2026-04-22T00:00:00.000Z
+date: 2026-04-25T00:00:00.000Z
 tags: scripting, api, ai, ml, semantic-kernel, mcp
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
@@ -25,6 +25,8 @@ surface through MCP.
 - Add speech-to-text to chat input.
 - Host tools through MCP for external clients.
 - Build a coding-agent or Responses API based integration.
+- Build, export, or copy the EyeAuras guidance pack for external coding
+  agents.
 
 ## Concept Model
 
@@ -57,13 +59,22 @@ surface through MCP.
   attachments.
 - `CodexChatOptions` is the host adapter point for profile validation,
   `CodexSessionOptions`, session context, plugin registration, pre-send
-  refresh, file/folder picking, and feature defaults.
+  refresh, file/folder picking, and feature defaults. The session-options
+  delegate is called again before active turns so hosts can refresh
+  request-boundary readable/writable roots.
 - `CodexThreadListItem` maps raw `AiCodexThreadSummary` values into
   presentation-independent thread picker rows.
 - `CodexWorkspaceAttachment` maps selected files/directories into Codex
   workspace access rules. Directory attachments use the selected directory as
   writable root; file attachments keep the exact selected file path while using
   the parent directory as writable root.
+- `IEyeAurasAiGuidanceService` builds and exports the portable EyeAuras
+  `guidance-pack` for external coding agents. Its public contract lives in
+  `EyeAuras.UI.Metadata`; the desktop implementation lives in `EyeAuras.UI`.
+- `EyeAurasAiGuidanceContext` describes the resolved docs repository snapshot
+  and generated pack paths. Explicit-context methods reuse that snapshot, while
+  no-context export/copy methods refresh the docs repository and rebuild the
+  pack first.
 
 ## Host / Runtime Contexts
 
@@ -110,12 +121,22 @@ surface through MCP.
 - `IAiCodingAgentManager` / `AiCodexManager` - Codex lifecycle and persisted
   thread operations.
 - `ICodexChatController` - reusable, UI-agnostic Codex surface controller.
+  `PrepareActiveSessionForRequestAsync` runs the host pre-send callback and
+  refreshes active `CodexSessionOptions` before the next turn.
 - `CodexChatOptions` - host configuration delegate record for Codex controller
   startup, session creation, plugins, request preparation, and workspace picking.
 - `CodexThreadListItem.FromSummary` - reusable mapper from raw Codex summaries
   to thread-browser display state.
 - `CodexWorkspaceAttachment.CreateValidated` - validates and normalizes selected
   workspace files/folders.
+- `IEyeAurasAiGuidanceService.RefreshAsync` - creates or refreshes the managed
+  guidance pack from the configured docs repository, optional MCP status, and
+  generation timestamp.
+- `IEyeAurasAiGuidanceService.ExportPackFolderAsync`,
+  `ExportPackArchiveAsync`, `CopyPackToCsharpProjectAsync`, and
+  `CopyPackToSolutionProjectAsync` - export or copy the pack. Overloads without
+  `EyeAurasAiGuidanceContext` assume the caller wants the latest docs and
+  rebuild the pack before exporting or copying.
 
 ## Profiles
 
@@ -218,9 +239,26 @@ surface through MCP.
    `AiChatViewModel`, seed `CodexActiveThread.TranscriptItems`, and pass the
    view model to `CodexChatComponent`.
 5. Call `ICodexChatController.PrepareActiveSessionForRequestAsync` from
-   `AiChatComponent.BeforeSend`.
+   `AiChatComponent.BeforeSend`; the host `CreateSessionOptions` delegate should
+   include any current file or workspace root that Codex needs in the next
+   sandbox policy.
 6. Dispose view-specific chat adapters when `SessionRemoving` fires, then
    dispose the controller.
+
+### External Agent Guidance Pack
+
+1. Resolve `IEyeAurasAiGuidanceService` from the app/plugin dependency
+   container.
+2. For UI status checks, call `ResolveExistingContextAsync` and inspect the
+   returned `EyeAurasAiGuidanceContext` paths.
+3. To rebuild the managed pack explicitly, call `RefreshAsync`; pass
+   `EyeAurasAiGuidanceRefreshOptions.Mcp` when live MCP status should be
+   embedded.
+4. To hand the pack to an external agent without managing context yourself,
+   call the no-context export/copy overload. Those methods refresh the docs
+   repository and rebuild the pack first.
+5. Use the explicit-context overloads when a caller already refreshed the pack
+   and wants to avoid a second docs update.
 
 ## Assembly / Package Hints
 
@@ -233,6 +271,8 @@ surface through MCP.
 - Desktop scripting namespace: `EyeAuras.AI.Desktop.Scripting`.
 - MCP namespace: `EyeAuras.AI.Mcp`.
 - Responses namespace: `EyeAuras.AI.ResponsesAPI`.
+- Guidance-pack contract namespace: `EyeAuras.UI.AI.Services` in
+  `EyeAuras.UI.Metadata`.
 - AI runtime depends on Semantic Kernel and Model Context Protocol packages in
   app/module code. Do not assume these assemblies are referenced by every
   script project.
@@ -248,6 +288,8 @@ surface through MCP.
   lifecycle/thread/workspace surfaces.
 - Prefer `CodexThreadListItem` and `CodexWorkspaceAttachment` over duplicating
   app-specific thread/workspace DTOs.
+- Prefer `IEyeAurasAiGuidanceService` for guidance-pack export/copy workflows
+  instead of manually copying docs or editing a user's project `AGENTS.md`.
 - Prefer `AiFunctionInvocationPolicy` for risky tools.
 - Prefer `IAiEventSink` events for UI/telemetry instead of parsing logs.
 
@@ -264,6 +306,8 @@ surface through MCP.
   `AiChatComponent`.
 - Avoid making Codex controller logic depend on Blazor types such as
   `RenderFragment`, Razor components, or UI view models.
+- Avoid using explicit-context guidance-pack overloads when the caller has not
+  already refreshed or validated the pack.
 
 ## Research Anchors
 
@@ -295,6 +339,8 @@ surface through MCP.
 - `IAiSpeechToTextService`
 - `IScriptAiChatSessionFactory`
 - `IScriptAiChatSessionConfigurator`
+- `IEyeAurasAiGuidanceService`
+- `EyeAurasAiGuidanceContext`
 - `AiMcpSession`
 - `AiMcpServerHost`
 - `ResponsesConversationAdapter`
@@ -326,6 +372,9 @@ surface through MCP.
 - Codex chat
 - Codex thread browser
 - Codex workspace attachment
+- agent guidance
+- guidance pack
+- external coding agent
 
 ## Related Maps
 
