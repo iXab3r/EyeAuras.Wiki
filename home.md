@@ -1,82 +1,83 @@
 ---
 title: Home
-description: EyeAuras is a software tool designed to create and manage "auras," which are scripts or functions that can automate tasks, process data, or enhance user interaction with their computer or applications
+description: EyeAuras is a software tool for creating and managing auras, scripts, and features that automate tasks, process data, and improve interaction with your computer and applications
 published: true
-date: 2026-04-02T17:41:39.684Z
-tags: 
+date: 2026-04-25T12:40:21.080Z
+tags: ai-translated
 editor: markdown
 dateCreated: 2022-11-15T15:02:45.417Z
 ---
-
 ![](/mainfull.png)
 
-[EyeAuras](https://eyeauras.net/) is [computer-vision](/triggers/images/imagecapturetriggers) and [machine-learning](/triggers/images/ai-search-trigger) powered [clicker](/actions/sendinput/send-sequence) that can analyze anything that happens on the screen and perform actions such as [mouse movement](/actions/sendinput/send-sequence) and [keyboard](/actions/sendinput/send-sequence) presses on your behalf. It can also make sounds, [send messages to Telegram](/actions/send-telegram-message) and [across the Internet](/actions/send-network-message) and even [execute C# scripts](/scripting/getting-started)! 
- 
+# EyeAuras
+
+[EyeAuras](https://eyeauras.net/) is a [clicker](/actions/sendinput/send-sequence) powered by [computer vision](/triggers/images/imagecapturetriggers) and [machine learning](/triggers/images/ai-search-trigger). It can analyze everything happening on your screen and perform actions for you, such as [moving the mouse](/actions/sendinput/send-sequence) and [pressing keys](/actions/sendinput/send-sequence). EyeAuras can also play sounds, [send messages to Telegram](/actions/send-telegram-message) and [over the Internet](/actions/send-network-message), and even [run C# scripts](/scripting/getting-started)!
+
 ![Main window](https://eyeauras.net/assets/img/appimages/EyeAuras_OzDyUnmzFH.webp =x400)
 
-## Main concept
+## Core concepts
 
--   **Aura** \- combination of Triggers, Actions, Overlays and Enabling conditions. This is what you'll share with others, and this does the actual work.
--   [**Behavior Tree**](/behavior-trees/gettings-started) \- In short, behavior trees allow specifying to a robot what it should do. It's like its brain. Actions and Triggers serve as its hands and eyes.
--   **Triggers** \- any kind of state which could be described in Active/NotActive terms. This could be Hotkey (pressed/unpressed or toggle),  foreground Window check (active/not active), Image/Text/Color search result(matched/not matched).  Aura Active/NotActive state is a combination of states of her child Triggers. Trigger has three states:
-    -   Active - this means that condition is met, e.g. for WindowIsActive trigger this means that Window with matching title is Active
-    -   Not Active - this means that conditions is not met
-    -   Unknown - this means that for some reason it is not possible to calculate trigger state. For example, if Window specified in ImageSearch is not found that means that corresponding Trigger will have Unknown state as it is not possible to do comparison without any actual image.
--   **Actions** \- showing notifications, key/mouse presses, sending Telegram messages  or e-mails - these all is considered an Action and could be used inside Aura. Actions could be assigned to one of 3 groups:
-    -   On Enter -  these are executed when Aura becomes Active
-    -   While Active - these will be executed repeatedly while Auras is Active
-    -   On Exit - these are executed when Aura becomes Not Active
--   **Overlays** \- always-on-top overlays which could show text, image, custom UI or anything else. Overlays are a part of Aura and are shown only while Aura is Active
--   [**Enabling conditions**](/features/enabling-conditions) - Triggers, which could be used to disable/enable Auras and Behavior Trees, e.g. disable the bot if game window does not exist
+- **Aura** — a combination of triggers, actions, overlays, and enabling conditions. The Aura is what actually does the work, and it is usually what people export and share with others.
+- [**Behavior Tree**](/behavior-trees/gettings-started) — in short, a way to describe what the bot should do. Think of it as the bot’s “brain”, while triggers and actions act as its eyes and hands.
+- **Triggers** — any state that can be described as `Active` / `Not Active`. For example: a hotkey (pressed / not pressed or toggled), an active window check (active / not active), or the result of an image, text, or color search (found / not found). An Aura’s state is determined by the combined states of its child triggers. Every trigger has three possible states:
+  - `Active` — the condition is met. For example, for the `Window Is Active` trigger, this means a window with a matching title is currently active.
+  - `Not Active` — the condition is not met.
+  - `Unknown` — the trigger state cannot be calculated for some reason. For example, if the window specified in `Image Search` is not found, the comparison cannot be performed, so the trigger gets the `Unknown` state.
+- **Actions** — everything EyeAuras can do: show notifications, press keys and mouse buttons, send messages to Telegram or e-mail, and more. All actions inside an Aura belong to one of three groups:
+  - `On Enter` — runs when the Aura becomes `Active`
+  - `While Active` — runs repeatedly while the Aura stays `Active`
+  - `On Exit` — runs when the Aura becomes `Not Active`
+- **Overlays** — elements displayed on top of all windows that can show text, images, custom UI, and more. Overlays are part of an Aura and are shown only while it is active.
+- [**Enabling Conditions**](/features/enabling-conditions) — triggers that can enable or disable Auras and Behavior Trees. For example, you can disable a bot if the game window does not exist.
 
 ![Behavior Trees](https://eyeauras.net/assets/img/appimages/EyeAuras_4GhOU01VKp.webp =x400)
 
 ---
 
-### Subsystems
+## Subsystems
 
--   [Export/Import](/features/export-import) - transfer, share, or backup EyeAuras packs across different users or devices
--   [Aura Library](/aura-library) - a shared collection of EyeAuras packs, available for users to discover, import, and use
--   [Window Match Expressions](/features/window-matching-expressions) - enabling selection of specific windows using a custom expression
--   [Text Match Expressions](/features/text-match-expressions) - Powerful tool enabling text condition validation through Regex, Text, and Lambda evaluators.
--   [Bindings](/features/bindings) - interconnect properties between triggers, actions, and overlays to allow for easier change of group properties and to open up new capabilities
--   [Default Properties](/features/default-properties)
+- [Export and Import](/features/export-import) — move, share, and back up EyeAuras packs between users and devices
+- [Aura Library](/aura-library) — a shared library of EyeAuras packs where users can find, import, and use ready-made solutions
+- [Window Match Expressions](/features/window-matching-expressions) — select specific windows using a custom expression
+- [Text Match Expressions](/features/text-match-expressions) — a powerful way to check text conditions through Regex, Text, and Lambda evaluators
+- [Bindings](/features/bindings) — link properties between triggers, actions, and overlays for easier setup of shared parameters and new workflows
+- [Default Properties](/features/default-properties)
 
-### Triggers
+## Triggers
 
--   [Fixed Value](/en/triggers/fixed-value) - the most primitive trigger, you can control it's state by selecting it either manually or by using C# scripts
--   [Color Search](/en/triggers/images/color-search) - active when Average color of a selected region matches with Target color. Similarity threshold could be specified.
--   [**Image Search**](/en/triggers/images/image-search) - active when some Image is found with a specified similarity
--   [**AI/ML Search**](/en/triggers/images/ai-search-trigger) \- machine-learning powered [object detection](https://docs.ultralytics.com/tasks/detect/)/[segmentation](https://docs.ultralytics.com/tasks/segment/) or [classification](https://docs.ultralytics.com/tasks/classify/), currently supports only [**Yolo8**](https://docs.ultralytics.com/) **in ONNX format**, may be extended later
--   [**Text Search**](/en/triggers/images/text-search) - active when recognized text matches with specified expression. It could be comparison by Contains, regexp or C# Lambda
--   [**Aura Is Active**](/en/triggers/aura-is-active) - active when linked Auras have specified state (Active/NotActive)
--   [**Hotkey Is Active**](/en/triggers/hotkey-is-active) - active when specified combination of keys is either held down or toggled
--   [**Window Is Active**](/en/triggers/window-is-active) \- active when window matching specified expression is active (in foreground)
--   [**Window Exists**](/en/triggers/window-exists) - active when window matching specified expression exists in the system
--   [**Timer**](/en/triggers/timer) \- periodically activates itself for specified duration
--   [**Message Subscription**](/en/triggers/network-message) - activates/deactivates when specified message is received from EyeAuras webserver. Messages are separated by Channels and could be sent using SendMessage action
--   [**File Contains**](/en/triggers/file-contains-text) - activates when specified text is found in specified file
--   [**Telegram Subscription**](/en/triggers/telegram-message) - activates/deactivates when specified message is received in Telegram channel
--   [**Volume Control**](/en/triggers/volume-level) - activates/deactivates when volume level of specified audio device or process reaches specified threshold
--   [**C# Script**](/en/scripting/getting-started) \- custom scripts that use the latest version of C# language with full access to internal EyeAuras API. As soon as API will be stabilized there will be examples/docs.
+- [**Fixed Value**](/triggers/fixed-value) — the simplest trigger. Its state can be changed manually or through C# scripts.
+- [**Color Search**](/triggers/images/color-search) — becomes active when the average color of the selected area matches the target color. You can set a similarity threshold.
+- [**Image Search**](/triggers/images/image-search) — becomes active when it finds the specified image with the selected similarity level
+- [**AI/ML Search**](/triggers/images/ai-search-trigger) — machine-learning-based search using [object detection](https://docs.ultralytics.com/tasks/detect/), [segmentation](https://docs.ultralytics.com/tasks/segment/), or [classification](https://docs.ultralytics.com/tasks/classify/). Currently only [**Yolo8**](https://docs.ultralytics.com/) **in ONNX format** is supported, but this list may expand later.
+- [**Text Search**](/triggers/images/text-search) — becomes active when recognized text matches the specified expression. Supports `Contains`, regexp, and C# Lambda checks.
+- [**Aura Is Active**](/triggers/aura-is-active) — becomes active when linked Auras are in the selected state (`Active` / `Not Active`)
+- [**Hotkey Is Active**](/triggers/hotkey-is-active) — becomes active when the specified key combination is held or used as a toggle
+- [**Window Is Active**](/triggers/window-is-active) — becomes active when a window matching the specified expression is in the foreground
+- [**Window Exists**](/triggers/window-exists) — becomes active when a window matching the specified expression exists in the system
+- [**Timer**](/triggers/timer) — activates periodically for the specified duration
+- [**Message Subscription**](/triggers/network-message) — activates and deactivates when the specified message is received from the EyeAuras web server. Messages are separated by channels and can be sent through the `Send Message` action.
+- [**File Contains**](/triggers/file-contains-text) — activates when the specified text is found in the selected file
+- [**Telegram Subscription**](/triggers/telegram-message) — activates and deactivates when the specified message is received in a Telegram channel
+- [**Volume Control**](/triggers/volume-level) — activates and deactivates when the volume level of the selected audio device or process reaches the specified threshold
+- [**C# Script**](/scripting/getting-started) — custom scripts written in the latest version of C# with full access to the internal EyeAuras API. Examples and documentation will be added once the API is more stable.
 
-### Actions
+## Actions
 
--   [**Send**](/en/actions/sendinput/options) \- emulates user input - mouse movement, clicks, keyboard presses, etc. Supports multiple input methods starting from most basic ones that are used WinAPI and all the way to hardware-level emulation that uses Usb2Kbd physical device.
-    -   [Input](/en/actions/sendinput/send-input) \- generates single keyboard/mouse event
-    -   [Text](/en/actions/sendinput/send-text) - inputs specified text either via clipboard or by typing each character individually
-    -   [Sequence](/en/actions/sendinput/send-sequence) - replayed the specified sequence of keyboard presses, mouse clicks and mouse movements
--   [**Play Sound**](/en/actions/play-sound) - plays specified sound
--   [**Win Activate**](/en/actions/win-activate) - activates specified window
--   [**Delay**](/en/actions/delay) \- waits for some time before proceeding to the next action
--   [**Send To Telegram**](/en/actions/send-telegram-message) - sends message to Telegram channel
--   [**Send Message**](/en/actions/send-network-message) - sends network message through EyeAuras infrastructure to a specified Channel. All other instances of EyeAuras on other computers can subscribe and process these messages via Message Subscription trigger
--   [**C# Script**](/en/scripting/getting-started) \- custom scripts that use the latest version of C# language with full access to internal EyeAuras API. As soon as API will be stabilized there will be examples/docs.
+- [**Send**](/actions/sendinput/options) — simulates user input: mouse movement, clicks, key presses, and more. Supports multiple input methods, from basic WinAPI-based input to hardware emulation using a physical Usb2Kbd device.
+  - [Input](/actions/sendinput/send-input) — generates a single keyboard or mouse event
+  - [Text](/actions/sendinput/send-text) — enters the specified text through the clipboard or character by character
+  - [Sequence](/actions/sendinput/send-sequence) — plays back a configured sequence of key presses, mouse clicks, and cursor movements
+- [**Play Sound**](/actions/play-sound) — plays the specified sound
+- [**Win Activate**](/actions/win-activate) — activates the specified window
+- [**Delay**](/actions/delay) — waits for the specified time before moving to the next action
+- [**Send To Telegram**](/actions/send-telegram-message) — sends a message to a Telegram channel
+- [**Send Message**](/actions/send-network-message) — sends a network message through the EyeAuras infrastructure to the specified channel. Other EyeAuras instances on other computers can subscribe to that channel and process those messages through the `Message Subscription` trigger.
+- [**C# Script**](/scripting/getting-started) — custom scripts written in the latest version of C# with full access to the internal EyeAuras API. Examples and documentation will be added once the API is more stable.
 
-### Overlays
+## Overlays
 
--   [**Text**](/en/overlays/text) \- shows text, content could be modified either manually or using C# scripts
--   [**Image**](/en/overlays/image) \- shows an image, animated/transparent GIFs are supported
--   [**Replica**](/en/overlays/replica) \- created a real-time visual clone of any specified window or its subregion. This allows you to clone parts of UI (e.g. bring cooldowns closer to the middle of you screen) or show downsized version of YouTube player while farming
--   [**Dependencies Viewer**](/en/overlays/dependencies-viewer) \- debugging tool which could be used to check what states linked Auras have. Very useful for debugging complex models.
--   [**Custom UI**](/en/overlays/custom-ui) \- allows you to develop a full-blown custom user interface using combination of [Microsoft Razor Pages](https://learn.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-7.0&tabs=visual-studio) (html+css+js) and **C#** to wire it all together inside EyeAuras
+- [**Text**](/overlays/text) — shows text; the content can be changed manually or through C# scripts
+- [**Image**](/overlays/image) — shows an image; animated and transparent GIFs are supported
+- [**Replica**](/overlays/replica) — creates a real-time visual copy of the specified window or part of it. For example, this lets you move important UI elements closer to the center of the screen or show a smaller copy of a YouTube player while farming.
+- [**Dependencies Viewer**](/overlays/dependencies-viewer) — a debugging tool that lets you inspect the states of linked Auras. Especially useful for understanding complex setups.
+- [**Custom UI**](/overlays/custom-ui) — lets you build a full user interface inside EyeAuras using a combination of [Microsoft Razor Pages](https://learn.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-7.0&tabs=visual-studio) (`html+css+js`) and **C#** for logic and component integration
