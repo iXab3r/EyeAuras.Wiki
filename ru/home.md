@@ -1,12 +1,13 @@
 ---
 title: Главная
-description: EyeAuras — это программа для создания и управления «аурами»: сценариями и функциями, которые помогают автоматизировать задачи, обрабатывать данные и улучшать взаимодействие с компьютером и приложениями
+description: EyeAuras — программный инструмент для создания и управления «аурами» — скриптами и функциями, которые автоматизируют задачи, обрабатывают данные и улучшают взаимодействие с компьютером и приложениями
 published: true
-date: 2026-04-02T17:41:39.684Z
+date: 2026-04-25T12:40:21.080Z
 tags: ai-translated
 editor: markdown
 dateCreated: 2022-11-02T14:50:20.232Z
 ---
+
 ![](/mainfull.png)
 
 [EyeAuras](https://eyeauras.net/) — это [кликер](/ru/actions/sendinput/send-sequence) на базе [компьютерного зрения](/ru/triggers/images/imagecapturetriggers) и [машинного обучения](/ru/triggers/images/ai-search-trigger). Он умеет анализировать всё, что происходит на экране, и выполнять за вас действия вроде [движения мыши](/ru/actions/sendinput/send-sequence) и [нажатий клавиш](/ru/actions/sendinput/send-sequence). Также EyeAuras может воспроизводить звуки, [отправлять сообщения в Telegram](/ru/actions/send-telegram-message) и [по сети через Интернет](/ru/actions/send-network-message), а ещё [выполнять C#-скрипты](/ru/scripting/getting-started)!
