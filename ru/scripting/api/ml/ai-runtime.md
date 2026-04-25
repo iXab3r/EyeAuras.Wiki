@@ -1,92 +1,113 @@
 ---
-title: API рантайма ИИ
-description: AI-first обзор API для чат-сессий, профилей моделей, retrieval, MCP и интерфейса чата на Blazor.
+title: API среды выполнения ИИ
+description: Карта AI-first API для чат-сессий, профилей моделей, retrieval, MCP и Blazor chat UI.
 published: true
-date: 2026-04-22T00:00:00.000Z
+date: 2026-04-25T00:00:00.000Z
 tags: scripting, api, ai, ml, semantic-kernel, mcp, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
-# Карта AI Runtime API
+# Карта discovery для AI Runtime
 
-API для AI runtime позволяют создавать чат-сессии на базе моделей, подключать инструменты, добавлять локальный retrieval, выводить сессии в UI и при необходимости публиковать тот же набор инструментов через MCP.
+API AI runtime позволяют создавать чат-сессии на базе моделей, подключать к ним инструменты, добавлять локальный retrieval, выводить сессии в UI и при необходимости публиковать тот же набор инструментов через MCP.
 
-## Что обычно нужно сделать
+## Что здесь обычно нужно сделать
 
-- Создать AI чат-сессию для функции приложения или редактора скриптов.
+- Создать AI-чат-сессию для функции приложения или редактора скриптов.
 - Выбрать или проверить активный профиль модели.
 - Добавить поиск по документации в чат-сессию.
-- Зарегистрировать инструменты, которые может вызывать AI.
+- Зарегистрировать инструменты, которые AI может вызывать.
 - Отрисовать переиспользуемый Blazor-компонент чата.
+- Поднять переиспользуемую поверхность Codex thread/workspace/chat так, чтобы жизненный цикл Codex не зависел от Blazor.
 - Добавить speech-to-text для ввода в чат.
-- Поднять MCP-host для инструментов, чтобы их могли использовать внешние клиенты.
-- Построить интеграцию на базе coding agent или Responses API.
+- Опубликовать инструменты через MCP для внешних клиентов.
+- Собрать интеграцию на базе coding agent или Responses API.
+- Собрать, экспортировать или скопировать EyeAuras guidance pack для внешних coding agents.
 
 ## Модель компонентов
 
 - `AiEngine` — фабрика и реестр сессий.
 - `IAiProfileRepository` хранит шаблоны и настроенные записи `AiModelProfile`.
-- `AiChatSession` управляет историей чата, активным профилем, плагинами, retrieval, artifact store, политикой вызова функций и `AiConversationEngine`.
-- `AiConversationEngine` отправляет ходы диалога, стримит обновления, применяет retrieval, отслеживает расход токенов, отправляет telemetry и направляет события вызова инструментов в sink.
-- Объекты `AiKernelPlugin` предоставляют инструменты и инструкции для сессии. Регистрируются через `IAiSession.AddOrUpdatePlugin`.
-- `IAiPluginHost` управляет каталогом плагинов, показывает список инструментов и умеет вызывать их по имени плагина и инструмента.
-- `AiDocsKnowledgeBasePlugin` добавляет поиск и retrieval по markdown-документации на основе BM25.
+- `AiChatSession` хранит историю чата, активный профиль, плагины, retrieval, artifact store, политику вызова функций и `AiConversationEngine`.
+- `AiConversationEngine` отправляет ходы диалога, стримит обновления, применяет retrieval, отслеживает расход токенов, отправляет telemetry и маршрутизирует события tool-call в sink.
+- Объекты `AiKernelPlugin` публикуют инструменты и инструкции сессии. Регистрируются через `IAiSession.AddOrUpdatePlugin`.
+- `IAiPluginHost` владеет каталогом плагинов, умеет перечислять инструменты и вызывать их по имени плагина/инструмента.
+- `AiDocsKnowledgeBasePlugin` добавляет поиск и retrieval по markdown-документации на базе BM25.
 - `AiChatViewModel` реализует `IAiEventSink` и превращает события сессии в элементы таймлайна.
-- `AiChatComponent` отображает переписку, вызовы инструментов, telemetry, artifacts и область ввода.
-- `AiMcpSession` и `AiMcpServerHost` публикуют зарегистрированные инструменты плагинов как MCP server.
+- `AiChatComponent` отображает историю чата, tool calls, telemetry, artifacts и область ввода.
+- `AiMcpSession` и `AiMcpServerHost` публикуют зарегистрированные инструменты плагинов как MCP-сервер.
+- `AiCodexManager` отвечает за runtime-операции Codex, включая список моделей, список тредов, чтение/создание тредов, архив и разрешение live sessions.
+- `AiCodexSession` — реализация `AiCodingAgentSession` на базе Codex, которая при этом укладывается в обычную модель `AiChatSession`/plugin/event-sink.
+- `ICodexChatController` / `CodexChatController` — UI-agnostic контроллеры оболочки Codex. Они управляют start/stop, состоянием браузера тредов, жизненным циклом активного треда, выбором model/reasoning, подтверждением архивации и workspace attachments.
+- `CodexChatOptions` — точка адаптации хоста для валидации профиля, `CodexSessionOptions`, контекста сессии, регистрации плагинов, обновления перед отправкой, выбора файлов/папок и дефолтных feature-флагов. Делегат session-options вызывается повторно перед активными ходами, чтобы хост мог обновить readable/writable roots на границе запроса.
+- `CodexThreadListItem` преобразует сырые значения `AiCodexThreadSummary` в строки выбора тредов, не зависящие от конкретного UI.
+- `CodexWorkspaceAttachment` преобразует выбранные файлы/директории в правила доступа к workspace для Codex. Для директории выбранная папка становится writable root; для файла сохраняется точный путь к выбранному файлу, а writable root берётся из родительской директории.
+- `IEyeAurasAiGuidanceService` собирает и экспортирует переносимый EyeAuras `guidance-pack` для внешних coding agents. Его публичный контракт находится в `EyeAuras.UI.Metadata`, а desktop-реализация — в `EyeAuras.UI`.
+- `EyeAurasAiGuidanceContext` описывает разрешённый snapshot репозитория документации и пути к сгенерированному pack. Методы с явным контекстом переиспользуют этот snapshot, а export/copy-методы без контекста сначала обновляют docs-репозиторий и пересобирают pack.
 
-## Где это используется во время выполнения
+## Контексты хоста и runtime
 
-- Код приложения или плагина обычно получает `AiEngine`, `IAiProfileRepository`, `IAiSpeechToTextService`, фабрики и configurator-ы через dependency injection.
-- Razor-компоненты получают AI-сервисы через обычный Blazor injection и сами управляют временем жизни session/view-model.
-- Верхнеуровневые скрипты и script projects не должны рассчитывать, что AI-сервисы доступны как глобальные символы. Используйте host surface, доступный внутри конкретного script project.
-- Обычные вспомогательные классы должны получать `IAiSession`, `AiEngine`, плагины и другие AI-зависимости явно.
-- AI runtime — это не тот же самый subsystem, что CV/YOLO inference. Объединяйте их только там, где одной функции нужны и визуальное распознавание на модели, и orchestration для чата/инструментов.
+- Код приложения/плагина обычно получает `AiEngine`, `IAiProfileRepository`, `IAiSpeechToTextService`, фабрики и configurators через dependency injection.
+- Razor-компоненты получают AI-сервисы через обычный Blazor injection и сами владеют временем жизни session/view-model.
+- Верхнеуровневые скрипты или script projects не должны рассчитывать, что AI-сервисы существуют как глобальные символы. Используйте host surface, доступный в этом script project.
+- Обычные helper-классы должны явно получать `IAiSession`, `AiEngine`, плагины или другие AI-зависимости.
+- AI runtime — это не тот же самый subsystem, что CV/YOLO inference. Объединяйте их только там, где фиче нужны и визуальная детекция на базе модели, и оркестрация чата/инструментов.
 
-## Подробности API
+## Детали API
 
-- `AiCoreServiceCollectionExtensions.AddAiCoreServices` — регистрирует базовые AI-сервисы: profile repository, transport events, API-key resolver, no-op speech service, Codex runtime host и `AiEngine`.
-- `AiDesktopServiceCollectionExtensions.AddAiDesktopServices` — добавляет desktop scripting AI, окно script editor, desktop speech-to-text и configurator-ы чат-сессий для скриптов.
+- `AiCoreServiceCollectionExtensions.AddAiCoreServices` — регистрирует базовые AI-сервисы: repository профилей, transport events, resolver API key, no-op speech service, Codex runtime host и `AiEngine`.
+- `AiDesktopServiceCollectionExtensions.AddAiDesktopServices` — добавляет desktop scripting AI, показ окна script editor, desktop speech-to-text и configurators чат-сессий для скриптов.
 - `AiEngine.CreateSession` — создаёт обычную `AiChatSession`, применяет первый настроенный профиль, если он есть, и регистрирует сессию в engine.
-- `AiEngine.CreateMcpSession` — создаёт `AiMcpSession` для публикации инструментов без UI-переписки.
+- `AiEngine.CreateMcpSession` — создаёт `AiMcpSession` для хостинга инструментов без UI с историей чата.
 - `AiEngine.AddCodexSession` — создаёт coding-agent session на базе Codex.
-- `AiEngine.RemoveSession`, `RemoveMcpSession`, `ClearSessions` — освобождают принадлежащие engine сессии и удаляют их из реестра.
-- `IAiChatSessionHandle` — disposable-обёртка владения, которую удобно использовать в UI tabs или scoped workflows.
+- `AiEngine.RemoveSession`, `RemoveMcpSession`, `ClearSessions` — освобождают управляемые сессии и удаляют их из реестра engine.
+- `IAiChatSessionHandle` — disposable-обёртка владения, которую используют UI tabs или scoped workflows.
 - `AiSessionOptions.EnableArtifactStore` — управляет тем, будет ли сессия регистрировать встроенный плагин `artifact_store`.
-- `AiFunctionInvocationPolicy` — allowlist, denylist, режим подтверждения по умолчанию и callback для подтверждения вызовов инструментов.
-- `AiToolCallFilter` — Semantic Kernel invocation filter, который проверяет подтверждение, публикует telemetry по инструментам и применяет лимиты по длительности вызова.
-- `IAiTransportEvents` — наблюдает за transport data запросов и ответов.
-- `IAiSpeechToTextService` — UI-ориентированная абстракция speech-to-text; в core runtime регистрируется no-op реализация, в desktop runtime — настоящая служба.
+- `AiFunctionInvocationPolicy` — allowlist, denylist, режим одобрения по умолчанию и callback одобрения для tool calls.
+- `AiToolCallFilter` — invocation filter из Semantic Kernel, который применяет approval, публикует telemetry по инструментам и ограничивает длительность tool-call.
+- `IAiTransportEvents` — наблюдает transport data запросов и ответов.
+- `IAiSpeechToTextService` — UI-ориентированная абстракция speech-to-text; core runtime регистрирует no-op реализацию, desktop runtime — реальный сервис.
+- `IAiCodingAgentManager` / `AiCodexManager` — жизненный цикл Codex и операции с сохранёнными тредами.
+- `ICodexChatController` — переиспользуемый, UI-agnostic контроллер поверхности Codex. `PrepareActiveSessionForRequestAsync` запускает host pre-send callback и обновляет активные `CodexSessionOptions` перед следующим ходом.
+- `CodexChatOptions` — record с host-делегатами конфигурации для запуска Codex controller, создания сессий, плагинов, подготовки запроса и выбора workspace.
+- `CodexThreadListItem.FromSummary` — переиспользуемый mapper из сырых сводок Codex в состояние отображения браузера тредов.
+- `CodexWorkspaceAttachment.CreateValidated` — валидирует и нормализует выбранные файлы/папки workspace.
+- `IEyeAurasAiGuidanceService.RefreshAsync` — создаёт или обновляет managed guidance pack из настроенного docs-репозитория, необязательного статуса MCP и времени генерации.
+- `IEyeAurasAiGuidanceService.ExportPackFolderAsync`, `ExportPackArchiveAsync`, `CopyPackToCsharpProjectAsync` и `CopyPackToSolutionProjectAsync` — экспортируют или копируют pack. Перегрузки без `EyeAurasAiGuidanceContext` предполагают, что вызывающей стороне нужна самая свежая документация, и перед экспортом или копированием пересобирают pack.
 
 ## Профили
 
 - `IAiProfileRepository.Load` / `Save` сохраняют и загружают состояние профилей моделей.
 - `GetAllTemplates`, `GetBuiltInTemplates`, `GetCustomTemplates` описывают доступные шаблоны профилей.
-- `GetConfiguredProfiles`, `FindConfiguredProfile`, `AddOrUpdateConfiguredProfile`, `RemoveConfiguredProfile` управляют конкретными профилями, которые можно использовать в сессиях.
+- `GetConfiguredProfiles`, `FindConfiguredProfile`, `AddOrUpdateConfiguredProfile`, `RemoveConfiguredProfile` управляют конкретными профилями, которые могут использоваться сессиями.
 - Поля `AiModelProfile` включают `DisplayName`, `Provider`, `ModelId`, `Endpoint`, `ApiKeyRef`, `SupportsFunctionCalling`, `OrganizationId`, `ApiType`, `ReasoningEffort` и `MaxContextTokens`.
-- Среди поддерживаемых provider anchors есть `AiProvider.OpenAi`, `AiProvider.AzureOpenAi`, `AiProvider.Ollama` и сценарии с OpenAI-compatible endpoint.
-- `AiApiType.ChatCompletions` использует обвязку Semantic Kernel chat completions.
+- Поддерживаемые provider anchors включают `AiProvider.OpenAi`, `AiProvider.AzureOpenAi`, `AiProvider.Ollama` и потоки с OpenAI-compatible endpoint.
+- `AiApiType.ChatCompletions` использует wiring Semantic Kernel для chat completions.
 - `AiApiType.Responses` обрабатывается через путь адаптера Responses.
 
 ## Retrieval и документация
 
-- `AiDocsKnowledgeBasePlugin` предоставляет `doc_search`, `doc_get_chunk_preview`, `doc_get_chunk_full`, `doc_list_documents`, `doc_list_pinned_documents`, `doc_get_index_status` и `doc_reindex`.
+- `AiDocsKnowledgeBasePlugin` публикует `doc_search`, `doc_get_chunk_preview`, `doc_get_chunk_full`, `doc_list_documents`, `doc_list_pinned_documents`, `doc_get_index_status` и `doc_reindex`.
 - `IBm25KnowledgeBase.AddOrUpdateDocument` регистрирует один markdown-документ.
-- `IBm25KnowledgeBase.AddOrUpdateDirectory` — расширенный сценарий для добавления каталога markdown-документов, если он доступен.
-- `Bm25Document` содержит `IFileInfo`, timestamp, необязательный hash, description, kind, tags, source name и pinned flag.
-- Pinned docs рассматриваются `AiDocsKnowledgeBasePlugin` как постоянные инструкции.
-- `IAiRetrievalService` может добавлять локальный контекст в запрос к модели перед отправкой хода диалога.
-- `AiKernelPlugin.GetRetrievalServices` позволяет плагину добавить retrieval в сессию.
+- `IBm25KnowledgeBase.AddOrUpdateDirectory` — extension-поток для добавления директории markdown-документов, если он доступен.
+- `Bm25Document` оборачивает `IFileInfo`, timestamp, необязательный hash, description, kind, tags, source name и pinned flag.
+- Pinned docs рассматриваются `AiDocsKnowledgeBasePlugin` как постоянные guidance-материалы.
+- `IAiRetrievalService` может внедрять локальный контекст в запросы к модели до отправки хода.
+- `AiKernelPlugin.GetRetrievalServices` позволяет плагину добавлять retrieval в сессию.
 
 ## UI
 
-- `AiChatViewModel` связывает `IAiChatSession` с состоянием UI чата и реализует `IAiEventSink`.
-- `AiChatViewModel.SendAsync`, `CancelAsync`, `ClearAsync`, `RetryRequestAsync` — основные handlers команд.
+- `AiChatViewModel` привязывает `IAiChatSession` к состоянию чат-UI и реализует `IAiEventSink`.
+- `AiChatViewModel.SendAsync`, `CancelAsync`, `ClearAsync`, `RetryRequestAsync` — основные обработчики команд.
 - `AiChatViewModel.Session.SetEventSink(this)` связывает события runtime с UI.
-- `AiChatComponent` отображает элементы таймлайна, фазы запроса, вызовы инструментов, telemetry, reasoning, artifacts и компонент ввода.
-- `AiChatComponent.BeforeSend` позволяет выполнить логику приложения перед отправкой.
-- `AiChatComponent.InputFooterContent` позволяет добавить элементы управления, специфичные для host.
-- `AiChatInputComponent` обрабатывает текстовый ввод и UI, связанный с голосовым вводом.
+- `AiChatComponent` отображает элементы таймлайна, фазы запроса, tool calls, telemetry, reasoning, artifacts и компонент ввода.
+- `AiChatComponent.BeforeSend` может выполнять логику приложения перед отправкой.
+- `AiChatComponent.InputFooterContent` позволяет добавлять элементы управления, специфичные для хоста.
+- `AiChatInputComponent` отвечает за текстовый ввод и speech-related UI.
+- `CodexChatComponent` — Blazor-оболочка для Codex, которая собирает вместе состояние загрузки, `CodexThreadBrowser`, необязательный `CodexWorkspacePanel` и существующий универсальный `AiChatComponent`.
+- `CodexThreadBrowser` отображает фильтрацию активных/архивных тредов, переключение compact/all, busy/status badges и двухшаговое подтверждение архивации из `ICodexChatController`.
+- `CodexWorkspacePanel` отображает выбранные file/folder attachments и делегирует действия add/remove обратно в `ICodexChatController`.
+- Держите Codex-specific lifecycle в `ICodexChatController`; `AiChatComponent` должен оставаться provider-agnostic.
 
 ## Типовые сценарии
 
@@ -98,54 +119,80 @@ API для AI runtime позволяют создавать чат-сессии 
 4. Зарегистрируйте плагины через `session.AddOrUpdatePlugin`.
 5. Создайте `AiChatViewModel(session, speechToTextService)`.
 6. Отрисуйте `AiChatComponent`, передав view model как data context.
-7. Освобождайте view model и session handle вместе.
+7. Освободите view model и session handle вместе.
 
 ### Ассистент в редакторе скриптов
 
-1. Получите активный `IAuraScriptRunner` из контекста редактора или вкладки.
+1. Получите активный `IAuraScriptRunner` из контекста редактора/вкладки.
 2. Создайте сессию через `IScriptAiChatSessionFactory.CreateSession`.
-3. Дайте экземплярам `IScriptAiChatSessionConfigurator` подключить инструменты рабочего пространства.
-4. Создайте docs plugin, добавьте файлы документации и вызовите `ReindexAsync`.
+3. Дайте экземплярам `IScriptAiChatSessionConfigurator` подключить инструменты workspace.
+4. Соберите docs plugin, добавьте файлы документации и вызовите `ReindexAsync`.
 5. Зарегистрируйте docs через `session.AddOrUpdatePlugin`.
 6. Создайте `AiChatViewModel`.
 7. Храните `AiChatViewModel` и `IAiChatSessionHandle` в одном disposable lifetime.
 
-### MCP host для инструментов
+### MCP-хост для инструментов
 
 1. Создайте `AiMcpSession` через `AiEngine.CreateMcpSession`.
-2. Зарегистрируйте те же экземпляры `AiKernelPlugin`, которые использовались бы в чат-сессии.
-3. Создайте `AiMcpServerHost` с нужными listener options.
-4. Запустите host и передайте внешним MCP-клиентам URL endpoint.
-5. При отключении функции остановите и освободите host/session.
+2. Зарегистрируйте те же `AiKernelPlugin`, которые использовались бы в чат-сессии.
+3. Создайте `AiMcpServerHost` с listener options.
+4. Запустите хост и передайте внешним MCP-клиентам URL endpoint.
+5. Остановите и освободите host/session при отключении функции.
+
+### Переиспользуемая поверхность Codex-чата
+
+1. Создайте `CodexChatController`, передав `AiEngine`, `IAiCodingAgentManager` и host-specific `CodexChatOptions`.
+2. Реализуйте делегаты options для валидации profile/auth, `CodexSessionOptions`, необязательного `IAiSessionContext`, регистрации плагинов, pre-send refresh и необязательного выбора файлов/папок.
+3. Запустите controller и отображайте состояние thread/workspace через любую UI-технологию. Хосты на Blazor могут использовать `CodexChatComponent`.
+4. Если используется Blazor-чат, адаптируйте `ICodexChatController.ActiveSession` в `AiChatViewModel`, заполните `CodexActiveThread.TranscriptItems` и передайте view model в `CodexChatComponent`.
+5. Вызывайте `ICodexChatController.PrepareActiveSessionForRequestAsync` из `AiChatComponent.BeforeSend`; host-делегат `CreateSessionOptions` должен включать текущий файл или корень workspace, который Codex понадобится в следующей sandbox policy.
+6. Освобождайте chat adapters, привязанные к view, когда срабатывает `SessionRemoving`, затем освобождайте controller.
+
+### Guidance Pack для внешнего агента
+
+1. Получите `IEyeAurasAiGuidanceService` из dependency container приложения/плагина.
+2. Для проверки статуса в UI вызовите `ResolveExistingContextAsync` и посмотрите пути из возвращённого `EyeAurasAiGuidanceContext`.
+3. Чтобы явно пересобрать managed pack, вызовите `RefreshAsync`; передайте `EyeAurasAiGuidanceRefreshOptions.Mcp`, если в pack нужно встроить live MCP status.
+4. Чтобы передать pack внешнему агенту без ручного управления контекстом, используйте перегрузку export/copy без контекста. Эти методы сначала обновляют docs-репозиторий и пересобирают pack.
+5. Используйте перегрузки с явным контекстом, если pack уже был обновлён и вы хотите избежать второго обновления docs.
 
 ## Подсказки по assembly и package
 
-- Core namespace: `EyeAuras.AI`.
-- Plugin namespace: `EyeAuras.AI.SemanticKernel`.
-- Retrieval namespace: `EyeAuras.AI.BM25`.
+- Базовый namespace: `EyeAuras.AI`.
+- Namespace плагинов: `EyeAuras.AI.SemanticKernel`.
+- Namespace retrieval: `EyeAuras.AI.BM25`.
 - UI namespace: `EyeAuras.AI.UI`.
-- Desktop scripting namespace: `EyeAuras.AI.Desktop.Scripting`.
+- Namespace runtime/controller для Codex: `EyeAuras.AI.CodingAgents.Codex`.
+- Namespace Blazor-оболочки Codex: `EyeAuras.AI.UI.Codex`.
+- Namespace desktop scripting: `EyeAuras.AI.Desktop.Scripting`.
 - MCP namespace: `EyeAuras.AI.Mcp`.
-- Responses namespace: `EyeAuras.AI.ResponsesAPI`.
-- AI runtime зависит от пакетов Semantic Kernel и Model Context Protocol в коде приложения или модуля. Не рассчитывайте, что эти assembly подключены в каждом script project.
+- Namespace Responses: `EyeAuras.AI.ResponsesAPI`.
+- Namespace контракта guidance-pack: `EyeAuras.UI.AI.Services` в `EyeAuras.UI.Metadata`.
+- AI runtime зависит от пакетов Semantic Kernel и Model Context Protocol в коде приложения/модуля. Не предполагается, что эти assembly подключены в каждом script project.
 
-## Что лучше использовать
+## Что предпочитать
 
-- Используйте композицию через factory/configurator для сессий, завязанных на конкретную функцию.
-- Используйте `IAiChatSessionHandle`, чтобы владение сессией было явным.
-- Используйте `AiDocsKnowledgeBasePlugin` для локальной markdown-документации вместо ручного prompt stuffing.
-- Используйте `AiChatViewModel` + `AiChatComponent` для переиспользуемого Blazor UI чата.
-- Используйте `AiFunctionInvocationPolicy` для потенциально опасных инструментов.
-- Используйте события `IAiEventSink` для UI и telemetry вместо разбора логов.
+- Предпочитайте композицию через factory/configurator для feature-specific сессий.
+- Предпочитайте `IAiChatSessionHandle`, чтобы владение было явным.
+- Предпочитайте `AiDocsKnowledgeBasePlugin` для локальной markdown-документации вместо ручного stuffing промпта.
+- Предпочитайте `AiChatViewModel` + `AiChatComponent` для переиспользуемого Blazor chat UI.
+- Предпочитайте `ICodexChatController` + `CodexChatOptions` для переиспользуемых поверхностей Codex lifecycle/thread/workspace.
+- Предпочитайте `CodexThreadListItem` и `CodexWorkspaceAttachment` вместо дублирования app-specific DTO для тредов и workspace.
+- Предпочитайте `IEyeAurasAiGuidanceService` для сценариев export/copy guidance-pack вместо ручного копирования docs или правки пользовательского `AGENTS.md` в проекте.
+- Предпочитайте `AiFunctionInvocationPolicy` для рискованных инструментов.
+- Предпочитайте события `IAiEventSink` для UI/telemetry вместо парсинга логов.
 
-## Чего лучше избегать
+## Чего избегать
 
-- Не создавайте сессии без загрузки профилей, если host ожидает сохранённую конфигурацию профилей.
-- Не регистрируйте инструменты плагинов с повторяющимися явными именами.
-- Не предполагайте, что `SupportsFunctionCalling` равен `true` у каждого профиля.
+- Не создавайте сессии без загрузки профилей, если хост ожидает сохранённую конфигурацию профилей.
+- Не регистрируйте инструменты плагинов с дублирующимися явными именами.
+- Не считайте, что `SupportsFunctionCalling` равен true для каждого профиля.
 - Не делайте долгие методы инструментов без поддержки `CancellationToken`.
-- Не добавляйте machine-local пути к документации в общие docs или prompts.
-- Не смешивайте lifetime AI чат-сессии с lifetime посторонних UI-компонентов.
+- Не помещайте machine-local пути к документации в общую документацию или prompts.
+- Не смешивайте lifetime AI chat session с lifetime несвязанных UI-компонентов.
+- Не добавляйте Codex-specific lifecycle или поведение браузера тредов в `AiChatComponent`.
+- Не делайте логику Codex controller зависимой от типов Blazor, таких как `RenderFragment`, Razor-компоненты или UI view models.
+- Не используйте перегрузки guidance-pack с явным контекстом, если вызывающая сторона ещё не обновила и не проверила pack.
 
 ## Опорные сущности для исследования
 
@@ -166,9 +213,19 @@ API для AI runtime позволяют создавать чат-сессии 
 - `Bm25Document`
 - `AiChatViewModel`
 - `AiChatComponent`
+- `ICodexChatController`
+- `CodexChatController`
+- `CodexChatOptions`
+- `CodexThreadListItem`
+- `CodexWorkspaceAttachment`
+- `CodexChatComponent`
+- `CodexThreadBrowser`
+- `CodexWorkspacePanel`
 - `IAiSpeechToTextService`
 - `IScriptAiChatSessionFactory`
 - `IScriptAiChatSessionConfigurator`
+- `IEyeAurasAiGuidanceService`
+- `EyeAurasAiGuidanceContext`
 - `AiMcpSession`
 - `AiMcpServerHost`
 - `ResponsesConversationAdapter`
@@ -197,6 +254,12 @@ API для AI runtime позволяют создавать чат-сессии 
 - artifact store
 - speech to text
 - coding agent
+- Codex chat
+- Codex thread browser
+- Codex workspace attachment
+- agent guidance
+- guidance pack
+- external coding agent
 
 ## Связанные карты
 
