@@ -52,6 +52,14 @@ APIs, input simulators, smoothers, redirection, and native detours.
 - `ISendInputScriptingApi` - script send-input API.
 - `IInputSimulatorProvider`, `IInputSimulatorEx` - simulator discovery/backend.
 - `IUserInputSmootherProvider`, `IUserInputSmoother` - mouse smoothing.
+- Built-in smoother ids include `BenLandLinearFast`,
+  `BenLandRandomizedFast`, `BenLandRandomizedNormal`, `Kalon`, and
+  `MlHumanMouseV1`, `MlHumanMouseFastV1`.
+- `MlHumanMouseV1` - ML Human Move smoother. Uses a local ML.NET FastTree model
+  pack to predict compact movement parameters, generates a bounded
+  Bezier/easing path, and applies the default 2x ML timing multiplier.
+- `MlHumanMouseFastV1` - ML Human Move Fast smoother. Uses the same model-backed
+  route planner with a 4x ML timing multiplier.
 - `IKeyboardEventsSource` - keyboard/mouse event streams.
 - `IUserInputRedirectService` - input redirection.
 - `HookEngine` - advanced native function detour engine.
@@ -107,7 +115,9 @@ APIs, input simulators, smoothers, redirection, and native detours.
   `HotkeyTrackerRuntimeVisitor`, `HotkeyGesture`, `IHotkeyConverter`,
   `IHotkeyTracker`, `HotkeyIsActiveTrigger`, `ISendInputScriptingApi`,
   `IInputSimulatorProvider`, `IUserInputSmootherProvider`,
-  `IKeyboardEventsSource`, `IUserInputRedirectService`, `HookEngine`.
+  `IUserInputSmoother`, `MlHumanMouseV1`, `MlHumanMouseFastV1`,
+  `IKeyboardEventsSource`,
+  `IUserInputRedirectService`, `HookEngine`.
 
 ## Search Synonyms
 
@@ -118,6 +128,9 @@ APIs, input simulators, smoothers, redirection, and native detours.
 - send input
 - input simulator
 - input smoother
+- ML Human Move smoother
+- MlHumanMouseV1
+- MlHumanMouseFastV1
 - target window input
 - input redirect
 - suppress key

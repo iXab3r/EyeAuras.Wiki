@@ -13,12 +13,16 @@ The algorithm itself can vary. By default, the program includes algorithms from 
 These algorithms have some parameters that you can adjust, but even by default, the program includes several presets, here are the most useful ones:
 - `BenLandLinearFast` - moves the mouse from point A to point B in a straight line
 - `BenLandRandomizedFast` - adds some deviation at the starting point of the trajectory
+- `MlHumanMouseV1` - ML Human Move smoother. Predicts compact movement
+  parameters from a local model pack and runs at the default 2x ML timing.
+- `MlHumanMouseFastV1` - ML Human Move Fast smoother. Uses the same model-backed
+  route planner with 4x ML timing.
 
 By specifying `InputSmootherId` in the code, you can instruct the simulator to smooth out mouse movements
 
 ```csharp
 ISendInputUnstableScriptingApi SendInput { get; } = GetService<ISendInputUnstableScriptingApi>(); // needed for input sending
-SendInput.InputSmootherId = "BenLandRandomizedFast"; // specify the Smoother Id here
+SendInput.InputSmootherId = "MlHumanMouseV1"; // or "MlHumanMouseFastV1"
 ```
 
 ## Example where we implement our own smoothing
@@ -38,7 +42,7 @@ GetService<IUserInputSmootherRegistrator>() // get the service responsible for o
     .Register(customSmoother); // and add ours
 
 // now tell the API to use our smoother
-SendInput.InputSmootherId = customSmoother.Id; // or something like "BenLandRandomizedFast";
+SendInput.InputSmootherId = customSmoother.Id; // or something like "MlHumanMouseV1";
 
 var screenSize = System.Windows.Forms.SystemInformation.PrimaryMonitorSize; // get the size of the primary screen
 

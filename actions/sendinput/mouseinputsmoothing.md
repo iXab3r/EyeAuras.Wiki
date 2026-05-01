@@ -42,3 +42,13 @@ Makes linear approximation of mouse movement. Does not look very human to a nake
 Applies random seed to all inputs making it look much more humane. 
 
 ![](/g6_wnd2_w1-5_s10_a10.gif)
+
+### ML Human Move
+
+`MlHumanMouseV1` uses a local ML.NET FastTree model pack to predict compact
+movement parameters, then generates a bounded Bezier/easing route from the
+current cursor position to the exact target. This default variant runs at the
+normal ML route shape with a 2x runtime speed multiplier.
+
+`MlHumanMouseFastV1` uses the same model-backed route planner with a 4x runtime
+speed multiplier and appears as **ML Human Move Fast** in smoother selectors.
