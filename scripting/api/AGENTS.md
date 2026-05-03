@@ -51,7 +51,7 @@ single large file.
   windows, input hooks, hotkeys, and send-input infrastructure.
 - `osd/` - on-screen user selection and on-screen drawing overlays.
 - `memory/` - core memory/process contracts and built-in memory backends.
-- `nuget/` - optional SDK packages such as ImGui SDK and Frida SDK.
+- `nuget/` - optional SDK packages such as ImGui SDK, Frida SDK, and Xign SDK.
 - `computer-vision/` - capture, image search, OCR, OpenCV, and pixel workflows.
 - `ml/` - ML models, datasets, AI runtime, AI tool plugins, retrieval, and
   model-backed search.
@@ -178,6 +178,8 @@ Use this shape when practical:
 - `nuget/frida-sdk.md` - optional `EyeAuras.FridaSdk` package, Frida
   sessions/scripts, Frida Gadget payloads, Frida-backed `IProcess` adapters,
   and CAgent native named-pipe process readers.
+- `nuget/xign-sdk.md` - optional `EyeAuras.XignSdk` package, SCM-only Xign
+  driver loading, typed device commands, and driver-backed `XignProcess`.
 - `computer-vision/images.md` - screen/window capture, image search, OCR,
   OpenCV, color, and pixel workflows.
 - `computer-vision/profiling.md` - MiniProfiler, `EnableProfiling`,
@@ -362,6 +364,10 @@ Use this shape when practical:
 - Optional Frida SDK:
   `IFridaExperimentalApi`, `IFridaSession`, `IFridaScript`,
   `FridaAgentProcess`, `CAgentProcess`, `FridaAgentRpcType`.
+
+- Optional Xign SDK:
+  `XignProcess`, `IXignProcess`, `IXignProcessBuilder`,
+  `XignDriverServiceConfig`.
 
 - Computer vision:
   `IComputerVisionExperimentalScriptingApi`, `ICvAccessor`,
