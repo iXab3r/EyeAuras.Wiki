@@ -2,7 +2,7 @@
 title: AI NuGet: Frida SDK
 description: AI-first map for optional Frida instrumentation, Frida-backed process readers, and CAgent native process readers.
 published: true
-date: 2026-04-21T00:00:00.000Z
+date: 2026-05-03T00:00:00.000Z
 tags: scripting, api, ai, frida, nuget, memory, cagent
 editor: markdown
 dateCreated: 2026-04-21T00:00:00.000Z
@@ -36,6 +36,9 @@ native named-pipe process readers.
 - Frida Gadget binary helpers live in the Frida binaries family.
 - CAgent native DLL bytes and managed clients live near the Frida SDK, but CAgent
   is a separate native named-pipe process reader, not a Frida script/session.
+- `WHProcess` is an experimental x64 GUI-process `IProcess` backend that uses a
+  Windows hook transport for low-permission memory reads/writes and small remote
+  control operations.
 
 ## Required Setup
 
@@ -67,6 +70,7 @@ add `FridaContainerExtensions` first.
 | Frida Gadget | Attach to an injected/embedded Frida runtime by local port | `FridaSdkBinaries`, `AttachByLocalPort` |
 | Frida-backed process reader | Use Frida session as `IProcess` for memory/reverse-engineering tools | `FridaAgentProcess`, `FridaAgentRpcType`, `FridaMemoryBackend` |
 | CAgent process reader | Use native DLL + named-pipe RPC for memory/process-control operations | `CAgentProcess`, `ICAgentProcess`, `IProcessControlApi` |
+| WH process reader | Use a GUI window thread and Windows hook transport for experimental low-permission memory/process-control probes and x64 manual mapping | `WHProcess`, `WHProcess.ByWindowHandle`, `WHProcess.ExecuteCode`, `IProcessSupportsManualMapping` |
 
 ## User Intents
 
@@ -78,6 +82,9 @@ add `FridaContainerExtensions` first.
 - Reload a Frida script while editing it.
 - Wrap an existing Frida session as `IProcess`.
 - Connect to an already-loaded CAgent native endpoint.
+- Attach to an x64 GUI process through `WHProcess`.
+- Manually map the x64 CAgent payload through `WHProcess` when the target meets
+  WH control prerequisites.
 - Choose between Frida RPC and named-pipe RPC transports.
 - Decide whether a task needs Frida instrumentation or only a process reader.
 
@@ -159,6 +166,25 @@ add `FridaContainerExtensions` first.
 - These projects are related to the SDK repository layout, but they are not the
   same thing as Frida sessions or Frida JavaScript scripts.
 
+## WHProcess APIs
+
+- `WHProcess.ByWindowHandle(hwnd)` is the primary attach route and requires an
+  x64 GUI target with a usable window thread.
+- `WHProcess.ByProcessId(pid)` and `WHProcess.ByThreadId(tid)` are convenience
+  discovery wrappers that delegate to a window handle when possible.
+- `WHProcess` implements `IProcess` for memory reads/writes, modules, threads,
+  and memory-region enumeration.
+- `WHProcess.ExecuteCode(startAddress, parameter)` calls an already-staged x64
+  code pointer synchronously on the selected GUI thread and passes `parameter`
+  in `RCX`. Use it only for tiny routines that return immediately.
+- `IProcessControlApi` on `WHProcess` supports gradual control primitives such
+  as allocation, protection changes, freeing, and `CreateThread` when the WH
+  transport can borrow an existing RWX trampoline page.
+- `WHProcess` implements `IProcessSupportsManualMapping` for x64 targets. WH
+  manual mapping uses `IProcessControlApi.ExecuteCode(...)` for synchronous
+  mapper execution and still requires the same WH control prerequisites,
+  including an available existing RWX trampoline page.
+
 ## Common Flows
 
 ### Attach And Run Frida Script
@@ -197,6 +223,18 @@ add `FridaContainerExtensions` first.
 5. Validate that reported `ProcessId` matches the expected process.
 6. Use the resulting `IProcess`/`IProcessControlApi` surface.
 
+### Manually Map CAgent Through WHProcess
+
+1. Attach to an x64 GUI target with `WHProcess.ByWindowHandle(...)`,
+   `ByProcessId(...)`, or `ByThreadId(...)`.
+2. Ensure the target has the WH control prerequisites, especially an existing
+   RWX trampoline page discoverable by `WHProcess`.
+3. Obtain matching x64 CAgent bytes from
+   `IFridaExperimentalApi.GetCAgentLibraryForX64()`.
+4. Call `WHProcess.InjectDllViaManualMapping(bytes)`.
+5. Connect with `CAgentProcess.ByProcessId(pid)` and validate the reported PID
+   and process name.
+
 ## Prefer
 
 - Prefer `AddNewExtension<FridaContainerExtensions>()` as the first Frida SDK
@@ -206,6 +244,8 @@ add `FridaContainerExtensions` first.
   API expects `IProcess`.
 - Prefer CAgent only when a compatible native endpoint is known to be loaded or
   the mini-app owns the load/inject step.
+- Prefer WH manual mapping only for x64 GUI targets where the WH transport has
+  already proven allocation, protection, freeing, and synchronous execution.
 - Prefer explicit factory calls over reflection for `CAgentProcess`; the factory
   has optional parameters.
 - Validate process id, architecture, and liveness before write-capable tooling.
@@ -214,6 +254,11 @@ add `FridaContainerExtensions` first.
 
 - Avoid calling every named-pipe process reader "Frida".
 - Avoid treating a PID as proof that CAgent is loaded.
+- Avoid using WH manual mapping on x86 or non-GUI targets, or when the target has
+  no existing RWX trampoline page for WH control calls.
+- Avoid replacing WH manual mapping with `CreateThread(...)`; the mapper needs
+  synchronous `ExecuteCode(...)` completion before reading return buffers and
+  freeing shellcode.
 - Avoid treating Frida Gadget, Frida session, Frida agent script, and CAgent DLL
   as the same payload.
 - Avoid assuming this package is available without explicit package/reference and
@@ -246,6 +291,10 @@ add `FridaContainerExtensions` first.
 - `CAgentProcess`
 - `ICAgentProcess`
 - `IProcessControlApi`
+- `IProcessSupportsManualMapping`
+- `WHProcess`
+- `WHProcess.ExecuteCode`
+- `WHProcess.InjectDllViaManualMapping`
 - `FridaAgentScriptViaNamedPipe`
 - `FridaCompositeNamedPipeRpc`
 - `FridaContainerExtensions`
@@ -272,6 +321,12 @@ add `FridaContainerExtensions` first.
 - memory reader
 - remote thread
 - native payload
+- Windows hook process
+- WHProcess
+- WH manual mapping
+- execute code
+- synchronous execution
+- GUI thread call
 
 ## Related Maps
 
