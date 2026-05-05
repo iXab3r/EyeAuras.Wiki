@@ -23,7 +23,8 @@ DynamicData concepts behind reactive view models and collection tracking.
 - Pass a view-model into a Razor component through `DataContext`.
 - Render a dynamic component for a model object.
 - Register or resolve Razor views by content type.
-- Use JS helpers for focus, clipboard, CSS, keyboard hooks, and dynamic roots.
+- Use JS helpers for focus, clipboard, CSS, keyboard hooks, browser shortcut
+  suppression, and dynamic roots.
 - Understand why a component does or does not re-render.
 - Add Blazor-facing resources or JS component metadata to a host.
 
@@ -68,8 +69,11 @@ DynamicData concepts behind reactive view models and collection tracking.
 - `IBlazorContentRepository` / `BlazorContentRepository` - additional static
   files plus `JSComponentConfigurationStore`.
 - `IJsPoeBlazorUtils` - clipboard, focus, click, scroll, CSS/JS loading,
-  dynamic root components, keyboard hooks, class/attribute helpers, and DOM
-  breadcrumbs.
+  dynamic root components, keyboard hooks, browser shortcut suppression,
+  class/attribute helpers, and DOM breadcrumbs.
+- `IJsPoeBlazorUtils.SuppressWellKnownBrowserShortcuts(...)` - explicit opt-in
+  DOM listener for suppressing common browser/WebView shortcuts such as Ctrl+A,
+  Ctrl+P, Ctrl+F, Ctrl+S, Ctrl+O, Ctrl+R, Ctrl+Shift+R, and F5.
 - `BlazorCommandWrapper` - wraps ReactiveUI commands for Blazor/WPF command
   surfaces and exposes busy/error state.
 - `BlazorErrorBoundary` - error boundary with an `OnError` callback.
@@ -133,6 +137,33 @@ type.
 Always await JS calls. The safe JS runtime wrapper logs JS invocation failures
 and reports missed awaits through the component dispatcher.
 
+### Suppress Browser Shortcuts
+
+```razor
+@inject IJsPoeBlazorUtils JsUtils
+
+@code {
+    private JsBrowserShortcutSuppressionRef? shortcutSuppression;
+
+    protected override async Task OnInitializedAsync()
+    {
+        shortcutSuppression = await JsUtils.SuppressWellKnownBrowserShortcuts();
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (shortcutSuppression != null)
+        {
+            await shortcutSuppression.Value.DisposeAsync();
+        }
+    }
+}
+```
+
+The helper prevents browser/WebView defaults without stopping propagation by
+default, so Blazor handlers can still process shortcuts. Ctrl+A remains allowed
+inside editable elements unless options override that behavior.
+
 ## Host / Runtime Contexts
 
 - App UI and WebView2 hosts register shared Blazor services through
@@ -153,7 +184,8 @@ and reports missed awaits through the component dispatcher.
 - Prefer `ReactiveSection` and explicit `ReactiveTrackerList` entries for
   fine-grained refresh behavior.
 - Prefer `BlazorContentPresenter` and view registration for dynamic UI.
-- Prefer `IJsPoeBlazorUtils` for common DOM/clipboard/focus/CSS/JS operations.
+- Prefer `IJsPoeBlazorUtils` for common DOM/clipboard/focus/CSS/JS operations
+  and explicit browser shortcut suppression.
 - Prefer `Anchors` for component subscriptions and other component-owned
   resources.
 - Prefer `windows-subsystems/blazor-windows.md` when the task is about opening,
@@ -188,6 +220,7 @@ and reports missed awaits through the component dispatcher.
 - `IBlazorContentRepository`
 - `BlazorContentRepository`
 - `IJsPoeBlazorUtils`
+- `SuppressWellKnownBrowserShortcuts`
 - `BlazorCommandWrapper`
 - `BlazorErrorBoundary`
 - `PoeSharedBlazorRegistrations`
@@ -206,6 +239,10 @@ and reports missed awaits through the component dispatcher.
 - BlazorContentPresenter
 - JS interop
 - IJsPoeBlazorUtils
+- SuppressWellKnownBrowserShortcuts
+- browser shortcut suppression
+- Ctrl+A
+- Ctrl+P
 - WebView2 Blazor
 - component refresh
 - component anchors
