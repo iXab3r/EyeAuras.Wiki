@@ -13,6 +13,15 @@ dateCreated: 2026-05-03T00:00:00.000Z
 XignCode3-драйвер, как читать/писать память, когда держать handle процесса
 открытым и где заканчивается зона ответственности этого backend'а.
 
+`EyeAuras.XignSdk` это отдельный NuGet-пакет. В скрипте его нужно подключать
+явно:
+
+```csharp
+#r "nuget: EyeAuras.XignSdk"
+
+using EyeAuras.XignSdk;
+```
+
 ## Важный дисклеймер
 
 `EyeAuras.XignSdk` работает поверх Xign driver, он же XignCode3 driver. Это
