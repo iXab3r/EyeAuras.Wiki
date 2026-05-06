@@ -2,7 +2,7 @@
 title: AI NuGet: Xign SDK
 description: AI-first map for optional Xign driver infrastructure and XignProcess.
 published: true
-date: 2026-05-03T00:00:00.000Z
+date: 2026-05-06T00:00:00.000Z
 tags: scripting, api, ai, xign, nuget, driver, memory
 editor: markdown
 dateCreated: 2026-05-03T00:00:00.000Z
@@ -94,7 +94,9 @@ backend should usually be a small construction-site change.
   `WithLoadDriver` / `WithOpenProcess`.
 - `XignDriverServiceConfig.Default` - default service/device/payload names.
 - `XignDriverManager.Create(loadDriver)` - optionally loads the packaged driver
-  and returns an opened `IXignDriverConnection`.
+  and returns an opened `IXignDriverConnection`; when `loadDriver` is false and
+  the device cannot be opened, the diagnostic should point callers toward
+  `XignProcess.WithLoadDriver()` or `loadDriver: true`.
 - `XignDriverConnection` / `IXignDriverConnection` - direct device API for raw
   `Call(command, args)` and typed helpers such as `PingEcho`,
   `QueryVersionStatus`, `OpenProcess`, `ReadUserMemory`, `ReadMemory`, and
@@ -140,6 +142,9 @@ backend should usually be a small construction-site change.
   4. Use `Memory.Read<T>`, `Memory.Write<T>`, span reads/writes,
      virtual-memory control, manual mapping, or `ExecuteCode` when the host
      driver is compatible.
+  5. If the device-open error says the driver service is not loaded, switch the
+     construction path to `XignProcess.WithLoadDriver()` or direct
+     `XignDriverManager.Create(loadDriver: true)`.
 
 - Start the packaged driver and open the device:
   1. Add the real driver as `Payloads/xhunter1.sys` before packaging or manual tests.
