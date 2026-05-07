@@ -245,6 +245,13 @@ surface through MCP.
 6. Dispose view-specific chat adapters when `SessionRemoving` fires, then
    dispose the controller.
 
+Codex transcript rendering follows the app-server `ThreadItem` model. Live
+`agentMessage` items render as `AiChatItem` assistant rows keyed by provider
+item id and phase; the generic request response bubble is only used by
+non-Codex chat backends that do not emit assistant transcript items directly.
+Use `AiChatItem.ProviderItemId`, `ProviderPhase`, and `CompletedTimestamp` for
+diagnostics or replay alignment, not for business logic.
+
 ### External Agent Guidance Pack
 
 1. Resolve `IEyeAurasAiGuidanceService` from the app/plugin dependency
