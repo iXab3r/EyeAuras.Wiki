@@ -73,6 +73,7 @@ The preferred EyeAuras wiki style is:
 - Avoid literal translation if it sounds unnatural in Russian.
 - Keep product names, API names, UI labels, and code identifiers in their real form.
 - If an English technical term appears in the UI, it is fine to keep it in backticks and explain it in Russian.
+- Avoid gratuitous English words in Russian prose. Use English only when it is a real UI label, API name, product name, file format, command, or term the user must search for. Prefer natural Russian words in ordinary prose: `руководство`, `набор данных`, `метки`, `задачи`, `предсказания`, `авторазметка`.
 
 ## Translation guidance
 

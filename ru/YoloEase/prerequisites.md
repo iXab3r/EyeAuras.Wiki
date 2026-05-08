@@ -1,89 +1,64 @@
 ---
-title: Предварительные требования
-description: Необходимые условия и требования перед началом работы
+title: Предварительные компоненты
+description: Как подготовить Python, PyTorch и GPU через YoloEase
 published: true
-date: 2024-10-24T16:44:18.036Z
-tags: ai-translated
+date: 2026-05-08T12:00:00.000Z
+tags: yoloease, machine-learning
 editor: markdown
 dateCreated: 2023-10-29T18:35:33.765Z
 ---
-Все команды ниже нужно запускать через **CMD от имени администратора** — это требуется для `cvat-cli`.
-{.is-info}
+# Предварительные компоненты
 
-## 1. Установите Python 3.9.0
+YoloEase сам управляет инструментами для обучения. В обычном сценарии не нужно отдельно ставить Python, пакеты для обучения или настраивать переменные окружения. Откройте проект, перейдите на вкладку `Prerequisites` и дайте приложению проверить окружение.
 
-Более поздние версии, скорее всего, тоже подойдут.
+![Prerequisites missing](https://s3.eyeauras.net/media/2026/05/YoloEase_wfJdcyvdZj.png)
 
-> Не забудьте включить опцию **"Add to PATH"** / **"Add Python to environment variables"**, если установщик предложит это сделать.
-{.is-warning}
+## Быстрый путь
 
-*Для Windows x64:*
-```
-https://www.python.org/ftp/python/3.9.0/python-3.9.0-amd64.exe
-```
+1. Откройте проект YoloEase.
+2. Перейдите на вкладку `Prerequisites`.
+3. Нажмите `Check all`.
+4. Если есть отсутствующие компоненты, нажмите `Install missing`.
+5. Дождитесь завершения установки.
+6. Снова нажмите `Check all`, если хотите перепроверить состояние.
 
-## 2. Проверьте, что Python установлен
+Кнопка `Copy all` удобна, когда нужно отправить диагностическую информацию. `Clear all` очищает текущий вывод в списке проверок.
 
-Выполните команду ниже. Она должна вывести `Python 3.9.0` (или другую версию):
+## Что проверяет YoloEase
 
-```bash
-python --version
-```
+`Managed Python 3.11` проверяет portable Python, который лежит в папке данных YoloEase.
 
-## 3. Проверьте, что PIP установлен и работает
+`Python environment` проверяет виртуальное окружение приложения.
 
-Выполните проверку версии PIP. В ответ должно появиться что-то вроде `pip 20.2.3 from c:\users\gpuvm\appdata\local\programs\python\python39\lib\site-packages\pip (python 3.9)`:
+`Package installer` проверяет, что можно ставить Python-пакеты.
 
-```bash
-pip --version
-```
+`GPU driver helper` показывает найденный NVIDIA GPU и совместимость драйвера со средой выполнения CUDA.
 
-## 4. Установите [Ultralytics](https://github.com/ultralytics/ultralytics)
+`PyTorch runtime` ставит CPU- или CUDA-вариант PyTorch в управляемое окружение.
 
-Это модель, которую мы будем использовать для обучения. Установка может занять некоторое время, так как пакет весит довольно много — несколько гигабайт.
+`Python packages`, `Yolo CLI` и `GPU acceleration` проверяют рабочие пакеты, CLI и доступность ускорения.
 
-```bash
-pip install ultralytics==8.2.78 
-```
+![All prerequisites installed](https://s3.eyeauras.net/media/2026/05/YoloEase_OuA9BUthjc.png)
 
-## 5. Убедитесь, что Ultralytics установлен правильно
+## GPU не обязателен
 
-Запустите эту команду — она использует модель по умолчанию, чтобы найти автобус на изображении из интернета:
+GPU ускоряет обучение, но не является обязательным для запуска YoloEase. Если совместимый NVIDIA GPU не найден, обучение может идти на CPU. Это будет медленнее, зато не требует отдельной видеокарты.
 
-```bash
-yolo predict model=yolov8n.pt source='https://ultralytics.com/images/bus.jpg'
-```
+Если GPU найден и драйвер подходит, YoloEase установит CUDA-совместимый PyTorch и во время локального обучения выберет устройство CUDA автоматически.
 
-## 6. Проверьте результат распознавания
+## Если установка упала
 
-По умолчанию `yolo` сохраняет результаты в папку `runs/detect/predict` внутри текущей директории. Откройте текущую папку в Explorer и убедитесь, что папки создались, а результат распознавания выглядит корректно.
+Самая частая практическая причина — не хватает места на диске. PyTorch и кеш wheel-пакетов могут занимать много гигабайт, особенно при установке CUDA-версии.
 
-```bash
-explorer .
-```
+![No space left on device](https://s3.eyeauras.net/media/2026/05/YoloEase_5T0uv3vFkV.png)
 
-[![Prediction results](https://i.imgur.com/SrwvqFM.png =x150)](https://i.imgur.com/SrwvqFM.png)
+Что сделать:
 
-## 7. Установите зависимости Python
+1. Освободите место на диске, где лежит папка данных YoloEase.
+2. Нажмите `Clear all`, чтобы убрать старый лог.
+3. Запустите `Install missing` еще раз.
+4. Если ошибка повторяется, используйте `Copy all` и приложите вывод к сообщению об ошибке.
 
-```bash
-pip install opencv-python numpy matplotlib shapely onnxruntime==1.18.0
-```
+Когда все строки зеленые, можно переходить к [подготовке данных](/ru/YoloEase/prepare-data).
 
-## 8. Установите [CVAT Command Line Interface](https://opencv.github.io/cvat/docs/api_sdk/cli/)
-
-```bash
-pip install cvat-cli==2.5.0 cvat_sdk==2.5.0
-```
-
-## 9. Проверьте, что CVAT CLI установлен правильно
-
-Выполните проверку версии. В консоль должен быть выведен номер версии:
-
-```bash
-cvat-cli --version
-```
-
-## 10. Перезапустите EyeAuras или YoloEase
-
-Если EyeAuras или YoloEase были запущены, их нужно перезапустить. Иначе они не смогут найти установленные вами инструменты.
+Если хотите понять, зачем нужны PyTorch, Ultralytics, ONNX Runtime и почему YoloEase экспортирует `opset 17`, см. [YOLO ONNX и веса моделей](/ru/YoloEase/features/yolo-onnx). Если установка или обучение падают, откройте [диагностику](/ru/YoloEase/features/diagnostics).
