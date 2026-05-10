@@ -180,6 +180,10 @@ Use this shape when practical:
   and CAgent native named-pipe process readers.
 - `nuget/xign-sdk.md` - optional `EyeAuras.XignSdk` package, SCM-only Xign
   driver loading, typed device commands, and driver-backed `XignProcess`.
+- `nuget/fairplay-sdk.md` - optional `EyeAuras.Memory.FairPlaySdk` package,
+  SCM-only FairPlay driver loading, raw device connection infrastructure, and
+  the `FairPlayKDProcess` adapter with FairPlay-opened process-handle reads,
+  writes, allocation/protection, manual mapping, and APC helpers.
 - `computer-vision/images.md` - screen/window capture, image search, OCR,
   OpenCV, color, and pixel workflows.
 - `computer-vision/profiling.md` - MiniProfiler, `EnableProfiling`,
@@ -368,6 +372,11 @@ Use this shape when practical:
 - Optional Xign SDK:
   `XignProcess`, `IXignProcess`, `IXignProcessBuilder`,
   `XignDriverServiceConfig`.
+
+- Optional FairPlay SDK:
+  `FairPlayDriverManager`, `IFairPlayDriverManager`,
+  `FairPlayDriverConnection`, `IFairPlayDriverConnection`,
+  `FairPlayKDProcess`, `IFairPlayProcess`, `IFairPlayProcessBuilder`.
 
 - Computer vision:
   `IComputerVisionExperimentalScriptingApi`, `ICvAccessor`,
