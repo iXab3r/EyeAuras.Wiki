@@ -193,8 +193,9 @@ Use this shape when practical:
   Blazor chat UI, MCP hosting, Responses API, and desktop scripting AI.
 - `ml/ai-kernel-plugins.md` - `AiKernelPlugin`, `[KernelFunction]` tools,
   plugin host, tool approval, retrieval plugins, and tool design rules.
-- `ml/script-ai-clients.md` - direct external AI client NuGets from scripts and
-  how they differ from built-in `EyeAuras.AI` runtime.
+- `ml/script-ai-clients.md` - built-in `EyeAuras.AISdk` / `EyeAuras.AI`
+  script AI path first, with direct external provider NuGets as explicit
+  escape hatches.
 - `reverse-engineering/reprocess.md` - `ReProcess`, RE workspace builder,
   RE tabs/actions/inspectors, and AI RE tools.
 
@@ -396,9 +397,11 @@ Use this shape when practical:
   invokes plugin tools; `AiFunctionInvocationPolicy` controls approval;
   `AiDocsKnowledgeBasePlugin` adds BM25-backed `doc_*` documentation tools.
 
-- External AI clients:
-  direct NuGet clients such as the OpenAI .NET client are ordinary script
-  dependencies and are separate from the built-in `EyeAuras.AI` runtime.
+- Script AI clients:
+  use built-in `EyeAuras.AISdk` / `EyeAuras.AI` infrastructure first for
+  profiles, sessions, Semantic Kernel tools, retrieval, MCP/Codex, and reusable
+  chat UI; direct provider NuGets are ordinary script-owned dependencies for
+  intentional escape-hatch cases.
 
 - Reverse engineering:
   `ReProcess`, `ReProcessBuilder`, `IReProcess`, `IReFacade`,

@@ -66,8 +66,9 @@ Index map for two related but separate areas:
 - Prefer `osd/screen-overlay.md` for prediction boxes.
 - Prefer `ml/ai-runtime.md` for chat/session/profile/UI integration.
 - Prefer `ml/ai-kernel-plugins.md` when adding tools callable by an AI model.
-- Prefer `ml/script-ai-clients.md` for direct external provider NuGet calls
-  from scripts.
+- Prefer `ml/script-ai-clients.md` when deciding between the built-in
+  `EyeAuras.AISdk` / `EyeAuras.AI` path and an intentional direct provider
+  NuGet escape hatch.
 - Prefer a recipe when the task is an architecture question rather than a
   single API lookup.
 
