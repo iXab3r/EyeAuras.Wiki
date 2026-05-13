@@ -56,11 +56,14 @@ and how those pieces behave during export/import.
   paths.
 - During import/live-import, paths declared as `EmbeddedResource` are owned by
   the resource pipeline, not imported again as ordinary text documents.
-- `ScriptEmbeddedResourceFileProvider` maps manifest names back to path-like
-  names.
-- Resource lookup supports full manifest names, relative paths, dotted paths,
-  and leaf names when unambiguous.
-- Duplicate file names can make short leaf-name lookup ambiguous.
+- `ScriptEmbeddedResourceFileProvider` resolves exact manifest names and
+  deterministic path suffixes.
+- Resource lookup supports full manifest names, full slash-form names, and
+  folder-qualified suffix paths when they identify one distinct manifest.
+- Resources under `wwwroot/` also resolve through Blazor-style web paths such
+  as `css/site.css`.
+- Ambiguous suffixes return not found and log a warning; leaf names are not
+  generic aliases.
 - `Watch(...)` on embedded resources is not a live file watcher; resources are
   baked into the compiled assembly.
 
