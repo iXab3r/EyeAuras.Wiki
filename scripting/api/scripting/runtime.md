@@ -58,6 +58,92 @@ classes, dependency access, accessors, variables, macros, and keybind metadata.
 - Large projects should treat the top-level script as a composition root and
   move orchestration into regular services.
 
+## EyePad Console Entry Points
+
+EyePad console scripting uses one script source selector per process launch.
+The legacy positional `inputFile` remains valid, and the console-focused
+selectors make the source kind explicit:
+
+- `EyeAuras.exe --pad path/to/Script.csx` runs the positional input file.
+- `EyeAuras.exe --pad --run path/to/Script.csx` runs an explicit script file.
+- `EyeAuras.exe --pad --eval "Console.WriteLine(\"hi\")"` runs inline source.
+- `EyeAuras.exe --pad --run -` reads the script source from standard input.
+
+Only one of positional `inputFile`, `--run`, or `--eval` should be present. A
+conflict is a command-line validation failure and should exit with code `2`.
+
+Use `--` to separate host arguments from script arguments. Tokens after the
+separator are exposed to the script as `args`; tokens before it stay host
+arguments and must not leak into script arguments:
+
+```text
+EyeAuras.exe --pad --eval "Console.WriteLine(string.Join(\"|\", args))" -- alpha --literal omega
+```
+
+Standard input has two distinct meanings:
+
+- With `--run -`, stdin is the script source.
+- With `--eval`, stdin remains data that the script can read through
+  `Console.In`.
+
+For machine-readable console scripts, write user output through
+`Console.Write` / `Console.WriteLine` and errors through `Console.Error`.
+Use `Log` for EyeAuras diagnostics and event-viewer breadcrumbs; it is not a
+replacement for stdout/stderr protocol output.
+
+When EyeAuras is started as a console-script host from an interactive Windows
+console, it attaches to the parent console before installing the console tee.
+Redirected pipelines keep their original pipe/file handles per stream, so
+`Console.In` can remain stdin data while stdout/stderr attach to the terminal
+when those streams are not redirected. This lets console helpers and TUI
+libraries such as Spectre.Console use the normal `Console` surface, ANSI output,
+width detection, and keyboard APIs when a real console is available, while
+redirected stdout/stderr remain machine-readable protocol streams.
+
+## Interactive Terminal From Normal Scripts
+
+Top-level Aura scripts can request an interactive Windows terminal through the
+opt-in terminal scripting API. The namespace is intentionally not connected as
+a default global surface, so scripts that need a terminal should import it and
+resolve the service explicitly:
+
+```csharp
+using EyeAuras.Scripting.Terminal;
+
+var terminalApi = GetService<ITerminalScriptingApi>();
+var terminal = terminalApi.EnsureConsole();
+try
+{
+    Spectre.Console.AnsiConsole.MarkupLine("[green]Hello from EyeAuras[/]");
+    var name = Spectre.Console.AnsiConsole.Ask<string>("Name:");
+}
+finally
+{
+    terminal.Dispose();
+}
+```
+
+`ITerminalScriptingApi.EnsureConsole()` is intended for TUI frameworks such as
+Spectre.Console when the script is started from normal EyeAuras/EyePad GUI mode.
+It reuses an existing real console when one is already attached. Otherwise, in
+normal GUI script sessions, EyeAuras allocates a fresh console, refreshes
+`Console.In` / `Console.Out` / `Console.Error`, enables Windows VT output when
+available, and keeps the console alive while any terminal lease is held. This
+normal-mode request is explicit, so it can replace redirected-looking handles
+created by a debugger, launcher, or test harness.
+
+The terminal lease is session-owned and ref-counted. Multiple scripts can hold
+leases at the same time; an EyeAuras-allocated console is released only after
+the last lease is disposed. Keep the lease for the portion of the script that
+needs interactive terminal behavior and dispose it in a `finally` block.
+
+When EyeAuras is handling a CLI startup script source such as `--run`, `--eval`,
+or positional input execution, redirected standard streams remain protected. If
+no interactive console is already available in that CLI path,
+`ITerminalScriptingApi.EnsureConsole()` fails instead of stealing or replacing
+the caller pipe/file handles. Keep redirected CLI scripts on the normal
+stdin/stdout/stderr protocol path.
+
 ## Project / Solution Shape
 
 - Script projects exported for IDE work are expected to be valid normal .NET
@@ -99,6 +185,8 @@ script body just because the exported IDE project compiles.
 - `AuraScriptSandbox` / `IAuraScriptSandbox` - top-level host capability object.
 - `IFluentLog` - logging interface exposed as `Log` in top-level script code
   and passed explicitly into ordinary helper classes.
+- `EyeAuras.Scripting.Terminal.ITerminalScriptingApi` - opt-in interactive
+  terminal access for normal-mode console and TUI scripts.
 - `IAuraTreeScriptingApi` - tree navigation and lookup API.
 - `IAuraAccessor` - aura handle with action lists and execution helpers.
 - `IFolderAccessor` - folder handle.
@@ -127,6 +215,8 @@ script body just because the exported IDE project compiles.
 - `CsharpScriptTriggerExecutor` - object-style trigger base.
 - `AuraScriptRunner<TSandbox>` - custom script runner with typed globals.
 - `AuraScriptSandbox` - base class for custom script globals/sandbox APIs.
+- `ITerminalScriptingApi.EnsureConsole()` - acquire a session-owned interactive
+  console lease for Spectre.Console or other TUI frameworks.
 - `IHostedService` - useful coordinator contract for long-running script apps.
 
 ## Common Flows
@@ -150,6 +240,13 @@ script body just because the exported IDE project compiles.
   - pass `cancellationToken` into async APIs when available.
   - catch/log exceptions at every fire-and-forget boundary.
   - use `scripting/async.md` for background tasks and coroutine-style loops.
+
+- Run from EyePad console:
+  - choose exactly one source: positional `inputFile`, `--run`, or `--eval`.
+  - pass script arguments after `--`.
+  - use `--run -` only when stdin is the script source.
+  - use `--eval` when stdin must remain data for `Console.In`.
+  - keep protocol output on `Console`; keep diagnostics on `Log`.
 
 - Attach a per-run subscription or helper:
   - create the disposable resource during the script run.
@@ -243,6 +340,16 @@ script body just because the exported IDE project compiles.
 - script container extension
 - async script
 - coroutine
+- EyePad console
+- inputFile
+- --run
+- --eval
+- stdin source
+- script args
+- ITerminalScriptingApi
+- EnsureConsole
+- Spectre.Console
+- TUI
 - DisposableReactiveObject
 - INotifyPropertyChanged
 - NPC

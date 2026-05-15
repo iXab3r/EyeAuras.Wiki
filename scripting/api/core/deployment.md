@@ -104,6 +104,25 @@ EyeAuras.exe --pad --read-only --publish-single-file --ui splashOnly --readiness
   scenarios.
 - The final path points to the target script/config that should start.
 
+Console-oriented EyePad launches can use the same shell with an explicit script
+source selector:
+
+```text
+EyeAuras.exe --pad --ui headless --readiness script --run path/to/Script.csx -- arg1 arg2
+EyeAuras.exe --pad --ui headless --readiness script --eval "Console.WriteLine(string.Join(\"|\", args))" -- arg1 arg2
+```
+
+- Positional `inputFile` remains the legacy source selector.
+- `--run path` selects a script file; `--run -` reads the script source from
+  stdin.
+- `--eval source` selects inline source and leaves stdin available as script
+  data through `Console.In`.
+- Use `--` before script arguments so host flags do not leak into `args`.
+- Do not combine positional `inputFile`, `--run`, and `--eval`; conflicting
+  sources should exit with validation code `2`.
+- `Console.Write*` and `Console.Error.Write*` are the process stdout/stderr
+  contract. `Log` is for script diagnostics and event-viewer breadcrumbs.
+
 ## Protection
 
 - Source scripts are convenient during development but should not be treated as

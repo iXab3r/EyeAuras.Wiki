@@ -37,6 +37,10 @@ Reference map for adding useful diagnostic logging to scripts and mini-apps.
   the script/runtime context.
 - Good logs are breadcrumbs for decisions and failures, not a transcript of
   every loop iteration.
+- EyePad console execution has two output channels. `Console.Write*` and
+  `Console.Error.Write*` are stdout/stderr protocol output; `Log` is diagnostic
+  event logging. Console output is tee-observed by EyeAuras so it can appear in
+  the event viewer without disappearing from the real redirected stream.
 
 ## API Details
 
@@ -69,6 +73,9 @@ Reference map for adding useful diagnostic logging to scripts and mini-apps.
   it as `IFluentLog` in the script child container.
 - `AuraScriptSandbox.Log` / `IAuraScriptSandbox.Log` - script-level fluent log
   exposed to top-level scripts and routed into script events.
+- `EyeAuras.Scripting.Terminal.ITerminalScriptingApi.EnsureConsole()` - opens
+  or reuses an interactive terminal while keeping Console output tee-observed
+  by EyeAuras.
 
 ## Common Flows
 
@@ -138,6 +145,37 @@ This creates a normal app/log4net logger. Use it when the type owns independent
 app diagnostics. Do not use it in a script helper when the message is expected
 to appear in the script event viewer; pass the script `Log` instead.
 
+### Write Console Protocol Output
+
+```csharp
+Console.WriteLine("READY");
+Console.Error.WriteLine("warning: retrying");
+Log.Info("Resolved window handle and prepared the automation loop");
+```
+
+In EyePad console scripting, stdout and stderr are for callers that redirect the
+process streams. `Log` is for diagnostics, timing breadcrumbs, and user-visible
+script events. The console adapter observes `Console.Out` as info-level console
+events and `Console.Error` as error-level console events while preserving the
+original streams. Interactive console launches attach to the parent console
+before the tee is installed, so ANSI/TUI libraries can still write through the
+normal `Console` APIs; redirected launches keep stdout/stderr as clean protocol
+streams. Tee observation is line-oriented: newline and carriage-return progress
+frames become console events, while partial trailing writes stay pending until
+the line is completed.
+
+Normal GUI-mode scripts can request an interactive terminal by importing
+`EyeAuras.Scripting.Terminal` and resolving `ITerminalScriptingApi` from the
+script container. That explicit normal-mode request may allocate a fresh
+console even when a debugger, launcher, or UI test harness gave the process
+redirected-looking standard handles. CLI startup script executions keep pipe and
+file redirection protected and fail clearly instead of replacing those handles.
+Console output still goes through EyeAuras Tee after the terminal is allocated,
+so `Console.Write*` remains visible in the terminal and is also observed as
+line-oriented console events. TUI progress/status rendering is preserved in the
+terminal, but carriage-return frames can be noisy in the EyeAuras event viewer;
+use `Log` for concise diagnostic breadcrumbs.
+
 ### Avoid Expensive Debug Messages
 
 ```csharp
@@ -171,6 +209,8 @@ if (Log.IsDebugEnabled)
 - Prefer passing `IFluentLog` into ordinary helper classes.
 - Prefer the script `Log` or script-container `IFluentLog` for messages users
   should see in the EyeAuras event viewer.
+- Prefer `Console.Write*` / `Console.Error.Write*` only when the launched
+  process caller needs stdout/stderr protocol output.
 - Prefer `PrepareLogger()` for independent app/library diagnostics.
 - Prefer a few high-signal logs around branches and failures in small scripts.
 
@@ -185,6 +225,8 @@ if (Log.IsDebugEnabled)
 - Avoid using `PrepareLogger()` inside script helpers when passing the script
   logger would preserve better script context.
 - Avoid assuming a normal type logger will show up as a script event.
+- Avoid using `Log` for machine-readable stdout/stderr results in EyePad
+  console scripts.
 
 ## Research Anchors
 
@@ -200,6 +242,7 @@ if (Log.IsDebugEnabled)
 - `AuraScriptRunner<TSandbox>`
 - `AuraScriptSandbox.Log`
 - `IAuraScriptSandbox.Log`
+- `ITerminalScriptingApi.EnsureConsole`
 - `TypeExtensions.PrepareLogger`
 
 ## Search Synonyms
@@ -208,6 +251,14 @@ if (Log.IsDebugEnabled)
 - diagnostics
 - debug log
 - script log
+- console output
+- stdout
+- stderr
+- console tee
+- ITerminalScriptingApi
+- EnsureConsole
+- Spectre.Console
+- TUI output
 - event log
 - fluent log
 - logger injection

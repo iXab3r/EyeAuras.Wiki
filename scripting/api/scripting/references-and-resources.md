@@ -48,6 +48,25 @@ and how those pieces behave during export/import.
 | Project reference | Helper libraries in exported solutions | Good for IDE/test projects; import should only include payload projects. |
 | Embedded resource | Images, fonts, models, JSON, JS/CSS, DLLs | Access through `IScriptFileProvider` or Blazor resource paths. |
 
+## Console Script NuGet
+
+EyePad console execution (`inputFile`, `--run`, `--eval`, and `--run -`) uses
+the same top-level script reference pipeline as editor execution. A console
+script can place NuGet directives at the top of the source:
+
+```csharp
+#r "nuget: Humanizer, 2.14.1"
+using Humanizer;
+
+Console.WriteLine("script".Pluralize());
+```
+
+NuGet restore and resolver diagnostics are EyeAuras logs, not script stdout.
+For deterministic offline hosts and E2E tests, the script NuGet resolver can be
+pointed at alternate package sources with `EA_SCRIPT_NUGET_PRIMARY_SOURCE` and
+`EA_SCRIPT_NUGET_EYEAURAS_SOURCE`. Normal app runs use nuget.org and the
+EyeAuras package feed by default.
+
 ## Embedded Resource Details
 
 - Resources are included in the script assembly as `EmbeddedResource` items.
