@@ -177,7 +177,7 @@ Use this shape when practical:
   managed ImGui windows, image/font textures, and ImGui content.
 - `nuget/frida-sdk.md` - optional `EyeAuras.FridaSdk` package, Frida
   sessions/scripts, Frida Gadget payloads, Frida-backed `IProcess` adapters,
-  and CAgent native named-pipe process readers.
+  and CAgent native CLink process readers.
 - `nuget/xign-sdk.md` - optional `EyeAuras.XignSdk` package, SCM-only Xign
   driver loading, typed device commands, and driver-backed `XignProcess`.
 - `nuget/fairplay-sdk.md` - optional `EyeAuras.Memory.FairPlaySdk` package,

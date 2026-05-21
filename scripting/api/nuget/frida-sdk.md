@@ -11,7 +11,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 Reference map for optional `EyeAuras.FridaSdk` APIs: Frida devices, sessions,
 scripts, Frida Gadget payloads, Frida-backed `IProcess` adapters, and CAgent
-native named-pipe process readers.
+native CLink endpoint process readers.
 
 ## What Frida Is
 
@@ -33,9 +33,9 @@ native named-pipe process readers.
   and live script reloading.
 - Embedded Frida agent script that exposes process/memory operations through RPC.
 - `FridaAgentProcess`: an `IProcess` adapter over an existing Frida session.
-- Frida Gadget binary helpers live in the Frida binaries family.
+- Frida Gadget and CAgent binary helpers live in the Frida binaries family.
 - CAgent native DLL bytes and managed clients live near the Frida SDK, but CAgent
-  is a separate native named-pipe process reader, not a Frida script/session.
+  is a separate native CLink endpoint process reader, not a Frida script/session.
 - `WHProcess` is an experimental x64 GUI-process `IProcess` backend that uses a
   Windows hook transport for low-permission memory reads/writes and small remote
   control operations.
@@ -69,7 +69,7 @@ add `FridaContainerExtensions` first.
 | Frida session/script | Instrumentation, hooks, custom JavaScript inside target process | `IFridaExperimentalApi`, `IFridaSession`, `IFridaScript`, `IFridaLiveScript` |
 | Frida Gadget | Attach to an injected/embedded Frida runtime by local port | `FridaSdkBinaries`, `AttachByLocalPort` |
 | Frida-backed process reader | Use Frida session as `IProcess` for memory/reverse-engineering tools | `FridaAgentProcess`, `FridaAgentRpcType`, `FridaMemoryBackend` |
-| CAgent process reader | Use native DLL + named-pipe RPC for memory/process-control operations | `CAgentProcess`, `ICAgentProcess`, `IProcessControlApi` |
+| CAgent process reader | Use native DLL + CLink RPC endpoint transports for memory/process-control operations | `CAgentProcess`, `ICAgentProcess`, `IProcessControlApi` |
 | WH process reader | Use a GUI window thread and Windows hook transport for experimental low-permission memory/process-control probes and x64 manual mapping | `WHProcess`, `WHProcess.ByWindowHandle`, `WHProcess.ExecuteCode`, `IProcessSupportsManualMapping` |
 
 ## User Intents
@@ -85,7 +85,7 @@ add `FridaContainerExtensions` first.
 - Attach to an x64 GUI process through `WHProcess`.
 - Manually map the x64 CAgent payload through `WHProcess` when the target meets
   WH control prerequisites.
-- Choose between Frida RPC and named-pipe RPC transports.
+- Choose between Frida RPC and native CAgent CLink transports.
 - Decide whether a task needs Frida instrumentation or only a process reader.
 
 ## Frida APIs
@@ -112,9 +112,14 @@ add `FridaContainerExtensions` first.
 
 ## Frida Gadget / Binaries
 
-- `FridaSdkBinaries` provides embedded Frida Gadget DLL bytes.
+- `FridaSdkBinaries` provides embedded Frida Gadget and native CAgent DLL bytes.
+- `GetLibrary(Architecture, ...)` - full Gadget payloads by architecture.
 - `GetLibraryForX86(...)`, `GetLibraryForX64(...)` - full Gadget payloads.
+- `GetSlimLibrary(Architecture, ...)` - slim Gadget payloads by architecture.
 - `GetSlimLibraryForX86(...)`, `GetSlimLibraryForX64(...)` - slim payloads.
+- `GetCAgentLibrary(Architecture)`, `GetCAgentLibraryForX86()`, and
+  `GetCAgentLibraryForX64()` - native CAgent payloads for external injection or
+  staging.
 - Patch helpers can change the default Gadget port before loading the payload.
 - After Gadget is running, connect through `AttachByLocalPort(...)`.
 - Frida Gadget is Frida runtime payload. It is not CAgent.
@@ -139,16 +144,20 @@ add `FridaContainerExtensions` first.
 ## CAgent APIs
 
 - CAgent is a native DLL/payload that runs inside the target process.
-- CAgent starts a named-pipe RPC server named from the target process id.
-- The usual pipe name pattern is `EAF_RPC_C_{pid}`.
-- `CAgentProcess.ByProcessId(processId, composite = false)` connects to that
-  endpoint.
-- `CAgentProcess.ByPipeName(pipeName, composite = false)` connects by explicit
-  pipe name.
+- CAgent starts CLink RPC endpoints named from the target process id.
+- The current default endpoint transport is a PID-based file-backed shared-memory
+  URI whose endpoint name pattern is `EAF_CLink_DATA_C_{pid}_{index}.ctl`.
+- Pipe is still available as an explicit transport; explicit `CAgentProcess`
+  endpoint-address overloads treat the address as a concrete CLink transport
+  endpoint URI, not as a pipe-only or control-plane address.
+- `CAgentProcess.ByProcessId(processId, ...)` connects to the default direct
+  endpoint for that process.
 - `CAgentProcess` implements `ICAgentProcess`, `IProcess`, and process-control
   operations.
-- `IFridaExperimentalApi.GetCAgentLibraryForX64()` and
-  `GetCAgentLibraryForX86()` return embedded CAgent DLL bytes.
+- `FridaSdkBinaries.GetCAgentLibraryForX64()` and
+  `GetCAgentLibraryForX86()` return embedded CAgent DLL bytes from the binaries
+  package; `IFridaExperimentalApi` also exposes compatibility methods with the
+  same names plus architecture-based helpers.
 - CAgent supports process id/name, modules, threads, memory regions, memory
   reads/writes, allocation/free, `LoadLibrary`, `FreeLibrary`, remote thread
   creation, and handle duplication.
@@ -159,7 +168,7 @@ add `FridaContainerExtensions` first.
 
 ## CAgent Family Projects
 
-- `EyeAuras.FridaSdk.CAgent` - native C++ DLL that exposes named-pipe RPC.
+- `EyeAuras.FridaSdk.CAgent` - native C++ DLL that exposes CLink RPC endpoints.
 - `EyeAuras.FridaSdk.CAgent.Trampoline` - native loader/trampoline/proxy payload
   helpers.
 - `EyeAuras.FridaSdk.SimpleAgent` - simple native agent/sample/test project.
@@ -219,7 +228,8 @@ add `FridaContainerExtensions` first.
 2. Add `FridaContainerExtensions` if the script resolves
    `IFridaExperimentalApi` to obtain CAgent DLL bytes or other SDK services.
 3. Load/inject matching CAgent DLL bytes into the target process.
-4. Connect with `CAgentProcess.ByProcessId(pid)` or `ByPipeName(...)`.
+4. Connect with `CAgentProcess.ByProcessId(pid)`, `ByAddress(...)`, or
+   `ByAddresses(...)`.
 5. Validate that reported `ProcessId` matches the expected process.
 6. Use the resulting `IProcess`/`IProcessControlApi` surface.
 
@@ -230,7 +240,8 @@ add `FridaContainerExtensions` first.
 2. Ensure the target has the WH control prerequisites, especially an existing
    RWX trampoline page discoverable by `WHProcess`.
 3. Obtain matching x64 CAgent bytes from
-   `IFridaExperimentalApi.GetCAgentLibraryForX64()`.
+   `FridaSdkBinaries.GetCAgentLibraryForX64()` or the compatibility
+   `IFridaExperimentalApi.GetCAgentLibraryForX64()` method.
 4. Call `WHProcess.InjectDllViaManualMapping(bytes)`.
 5. Connect with `CAgentProcess.ByProcessId(pid)` and validate the reported PID
    and process name.
@@ -252,7 +263,7 @@ add `FridaContainerExtensions` first.
 
 ## Avoid
 
-- Avoid calling every named-pipe process reader "Frida".
+- Avoid calling every native CAgent transport endpoint "Frida".
 - Avoid treating a PID as proof that CAgent is loaded.
 - Avoid using WH manual mapping on x86 or non-GUI targets, or when the target has
   no existing RWX trampoline page for WH control calls.
