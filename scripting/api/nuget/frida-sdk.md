@@ -36,6 +36,10 @@ native CLink endpoint process readers.
 - Frida Gadget and CAgent binary helpers live in the Frida binaries family.
 - CAgent native DLL bytes and managed clients live near the Frida SDK, but CAgent
   is a separate native CLink endpoint process reader, not a Frida script/session.
+- FridaSdk uses `EyeAuras.CLink.Rpc` for the reusable managed CLinkRPC session
+  runtime; FridaSdk still owns CAgent operation ids, memory/process DTOs, and
+  process-reader behavior. It is not yet migrated to the proto-generated
+  CLink.Rpc service path.
 - `WHProcess` is an experimental x64 GUI-process `IProcess` backend that uses a
   Windows hook transport for low-permission memory reads/writes and small remote
   control operations.
@@ -70,6 +74,7 @@ add `FridaContainerExtensions` first.
 | Frida Gadget | Attach to an injected/embedded Frida runtime by local port | `FridaSdkBinaries`, `AttachByLocalPort` |
 | Frida-backed process reader | Use Frida session as `IProcess` for memory/reverse-engineering tools | `FridaAgentProcess`, `FridaAgentRpcType`, `FridaMemoryBackend` |
 | CAgent process reader | Use native DLL + CLink RPC endpoint transports for memory/process-control operations | `CAgentProcess`, `ICAgentProcess`, `IProcessControlApi` |
+| CLink RPC runtime | Reusable managed session/transport foundation consumed by CAgent clients | `CLinkRpcSession`, `CLinkConnectionRpcTransport` from `EyeAuras.CLink.Rpc` |
 | WH process reader | Use a GUI window thread and Windows hook transport for experimental low-permission memory/process-control probes and x64 manual mapping | `WHProcess`, `WHProcess.ByWindowHandle`, `WHProcess.ExecuteCode`, `IProcessSupportsManualMapping` |
 
 ## User Intents
@@ -145,6 +150,8 @@ add `FridaContainerExtensions` first.
 
 - CAgent is a native DLL/payload that runs inside the target process.
 - CAgent starts CLink RPC endpoints named from the target process id.
+- Managed CAgent clients build on `EyeAuras.CLink.Rpc` for CLinkRPC session
+  correlation, handler/error plumbing, and CLink transport adaptation.
 - The current default endpoint transport is a PID-based file-backed shared-memory
   URI whose endpoint name pattern is `EAF_CLink_DATA_C_{pid}_{index}.ctl`.
 - Pipe is still available as an explicit transport; explicit `CAgentProcess`

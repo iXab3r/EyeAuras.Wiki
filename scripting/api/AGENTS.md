@@ -175,6 +175,9 @@ Use this shape when practical:
   chains, pattern scanning, KD, and MPFS.
 - `nuget/imgui-sdk.md` - optional `EyeAuras.ImGuiSdk` package, render loop,
   managed ImGui windows, image/font textures, and ImGui content.
+- `nuget/clink-rpc.md` - optional `EyeAuras.CLink.Rpc` package,
+  proto-first generated CLinkRPC services, protobuf payloads over CLinkRPC
+  frames, reusable CLinkRPC sessions, and CLink connection transport adapters.
 - `nuget/frida-sdk.md` - optional `EyeAuras.FridaSdk` package, Frida
   sessions/scripts, Frida Gadget payloads, Frida-backed `IProcess` adapters,
   and CAgent native CLink process readers.
@@ -369,6 +372,11 @@ Use this shape when practical:
 - Optional Frida SDK:
   `IFridaExperimentalApi`, `IFridaSession`, `IFridaScript`,
   `FridaAgentProcess`, `CAgentProcess`, `FridaAgentRpcType`.
+
+- Optional CLink RPC:
+  proto-first generated clients/servers, protobuf request/response DTOs,
+  `CLinkRpcSession`, `CLinkConnectionRpcTransport`, and generated service
+  descriptors.
 
 - Optional Xign SDK:
   `XignProcess`, `IXignProcess`, `IXignProcessBuilder`,
