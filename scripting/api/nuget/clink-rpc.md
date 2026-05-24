@@ -29,15 +29,20 @@ service clients and servers.
   descriptor/service fingerprint.
 - This is not gRPC and does not use HTTP/2. The transport is still CLink and
   the session protocol is still CLinkRPC.
-- FridaSdk migration to this proto-first surface is deferred; Frida/CAgent
-  operation semantics remain in FridaSdk until that adapter moves.
+- FridaSdk CAgent process communication uses this proto-first surface through
+  `Sources/EyeAuras.FridaSdk/Api/cagent.proto`; Frida/CAgent operation
+  semantics remain in FridaSdk rather than `EyeAuras.CLink`.
 
 ## API Details
 
 - The C# package provides `buildTransitive` targets. Generated `.clink.cs`
-  files are written to
-  `$(IntermediateOutputPath)\EyeAuras.CLink.Rpc\Generated` and added to
-  `Compile` before `CoreCompile`.
+  files are written beside each proto input under a `generated` subfolder
+  relative to `CLinkRpcGeneratedOutputDir`, which defaults to the project
+  directory. For example, `Api\calculator.proto` emits
+  `Api\generated\calculator.clink.cs`.
+- C# namespace rules mirror protoc/gRPC C#: `option csharp_namespace` wins when
+  present; otherwise the proto `package` is converted to a C# namespace. Files
+  with no package emit into the global namespace.
 - The package bundles `protoc` and `protoc-gen-clink-csharp` under `tools`.
   Override them with `CLinkRpcProtocPath`, `CLinkRpcCSharpPluginPath`,
   `CLinkRpcGeneratedOutputDir`, or enable `CLinkRpcVerbose=true` for generator
@@ -78,18 +83,16 @@ Install the package and add proto files as MSBuild `Protobuf` items:
 <PackageReference Include="EyeAuras.CLink.Rpc" Version="..." />
 
 <ItemGroup>
-  <Protobuf Include="Protos\calculator.proto" ClinkServices="Both" />
+  <Protobuf Include="Api\calculator.proto" ClinkServices="Both" />
 </ItemGroup>
 ```
 
-Then build the project once. The generated `.clink.cs` files stay under `obj`
-by default rather than next to the `.proto` source files.
+Then build the project once. The generated `.clink.cs` files are produced under
+`Api\generated` by default.
 
 ```proto
 syntax = "proto3";
-package eyeauras.example;
-
-option csharp_namespace = "EyeAuras.Example.Generated";
+package EyeAuras.Example;
 
 service Calculator {
   rpc Add(AddRequest) returns (AddReply);
@@ -106,7 +109,7 @@ message AddReply {
 ```
 
 ```csharp
-using EyeAuras.Example.Generated;
+using EyeAuras.Example;
 
 using var server = CalculatorDescriptor.Start(address, new CalculatorService());
 using var client = CalculatorClient.Connect(address);
@@ -132,13 +135,14 @@ wire `protoc` into the native build:
 ```bat
 protoc ^
   --plugin=protoc-gen-clink-c=path\protoc-gen-clink-c.exe ^
-  --clink-c_out=generated ^
-  --proto_path=proto ^
-  proto\calculator.proto
+  --clink-c_out=. ^
+  --proto_path=. ^
+  Api\calculator.proto
 ```
 
-Compile the emitted `.clink_rpc.h` and `.clink_rpc.c` files with the CLink
-native SDK and the rest of the C application.
+Compile the emitted `Api\generated\*.clink_rpc.h` and
+`Api\generated\*.clink_rpc.c` files with the CLink native SDK and the rest of
+the C application.
 
 ## Performance Notes
 
