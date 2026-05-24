@@ -25,6 +25,11 @@ service clients and servers.
   CLinkRPC frame payloads.
 - Generated C# servers parse protobuf request DTOs from CLinkRPC frame payloads
   and write protobuf response DTOs.
+- Generated C# streaming methods follow the gRPC C# object shape without
+  `async/await`: generated call objects expose `RequestStream`,
+  `ResponseStream`, `MoveNext(CancellationToken)`, `Current`,
+  `Write(in T, CancellationToken)`, `Complete(CancellationToken)`, and
+  `Response` for client-streaming final replies.
 - Contract compatibility is checked during the CLinkRPC profile handshake by a
   descriptor/service fingerprint.
 - This is not gRPC and does not use HTTP/2. The transport is still CLink and
@@ -47,6 +52,12 @@ service clients and servers.
   Override them with `CLinkRpcProtocPath`, `CLinkRpcCSharpPluginPath`,
   `CLinkRpcGeneratedOutputDir`, or enable `CLinkRpcVerbose=true` for generator
   diagnostics.
+- JavaScript integration is manual in phase 1 through the
+  `protoc-gen-clink-js` tool package. It emits dependency-free `.clink.js`
+  files under the same `generated` subfolder convention, with message codecs
+  (`measure`, `write`, `encode`, `read`), operation-id constants, and CLinkRPC
+  service descriptor/profile data. It does not provide a JavaScript
+  transport/session runtime yet.
 - Generated client entrypoints such as `CalculatorClient.Connect(address)` open
   absolute CLink addresses and own a `CLinkRpcSession`.
 - Generated server entrypoints such as
@@ -54,12 +65,16 @@ service clients and servers.
   implementations over accepted CLink connections and register protobuf method
   handlers.
 - `CLinkRpcSession`, `CLinkRpcOptions`, `CLinkRpcHandler`,
-  `CLinkRpcResponse`, and `CLinkConnectionRpcTransport` are the reusable lower
-  session/runtime primitives.
+  `CLinkRpcResponse`, `CLinkRpcResponseStream`, `CLinkRpcRequestStream`,
+  `CLinkRpcStreamReader`, `CLinkRpcServerStreamWriter`, and
+  `CLinkConnectionRpcTransport` are the reusable lower session/runtime
+  primitives.
 - Descriptor/profile data in the handshake identifies the generated proto
-  service shape and rejects mismatched clients and servers before calls run.
+  service shape, including stream flags, and rejects mismatched clients and
+  servers before calls run.
 - Protobuf payloads are ordinary method payload bytes inside existing
-  CLinkRPC `Call`, `Response`, and `Error` frames.
+  CLinkRPC `Call`, `Response`, `Error`, `StreamItem`, `StreamComplete`, and
+  `StreamCancel` frames.
 
 ## Contract Rules
 
@@ -125,6 +140,17 @@ sealed class CalculatorService : CalculatorServerBase
 }
 ```
 
+Server-streaming generated clients look like synchronous gRPC C#:
+
+```csharp
+using var call = client.SubscribeEvents(new SubscribeEventsRequest());
+while (call.ResponseStream.MoveNext(cancellationToken))
+{
+    var item = call.ResponseStream.Current;
+    Process(item);
+}
+```
+
 Use absolute CLink addresses such as `file://`, same-process `mem://`,
 concrete `shared-mem://`, or `pipe://` addresses. Address semantics still
 belong to `EyeAuras.CLink`.
@@ -143,6 +169,20 @@ protoc ^
 Compile the emitted `Api\generated\*.clink_rpc.h` and
 `Api\generated\*.clink_rpc.c` files with the CLink native SDK and the rest of
 the C application.
+
+JavaScript codec/descriptor generation is manual in phase 1:
+
+```bat
+protoc ^
+  --plugin=protoc-gen-clink-js=path\protoc-gen-clink-js.exe ^
+  --clink-js_out=. ^
+  --proto_path=. ^
+  Api\calculator.proto
+```
+
+Consume the emitted `Api\generated\*.clink.js` module from the JavaScript host
+and wire the exported descriptors into the host-specific CLinkRPC session layer
+when that runtime exists.
 
 ## Performance Notes
 
@@ -173,6 +213,11 @@ the C application.
 
 - Prefer proto-first generated contracts when peers need stable cross-language
   request/response DTOs.
+- Prefer generated pull streams for span-backed streaming payloads. Observable
+  adapters, when used, must own/copy payloads because normal observables cannot
+  carry `ref struct` span views safely. Generated server-streaming clients expose
+  `ObserveX(...)` methods that emit `{Message}Owned` DTOs and run synchronously
+  on the subscribing thread unless the caller explicitly applies Rx scheduling.
 - Prefer protobuf additive fields for compatible request/response evolution.
 - Prefer raw `CLinkRpcSession` benchmarks as a baseline next to generated
   client/server benchmarks.

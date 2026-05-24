@@ -375,8 +375,8 @@ Use this shape when practical:
 
 - Optional CLink RPC:
   proto-first generated clients/servers, protobuf request/response DTOs,
-  `CLinkRpcSession`, `CLinkConnectionRpcTransport`, and generated service
-  descriptors.
+  synchronous gRPC-shaped generated streams, `CLinkRpcSession`,
+  `CLinkConnectionRpcTransport`, and generated service descriptors.
 
 - Optional Xign SDK:
   `XignProcess`, `IXignProcess`, `IXignProcessBuilder`,
