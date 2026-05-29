@@ -22,6 +22,9 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Проходить pointer chain.
 - Получать адрес TEB по живому локальному thread id или thread handle.
 - Перечислять процессы через kernel `_EPROCESS` list, если backend умеет читать kernel virtual memory.
+- Читать process parameters, threads и VAD-backed memory regions через доверенный
+  адрес `_EPROCESS`, если backend умеет читать kernel virtual memory и целевое
+  user-mode address space.
 - Строить простые entity/object-обёртки поверх памяти.
 - Сканировать byte/string patterns.
 - Перечислять memory regions и их protections.
@@ -60,10 +63,15 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - `MemoryExtensionsForCodeCaves`, `CodeCaveEntry` — перечисление code cave в рамках модуля; по умолчанию сканируются readable executable sections, а последовательности `0x00`, `0xCC` и `0x90` считаются допустимым заполнением cave.
 - `MemoryExtensionsForImports`, `MemoryExtensionsForExports`,
   `ProcessPEExtensions` — PE-хелперы.
-- `MemoryExtensionsForEprocess` — backend-neutral helpers для чтения высокоуровневой информации о процессе и модулях из `_EPROCESS`, PEB и loader-list records через любой `IMemoryReader`, который умеет читать нужную virtual memory.
+- `MemoryExtensionsForEprocess` — backend-neutral helpers для чтения высокоуровневой информации о процессе, модулях, threads, process parameters и VAD-backed memory regions из `_EPROCESS`, PEB, loader-list, thread-list и VAD records через любой `IMemoryReader`, который умеет читать нужную virtual memory.
 - `MemoryExtensionsForTebPeb` — backend-neutral helpers для чтения адреса PEB из TEB, загруженных модулей из PEB loader lists и параметров запуска процесса из `RTL_USER_PROCESS_PARAMETERS` через любой `IMemoryReader`, который умеет читать целевое user-mode address space. Также содержит хелперы для запроса TEB по живой локальной OS thread-to-TEB схеме в сценариях, где старт идёт от Windows thread id или handle.
 - `ReadProcessInformation` — читает PID и image-name по адресу `_EPROCESS`, не раскрывая сырые kernel structures.
+- `ReadPebAddressViaEprocess` — читает PEB pointer из `_EPROCESS`; для WOW64 processes возвращает WOW64 PEB, если он доступен.
 - `ReadProcessModulesViaEprocess` — читает загруженные модули через PEB, на который ссылается `_EPROCESS`, и возвращает `ProcessModuleInformation`.
+- `ReadProcessParametersViaEprocess` — читает startup metadata, включая image path, command line, current directory, desktop/window metadata и environment pointer, через `_EPROCESS -> PEB`.
+- `ReadProcessThreadsViaEprocess` — обходит `_EPROCESS.ThreadListHead` и возвращает высокоуровневые `ProcessThreadInformation`.
+- `ReadMemoryRegionsViaEprocess` — обходит `_EPROCESS.VadRoot` и возвращает allocated VAD-backed `MemoryBasicInformation` ranges, отсортированные по base address.
+- `ReadMemoryRegionViaEprocess` — ищет один address в VAD-backed snapshot regions.
 - `ReadTebAddressViaThreadHandle` — запрашивает у живой локальной OS значение `ThreadBasicInformation.TebBaseAddress` по уже открытому thread handle.
 - `ReadTebAddressViaThreadId` — открывает живой локальный Windows thread по id, получает его TEB address и закрывает временный handle.
 - `ReadPebAddressViaTeb` — читает `TEB.ProcessEnvironmentBlock` по переданному адресу TEB и явно указанной архитектуре цели.
@@ -112,7 +120,11 @@ dateCreated: 2026-04-21T00:00:00.000Z
   - получить корректный адрес `_EPROCESS` из backend/driver/acquisition;
   - вызвать `ReadProcessesViaEprocess(eprocessAddress)`;
   - вызвать `ReadProcessInformation(eprocessAddress)` для snapshot одного процесса;
+  - вызвать `ReadPebAddressViaEprocess(eprocessAddress)`, если следующий шаг должен стартовать от process PEB;
   - вызвать `ReadProcessModulesViaEprocess(eprocessAddress)` для данных о модулях, если backend также умеет читать user-mode address space целевого процесса;
+  - вызвать `ReadProcessParametersViaEprocess(eprocessAddress)` для image path, command line, current directory и связанной startup metadata;
+  - вызвать `ReadProcessThreadsViaEprocess(eprocessAddress)` для thread metadata из kernel thread list;
+  - вызвать `ReadMemoryRegionsViaEprocess(eprocessAddress)` или `ReadMemoryRegionViaEprocess(eprocessAddress, address)` для allocated VAD-backed ranges. Эти helpers намеренно не синтезируют free address-space holes и не дробят regions по per-page state;
   - вызвать `ReadArchitectureViaEprocess(eprocessAddress)`, если архитектуру нужно определить через `_EPROCESS.WoW64Process`;
   - передать source OS build, если он отличается от текущего host; текущая реализация всё ещё чувствительна к layout, пока resolver offsets по PDB не заменит захардкоженные offsets для `_EPROCESS`, PEB и loader-list.
 
@@ -154,7 +166,8 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Не предполагайте, что каждый backend поддерживает allocation, APC, remote thread, synchronous execution, manual mapping или module enumeration.
 - Не стройте manual mapping напрямую на `CreateThread(...)`; используйте `IProcessControlApi.ExecuteCode(...)` или backend с `IProcessSupportsManualMapping`.
 - Не используйте `ReadProcessesViaEprocess` на обычной user-mode памяти процесса; он ожидает kernel virtual addresses и подходящие layout Windows kernel.
-- Не завязывайтесь на сырые snapshots `_EPROCESS`, PEB или loader-list из public API. Общие helpers специально возвращают `ProcessInformation`, `ProcessModuleInformation` и `Architecture`; если нужен сырой layout, низкоуровневые readers могут определить собственные struct.
+- Не считайте VAD-backed region enumeration точной заменой `VirtualQueryEx`. Она возвращает allocated VAD ranges и не перечисляет free holes.
+- Не завязывайтесь на сырые snapshots `_EPROCESS`, PEB или loader-list из public API. Общие helpers специально возвращают `ProcessInformation`, `ProcessModuleInformation`, `ProcessParametersInformation`, `ProcessThreadInformation`, `MemoryBasicInformation` и `Architecture`; если нужен сырой layout, низкоуровневые readers могут определить собственные struct.
 - Не определяйте layout TEB или PEB по bitness host-процесса. Передавайте архитектуру layout, которая соответствует переданному адресу TEB/PEB.
 - Не используйте thread-to-TEB OS query helpers для dump, VMM/KD snapshots или cross-machine memory sources. Для этого нужны thread metadata от backend или обход kernel thread-list.
 - Не используйте string/reflection-based lookup offsets для layout, которые могут поставляться через obfuscation. Не полагайтесь на `Marshal.OffsetOf<T>(nameof(...))`, имена backing-field у auto-properties или строки с именами членов для pointer math в obfuscated assemblies; храните нужные offsets как типизированные static members рядом с соответствующими объявлениями `[field: FieldOffset(...)]`.
@@ -174,7 +187,10 @@ dateCreated: 2026-04-21T00:00:00.000Z
   `ReadProcessParametersViaPeb`, `ReadProcessParametersViaTeb`,
   `ReadTebAddressViaThreadHandle`, `ReadTebAddressViaThreadId`,
   `ReadProcessesViaEprocess`, `ReadProcessInformation`,
-  `ReadProcessModulesViaEprocess`, `ReadArchitectureViaEprocess`,
+  `ReadPebAddressViaEprocess`, `ReadProcessModulesViaEprocess`,
+  `ReadProcessParametersViaEprocess`, `ReadProcessThreadsViaEprocess`,
+  `ReadMemoryRegionsViaEprocess`, `ReadMemoryRegionViaEprocess`,
+  `ReadArchitectureViaEprocess`,
   `ReadArchitectureViaTeb`, `ReadArchitectureViaPeb`,
   `MemoryExtensionsForCodeCaves`, `EnumerateCodeCaves`, `CodeCaveEntry`,
   `ModuleSectionEntry`, `MemoryOfModule`, `RemoteMemoryObject`, `ReadString`.
@@ -200,7 +216,12 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - ThreadBasicInformation
 - ReadProcessInformation
 - ReadProcessesViaEprocess
+- ReadPebAddressViaEprocess
 - ReadProcessModulesViaEprocess
+- ReadProcessParametersViaEprocess
+- ReadProcessThreadsViaEprocess
+- ReadMemoryRegionsViaEprocess
+- ReadMemoryRegionViaEprocess
 - ReadPebAddressViaTeb
 - ReadProcessModulesViaPeb
 - ReadProcessModulesViaTeb
@@ -216,6 +237,14 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - LDR_DATA_TABLE_ENTRY
 - process list
 - kernel process list
+- thread list
+- ThreadListHead
+- ETHREAD
+- CLIENT_ID
+- VAD
+- VadRoot
+- MMVAD
+- MMVAD_SHORT
 - MemProcFS
 - LeechCore
 - pointer chain

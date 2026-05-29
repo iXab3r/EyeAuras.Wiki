@@ -16,6 +16,18 @@ dateCreated: 2026-05-03T00:00:00.000Z
 mapping и общий process-control слой. Отличается источник доступа: вместо
 обычного user-mode `OpenProcess` используется `xhunter1.sys`.
 
+Информационные операции идут ниже обычного WinAPI-уровня. `ProcessName`,
+`GetProcessModules()`, `GetThreads()`, `VirtualQuery()` и
+`GetMemoryRegions()` читают `_EPROCESS`, PEB, loader list, thread list и VAD
+структуры. `XignProcess` сначала находит целевой `_EPROCESS` по handle,
+открытому через драйвер, затем читает kernel-адреса через команду Xign 788, а
+user-mode адреса целевого процесса через команду 787.
+
+Эти пути работают в fail-fast режиме. Если текущий Windows build не входит в
+curated layout set, или нужные PEB/thread/VAD структуры нельзя безопасно
+прочитать, метод бросит exception вместо fallback на PSAPI, Toolhelp или
+`VirtualQueryEx`.
+
 Если совсем коротко:
 
 - `LocalProcess` — обычный WinAPI;
@@ -131,6 +143,16 @@ using var process = XignProcess
 драйвера. Часть операций идет через Xign, часть через обычный WinAPI поверх
 handle, который был получен через драйвер. Для пользователя Memory API это
 обычно не важно, но полезно понимать при диагностике.
+
+Process information и region enumeration используют structure-backed reads.
+Process control по-прежнему использует handle там, где операция по природе
+контролируется ОС: allocation, protection changes, free memory,
+process/thread suspend/resume, remote thread creation, writes и User APC helper
+остаются WinAPI-backed, если для них нет отдельной Xign-команды в SDK.
+
+`GetMemoryRegions()` возвращает только allocated VAD-backed ranges. Он не
+перечисляет свободные holes адресного пространства и не является побайтным
+клоном вывода `VirtualQueryEx`.
 
 `ExecuteCode` вызывает код, который уже лежит в целевом процессе. Для x86
 процесса адреса должны помещаться в 32-bit user-mode range. Manual mapping

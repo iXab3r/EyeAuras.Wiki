@@ -13,6 +13,18 @@ dateCreated: 2026-05-03T00:00:00.000Z
 
 From the outside, it behaves like a normal Memory API backend: you still use `process.Memory`, `MemoryOfModule(...)`, module/region helpers, manual mapping, and the shared process-control layer. The difference is how access is obtained: instead of the usual user-mode `OpenProcess`, it uses `xhunter1.sys`.
 
+Information gathering is intentionally lower-level than `LocalProcess`.
+`ProcessName`, `GetProcessModules()`, `GetThreads()`, `VirtualQuery()`, and
+`GetMemoryRegions()` are backed by `_EPROCESS`, PEB, loader-list, thread-list,
+and VAD structures. `XignProcess` resolves the target `_EPROCESS` from the
+driver-opened handle and then reads kernel addresses through Xign command 788
+and target user-mode addresses through command 787.
+
+These information paths are fail-fast. If the current Windows build is not in
+the curated layout set, or if the required PEB/thread/VAD structures cannot be
+read safely, the call throws instead of falling back to PSAPI, Toolhelp, or
+`VirtualQueryEx`.
+
 In short:
 
 - `LocalProcess` — standard WinAPI
@@ -93,6 +105,16 @@ using var process = XignProcess
 ## Important details
 
 `XignProcess` does not mean every method is a separate driver command. Some operations go through Xign, while others use normal WinAPI on top of a handle that was obtained through the driver. For Memory API users, this usually does not matter, but it is useful to know when diagnosing issues.
+
+Process information and region enumeration use structure-backed reads. Process
+control still uses the handle where the operation is inherently OS-controlled:
+allocation, protection changes, freeing memory, process/thread suspend/resume,
+remote thread creation, writes, and User APC helpers remain WinAPI-backed where
+there is no equivalent Xign command in this SDK.
+
+`GetMemoryRegions()` reports allocated VAD-backed ranges only. It does not list
+free address-space holes, and it should not be treated as a byte-for-byte clone
+of `VirtualQueryEx` output.
 
 `ExecuteCode` calls code that is already present inside the target process. For an x86 process, addresses must fit into the 32-bit user-mode range. Manual mapping is built on top of the shared `LibraryMapper`, so it uses the same `process.Memory` and `ExecuteCode` as other backends.
 

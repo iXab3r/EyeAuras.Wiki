@@ -2,7 +2,7 @@
 title: AI NuGet для Xign SDK
 description: AI-first обзор опциональной инфраструктуры драйвера Xign и XignProcess.
 published: true
-date: 2026-05-06T00:00:00.000Z
+date: 2026-05-27T00:00:00.000Z
 tags: scripting, api, ai, xign, nuget, driver, memory, ai-translated
 editor: markdown
 dateCreated: 2026-05-03T00:00:00.000Z
@@ -22,6 +22,10 @@ dateCreated: 2026-05-03T00:00:00.000Z
 - Добавить в скрипт или tool-проект дополнительную инфраструктуру драйвера Xign.
 - Загружать и запускать упакованный драйвер Xign через обычные Windows SCM API.
 - Открывать устройство Xign через `CreateFile`.
+- Загружать драйвер один раз через `XignDriverManager.Load()`, а затем
+  открывать прямые подключения к драйверу без создания `XignProcess`.
+- Проверять или останавливать сервис драйвера через
+  `XignDriverManager.IsLoaded` и `Unload()` для явных lifecycle-сценариев.
 - Представлять целевой процесс как `XignProcess`.
 - Читать и писать память цели через `XignProcess.Memory`.
 - Использовать `XignDriverManager` и `XignDriverConnection` напрямую, если инструменту нужны команды драйвера без обертки в `XignProcess`.
@@ -33,9 +37,22 @@ dateCreated: 2026-05-03T00:00:00.000Z
 
 - `EyeAuras.XignSdk` — это дополнительный пакет SDK, а не часть основного memory SDK.
 - `XignProcess` реализует `IProcess`, `IProcessControlApi`, `IProcessSupportsManualMapping` и `IProcessSupportsUserApc`, поэтому его можно передавать в API, которые ожидают абстракцию процесса с дополнительными возможностями управления.
-- `XignDriverManager` — публичный SCM loader/factory для прямых подключений к драйверу.
+- `XignDriverManager` — публичный SCM loader/factory для прямых подключений к драйверу. Он может отдельно загружать упакованный драйвер через `Load()`, показывать running-состояние через `IsLoaded`, останавливать его через `Unload()` или открывать устройство через `Create(...)`.
 - `XignDriverConnection` — публичное подключение к устройству, которое владеет оболочкой команд xhunter1, временной init/auth-сессией, response buffer и типизированными helper-методами команд.
+- `XignProcess` можно создать через builder/static helper-ы, которые владеют
+  открытым ими подключением, или напрямую из caller-owned
+  `IXignDriverConnection`, когда tool совмещает сырые команды драйвера с API
+  абстракции процесса.
 - `XignProcess.Memory` использует подключение к драйверу Xign для чтения и process handle, открытый драйвером, для записи.
+- Информационные операции `XignProcess` теперь structure-backed: целевой `_EPROCESS`
+  находится по открытому через Xign process handle через
+  `SystemExtendedHandleInformation`, а имя процесса, модули, потоки,
+  архитектура и VAD-регионы читаются через `_EPROCESS`, PEB, loader list,
+  thread list и VAD-структуры.
+- Для structure-backed чтений kernel-адреса идут через команду Xign 788, а
+  user-mode адреса целевого процесса — через команду 787. Если curated layout
+  или нужные структуры недоступны, операция падает явно; fallback на PSAPI,
+  Toolhelp или `VirtualQueryEx` не используется.
 - `XignProcess` открывает handle процесса через драйвер, а затем использует эти handle для ряда операций управления на базе WinAPI, таких как `VirtualAllocEx`, `VirtualProtectEx`, `WriteProcessMemory`, `CreateRemoteThread` и `NtSuspendProcess`.
 - `XignDriverServiceConfig` задает identity по умолчанию для service/device/payload: `xhunter1`, `\\.\xhunter1` и `xhunter1.sys`.
 - Файл драйвера ожидается по пути `Payloads/xhunter1.sys` в проекте SDK и встраивается в сборку, если присутствует.
@@ -52,9 +69,33 @@ dateCreated: 2026-05-03T00:00:00.000Z
 - `XignProcess.WithOpenProcess(openProcess)` — возвращает `IXignProcessBuilder`, настроенный на сохранение открытого драйвером process handle на все время жизни каждого созданного процесса.
 - `IXignProcessBuilder` — builder для `ByProcessId`, `ByProcessName` и `WithLoadDriver` / `WithOpenProcess`.
 - `XignDriverServiceConfig.Default` — имена service/device/payload по умолчанию.
-- `XignDriverManager.Create(loadDriver)` — при необходимости загружает упакованный драйвер и возвращает открытый `IXignDriverConnection`; если `loadDriver` равно false и устройство открыть не удалось, диагностика должна подсказывать использовать `XignProcess.WithLoadDriver()` или `loadDriver: true`.
+- `XignDriverManager.IsLoaded` — сообщает, запущен ли сейчас настроенный сервис
+  драйвера.
+- `XignDriverManager.Load()` — извлекает, регистрирует и запускает упакованный
+  драйвер через SCM без создания process wrapper; метод идемпотентен и не
+  пытается повторно загружать уже запущенный сервис.
+- `XignDriverManager.Unload()` — останавливает настроенный сервис драйвера,
+  если он запущен; регистрацию сервиса и извлеченный payload он не удаляет.
+- `XignDriverManager.EnsureLoaded()` — compatibility alias для `Load()`.
+- `XignDriverManager.Create(loadDriver = false)` — при необходимости загружает
+  упакованный драйвер и возвращает открытый `IXignDriverConnection`; если
+  `loadDriver` равно false и устройство открыть не удалось, диагностика должна
+  подсказывать использовать `XignProcess.WithLoadDriver()`, `Load()` или
+  `loadDriver: true`.
 - `XignDriverConnection` / `IXignDriverConnection` — прямой API устройства для сырого `Call(command, args)` и типизированных helper-методов, таких как `PingEcho`, `QueryVersionStatus`, `OpenProcess`, `ReadUserMemory`, `ReadMemory` и `ExecuteCodeByProcessId`.
+- `new XignProcess(connection, processId, openProcess)` — создает
+  `IXignProcess`/`IProcess` wrapper поверх уже открытого caller-owned
+  `IXignDriverConnection`; disposal process wrapper не закрывает переданное
+  подключение.
 - `IXignProcess.Memory` — поддерживает чтение/запись байтов и scalar-значений через подключение Xign и process handle, открытые драйвером.
+- `IXignProcess.GetProcessModules()` — читает модули через
+  `_EPROCESS -> PEB -> PEB.Ldr.InMemoryOrderModuleList`.
+- `IXignProcess.GetThreads()` — читает `_EPROCESS.ThreadListHead` и
+  проецирует ETHREAD entries в `ProcessThreadInformation`.
+- `IXignProcess.VirtualQuery(address)` и `GetMemoryRegions()` — читают
+  `_EPROCESS.VadRoot` и возвращают только allocated VAD-backed ranges.
+- `IXignProcess.ProcessName` — берется из PEB process parameters, если они
+  доступны, иначе из `_EPROCESS.ImageFileName`.
 - `IXignProcess.ExecuteCode(startAddress, parameter)` — синхронно выполняет уже размещенную x64- или x86-функцию в целевом процессе через команду Xign 820 и возвращает значение размером с указатель, которое сообщил драйвер.
 - `IXignProcess.AllocateMemory`, `FreeMemory` и `ProtectMemory` — управление виртуальной памятью через WinAPI поверх process handle, открытого драйвером.
 - `IXignProcess.CreateRemoteThread`, `SuspendProcess`, `ResumeProcess`, `SuspendThread` и `ResumeThread` — helper-методы управления процессом/потоком, доступные через общую поверхность process-control API.
@@ -68,6 +109,13 @@ dateCreated: 2026-05-03T00:00:00.000Z
 - `XignDriverConnection` требует 64-битный host process.
 - `QueueUserApc` зависит от обычного доступа к thread handle и поведения alertable wait у целевого потока; это не отдельная замапленная команда Xign.
 - Несколько high-level методов управления используют вызовы WinAPI на handle, открытых драйвером, а не отдельные команды Xign для каждой операции.
+- Информационные методы зависят от curated Windows kernel layouts. Неподдержанный
+  build, поврежденные списки структур, отсутствующий object pointer в handle
+  table или невалидные PEB/VAD-данные приводят к exception вместо тихого
+  fallback на старые WinAPI-пути.
+- VAD enumeration возвращает allocated ranges из VAD tree. Она не синтезирует
+  свободные holes в адресном пространстве и не обязана побайтно совпадать с
+  выводом `VirtualQueryEx`.
 - Сырой `Call(command, args)` существует для прямой диагностики, но packet DTO и структуры аргументов, специфичные для команд, остаются внутренними. Для уже замапленных команд лучше использовать типизированные helper-методы.
 - Реальные smoke-тесты загрузки драйвера требуют прав администратора, совместимого host-окружения и настоящего бинарника `Payloads/xhunter1.sys`.
 
@@ -93,12 +141,22 @@ dateCreated: 2026-05-03T00:00:00.000Z
 - Замапить DLL через manual mapping:
   1. Создайте `XignProcess`, обычно с `WithLoadDriver().WithOpenProcess()` для integration-style сценариев.
   2. Вызовите `InjectDllViaManualMapping(pathOrBytes)`.
-  3. При необходимости используйте возвращаемый `ManualMappedLibraryDescriptor`, чтобы посмотреть base address и entry point.
+  3. Architecture и process directory берутся из того же `_EPROCESS`/PEB-backed
+     информационного пути, что и module enumeration.
+  4. При необходимости используйте возвращаемый `ManualMappedLibraryDescriptor`, чтобы посмотреть base address и entry point.
 
 - Использовать прямые команды драйвера:
   1. Создайте `new XignDriverManager(XignDriverServiceConfig.Default)`.
-  2. Вызовите `Create(loadDriver: true)` для тестов и ручных инструментов, либо `false`, если драйвер уже запущен.
-  3. Используйте типизированные helper-методы команд. `ReadUserMemory` — это команда 787 с handle процесса; `ReadMemory` — команда 788 и копирует байты через путь драйвера, ограниченный `MmIsAddressValid`.
+  2. Проверьте `IsLoaded`, если tool должен показать текущее состояние сервиса.
+  3. Вызовите `Load()`, если tool должен стартовать упакованный
+     драйвер, или пропустите этот шаг, если драйвер уже запущен.
+  4. Вызовите `Create()`, чтобы открыть `IXignDriverConnection`.
+  5. Используйте типизированные helper-методы команд. `ReadUserMemory` — это команда 787 с handle процесса; `ReadMemory` — команда 788 и копирует байты через путь драйвера, ограниченный `MmIsAddressValid`.
+  6. Если этому же tool нужен `IProcess`, создайте
+     `new XignProcess(connection, pid, openProcess: true)` и удерживайте
+     подключение живым на все время жизни wrapper-а.
+  7. Вызывайте `Unload()` только когда tool владеет lifetime-ом драйвера и
+     действительно должен остановить сервис.
 
 ## Когда это предпочтительно
 
@@ -106,6 +164,8 @@ dateCreated: 2026-05-03T00:00:00.000Z
 - Предпочитайте обычную загрузку через SCM и понятную диагностику ошибок настройки драйвера.
 - Предпочитайте high-level API `IProcess.Memory` и `IProcessControlApi.ExecuteCode`, а не публичное раскрытие ID команд.
 - Для пакетов операций с памятью и управлением лучше использовать `WithOpenProcess()` или `EnterOpenProcess()`.
+- Рассматривайте `GetProcessModules`, `GetThreads`, `VirtualQuery` и
+  `GetMemoryRegions` как fail-fast structure-backed операции.
 - Для downstream API, которые могут жить с разницей в возможностях конкретных backend-ов, лучше опираться на `IProcess`.
 
 ## Чего стоит избегать
@@ -115,6 +175,8 @@ dateCreated: 2026-05-03T00:00:00.000Z
 - Не добавляйте в XignSdk поведение, связанное с DSE bypass.
 - Не размещайте временные файлы драйвера в директориях проектов репозитория.
 - Не предполагайте, что каждая доступная операция управления процессом — это отдельная команда драйвера; часть операций идет через WinAPI поверх handle, открытых драйвером.
+- Не ожидайте, что мигрированные информационные методы будут fallback-иться на
+  PSAPI, Toolhelp или `VirtualQueryEx`.
 
 ## Опорные термины для поиска
 

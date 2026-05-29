@@ -24,6 +24,9 @@ Optional package-specific readers belong in `nuget/`.
 - Resolve a live local thread id or thread handle to its TEB address.
 - Enumerate processes through a kernel `_EPROCESS` list when the backend can
   read kernel virtual memory.
+- Read process parameters, threads, and VAD-backed memory regions through a
+  trusted `_EPROCESS` address when the backend can read both kernel virtual
+  memory and the target user-mode address space.
 - Build simple memory-backed entity/object wrappers.
 - Scan byte/string patterns.
 - Enumerate memory regions and protections.
@@ -69,9 +72,9 @@ Optional package-specific readers belong in `nuget/`.
 - `MemoryExtensionsForImports`, `MemoryExtensionsForExports`,
   `ProcessPEExtensions` - PE helpers.
 - `MemoryExtensionsForEprocess` - backend-neutral helpers for reading
-  high-level process/module facts from `_EPROCESS`, PEB, and loader-list
-  records through any `IMemoryReader` that can read the relevant virtual
-  memory.
+  high-level process, module, thread, process-parameter, and VAD-backed memory
+  region facts from `_EPROCESS`, PEB, loader-list, thread-list, and VAD records
+  through any `IMemoryReader` that can read the relevant virtual memory.
 - `MemoryExtensionsForTebPeb` - backend-neutral helpers for reading a PEB
   address from a TEB, loaded modules from PEB loader lists, and process
   startup parameters from `RTL_USER_PROCESS_PARAMETERS` through any
@@ -80,8 +83,19 @@ Optional package-specific readers belong in `nuget/`.
   a Windows thread id or handle.
 - `ReadProcessInformation` - reads PID and image-name information from an
   `_EPROCESS` address without exposing raw kernel structures.
+- `ReadPebAddressViaEprocess` - reads the PEB pointer referenced by
+  `_EPROCESS`; for WOW64 processes it returns the WOW64 PEB when available.
 - `ReadProcessModulesViaEprocess` - reads loaded modules through the PEB
   referenced by `_EPROCESS` and returns `ProcessModuleInformation`.
+- `ReadProcessParametersViaEprocess` - reads startup metadata such as image
+  path, command line, current directory, desktop/window metadata, and
+  environment pointer through `_EPROCESS -> PEB`.
+- `ReadProcessThreadsViaEprocess` - walks `_EPROCESS.ThreadListHead` and
+  returns high-level `ProcessThreadInformation` records.
+- `ReadMemoryRegionsViaEprocess` - walks `_EPROCESS.VadRoot` and returns
+  allocated VAD-backed `MemoryBasicInformation` ranges sorted by base address.
+- `ReadMemoryRegionViaEprocess` - resolves a single address against the
+  VAD-backed region snapshot.
 - `ReadTebAddressViaThreadHandle` - queries the live local OS for
   `ThreadBasicInformation.TebBaseAddress` from an already-open thread handle.
 - `ReadTebAddressViaThreadId` - opens a live local Windows thread by id,
@@ -146,8 +160,18 @@ Optional package-specific readers belong in `nuget/`.
   - call `ReadProcessesViaEprocess(eprocessAddress)`.
   - call `ReadProcessInformation(eprocessAddress)` for a single process
     snapshot.
+  - call `ReadPebAddressViaEprocess(eprocessAddress)` when a later flow needs
+    to start from the process PEB.
   - call `ReadProcessModulesViaEprocess(eprocessAddress)` for module data when
     the backend can also read the target process user-mode address space.
+  - call `ReadProcessParametersViaEprocess(eprocessAddress)` for image path,
+    command line, current directory, and related startup metadata.
+  - call `ReadProcessThreadsViaEprocess(eprocessAddress)` for thread metadata
+    from the kernel thread list.
+  - call `ReadMemoryRegionsViaEprocess(eprocessAddress)` or
+    `ReadMemoryRegionViaEprocess(eprocessAddress, address)` for allocated
+    VAD-backed ranges. These helpers intentionally do not synthesize free
+    address-space holes or split regions by per-page state.
   - call `ReadArchitectureViaEprocess(eprocessAddress)` when architecture
     should be inferred from `_EPROCESS.WoW64Process`.
   - pass the source OS build when it differs from the current host; the current
@@ -220,10 +244,15 @@ Optional package-specific readers belong in `nuget/`.
   `IProcessSupportsManualMapping`.
 - Avoid using `ReadProcessesViaEprocess` on ordinary user-mode process memory;
   it expects kernel virtual addresses and matching Windows kernel layouts.
+- Avoid treating VAD-backed region enumeration as a byte-for-byte
+  `VirtualQueryEx` replacement. It reports allocated VAD ranges and does not
+  enumerate free holes.
 - Avoid depending on raw `_EPROCESS`, PEB, or loader-list snapshots from the
   public API. The shared helpers intentionally return `ProcessInformation`,
-  `ProcessModuleInformation`, and `Architecture`; low-level readers can define
-  their own structs when they need raw layout work.
+  `ProcessModuleInformation`, `ProcessParametersInformation`,
+  `ProcessThreadInformation`, `MemoryBasicInformation`, and `Architecture`;
+  low-level readers can define their own structs when they need raw layout
+  work.
 - Avoid inferring TEB or PEB layout from host bitness. Pass the layout
   architecture that matches the supplied TEB/PEB address.
 - Avoid using thread-to-TEB OS query helpers for dumps, VMM/KD snapshots, or
@@ -252,7 +281,10 @@ Optional package-specific readers belong in `nuget/`.
   `ReadProcessParametersViaPeb`, `ReadProcessParametersViaTeb`,
   `ReadTebAddressViaThreadHandle`, `ReadTebAddressViaThreadId`,
   `ReadProcessesViaEprocess`, `ReadProcessInformation`,
-  `ReadProcessModulesViaEprocess`, `ReadArchitectureViaEprocess`,
+  `ReadPebAddressViaEprocess`, `ReadProcessModulesViaEprocess`,
+  `ReadProcessParametersViaEprocess`, `ReadProcessThreadsViaEprocess`,
+  `ReadMemoryRegionsViaEprocess`, `ReadMemoryRegionViaEprocess`,
+  `ReadArchitectureViaEprocess`,
   `ReadArchitectureViaTeb`, `ReadArchitectureViaPeb`,
   `MemoryExtensionsForCodeCaves`, `EnumerateCodeCaves`, `CodeCaveEntry`,
   `ModuleSectionEntry`, `MemoryOfModule`, `RemoteMemoryObject`, `ReadString`.
@@ -278,7 +310,12 @@ Optional package-specific readers belong in `nuget/`.
 - ThreadBasicInformation
 - ReadProcessInformation
 - ReadProcessesViaEprocess
+- ReadPebAddressViaEprocess
 - ReadProcessModulesViaEprocess
+- ReadProcessParametersViaEprocess
+- ReadProcessThreadsViaEprocess
+- ReadMemoryRegionsViaEprocess
+- ReadMemoryRegionViaEprocess
 - ReadPebAddressViaTeb
 - ReadProcessModulesViaPeb
 - ReadProcessModulesViaTeb
@@ -294,6 +331,14 @@ Optional package-specific readers belong in `nuget/`.
 - LDR_DATA_TABLE_ENTRY
 - process list
 - kernel process list
+- thread list
+- ThreadListHead
+- ETHREAD
+- CLIENT_ID
+- VAD
+- VadRoot
+- MMVAD
+- MMVAD_SHORT
 - MemProcFS
 - LeechCore
 - pointer chain
