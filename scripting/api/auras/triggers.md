@@ -27,6 +27,16 @@ aura activation.
 - `CsharpScriptTrigger` - script trigger entity.
 - `CsharpScriptTriggerExecutor` - object-style script trigger base.
 - `ILifecycleEventsProvider` - lifecycle event source for lifecycle triggers.
+- `IMessageService`, `IMessageChannel` - NetworkAuras message-channel service
+  contracts used by message subscription style integrations.
+
+## Assembly / Package Hints
+
+- NetworkAuras trigger/action properties and message service contracts live in
+  `EyeAuras.NetworkAuras.Metadata`.
+- NetworkAuras runtime transport implementations live in the protected
+  `EyeAuras.NetworkAuras` module and should be loaded through module/capability
+  startup rather than referenced directly.
 
 ## Common Flows
 

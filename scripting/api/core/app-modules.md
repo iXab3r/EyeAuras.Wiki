@@ -26,12 +26,21 @@ module-private assets.
 - Aura packs register user-facing actions, triggers, overlays, variable editors,
   and behavior-tree nodes.
 - Optional SDK packages may contribute module/container extensions.
+- Module loading is controlled by an app-wide `IEyeAurasModuleLoadPlan`.
+  EyeAuras and EyePad register the default load-all plan; embedded hosts replace
+  it with an explicit list of requested module names.
+- `modules.config` remains the compatibility map that translates module names,
+  module paths, and Prism dependencies into the concrete payloads that loaders
+  should consider.
 
 ## API Details
 
 - `Prism.Modularity.IModule` - module implementation contract.
 - `IAppModuleLoader` - loads app modules and exposes loaded state.
 - `IModuleLoader` - shared loaded-state contract.
+- `IEyeAurasModuleLoadPlan` - mandatory module-selection plan.
+- `IEyeAurasModuleLoadResolver` - resolves the active plan against
+  `modules.config` and blacklist rules.
 - `IAppModulePathResolver` - resolves directories for module-private assets.
 - `IAuraRegistrator` - registers aura entities during module initialization.
 

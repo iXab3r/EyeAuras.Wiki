@@ -64,6 +64,15 @@ APIs, input simulators, smoothers, redirection, and native detours.
 - `IUserInputRedirectService` - input redirection.
 - `HookEngine` - advanced native function detour engine.
 
+## Assembly / Package Hints
+
+- `IInputSimulatorProvider` lives in the Roxy shared compile surface.
+- `IInputSimulatorEx`, `ISendInputScriptingApi`, simulator ids, and send-input
+  contracts are shared/metadata APIs; Roxy runtime modules provide the actual
+  simulator implementations.
+- Standalone embedded apps should request the Roxy capability with `UseRoxy()`
+  and wait for readiness before resolving simulator-backed services.
+
 ## Prefer
 
 - Prefer `[Keybind]` for simple script keyboard shortcuts.

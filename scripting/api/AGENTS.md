@@ -175,6 +175,9 @@ Use this shape when practical:
   chains, pattern scanning, KD, and MPFS.
 - `nuget/imgui-sdk.md` - optional `EyeAuras.ImGuiSdk` package, render loop,
   managed ImGui windows, image/font textures, and ImGui content.
+- `nuget/embedded-sdk.md` - optional `EyeAuras.SDK.Embedded` package,
+  standalone bootstrapper startup, `ConfigureEmbeddedModules`,
+  `EnsureReadyAsync`, and `UseX()` capability declarations.
 - `nuget/clink-rpc.md` - optional `EyeAuras.CLink.Rpc` package,
   proto-first generated CLinkRPC services, protobuf payloads over CLinkRPC
   frames, reusable CLinkRPC sessions, and CLink connection transport adapters.

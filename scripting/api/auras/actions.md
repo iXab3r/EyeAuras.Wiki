@@ -27,6 +27,17 @@ scripts, behavior-tree nodes, macros, and user workflows.
 - `CsharpScriptAction` - script action entity.
 - `CsharpScriptActionExecutor` - object-style script action base.
 - `IAuraAccessor.Execute` / `ExecuteAsync` - script-side aura execution.
+- `IPlaySoundScriptingApi` - script-facing play-sound service contract.
+- `AudioNotificationType` - neutral notification sound enum shared by
+  script-facing play-sound APIs and native audio playback.
+
+## Assembly / Package Hints
+
+- Default action properties and script-facing contracts live in
+  `EyeAuras.DefaultAuras.Metadata`.
+- Default action runtime/editor implementations live in the protected
+  `EyeAuras.DefaultAuras` module and should not be referenced directly from
+  standalone app code.
 
 ## Common Flows
 

@@ -40,7 +40,10 @@ Optional package-specific readers belong in `nuget/`.
 - `RemoteMemoryObject` is a small helper base for objects that represent a
   known address inside an `IMemory` view.
 - `EyeAuras.Memory.Shared` contains contracts.
-- `EyeAuras.Memory` contains local process access.
+- `EyeAuras.Memory.Metadata` contains compile-time SDK-facing memory facades
+  such as `LocalProcess` and public local-process contracts.
+- `EyeAuras.Memory` contains the local process implementation and registers the
+  runtime provider for the `EyeAuras.Memory.Metadata` facade when loaded.
 - `EyeAuras.Memory.KD` contains kernel-driver-backed access.
 - `EyeAuras.Memory.MPFS` contains MemProcFS / LeechCore / VMM access.
 - Backends do not expose identical control capabilities.
@@ -60,7 +63,14 @@ Optional package-specific readers belong in `nuget/`.
 - `IProcessSupportsManualMapping` - opt-in marker for backends that can stage
   and synchronously execute manual-mapping code through `IProcess` plus
   `IProcessControlApi`.
-- `LocalProcess` - normal local user-mode reader.
+- `LocalProcess` - normal local user-mode reader. In embedded/package usage the
+  public facade is available from metadata assemblies, but the implementation
+  requires the `EyeAuras.Memory` module/package to be present and loaded. For
+  embedded apps this means declaring `UseMemory()` and awaiting
+  `EnsureReadyAsync(...)` before calling the static facade.
+- `ILocalProcessBuilder` - public builder contract registered by the loaded
+  Memory module. `LocalProcess` forwards to this builder and fails clearly when
+  the module was not loaded.
 - `NativeLocalProcess` - native local backend with permission tuning.
 - `KDProcess` - kernel-driver-backed reader.
 - `LCProcess`, `ILCProcessBuilder` - MPFS/LeechCore/VMM readers.

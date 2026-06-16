@@ -25,7 +25,18 @@ dateCreated: 2026-04-22T00:00:00.000Z
 
 ## Общая схема
 
-- Запустите embedded SDK runtime из host или плагина.
+- Подключите `EyeAuras.SDK.Embedded` из host-приложения или плагина и создайте
+  собственный subclass `EyeAurasEmbeddedBootstrapper`.
+- Запускайте embedded SDK runtime явно из host или плагина, обычно в STA-потоке,
+  который может владеть UI-работой EyeAuras.
+- Регистрируйте host-сервисы в bootstrapper/container перед запуском runtime.
+- Инициализируйте только те `IDynamicModule`, которые нужны host. Embedded
+  package не регистрирует REPL или scripting services по умолчанию; модули
+  вроде `BehaviorTreeModule` или `PlusLoaderModule` явно включают эти
+  возможности.
+- Если host использует Blazor UI assets, добавляйте package/app static web
+  assets из subclass через
+  `AddStaticWebAssetsDirectory(new DirectoryInfo(AppContext.BaseDirectory))`.
 - Свяжите события host с сервисами, которые видит EyeAuras.
 - Показывайте сложные элементы управления через Blazor windows.
 - Рисуйте визуализацию через рендеринг host или API OSD.
@@ -54,6 +65,12 @@ dateCreated: 2026-04-22T00:00:00.000Z
 ## Чего избегать
 
 - Не рассматривайте код embedded-host как обычный контекст скрипта.
+- Не ожидайте script globals вроде `Log`, `AuraTree`, `Variables`, `Sleep` или
+  `cancellationToken` в обычных embedded host classes.
+- Не добавляйте sandbox-style wrapper APIs вокруг bootstrapper; embedded host
+  code — это app/plugin infrastructure, а не script infrastructure.
+- Не предполагайте, что REPL или scripting services уже существуют до
+  инициализации host-модуля, который их регистрирует.
 - Не создавайте UI-окна из неправильного потока.
 - Не блокируйте callbacks host для tick или render задачами SDK или UI.
 - Не отдавайте внутренние объекты host напрямую в пользовательские скрипты.
