@@ -18,6 +18,9 @@ by aura workflows.
 - Overlays are registered through `IAuraRegistrator`.
 - Overlay properties persist configuration.
 - Overlays do not activate auras and do not execute action lists.
+- Retained built-in overlay UI is Blazor-hosted through `IBlazorWindow`; lower
+  level `INativeWindow` support is host infrastructure rather than legacy
+  overlay UI by itself.
 - Blazor OSD screen overlay is lower-level drawing, not the same as an aura
   overlay entity.
 - ImGui windows are optional package UI surfaces.
@@ -27,6 +30,8 @@ by aura workflows.
 - `CsharpScriptOverlay` - script overlay entity.
 - `AuraOverlayPropertiesBase` - common overlay properties base.
 - `AuraOverlayContentBase` - common overlay content/view-model base.
+- `BlazorWindowAuraOverlay` - built-in overlay host path for retained
+  Blazor-backed overlay runtime UI.
 - `IOnScreenCanvas` - lower-level screen annotation canvas.
 - `IBlazorWindow` - native Blazor-backed window.
 - `IImGuiExperimentalApi` - optional ImGui SDK entry point.
@@ -34,6 +39,7 @@ by aura workflows.
 ## Prefer
 
 - Prefer aura overlay entities when UI is part of aura configuration/lifecycle.
+- Prefer Blazor-hosted overlay views for retained EyeAuras overlay UI.
 - Prefer `osd/screen-overlay.md` for screen annotations and CV debug boxes.
 - Prefer `windows-subsystems/blazor-windows.md` for real native windows.
 - Prefer `nuget/imgui-sdk.md` for ImGui SDK windows.
@@ -42,12 +48,14 @@ by aura workflows.
 
 - Avoid confusing overlays with triggers or actions.
 - Avoid using overlay entity docs for low-level OSD drawing.
+- Avoid treating `PoeShared.Blazor.Wpf` host infrastructure as removable
+  EyeAuras legacy UI.
 
 ## Research Anchors
 
 - `CsharpScriptOverlay`, `AuraOverlayPropertiesBase`,
-  `AuraOverlayContentBase`, `IOnScreenCanvas`, `IBlazorWindow`,
-  `IImGuiExperimentalApi`, `ImGuiWindowManager`.
+  `AuraOverlayContentBase`, `BlazorWindowAuraOverlay`, `IOnScreenCanvas`,
+  `IBlazorWindow`, `IImGuiExperimentalApi`, `ImGuiWindowManager`.
 
 ## Search Synonyms
 

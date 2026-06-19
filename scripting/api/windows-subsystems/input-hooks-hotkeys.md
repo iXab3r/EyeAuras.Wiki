@@ -10,7 +10,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 # Input Hooks / Hotkeys / Send Input Discovery Map
 
 Reference map for keyboard/mouse hooks, hotkeys, script keybinds, send-input
-APIs, input simulators, smoothers, redirection, and native detours.
+APIs, input simulators, smoothers, suppression, and native detours.
 
 ## User Intents
 
@@ -19,7 +19,7 @@ APIs, input simulators, smoothers, redirection, and native detours.
 - Send keyboard/mouse/text input.
 - Select input simulator or smoother backend.
 - Track raw keyboard/mouse events.
-- Redirect or suppress input.
+- Suppress keybind input when needed.
 
 ## Concept Model
 
@@ -61,7 +61,6 @@ APIs, input simulators, smoothers, redirection, and native detours.
 - `MlHumanMouseFastV1` - ML Human Move Fast smoother. Uses the same model-backed
   route planner with a 4x ML timing multiplier.
 - `IKeyboardEventsSource` - keyboard/mouse event streams.
-- `IUserInputRedirectService` - input redirection.
 - `HookEngine` - advanced native function detour engine.
 
 ## Assembly / Package Hints
@@ -125,8 +124,7 @@ APIs, input simulators, smoothers, redirection, and native detours.
   `IHotkeyTracker`, `HotkeyIsActiveTrigger`, `ISendInputScriptingApi`,
   `IInputSimulatorProvider`, `IUserInputSmootherProvider`,
   `IUserInputSmoother`, `MlHumanMouseV1`, `MlHumanMouseFastV1`,
-  `IKeyboardEventsSource`,
-  `IUserInputRedirectService`, `HookEngine`.
+  `IKeyboardEventsSource`, `HookEngine`.
 
 ## Search Synonyms
 
@@ -141,7 +139,6 @@ APIs, input simulators, smoothers, redirection, and native detours.
 - MlHumanMouseV1
 - MlHumanMouseFastV1
 - target window input
-- input redirect
 - suppress key
 - ignore modifiers
 - key down

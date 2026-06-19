@@ -9,7 +9,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 ---
 # Карта API по Input Hooks, Hotkeys и Send Input
 
-Справочная карта по хукам клавиатуры и мыши, хоткеям, биндам методов скрипта, API для отправки ввода, симуляторам ввода, сглаживанию, редиректу ввода и нативным detour-механизмам.
+Справочная карта по хукам клавиатуры и мыши, хоткеям, биндам методов скрипта, API для отправки ввода, симуляторам ввода, сглаживанию, подавлению ввода и нативным detour-механизмам.
 
 ## Что обычно хотят сделать
 
@@ -18,7 +18,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Отправлять ввод с клавиатуры, мыши или текст.
 - Выбрать backend для input simulator или smoother.
 - Получать сырые события клавиатуры и мыши.
-- Перенаправлять или подавлять ввод.
+- Подавлять ввод для keybind-сценариев, когда это нужно.
 
 ## Модель понятий
 
@@ -46,7 +46,6 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - `IInputSimulatorProvider`, `IInputSimulatorEx` — обнаружение симулятора и выбор backend.
 - `IUserInputSmootherProvider`, `IUserInputSmoother` — сглаживание движения мыши.
 - `IKeyboardEventsSource` — потоки событий клавиатуры и мыши.
-- `IUserInputRedirectService` — редирект ввода.
 - `HookEngine` — продвинутый движок нативных detour-функций.
 
 ## Что использовать в первую очередь
@@ -93,7 +92,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
   `HotkeyTrackerRuntimeVisitor`, `HotkeyGesture`, `IHotkeyConverter`,
   `IHotkeyTracker`, `HotkeyIsActiveTrigger`, `ISendInputScriptingApi`,
   `IInputSimulatorProvider`, `IUserInputSmootherProvider`,
-  `IKeyboardEventsSource`, `IUserInputRedirectService`, `HookEngine`.
+  `IKeyboardEventsSource`, `HookEngine`.
 
 ## По каким словам искать
 
@@ -105,7 +104,6 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - input simulator
 - input smoother
 - target window input
-- input redirect
 - suppress key
 - ignore modifiers
 - key down
