@@ -27,6 +27,9 @@ Interactive picking belongs to `osd/selection.md`.
 - `IOnScreenService` creates owner-scoped canvases.
 - `IOnScreenCanvasScriptingApi` is the script-facing canvas factory.
 - `IOnScreenCanvas` owns `IOnScreenObject` instances by `OnScreenObjectId`.
+- Canvas visibility is owner-scoped: hiding one canvas temporarily removes its
+  objects from rendering without affecting other canvases or discarding the
+  hidden owner's objects.
 - Objects use desktop screen coordinates.
 - Current rendered object contracts are `IOnScreenRectangle`,
   `IOnScreenHtml`, and `IOnScreenRazor`.
@@ -37,8 +40,8 @@ Interactive picking belongs to `osd/selection.md`.
 
 - `IOnScreenService` - runtime canvas factory and DevTools hook.
 - `IOnScreenCanvasScriptingApi` - script-facing canvas factory.
-- `IOnScreenCanvas` - `ObjectsById`, `AddOrUpdate`, `Remove`, `Clear`,
-  `ShowDevTools`.
+- `IOnScreenCanvas` - `ObjectsById`, `IsVisible`, `AddOrUpdate`, `Remove`,
+  `Clear`, `ShowDevTools`.
 - `IOnScreenObject` - `Id`, `Location`, `Size`, `Opacity`, `IsVisible`.
 - `IOnScreenRectangle` - `Background`, `BorderColor`, `BorderThickness`.
 - `IOnScreenHtml` - raw trusted `Html`.

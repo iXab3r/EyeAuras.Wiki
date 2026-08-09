@@ -34,7 +34,8 @@ actions, overlays, behavior trees, macros, variables, and script workspaces.
 
 ## API Details
 
-- `IEyeContext` - broad runtime context for an EyeAuras object.
+- `IEyeContext` - broad runtime context for an EyeAuras object, including its
+  current `IHasLoaded.IsLoaded` state.
 - `IAuraContext` - aura-specific runtime context.
 - `IFolderContext` - folder-specific runtime context.
 - `IEyeItem` - shared tree item shape.
