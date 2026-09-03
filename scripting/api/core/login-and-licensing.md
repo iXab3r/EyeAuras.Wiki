@@ -16,6 +16,7 @@ Blazor windows, mini-apps, and pack products.
 
 - Add the standard EyeAuras login button to a custom Blazor window.
 - Build a fully custom login screen with username/password and key login.
+- Add browser sign-in to custom UI when supported by the host and server.
 - Show current account, license, expiration, role, and hub connection state.
 - Let an already logged-in user activate an extra license key.
 - Gate a paid pack or mini-app through modern sublicense leases.
@@ -27,6 +28,9 @@ Blazor windows, mini-apps, and pack products.
 - EyeAuras can run in free mode; a normal EyeAuras license is not required just
   to use the platform.
 - An EyeAuras account can authenticate by username/password.
+- Browser sign-in uses the website to authorize the desktop session. A browser
+  session can be remembered across restarts; explicit password login does not
+  save the password or automatically repeat that login on restart.
 - Key login is a shortcut for users who only have a license key. The client
   calls login with the key as both username and password; the server resolves
   or creates the key-bound user account.
@@ -47,6 +51,9 @@ Blazor windows, mini-apps, and pack products.
 - In fully custom Blazor, ImGui, WPF, or script UI, inject/use
   `IEyeHubService` for login/logout/key activation operations and
   `ILicenseAccessor` for live display state.
+- For custom browser sign-in UI, resolve `IBrowserAuthenticationService` from
+  the host container. Ordinary helper classes receive it through injection;
+  top-level script helpers are not global APIs available to every C# class.
 - In scripts that need paid-pack access, resolve `ISublicenseManager` from the
   script container and keep the returned `ISublicenseLease` alive for as long
   as that logical session should consume access.
@@ -60,6 +67,15 @@ Blazor windows, mini-apps, and pack products.
   `HubAddress`, `ActiveLicense`, `ConnectionState`, connection timing,
   `PerformLogin(username, password)`, `PerformLogout()`, `RefreshToken()`, and
   `ActivateLicenseKey(licenseKey)`.
+- `IBrowserAuthenticationService` (same namespace) provides `State`,
+  `StartBrowserLogin()` and `CancelBrowserLogin()`, with
+  `INotifyPropertyChanged` notifications. It owns the operation independently
+  of the UI lifetime; it does not open the system browser itself.
+- `BrowserAuthenticationState` exposes `Status`, `VerificationUri`,
+  `VerificationUriComplete`, `UserCode`, `ExpiresAt` and `Error`.
+  `BrowserAuthenticationStatus` describes the operation, while
+  `BrowserAuthenticationError` supplies presentation categories. Accepted
+  account/license identity still comes from `ILicenseAccessor`.
 - `ILicenseAccessor` (`EyeAuras.Loader.Shared.Api`) implements
   `IUserLicense` and `INotifyPropertyChanged`. It exposes `IsValid`,
   `Username`, `UserId`, `Roles`, `LicenseType`, `StartsAt`, `ExpiresAt`,
@@ -85,6 +101,25 @@ Use this when your window can use the standard EyeAuras login popup:
 ```
 
 The widget reflects `ILicenseAccessor.Username` and opens the host login UI.
+
+### Custom browser sign-in
+
+1. Observe `IBrowserAuthenticationService.State` and await
+   `StartBrowserLogin()`. Completion means the challenge is ready, not that
+   the user has signed in. Expected failures are reported through `State`;
+   repeated starts reuse a pending challenge.
+2. For `AwaitingAuthorization`, explicitly open `VerificationUriComplete`
+   from the custom UI, or present `VerificationUri` with `UserCode`. Runtime
+   polling continues without the UI implementing its own polling loop.
+3. React to the operation state and use `ILicenseAccessor` for the accepted
+   account/license. Do not treat a displayed challenge or a successful browser
+   launch as successful authentication.
+
+Hiding or disposing the popup does not cancel sign-in. Call
+`CancelBrowserLogin()` only for an explicit cancel action; dispose the UI's
+own subscriptions when it closes. Use `IEyeHubService.PerformLogout()` to
+leave an accepted session, including before switching browser accounts.
+Browser failure does not automatically invoke password or key login.
 
 ### Username/password login
 
@@ -168,6 +203,8 @@ lease updates in the background. Treat access as granted only when
   requires it.
 - For key login, call `PerformLogin(key, key)`.
 - Clear password/key fields after successful login.
+- Do not persist explicit passwords or browser challenges. Clear sensitive
+  form fields when an attempt ends or the UI closes.
 - Show errors from the login operation in the local UI.
 - Read profile and license display from `ILicenseAccessor`, not from copied
   login form state.
@@ -177,7 +214,9 @@ lease updates in the background. Treat access as granted only when
 ## Assembly / Package Hints
 
 - `EyeAuras.Loader.Shared` contains `IEyeHubService`, `ILicenseAccessor`,
-  `IUserLicense`, `ISublicenseManager`, and `ISublicenseLease`.
+  `IUserLicense`, `IBrowserAuthenticationService`, `BrowserAuthenticationState`,
+  `BrowserAuthenticationStatus`, `BrowserAuthenticationError`,
+  `ISublicenseManager`, and `ISublicenseLease`.
 - `EyeAuras.Blazor.Controls` contains `LoginWidget`.
 - `EyeAuras.Shared` contains `AuraShareId`.
 
@@ -194,6 +233,7 @@ lease updates in the background. Treat access as granted only when
 ## Avoid
 
 - Avoid logging raw license keys, passwords, signed licenses, or bearer tokens.
+- Avoid logging browser verification URLs or user codes.
 - Avoid treating `ILicenseAccessor.ActiveLicense` as the normal public API. It
   is compatibility-only signed license material.
 - Avoid using `ILicenseAccessor.ShareSublicenses` as the primary authorization
@@ -206,6 +246,10 @@ lease updates in the background. Treat access as granted only when
 ## Research Anchors
 
 - `IEyeHubService`
+- `IBrowserAuthenticationService`
+- `BrowserAuthenticationState`
+- `BrowserAuthenticationStatus`
+- `BrowserAuthenticationError`
 - `ILicenseAccessor`
 - `IUserLicense`
 - `LoginWidget`
@@ -219,6 +263,9 @@ lease updates in the background. Treat access as granted only when
 
 - login
 - custom login
+- browser sign-in
+- device authorization
+- remembered browser session
 - key login
 - license key login
 - activate license key

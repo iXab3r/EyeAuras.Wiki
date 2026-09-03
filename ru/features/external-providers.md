@@ -1,7 +1,7 @@
 ---
 title: Вход через Google, Twitch и Discord
 description: Как войти в EyeAuras через знакомый сервис и сохранить свой аккаунт
-published: false
+published: true
 date: 2026-09-02T00:00:00.000Z
 tags: вход, аккаунт, google, twitch, discord
 editor: markdown

@@ -1,7 +1,7 @@
 ---
 title: Sign in with Google, Twitch, and Discord
 description: Sign in to EyeAuras with a familiar service while keeping your account
-published: false
+published: true
 date: 2026-09-02T00:00:00.000Z
 tags: sign-in, account, google, twitch, discord, ai-translated
 editor: markdown
