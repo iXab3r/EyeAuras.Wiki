@@ -190,6 +190,25 @@ For paid mini-apps, the usual hardening direction is:
 For the detailed custom login/profile flow, including key login via
 `PerformLogin(key, key)`, see `core/login-and-licensing.md`.
 
+## Publication tags
+
+`EyeAuras.Loader.Api.ShareData.TagUpdate` is a write-only `ShareTagUpdate`
+payload for `UpdateShare`. Each optional `ShareTagNameList` category distinguishes
+omission (preserve) from a present empty `Names` list (clear editable assignments).
+The older `UserTags`, `GameTags`, and `SystemTags` arrays remain response metadata.
+Assignment is atomic with publication or a new revision.
+
+Ordinary publication editors may create visible User tags, select visible Game
+tags, and select System `Game Profile`. Other System tags and invisible assignments
+belong to administrators. Protected existing assignments survive ordinary edits.
+`IsLocked` means soft deletion; `IsInvisible` controls presentation independently.
+Public projections omit both; administrator library tags expose both flags.
+
+PoE2 profile publishing combines visible Game `Path Of Exile 2` and System
+`Game Profile`. `AuraLibraryQueryRequest.GameTagName` and `SystemTagNames` apply
+these predicates together before paging. Classification does not replace profile
+payload validation. These are transport APIs, not global top-level script members.
+
 ## Prefer
 
 - Prefer local export for backups and one-off transfer.
