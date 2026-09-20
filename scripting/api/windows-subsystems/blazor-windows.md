@@ -43,6 +43,7 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
 - `IBlazorWindowController` owns window state and operations.
 - `IBlazorWindowNativeController` owns native handle/rectangle operations.
 - `IBlazorWindowAccessor` exposes the owning window inside a component.
+- `IBlazorWindowHandle` is a portable, optional DI service exposing the current host HWND without a WPF reference.
 - `BlazorContentPresenter` resolves dynamic component content.
 - WebView2 is the embedded browser that renders the Razor/HTML/CSS/JS surface.
 - C# Overlay is a preconfigured script-hosted Blazor surface controlled by aura
@@ -86,6 +87,30 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
   script file providers/resources into windows.
 
 ## Practical Concepts
+
+### Explicit ownership and pinning
+
+Set `OwnerHandle` before `Show()` or `ShowDialog()`. Zero means independent;
+there is no foreground-window fallback. To change ownership, hide the window,
+assign the new handle (including zero), then show it again. Ownership must be acyclic.
+
+`Topmost` remains the caller's requested pin. The native effective pin is that
+request OR the owner's effective pin, transitively, for both modal and non-modal
+windows. Unpinning or detaching the owner does not discard a child's independent
+pin. The shared native core reconciles WPF state, native style and ordering without
+activation, movement or implicitly showing a hidden window.
+
+Application-level dialog services use the host-published `IApplicationWindowOwner`.
+Nested UI operations pass their initiating HWND explicitly; portable components
+can obtain it from `IBlazorWindowHandle`. `IBlazorMessageBoxService.ForOwner(handle)`
+creates an immutable per-operation service; zero explicitly requests no owner.
+Standalone SDK hosts may omit the application owner. Script-created windows,
+overlays and independent editor roots are not automatically owned by the main window.
+
+Hosts can register `NativeWindowActivationPolicy` with `SuppressActivation=true`
+before constructing windows. It constrains ShowActivated, native activation and
+explicit Activate for every NativeWindow/BlazorWindow in that host. EyeAuras wires
+this policy from `--noActivate`; ordinary hosts retain per-window activation settings.
 
 - Razor component files are normal project files and can have `.razor.cs`
   code-behind.
