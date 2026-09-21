@@ -43,7 +43,6 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
 - `IBlazorWindowController` owns window state and operations.
 - `IBlazorWindowNativeController` owns native handle/rectangle operations.
 - `IBlazorWindowAccessor` exposes the owning window inside a component.
-- `IBlazorWindowHandle` is a portable, optional DI service exposing the current host HWND without a WPF reference.
 - `BlazorContentPresenter` resolves dynamic component content.
 - WebView2 is the embedded browser that renders the Razor/HTML/CSS/JS surface.
 - C# Overlay is a preconfigured script-hosted Blazor surface controlled by aura
@@ -88,24 +87,36 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
 
 ## Practical Concepts
 
-### Explicit ownership and pinning
+### Automatic ownership and pinning
 
-Set `OwnerHandle` before `Show()` or `ShowDialog()`. Zero means independent;
-there is no foreground-window fallback. To change ownership, hide the window,
-assign the new handle (including zero), then show it again. Ownership must be acyclic.
+`AutoOwner` defaults to true in the native window factory and applies to both
+`Show()` and `ShowDialog()`. At the first automatic presentation the shared core
+chooses the active registered application window, or the main root configured by
+the desktop host through `BlazorWpfRegistrations.ConfigureMainWindow`. If that
+window is disabled, it follows direct modal blockers within that owner's family.
+Other families and prewarmed, unshown windows do not become modal owners.
+
+The automatic decision, including no owner, is retained across repeated Show and
+Hide/Show. This is presentation-time context, not the historical initiator of an
+asynchronous operation. A nonzero `OwnerHandle` overrides automatic selection
+exactly, including when AutoOwner is false. To detach an existing window, hide
+it, set `OwnerHandle = IntPtr.Zero` and `AutoOwner = false`, then show it again.
+Re-enabling AutoOwner returns to its cached automatic decision, if already made.
+Ownership must be acyclic.
 
 `Topmost` remains the caller's requested pin. The native effective pin is that
-request OR the owner's effective pin, transitively, for both modal and non-modal
-windows. Unpinning or detaching the owner does not discard a child's independent
-pin. The shared native core reconciles WPF state, native style and ordering without
-activation, movement or implicitly showing a hidden window.
+request OR the owner's effective pin, transitively, for modal and non-modal
+windows. Inheritance never overwrites the requested setting. The same owner
+supplies initial CenterOwner positioning and modal disable/restore behavior.
+Repeated Show does not recenter the window.
 
-Application-level dialog services use the host-published `IApplicationWindowOwner`.
-Nested UI operations pass their initiating HWND explicitly; portable components
-can obtain it from `IBlazorWindowHandle`. `IBlazorMessageBoxService.ForOwner(handle)`
-creates an immutable per-operation service; zero explicitly requests no owner.
-Standalone SDK hosts may omit the application owner. Script-created windows,
-overlays and independent editor roots are not automatically owned by the main window.
+Application dialog callers do not need an owner service, scoped HWND dependency,
+or owner arguments. Script-created windows, overlays, notifications and independent
+editor roots disable AutoOwner at their shared creation boundaries. Scripts may
+opt in explicitly or assign OwnerHandle. A standalone host without a configured
+root can still use an active registered window; disable AutoOwner for independent
+SDK roots. The internal registry retains weak controller references and also
+backs container-scoped AI browser-view discovery.
 
 Set `INativeWindow.SuppressActivation` before native handle creation to constrain
 ShowActivated, native activation and explicit Activate. Handle creation can precede
