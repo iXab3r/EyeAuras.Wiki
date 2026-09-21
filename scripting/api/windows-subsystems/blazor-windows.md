@@ -110,6 +110,12 @@ windows. Inheritance never overwrites the requested setting. The same owner
 supplies initial CenterOwner positioning and modal disable/restore behavior.
 Repeated Show does not recenter the window.
 
+`ShowDialog()` also blocks other visible registered windows on its dispatcher,
+as WPF does. Overlapping modal windows share that blocking lifetime, so closing
+one does not enable a window still blocked by another. Hide or successful
+Close/Dispose while a dialog is waiting to open prevents that pending show;
+a hidden window can subsequently be shown again.
+
 Application dialog callers do not need an owner service, scoped HWND dependency,
 or owner arguments. Script-created windows, overlays, notifications and independent
 editor roots disable AutoOwner at their shared creation boundaries. Scripts may
