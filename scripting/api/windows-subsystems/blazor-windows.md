@@ -87,6 +87,51 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
 
 ## Practical Concepts
 
+### Automatic ownership and pinning
+
+`AutoOwner` defaults to true in the native window factory and applies to both
+`Show()` and `ShowDialog()`. At the first automatic presentation the shared core
+chooses the active registered application window, or the main root configured by
+the desktop host through `BlazorWpfRegistrations.ConfigureMainWindow`. If that
+window is disabled, it follows direct modal blockers within that owner's family.
+Other families and prewarmed, unshown windows do not become modal owners.
+
+The automatic decision, including no owner, is retained across repeated Show and
+Hide/Show. This is presentation-time context, not the historical initiator of an
+asynchronous operation. A nonzero `OwnerHandle` overrides automatic selection
+exactly, including when AutoOwner is false. To detach an existing window, hide
+it, set `OwnerHandle = IntPtr.Zero` and `AutoOwner = false`, then show it again.
+Re-enabling AutoOwner returns to its cached automatic decision, if already made.
+Ownership must be acyclic.
+
+`Topmost` remains the caller's requested pin. The native effective pin is that
+request OR the owner's effective pin, transitively, for modal and non-modal
+windows. Inheritance never overwrites the requested setting. The same owner
+supplies initial CenterOwner positioning and modal disable/restore behavior.
+Repeated Show does not recenter the window.
+
+`ShowDialog()` also blocks other visible registered windows on its dispatcher,
+as WPF does. Overlapping modal windows share that blocking lifetime, so closing
+one does not enable a window still blocked by another. Hide or successful
+Close/Dispose while a dialog is waiting to open prevents that pending show;
+a hidden window can subsequently be shown again.
+
+Application dialog callers do not need an owner service, scoped HWND dependency,
+or owner arguments. Script-created windows, overlays, notifications and independent
+editor roots disable AutoOwner at their shared creation boundaries. Scripts may
+opt in explicitly or assign OwnerHandle. A standalone host without a configured
+root can still use an active registered window; disable AutoOwner for independent
+SDK roots. The internal registry retains weak controller references and also
+backs container-scoped AI browser-view discovery.
+
+Set `INativeWindow.SuppressActivation` before native handle creation to constrain
+ShowActivated, native activation and explicit Activate. Handle creation can precede
+Show/ShowDialog. Later changes are ignored with a warning, like `AllowsTransparency`.
+The default is false.
+Hosts can call `BlazorWpfRegistrations.ConfigureActivationSuppression(bool)` during
+container setup to apply the property to subsequently resolved native and Blazor windows
+without replacing scoped Blazor configurators. EyeAuras configures it from `--no-activate`.
+
 - Razor component files are normal project files and can have `.razor.cs`
   code-behind.
 - Public Razor component classes are easiest for script-created windows.
