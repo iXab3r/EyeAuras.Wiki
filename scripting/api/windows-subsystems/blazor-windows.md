@@ -107,10 +107,13 @@ creates an immutable per-operation service; zero explicitly requests no owner.
 Standalone SDK hosts may omit the application owner. Script-created windows,
 overlays and independent editor roots are not automatically owned by the main window.
 
-Hosts can register `NativeWindowActivationPolicy` with `SuppressActivation=true`
-before constructing windows. It constrains ShowActivated, native activation and
-explicit Activate for every NativeWindow/BlazorWindow in that host. EyeAuras wires
-this policy from `--noActivate`; ordinary hosts retain per-window activation settings.
+Set `INativeWindow.SuppressActivation` before inner WPF window creation begins to
+constrain ShowActivated, native activation and explicit Activate. Creation can precede
+Show/ShowDialog; once it begins, changing the property throws InvalidOperationException.
+Assigning the current value remains allowed. The default is false.
+Hosts can call `BlazorWpfRegistrations.ConfigureActivationSuppression(bool)` during
+container setup to apply the property to subsequently resolved native and Blazor windows
+without replacing scoped Blazor configurators. EyeAuras configures it from `--no-activate`.
 
 - Razor component files are normal project files and can have `.razor.cs`
   code-behind.
