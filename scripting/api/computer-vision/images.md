@@ -43,6 +43,12 @@ workflows, and CV debug overlays.
 - `ColorSearchTrigger`, `IColorSimilarityCalculator` - color/pixel workflows.
 - `WindowCaptureService`, `WindowImageSource`,
   `WindowCaptureTriggerBase` - capture infrastructure.
+- `WindowsGraphicsCaptureSource` creates and disposes Windows Graphics capture
+  objects through `EyeAuras.WinRT.Prism.IWinRtBridge.BackgroundController`.
+  This native dedicated dispatcher is ready when the supported bridge is
+  constructed and is shut down by the bridge. Capture initialization must stay
+  off the UI dispatcher, which can run inside a synchronous native message and
+  reject outgoing COM calls with `RPC_E_CANTCALLOUT_ININPUTSYNCCALL`.
 
 ## Prefer
 
