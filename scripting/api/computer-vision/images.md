@@ -43,6 +43,13 @@ workflows, and CV debug overlays.
 - `ColorSearchTrigger`, `IColorSimilarityCalculator` - color/pixel workflows.
 - `WindowCaptureService`, `WindowImageSource`,
   `WindowCaptureTriggerBase` - capture infrastructure.
+- `PoeShared.Native.IClipboardManager` (`PoeShared.Native`) - image clipboard
+  transfer through an injected service. `SetImage` publishes PNG preserving
+  transparency plus a legacy Bitmap representation; call it on an STA thread.
+  `GetImage` prefers PNG and falls back to Bitmap when PNG is unavailable or
+  rejected by the decoder;
+  dispose the returned image. `ContainsImage` checks format availability only.
+  The input image remains caller-owned and may be disposed after `SetImage`.
 
 ## Prefer
 
