@@ -81,8 +81,11 @@ Blazor windows, mini-apps, and pack products.
   `Username`, `UserId`, `Roles`, `LicenseType`, `StartsAt`, `ExpiresAt`,
   `ProductFeatures`, `ShareSublicenses`, `GetAttribute(key)`, and
   compatibility-only `ActiveLicense`.
-- `IUserLicense` is the common license projection returned from hub operations
-  and exposed through `IEyeHubService.ActiveLicense`.
+- `IUserLicense` is the common license projection returned from hub operations.
+  `IEyeHubService.ActiveLicense` publishes a new snapshot when the signed license
+  changes and raises `PropertyChanged`. Observe it with
+  `eyeHub.WhenAnyValue(x => x.ActiveLicense)` to refresh profile and sublicense
+  display data. A previously returned snapshot keeps its original values.
 - `LoginWidget` (`EyeAuras.Blazor.Controls`) is a ready-made Blazor control
   that opens the standard EyeAuras login popup.
 - `ISublicenseManager` (`EyeAuras.Loader.Shared.Api`) creates live runtime
@@ -193,6 +196,14 @@ lease.WhenChanged()
 `Rent(...)` is non-blocking. The initial state is usually pending, and the
 lease updates in the background. Treat access as granted only when
 `ISublicenseLease.IsGranted` is true.
+
+Creating or releasing a lease triggers forced background server synchronization,
+including when a lease is created during initial startup synchronization.
+`IUserLicense.ShareSublicenses` contains the sublicenses included in the effective
+signed XML license. Cached signed summaries can restore a granted lease before
+fresh XML metadata arrives. If an expiration is unavailable, keep observing
+`IEyeHubService.ActiveLicense` and reread it after synchronization; use the lease
+state for access decisions.
 
 ## Custom Login UI Checklist
 
