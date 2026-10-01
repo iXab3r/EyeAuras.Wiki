@@ -48,6 +48,9 @@ actions, overlays, behavior trees, macros, variables, and script workspaces.
   marked `ActionNode<T>` implementations return their action status directly.
   `MacroIfThenElseNode` ticks Condition once and returns the chosen branch status,
   without replaying the first child. Ordinary actions continue into it after Success.
+  Break in Repeat's Loop body, including a chosen If branch, exits the Repeat.
+  Structural role blocks pass it to that owner; explicit nested MacroBlock nodes
+  keep their own exit scope. Return finishes the whole macro with its configured status.
 
 ## Prefer
 
