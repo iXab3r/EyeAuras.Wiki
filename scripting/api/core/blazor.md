@@ -77,6 +77,10 @@ DynamicData concepts behind reactive view models and collection tracking.
 - `BlazorCommandWrapper` - wraps ReactiveUI commands for Blazor/WPF command
   surfaces and exposes busy/error state.
 - `BlazorErrorBoundary` - error boundary with an `OnError` callback.
+- `PoeShared.Blazor.Controls.TreeView<TItem>` and `TreeViewDragDropScope<TItem>`
+  in `PoeShared.Blazor.Controls` use reactive shared drag target state so receiving
+  indicators, drop destination and clearing agree across controls sharing a scope.
+  These are Razor/app component types, not top-level script globals.
 - `PoeSharedBlazorRegistrations` - Unity/DI registration module for the shared
   Blazor services.
 
