@@ -44,6 +44,10 @@ actions, overlays, behavior trees, macros, variables, and script workspaces.
 - `IFolderAccessor` - script handle for one folder.
 - `IMacroAccessor` - script handle for one macro.
 - `IBehaviorTreeAccessor` - script handle for behavior trees.
+- `EyeAuras.BehaviorTree.Nodes.IControlFlowNode` - runtime nodes own child routing;
+  marked `ActionNode<T>` implementations return their action status directly.
+  `MacroIfThenElseNode` ticks Condition once and returns the chosen branch status,
+  without replaying the first child. Ordinary actions continue into it after Success.
 
 ## Prefer
 
