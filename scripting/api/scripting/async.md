@@ -42,6 +42,12 @@ fire-and-forget hazards, cancellation, and coroutine-style alternatives.
   that child's late effects. A retained `IEnumerator<NodeStatus>` is a separate
   stateful lifecycle, not an actively awaited script run.
 
+- In an actively awaited Behavior Tree action under `InterrupterNode`, an
+  observed successful condition cancels the current top-level `cancellationToken`
+  and the parent waits for cooperative completion. Conditions are sampled serially
+  with a 100ms delay; this does not dispose retained `IEnumerator<NodeStatus>` state
+  or forcibly stop work that ignores cancellation.
+
 ## Safety Rules
 
 - Use `await` directly when the current script run should wait for the result.
