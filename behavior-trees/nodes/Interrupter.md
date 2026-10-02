@@ -33,8 +33,18 @@ Checks should be short and observe cancellation. Reaction time includes their
 execution and scheduling; cancellation cannot forcibly stop an action that
 ignores its token or undo effects it already performed. A condition sample
 admitted before the monitor stops is fully drained. Success observed after
-it stops cannot change the action result. Retained iterator state between
-tree ticks and linked SubTree ownership remain separate lifecycle contracts.
+it stops cannot change the action result.
+
+### State between ticks
+
+On interruption, Interrupter resets its owned Action after the active tick has
+finished. This also applies when Condition succeeds on a later tick after Action
+returned Running: the retained script iterator is disposed, executing its finally,
+and owned execution cursors/timers reset. Clearing Condition permits a fresh Action
+from its first child. Ordinary Running without interruption preserves state.
+The graph, script, blackboard and session remain. Reset covers structural children,
+including disabled ones; it does not own a linked SubTree target or arbitrary
+plugin state. Cleanup errors propagate, and remaining siblings may be uncleared.
 
 ## Simple example
 ```

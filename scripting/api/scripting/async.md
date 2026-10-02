@@ -45,8 +45,13 @@ fire-and-forget hazards, cancellation, and coroutine-style alternatives.
 - In an actively awaited Behavior Tree action under `InterrupterNode`, an
   observed successful condition cancels the current top-level `cancellationToken`
   and the parent waits for cooperative completion. Conditions are sampled serially
-  with a 100ms delay; this does not dispose retained `IEnumerator<NodeStatus>` state
-  or forcibly stop work that ignores cancellation.
+  with a 100ms delay; work ignoring cancellation cannot be forcibly stopped.
+- `EyeAuras.BehaviorTree.Nodes.IBTNode.Reset()` resets quiescent structurally owned
+  state after active ticks have fully finished; it is not an await/drain API.
+  `InterrupterNode` applies it to Action on interruption, disposing a retained
+  `IEnumerator<NodeStatus>` through finally and clearing owned routing/timers.
+  Graph/project/blackboard/session remain; shared SubTree targets need their own
+  ownership. Cleanup faults propagate; a terminal yield alone is not exhaustion.
 
 ## Safety Rules
 
