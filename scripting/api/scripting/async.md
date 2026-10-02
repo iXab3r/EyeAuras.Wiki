@@ -35,6 +35,13 @@ fire-and-forget hazards, cancellation, and coroutine-style alternatives.
 - For loops, timers, and step-based workflows, the `Coroutine` NuGet package is
   often a safer and simpler alternative to ad-hoc background `Task` code.
 
+- In a Behavior Tree `ExecuteScriptNode` under `TimeoutNode`, the current tick's
+  deadline is linked into the top-level `cancellationToken`. Await token-aware
+  operations so expiry can finish child cleanup before the parent returns Failure.
+  The parent awaits the child even if it ignores cancellation; this cannot prevent
+  that child's late effects. A retained `IEnumerator<NodeStatus>` is a separate
+  stateful lifecycle, not an actively awaited script run.
+
 ## Safety Rules
 
 - Use `await` directly when the current script run should wait for the result.
