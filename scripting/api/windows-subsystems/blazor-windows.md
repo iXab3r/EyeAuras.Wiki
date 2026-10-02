@@ -87,6 +87,22 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
 
 ## Practical Concepts
 
+### Native file dialogs from a hosted component
+
+For a WPF Open file dialog, capture `IBlazorWindowAccessor.Window` at command
+invocation. On that window's `Dispatcher`, obtain `GetWindowHandle()` and pass
+it to `PoeShared.Dialogs.Services.IOpenFileDialog.ShowDialog(IntPtr)`.
+`WpfFileDialog` resolves the live WPF `Window` and uses
+`Microsoft.Win32.OpenFileDialog.ShowDialog(Window)`. Cancellation returns no
+file; successful selection updates `LastFile`.
+
+The explicit owner must belong to a live WPF window on the calling dispatcher.
+It does not fall back to an active window or a hidden helper. The parameterless
+Open API retains its existing owner selection. A backend without explicit-owner
+support throws `NotSupportedException`; this overload does not add Save support.
+These services live in `PoeShared.Wpf` and are host services, not top-level script
+members.
+
 ### Automatic ownership and pinning
 
 `AutoOwner` defaults to true in the native window factory and applies to both
