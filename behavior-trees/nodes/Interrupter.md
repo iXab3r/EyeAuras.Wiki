@@ -8,6 +8,8 @@ editor: markdown
 dateCreated: 2025-08-17T08:33:00.641Z
 ---
 
+# Interrupter
+
 **Interrupter** is a special node for behaviour trees and macros in EyeAuras that helps interrupt long‑running actions when certain conditions occur.
 
 ## How Interrupter works
@@ -19,12 +21,20 @@ Interrupter always has two children:
 
 ### Main principle
 
-- While **Action** is running, Interrupter constantly watches **Condition**.
-- If **Condition** becomes `true` at any moment while **Action** is executing:
-  - Interrupter immediately stops the **Action**.
+- Before **Action** starts, a successful **Condition** returns `Failure` without starting it; a `Running` condition waits for the next tree tick.
+- While an awaited **Action** runs, Interrupter checks **Condition** sequentially, with a 100ms delay between completed checks.
+- If a check observes **Condition** as `true` while **Action** is executing:
+  - Interrupter requests cooperative cancellation and waits for **Action** cleanup.
   - Returns `Failure`.
 - If **Condition** does not become `true` before **Action** completes:
   - Interrupter returns the result of that action (`Success`, `Failure`, or `Running`).
+
+Checks should be short and observe cancellation. Reaction time includes their
+execution and scheduling; cancellation cannot forcibly stop an action that
+ignores its token or undo effects it already performed. A condition sample
+admitted before the monitor stops is fully drained. Success observed after
+it stops cannot change the action result. Retained iterator state between
+tree ticks and linked SubTree ownership remain separate lifecycle contracts.
 
 ## Simple example
 ```
