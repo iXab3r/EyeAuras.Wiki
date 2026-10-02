@@ -89,17 +89,22 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
 
 ### Native file dialogs from a hosted component
 
-For a WPF Open file dialog, capture `IBlazorWindowAccessor.Window` at command
+For a WPF Open or Save file dialog, capture `IBlazorWindowAccessor.Window` at command
 invocation. On that window's `Dispatcher`, obtain `GetWindowHandle()` and pass
 it to `PoeShared.Dialogs.Services.IOpenFileDialog.ShowDialog(IntPtr)`.
 `WpfFileDialog` resolves the live WPF `Window` and uses
-`Microsoft.Win32.OpenFileDialog.ShowDialog(Window)`. Cancellation returns no
+`Microsoft.Win32.OpenFileDialog.ShowDialog(Window)`. For Save, pass the same
+owner to `ISaveFileDialog.ShowDialog(IntPtr)`; `WpfFileDialog` uses
+`Microsoft.Win32.SaveFileDialog.ShowDialog(Window)`. Cancellation returns no
 file; successful selection updates `LastFile`.
 
 The explicit owner must belong to a live WPF window on the calling dispatcher.
 It does not fall back to an active window or a hidden helper. The parameterless
 Open API retains its existing owner selection. A backend without explicit-owner
-support throws `NotSupportedException`; this overload does not add Save support.
+support throws `NotSupportedException`. The parameterless Save API retains its
+existing owner selection. BT editor `LoadFromFileCommand` and `SaveToFileCommand`
+require the invoking host `IBlazorWindow` as their command parameter; toolbar and
+keyboard callers provide their scoped `IBlazorWindowAccessor.Window`.
 These services live in `PoeShared.Wpf` and are host services, not top-level script
 members.
 
