@@ -179,6 +179,12 @@ without replacing scoped Blazor configurators. EyeAuras configures it from `--no
 - Multiple toggles or repeated controls should be backed by explicit properties
   or item view-models, not copy-pasted hardcoded accessors.
 
+`PoeShared.Dialogs.Services.IFolderBrowserDialog.ShowDialog(IntPtr hwndOwner)` in
+`PoeShared.Wpf` borrows a live originating WPF HWND on that window's dispatcher;
+explicit implementations validate dispatcher access and never fall back to a
+foreground/global owner. Unsupported implementations throw; no-argument behavior
+stays separate. App Razor callers obtain the current HWND from `IBlazorWindowAccessor`.
+
 ## CSS And Static Assets
 
 Blazor scoped CSS can be fragile in script-owned or dynamic windows. `.razor.css`
