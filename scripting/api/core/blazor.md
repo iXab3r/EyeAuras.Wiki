@@ -74,6 +74,14 @@ DynamicData concepts behind reactive view models and collection tracking.
 - `IJsPoeBlazorUtils.SuppressWellKnownBrowserShortcuts(...)` - explicit opt-in
   DOM listener for suppressing common browser/WebView shortcuts such as Ctrl+A,
   Ctrl+P, Ctrl+F, Ctrl+S, Ctrl+O, Ctrl+R, Ctrl+Shift+R, and F5.
+- `IBlazorContextMenuService.RegisterAncestorAsync(ElementReference, string, Action<...>)`
+  in `PoeShared.Blazor.Services` binds a native menu to the connected ancestor of a
+  rendered component, with an exclusive registration marker and disposable ownership.
+  Use it for structural hosts whose decorative children do not receive pointer events;
+  the existing `RegisterAsync(ElementReference, ...)` binds directly to its element.
+  `IJsPoeBlazorUtils.RegisterAncestorContextMenuTarget` / `UnregisterAncestorContextMenuTarget`
+  own the ancestor marker. Missing or occupied ancestors fail registration; cleanup
+  clears only the same registration and tolerates a detached host.
 - `BlazorCommandWrapper` - wraps ReactiveUI commands for Blazor/WPF command
   surfaces and exposes busy/error state.
 - `BlazorErrorBoundary` - error boundary with an `OnError` callback.
