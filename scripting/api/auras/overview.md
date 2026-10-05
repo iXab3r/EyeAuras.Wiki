@@ -28,6 +28,13 @@ overlays, behavior trees, script entities, and built-in aura packs.
 - `AdvancedAurasModule` - advanced integrations such as Telegram.
 - `CsScriptAurasModule` - C# script triggers, actions, and overlays.
 - `BehaviorTreeModule` - behavior-tree nodes and runtime integration.
+- `BehaviorTreeRootNode.IsLoaded` is desired load state, not an awaited drain receipt.
+  Unload closes all root/node Tick entrypoints, cancels the root epoch, then waits
+  for admitted calls before resetting structural node state and the session.
+  A quick reload waits for that cleanup; graph/config/blackboard remain.
+  Manual ticks on an unloaded or draining root return Failure without execution.
+  Loaded but inactive/Disabled roots still permit manual ticks. Shared SubTree
+  continuation ownership and foreign-root retained state require separate contracts.
 - `IAuraRegistrator` - central entity registration service.
 - `AuraActionBase<T>` - common action base; inspect `ExecuteInternal`.
 - `AuraTriggerBase<T>` - common trigger base; inspect
