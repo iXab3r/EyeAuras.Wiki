@@ -36,6 +36,12 @@ by aura workflows.
 - `IBlazorWindow` - native Blazor-backed window.
 - `IImGuiExperimentalApi` - optional ImGui SDK entry point.
 
+## C# Overlay Context Lifetime
+
+`CsharpAuraOverlay` and its `IWebUIOverlayScriptingApi` belong to the aura/window lifetime.
+The script context borrows them as `IWebUIAuraOverlay` and `IWebUIOverlayScriptingApi`.
+Recompilation and project import replace that context; disposing it must not dispose these borrowed objects or close the overlay window.
+
 ## Prefer
 
 - Prefer aura overlay entities when UI is part of aura configuration/lifecycle.
