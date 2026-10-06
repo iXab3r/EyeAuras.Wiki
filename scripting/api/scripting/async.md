@@ -48,10 +48,11 @@ fire-and-forget hazards, cancellation, and coroutine-style alternatives.
   with a 100ms delay; work ignoring cancellation cannot be forcibly stopped.
 - `EyeAuras.BehaviorTree.Nodes.IBTNode.Reset()` resets quiescent structurally owned
   state after active ticks have fully finished; it is not an await/drain API.
-  `InterrupterNode` applies it to Action on interruption, disposing a retained
-  `IEnumerator<NodeStatus>` through finally and clearing owned routing/timers.
-  Graph/project/blackboard/session remain; shared SubTree targets need their own
-  ownership. Cleanup faults propagate; a terminal yield alone is not exhaustion.
+  `InterrupterNode` awaits Action/monitor drain and captured SubTree owner release
+  before resetting quiescent Action state, disposing retained `IEnumerator<NodeStatus>`
+  through finally and clearing routing/timers. Reset itself does not drain an alias target.
+  Graph/project/blackboard/session remain during owned Action cleanup; cleanup faults
+  propagate; a captured-release fault keeps target admission closed. A terminal yield alone is not exhaustion.
 
 ## Safety Rules
 

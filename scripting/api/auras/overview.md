@@ -33,8 +33,13 @@ overlays, behavior trees, script entities, and built-in aura packs.
   for admitted calls before resetting structural node state and the session.
   A quick reload waits for that cleanup; graph/config/blackboard remain.
   Manual ticks on an unloaded or draining root return Failure without execution.
-  Loaded but inactive/Disabled roots still permit manual ticks. Shared SubTree
-  continuation ownership and foreign-root retained state require separate contracts.
+  Loaded but inactive/Disabled roots still permit manual ticks.
+  Same-root SubTree uses exclusive containing-tree ownership keyed by entry/alias-chain/epoch.
+  Running and live script iterators retain it, including a terminal yield.
+  Another caller receives Failure until captured-owner cancel/drain/reset finishes.
+  Retarget cleans the OLD target; the same owner can continue its terminal iterator.
+  Ordinary IsTicking=false keeps Session-only maintenance; explicit status-reset/unload clears owned state.
+  Foreign roots and whole-application disposal completion remain separate contracts.
 - `IAuraRegistrator` - central entity registration service.
 - `AuraActionBase<T>` - common action base; inspect `ExecuteInternal`.
 - `AuraTriggerBase<T>` - common trigger base; inspect
