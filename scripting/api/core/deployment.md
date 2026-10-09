@@ -27,7 +27,8 @@ another PC, a published pack, a portable pack, or a mini-app.
 
 - `Export` publishes or saves a pack. `Import` loads a pack from a link, file,
   JSON, or install script.
-- A published pack has an owner. Only the owner can update that pack revision.
+- A published pack can be anonymous or owned. Content updates require effective
+  `CanEdit` rights (owner, admin, or an explicit Editor/Manager grant).
 - A pack is the distribution unit. It can contain auras, scripts, macros,
   behavior trees, app/config choices, and optional packed content.
 - A portable pack is a downloadable ZIP-style product that can run without a
@@ -54,6 +55,27 @@ another PC, a published pack, a portable pack, or a mini-app.
   config, and content together.
 - Mini-app: package a custom user flow where EyeAuras is mostly hidden behind
   the author's UI.
+
+## Share gRPC permissions and listing
+
+`EyeAuras.Loader.Api.EyeAurasService` returns `ShareData` from share reads,
+metadata reads, subscriptions and uploads. Optional `canEdit` (field 19) and
+`canManage` (field 20) describe the authenticated caller's effective rights
+for the returned revision. Missing fields mean an older server; do not infer
+rights from `userName`. Values supplied in upload requests are ignored.
+`GetShareMetadata` returns neither source nor packed content.
+
+`UpdateShareListing(UpdateShareListingRequest)` accepts `shareId` (field 1)
+and `listingStatus` (field 2), using `ShareDataListingStatus.Unlisted/Public`.
+It requires `CanManage`, changes discovery across the share's revisions, and
+returns refreshed, content-free metadata. Content, active revision, ownership,
+privacy and tags are preserved. An Editor can update content but cannot change
+listing. Listing does not grant access to private source content.
+
+`UpdateShare` preserves listing and derives privacy from uploaded content.
+Anonymous creation remains supported; an ordinary caller cannot update an
+anonymous share. The existing owner/admin/grant resolver governs mutations.
+These are remote service contracts, not ambient top-level script capabilities.
 
 ## Pack Settings
 
