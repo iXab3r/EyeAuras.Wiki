@@ -78,3 +78,4 @@ support archive.
 - `core/app-runtime-contexts.md`
 - `core/logging.md`
 - `scripting/runtime.md`
+- [Report archive format and receiving reports](/features/problem-reports)
