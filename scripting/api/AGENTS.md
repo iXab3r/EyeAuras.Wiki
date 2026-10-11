@@ -118,6 +118,8 @@ Use this shape when practical:
   dynamic view resolution, content repository, and JS utilities.
 - `core/logging.md` - `IFluentLog`, log4net bridges, app/service logging,
   script event log routing, logger context, and log-based timing helpers.
+- `core/error-reporting.md` - problem report dialogs, prefilled editable
+  comments, report archives, and `IErrorReportingService`.
 - `core/login-and-licensing.md` - custom login UI, key login,
   `IEyeHubService`, `ILicenseAccessor`, `LoginWidget`, and modern sublicense
   lease flows.
