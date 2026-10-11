@@ -2,8 +2,8 @@
 title: 🚀 Mini-app
 description: How to turn a script or a pack into a mini-app built on top of EyeAuras
 published: true
-date: 2026-03-24T00:10:39.000Z
-tags: 
+date: 2026-10-11T00:00:00.000Z
+tags: ai-translated
 editor: markdown
 dateCreated: 2026-03-24T00:10:39.000Z
 ---
@@ -261,3 +261,4 @@ In the best case, the user does not even need to think about the fact that EyeAu
 - [Blazor Windows](/scripting/blazor-windows/1-intro)
 - [Sublicenses](/features/sublicenses)
 - [Script Protection](/features/script-protection)
+- [Problem reports and receiving archives](/features/problem-reports)

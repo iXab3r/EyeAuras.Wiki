@@ -1,12 +1,14 @@
 ---
-title: How-to: Report a problem
+title: How to report a problem
 description: 
 published: true
-date: 2024-05-14T11:15:49.956Z
-tags: 
+date: 2026-10-11T00:00:00.000Z
+tags: reporting, ai-translated
 editor: markdown
 dateCreated: 2023-10-15T20:42:29.377Z
 ---
+
+# Report a problem
 
 **EyeAuras** is a very complex program that continually evolves. Unfortunately, its evolution isn't without setbacks. It has had, currently has, and will likely have errors in the future—some minor and others critical.
 
@@ -59,19 +61,16 @@ If the app consistently crashes upon restart—a rare event—please do the foll
 5.  If app has not started - compress the whole folder and send it to me directly in Discord or in Telegram. Fortunately, this is a very rare occurrence and in most cases you won't have to do that.
 6.  After the issue has been resolved (via application update, for example), you can restore your configuration (from backup file) and try again.
 
-## **Error Report**
+## Error Report
 
-You can manually trigger this dialog by pressing the “Report a problem” button in the window title. Alternatively, it might launch automatically if the program detects an internal exception.
+Open the dialog with **Report a problem** in the window title, or from the reporting button provided by a mini-app. It may also open automatically after an exception.
 
-This feature will automatically collate all necessary information (like the Windows Event log and OS statistics), combine logs and screenshots (this is turned off by default), and compress everything into a singular archive.
+Describe the problem, select the relevant attachments, then send the report to EyeAuras or save the archive to share with support or a share author. The comment is editable, including when an app prefills it. An empty comment is omitted.
 
-This archive will either be sent to the EyeAuras central server or saved as a local file, which you can then dispatch directly to me.
+- `systemInfo.txt` and, in current EyeAuras clients, `applicationInfo.txt` are collected automatically. Application information includes the sender, license features, startup data, tree counts and subscriptions.
+- `stacktrace.txt` contains exception details when available. Recent application logs and application-window screenshots are selected by default.
+- Desktop screenshots, aura configuration and other optional files can be selected in the dialog. Desktop screenshots and aura configuration are not selected by default.
 
--   **stacktrace.txt** - contains information about critical error which crashed the app, may not be present in some cases
--   **EyeAuras.\*.log** - application logs, by default only latest files are attached. If issue happened during previous lifecycle of the app, you may have to extend selection
--   **EventLog\_\*.log** - Windows system logs, contains OS alerts and other global events in the system. In some cases this will have extended information about application crash
--   **Wnd \*.png** - screenshots of application windows
--   **Screen \*.png** - screenshots of your PC screens, **not sent by default**
--   **metrics.txt** - contains information about EyeAuras internal structures, such as timings, does not have any personal data
+Read [Problem reports and receiving archives](/features/problem-reports) for the file format, collected data, an example and instructions for accepting reports as a share author. Older archives without `applicationInfo.txt` remain usable.
 
 ![](/1efpgwe[1].png)

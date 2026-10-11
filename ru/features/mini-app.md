@@ -2,8 +2,8 @@
 title: 🚀 Mini-app
 description: Как превратить скрипт или пак в отдельное мини-приложение на базе EyeAuras
 published: true
-date: 2026-03-24T00:10:39.000Z
-tags: 
+date: 2026-10-11T00:00:00.000Z
+tags: ai-translated
 editor: markdown
 dateCreated: 2026-03-24T00:10:39.000Z
 ---
@@ -261,3 +261,4 @@ EyeAuras.exe --pad
 - [Blazor Windows](/ru/scripting/blazor-windows/1-intro)
 - [Саблицензии](/ru/features/sublicenses)
 - [Защита скриптов](/ru/features/script-protection)
+- [Отчёты о проблемах и приём архивов](/ru/features/problem-reports)
