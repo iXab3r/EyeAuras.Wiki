@@ -2,7 +2,7 @@
 title: Problem reports and receiving archives
 description: What EyeAuras collects and how users and share authors can work with report archives
 published: true
-date: 2026-10-11T00:00:00.000Z
+date: 2026-10-13T00:00:00.000Z
 tags: reporting, mini-apps, ai-translated
 editor: markdown
 dateCreated: 2026-10-11T00:00:00.000Z
@@ -141,9 +141,21 @@ For EyeAuras reports, the processor uses nonempty `User.Name` first and retains 
 
 All subscriptions and clones remain in the description and original file. Only the selected first share is indexed; later shares do not supply a replacement owner or share ID. The client `OwnerUserName` is a local hint, not the canonical server owner. With no revision the server uses the active revision; an unavailable explicit revision is not silently replaced by the active one.
 
-License information, features, tree counts and startup text appear in the description rather than separate search fields. The original archive is attached. Reports are deduplicated by project and exact report ID across issue states.
+License information, features, tree counts and startup text appear in the description rather than separate search fields. The original archive is attached. Report identity uses the exact report ID across issue states. After mini-app activation it is checked in both EA and MAPS; POE remains separate.
 
-EyeAuras and its mini-app reports currently go to the EyeAuras project. PoEBane has a separate importer with its own configured project, POE by default. When that importer is disabled, `PoEBane_` archives are skipped; they never fall through into the EyeAuras importer. A general author/share routing mechanism and an API for authors to retrieve reports are planned. Neither is required to accept saved archives manually.
+Ordinary EyeAuras reports go to EA. PoEBane keeps its separate importer and configured project, POE by default. When that importer is disabled, `PoEBane_` archives are skipped. An API for authors to retrieve reports is planned; saved archives can already be accepted manually.
+
+## Mini-app reports in YouTrack
+
+When central mini-app delivery is enabled, new mini-app reports go to **EyeAuras MiniApps (MAPS)**. Older reports remain on their previous route. Pausing this delivery keeps new mini-app archives queued instead of forwarding them to EA.
+
+For the first nonempty ShareId, the server resolves share metadata and creates or reuses a group named `reports-share-ShareId`. The group covers all revisions of that share. A report is visible to internal support and this one group. If the first share cannot be resolved or is absent, it stays internal; a later share does not supply access.
+
+A YouTrack administrator adds the author and their team to the appropriate group. Reported user/owner names do not add people automatically. Group members can work with visible reports and their comments, states and attachments; Processor-owned report/sender/share fields, project and visibility changes are reserved for internal support. Marked replies can be sent to the report sender; restricted internal notes are not broadcast.
+
+Access covers the whole report, including its original archive, license diagnostics and any other subscriptions or optional configuration it contains. Share grouping selects who can read the report; it does not remove other data from the archive.
+
+The processor keeps the report identity across EA and MAPS after activation. Closing an issue or restarting an unfinished import does not create another issue. A saved receipt lets the processor finish attachments on the already published issue.
 
 ## Related pages
 
