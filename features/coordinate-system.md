@@ -14,7 +14,7 @@ The **Coordinate Block** is used in various actions and triggers. It lets you:
 -  Define a specific capture region.
 -  Set the position of an overlay or another on-screen element.
 
-![](/eyeauras_wkvvsyrr7v.png)
+![](/assets/legacy/eyeauras_wkvvsyrr7v.png)
 
 ---
 
@@ -71,7 +71,7 @@ Defines the anchor point inside a window or rectangle. Position and offset are c
 
 Example: if the anchor is set to **TopLeft**, the position and offset refer to the top-left corner of the window. If it is set to **Center**, they refer to the center of the window.
 
-![](/kfnkscuxzc.png =x400)
+![](/assets/legacy/kfnkscuxzc.png =x400)
 
 ###  Anchor Examples
 
@@ -110,4 +110,4 @@ Example: if the anchor is set to **TopLeft**, the position and offset refer to t
 ###  Content Anchor
 Used in special cases to align content inside a rectangle or window.
 
-![](/wm5l5ma04c.png =x400)
+![](/assets/legacy/wm5l5ma04c.png =x400)

@@ -50,7 +50,7 @@ This option allows you to specify the language used for recognition. By default,
 -   In the Settings window, click on “Time & Language”.
 -   Now, select “Language” from the left sidebar.
 
-![](/ni1l1qv[1].png)
+![](/assets/legacy/ni1l1qv%5B1%5D.png)
 
 **Add a New Language (if not already added)**:
 
@@ -59,7 +59,7 @@ This option allows you to specify the language used for recognition. By default,
 -   Once you locate your language, click on it and then click the “Next” button.
 -   Ensure the “Install language pack” option is checked, and click “Install”.
 
-![](/cmjv657[1].png)
+![](/assets/legacy/cmjv657%5B1%5D.png)
 
 **Install the OCR Language Pack**:
 
@@ -67,7 +67,7 @@ This option allows you to specify the language used for recognition. By default,
 -   Now click on “Options”.
 -   Under the “Download” section, you should see various features available for the language. Look for “Handwriting” or "Optical Character Recognition (OCR)" and click the “Download” button beside it.
 
-![](/zetu69i[1].png)
+![](/assets/legacy/zetu69i%5B1%5D.png)
 
 **Wait for Installation**:
 

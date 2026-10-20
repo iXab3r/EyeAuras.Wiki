@@ -35,7 +35,7 @@ dateCreated: 2023-06-18T15:01:39.519Z
 
 Пример:
 
-![](/telegram_3uc3q03fas.png)
+![](/assets/legacy/telegram_3uc3q03fas.png)
 
 ### Как получить Chat Id
 
@@ -46,7 +46,7 @@ dateCreated: 2023-06-18T15:01:39.519Z
 5. *(необязательно)* Нажмите Create — это нужно только при создании новой группы.
 6. **Show Json Bot** отправит JSON, в котором будет содержаться ChatId.
 
-![](/telegram_ive2xr6teu.png)
+![](/assets/legacy/telegram_ive2xr6teu.png)
 
 # Параметры действия
 

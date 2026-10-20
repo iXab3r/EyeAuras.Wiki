@@ -19,7 +19,7 @@ First of all, they are directly linked to Folders, thus you'll need for you aura
 
 After you've created a folder there will be a separate section called “Triggers/Actions/Overlays Defaults”:
 
-![](/trtr5ma[1].png)
+![](/assets/legacy/trtr5ma%5B1%5D.png)
 
 This section will contains all properties which could be set as Default, it is possible to put ANY property of any type of trigger/action/overlay there, but I've decided to start with 3 that were requested most often. 
 
@@ -33,9 +33,9 @@ For already existing auras though nothing will change. There are three ways of r
 2.  Left click on the same box and click “Default” in bindings editor
 3.  On Folder page, hover on desired property and click "Apply to All", this will reset properties of ALL child auras to default, basically same as clicking "Reset to Default" on each one individually
 
-![](/sb8y4cj[1].png)
+![](/assets/legacy/sb8y4cj%5B1%5D.png)
 
-![](/51tmde2[1].png)
+![](/assets/legacy/51tmde2%5B1%5D.png)
 
 ### Accessing via Scripts
 

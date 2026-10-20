@@ -35,13 +35,13 @@ No smoothing is applied, mouse movement is instantaneous.
 
 Makes linear approximation of mouse movement. Does not look very human to a naked eye, but enough to fool protection and input-detection systems in most games. 
 
-![](/g100_wnd1_w5-10_s10_a1.gif)
+![](/assets/legacy/g100_wnd1_w5-10_s10_a1.gif)
 
 ### Randomized
 
 Applies random seed to all inputs making it look much more humane. 
 
-![](/g6_wnd2_w1-5_s10_a10.gif)
+![](/assets/legacy/g6_wnd2_w1-5_s10_a10.gif)
 
 ### ML Human Move
 

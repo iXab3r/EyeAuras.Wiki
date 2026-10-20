@@ -16,7 +16,7 @@ The Send Input action in EyeAuras is a powerful tool that lets users emulate a s
 
 There are multiple types of action which are supported by Send Input.
 
-![](/eyeauras_vkyrrjgchm.png)
+![](/assets/legacy/eyeauras_vkyrrjgchm.png)
 
 ### Common options
 

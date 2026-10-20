@@ -14,7 +14,7 @@ dateCreated: 2024-05-14T19:19:13.716Z
 - 📏 Задать конкретный регион захвата.
 - 📍 Указать положение оверлея или другого элемента на экране.
 
-![](/eyeauras_wkvvsyrr7v.png)
+![](/assets/legacy/eyeauras_wkvvsyrr7v.png)
 
 ---
 
@@ -72,7 +72,7 @@ PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8v
 
 Пример: Если якорь установлен в **TopLeft**, то позиция и смещение будут указывать на верхний левый угол окна. Если установлен в **Center**, то — на центр окна.
 
-![](/kfnkscuxzc.png =x400)
+![](/assets/legacy/kfnkscuxzc.png =x400)
 
 ### 🔳 Примеры якорей
 
@@ -111,6 +111,6 @@ PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8v
 ### 🖼️ Контентный якорь
 Используется в особых случаях для выравнивания содержимого внутри прямоугольника или окна.
 
-![](/wm5l5ma04c.png =x400)
+![](/assets/legacy/wm5l5ma04c.png =x400)
 ```
 

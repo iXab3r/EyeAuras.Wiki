@@ -11,7 +11,7 @@ dateCreated: 2023-06-18T11:57:49.061Z
 
 Window matching expressions let you define an expression that selects a specific window—or multiple windows—based on different criteria. These expressions are supported across EyeAuras actions and triggers, and let you control where input is sent, which window should be active, which window should be captured in a screenshot or recording, and more.
 
-![](/eyeauras_zjebk8jadf.png)
+![](/assets/legacy/eyeauras_zjebk8jadf.png)
 
 ## Components
 

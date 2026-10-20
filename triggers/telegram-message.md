@@ -43,7 +43,7 @@ To setup Telegram notifications you have to do 3 things:
 
 Example:
 
-![](/telegram_3uc3q03fas.png)
+![](/assets/legacy/telegram_3uc3q03fas.png)
 
 ### How to get Chat Id
 
@@ -54,4 +54,4 @@ Example:
 5.  (optional) Click on Create - this is needed only if you're creating a new and fresh TG group
 6.  **Show Json Bot** will print a JSON which will contain ChatId
 
-![](/telegram_ive2xr6teu.png)
+![](/assets/legacy/telegram_ive2xr6teu.png)

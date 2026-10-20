@@ -32,7 +32,7 @@ Here are some of the most common use cases, from simpler to more advanced:
 
 - **Macros**  
   You can configure entire action sequences that EyeAuras will execute when a condition is met. For example: if a buff expires, you can set up a sequence like “Teleport to town, run to the NPC, get buffed, cast a return scroll back to the farming spot.”  
-  ![](https://wiki.eyeauras.net/eyeauras_7qwn3ee1ud.png =x100)
+  ![](/assets/legacy/eyeauras_7qwn3ee1ud.png =x100)
 
 - **Mini-game automation**  
   Many games include mini-games for fishing, gathering, and other activities. Here is a [live example](https://www.youtube.com/watch?v=DRZ_BCMg--M).

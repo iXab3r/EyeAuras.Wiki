@@ -73,4 +73,4 @@ Describe the problem, select the relevant attachments, then send the report to E
 
 Read [Problem reports and receiving archives](/features/problem-reports) for the file format, collected data, an example and instructions for accepting reports as a share author. Older archives without `applicationInfo.txt` remain usable.
 
-![](/1efpgwe[1].png)
+![](/assets/legacy/1efpgwe%5B1%5D.png)

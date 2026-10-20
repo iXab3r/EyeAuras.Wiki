@@ -10,7 +10,7 @@ dateCreated: 2023-06-18T15:45:55.532Z
 
 The Send Sequence action in EyeAuras is a powerful tool that allows users to design complex sequences of inputs and delays that can be replayed when required. It's the most advanced input tool in EyeAuras to date, providing unparalleled flexibility in simulating user interactions with applications.
 
-![](/eyeauras_7qwn3ee1ud.png)
+![](/assets/legacy/eyeauras_7qwn3ee1ud.png)
 
 ### Common options
 

@@ -13,7 +13,7 @@ dateCreated: 2023-06-18T16:59:12.604Z
 
 Это особенно полезно в сложных конфигурациях, где много Auras взаимодействуют между собой.
 
-![](/eyeauras_gksfvq7xla[1].png)
+![](/assets/legacy/eyeauras_gksfvq7xla%5B1%5D.png)
 
 ## Общие настройки
 

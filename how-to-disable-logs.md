@@ -27,7 +27,7 @@ By default, EyeAuras uses **DEBUG** log level. 
 3.  Click Save
 4.  That's it. You do not need to restart the app or do anything else - from now on, app will log only warnings and errors.
 
-![](/4w4qwwx[1].png)
+![](/assets/legacy/4w4qwwx%5B1%5D.png)
 
 #### How to change log level manually via log4net.config
 

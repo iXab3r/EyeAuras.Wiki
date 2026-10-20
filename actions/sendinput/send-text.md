@@ -14,7 +14,7 @@ dateCreated: 2023-06-18T15:31:49.359Z
 
 The Send Text action in EyeAuras allows users to input a predefined text as a series of individual inputs or paste it as a single action using the clipboard. This action is versatile and applicable in various scenarios where automated text input is required.
 
-![](/eyeauras_iejiqhr0ng.png)
+![](/assets/legacy/eyeauras_iejiqhr0ng.png)
 
 ### Common options
 

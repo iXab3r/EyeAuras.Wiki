@@ -7,7 +7,7 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2022-11-15T15:02:45.417Z
 ---
-![](/mainfull.png)
+![](/assets/legacy/mainfull.png)
 
 # EyeAuras
 

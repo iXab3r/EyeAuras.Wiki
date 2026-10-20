@@ -15,7 +15,7 @@ dateCreated: 2023-06-18T16:03:09.798Z
 
 Send Input поддерживает несколько типов действий.
 
-![](/eyeauras_vkyrrjgchm.png)
+![](/assets/legacy/eyeauras_vkyrrjgchm.png)
 
 ## Общие параметры
 

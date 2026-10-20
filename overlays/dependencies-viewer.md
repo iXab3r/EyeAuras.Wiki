@@ -12,7 +12,7 @@ dateCreated: 2023-06-18T16:59:12.604Z
 
 The Dependencies Viewer Overlay in EyeAuras provides a visual representation of the dependency structure of Auras. It allows users to get a quick overview of how different Auras are interconnected and depend on each other. This can be especially useful for complex configurations where many Auras interact in intricate ways.
 
-![](/eyeauras_gksfvq7xla[1].png)
+![](/assets/legacy/eyeauras_gksfvq7xla%5B1%5D.png)
 
 ### Common options
 

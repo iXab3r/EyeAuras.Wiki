@@ -17,7 +17,7 @@ You may encounter them in [Text Search](/triggers/images/text-search), [Network 
 
 The Text evaluator compares input directly against the specified text. It is case-sensitive by default, but you can enable case-insensitive matching if needed.
 
-![](/eyeauras_ruxbjypgds.png)
+![](/assets/legacy/eyeauras_ruxbjypgds.png)
 
 Examples:
 
@@ -41,7 +41,7 @@ Examples:
 
 The Regex evaluator lets you use [regular expressions](https://regex101.com/) for more advanced and flexible text matching.
 
-![](/eyeauras_jb1lvsh9pz.png)
+![](/assets/legacy/eyeauras_jb1lvsh9pz.png)
 
 Examples:
 
@@ -75,7 +75,7 @@ The Lambda evaluator is a powerful tool that lets you write **C# lambda expressi
 
 For example, you can create a lambda expression to check whether a string is empty, whether it contains specific characters, or whether it can be converted into a number within a certain range.
 
-![](/eyeauras_i9f6mfq9lz.png)
+![](/assets/legacy/eyeauras_i9f6mfq9lz.png)
 
 Examples:
 
