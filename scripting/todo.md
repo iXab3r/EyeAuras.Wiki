@@ -1,7 +1,7 @@
 ---
 title: What Articles Are Needed?
 description: Overview of various scripting articles required for a guide, including script descriptions, syntax, working with auras, accessing internal services, and APIs for input and on-screen canvas scripting.
-published: true
+published: false
 date: 2024-02-20T22:29:52.393Z
 tags: scripting, programming, guides, syntax, auras, APIs, services, multithreading
 editor: markdown

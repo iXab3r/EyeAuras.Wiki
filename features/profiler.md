@@ -1,7 +1,7 @@
 ---
 title: Performance and Memory Profiler
 description: Documentation for the performance and memory profiler.
-published: true
+published: false
 date: 2024-05-14T19:49:19.852Z
 tags: ai-translated
 editor: markdown

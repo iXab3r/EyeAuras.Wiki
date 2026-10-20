@@ -1,7 +1,7 @@
 ---
 title: Bindings
 description: interconnect properties between triggers, actions, and overlays to allow for easier change of group properties and to open up new capabilities
-published: true
+published: false
 date: 2023-06-18T19:03:51.651Z
 tags:
 editor: markdown

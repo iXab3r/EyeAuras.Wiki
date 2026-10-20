@@ -1,7 +1,7 @@
 ---
 title: Привязки
 description: Связывают свойства триггеров, действий и оверлеев, чтобы было проще менять параметры группы и открывать новые возможности
-published: true
+published: false
 date: 2023-06-18T19:03:51.651Z
 tags: ai-translated
 editor: markdown

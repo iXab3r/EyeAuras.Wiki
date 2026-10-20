@@ -1,7 +1,7 @@
 ---
 title: Августовский релиз
 description: 
-published: true
+published: false
 date: 2024-08-14T08:57:33.479Z
 tags: ai-translated
 editor: markdown
