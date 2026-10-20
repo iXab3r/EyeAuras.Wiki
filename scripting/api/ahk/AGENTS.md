@@ -1,3 +1,13 @@
+---
+title: AGENTS
+description: API discovery maps for AutoHotkey scripting.
+published: true
+date: 2026-10-20T00:00:00.000Z
+tags: scripting, api, ahk, discovery
+editor: markdown
+dateCreated: 2026-10-20T00:00:00.000Z
+---
+
 # AHK Migration Docs Authoring Notes
 
 These notes apply to files in `scripting/api/ahk/`.
