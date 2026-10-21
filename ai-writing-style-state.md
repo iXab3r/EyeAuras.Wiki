@@ -10,9 +10,10 @@ dateCreated: 2026-04-02T10:32:07.901Z
 
 # AI Writing Style State
 
-This is an internal style snapshot for AI-assisted writing and translation in `Submodules/EyeAuras.Wiki`.
+This is an internal style snapshot for AI-assisted writing and translation in EyeAuras.Wiki,
+opened either as a standalone checkout or a submodule. Paths are relative to this repository.
 
-It is based primarily on existing Russian documents that do **not** appear to be AI-generated, plus a few stable translated pages where the tone already fits the wiki well.
+It uses established Russian reference pages and stable translations whose tone fits the wiki. These are style references, not a claim of verified human authorship.
 
 ## Current source references
 
@@ -77,7 +78,9 @@ The preferred EyeAuras wiki style is:
 
 ## Translation guidance
 
-- If both languages exist, the newer version is the golden source.
+- Follow an explicitly selected source page/language. Otherwise compare substantive authored
+  changes and history; newer frontmatter or translation-sync dates alone do not establish
+  which counterpart is authoritative.
 - Update the older document surgically instead of replacing it wholesale.
 - Preserve screenshots, examples, and core structure unless they are clearly obsolete.
 - Prefer a natural Russian sentence over a mirrored English sentence.
