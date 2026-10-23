@@ -32,6 +32,11 @@ polymorphic metadata, migrations, and type replacements.
 
 - `IConfigProvider<TConfig>` - typed settings provider.
 - `IConfigSerializer` - serializer facade for config graphs.
+- `EyeAuras.UI.Scaffolding.ConfigSerializerExtensions` in `EyeAuras.UI.Metadata`
+  provides `EncryptResource<T>` and `DecryptResource<T>` for typed binary resources.
+  Decryption verifies integrity using the explicit producer password; `null` means
+  missing, while an empty string supports existing empty-key producer resources.
+  Empty-key compatibility establishes neither a licensed identity nor secret protection.
 - `PoeConfigMetadata` - metadata wrapper carrying type identity and payload.
 - `PoeConfigConverter` - converter infrastructure.
 - `PoeConfigMetadata<T>` - typed metadata wrapper.

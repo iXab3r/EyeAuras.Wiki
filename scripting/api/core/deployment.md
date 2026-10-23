@@ -79,6 +79,17 @@ These are remote service contracts, not ambient top-level script capabilities.
 
 ## Pack Settings
 
+Pack-addressed changelog wire fields and trusted server source configuration are
+mapped in [Pack update notes](pack-update-notes.md). Pack revision addresses stay
+separate from native engine version ranges; provider credentials are server-owned.
+
+Exact revision prepare/status routes, caller-owned jobs and verified final ZIP
+results are mapped in [Pack preparation](pack-preparation.md).
+
+Updater catalog and app-owned explicit selection are mapped in
+[Updater source selection](updater-source-selection.md), including their current
+implementation status.
+
 - `PackDistributionPolicy.Any` - import or packed download can both be offered.
 - `PackDistributionPolicy.PreferPacked` - packed content is preferred when it
   exists, while source-style import may still be available.
@@ -231,6 +242,24 @@ PoE2 profile publishing combines visible Game `Path Of Exile 2` and System
 these predicates together before paging. Classification does not replace profile
 payload validation. These are transport APIs, not global top-level script members.
 
+## Pack Preparation Progress
+
+`PoeShared.Squirrel.Updater.UpdateSettingsConfig.AwaitAuthorUpdateConfiguration`
+in `PoeShared.Squirrel.Metadata` declares the profile's author-configuration gate.
+It defaults to false and preserves config version 11. The declaration alone does
+not change startup or source selection.
+
+`EyeAuras.Web.Marketplace.Services.PackingServiceWebConfig.StorageUri` in
+`EyeAuras.Web.Marketplace` declares a server-owned object-storage root, defaulting
+to `https://s3.eyeauras.net`. It retains config version 1. Client metadata does
+not control that deployment setting; consuming it requires separate service wiring.
+
+`EyeAuras.Web.Shared.Services.PackPreparationProgress` in `EyeAuras.Web.Shared`
+is the producer's per-call stage snapshot. Its `Stage` describes the current
+work; nullable `Percent` distinguishes an unmeasured wait from measured zero.
+An artifact, rather than a percentage alone, establishes preparation completion.
+The DTO declaration does not itself add progress reporting or updater behavior.
+
 ## Prefer
 
 - Prefer local export for backups and one-off transfer.
@@ -289,6 +318,7 @@ payload validation. These are transport APIs, not global top-level script member
 
 ## Related Maps
 
+- [Application updater](application-updater.md)
 - `core/eyeauras-structure.md`
 - `core/app-runtime-contexts.md`
 - `core/login-and-licensing.md`

@@ -1,7 +1,7 @@
 ---
 title: AI Discovery Maps
 description: AI-first routing map for EyeAuras scripting APIs.
-published: true
+published: false
 date: 2026-04-22T00:00:00.000Z
 tags: scripting, api, ai, discovery
 editor: markdown
@@ -43,6 +43,8 @@ single large file.
 
 - `core/` - product structure, runtime contexts, modules, configuration, and
   deployment/distribution concepts.
+  [Application updater](core/application-updater.md) routes generic update contracts,
+  target ownership, source registration and the current runtime availability boundary.
 - `scripting/` - script runtime, script accessors, host context, helper class
   rules, and script DI.
 - `auras/` - aura entities, actions, triggers, overlays, and aura runtime
@@ -132,6 +134,12 @@ Use this shape when practical:
   metadata wrappers, migrations, and replacements.
 - `core/deployment.md` - export/import, packs, portable packs, mini-apps,
   EyePad launch, script protection, and sublicensing.
+- `core/pack-update-notes.md` - exact pack revision changelog wire fields and
+  trusted server WikiJs/Banka source configuration.
+- `core/pack-preparation.md` - explicit-revision prepare/status routes, shared
+  publication and caller-owned verified ZIP results.
+- `core/updater-source-selection.md` - updater catalog, app-owned explicit
+  selection persistence and legacy/default distinction.
 - `scripting/runtime.md` - script APIs, dependency/capability access,
   accessors, folders, variables, macros, keybinds, and helper class rules.
 - `scripting/async.md` - top-level `await`, background task safety,
