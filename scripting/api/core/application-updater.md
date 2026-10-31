@@ -155,6 +155,14 @@ notes and separate Download action. Disposing the registration leaves the rememb
 author URI NotConfigured, so cached native results do not become a fallback.
 Ordinary native routes retain their existing rich release presentation.
 
+Choosing an exact native release through Advanced or `PrepareForceUpdate` updates
+the same source's common target and notes as well as its native presentation. The
+last native Check retains the full release catalog and actual installed package
+version through this selection. On a cold start, choosing an earlier package still
+asks for downgrade confirmation; declining keeps that selection without downloading,
+and another explicit attempt asks again. The installed package baseline comes from
+the native Check, independently of the engine version shown by generic app metadata.
+
 Mini-apps resolve the stock `EyeAuras.Shared.Sharing.IShareApplicationUpdateHandler`
 through application DI. Startup discovers the owned pack from its installed local
 sync metadata and application name before publishing default channels. An ordinary
