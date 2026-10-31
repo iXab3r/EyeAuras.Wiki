@@ -32,6 +32,13 @@ target and display labels come from the current coherent snapshot. Disposing a
 binding clears its target while retaining selection; Check then returns
 NotConfigured rather than routing the author URI to native NUPKG.
 
+An operational Download failure retains that exact selected target and its labels
+in `Failed`, with the error visible and no prepared readiness or old progress.
+After the handler and owned callbacks drain, an explicit `DownloadAsync` retries
+the same publication without another Check. Cancellation and source or binding
+invalidation still clear the target; retry does not select a newer publication
+or apply an update automatically.
+
 Successful registered Download publishes `ReadyToApply` and
 `CanApplyPreparedUpdate`; this means the author handler completed its preparation.
 It does not establish a verified ZIP token, accepted local installation plan,
