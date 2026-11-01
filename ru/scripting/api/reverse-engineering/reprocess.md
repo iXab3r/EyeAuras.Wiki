@@ -11,6 +11,18 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 Справочная карта по `ReProcess`: сборка RE-рабочего пространства, вкладки, действия, инспекторы, хранилище знаний и process-oriented RE UI.
 
+## Показать рабочее пространство выбранного процесса
+
+Для интеграции нужны уже открытый `IProcess`, настроенный `AiEngine`, `IAiSpeechToTextSessionFactory` хоста и действующий ImGui-кадр. Это зависимости приложения, их наличие не следует из одной metadata-ссылки. В обычном C#-классе создайте `new ReProcess(process, aiEngine, speechToTextSessionFactory)` из namespace `EyeAuras.AI.Desktop.RE`, удерживайте его живым и вызывайте `ToImGui()` внутри окна в callback рендера. Перед созданием проверьте ожидаемый PID; `IsValid` не доказывает читаемость всех адресов.
+
+Этот публичный конструктор в EyeAuras `20fd3d4` собирает стандартные вкладки, scanner и AI. Наблюдаемый результат — вкладки выбранного процесса в вашем ImGui-окне. UI сам не выбирает backend и не открывает процесс. При остановке снимите renderer, освободите `ReProcess`, затем reader, если он принадлежит вам. `ReProcess.Dispose()` освобождает принадлежащие workspace рендереры вкладок и инспекторов, но не переданные `IProcess` и `AiEngine`. Это схема интеграции с существующим UI-хостом, не самостоятельный запуск RE-приложения.
+
+## Собрать другой набор вкладок
+
+`ReProcessBuilder.UseDefaults()` задаёт обычный набор, `UseMinimalDefaults()` оставляет минимальную композицию с вкладкой памяти. Затем добавляйте публичные providers через `AddTab`, `AddAction`, `AddAddressInspector`; generic-перегрузки создают их через предоставленный `IServiceProvider`. Передайте свой объект, реализующий `IReProcessBuilderContext`, в `Build(context)`. Он предоставляет процесс, AI engine, фабрику речи, реестры и `IReKnowledgeStore`. Конкретный `ReProcessBuilderContext` внутренний и недоступен обычному клиентскому коду.
+
+`Build` возвращает `IReProcess`, копирует реестры и создаёт отдельное хранилище знаний для workspace. Интерфейс `IReProcess` сам не объявляет `ToImGui` или `Dispose`: для рисования и освобождения учитывайте дополнительные интерфейсы фактического объекта (`ICanBeDisplayedInImGui`, `IDisposable`), не вызывайте методы внутренней реализации. `ReKnowledgeStore` также внутренний; публичный доступ идёт через `IReKnowledgeStore`. В исходниках это хранилище в памяти, сохранение между запусками не обещано. Потоки исполнения/доступ к UI согласует хост; декларации API не доказывают нативную или AI-совместимость установленной версии.
+
 ## Типовые задачи
 
 - Собрать RE UI вокруг `IProcess`.
@@ -31,8 +43,8 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 - `ReProcess` / `IReProcess` — объект RE workspace.
 - `ReProcessBuilder` — собирает workspace и плагины.
-- `ReTabRegistry`, `ReActionRegistry`, `ReAddressInspectorRegistry` — реестры расширений.
-- `ReKnowledgeStore` — постоянное хранилище RE-знаний.
+- `IReTabRegistry`, `IReActionRegistry`, `IReAddressInspectorRegistry` — публичные контракты реестров расширений.
+- `IReKnowledgeStore` — хранилище RE-знаний одного workspace в памяти.
 - `ReToolsPlugin` — добавляет RE-инструменты.
 - `ICanBeDisplayedInImGui` — контракт для размещения в ImGui.
 
@@ -50,7 +62,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 ## Ключевые сущности для поиска
 
 - `ReProcess`, `IReProcess`, `ReProcessBuilder`, `ReTabRegistry`,
-  `ReActionRegistry`, `ReAddressInspectorRegistry`, `ReKnowledgeStore`,
+  `ReActionRegistry`, `ReAddressInspectorRegistry`, `IReKnowledgeStore`,
   `ReToolsPlugin`, `ICanBeDisplayedInImGui`.
 
 ## Синонимы для поиска

@@ -13,8 +13,19 @@ dateCreated: 2025-05-11T14:35:20.794Z
 
 Для простоты решим это в лоб: интерфейс будет обновляться **раз в секунду**. Это не самый оптимальный вариант, но для очень простого UI его вполне достаточно.
 
+В одной папке создайте ауру с **C# Overlay v3** и ауру `TargetAura`. В каждую целевую ауру добавьте `HotkeyIsActive` и настройте горячую клавишу в режиме переключения. Оставьте целевые ауры загруженными. Путь `./TargetAura` в примере ищется относительно контекста оверлея; при другой структуре дерева замените их. Если подходящих триггеров несколько, выбирается первый.
+
+Замените содержимое `UserOverlay.cs` и `UserOverlay.razor` в этом оверлее кодом ниже. Это две части одного `public partial` класса в одном пространстве имён. `AuraTree` получает компонент через `[Inject]`; глобальные переменные из `Script.csx` в него автоматически не передаются.
+
 ## UserOverlay.cs
 ```csharp
+using System;
+using System.Reactive.Linq;
+using Microsoft.AspNetCore.Components;
+using PoeShared.Blazor;
+using EyeAuras.Scripting.Api;
+using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
+
 public partial class UserOverlay : BlazorReactiveComponent {
 
     [Inject]
@@ -41,6 +52,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ## UserOverlay.razor
 ```html
+@using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
@@ -66,7 +78,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ---
 
-# Как это работает
+## Как это работает
 
 ## UserOverlay.cs
 ```csharp
@@ -80,3 +92,4 @@ public partial class UserOverlay : BlazorReactiveComponent {
 В EyeAuras есть механизм, который управляет рендерингом интерфейса. Один из самых простых способов использовать его — добавить событие в `ChangeTrackers` внутри `OnInitialized`. Здесь это обычный таймер: каждый его тик принудительно вызывает перерисовку интерфейса. Он не проверяет, изменилось ли что-то на самом деле, а просто говорит: «перерисуй UI».
 
 Позже мы рассмотрим более оптимальный вариант через `ReactiveSection` и более точное отслеживание изменений. Но во многих случаях этого подхода вполне достаточно — `Blazor` работает быстро, и «пустая» перерисовка простого интерфейса не является проблемой.
+Нажатие кнопки записывает `TriggerValue`; горячая клавиша меняет тот же триггер. Таймер в `ChangeTrackers` заставляет компонент перечитывать состояние примерно раз в секунду, поэтому внешнее изменение видно с задержкой. Добавляйте таймер до `base.OnInitialized()`: там список отслеживания запечатывается и подписки привязываются к `Anchors` компонента. Скрытие окна само по себе не равно уничтожению компонента.

@@ -11,7 +11,7 @@ dateCreated: 2026-04-02T12:00:00.000Z
 
 Скрипты EyeAuras — это обычный C#-код, который выполняется внутри runtime-среды EyeAuras. Они одинаково хорошо подходят и для маленьких утилит на 20 строк, и для более крупных решений, которые потом могут вырасти в [`pack`](/ru/features/packs) или [`mini-app`](/ru/features/mini-app).
 
-> Если вам нужно исследовать API с помощью AI, начните с [AI Discovery Maps](/scripting/api/AGENTS). Они разводят широкие вопросы по более узким картам и отделяют базовые концепции SDK от дополнительных пакетов, таких как ImGui SDK и Frida SDK.
+> Если вам нужно исследовать API с помощью AI, начните с [AI Discovery Maps](/ru/scripting/api/AGENTS). Они разводят широкие вопросы по более узким картам и отделяют базовые концепции SDK от дополнительных пакетов, таких как ImGui SDK и Frida SDK.
 {.is-info}
 
 ## Главное отличие — Script.csx и обычные классы
@@ -27,6 +27,9 @@ dateCreated: 2026-04-02T12:00:00.000Z
 Например, прямо внутри `Script.csx` можно писать так:
 
 ```csharp
+using System.Windows.Input;
+using EyeAuras.Roxy.Api;
+
 Log.Info("Script started");
 Sleep(100);
 
@@ -38,7 +41,11 @@ input.KeyPress(Key.F);
 
 Если вы пишете отдельный класс, он не может сам по себе вызывать `Log` или `AuraTree`:
 
+В `Helper.cs` проекта скрипта:
+
 ```csharp
+using PoeShared.Logging;
+
 public sealed class Helper
 {
     private readonly IFluentLog log;
@@ -54,6 +61,8 @@ public sealed class Helper
     }
 }
 ```
+
+В `Script.csx` вызовите `new Helper(Log).DoWork();` — появится запись в журнале скрипта.
 
 Правило простое:
 
@@ -97,8 +106,8 @@ public sealed class Helper
 
 Примеры:
 
-- [Hello World](/scripting/examples/basic/hello-world)
-- [Запуск процесса](/scripting/examples/basic/process-start)
+- [Hello World](/ru/scripting/examples/basic/hello-world)
+- [Запуск процесса](/ru/scripting/examples/basic/process-start)
 
 ### Что EyeAuras уже дает из коробки
 
@@ -128,31 +137,24 @@ public sealed class Helper
 - `~F1::` похож на `[Keybind("F1", SuppressKey = false)]`
 - `d up::` похож на `[Keybind("D", ActivationType = KeybindActivationType.KeyUp)]`
 
-Минимальные примеры:
+Для `Script.csx` подключите `using EyeAuras.Scripting.Api;`.
+Ниже — объявления обработчиков, а не самостоятельный долгоживущий скрипт.
+Они должны быть частью запущенного скрипта со своей реальной работой и
+временем жизни: [полная настройка Keybind](/ru/scripting/keybinds).
 
 ```csharp
 [Keybind("F1")]
-public void OnF1()
-{
-    Log.Info("F1 pressed");
-}
-```
+public void OnF1() => Log.Info("F1 pressed");
 
-```csharp
 [Keybind("F1", IgnoreModifiers = true)]
-public void OnF1WithAnyModifiers()
-{
-    Log.Info("Works for F1, Shift+F1, Ctrl+F1");
-}
+public void OnF1WithAnyModifiers() => Log.Info("F1 с любыми модификаторами");
+
+[Keybind("D", ActivationType = KeybindActivationType.KeyUp)]
+public void OnDReleased() => Log.Info("D released");
 ```
 
-```csharp
-[Keybind("D", ActivationType = KeybindActivationType.KeyUp)]
-public void OnDReleased()
-{
-    Log.Info("D released");
-}
-```
+Выберите нужный вариант F1, а не оба сразу. Атрибут на методе обычного
+класса сам по себе не даёт ему члены песочницы.
 
 Чем это удобно на практике:
 
@@ -166,7 +168,7 @@ public void OnDReleased()
 - keybind работает только пока сам скрипт запущен
 - по умолчанию обработчики keybind могут выполняться параллельно, если быстро нажать клавишу несколько раз
 
-Если нужно не запускать второй обработчик, пока не закончился первый, можно сделать так:
+В том же запущенном скрипте, если нужно не запускать второй обработчик, пока не закончился первый, можно использовать такое поле и метод:
 
 ```csharp
 System.Threading.SemaphoreSlim hotkeyGate = new(1, 1);
@@ -200,8 +202,8 @@ public void RunSingleHotkey()
 
 Примеры:
 
-- [YOLO11 ESP](/scripting/examples/advanced/yolo11-esp)
-- [Как сделать toggle через HotkeyIsActive](/scripting/blazor-windows/4-toggle-hotkeyisactive)
+- [YOLO11 ESP](/ru/scripting/examples/advanced/yolo11-esp)
+- [Как сделать toggle через HotkeyIsActive](/ru/scripting/blazor-windows/4-toggle-hotkeyisactive)
 
 ### Какой UI выбрать — Blazor Windows или ImGui
 
@@ -246,7 +248,7 @@ public void RunSingleHotkey()
 - в Blazor `Script.csx` обычно выступает как точка входа, а реальный UI живет в Razor-компонентах
 - в ImGui UI часто рисуется прямо из метода `AddRenderer(...)`
 
-Минимальный пример lifecycle для Blazor:
+Следующий фрагмент относится к code-behind компонента на базе `BlazorReactiveComponent`. Это дополнение к [настройке окна](/ru/scripting/blazor-windows/getting-started), а не самостоятельный `.cs`-класс. Добавьте `Styles.css` и `Script.js` в ресурсы проекта. Для атрибута нужен `Microsoft.AspNetCore.Components`:
 
 ```csharp
 [Inject] public PoeShared.Blazor.Services.IJsPoeBlazorUtils PoeBlazorUtils { get; init; }
@@ -260,6 +262,8 @@ protected override async Task OnInitializedAsync()
 protected override async Task OnAfterFirstRenderAsync()
 {
     await base.OnAfterFirstRenderAsync();
+    // Script.js должен экспортировать только поведение этого компонента.
+    // Для нового кода предпочтителен импорт ES-модуля с явной очисткой.
     await PoeBlazorUtils.LoadScript("Script.js");
 }
 ```
@@ -268,11 +272,11 @@ protected override async Task OnAfterFirstRenderAsync()
 
 Примеры:
 
-- [Введение в Blazor](/scripting/blazor-windows/1-intro)
-- [Базовые элементы Blazor](/scripting/blazor-windows/3-hello-world)
-- [Blazor toggle](/scripting/blazor-windows/4-toggle-hotkeyisactive)
-- [Начало работы с ImGui](/scripting/imgui/getting-started)
-- [Aim Trainer ML](/scripting/examples/advanced/aimtrainer-ml)
+- [Введение в Blazor](/ru/scripting/blazor-windows/1-intro)
+- [Базовые элементы Blazor](/ru/scripting/blazor-windows/3-hello-world)
+- [Blazor toggle](/ru/scripting/blazor-windows/4-toggle-hotkeyisactive)
+- [Начало работы с ImGui](/ru/scripting/imgui/getting-started)
+- [Aim Trainer ML](/ru/scripting/examples/advanced/aimtrainer-ml)
 
 ### Особенности синтаксиса Script.csx
 
@@ -298,15 +302,19 @@ using OpenQA.Selenium;
 Самый простой вариант:
 
 ```csharp
+using System.IO;
+
 {
-    using var canvas = GetService<IOnScreenCanvasScriptingApi>().Create();
-    Log.Info("Canvas created");
+    using var stream = new MemoryStream(new byte[] { 1, 2, 3 });
+    Log.Info($"Размер потока: {stream.Length}");
 }
 ```
 
-Или так:
+Перед вторым вариантом добавьте `docs/help.md` в ресурсы скрипта и импортируйте `EyeAuras.Repl`:
 
 ```csharp
+using EyeAuras.Repl;
+
 {
     using (var stream = GetService<IScriptFileProvider>().GetFileInfo("docs/help.md").CreateReadStream())
     {
@@ -332,8 +340,8 @@ using OpenQA.Selenium;
 
 Примеры:
 
-- [Рендер курсора в OSD](/scripting/examples/basic/osd-cursor)
-- [Профилирование CV](/scripting/examples/advanced/profiling-cv)
+- [Рендер курсора в OSD](/ru/scripting/examples/basic/osd-cursor)
+- [Профилирование CV](/ru/scripting/examples/advanced/profiling-cv)
 
 #### async/await можно использовать свободно
 
@@ -342,13 +350,18 @@ using OpenQA.Selenium;
 Например:
 
 ```csharp
-var text = await File.ReadAllTextAsync("input.txt");
+var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "eyeauras-example.txt");
+await System.IO.File.WriteAllTextAsync(path, "Пример", cancellationToken);
+var text = await System.IO.File.ReadAllTextAsync(path, cancellationToken);
+System.IO.File.Delete(path);
 Log.Info(text);
 ```
 
 Или так:
 
 ```csharp
+using System.Threading.Tasks;
+
 async Task<int> LoadValue()
 {
     await Task.Delay(100);
@@ -411,19 +424,20 @@ Log.Info(value);
 - `[Dependency]` + `set` — удобно, когда зависимость должна быть свойством, которое при необходимости можно заменить
 - `GetService<T>()` — когда сервис нужен прямо здесь и прямо сейчас
 
-Минимальные примеры:
+Пример получения сервиса и выполнения операции в `Script.csx`:
 
 ```csharp
-[Inject] public IAuraTreeScriptingApi AuraTree { get; init; }
-```
+using EyeAuras.Roxy.Api;
 
-```csharp
-[Dependency] public ISendInputScriptingApi SendInput { get; set; }
-```
-
-```csharp
 var input = GetService<ISendInputScriptingApi>();
+Log.Info($"Курсор: {input.CursorPosition}");
 ```
+
+Результат — экранная позиция курсора в журнале. Сервис должен быть
+зарегистрирован host. Свойства `[Inject]`/`[Dependency]` заполняются один раз
+при setup объекта скрипта, а не перед каждым Run того же контекста.
+`GetService` не возвращает гарантию наличия любого интерфейса из SDK и
+не обещает автоматическое освобождение любого полученного объекта.
 
 Если вы только начинаете, `GetService<T>()` обычно самый понятный вариант. В больших кодовых базах свойства с `[Inject]` или `[Dependency]` часто делают скрипт чище.
 
@@ -431,8 +445,8 @@ var input = GetService<ISendInputScriptingApi>();
 
 Примеры:
 
-- [Трекинг мыши с overlay](/scripting/examples/basic/mouse-track-with-overlay)
-- [Вывод переменных на экран](/scripting/examples/basic/print-variables-on-screen)
+- [Трекинг мыши с overlay](/ru/scripting/examples/basic/mouse-track-with-overlay)
+- [Вывод переменных на экран](/ru/scripting/examples/basic/print-variables-on-screen)
 
 ### Что такое cancellationToken и откуда он берется
 
@@ -450,60 +464,32 @@ var input = GetService<ISendInputScriptingApi>();
 
 ### Как правильно держать долгоживущий скрипт запущенным
 
-Здесь есть два основных сценария.
+Ожидайте реальную работу: Task сервера, координатора или другой операции.
+Для окна и подписок выберите время жизни, предусмотренное их API. Не
+добавляйте пустой `WaitOne()` к каждому примеру: он маскирует отсутствующую
+операцию и блокирует поток.
 
-#### 1. Скрипту нужно просто жить, пока его не остановят
-
-Если вы уже создали overlay, окно, renderer, subscription или другой фоновый объект, и после этого скрипту не нужен активный polling, обычно достаточно вот этого:
-
-```csharp
-cancellationToken.WaitHandle.WaitOne();
-```
-
-Это хорошо подходит для:
-
-- ImGui render loops
-- Blazor / overlay окон
-- subscription-ов, которые уже работают сами по себе
-- сервисов, которым нужно просто жить до остановки скрипта
-
-Главный плюс в том, что вы не крутите пустой цикл и не тратите CPU без причины.
-
-#### 2. Скрипт должен активно что-то делать в цикле
-
-Если у вас есть активный цикл, используйте явную проверку отмены:
+Если нужна периодическая проверка состояния, её можно сделать явно.
+Например, следующий полный `Script.csx` читает текущую позицию курсора раз
+в секунду до остановки:
 
 ```csharp
-while (!cancellationToken.IsCancellationRequested)
+using System.Threading.Tasks;
+using EyeAuras.Roxy.Api;
+
+var input = GetService<ISendInputScriptingApi>();
+var runToken = cancellationToken;
+while (!runToken.IsCancellationRequested)
 {
-    DoSomething();
-    Sleep(50);
+    Log.Info($"Курсор: {input.CursorPosition}");
+    await Task.Delay(1000, runToken);
 }
 ```
 
-Это хорошо подходит для:
-
-- периодических проверок состояния
-- polling API триггеров и их результатов
-- обновления координат, HUD и вспомогательной логики
-
-Важные моменты:
-
-- не делайте busy loop без `Sleep(...)`, если только у вас нет очень веской причины
-- если цикл внутри чего-то ждет, постарайтесь сделать это ожидание aware к отмене
-- `Sleep(...)` в EyeAuras уже умеет завершаться раньше при остановке скрипта
-
-Коротко:
-
-- используйте `WaitOne()` для сценария “все уже работает, просто живи до остановки”
-- используйте `while (!cancellationToken.IsCancellationRequested)` для сценария “пока жив — продолжай работать”
-
-Примеры:
-
-- [Начало работы с ImGui](/scripting/imgui/getting-started)
-- [Трекинг мыши с overlay](/scripting/examples/basic/mouse-track-with-overlay)
-- [UOPilot eat3](/scripting/examples/porting/UOPilot-eat3)
-- [YOLO11 ESP](/scripting/examples/advanced/yolo11-esp)
+Результат — периодические записи без перемещения мыши. При отмене ожидаемая
+задержка прерывается. Runner передаёт токен текущего Run и сбрасывает его
+после завершения; для фоновой работы захватывайте токен заранее и ожидайте
+её Task. Токен Run не обозначает весь срок жизни sandbox.
 
 ### Почему в скриптах Sleep(...) лучше, чем Thread.Sleep(...)
 
@@ -525,7 +511,7 @@ while (!cancellationToken.IsCancellationRequested)
 
 - в `Script.csx` пишите `Sleep(...)`
 - не используйте `Thread.Sleep(...)`
-- `Task.Delay(...)` используйте только если вам действительно нужна async-модель и вы понимаете зачем
+- для асинхронного ожидания используйте `await Task.Delay(..., runToken)` с токеном текущего Run
 
 ### Какие rewriter-ы EyeAuras применяет к Script.csx
 
@@ -560,20 +546,13 @@ EyeAuras применяет code rewriter-ы к `Script.csx`. Это еще од
 - если ресурс должен умереть вместе с текущим запуском, добавляйте его в `ExecutionAnchors`
 - если ресурс должен жить дольше — пока не выгрузится сам скрипт или helper, используйте `Anchors`
 
-Пример:
-
-```csharp
-var overlay = GetService<IImGuiExperimentalApi>()
-    .AddTo(ExecutionAnchors);
-```
-
-Это значит, что overlay живет только в рамках текущего запуска скрипта.
+Пример с настоящей подпиской и определённым владельцем есть в [карте времени жизни](/ru/scripting/api/scripting/reactive-lifetime). `ExecutionAnchors` очищаются также при обычном возврате тела скрипта. Не добавляйте в них чужой общий сервис, чтобы не освободить его раньше владельца.
 
 Примеры:
 
-- [Вывод переменных на экран](/scripting/examples/basic/print-variables-on-screen)
-- [Трекинг мыши с overlay](/scripting/examples/basic/mouse-track-with-overlay)
-- [Aim Trainer ML](/scripting/examples/advanced/aimtrainer-ml)
+- [Вывод переменных на экран](/ru/scripting/examples/basic/print-variables-on-screen)
+- [Трекинг мыши с overlay](/ru/scripting/examples/basic/mouse-track-with-overlay)
+- [Aim Trainer ML](/ru/scripting/examples/advanced/aimtrainer-ml)
 
 ### Что такое IScriptingApiContext
 
@@ -607,8 +586,8 @@ var overlay = GetService<IImGuiExperimentalApi>()
 
 Примеры:
 
-- [UOPilot eat3](/scripting/examples/porting/UOPilot-eat3)
-- [YOLO11 ESP](/scripting/examples/advanced/yolo11-esp)
+- [UOPilot eat3](/ru/scripting/examples/porting/UOPilot-eat3)
+- [YOLO11 ESP](/ru/scripting/examples/advanced/yolo11-esp)
 
 ### Какие бывают переменные
 
@@ -631,12 +610,12 @@ attempts.Value++;
 - код проще читать и писать
 - легко делиться состоянием между скриптами
 
-Подробнее: [Переменные](/ru/scripting/variables), [IVariablesScriptingApi](/scripting/api/IVariablesScriptingApi)
+Подробнее: [Переменные](/ru/scripting/variables), [IVariablesScriptingApi](/ru/scripting/api/IVariablesScriptingApi)
 
 Примеры:
 
-- [Работа с переменными](/scripting/examples/basic/variables)
-- [Вывод переменных на экран](/scripting/examples/basic/print-variables-on-screen)
+- [Работа с переменными](/ru/scripting/examples/basic/variables)
+- [Вывод переменных на экран](/ru/scripting/examples/basic/print-variables-on-screen)
 
 ### Ауры и доступ к ним из скриптов
 
@@ -658,24 +637,26 @@ attempts.Value++;
 
 Важно: у аур тоже есть свои переменные. То есть данные можно хранить не только на уровне текущего скрипта, но и на уровне ауры или папки.
 
+Для следующего примера создайте ауру по пути `.\Gameplay\Boss` относительно текущего контекста; без неё `GetAuraByPath` завершится ошибкой:
+
 ```csharp
 var aura = AuraTree.GetAuraByPath(@".\Gameplay\Boss");
 var phase = Variables.Get<string>(aura, "phase");
 ```
 
-Подробнее: [IAuraTreeScriptingApi](/scripting/api/IAuraTreeScriptingApi), [IAuraAccessor](/scripting/api/IAuraAccessor), [Как найти ауру](/scripting/examples/basic/find-aura)
+Подробнее: [IAuraTreeScriptingApi](/ru/scripting/api/IAuraTreeScriptingApi), [IAuraAccessor](/ru/scripting/api/IAuraAccessor), [Как найти ауру](/ru/scripting/examples/basic/find-aura)
 
 Примеры:
 
-- [Как найти ауру](/scripting/examples/basic/find-aura)
-- [Поиск текста](/scripting/examples/basic/text-search)
-- [Как найти изображение](/scripting/examples/basic/image-search)
+- [Как найти ауру](/ru/scripting/examples/basic/find-aura)
+- [Поиск текста](/ru/scripting/examples/basic/text-search)
+- [Как найти изображение](/ru/scripting/examples/basic/image-search)
 
 ### Что такое AddNewExtension<T>() и когда он нужен
 
 Некоторые возможности EyeAuras упакованы как отдельные container extensions. Именно так в DI-контейнер подключается новый набор сервисов.
 
-Например, некоторые библиотеки ожидают явной активации прямо из `Script.csx`:
+Ниже только этап регистрации, а не полный пример работы SDK. Сначала нужны пакет нужной версии и namespace расширения из [настройки ImGui](/ru/scripting/imgui/getting-started) или [карты Frida](/ru/scripting/api/nuget/frida-sdk). Затем в `Script.csx`:
 
 ```csharp
 AddNewExtension<ImGuiContainerExtensions>();
@@ -693,8 +674,8 @@ var frida = GetService<IFridaExperimentalApi>();
 
 Примеры:
 
-- [Aim Trainer ML](/scripting/examples/advanced/aimtrainer-ml)
-- [YOLO11 ESP](/scripting/examples/advanced/yolo11-esp)
+- [Aim Trainer ML](/ru/scripting/examples/advanced/aimtrainer-ml)
+- [YOLO11 ESP](/ru/scripting/examples/advanced/yolo11-esp)
 
 ### Когда использовать NuGet-пакеты
 
@@ -740,7 +721,7 @@ Log.Info(JsonConvert.SerializeObject(new { Hello = "World" }));
 1. добавить DLL в файлы скрипта как embedded resource
 2. сослаться на нее через `#r "assemblyPath: MyLib.dll"`
 
-Минимальный пример:
+Иллюстрация интеграции: здесь нужны ваша `MyLib.dll`, namespace `MyLib` и реально объявленный в ней `SomeLibraryHelper`. Это не готовый вызов произвольной DLL:
 
 ```csharp
 #r "assemblyPath: MyLib.dll"
@@ -851,7 +832,7 @@ Mini-app подходит, если вы хотите:
 
 Хорошие базовые шаблоны:
 
-- `cancellationToken.WaitHandle.WaitOne();`
+- ожидание Task реальной операции с токеном текущего Run
 - `while (!cancellationToken.IsCancellationRequested) { ... }`
 
 ### Используйте возможности песочницы в Script.csx, а в связанных классах пишите обычный C#
@@ -886,7 +867,7 @@ Mini-app подходит, если вы хотите:
 
 ### Предпочитайте стабильный API ввода
 
-В старых примерах и документации вам еще может встретиться `ISendInputUnstableScriptingApi`, но для нового кода лучше использовать [ISendInputScriptingApi](/scripting/api/ISendInputScriptingApi).
+В старых примерах и документации вам еще может встретиться `ISendInputUnstableScriptingApi`, но для нового кода лучше использовать [ISendInputScriptingApi](/ru/scripting/api/ISendInputScriptingApi).
 
 Старый API полезно знать в основном потому, что он все еще может попадаться в legacy-скриптах.
 
@@ -894,9 +875,9 @@ Mini-app подходит, если вы хотите:
 
 Примеры с новым API:
 
-- [Aim Tracker ML EA](/scripting/examples/advanced/aimtracker-ml-ea)
-- [Aim Trainer ML](/scripting/examples/advanced/aimtrainer-ml)
-- [Profiling CV](/scripting/examples/advanced/profiling-cv)
+- [Aim Tracker ML EA](/ru/scripting/examples/advanced/aimtracker-ml-ea)
+- [Aim Trainer ML](/ru/scripting/examples/advanced/aimtrainer-ml)
+- [Profiling CV](/ru/scripting/examples/advanced/profiling-cv)
 
 ### Для переменных предпочитайте Variables.Get<T>()
 
@@ -918,15 +899,15 @@ Mini-app подходит, если вы хотите:
 
 Примеры:
 
-- [Вывод переменных на экран](/scripting/examples/basic/print-variables-on-screen)
-- [Трекинг мыши с overlay](/scripting/examples/basic/mouse-track-with-overlay)
-- [YOLO11 ESP](/scripting/examples/advanced/yolo11-esp)
+- [Вывод переменных на экран](/ru/scripting/examples/basic/print-variables-on-screen)
+- [Трекинг мыши с overlay](/ru/scripting/examples/basic/mouse-track-with-overlay)
+- [YOLO11 ESP](/ru/scripting/examples/advanced/yolo11-esp)
 
 ### Не забывайте про AddNewExtension<T>() для библиотек, которым нужна отдельная регистрация
 
 Если пакет явно говорит вызвать `AddNewExtension<T>()`, это не просто `using`. Это реальная регистрация нового набора сервисов в контейнере.
 
-Типичный пример:
+После подключения пакета и namespace из [настройки ImGui](/ru/scripting/imgui/getting-started), этап регистрации выглядит так:
 
 ```csharp
 AddNewExtension<ImGuiContainerExtensions>();
@@ -937,8 +918,8 @@ var imgui = GetService<IImGuiExperimentalApi>();
 
 Примеры:
 
-- [Aim Trainer ML](/scripting/examples/advanced/aimtrainer-ml)
-- [YOLO11 ESP](/scripting/examples/advanced/yolo11-esp)
+- [Aim Trainer ML](/ru/scripting/examples/advanced/aimtrainer-ml)
+- [YOLO11 ESP](/ru/scripting/examples/advanced/yolo11-esp)
 
 ### Когда скрипт вырастает, переходите в .sln
 
@@ -953,11 +934,11 @@ var imgui = GetService<IImGuiExperimentalApi>();
 
 Именно для этого и нужны [Export / Import / Live Import](/ru/scripting/ide-integration).
 
-Для script-проектов, которые уже больше похожи на приложение — с bot loop, собственным script runtime, корневым ImGui UI, Blazor tool windows, профилями и буферизованным сохранением конфига — используйте рецепт [ImGui memory bot recipe](/scripting/api/recipes/imgui-memory-bot-custom-scripting).
+Для script-проектов, которые уже больше похожи на приложение — с bot loop, собственным script runtime, корневым ImGui UI, Blazor tool windows, профилями и буферизованным сохранением конфига — используйте рецепт [ImGui memory bot recipe](/ru/scripting/api/recipes/bot-memory-imgui-interface).
 
 И еще одна практическая деталь: `Export` очищает целевую папку перед экспортом проекта, поэтому не экспортируйте в директорию, где лежат важные файлы.
 
-Если вы регулярно пишете или поддерживаете большие скрипты, очень рекомендуется работать в связке вроде `IDE + AI + EyeAuras MCP`. Мой текущий выбор — `Rider + AI Assistant/Codex + EyeAuras MCP`, но `Visual Studio` и `VS Code` тоже вполне подходят.
+Если вы регулярно пишете или поддерживаете большие скрипты, очень рекомендуется работать в связке вроде `IDE + AI + EyeAuras MCP`. Подойдут Rider, Visual Studio или VS Code; возможности интеграции зависят от установленного окружения.
 
 Подробнее: [Интеграция IDE, AI и MCP](/ru/scripting/ide-integration)
 
@@ -965,7 +946,7 @@ var imgui = GetService<IImGuiExperimentalApi>();
 
 ### Как найти изображение на экране
 
-Для большинства задач самый простой и надежный вариант — использовать настроенный trigger `Image Search` и читать его результат из скрипта.
+Для большинства задач удобно использовать настроенный trigger `Image Search` и читать его результат из скрипта. Для примера создайте и настройте область захвата и изображение в триггере по пути `.\ImageSearch`; импортируйте `EyeAuras.OpenCVAuras.Triggers.ImageSearch` и `PoeShared.Scaffolding`. Полная подготовка — в [примере поиска](/ru/scripting/examples/basic/image-search).
 
 ```csharp
 var trigger = AuraTree.GetTriggerByPath<IImageSearchTrigger>(@".\ImageSearch");
@@ -981,18 +962,20 @@ var screenRect = result.ToScreen(result.Detected.Bounds.Value);
 Log.Info($"Image found @ {screenRect}");
 ```
 
-Подробнее: [Как найти изображение](/scripting/examples/basic/image-search)
+Подробнее: [Как найти изображение](/ru/scripting/examples/basic/image-search)
 
 См. также:
 
-- [Поиск по цвету](/scripting/examples/basic/color-search)
-- [Поиск текста](/scripting/examples/basic/text-search)
+- [Поиск по цвету](/ru/scripting/examples/basic/color-search)
+- [Поиск текста](/ru/scripting/examples/basic/text-search)
 
 ### Как нажать кнопку или отправить клавишу
 
-Для этого обычно нужен `ISendInputScriptingApi`:
+Выполните в `Script.csx` с зарегистрированным API ввода. Клавиша отправляется выбранным симулятором в текущую цель; сначала выберите окно, которое должно получить ввод:
 
 ```csharp
+using System.Windows.Input;
+using EyeAuras.Roxy.Api;
 var input = GetService<ISendInputScriptingApi>();
 input.KeyPress(Key.F);
 input.MouseLeftClick();
@@ -1005,13 +988,13 @@ input.MouseLeftClick();
 - `MouseMoveTo(...)`
 - `MouseLeftClick()` / `MouseRightClick()`
 
-Подробнее: [ISendInputScriptingApi](/scripting/api/ISendInputScriptingApi)
+Подробнее: [ISendInputScriptingApi](/ru/scripting/api/ISendInputScriptingApi)
 
 Примеры:
 
-- [Нажать случайную клавишу](/scripting/examples/basic/press-random-key)
-- [Отправка текста](/scripting/examples/basic/send-text)
-- [Переместить мышь в центр](/scripting/examples/basic/send-mouse-center)
+- [Нажать случайную клавишу](/ru/scripting/examples/basic/press-random-key)
+- [Отправка текста](/ru/scripting/examples/basic/send-text)
+- [Переместить мышь в центр](/ru/scripting/examples/basic/send-mouse-center)
 
 ### Как кликнуть по найденному изображению или слову
 
@@ -1022,7 +1005,13 @@ input.MouseLeftClick();
 3. взять центр
 4. переместить мышь и кликнуть
 
+Подготовьте `.\ImageSearch` как в операции поиска выше. Этот код перемещает мышь и кликает в экранном центре совпадения; перед запуском проверьте цель ввода.
+
 ```csharp
+using EyeAuras.Roxy.Api;
+using EyeAuras.OpenCVAuras.Triggers.ImageSearch;
+using PoeShared.Scaffolding;
+
 var input = GetService<ISendInputScriptingApi>();
 var trigger = AuraTree.GetTriggerByPath<IImageSearchTrigger>(@".\ImageSearch");
 var result = trigger.Refresh();
@@ -1039,12 +1028,12 @@ input.MouseLeftClick();
 
 Для текста логика такая же, просто источником данных будет `Text Search`.
 
-Подробнее: [Как кликнуть по распознанному тексту](/scripting/examples/basic/click-on-text)
+Подробнее: [Как кликнуть по распознанному тексту](/ru/scripting/examples/basic/click-on-text)
 
 См. также:
 
-- [Поиск текста](/scripting/examples/basic/text-search)
-- [Как найти изображение](/scripting/examples/basic/image-search)
+- [Поиск текста](/ru/scripting/examples/basic/text-search)
+- [Как найти изображение](/ru/scripting/examples/basic/image-search)
 
 ### Как работать с координатами
 
@@ -1068,13 +1057,13 @@ input.MouseLeftClick();
 - `ToScreenPoint(rect)`
 - `Center()`
 
-Подробнее: [WindowImageProcessedEventArgs](/scripting/api/WindowImageProcessedEventArgs)
+Подробнее: [WindowImageProcessedEventArgs](/ru/scripting/api/WindowImageProcessedEventArgs)
 
 Примеры:
 
-- [Как найти изображение](/scripting/examples/basic/image-search)
-- [Как кликнуть по распознанному тексту](/scripting/examples/basic/click-on-text)
-- [Поиск по цвету](/scripting/examples/basic/color-search)
+- [Как найти изображение](/ru/scripting/examples/basic/image-search)
+- [Как кликнуть по распознанному тексту](/ru/scripting/examples/basic/click-on-text)
+- [Поиск по цвету](/ru/scripting/examples/basic/color-search)
 
 ### Как проще работать с embedded resources
 
@@ -1087,21 +1076,23 @@ Embedded resources удобны, когда нужно поставлять фа
 
 Два самых простых сценария:
 
-Показать изображение в Blazor:
+Добавьте `Images/logo.png` в ресурсы проекта; в Razor-компоненте [настроенного окна](/ru/scripting/blazor-windows/getting-started) покажите изображение:
 
 ```html
 <img src="Images/logo.png" />
 ```
 
-Прочитать текстовый файл из скрипта:
+Добавьте `docs/help.md` с вашим текстом через `Show Files`. Прочитать и вывести его из `Script.csx` можно так:
 
 ```csharp
+using EyeAuras.Repl;
+using PoeShared.Scaffolding;
 var files = GetService<IScriptFileProvider>();
 var helpText = files.ReadAllText("docs/help.md");
 Log.Info(helpText);
 ```
 
-Небольшая практическая деталь, которая часто экономит время: лучше писать `Images/logo.png` или `docs/help.md`, а не просто `logo.png` или `help.md`. Короткие имена удобны, но если окончания путей совпадут, легко случайно взять не тот файл.
+Небольшая практическая деталь, которая часто экономит время: лучше писать `Images/logo.png` или `docs/help.md`, а не просто `logo.png` или `help.md`. Короткие имена удобны, но если окончания путей совпадут, неоднозначный запрос вернёт `NotFound`. Произвольное имя без подпапки не гарантирует поиска по любому окончанию.
 
 Если библиотека уже есть в NuGet, почти всегда лучше подключать ее через `#r "nuget: ..."`. Embedded resources особенно хороши для ваших собственных файлов и переносимых DLL.
 
@@ -1109,13 +1100,13 @@ Log.Info(helpText);
 
 Примеры:
 
-- [File Provider](/scripting/examples/basic/file-provider)
+- [File Provider](/ru/scripting/examples/basic/file-provider)
 
 ## Что читать дальше
 
 - [Быстрый старт](/ru/scripting/getting-started)
 - [Песочница](/ru/scripting/sandbox)
-- [ImGui memory bot recipe](/scripting/api/recipes/imgui-memory-bot-custom-scripting)
+- [ImGui memory bot recipe](/ru/scripting/api/recipes/bot-memory-imgui-interface)
 - [Hotkeys](/ru/scripting/keybinds)
 - [Dependency Injection](/ru/scripting/dependency-injection)
 - [Script Container Extensions](/ru/scripting/script-container-extensions)
@@ -1129,3 +1120,4 @@ Log.Info(helpText);
 - [Mini-app](/ru/features/mini-app)
 - [Лицензии для pack-ов](/ru/features/sublicenses)
 - [Защита скриптов](/ru/features/script-protection)
+Основные контракты — EyeAuras `20fd3d4`, PoeEye `0e02c98`. Карты ведут к операциям, а точные сигнатуры и версии пакетов проверяются по SDK/XML вашей версии.

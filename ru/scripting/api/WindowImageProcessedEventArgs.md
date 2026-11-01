@@ -10,13 +10,66 @@ dateCreated: 2024-04-13T11:37:08.113Z
 > Для AI-first навигации см. [AI Computer Vision / Images](./computer-vision/images) — там описаны события обработки изображений, поверхности захвата и связанные workflow в стиле OpenCV.
 {.is-info}
 
+# Перевести результат распознавания в координаты экрана
+
+`WindowImageProcessedEventArgs<TDetectionResult>` связывает найденные объекты
+с матрицами того же захвата. Для EyeAuras `20fd3d4` используйте преобразование
+из самого результата, а не вручную прибавленный угол окна.
+
+## Получить экранную точку найденного пикселя
+
+Верхнеуровневый C# Script получает сервис из OpenCV-модуля приложения.
+Пример захватывает основной экран и выводит точку в лог, не выполняя клик:
+
+```csharp
+using System.Drawing;
+using EyeAuras.OpenCVAuras.Scripting;
+
+var api = GetService<IComputerVisionExperimentalScriptingApi>();
+using var cv = api.ForScreen();
+var processed = cv.PixelSearchRaw(Color.Red);
+if (processed.Detected.Bounds is { } localBounds)
+{
+    var screenBounds = processed.ToScreen(localBounds);
+    var screenPoint = processed.ToScreenPoint(localBounds);
+    Log.Info($"Область: {screenBounds}, центр: {screenPoint}");
+}
+else
+{
+    Log.Info("Совпадений нет");
+}
+```
+
+`ToScreen` применяет `WorldToScreen`: обратные эффекты изображения, смещение
+ROI и положение окна. `ToScreenPoint` по умолчанию выбирает центр уже
+преобразованного прямоугольника; другой `RegionAnchorType` задаётся явно.
+Не применяйте этот перевод к уже преобразованным результатам простых
+`ImageSearch` / `PixelSearch`.
+
+`Detected` — результат поиска, а `Captured` — общее изменяемое состояние
+захвата, **не принадлежащий вам снимок**. Оно может обновляться другим
+триггером или скриптом. Не освобождайте его изображения и не передавайте их
+фоновому обработчику как стабильные данные. Для собственной копии используйте
+`ProcessPixels(image => image.Clone())` и освободите клон после работы —
+[пример владения](IComputerVisionExperimentalScriptingApi).
+Если получаете события через `WhenImageProcessed`, отдельно освобождайте свою
+Rx-подписку. Сам объект события не заменяет время жизни источника.
+
+## Контракт среза
+
+В листинге `WinRectangle`, `WinPoint` и варианты `F` обозначают типы
+`System.Drawing`; `SharpRectangle` — `SharpDX.Rectangle`. Полную актуальную
+поверхность сверяйте с SDK/XML своей версии. Имена отдельных полей матриц не
+доказывают направление преобразования; для перевода результата используйте
+методы ниже. DPI и поведение захвата проверяются в целевом окружении.
+
 ```csharp
 /// <summary>
 /// Represents the event arguments for an image processing trigger, containing the results
 /// and transformations required to map detected objects from local to screen coordinates.
 /// </summary>
 /// <typeparam name="TDetectionResult">The type of the trigger result, encapsulating details about detected objects.</typeparam>
-public sealed record WindowImageProcessedEventArgs<TDetectionResult> where TDetectionResult : ICaptureTriggerDetectionResult
+public sealed class WindowImageProcessedEventArgs<TDetectionResult> where TDetectionResult : ICaptureTriggerDetectionResult
 {
     /// <summary>
     /// Gets the transformation matrices used to convert coordinates from the local viewport (the region of the window where the image was captured)

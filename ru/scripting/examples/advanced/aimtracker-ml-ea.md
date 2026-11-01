@@ -7,7 +7,9 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-06-27T21:35:22.410Z
 ---
-# Что это такое?
+# Найти цель в учебном Aim Trainer
+
+Это верхнеуровневый `C# Script` внутри EyeAuras для собственного учебного сеанса Aim Trainer. Откройте страницу target-tracking, проверьте заголовок окна в `GetWindow` и доступность указанного ONNX-файла. URL модели — вход примера, а не встроенный ресурс; первая загрузка требует доступа к нему. Нужны рабочие захват окна, ML runtime и выбранный симулятор ввода. Совместимость модели и внешних пакетов отдельно не проверена.
 
 Этот пример показывает, **как собрать простой 2D aimbot с ESP-оверлеем** (отрисовкой поверх экрана) с помощью **EyeAuras**.
 
@@ -15,7 +17,7 @@ dateCreated: 2025-06-27T21:35:22.410Z
 
 - Подключается к окну браузерной игры (`Aim Trainer`)
 - Использует **предобученную ML-модель** для поиска цели в реальном времени
-- Рисует прямоугольник и круг поверх найденной цели
+- Рисует прямоугольник поверх найденной цели
 - Перемещает курсор в центр цели
 - Кликает по ней — готово 
 
@@ -31,10 +33,12 @@ var targetWindow = GetService<IWindowSelector>().GetWindow("Tracking - Aim Train
 
 //this API is used to do Computer Vision stuff (image/text/color/ml search)
 var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForWindow(targetWindow); //we're interested in this specific window
+    .ForWindow(targetWindow)
+    .AddTo(ExecutionAnchors); //we're interested in this specific window
 
 //this API is used to generate mouse movements
 var sendInput = GetService<ISendInputScriptingApi>();
+sendInput.TargetWindow = null; // ниже передаём экранные координаты
 
 //pre-trained model we're going to use to find the target
 var mlModelPath = @"https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
@@ -51,7 +55,7 @@ var targetRect = osd.AddRectangle()
     .WithBorderColor(Color.Red)
     .WithBackground(Color.Transparent);
 
-while (true)
+while (!cancellationToken.WaitHandle.WaitOne(10))
 {
     if (!targetWindow.IsForeground)
     {
@@ -89,6 +93,15 @@ while (true)
     }
 }
 
-//wait until script stops or gets stopped
-cancellationToken.WaitHandle.WaitOne();
+
 ```
+
+`MLSearchRaw` возвращает оболочку с `Detected.Predictions` и матрицами захвата. Без явных порогов используются confidence 30% и IoU 40%; первая запись не означает гарантированно лучшую или правильную цель. Пустой список — цель не найдена, ошибка загрузки/захвата — отдельная ошибка. Прямоугольник переводится из координат захвата через `WorldToScreen` до отправки ввода. При ненулевом `TargetWindow` оконная обёртка ввода сделала бы ещё одно преобразование.
+
+Скрипт меняет реальный курсор и кликает только при активном учебном окне. Между проверкой активности и кликом окно может измениться. Остановка проверяется между итерациями/кадрами; синхронное распознавание и уже начатый ввод токен не прерывает. CV и оверлей привязаны к `ExecutionAnchors`; `Captured` и изображения результата заимствованы, освобождать их отдельно нельзя.
+
+## Дальше
+
+[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
+
+Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.

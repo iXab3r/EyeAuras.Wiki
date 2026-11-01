@@ -21,7 +21,7 @@ Memory API нужен, когда вы хотите читать не экран
 - `pattern scanning`
 - `code caves`
 
-То есть вы меняете backend, а большая часть инструментов остаётся прежней.
+То есть верхний слой можно сохранить при смене backend, если новый backend поддерживает нужные операции.
 
 ## Какие backend'ы уже есть
 
@@ -30,7 +30,7 @@ Memory API нужен, когда вы хотите читать не экран
 - `LCProcess` — backend через MemProcFS и LeechCore. Основной сценарий здесь это `DMA`, обычно через `FPGA`. Подробнее: [LCProcess](/ru/scripting/memory-api/backends/lc-process). По теме полезны [Ulf Frisk](https://github.com/ufrisk), [LeechCore](https://github.com/ufrisk/LeechCore), [MemProcFS](https://github.com/ufrisk/MemProcFS) и [PCILeech](https://github.com/ufrisk/pcileech).
 - `KDProcess` — backend через kernel driver. Нужен там, где обычного WinAPI уже мало.
 
-> `KernelDriver` сейчас в закрытом бета-тесте. Если вы автор пака и вам нужен доступ, напишите мне отдельно. `FPGA` и `DMA` сценарии уже доступны всем желающим.
+> В исходной версии руководства KD описан как закрытая бета, а FPGA/DMA — как доступные варианты. Это историческая информация, а не проверка доступности в вашей сборке. Для KD/LC нужны соответствующие компоненты и подготовленный хост.
 {.is-warning}
 
 > Если у вас свой драйвер или свой способ чтения памяти, его тоже можно встроить в Memory API. Для этого есть отдельные точки расширения: [Кастомный IProcess](/ru/scripting/memory-api/backends/custom-process) и [Кастомные memory backend](/ru/scripting/memory-api/backends/custom-memory-backends).
@@ -45,7 +45,7 @@ Memory API нужен, когда вы хотите читать не экран
 - если хотите подключить свой драйвер, bridge или внешний reader как полноценный процесс: [Кастомный IProcess](/ru/scripting/memory-api/backends/custom-process)
 - если хотите оборачивать уже существующий backend в кэш, логирование, статистику или другие decorator-слои: [Кастомные memory backend](/ru/scripting/memory-api/backends/custom-memory-backends)
 
-## Что значит `IProcess`
+## Что значит IProcess
 
 Если коротко, `interface` в C# здесь означает не "сложную внутренность", а просто контракт.
 
@@ -64,6 +64,10 @@ Memory API нужен, когда вы хотите читать не экран
 
 ## Первый пример
 
+Примеры с `LocalProcess` рассчитаны на верхний уровень C#-скрипта в запущенном EyeAuras с загруженным модулем памяти. `Log` даёт хост скрипта. В обычном C#-классе передайте логгер и процесс явно. Одна ссылка на SDK не запускает модуль: во встраиваемом хосте сначала нужны запуск приложения, `UseMemory()` и ожидание `EnsureReadyAsync()`; подробнее в [Embedded SDK](/ru/scripting/api/nuget/embedded-sdk).
+
+`LocalProcess.ByProcessId(...)` возвращает новый `ILocalProcess`, который освобождает создавший его код. `process.Memory` используется вместе с этим reader'ом; отдельно закрывать заимствованный сервис хоста не нужно. Эти примеры не проверяют доступность нативных компонентов вашей сборки.
+
 Самый безопасный стартовый сценарий это открыть текущий процесс EyeAuras, взять модуль и прочитать его экспорты.
 
 ```csharp
@@ -79,7 +83,7 @@ Log.Info($"Modules: {process.GetProcessModules().Count}");
 Log.Info($"kernel32 exports: {kernel32.ReadExports().Count}");
 ```
 
-Этот пример хорош тем, что в нём уже есть вся базовая модель: процесс, модуль и работа не с "магическим адресом", а с нормальным окном на память модуля.
+В журнале появятся имя и PID текущего процесса, число модулей и экспортов `kernel32.dll`. `MemoryOfModule` задаёт базу и размер модуля для PE-helper'ов и поиска; это не защита от чтения за его границами. Адреса прямого чтения остаются абсолютными. Процесс должен жить дольше представления модуля.
 
 ## Базовый маршрут
 
@@ -95,25 +99,11 @@ Log.Info($"kernel32 exports: {kernel32.ReadExports().Count}");
 
 ## Что доступно всегда, а что нет
 
-Здесь есть простое правило:
+`IProcess` описывает общий доступ к памяти, модулям, потокам и регионам. Фактическая доступность зависит от backend, прав и состояния целевого процесса. Наличие интерфейса не гарантирует успешное чтение любого адреса.
 
-- чтение памяти доступно почти всегда
-- активный контроль процесса зависит от backend'а
+Выделение памяти, смена защиты, запуск кода и загрузка DLL относятся к отдельным возможностям. `ILocalProcess` объединяет `IProcessControlApi`, `IProcessSupportsManualMapping` и `IProcessSupportsUserApc`; это не обещание тех же возможностей у произвольного `IProcess`. Для KD/LC сверяйте контракт своей версии backend.
 
-Почти любой backend хорошо покрывает:
-
-- чтение памяти
-- модули, потоки и регионы
-- `MemoryOfModule(...)`
-- импорты, экспорты и сигнатуры
-
-А вот вещи вроде заморозки процесса, выделения памяти, смены protection, `DLL inject`, `APC`, `remote thread` или `manual mapping` доступны не везде.
-
-- `LocalProcess` и `NativeLocalProcess` подходят и для чтения, и для обычного user-mode контроля процесса.
-- `LCProcess` в первую очередь про внешнее чтение и анализ памяти. Для активного управления процессом он обычно не используется.
-- `KDProcess` нужен там, где нужен более глубокий контроль и обычный WinAPI уже не справляется.
-
-## Выделение, `ProtectMemory(...)` и `FreeMemory(...)`
+## Выделение, защита и освобождение памяти
 
 В свежих версиях у `IProcessControlApi` появились явные методы для полного цикла работы с выделенным регионом:
 
@@ -129,31 +119,32 @@ Log.Info($"kernel32 exports: {kernel32.ReadExports().Count}");
 - потом вернуть protection назад
 - в конце корректно освободить память
 
-Простейший маршрут выглядит так:
+Давайте запишем число в собственный временный буфер текущего процесса, прочитаем его и вернём защиту перед освобождением. Это верхний уровень скрипта EyeAuras с загруженным модулем памяти; входных адресов здесь нет.
 
 ```csharp
+using System;
 using System.Diagnostics;
 using EyeAuras.Memory;
 
 using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-var control = (IProcessControlApi) process;
-
+IProcessControlApi control = process;
 var region = control.AllocateMemory(
-    IntPtr.Zero,
-    4096,
+    IntPtr.Zero, 4096,
     MemoryAllocationType.Commit | MemoryAllocationType.Reserve,
     MemoryProtectionType.ReadWrite);
-
 try
 {
+    process.Memory.Write<int>(region.Address, 742);
     var oldProtection = control.ProtectMemory(
-        region.Address,
-        region.Size,
-        MemoryProtectionType.ExecuteRead);
-
-    // Здесь можно писать данные, делать patching или готовить payload.
-
-    control.ProtectMemory(region.Address, region.Size, oldProtection);
+        region.Address, region.Size, MemoryProtectionType.ReadOnly);
+    try
+    {
+        Log.Info($"Value={process.Memory.Read<int>(region.Address)}");
+    }
+    finally
+    {
+        control.ProtectMemory(region.Address, region.Size, oldProtection);
+    }
 }
 finally
 {
@@ -161,15 +152,13 @@ finally
 }
 ```
 
-Важно помнить:
+Результат — `Value=742` в журнале. Запись сделана до включения `ReadOnly`. `ProtectMemory` возвращает прежнюю защиту, `FreeMemory` освобождает выделенный регион целиком. Сам `IMemoryRegion` — дескриптор с `Address` и `Size`, а не автоматический владелец памяти. Reader освобождается после буфера. У этих синхронных методов нет параметра отмены; другой backend может не поддерживать управление памятью.
 
-- `ProtectMemory(...)` и `FreeMemory(...)` относятся к активному управлению процессом, а не просто к чтению памяти
-- обычно это имеет смысл с `LocalProcess`, `NativeLocalProcess` и `KDProcess`
-- не каждый backend обязан это поддерживать; если не поддерживает, можно получить `NotSupportedException`
-
-## Зачем нужен `DLL inject`
+## Зачем нужен DLL inject
 
 Пока вы читаете память снаружи, вы в основном наблюдаете за процессом. `DLL inject` нужен, когда код должен выполняться уже внутри целевой программы: вызывать её внутренние функции, ставить хуки, делать `code cave`, строить internal-логику. Отдельная статья с разбором вариантов, `manual mapping` и особенностей запуска здесь: [DLL inject](/ru/scripting/memory-api/dll-inject). Если нужен внешний фон, полезны [DLL Memory Hack](https://gamehacking.academy/pages/3/03/), [DLL Injector](https://gamehacking.academy/pages/7/01/), [Code Caves & DLL's](https://gamehacking.academy/pages/3/04/) и [Triggerbot](https://gamehacking.academy/pages/5/05/).
+
+Контракты на этой странице сверены по EyeAuras `20fd3d4`; это чтение исходников, без запуска примеров. Полные сигнатуры и ограничения своей версии проверяйте по [карте API памяти](/ru/scripting/api/memory) и SDK/XML reference.
 
 ## Что читать дальше
 

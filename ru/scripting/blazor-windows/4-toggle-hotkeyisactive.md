@@ -25,9 +25,18 @@ dateCreated: 2025-05-11T14:24:53.840Z
 
 Можно сделать и отдельную кнопку в интерфейсе. Для этого создадим ещё один overlay и нарисуем кнопку там.
 
+В одной папке создайте ауру с **C# Overlay v3** и ауру `TargetAura`. В каждую целевую ауру добавьте `HotkeyIsActive` и настройте горячую клавишу в режиме переключения. Оставьте целевые ауры загруженными. Путь `./TargetAura` в примере ищется относительно контекста оверлея; при другой структуре дерева замените их. Если подходящих триггеров несколько, выбирается первый.
+
+Замените содержимое `UserOverlay.cs` и `UserOverlay.razor` в этом оверлее кодом ниже. Это две части одного `public partial` класса в одном пространстве имён. `AuraTree` получает компонент через `[Inject]`; глобальные переменные из `Script.csx` в него автоматически не передаются.
+
 ## UserOverlay.cs
 
 ```csharp
+using Microsoft.AspNetCore.Components;
+using PoeShared.Blazor;
+using EyeAuras.Scripting.Api;
+using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
+
 public partial class UserOverlay : BlazorReactiveComponent {
 
     [Inject]
@@ -49,6 +58,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 ## UserOverlay.razor
 
 ```csharp
+@using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
@@ -75,7 +85,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ---
 
-# Разбор
+## Разбор
 
 Теперь посмотрим, как это работает подробнее.
 
@@ -89,7 +99,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 EyeAuras активно использует Dependency Injection. Подробнее об этом можно прочитать [здесь](/ru/scripting/dependency-injection). Если коротко, этот механизм даёт доступ к разным частям программы. В данном случае мы запрашиваем доступ к дереву аур. EyeAuras сама гарантирует, что при запуске скрипта оно будет доступно. Поскольку мы собираемся менять состояние ауры, нам нужен именно доступ к дереву аур.
 
 ```csharp
-public IDefaultTrigger Trigger
+public IHotkeyIsActiveTrigger Trigger
 {
    get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
 }
@@ -139,3 +149,5 @@ public IDefaultTrigger Trigger
 ```
 
 Этот блок показывает разный текст в зависимости от того, активен триггер или нет. Обратите внимание: при нажатии на кнопку текст тоже обновляется.
+
+Кнопка и текст обновляются после события Blazor. Изменение по горячей клавише ещё не отслеживается: [добавим обновление интерфейса](/ru/scripting/blazor-windows/reactive-toggle) на следующем шаге. Запись `TriggerValue` меняет именно триггер; итоговая активность ауры зависит и от остальных её условий.

@@ -8,7 +8,7 @@ editor: markdown
 dateCreated: 2024-07-02T14:36:35.228Z
 ---
 
-## Запускаем произвольную программу/игру
+# Запускаем произвольную программу/игру
 > Импортировать готовый пример можно отсюда https://eyeauras.net/share/S20240702143616Nj8fr0gCxktL
 {.is-info}
 
@@ -19,10 +19,14 @@ dateCreated: 2024-07-02T14:36:35.228Z
 5. При нажатии на `F3` запустится `Notepad`
 
 ```csharp
+using System.Diagnostics;
+
 // можно использовать как короткое имя
-Process.Start("notepad");
+using var process = Process.Start("notepad");
 // так и полное
 //Process.Start("C:/Windows/system32/notepad.exe");
 
 // полная документация здесь - https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.start?view=net-8.0
 ```
+
+Вставьте код в верхнеуровневый файл действия `C# Script` в Windows. Вход — имя доступной программы либо существующий полный путь; для игры задайте путь к её исполняемому файлу и нужную рабочую папку через `ProcessStartInfo`, если она требуется игре. После запуска появится Блокнот. `using` освобождает объект `Process`, но **не завершает запущенную программу**. Остановка скрипта тоже не означает остановку дочернего процесса; отмена не передаётся в `Process.Start`.

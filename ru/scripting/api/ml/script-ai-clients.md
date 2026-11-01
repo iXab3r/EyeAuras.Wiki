@@ -30,19 +30,53 @@ tool-calling или agent workflows. Начинайте со встроенно�
   ещё ожидают старую объединённую форму AI SDK.
 - Встроенный рантайм EyeAuras AI — это подсистема приложения для chat sessions, profiles, retrieval, plugins и tool approval.
 - Внешние AI-клиенты из NuGet — это обычные зависимости скрипта, которые mini-app использует напрямую.
-- Прямые клиенты чаще всего проще для разовых OCR/vision/chat-вызовов.
+- Прямой клиент требует собственной настройки авторизации, запросов и времени жизни.
 - Встроенный рантайм лучше подходит для интегрированного chat UI, retrieval, tool plugins, profiles и долгоживущих AI-сценариев.
 - Захваченные изображения экрана или окна обычно приходят из CV/image API, а затем конвертируются в формат изображения, который поддерживает конкретный провайдер.
 
-## Типовой сценарий: встроенный AI runtime
+## Проверить встроенный инструмент без запроса модели
 
-1. Подключить `EyeAuras.AI` для non-desktop AI-интеграций или
-   `EyeAuras.AI.Desktop`, если проекту нужны desktop UI/helpers.
-2. Получить AI-сервисы через host script/project surface: обычно `AiEngine`,
-   `IAiProfileRepository`, session configurators или UI factories.
-3. Создать `IAiSession` / `IAiChatSession` через `AiEngine`.
-4. Настроить profile, tools, retrieval и approval policy.
-5. Использовать session из script, Razor UI, tool window или app service.
+Если вашему скриптовому проекту уже доступны `EyeAuras.AI` и Semantic Kernel,
+следующий верхнеуровневый код создаст локальный plugin host и вызовет встроенный
+инструмент. Ссылки на сборки и их версии нужно подготовить в проекте заранее;
+наличие имени в карте не означает установленного пакета. `Log` и
+`cancellationToken` здесь предоставляет именно хост C# Script.
+
+```csharp
+using EyeAuras.AI;
+using EyeAuras.AI.PluginHost;
+using Microsoft.SemanticKernel;
+
+var host = new AiPluginHost();
+host.AddOrUpdatePlugin("hello", new AiHelloWorldPlugin());
+try
+{
+    var result = await host.InvokeToolAsync(
+        "hello", "echo_with_time",
+        new KernelArguments { ["request"] = "Привет" },
+        cancellationToken: cancellationToken);
+    Log.Info(result.Succeeded ? $"Ответ: {result.Value}" : result.Error);
+}
+finally
+{
+    host.RemovePlugin("hello");
+}
+```
+
+В лог попадёт строка и время локального хоста. Ключ провайдера не нужен;
+этот вызов не является диалогом с моделью и не применяет session approval policy.
+Для настоящего помощника используйте [операцию создания сессии](ai-runtime):
+там указаны `AddAiCoreServices`, конфигурационная зависимость, передача `AiEngine`
+и освобождение через engine. Для UI редактора есть
+`IScriptAiChatSessionFactory` и configurators, получаемые из контекста редактора;
+не считайте их глобальными переменными любого скрипта.
+
+В срезе EyeAuras `20fd3d4` `EyeAuras.AI` — проект общего runtime,
+`EyeAuras.AI.Desktop` — desktop-интеграция, `EyeAuras.AISdk` объединяет их для
+совместимости. Доступность и совместимость конкретных опубликованных NuGet
+нужно проверять отдельно. Прямой клиент провайдера оставляйте для случаев,
+когда встроенная сессия не подходит; версии моделей и пакетов из старых
+примеров не являются рекомендацией на текущую дату.
 
 ## Типовой сценарий: захватить изображение и спросить AI
 

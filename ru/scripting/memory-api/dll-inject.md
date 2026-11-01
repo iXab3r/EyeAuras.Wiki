@@ -14,7 +14,13 @@ dateCreated: 2026-04-16T23:20:00.000Z
 
 Если нужен внешний фон, полезны [DLL Injector](https://gamehacking.academy/pages/7/01/), [DLL Memory Hack](https://gamehacking.academy/pages/3/03/) и [Code Caves & DLL's](https://gamehacking.academy/pages/3/04/).
 
-Ниже примеры даны для `LocalProcess`, потому что это самый прямой старт. Те же методы есть и у `NativeLocalProcess`. `LCProcess` для inject-сценариев обычно не берут.
+Примеры с `LocalProcess` рассчитаны на верхний уровень C#-скрипта в запущенном EyeAuras с загруженным модулем памяти. `Log` даёт хост скрипта. В обычном C#-классе передайте логгер и процесс явно. Одна ссылка на SDK не запускает модуль: во встраиваемом хосте сначала нужны запуск приложения, `UseMemory()` и ожидание `EnsureReadyAsync()`; подробнее в [Embedded SDK](/ru/scripting/api/nuget/embedded-sdk).
+
+`LocalProcess.ByProcessId(...)` и `ByProcessName(...)` возвращают новый `ILocalProcess`, который освобождает создавший его код. `process.Memory` используется вместе с этим reader'ом; отдельно закрывать заимствованный сервис хоста не нужно. Эти примеры не проверяют доступность нативных компонентов вашей сборки.
+
+Ниже сохранены основные варианты существующего API. Для них нужен ваш тестовый процесс, в который вы можете загружать собственную DLL, полный путь к ней и совпадающая архитектура. Имена `game` и `C:\Tools\MyHack.dll` — заменяемые входы, а не поставляемые файлы.
+
+Контракты сверены для EyeAuras `20fd3d4`. Публичные обёртки доступны для чтения, но реализация нативного загрузчика в проверенный набор не входит. Поэтому подробности инициализации, поддерживаемые DLL и поведение конкретной Windows нужно проверять с соответствующей сборкой. Наличие метода не доказывает совместимость. `NativeLocalProcess` также объявляет эти возможности; LC здесь не рассматривается.
 
 ## InjectDll
 
@@ -27,34 +33,15 @@ using var process = LocalProcess.ByProcessName("game");
 process.InjectDll(@"C:\Tools\MyHack.dll");
 ```
 
-Внутри Memory API этот вызов делает классический `LoadLibraryW`-инжект:
+Видимая обёртка проверяет наличие файла и передаёт работу в `RpmInjector`. Сигнатура — `void InjectDll(string fullDllPath)`: возвращаемого handle или адреса модуля здесь нет. Отсутствие исключения от вызова не заменяет проверку результата со стороны вашей DLL, например её собственного диагностического сообщения.
 
-1. проверяет, что DLL существует
-2. сверяет архитектуру DLL и target-процесса
-3. находит `LoadLibraryW` в target-процессе
-4. выделяет память под UTF-16 путь к DLL
-5. пишет туда строку
-6. создаёт remote thread
-
-Уникальные черты этого пути:
-
-- DLL должна лежать на диске
-- Windows loader сам обрабатывает импорты, `DllMain` и `TLS callbacks`
-- это самый понятный путь для старта и отладки
-
-Именно поэтому `InjectDll(...)` почти всегда должен быть первым выбором, если вам просто нужно загрузить библиотеку и проверить гипотезу.
-
-Что важно помнить:
-
-- используйте полный путь к DLL
-- архитектура должна совпадать
-- защищённые процессы и ограничения прав могут сломать сценарий ещё до самого `LoadLibraryW`
+Историческое описание этого маршрута — загрузка через `LoadLibraryW`, с путём в UTF-16 и работой Windows loader. Проверка архитектуры, точный момент завершения, обработка импортов, `DllMain` и TLS не подтверждены одной публичной обёрткой. Используйте полный путь и DLL нужной архитектуры; права и ограничения процесса остаются отдельным условием. Reader принадлежит скрипту, но его `Dispose` не является командой выгрузить DLL. У вызова нет токена отмены.
 
 ## CreateThread
 
 Если `InjectDll(...)` это готовый high-level helper, то `CreateThread(...)` это уже более низкоуровневый строительный блок.
 
-Memory API даёт его через `IProcessControlApi`:
+Memory API даёт его через `IProcessControlApi`. Ниже фрагмент для уже открытого `ILocalProcess process` с заранее определёнными `IntPtr startAddress` и `IntPtr parameter`:
 
 ```csharp
 var threadId = process.CreateThread(startAddress, parameter);
@@ -67,33 +54,9 @@ var threadId = process.CreateThread(startAddress, parameter);
 - записали туда данные
 - хотите просто запустить код внутри процесса
 
-На практике это часто выглядит так:
+Это схема интеграции, а не готовый повтор `InjectDll`: `startAddress` должен быть абсолютным VA подходящей функции в целевом процессе, а `parameter` — её согласованным указателем/значением. Возвращается `uint` ID потока, не handle ожидания и не результат функции. Сам возврат ID не подтверждает завершение кода.
 
-```csharp
-using System.Linq;
-using System.Text;
-using EyeAuras.Memory;
-
-using var process = LocalProcess.ByProcessName("game");
-
-var dllPath = @"C:\Tools\MyHack.dll";
-var dllPathBytes = Encoding.Unicode.GetBytes(dllPath + "\0");
-
-var remotePath = process.AllocateMemory(
-    dllPathBytes.Length,
-    MemoryProtectionType.ReadWrite);
-
-process.Memory.Write(remotePath.Address, dllPathBytes);
-
-using var kernel32 = process.MemoryOfModule("kernel32.dll");
-var loadLibraryWExport = kernel32.ReadExports()
-    .First(x => x.ExportName == "LoadLibraryW");
-var loadLibraryW = new IntPtr(kernel32.BaseAddress + (long) loadLibraryWExport.RVA);
-
-var threadId = process.CreateThread(loadLibraryW, remotePath.Address);
-```
-
-По сути это уже "ручной" вариант того, что делает `InjectDll(...)`, только без готовой обёртки.
+В примере с `LoadLibraryW` дополнительно понадобились бы корректное разрешение экспорта (в том числе forwarded export), буфер UTF-16 с NUL и протокол ожидания завершения. Нельзя освобождать аргумент сразу после запуска. Здесь эти части не подменяются произвольным выбором экспорта или потока; для загрузки DLL выше есть публичный `InjectDll`.
 
 Уникальные черты этого пути:
 
@@ -105,42 +68,14 @@ var threadId = process.CreateThread(loadLibraryW, remotePath.Address);
 
 Если нужен запуск через `APC`, в Memory API для этого есть `QueueUserApc(...)`.
 
-Практический пример: положить путь к DLL в remote memory, найти `LoadLibraryW` и поставить его в очередь существующему потоку.
+Здесь задача — поставить уже подготовленную функцию в очередь выбранного потока. Контракт `IProcessSupportsUserApc` имеет два варианта:
 
 ```csharp
-using System.Linq;
-using System.Text;
-using EyeAuras.Memory;
-
-using var process = LocalProcess.ByProcessName("game");
-
-var dllPath = @"C:\Tools\MyHack.dll";
-var dllPathBytes = Encoding.Unicode.GetBytes(dllPath + "\0");
-
-var remotePath = process.AllocateMemory(
-    IntPtr.Zero,
-    dllPathBytes.Length,
-    MemoryAllocationType.Commit | MemoryAllocationType.Reserve,
-    MemoryProtectionType.ReadWrite);
-
-process.Memory.Write(remotePath.Address, dllPathBytes);
-
-using var kernel32 = process.MemoryOfModule("kernel32.dll");
-var loadLibraryWExport = kernel32.ReadExports()
-    .First(x => x.ExportName == "LoadLibraryW");
-var loadLibraryW = new IntPtr(kernel32.BaseAddress + (long) loadLibraryWExport.RVA);
-
-var threadId = process.GetThreads().First().ThreadId;
-process.QueueUserApc(threadId, loadLibraryW, remotePath.Address);
+void QueueUserApc(int threadId, IntPtr apcRoutine, IntPtr apcArgument);
+void QueueUserApc(IntPtr hThread, IntPtr apcRoutine, IntPtr apcArgument);
 ```
 
-Это уже полностью memory-api-шный маршрут:
-
-- `AllocateMemory(...)`
-- `process.Memory.Write(...)`
-- `MemoryOfModule(...)`
-- `ReadExports()`
-- `QueueUserApc(...)`
+Это справочные сигнатуры. Для интеграции нужны живой процесс, определённый вами поток, абсолютный VA функции с подходящей сигнатурой и аргумент, который останется действительным до выполнения. В варианте с `hThread` handle остаётся ответственностью вызывающего кода; метод его не закрывает. Возвращаемого результата выполнения и токена отмены нет. Выбор первого потока из списка не задаёт протокол готовности и завершения.
 
 Уникальные черты этого пути:
 
@@ -168,7 +103,6 @@ process.QueueUserApc(threadId, loadLibraryW, remotePath.Address);
 
 ```csharp
 using EyeAuras.Memory;
-using EyeAuras.Memory.Scaffolding;
 
 using var process = LocalProcess.ByProcessName("game");
 
@@ -176,19 +110,21 @@ var mapping = process.InjectDllViaManualMapping(
     @"C:\Tools\MyHack.dll",
     LocalProcessMmapFlags.None);
 
-Log.Info($"Base={mapping.BaseAddress.ToHexadecimal()}");
-Log.Info($"EntryPoint={mapping.EntryPoint.ToHexadecimal()}");
+Log.Info($"Base=0x{mapping.BaseAddress.ToInt64():X}");
+Log.Info($"EntryPoint=0x{mapping.EntryPoint.ToInt64():X}");
 ```
 
 ### Маппинг из памяти
 
 ```csharp
+using System.IO;
 using EyeAuras.Memory;
 
 using var process = LocalProcess.ByProcessName("game");
 
 var dllBytes = File.ReadAllBytes(@"C:\Tools\MyHack.dll");
-var mapping = process.InjectDllViaManualMapping(dllBytes);
+var mapping = process.InjectDllViaManualMapping(dllBytes, LocalProcessMmapFlags.None);
+Log.Info($"Base=0x{mapping.BaseAddress.ToInt64():X}");
 ```
 
 Уникальные черты этого пути:
@@ -199,6 +135,8 @@ var mapping = process.InjectDllViaManualMapping(dllBytes);
 
 То есть это уже не "попросить Windows загрузить DLL", а отдельный loader-путь поверх Memory API.
 
+Вход для обоих вариантов — ваша DLL и тестовый процесс, как в разделе `InjectDll`; примеры запускаются отдельно в хосте EyeAuras с модулем памяти. Перегрузка принимает `string` либо `Memory<byte>` и `LocalProcessMmapFlags`. Есть также вариант с `bool erasePE = false`; выше флаги указаны явно. В журнале появятся адреса из дескриптора. Обёртка передаёт работу `LibraryMapper`, внутреннее поведение которого здесь не проверено.
+
 ### Что возвращается
 
 `InjectDllViaManualMapping(...)` возвращает `ManualMappedLibraryDescriptor`:
@@ -206,7 +144,7 @@ var mapping = process.InjectDllViaManualMapping(dllBytes);
 - `BaseAddress`
 - `EntryPoint`
 
-Это полезно в advanced-сценариях, где вы хотите не просто загрузить DLL, а ещё и отдельно управлять её стартом или опираться на её базовый адрес.
+Это значения адресов, а не владелец ресурса или доказательство завершения инициализации. `ManualMappedLibraryDescriptor` — структура без `Dispose`; нельзя вывести из неё протокол безопасной выгрузки.
 
 ### Флаги mapper'а
 
@@ -214,13 +152,7 @@ var mapping = process.InjectDllViaManualMapping(dllBytes);
 - `LocalProcessMmapFlags.DiscardHeaders` — удалить PE-заголовки после маппинга
 - `LocalProcessMmapFlags.SkipInitRoutines` — не вызывать `DllMain` и `TLS callbacks`
 
-Практический смысл флагов такой:
-
-- `None` — нормальный дефолт
-- `DiscardHeaders` — уже более узкий сценарий
-- `SkipInitRoutines` — advanced-режим, потому что библиотека может оказаться загруженной, но не инициализированной
-
-Если включать `SkipInitRoutines`, то дальше вы уже сами отвечаете за запуск init-логики. В тестах EyeAuras для этого используются отдельные trampoline и явный вызов entrypoint через thread или APC.
+Это назначение флагов по декларации. `None` — нулевое значение; само по себе оно не подтверждает совместимость с любыми импортами, TLS или кодом инициализации. При `SkipInitRoutines` интеграция должна отдельно определить корректный запуск и завершение инициализации. Упоминание такого сценария в тестовом исходнике не является выполненной проверкой загрузчика.
 
 ## PIC
 
@@ -235,24 +167,9 @@ var mapping = process.InjectDllViaManualMapping(dllBytes);
 
 Это уже самый продвинутый путь в этой статье, потому что здесь вы загружаете не DLL через loader и не готовую Windows API-функцию, а свой собственный исполняемый код.
 
-Практически это обычно выглядит так:
+Для законченного сценария нужен готовый машинный код, его архитектура, ABI, точка входа, аргументы и протокол завершения. Memory API не создаёт этот код. Без этих входов пример запуска был бы неполным.
 
-```csharp
-using EyeAuras.Memory;
-
-using var process = LocalProcess.ByProcessName("game");
-
-byte[] picBytes = GetPicPayloadSomehow();
-
-var remotePic = process.AllocateMemory(
-    picBytes.Length,
-    MemoryProtectionType.ReadWrite);
-
-process.Memory.Write(remotePic.Address, picBytes);
-process.ProtectMemory(remotePic.Address, picBytes.Length, MemoryProtectionType.ExecuteRead);
-
-var threadId = process.CreateThread(remotePic.Address, IntPtr.Zero);
-```
+Последовательность интеграции: выделить буфер, записать именно байты payload, установить подходящую защиту, запустить согласованную точку входа, дождаться завершения по протоколу интеграции и только затем освободить собственные буферы. Это описание границы ответственности, не готовый загрузчик. Байтовая запись подходит для машинного кода; обычные числовые аргументы читайте и пишите через `Read<T>`/`Write<T>`.
 
 Здесь Memory API даёт вам базовые кирпичи:
 
@@ -272,9 +189,9 @@ var threadId = process.CreateThread(remotePic.Address, IntPtr.Zero);
 
 ## На практике
 
-Если нет специальной причины делать иначе:
+При выборе существующего маршрута учитывайте:
 
-1. начните с `InjectDll(...)`
+1. для загрузки собственной DLL в тестовый процесс начните с `InjectDll(...)`
 2. если нужен более сырой контроль над стартом кода, используйте `CreateThread(...)`
 3. если нужен запуск через существующий поток, идите в `QueueUserApc(...)`
 4. если нужен свой loader-путь или DLL из памяти, берите `InjectDllViaManualMapping(...)`

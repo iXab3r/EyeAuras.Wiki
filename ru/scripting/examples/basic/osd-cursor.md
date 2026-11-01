@@ -23,29 +23,36 @@ EyeAuras предоставляет scripting API для создания лёг
 
 ## Пример: зелёный прямоугольник вокруг курсора
 
+Создайте действие `C# Script` в desktop EyeAuras и запустите его. Нужен
+OSD-модуль с Blazor/WebView. Пока скрипт работает, рамка 10×10 следует
+за курсором в экранных координатах; остановите скрипт, чтобы убрать её.
+Обычный C# класс должен получить фабрику canvas и токен от владельца.
+
 ```csharp
+using System.Drawing;
+using EyeAuras.Shared.Scripting;
+using EyeAuras.Blazor.Controls.ScreenOverlay;
+
+using var canvas = GetService<IOnScreenCanvasScriptingApi>().Create();
 try
 {
     Log.Info("Booting up OSD");
+    using var cursorBox = canvas.AddRectangle();
+    cursorBox.Size = new Size(10, 10);
+    cursorBox.Background = Color.Transparent;
+    cursorBox.BorderThickness = 2;
+    cursorBox.BorderColor = Color.Green;
 
-    // Create an overlay canvas
-    using var canvas = GetService<IOnScreenCanvasScriptingApi>().Create();
-
-    // Add a 10x10 green-outlined rectangle (no fill) to the canvas
-    using var cursorBox = canvas.AddRectangle()
-        .WithSize(new Size(10, 10))
-        .WithBackground(Color.Transparent)
-        .WithBorderThickness(2)
-        .WithBorderColor(Color.Green);
-
-    // Continuously update position to follow the cursor
     while (!cancellationToken.IsCancellationRequested)
     {
-        cursorBox.Location = System.Windows.Forms.Cursor.Position.OffsetBy(-5, -5);
+        var cursor = System.Windows.Forms.Cursor.Position;
+        cursorBox.Location = new Point(cursor.X - 5, cursor.Y - 5);
+        Sleep(16); // пауза хоста учитывает отмену скрипта
     }
 }
 finally
 {
+    canvas.Clear(); // пока proxy ещё передаёт удаление общему canvas
     Log.Info("OSD routine has stopped");
 }
 ```
@@ -59,14 +66,20 @@ finally
   - прозрачный фон
   - зелёная рамка (`2px`)
   - фиксированный размер (`10x10`)
-- В каждой итерации цикла позиция обновляется так, чтобы совпадать с положением курсора и оставаться по центру за счёт `.OffsetBy(-5, -5)`.
-- Когда скрипт завершается, прямоугольник автоматически удаляется и освобождается.
+- В каждой итерации цикла позиция обновляется так, чтобы совпадать с положением курсора и оставаться по центру за счёт вычитания `5` из обеих координат.
+- При выходе из блока `using` освобождается прямоугольник, затем `finally` очищает canvas до освобождения самого canvas.
 
 ---
 
+`Remove` и `Clear` убирают регистрации, но не заменяют освобождение объектов.
+Один `canvas.Dispose()` в этом срезе не гарантирует удаления всех детей.
+Общее окно может оставаться у других пользователей; реализация использует
+основной монитор, поэтому не обещает покрытие всех мониторов или DPI.
+Подробнее — [владение OSD-объектами](/ru/scripting/api/osd/screen-overlay).
+
 ## Полезные советы
 
--  Чтобы ограничить частоту обновления, можно добавить `Task.Delay(16)` для примерно 60 FPS.
+-  `Sleep(16)` в цикле ограничивает частоту обновления примерно 60 итерациями в секунду; фактическая частота отрисовки зависит от хоста.
 -  Если нужен заполненный маркер, используйте `.WithBackground(Color.FromArgb(...))`.
 -  Для отладки расположения overlay-элементов можно вызвать `canvas.ShowDevTools()` и посмотреть интерфейс вживую.
 

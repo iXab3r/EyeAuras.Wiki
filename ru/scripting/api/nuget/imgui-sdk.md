@@ -11,6 +11,49 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 Справочная карта по опциональному пакету `EyeAuras.ImGuiSdk`: цикл рендера ImGui, управляемые окна ImGui, переиспользуемый контент, изображения, шрифты и RE-стиль tool windows.
 
+## Показать окно на время запуска скрипта
+
+В верхнеуровневом C#-скрипте EyeAuras подключите пакет и зарегистрируйте расширение до получения API. Этот пример рисует счётчик кадров до остановки скрипта:
+
+```csharp
+#r "nuget: EyeAuras.ImGuiSdk"
+using EyeAuras.ImGuiSdk;
+using ImGuiNET;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+AddNewExtension<ImGuiContainerExtensions>();
+using var imgui = GetService<IImGuiExperimentalApi>();
+var frame = 0;
+using var rendering = imgui.AddRenderer(_ =>
+{
+    var visible = ImGui.Begin("Frame counter##operation-demo");
+    try
+    {
+        if (visible)
+            ImGui.TextUnformatted($"Frame: {++frame}");
+    }
+    finally
+    {
+        ImGui.End();
+    }
+});
+try
+{
+    await Task.Delay(Timeout.Infinite, cancellationToken);
+}
+catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+{
+}
+```
+
+Окно обновляется в потоке рендера. Подписка `AddRenderer(Action<IImGuiExperimentalApi>)` возвращает `IDisposable`; пример освобождает её перед API благодаря обратному порядку `using`. Получение через `GetService` само по себе не гарантирует освобождение. Обычный C#-класс получает API и токен от владельца, скриптовые методы в нём недоступны.
+
+Исходники EyeAuras `20fd3d4` регистрируют `IImGuiExperimentalApi` как создаваемый экземпляр, но экземпляры арендуют общий overlay `Main`. Его настройки, шрифты и изображения общие: изменение `NoActivate`, `VSync`, FPS или шрифта по умолчанию затрагивает других пользователей overlay. `AddRenderer` не привязывает возвращённую подписку к lifetime API. В callback нельзя ждать, читать процесс или выполнять долгую работу.
+
+`RunOnce(Action<IImGuiExperimentalApi>)` планирует один callback и возвращает отменяемую через `Dispose` регистрацию; это не ожидание завершения кадра. У этих методов нет параметра токена отмены. Нативный запуск и совместимость опубликованных версий пакета здесь не проверены.
+
 ## Что обычно хотят сделать
 
 - Добавить ImGui UI в скриптовый проект.
@@ -47,7 +90,7 @@ AddNewExtension<ImGuiContainerExtensions>();
 var imgui = GetService<IImGuiExperimentalApi>();
 ```
 
-Не рассчитывайте, что `IImGuiExperimentalApi`, `ImGuiWindowManager` или другие сервисы ImGui SDK будут доступны только потому, что пакет успешно компилируется. Без `ImGuiContainerExtensions` получение сервисов может завершиться ошибкой или вернуть неполностью настроенный host.
+Не рассчитывайте, что `IImGuiExperimentalApi` или другие сервисы ImGui SDK будут доступны только потому, что пакет успешно компилируется. Без `ImGuiContainerExtensions` получение сервисов может завершиться ошибкой или вернуть неполностью настроенный host.
 
 ## Детали API
 
@@ -74,7 +117,8 @@ var imgui = GetService<IImGuiExperimentalApi>();
 - Основные namespace: `EyeAuras.ImGuiSdk`, `ImGuiNET` и часто `System.Numerics`.
 - В script mini-apps всегда добавляйте `ImGuiContainerExtensions` до получения сервисов ImGui SDK из script container.
 - В обычном app/plugin-коде используйте DI/composition-паттерн хоста, а не рассчитывайте на script-only helpers.
-- Добавляйте созданный API/window/render subscription в lifetime владельца.
+- `ImGuiWindowManager` — статический менеджер, не сервис DI. Его окна закрывайте адресно через `Close(window)`; `CloseAll()` затронет чужие окна.
+- API и подписки освобождает их владелец; менеджер освобождает закрытое окно при обработке кадров.
 - Render callback вызывается каждый кадр, поэтому он должен быть быстрым и неблокирующим.
 
 ## Встроенные хелперы и контролы
@@ -170,6 +214,8 @@ ImGui работает в immediate-mode, но контролы всё равн�
 Пример формы:
 
 ```csharp
+public sealed record ReaderOption(string Name);
+
 static bool ReaderPicker(
     string label,
     IReadOnlyList<ReaderOption> readers,

@@ -31,7 +31,7 @@ dateCreated: 2026-04-22T00:00:00.000Z
 | AHK-005 | Префиксы hotkey | AHK поддерживает `~`, `*`, `$`, `Up`, left/right modifiers, пользовательские комбинации через `&` и контекстный `#HotIf`. | `KeybindAttribute` with `SuppressKey`, `IgnoreModifiers`, `ActivationType`, plus `IHotkeyTracker` for runtime hotkeys. | Нужно сопоставить префиксы AHK со свойствами keybind в EyeAuras. Для пользовательских комбинаций из двух клавиш и условий `#HotIf` могут понадобиться рецепты, а не прямой перевод. | Mapped |
 | AHK-006 | Сопоставление окон | AHK `WinTitle` поддерживает `A`, `ahk_exe`, `ahk_class`, `ahk_id`, `ahk_pid`, `SetTitleMatchMode`, hidden-window rules и per-thread поведение Last Found Window. | `WindowMatchExpression`, `IWindowMatcher`, `IWindowListProvider`, `IWindowSelector`. | Базовое сопоставление по title/process/path/handle уже покрыто. Но все еще нужна таблица token-by-token для AHK `WinTitle`, правил регистра, hidden windows, `A` и Last Found Window. В EyeAuras лучше явно сохранять полученный `IWindowHandle`, а не полагаться на неявное состояние last-found. | Open |
 | AHK-007 | Ввод на уровне контролов | `ControlClick` и `ControlSend` могут работать по контролам и иногда позволяют не активировать окно. | `ISendInputScriptingApi.TargetWindow`, send-input actions, possible native/window services. | Нужно проверить, есть ли script-facing API для уровня контролов. Если нет, это стоит пометить как territory для rewrite/native interop. | Open |
-| AHK-008 | Таймеры | `SetTimer` создает timed subroutines с period, one-shot negative periods, priority, deletion и правилами reentrancy. | Script services with loops or observables; Aura Tree timer components only for configurable aura behavior. | Нужен рекомендуемый паттерн для повторяющейся работы и раздел с объяснением, что семантика timer thread из AHK напрямую не переносится. Также нужно задокументировать, что ограничение EyeAuras `TimerTrigger` в 100 ms — это ограничение aura-component, а не значение по умолчанию для script API. | Open |
+| AHK-008 | Таймеры | `SetTimer` создает timed subroutines с period, one-shot negative periods, priority, deletion и правилами reentrancy. | Script services with loops or observables; Aura Tree timer components only for configurable aura behavior. | Нужен рекомендуемый паттерн для повторяющейся работы и раздел с объяснением, что семантика timer thread из AHK напрямую не переносится. Ограничения конкретного `TimerTrigger` нельзя переносить на все таймеры C#-скрипта. | Open |
 | AHK-009 | Clipboard wait/events | `A_Clipboard`, `ClipWait`, `ClipboardAll` и `OnClipboardChange` покрывают text, all formats, waiting и events. | `IClipboardManager` has text, image, file-drop, data object, and contains methods. | Нужно проверить доступность через DI в скриптах, ограничения UI thread, доступность сервисов ожидания/событий изменения и сохранение всех форматов. | Open |
 | AHK-010 | Чтение пикселя | `PixelGetColor` возвращает одну RGB hex string по координате и имеет режимы `Alt`/`Slow`. | `ICvAccessor.ProcessPixels`, `PixelSearch`, `PickColor`. | Нужен короткий рецепт для цвета одного пикселя и заметки про visibility, перекрытие курсором и различия между full-screen/game capture. | Candidate helper |
 | AHK-011 | Ошибки при pixel/image search | В AHK v2 функции могут возвращать значения или бросать исключения в зависимости от функции и типа ошибки; в v1 часто использовался `ErrorLevel`. | EyeAuras `PixelSearch` returns `Point.Empty`, `ImageSearch` returns `Rectangle.Empty`, raw APIs expose processed event args. | Нужна таблица миграции для v1/v2/error-handling. | Open |
@@ -40,66 +40,10 @@ dateCreated: 2026-04-22T00:00:00.000Z
 | AHK-014 | DPI и мониторы | На coordinate APIs в AHK влияют `CoordMode`, DPI, client area активного окна и multi-monitor layouts. | `IWindowHandle` bounds, `ForScreen()`, `ForWindow(...)`, OSD transform matrices. | Нужны примеры для multi-monitor и DPI для мыши, CV и выбора region. | Open |
 | AHK-015 | DLL и native interop | `DllCall`, `CallbackCreate`, `Buffer`, `NumGet` и `NumPut` упрощают native calls и работу с pointer/struct, но делают ее очень динамической. | Direct migration is typed C# P/Invoke wrappers or small domain services; existing EyeAuras/PoeShared APIs are rewrite options. | Нужен более полный гайд по native interop для structs, callbacks, ownership, bitness и случаев, когда raw interop лучше заменить уже существующими API. | Open |
 
-## Исходные материалы, которые нужно перепроверить
+## Как пользоваться списком
 
-EyeAuras:
+При переносе сначала выберите тематическую страницу: [ввод](./keyboard-mouse), [окна](./windows), [хоткеи](./hotkeys), [CV](./cv-pixels-images), [состояние](./runtime-state), [буфер обмена](./clipboard), [DLL](./dll-native). Выполните показанную операцию в нужном контексте. Если существенный режим исходного AHK-кода не покрыт, оставьте его отдельным требованием, а не заменяйте похожим методом молча.
 
-- `scripting/api/ISendInputScriptingApi.md`
-- `scripting/api/IComputerVisionExperimentalScriptingApi.md`
-- `scripting/api/IVariablesScriptingApi.md`
-- `scripting/api/windows-subsystems/input-hooks-hotkeys.md`
-- `scripting/api/windows-subsystems/window-handles.md`
-- `scripting/api/osd/selection.md`
-- `scripting/api/scripting/runtime.md`
-- `Sources/EyeAuras.Scripting/Api/KeybindAttribute.cs`
-- `Sources/EyeAuras.Roxy.Shared/Api/ISendInputScriptingApi.cs`
-- `Sources/EyeAuras.Shared/Services/IWindowSelector.cs`
-- `Sources/EyeAuras.Shared/Services/IWindowMatcher.cs`
-- `Sources/EyeAuras.Shared/Scaffolding/WindowSelectorExtensions.cs`
-- `Sources/PoeShared.Wpf/Scaffolding/WindowHandleExtensions.cs`
-- `Sources/PoeShared.Native/Native/UnsafeNative.WindowUtils.cs`
-- `Submodules/PoeEye/PoeEye/PoeShared.Native/Native/IClipboardManager.cs`
+Статус в таблице относится к полному соответствию AHK, а не к существованию метода EyeAuras. В срезе EyeAuras `20fd3d4` / PoeEye `0e02c98` уточнены отдельные границы: стандартный ввод использует координаты рабочего стола и не гарантирует background input; selector хранит цель и не ждёт появления окна; запись текста в буфер доступна через нативную регистрацию; пустой `Point` у CV неоднозначен для `(0, 0)`. Это не закрывает паритет всех режимов.
 
-AutoHotkey:
-
-- `docs/Hotkeys.htm`
-- `docs/lib/Hotkey.htm`
-- `docs/lib/_HotIf.htm`
-- `docs/lib/_UseHook.htm`
-- `docs/lib/Send.htm`
-- `docs/lib/SendMode.htm`
-- `docs/lib/SendLevel.htm`
-- `docs/lib/InputHook.htm`
-- `docs/lib/GetKeyState.htm`
-- `docs/lib/KeyWait.htm`
-- `docs/lib/MouseMove.htm`
-- `docs/lib/Click.htm`
-- `docs/lib/MouseGetPos.htm`
-- `docs/misc/WinTitle.htm`
-- `docs/howto/ManageWindows.htm`
-- `docs/lib/WinActivate.htm`
-- `docs/lib/WinWait.htm`
-- `docs/lib/WinWaitActive.htm`
-- `docs/lib/WinActive.htm`
-- `docs/lib/WinExist.htm`
-- `docs/lib/ControlClick.htm`
-- `docs/lib/Control.htm`
-- `docs/lib/Sleep.htm`
-- `docs/lib/SetTimer.htm`
-- `docs/lib/A_Clipboard.htm`
-- `docs/lib/ClipboardAll.htm`
-- `docs/lib/ClipWait.htm`
-- `docs/lib/CoordMode.htm`
-- `docs/lib/PixelGetColor.htm`
-- `docs/lib/PixelSearch.htm`
-- `docs/lib/ImageSearch.htm`
-- `docs/lib/DllCall.htm`
-- `docs/lib/CallbackCreate.htm`
-- `docs/lib/Buffer.htm`
-- `docs/lib/NumGet.htm`
-- `docs/lib/NumPut.htm`
-- `docs/Variables.htm`
-- `docs/Functions.htm`
-- `docs/Concepts.htm`
-- `docs/lib/_Requires.htm`
-- `docs/v2-changes.htm`
+AHK-примеры тематических страниц используют v2. Не переносите из v1 командный синтаксис и `ErrorLevel` без отдельной сверки с [изменениями v2](https://github.com/AutoHotkey/AutoHotkeyDocs/blob/v2/docs/v2-changes.htm). Подробные внешние ссылки находятся рядом с соответствующими операциями.

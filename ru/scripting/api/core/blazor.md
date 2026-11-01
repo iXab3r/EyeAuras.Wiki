@@ -55,9 +55,46 @@ dateCreated: 2026-04-22T00:00:00.000Z
 - `BlazorErrorBoundary` — error boundary с колбэком `OnError`.
 - `PoeSharedBlazorRegistrations` — модуль регистрации Unity/DI для общих сервисов Blazor.
 
+## Подготовить компонент и увидеть обновление
+
+Примеры ниже предназначены для Razor-компонентов внутри настроенного
+Blazor-host EyeAuras/PoeShared, где доступны `PoeShared.Blazor`,
+`PoeShared.Blazor.Scaffolding`, `PoeShared.Blazor.Services` и `ReactiveUI`.
+Для отслеживания модели она должна отправлять `PropertyChanged`; обычное
+свойство без уведомлений не заставит `ReactiveSection` обновиться.
+
+Минимальный компонент с собственным состоянием не требует отдельной модели:
+
+```razor
+@inherits PoeShared.Blazor.BlazorReactiveComponent
+
+<button @onclick="Increment">Добавить</button>
+<span>@count</span>
+
+@code {
+    private int count;
+    private async Task Increment()
+    {
+        count++;
+        await Refresh("Increment");
+    }
+}
+```
+
+После нажатия число увеличивается. `Refresh` проходит через инфраструктуру
+компонента; для части UI с внешними observables используйте `ReactiveSection`,
+как ниже. Его `DebounceTime` по умолчанию равен нулю; положительное значение
+использует выборку событий (`Sample`), а не ожидание полной тишины в потоке.
+Подписки компонента добавляйте в `Anchors` и освобождайте вместе с компонентом.
+
 ## Типовые сценарии
 
 ### Реактивный Razor-компонент
+
+Для следующего фрагмента создайте `MyViewModel` с уведомляющим свойством
+`Status` и коллекцией DynamicData `Items`, передайте экземпляр через
+`DataContext`. Это схема подключения вашей модели, а не отдельный готовый
+компонент:
 
 ```razor
 @inherits BlazorReactiveComponent<MyViewModel>
@@ -73,13 +110,21 @@ dateCreated: 2026-04-22T00:00:00.000Z
 
 ### Динамическое view для модели
 
+Здесь `currentModel` — поле компонента с вашим объектом модели. До первого
+показа зарегистрируйте соответствующее view в host:
+
 ```razor
 <BlazorContentPresenter Content="@currentModel" />
 ```
 
-Presenter разрешает view через `IBlazorViewRepository`. Если найденное view наследуется от `BlazorReactiveComponent`, presenter передаёт модель в `DataContext`.
+Presenter разрешает view через `IBlazorViewRepository` по типу модели и ключу.
+При отсутствии соответствия repository возвращает `null`; поздняя регистрация
+сама по себе не гарантирует обновления уже показанного presenter. Если найденное view наследуется от `BlazorReactiveComponent`, presenter передаёт модель в `DataContext`.
 
 ### Регистрация типа view
+
+В инициализации модуля получите `IBlazorViewRegistrator` через DI;
+`MyDetailsView` и `MyModel` ниже — ваши типы:
 
 ```csharp
 registrator.RegisterViewType(typeof(MyDetailsView), typeof(MyModel), "Details");
@@ -92,6 +137,7 @@ registrator.RegisterViewType(typeof(MyDetailsView), typeof(MyModel), "Details");
 ```razor
 @inject IJsPoeBlazorUtils JsUtils
 
+<input id="search-box" />
 <button @onclick="FocusSearch">Focus</button>
 
 @code {
@@ -102,6 +148,8 @@ registrator.RegisterViewType(typeof(MyDetailsView), typeof(MyModel), "Details");
 }
 ```
 
+После нажатия Focus фокус переходит в поле `search-box`. Вызывайте это
+после появления элемента в DOM. Сервис должен быть зарегистрирован в host.
 Всегда ожидайте JS-вызовы через `await`. Безопасная обёртка над JS runtime логирует ошибки JS invocation и сообщает о пропущенных `await` через dispatcher компонента.
 
 ## Контекст host'а и runtime
@@ -170,10 +218,10 @@ registrator.RegisterViewType(typeof(MyDetailsView), typeof(MyModel), "Details");
 
 ## Связанные карты
 
-- `windows-subsystems/blazor-windows.md`
-- `osd/screen-overlay.md`
-- `core/reactivity.md`
-- `core/app-runtime-contexts.md`
-- `scripting/runtime.md`
-- `scripting/reactive-lifetime.md`
-- `scripting/async.md`
+- [blazor-windows](../windows-subsystems/blazor-windows)
+- [screen-overlay](../osd/screen-overlay)
+- [reactivity](reactivity)
+- [app-runtime-contexts](app-runtime-contexts)
+- [runtime](../scripting/runtime)
+- [reactive-lifetime](../scripting/reactive-lifetime)
+- [async](../scripting/async)

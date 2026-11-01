@@ -7,7 +7,7 @@ tags: scripting, api, ai, windows, ai-translated
 editor: markdown
 dateCreated: 2026-04-21T00:00:00.000Z
 ---
-# Карта API по `HWND`, сопоставлению и отслеживанию окон
+# Карта API по HWND, сопоставлению и отслеживанию окон
 
 Справочная карта по нативным дескрипторам окон, преобразованию сырого `HWND`, перечислению окон, сопоставлению, отслеживанию foreground-окна и изменений границ окна.
 
@@ -31,6 +31,38 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - `IWindowSelector` хранит stateful active target на основе match expression.
 - `IWindowHandleMatcher` и `IComplexWindowHandleMatcher` — это инфраструктурные include/exclude predicates.
 - Трекеры foreground и bounds работают поверх нативных event hooks.
+
+## Найти и активировать окно
+
+Откройте Блокнот и выполните в C# Action:
+
+```csharp
+IFactory<IWindowSelector> WindowSelectorFactory { get; init; }
+
+using var selector = WindowSelectorFactory.Create();
+var window = selector.FindWindow("notepad.exe");
+if (window == null)
+{
+    Log.Info("Подходящее окно пока не найдено");
+    return;
+}
+window.Activate(TimeSpan.FromMilliseconds(500));
+Log.Info($"Выбрано окно: {window.Title}");
+```
+
+Отдельным selector владеет этот запуск, `using` освобождает его подписки. Дескриптор и внедрённая фабрика остаются за инфраструктурой host. В обычный класс передайте фабрику через конструктор. Пример требует работающего desktop-host, его нативных регистраций и UI Core; SDK предоставляет типы, а не живой список окон.
+
+`FindWindow` назначает выражение и сразу читает `ActiveWindow`; он не ждёт появления окна. `GetWindow` делает то же, но при `null` бросает `InvalidOperationException`. `ActiveWindow` — выбранная цель selector, не foreground ОС. Живой список обновляется с задержкой; текущая цель сохраняется, пока ещё соответствует выражению.
+
+Selector по умолчанию не требует видимость (`OnlyVisible = false`), а при назначении цели выбирает тип top-level и внешние окна, если выражение не меняет эти параметры. Простой текст ищется в path/title/args; process name сравнивается целиком. Поэтому `notepad.exe` не равно ограничителю AHK `ahk_exe`. `#2` означает второе совпадение после сортировки, несмотря на комментарий о zero-based index в XML.
+
+Активация синхронна, может восстановить свёрнутое окно и не принимает токен отмены. Успех зависит от foreground-политики Windows; не переносите её на UI-поток только потому, что это операция с окном.
+
+## Перевести точку относительно рамки окна
+
+У найденного `IWindowHandle` методы `ToScreen(Point)` и `FromScreen(Point)` прибавляют или вычитают начало `DwmFrameBounds`; невалидные границы дают исключение. Это координаты относительно рамки, а не обещание Win32 client area. Сначала выберите систему координат входа и backend ввода; свойства матриц OSD сами по себе не доказывают нужное преобразование.
+
+Для наблюдения границ `IWindowBoundsTrackerFactory.Track(window)` возвращает `IObservable<Rectangle?>`. Освобождайте свою подписку в конце операции; тип допускает `null`. В реализации этого среза связь освобождения нативного hook с подпиской явно не установлена, поэтому это не обещание полного завершения всех нативных ресурсов. Не предполагайте UI-поток доставки без проверки host.
 
 ## Детали API
 
@@ -68,7 +100,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - `UnsafeNative.ActivateWindow(...)`
   - Низкоуровневый helper для активации с overload-ами для `IntPtr`, `IWindowHandle`, timeout и log.
   - Перед активацией восстанавливает свёрнутые окна и ждёт переключения foreground window.
-  - Выбрасывает исключение, если целевое окно не стало foreground до истечения timeout.
+  - При неудаче бросает `InvalidStateException`. Нулевой foreground может продлить ожидание до 10 секунд; timeout не является строгим пределом. Для null/нулевого HWND вызов ничего не делает.
   - В примерах для скриптов и документации предпочтительнее `WindowHandleExtensions.Activate(...)`.
 
 - `IForegroundWindowTracker`, `IWindowTracker`
@@ -118,8 +150,8 @@ dateCreated: 2026-04-21T00:00:00.000Z
   - `/pattern/` — это regex;
   - `0x...` или `&H...` сопоставляется с нативным handle;
   - `#2` выбирает второе подходящее окно;
-  - `&&` и `||` объединяют более простые выражения;
-  - свойства вроде `[type=toplevel]`, `[type=child]`, `[visible]` и `[focus]` дополнительно ограничивают сопоставление.
+  - в `FindMatches` `&&` последовательно сужает результат, а `||` выбирает первую непустую альтернативу; это не объединение всех результатов. `IsMatch` принимает простое выражение;
+  - selector обрабатывает `[type=toplevel]`, `[type=child]` и `[ownedBy=...]`; свойства `[visible]` и `[focus]` не становятся фильтрами только оттого, что парсер их прочитал. Видимость задаётся `OnlyVisible`.
 
 - Отслеживание bounds:
   - получите `IWindowBoundsTrackerFactory`;

@@ -43,25 +43,103 @@ dateCreated: 2026-04-22T00:00:00.000Z
 - `MapControllers()` — включает маршруты найденных controllers.
 - `RunAsync(cancellationToken)` — держит сервер запущенным до отмены скрипта.
 
-## Типовые сценарии
+## Отдать локальную страницу состояния
 
-### Простой локальный endpoint
+Вставьте код в `Script.csx` C# Script. Нужен свободный порт 52080 и доступные
+host сборки ASP.NET Core: `assemblyName` не устанавливает отсутствующий
+framework. Пример использует только loopback, без сертификата и удалённого
+доступа.
 
-1. Добавьте нужные assembly/package references для ASP.NET Core.
-2. Создайте host builder.
-3. При необходимости очистите унаследованные sources конфигурации.
-4. Настройте порт и протокол Kestrel.
-5. Зарегистрируйте minimal routes.
-6. Соберите host.
-7. Запустите его с `cancellationToken` скрипта.
+```csharp
+#r "assemblyName: Microsoft.AspNetCore"
+#r "assemblyName: Microsoft.AspNetCore.Hosting"
+#r "assemblyName: Microsoft.AspNetCore.Hosting.Abstractions"
+#r "assemblyName: Microsoft.AspNetCore.Http.Abstractions"
+#r "assemblyName: Microsoft.AspNetCore.Routing"
+#r "assemblyName: Microsoft.AspNetCore.Routing.Abstractions"
+#r "assemblyName: Microsoft.AspNetCore.Server.Kestrel"
+#r "assemblyName: Microsoft.AspNetCore.Server.Kestrel.Core"
+#r "assemblyName: Microsoft.Extensions.Hosting"
+#r "assemblyName: Microsoft.Extensions.Hosting.Abstractions"
+#r "assemblyName: Microsoft.Extensions.Configuration.Abstractions"
 
-### API на controllers
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Hosting;
 
-1. Вынесите controllers в отдельные `.cs` файлы.
-2. Подключите MVC/controller services.
-3. Добавьте assembly с controllers как application part.
-4. Зарегистрируйте controllers в настройке endpoints.
-5. Держите route attributes явными и стабильными.
+var runToken = cancellationToken;
+{
+    using var host = Host.CreateDefaultBuilder()
+        .ConfigureAppConfiguration((_, config) => config.Sources.Clear())
+        .ConfigureWebHostDefaults(web => web
+            .ConfigureKestrel(options => options.ListenLocalhost(52080,
+                endpoint => endpoint.Protocols = HttpProtocols.Http1))
+            .Configure(app =>
+            {
+                app.UseRouting();
+                app.UseEndpoints(endpoints =>
+                    endpoints.MapGet("/status", async context =>
+                        await context.Response.WriteAsync("EyeAuras is running")));
+            }))
+        .Build();
+
+    Log.Info("Запускаем HTTP на http://localhost:52080/status");
+    await host.RunAsync(runToken);
+}
+```
+
+После запуска откройте `http://localhost:52080/status` или выполните
+`curl http://localhost:52080/status`. Ожидаемый ответ — `EyeAuras is running`.
+Сообщение перед `RunAsync` ещё не доказывает, что порт удалось открыть:
+это проверяется ответом HTTP и диагностикой host.
+
+`RunAsync(runToken)` ожидается в теле скрипта. При отмене Run host получает
+сигнал остановки; выход из блока освобождает host. Не заменяйте этот токен
+предположением о времени жизни sandbox. Обработчик HTTP работает в контексте
+ASP.NET, поэтому desktop UI требует отдельного перехода на UI scheduler.
+Очистка `config.Sources` убирает унаследованные источники конфигурации; если
+нужна своя конфигурация сервера, добавьте её явно после очистки.
+
+## Добавить controllers к тому же серверу
+
+Для API из нескольких маршрутов разместите класс в обычном файле
+`StatusController.cs` проекта:
+
+```csharp
+using Microsoft.AspNetCore.Mvc;
+
+[ApiController]
+[Route("api/status")]
+public sealed class StatusController : ControllerBase
+{
+    [HttpGet]
+    public string Get() => "EyeAuras is running";
+}
+```
+
+В предыдущем `Script.csx` добавьте ссылки и пространства имён:
+
+```csharp
+#r "assemblyName: Microsoft.AspNetCore.Mvc"
+#r "assemblyName: Microsoft.AspNetCore.Mvc.Core"
+#r "assemblyName: Microsoft.Extensions.DependencyInjection.Abstractions"
+using Microsoft.Extensions.DependencyInjection;
+```
+
+В цепочке `web` перед `.Configure(...)` добавьте
+`.ConfigureServices(services => services.AddControllers().AddApplicationPart(typeof(StatusController).Assembly))`.
+В существующем `UseEndpoints` замените лямбду на блок, сохранив `/status`,
+и добавьте `endpoints.MapControllers();`. Теперь `GET /api/status` вернёт тот
+же текст через MVC. Полный разнесённый проект есть в
+[примере controllers](/ru/scripting/examples/advanced/web-server-controllers).
+
+Это дополнение к подготовленному серверу, а не самостоятельное тело скрипта.
+Для прикладных сервисов нужны отдельные регистрации ASP.NET DI и явная
+передача нужных зависимостей из скрипта. Unity-контейнер EyeAuras не становится
+контейнером HTTP host автоматически.
 
 ## Что предпочтительно
 
@@ -120,3 +198,4 @@ dateCreated: 2026-04-22T00:00:00.000Z
 - `scripting/references-and-resources.md`
 - `scripting/project-workflow.md`
 - `scripting/container-extensions.md`
+Срез EyeAuras `20fd3d4`, PoeEye `0e02c98`; свойства сборки указывают ASP.NET Core 7.0.0. Реализация ASP.NET поставляется внешними сборками: точные контракты смотрите в reference своей версии, а доступность порта проверяйте запуском.

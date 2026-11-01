@@ -9,13 +9,15 @@ dateCreated: 2025-05-10T23:09:15.299Z
 ---
 # Получение списка запущенных процессов
 
+Локальный пример ниже выполняется в `C# Script` EyeAuras с загруженным модулем `EyeAuras.Memory`. `LocalProcess.GetProcesses()` возвращает дескрипторы `ProcessInformation`, а не открытые читатели памяти; освобождать каждую запись через `Dispose` не нужно. Для встроенного SDK-хоста модуль подключают через `UseMemory()` и ждут `EnsureReadyAsync()` — это отдельная настройка приложения, не строка обычного скрипта.
+
 Начнём с очень простой задачи: как получить список процессов, запущенных на локальной машине?
 
 В классическом C# для этого обычно используют [Process.GetProcesses()](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.getprocesses?view=net-8.0).
 
-Но так как мы работаем через API EyeAuras, у нас есть дополнительные возможности. Они позволяют легко переключаться между разными способами чтения памяти и при необходимости обходить защитные механизмы.
+Но так как мы работаем через API EyeAuras, у нас есть дополнительные возможности. Выбор backend меняет источник данных и требования к окружению.
 
-## Использование .NET-примитивов — аналог работы через `Process`
+## Использование .NET-примитивов — аналог работы через Process
 
 ```csharp
 using EyeAuras.Memory;
@@ -27,6 +29,9 @@ Log.Info(processes.DumpToNamedTable("Processes"));
 После запуска этого скрипта в `EventLog` вы увидите примерно такой результат — список процессов с самой базовой информацией: `ProcessId` (или `PID`) и `ProcessName`.
 
 ![Event Log](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_1k4NSsZyzm.png)
+
+> Следующие варианты сохранены как примеры интеграции с `LCProcess`. Нужны отдельно установленная совместимая MPFS/LeechCore-сборка, её нативные библиотеки и настроенное устройство/драйвер. Реализация этого backend не подтверждена в рассматриваемом срезе исходников; одна замена класса не доказывает готовность окружения.
+{.is-warning}
 
 ## Использование LeechCore
 
@@ -70,3 +75,11 @@ using EyeAuras.Memory.MPFS;
 var processList = LCProcess.FPGA().GetProcesses(); //get list of processes by reading it via DMA device
 Log.Info($"Processes: \n\t{processList.DumpToTable()}"); // dump process list to the log
 ```
+
+Несмотря на имя URL `rpm-read`, эта страница перечисляет процессы. Для чтения значения откройте известный PID через `using var process = LocalProcess.ByProcessId(pid)` и используйте `process.Memory.Read<T>(address)` с известными типом и абсолютным адресом; здесь нет самостоятельного примера чтения неизвестной памяти.
+
+## Дальше
+
+[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Процессы и память](/ru/scripting/api/memory/processes) · [Примитивы памяти](/ru/scripting/memory-api/memory-basics)
+
+Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.

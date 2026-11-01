@@ -26,19 +26,35 @@ dateCreated: 2026-04-16T19:10:09.373Z
 
 ## С чего начинается работа
 
-Обычно вы открываете процесс и работаете через `process.Memory`:
+Примеры с `LocalProcess` рассчитаны на верхний уровень C#-скрипта в запущенном EyeAuras с загруженным модулем памяти. `Log` даёт хост скрипта. В обычном C#-классе передайте логгер и процесс явно. Одна ссылка на SDK не запускает модуль: во встраиваемом хосте сначала нужны запуск приложения, `UseMemory()` и ожидание `EnsureReadyAsync()`; подробнее в [Embedded SDK](/ru/scripting/api/nuget/embedded-sdk).
+
+`LocalProcess.ByProcessId(...)` возвращает новый `ILocalProcess`, который освобождает создавший его код. `process.Memory` используется вместе с этим reader'ом; отдельно закрывать заимствованный сервис хоста не нужно. Эти примеры не проверяют доступность нативных компонентов вашей сборки.
+
+Для первого чтения не нужен адрес из игры. Выделим собственные 16 байт в текущем процессе, запишем HP и скорость, затем прочитаем их через тот же публичный API:
 
 ```csharp
+using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using EyeAuras.Memory;
 
 using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-
-var hp = process.Memory.Read<int>(someHpAddress);
-var speed = process.Memory.Read<float>(someSpeedAddress);
-
-process.Memory.Write(someFlagAddress, 1);
+var buffer = Marshal.AllocHGlobal(16);
+try
+{
+    process.Memory.Write<int>(buffer, 742);
+    process.Memory.Write<float>(buffer + 0x04, 1.5f);
+    var hp = process.Memory.Read<int>(buffer);
+    var speed = process.Memory.Read<float>(buffer + 0x04);
+    Log.Info($"HP={hp}, speed={speed}");
+}
+finally
+{
+    Marshal.FreeHGlobal(buffer);
+}
 ```
+
+В журнале будут HP `742` и скорость `1.5` с учётом культуры вывода. `Marshal` здесь только владеет локальным буфером; скалярные значения читает и пишет `process.Memory`. Не освобождайте буфер, пока операция его использует.
 
 `process.Memory` в EyeAuras это и есть основной слой для работы с памятью. Через него можно:
 
@@ -57,15 +73,7 @@ process.Memory.Write(someFlagAddress, 1);
 - `Write(address, spanOrArray)` — записать блок значений
 - `Read(address, size)` — прочитать сырые байты
 
-```csharp
-var hp = process.Memory.Read<int>(hpAddress);
-var positionX = process.Memory.Read<float>(positionAddress);
-
-var header = process.Memory.Read(someAddress, 64);
-
-process.Memory.Write(someAddress, 123);
-process.Memory.Write(someAddress + 4, new byte[] { 0x90, 0x90, 0x90, 0x90 });
-```
+`Read<T>(address, count)` считает элементы `T`, а `Read(address, size)` — байты. Адрес у process backend — абсолютный VA. `Read`/`Write` сообщают о неудаче исключением, `TryRead`/`TryWrite` возвращают `bool`; это не количество переданных байтов. Эти методы синхронные, без токена отмены.
 
 Этот путь лучше всего подходит для:
 
@@ -85,7 +93,7 @@ process.Memory.Write(someAddress + 4, new byte[] { 0x90, 0x90, 0x90, 0x90 });
 - экспорт модуля
 - адрес глобального объекта внутри конкретного модуля
 
-Простейший пример:
+Иллюстрация для уже открытого `process`: вход — модуль `game.exe` и известный для его версии RVA `0x123456`, по которому хранится 64-битный указатель. Это не адрес для запуска на произвольной игре. Нужен `using EyeAuras.Memory.Scaffolding;` для `GetProcessModule`.
 
 ```csharp
 var mainModule = process.GetProcessModule("game.exe");
@@ -93,7 +101,7 @@ var playerManagerPtrAddress = new IntPtr(mainModule.BaseAddress.ToInt64() + 0x12
 var playerManager = process.Memory.ReadPointer(playerManagerPtrAddress);
 ```
 
-Смысл здесь в том, что база модуля может меняться между запусками, а `RVA` внутри него остаётся тем же. Поэтому мы обычно думаем не так:
+Смысл здесь в том, что база модуля может меняться между запусками, а `RVA` внутри той же версии образа остаётся тем же; обновление программы может изменить его. Поэтому мы обычно думаем не так:
 
 - "мне нужен адрес `0x12345678`"
 
@@ -111,7 +119,7 @@ var playerManager = process.Memory.ReadPointer(playerManagerPtrAddress);
 - `0x10` до `Health`
 - `0x18` до `Mana`
 
-то чтение выглядит так:
+то чтение выглядит так (фрагмент для уже открытого `process` и известного абсолютного `playerBase`):
 
 ```csharp
 var health = process.Memory.Read<int>(playerBase + 0x10);
@@ -156,40 +164,74 @@ var hp = process.Memory.ReadPointerChain<int>(
 - `ReadPointerChain<T>(...)`
 - `ReadPointerChain32<T>(...)`
 
+Для законченного примера создадим цепочку в собственном буфере. Это верхний уровень скрипта EyeAuras с модулем памяти; вариант рассчитан на 64-битный хост и 64-битные указатели.
+
 ```csharp
-var health = process.Memory.ReadPointerChain<int>(
-    playerManagerPtrAddress,
-    0x10,
-    0x20,
-    0x18);
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using EyeAuras.Memory;
+
+using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+var buffer = Marshal.AllocHGlobal(0x40);
+try
+{
+    var player = buffer + 0x10;
+    process.Memory.Write<long>(buffer, player.ToInt64());
+    process.Memory.Write<int>(player + 0x18, 742);
+    var health = process.Memory.ReadPointerChain<int>(buffer, 0x18);
+    Log.Info($"HP={health}");
+}
+finally
+{
+    Marshal.FreeHGlobal(buffer);
+}
 ```
 
-Для 32-bit layout используйте `ReadPointer32(...)` и `ReadPointerChain32<T>(...)`, иначе вы просто будете читать указатели не того размера.
+Получим `HP=742`: helper сначала читает указатель из `buffer`, затем значение по `player + 0x18`. В длинной цепочке промежуточные offsets означают разыменование, последний — смещение до `T`. Нужен хотя бы один offset. Нулевой указатель возвращает `default(T)`; неудачное чтение может бросить исключение. Поэтому нулевой HP сам по себе не доказывает, что цепочка была правильной.
 
-Важно: если в цепочке встретится `null`, `ReadPointerChain<T>(...)` вернёт `default`, а не исключение. Это удобно, но может скрывать ошибки в логике, поэтому в сложных сценариях полезно логировать промежуточные адреса отдельно.
+`ReadPointer` и обычная цепочка читают 64-битные указатели без автоматического определения архитектуры цели. Для 32-битной цепочки используйте `ReadPointerChain32<T>`: внутри читается `uint`. Отдельный `ReadPointer32` читает `int` и при преобразовании может расширить знак; для явного беззнакового адреса удобнее `process.Memory.Read<uint>(address)`. Размер `IntPtr` относится к хосту, а не к целевой структуре.
 
 ## Строки и кодировки
 
 В Memory API есть три основных helper'а:
 
 - `ReadString(...)` — `UTF-8`
-- `ReadStringA(...)` — однобайтная строка в стиле `ASCII` / ANSI
+- `ReadStringA(...)` — `Encoding.ASCII`, без системной ANSI code page
 - `ReadStringU(...)` — `UTF-16 LE` (`Encoding.Unicode`)
 
+Прочитаем свою строку. Запускайте на верхнем уровне скрипта EyeAuras с модулем памяти; буфер принадлежит только этому примеру.
+
 ```csharp
-var utf8Name = process.Memory.ReadString(namePtr.ToInt64(), 64);
-var ansiName = process.Memory.ReadStringA(namePtr.ToInt64(), 64);
-var wideName = process.Memory.ReadStringU(namePtr.ToInt64(), 64);
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using EyeAuras.Memory;
+
+using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+var namePtr = Marshal.AllocHGlobal(64);
+try
+{
+    process.Memory.WriteString(namePtr, "Player");
+    Log.Info(process.Memory.ReadString(namePtr.ToInt64(), 7));
+}
+finally
+{
+    Marshal.FreeHGlobal(namePtr);
+}
 ```
+
+В журнале будет `Player`. Читаем 7 байт — шесть букв и завершающий NUL. При записи произвольного текста заранее выделите место под UTF-8 байты и NUL; `WriteString` не выделяет буфер.
 
 Практические правила здесь такие:
 
-- параметр длины у `ReadStringU(...)` это длина в байтах, а не в символах
+- длина у всех трёх методов измеряется в байтах; по умолчанию 256 байт и `replaceNull=true`
+- для UTF-16 нужен чётный достаточный размер; пустой результат также может означать неудачное чтение, а не пустую строку
 - по умолчанию строки обрезаются по `\0`
 - если в памяти лежит не та кодировка, вы получите "мусор", даже если адрес правильный
 - `WriteString(...)` сейчас пишет `UTF-8` строку с `\0` на конце
 
-Если строка лежит не отдельно, а внутри структуры фиксированным полем, почти всегда лучше читать её через `ReadManaged<T>(...)`. Для этого есть отдельная страница: [C# Struct Layout](/ru/scripting/memory-api/csharp-structures).
+Если строка лежит не отдельно, а внутри структуры фиксированным полем, можно читать её через `ReadManaged<T>(...)`. Для этого есть отдельная страница: [C# Struct Layout](/ru/scripting/memory-api/csharp-structures).
 
 Полезный фон по строкам и marshaling:
 
@@ -221,8 +263,9 @@ var wideName = process.Memory.ReadStringU(namePtr.ToInt64(), 64);
 ```csharp
 using System.Buffers.Binary;
 
-var raw = process.Memory.Read(someAddress, 4);
-var bigEndianValue = BinaryPrimitives.ReadInt32BigEndian(raw);
+// Объявленный вход — четыре байта поля в big-endian формате.
+var raw = new byte[] { 0x00, 0x00, 0x00, 0x01 };
+var bigEndianValue = BinaryPrimitives.ReadInt32BigEndian(raw); // 1
 ```
 
 Полезная ссылка:
@@ -242,22 +285,29 @@ var bigEndianValue = BinaryPrimitives.ReadInt32BigEndian(raw);
 - одним чтением забрать блок памяти
 - уже потом разбирать его локально
 
-```csharp
-var buffer = new byte[0x400];
+Для массива однотипных элементов читайте сразу массив структур. Вот законченный C#-helper: вызывающий код передаёт живой `IProcess`, абсолютный адрес первого элемента и число элементов, подтверждённые для версии целевой программы.
 
-if (process.Memory.TryRead(playerBase, buffer.AsSpan()))
+```csharp
+using System;
+using System.Runtime.InteropServices;
+using EyeAuras.Memory;
+
+[StructLayout(LayoutKind.Explicit, Size = 0x30)]
+public struct ActorEntry
 {
-    var health = BitConverter.ToInt32(buffer, 0x10);
-    var mana = BitConverter.ToInt32(buffer, 0x18);
-    var targetId = BitConverter.ToInt64(buffer, 0x28);
+    [FieldOffset(0x10)] public int Health;
+    [FieldOffset(0x18)] public int Mana;
+    [FieldOffset(0x28)] public long TargetId;
+}
+
+public static class ActorReader
+{
+    public static ActorEntry[] ReadActors(IProcess process, IntPtr arrayAddress, int count)
+        => process.Memory.Read<ActorEntry>(arrayAddress, count);
 }
 ```
 
-Если у вас массив однотипных элементов, удобнее читать его сразу как массив структур:
-
-```csharp
-var actors = process.Memory.Read<ActorEntry>(actorsArrayAddress, actorCount);
-```
+Результат — `count` локальных записей с шагом `0x30`. Здесь layout объявлен явно; это пример формата, а не готовые offsets какой-либо игры. Helper не открывает и не закрывает переданный процесс. Для настоящего байтового формата — файла, пакета или дампа — уместен `Span<byte>` и явное декодирование, но для обычных скалярных полей это лишняя обёртка.
 
 Под капотом `MemoryAccessor` уже делает несколько полезных вещей:
 
@@ -269,20 +319,9 @@ var actors = process.Memory.Read<ActorEntry>(actorsArrayAddress, actorCount);
 
 ## Многопоточность
 
-Несколько reader'ов одновременно в целом допустимы. В тестах EyeAuras есть и несколько последовательных reader'ов, и несколько параллельных reader'ов.
+Параллельные чтения и чтение одним блоком не гарантируют согласованный снимок: целевой процесс может менять данные во время копирования. Требования к потокам задаёт конкретный backend; наличие параллельного сценария в тестах не доказывает потокобезопасность всех реализаций.
 
-Но важно понимать границу:
-
-- сам API читать параллельно обычно умеет
-- целевой процесс при этом может менять данные между вашими чтениями
-
-То есть проблема обычно не в том, что сам `MemoryAccessor` "ломается от потоков", а в том, что данные в процессе в этот момент уже могли измениться.
-
-Практический совет:
-
-- если нужен согласованный snapshot, читайте блок одним куском
-- если backend это поддерживает и сценарий безопасен, можно временно зафиксировать процесс отдельно
-- не делите один логический объект на десятки независимых чтений из разных потоков без причины
+Не меняйте backend и не освобождайте процесс одновременно с чтением. Если нужна согласованность нескольких полей, используйте протокол целевой программы или проверку версии снимка, а не предположение, что одно чтение атомарно.
 
 ## Какой способ чтения выбрать
 
@@ -313,7 +352,7 @@ var actors = process.Memory.Read<ActorEntry>(actorsArrayAddress, actorCount);
 - обычный `byte[]`
 - другие ссылочные поля
 
-Это самый быстрый путь.
+Это прямой путь для `T : unmanaged`; атрибут `MarshalAs` сам по себе не делает тип подходящим под это ограничение.
 
 ### Вариант 2 - гибкий путь
 
@@ -341,6 +380,8 @@ var actors = process.Memory.Read<ActorEntry>(actorsArrayAddress, actorCount);
 
 - сначала попробуйте описать структуру как простую
 - если упираетесь в строки или фиксированные managed-поля, переходите на `ReadManaged<T>(...)`
+
+Контракты на этой странице сверены по EyeAuras `20fd3d4`; это чтение исходников, без запуска примеров. Полные сигнатуры и ограничения своей версии проверяйте по [карте API памяти](/ru/scripting/api/memory) и SDK/XML reference.
 
 ## Что читать дальше
 

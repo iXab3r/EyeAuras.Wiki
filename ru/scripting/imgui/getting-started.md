@@ -23,6 +23,13 @@ EyeAuras постепенно переходит на модульную сис�
 
 Поэтому разные возможности выносятся в отдельные NuGet-пакеты, которые можно установить так же, как любые другие.
 
+Ниже — C# Script работающего desktop EyeAuras. Ссылка на `0.1.42` сохранена
+из исходного примера; перед запуском проверьте совместимость установленного
+пакета с API своей версии. Описание контрактов сверено с исходниками
+EyeAuras `20fd3d4`, что само по себе не подтверждает любую опубликованную
+версию NuGet. Для обычного C# класса нужны явно переданные зависимости:
+`GetService`, `AddNewExtension` и токен запуска предоставляет хост скрипта.
+
 ```csharp
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.42"
  
@@ -32,8 +39,7 @@ using System.Numerics;   // for Vector2/Vector3 use with ImGui
 
 AddNewExtension<ImGuiContainerExtensions>(); // registers IImGuiExperimentalApi and others
 
-var osd = GetService<IImGuiExperimentalApi>() // creates the ImGui overlay
-    .AddTo(ExecutionAnchors); // ensures cleanup when script stops
+using var osd = GetService<IImGuiExperimentalApi>();
 ```
 
 ---
@@ -43,7 +49,7 @@ var osd = GetService<IImGuiExperimentalApi>() // creates the ImGui overlay
 Чтобы начать работать с ImGui, нужно сделать всего 3 вещи:
 
 * Подключить namespace `ImGuiNET`
-* Получить `IImGuiApi` через `GetService`
+* Получить `IImGuiExperimentalApi` через `GetService`
 * Вызвать `AddRenderer()` и передать в него ваш метод отрисовки
 
 На этом всё. EyeAuras сам создаст overlay и запустит render loop. Вам остаётся только поместить свою логику в метод, который передаётся в `AddRenderer`.
@@ -59,10 +65,9 @@ using System.Numerics;
 
 AddNewExtension<ImGuiContainerExtensions>();
 
-var osd = GetService<IImGuiExperimentalApi>()
-    .AddTo(ExecutionAnchors);
+using var osd = GetService<IImGuiExperimentalApi>();
 
-osd.AddRenderer(() =>
+using var rendering = osd.AddRenderer(() =>
 {
     ImGui.ShowDemoWindow();
 });
@@ -82,7 +87,7 @@ cancellationToken.WaitHandle.WaitOne(); // keep running until script is stopped
 
 ### Что для этого нужно
 
-* Создать overlay через `IImGuiApi`
+* Создать overlay через `IImGuiExperimentalApi`
 * Передать метод отрисовки в `AddRenderer`
 * Внутри render-метода нарисовать checkbox и текст
 
@@ -91,45 +96,48 @@ cancellationToken.WaitHandle.WaitOne(); // keep running until script is stopped
 ```csharp
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.42"
 
-using EyeAuras.ImGuiSdk; 
+using EyeAuras.ImGuiSdk;
+using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 using ImGuiNET;
 using System.Numerics;
 
-[Inject] IAuraTreeScriptingApi AuraTree { get; init; }
-
-IHotkeyIsActiveTrigger Trigger => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
+// Создайте рядом ауру TargetAura с триггером HotkeyIsActive.
+var trigger = AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
 
 AddNewExtension<ImGuiContainerExtensions>();
 
-var osd = GetService<IImGuiExperimentalApi>()
-    .AddTo(ExecutionAnchors);
+using var osd = GetService<IImGuiExperimentalApi>();
 
-osd.AddRenderer(() =>
+using var rendering = osd.AddRenderer(() =>
 {
-    ImGui.Begin("My UI");
-
-    ImGui.Text("Control window flags and interaction behavior.");
-
-    var isActive = Trigger.TriggerValue ?? false;
-    if (ImGui.Checkbox("Is Active", ref isActive))
+    var visible = ImGui.Begin("My UI");
+    try
     {
-        Trigger.TriggerValue = isActive;
+        if (!visible) return;
+        ImGui.Text("Control window flags and interaction behavior.");
+
+        var isActive = trigger.TriggerValue ?? false;
+        if (ImGui.Checkbox("Is Active", ref isActive))
+        {
+            trigger.TriggerValue = isActive;
+        }
+        ImGui.SameLine();
+        ImGui.TextDisabled("(Gets/Sets whether Trigger is active or not)");
+
+        ImGui.Separator();
+        if (trigger.IsActive == true)
+        {
+            ImGui.TextColored(new Vector4(0f, 1f, 0f, 1f), "Trigger is currently ACTIVE");
+        }
+        else
+        {
+            ImGui.TextColored(new Vector4(1f, 0f, 0f, 1f), "Trigger is currently INACTIVE");
+        }
     }
-    ImGui.SameLine();
-    ImGui.TextDisabled("(Gets/Sets whether Trigger is active or not)");
-
-    ImGui.Separator();
-
-    if (Trigger.IsActive == true)
+    finally
     {
-        ImGui.TextColored(new Vector4(0f, 1f, 0f, 1f), "Trigger is currently ACTIVE");
+        ImGui.End();
     }
-    else
-    {
-        ImGui.TextColored(new Vector4(1f, 0f, 0f, 1f), "Trigger is currently INACTIVE");
-    }
-
-    ImGui.End();
 });
 
 cancellationToken.WaitHandle.WaitOne();
@@ -149,4 +157,10 @@ cancellationToken.WaitHandle.WaitOne();
 
 ---
 
-Если нужно, этот материал можно оформить как полноценную страницу документации или встроить в шаблоны скриптов EyeAuras.
+В примерах появится демонстрационное окно либо переключатель `TargetAura`.
+После остановки `using` сначала снимает подписку `AddRenderer`, затем
+освобождает API. Подписка не привязывается к API автоматически. Экземпляры
+используют общее окно `Main`, поэтому освобождение вашей доли не означает
+закрытия окна других скриптов. Параметры частоты кадров, общий overlay,
+шрифты и время жизни разобраны в
+[операциях IImGuiExperimentalApi](/ru/scripting/api/IImGuiExperimentalApi).

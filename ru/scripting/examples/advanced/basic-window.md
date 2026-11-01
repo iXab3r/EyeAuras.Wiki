@@ -9,8 +9,9 @@ dateCreated: 2025-02-27T19:39:18.852Z
 ---
 # Окно Blazor
 
-Все окна в EyeAuras, которыми управляет пользователь, работают на внутреннем фреймворке BlazorWindows.  
-Их легко создавать, они потокобезопасны и полностью поддерживают Blazor, объединяя лучшее из двух миров: нативной и веб-разработки.
+Создайте в одном проекте `C# Script` два файла — `Script.csx` и `MainWindow.razor` с содержимым ниже. Пространство имён `PhantomPixel` должно совпадать в Razor и `using` скрипта. `GetService`, `IBlazorWindow` и базовый компонент предоставляет хост EyeAuras; это не самостоятельное приложение WPF или обычный C# helper.
+
+`IBlazorWindow` открывает нативное окно с Razor-компонентом внутри EyeAuras. Операции окна проходят через инфраструктуру UI-хоста; это не означает потокобезопасность любого состояния компонента.
 
 Подсветка синтаксиса в Razor-файлах пока местами сыровата, поэтому для всего, что сложнее `Hello, world`, лучше использовать компонент с code-behind. Тогда в `.cs` у вас будет полноценная подсветка.
 
@@ -29,7 +30,9 @@ dateCreated: 2025-02-27T19:39:18.852Z
 
 **Script.csx**
 ```csharp
-var window = GetService<IBlazorWindow>();
+using PhantomPixel;
+
+using var window = GetService<IBlazorWindow>();
 window.ViewType = typeof(MainWindow);
 window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
 window.ShowDialog();
@@ -58,6 +61,15 @@ window.ShowDialog();
     private void IncrementCount()
     {
         count++;
+        Refresh(nameof(IncrementCount));
     }
 }
 ```
+
+Нажатие `Click Me` увеличивает число и запрашивает `Refresh(nameof(IncrementCount))`. `ShowDialog()` удерживает скрипт до закрытия окна; созданное окно освобождается через `using`. UI-события компонента не дают права обращаться к произвольным WPF-объектам из рабочего потока.
+
+## Дальше
+
+[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Окна Blazor](/ru/scripting/api/windows-subsystems/blazor-windows) · [IBlazorWindow](/ru/scripting/api/IBlazorWindow)
+
+Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.

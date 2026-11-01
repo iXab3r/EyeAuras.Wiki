@@ -8,7 +8,7 @@ editor: markdown
 dateCreated: 2024-02-24T00:08:49.173Z
 ---
 
-## Выводим оверлей возле курсора
+# Выводим оверлей возле курсора
 > Импортировать готовый пример можно отсюда https://eu.eyeauras.net/share/S20240224000701ZxH9BwnuQbRX
 {.is-info}
 
@@ -20,33 +20,43 @@ dateCreated: 2024-02-24T00:08:49.173Z
 
 ![](https://i.imgur.com/FSSKzJp.gif)
 
+Это верхнеуровневый скрипт EyeAuras с зарегистрированными Roxy и OSD.
+В стандартном `Windows Input` чтение `CursorPosition` даёт экранную точку;
+этот пример не отправляет ввод. При остановке или ошибке сначала освобождается
+прямоугольник, затем очищается и освобождается его canvas. Не полагайтесь
+только на время жизни canvas для удаления детей. Само общее окно может
+оставаться у других скриптов. [Контракт OSD](/ru/scripting/api/osd/screen-overlay)
+также описывает ограничения основного монитора и DPI. Обычному C# классу
+эти сервисы и токен нужно передать явно.
+
 ```csharp
-var sendInputApi = GetService<ISendInputUnstableScriptingApi>(); // для получения координат курсора
-var overlayApi = GetService<IOnScreenCanvasScriptingApi>(); // для отрисовки оверлеев
+using System.Drawing;
+using EyeAuras.Roxy.Api;
+using EyeAuras.Shared.Scripting;
+using EyeAuras.Blazor.Controls.ScreenOverlay;
 
-var canvas = overlayApi.Create() // создаем "полотно", на котором будет отрисовывать оверлей
-    .AddTo(ExecutionAnchors); // указываем, что при завершении скрипта полотно нужно очистить
+var sendInputApi = GetService<ISendInputScriptingApi>();
+using var canvas = GetService<IOnScreenCanvasScriptingApi>().Create();
+try
+{
+    using var rectangle = canvas.AddRectangle();
+    rectangle.BorderColor = Color.Azure;
+    rectangle.BorderThickness = 1;
+    rectangle.Size = new Size(32, 32);
 
-var rectangle = canvas
-    .AddRectangle() // добавляем прямоугольник
-    .WithBorderColor(Color.Azure) // цвет
-    .WithBorderThickness(1) // толщина границ
-    .WithSize(new Size(32, 32)); // ну и размер
-
-Log.Info("Starting tracking");
-
-// Важно! Не while(true), а именно в таком виде
-// Данный код будет выполняться в цикле до тех пор, пока скрипт не будет остановлен
-// а остановлен он будет либо когда окно EyeAuras станет активным, либо по хоткею 
-while (!cancellationToken.IsCancellationRequested){
-    // получаем координаты курсора и указываем, что оверлей должен быть рядом
-    rectangle.Location = sendInputApi.CursorPosition;
+    Log.Info("Starting tracking");
+    while (!cancellationToken.IsCancellationRequested)
+    {
+        rectangle.Location = sendInputApi.CursorPosition;
+        Sleep(16); // ограничиваем частоту обновления и учитываем остановку
+    }
 }
-
-// сюда мы попадем когда скрипту будет отдана команда на завершение
-Log.Info("Completed tracking");
+finally
+{
+    canvas.Clear();
+    Log.Info("Completed tracking");
+}
 ```
 
 > Само собой, оверлей может отрисовывать не только квадраты. Это может быть что угодно - текст, картинка, да хоть видео
 {.is-info}
-

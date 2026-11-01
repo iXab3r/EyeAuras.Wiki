@@ -15,8 +15,19 @@ dateCreated: 2025-05-11T15:23:20.489Z
 
 ![Demo](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_BY6C30fWpS.gif)
 
+В одной папке создайте ауру с **C# Overlay v3** и ауры `TargetAura 1`, `TargetAura 2`, `TargetAura 3`, `TargetAura 4`. В каждую целевую ауру добавьте `HotkeyIsActive` и настройте горячую клавишу в режиме переключения. Оставьте целевые ауры загруженными. Пути `./TargetAura 1` и остальные в примере ищутся относительно контекста оверлея; при другой структуре дерева замените их. Если подходящих триггеров несколько, выбирается первый.
+
+Замените содержимое `UserOverlay.cs` и `UserOverlay.razor` в этом оверлее кодом ниже. Это две части одного `public partial` класса в одном пространстве имён. `AuraTree` получает компонент через `[Inject]`; глобальные переменные из `Script.csx` в него автоматически не передаются.
+
 ## UserOverlay.cs
 ```csharp
+using System;
+using System.Reactive.Linq;
+using Microsoft.AspNetCore.Components;
+using PoeShared.Blazor;
+using EyeAuras.Scripting.Api;
+using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
+
 public partial class UserOverlay : BlazorReactiveComponent {
 
     [Inject]
@@ -56,6 +67,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ## UserOverlay.razor
 ```html
+@using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
@@ -100,7 +112,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ---
 
-# Разбор
+## Разбор
 
 ## UserOverlay.cs
 
@@ -132,7 +144,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
     }
 ```
 
-Первый вариант: на каждом рендере мы заранее выбираем стиль кнопки и создаём полностью новый компонент. То есть мы не меняем свойства уже существующего компонента, а рендерим другой. Такой подход полезен, когда меняется слишком много свойств; в остальных случаях он выглядит немного «грязно».
+Первый вариант: условие выбирает разметку и параметры кнопки. Не стоит полагаться на то, что Blazor обязательно уничтожит и создаст компонент заново при каждом таком переключении. Такой подход полезен, когда меняется слишком много свойств; в остальных случаях он выглядит немного «грязно».
 
 ```html
 <ToggleButton @bind-IsChecked="@Trigger2IsActive">
@@ -164,3 +176,4 @@ public partial class UserOverlay : BlazorReactiveComponent {
 ```
 
 Здесь условие используется для динамического рендера дополнительной кнопки. Она появляется только тогда, когда активен `Trigger 3`. Таким способом можно строить целую иерархию настроек. Но помните: «прыгающий» интерфейс — это плохой UX, поэтому по возможности такого поведения лучше избегать.
+Нажатие кнопки записывает `TriggerValue`; горячая клавиша меняет тот же триггер. Таймер в `ChangeTrackers` заставляет компонент перечитывать состояние примерно раз в секунду, поэтому внешнее изменение видно с задержкой. Добавляйте таймер до `base.OnInitialized()`: там список отслеживания запечатывается и подписки привязываются к `Anchors` компонента. Скрытие окна само по себе не равно уничтожению компонента.

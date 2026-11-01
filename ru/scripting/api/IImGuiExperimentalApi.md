@@ -7,133 +7,65 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-07-16T10:36:31.172Z
 ---
-> Для AI-first навигации см. [AI ImGui SDK](./nuget/imgui-sdk) — там описаны опциональный NuGet-пакет, принципы render loop и отличия ImGui от Blazor windows и Blazor OSD.
-{.is-info}
+# IImGuiExperimentalApi
 
-> Важно! Этот API поставляется как отдельный NuGet-пакет, поэтому сначала его нужно подключить в скрипте. Рекомендуется использовать последнюю доступную версию.
-{.is-info}
+Экспериментальный интерфейс пакета `EyeAuras.ImGuiSdk` управляет циклом отрисовки, шрифтами и текстурами. Для выбора более высокого уровня UI смотрите [карту ImGui SDK](/ru/scripting/api/nuget/imgui-sdk); для Razor — [Blazor Windows](/ru/scripting/api/windows-subsystems/blazor-windows).
 
-```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
-#r "nuget:ImGui.NET, 1.91.6.1"
-```
+## Показать окно на каждом кадре
 
+В C# Script внутри EyeAuras подключите пакет, зарегистрируйте расширение контейнера и только затем получите сервис. Версия `0.1.42` сохранена из [руководства по ImGui](/ru/scripting/imgui/getting-started); соответствие конкретного установленного пакета описанному ниже исходному контракту нужно проверять отдельно.
 
 ```csharp
-/// <summary>
-/// Experimental API for rendering custom UI and overlays using ImGui in EyeAuras.
-/// Provides low-level drawing and layout utilities as well as access to render loop.
-/// </summary>
-public interface IImGuiExperimentalApi : IDisposable
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.42"
+
+using EyeAuras.ImGuiSdk;
+using ImGuiNET;
+
+AddNewExtension<ImGuiContainerExtensions>();
+using var imgui = GetService<IImGuiExperimentalApi>();
+using var renderer = imgui.AddRenderer(() =>
 {
-    /// <summary>
-    /// Adds a custom renderer that gets called every ImGui frame.
-    /// </summary>
-    /// <param name="handler">An action that receives the current API instance for rendering.</param>
-    /// <returns>An <see cref="IDisposable"/> that removes the handler when disposed.</returns>
-    IDisposable AddRenderer(Action<IImGuiExperimentalApi> handler);
-
-    /// <summary>
-    /// Adds a basic render callback that does not require API context.
-    /// </summary>
-    /// <param name="handler">An action to invoke each ImGui frame.</param>
-    /// <returns>An <see cref="IDisposable"/> that removes the handler when disposed.</returns>
-    IDisposable AddRenderer(Action handler) => AddRenderer(_ => handler());
-
-    /// <summary>
-    /// If true, the window will not gain focus when interacted with.
-    /// Useful for overlays or passive UI components.
-    /// </summary>
-    bool NoActivate { get; set; }
-
-    /// <summary>
-    /// Controls whether the ImGui window appears in the taskbar.
-    /// </summary>
-    bool ShowInTaskbar { get; set; }
-
-    /// <summary>
-    /// Measures the size (in pixels) that the specified text would occupy using the current font and styling.
-    /// </summary>
-    /// <param name="text">The text to measure.</param>
-    /// <returns>The size of the text as a <see cref="Vector2"/> (width and height).</returns>
-    Vector2 MeasureText(string text);
-
-    /// <summary>
-    /// Measures the size of the given text using a custom height constraint.
-    /// </summary>
-    /// <param name="text">The text to measure.</param>
-    /// <param name="height">The height in pixels to simulate for layout.</param>
-    /// <returns>The estimated size as a <see cref="Vector2"/>.</returns>
-    Vector2 MeasureText(string text, int height);
-
-    /// <summary>
-    /// Draws a filled box (rectangle) with the specified color.
-    /// </summary>
-    /// <param name="rect">The rectangle to fill.</param>
-    /// <param name="color">The fill color.</param>
-    void DrawBox(RectangleF rect, Color color);
-
-    /// <summary>
-    /// Draws a filled box with optional corner rounding.
-    /// </summary>
-    /// <param name="p1">Top-left corner of the rectangle.</param>
-    /// <param name="p2">Bottom-right corner of the rectangle.</param>
-    /// <param name="color">The fill color.</param>
-    /// <param name="rounding">Corner radius for rounded edges (default: 0).</param>
-    void DrawBox(Vector2 p1, Vector2 p2, Color color, float rounding = 0);
-
-    /// <summary>
-    /// Draws a filled box with corner rounding.
-    /// </summary>
-    /// <param name="rect">Rectangle to fill.</param>
-    /// <param name="color">The fill color.</param>
-    /// <param name="rounding">Radius for rounded corners.</param>
-    void DrawBox(RectangleF rect, Color color, float rounding);
-
-    /// <summary>
-    /// Draws an outlined rectangle (frame) with the given thickness and color.
-    /// </summary>
-    /// <param name="p1">Top-left corner of the frame.</param>
-    /// <param name="p2">Bottom-right corner of the frame.</param>
-    /// <param name="color">Color of the outline.</param>
-    /// <param name="thickness">Line thickness in pixels (default: 1).</param>
-    void DrawFrame(Vector2 p1, Vector2 p2, Color color, int thickness = 1);
-
-    /// <summary>
-    /// Draws an outlined rectangle with rounding and custom ImDrawFlags.
-    /// </summary>
-    /// <param name="p1">Top-left corner.</param>
-    /// <param name="p2">Bottom-right corner.</param>
-    /// <param name="color">Outline color.</param>
-    /// <param name="rounding">Corner radius for rounded corners.</param>
-    /// <param name="thickness">Line thickness.</param>
-    /// <param name="flags">ImGui draw flags (e.g., which corners to round).</param>
-    void DrawFrame(Vector2 p1, Vector2 p2, Color color, float rounding, int thickness, ImDrawFlags flags);
-
-    /// <summary>
-    /// Draws a rectangle outline with rounding, thickness, and draw flags.
-    /// </summary>
-    /// <param name="rect">Rectangle bounds.</param>
-    /// <param name="color">Color of the frame.</param>
-    /// <param name="rounding">Radius for corner rounding.</param>
-    /// <param name="thickness">Line thickness.</param>
-    /// <param name="flags">Optional drawing flags for ImGui rendering behavior.</param>
-    void DrawFrame(RectangleF rect, Color color, float rounding, int thickness, ImDrawFlags flags);
-
-    /// <summary>
-    /// Draws an outlined rectangle with specified thickness and no rounding.
-    /// </summary>
-    /// <param name="rect">Rectangle bounds.</param>
-    /// <param name="color">Outline color.</param>
-    /// <param name="thickness">Line thickness (default: 1).</param>
-    void DrawFrame(RectangleF rect, Color color, int thickness = 1);
-
-    /// <summary>
-    /// Draws a filled circle at the specified center point with a given radius and color.
-    /// </summary>
-    /// <param name="center">Center of the circle.</param>
-    /// <param name="radius">Radius in pixels.</param>
-    /// <param name="color">Fill color.</param>
-    void DrawCircleFilled(Vector2 center, float radius, Color color);
-}
+    ImGui.Begin("Пример");
+    ImGui.Text("Hello, World");
+    ImGui.End();
+});
+cancellationToken.WaitHandle.WaitOne();
 ```
+
+Появится окно с текстом. Скрипт ждёт остановки пользователем, после чего `using` освобождает подписку и экземпляр API. Возвращаемый `AddRenderer` объект удаляет обработчик при `Dispose`; его нужно освобождать отдельно. Рисование выполняется в обработчике кадра, поэтому не помещайте туда `Sleep`, ожидание сети или чтение большого файла. Обычный C# класс не получает `GetService`, `AddNewExtension` и `cancellationToken` как глобальные функции — зависимости ему передаёт вызывающий код.
+
+## Выполнить действие на ближайшем кадре
+
+В уже настроенном скрипте `imgui.RunOnce(api => { /* короткая операция кадра */ })` ставит обработчик на один кадр и возвращает `IDisposable`. Освобождение этого объекта до выполнения предотвращает вызов. Это средство планирования работы с ImGui, а не способ хранить постоянное изображение: содержимое интерфейса обычно нужно рисовать каждый кадр через `AddRenderer`.
+
+## Настроить частоту и поведение окна
+
+У нового общего overlay в рассматриваемой реализации `VSync = true`, `MaxFramesPerSecond = 0`, `NoActivate = false`, `ShowInTaskbar = false`. `0` означает отсутствие отдельного лимита FPS; при включённом VSync приоритет у синхронизации с монитором. Чтобы задать лимит вручную, установите `imgui.VSync = false` и затем, например, `imgui.MaxFramesPerSecond = 60`.
+
+`NoActivate = true` позволяет взаимодействовать с overlay без получения им фокуса. Экземпляры API используют общий ресурс overlay с именем `Main`, поэтому эти настройки нельзя считать изолированными для каждого скрипта. Освобождение одного экземпляра API также не означает немедленного закрытия общего overlay, пока им пользуются другие владельцы.
+
+## Зарегистрировать шрифт или текстуру
+
+`AddFont(ReadOnlySpan<byte> ttf, float sizeInPixels = 16, string? name = null, ImGuiFontRangeType rangeType = ImGuiFontRangeType.Default)` принимает готовые байты TTF и возвращает `ImGuiFontSpec`. Чтобы сделать его основным, вызовите `ReplaceFont(fontSpec)`; `RemoveFont(fontSpec)` удаляет регистрацию и возвращает `bool`. Старый `ReplaceFont` с байтами помечен `Obsolete`. Чтение файла выполняйте до обработчика кадра, а изменение репозитория шрифтов — в потоке отрисовки. [Полный пример загрузки TTF](/ru/scripting/imgui/loading-font) включает получение ресурса и отрисовку.
+
+Регистрация ещё не означает загрузку в атлас: `IsInitialized` у описания
+не является проверкой готовности нативного шрифта. После обработчиков кадра
+грязный атлас перестраивается. Для локального выбора используйте парные
+`ImGuiEx.PushFont(spec)` / `PopFont(spec)` в одном кадре, как в
+[примере со вспомогательным классом](/ru/scripting/imgui/loading-font-static).
+Не назначайте то же описание основным через `ReplaceFont` и одновременно
+не рассчитывайте на его обычный слот для `PushFont` в этой реализации.
+
+Шрифты общие для overlay `Main`. Освобождение API не удаляет ваши регистрации
+из общего репозитория. `RemoveFont` удаляет описание и сбрасывает основной
+шрифт, если нужно; это не обещание освободить исходный нативный буфер — в
+данном срезе он намеренно сохраняется. Поэтому не добавляйте новый шрифт
+на каждом кадре или при каждой отрисовке текста.
+
+`GetOrAddImage(string name, Image<Rgba32> image, bool srgb)` принимает изображение SixLabors.ImageSharp и явный выбор цветового пространства, возвращает `IntPtr` текстуры ImGui. `RemoveImage(string name)` возвращает `bool`. Имя — ключ ресурса, а не произвольная новая строка на каждый кадр. Эти методы не заменяют загрузку или декодирование исходного изображения.
+
+## Версия справочника
+
+Контракт сверён с [IImGuiExperimentalApi](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.ImGuiSdk/IImGuiExperimentalApi.cs), [реализацией](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.ImGuiSdk/ImGuiExperimentalApi.cs) и [регистрацией контейнера](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.ImGuiSdk/Prism/ImGuiContainerExtensions.cs) версии EyeAuras `20fd3d424d886f6c99b979536a148774d289d110`. `WhenRender` предоставляет поток кадров с `TimeSpan`.
+
+Прежний список `MeasureText`, `DrawBox`, `DrawFrame`, `DrawCircleFilled` не является составом этого интерфейса в указанной версии. Для рисования используйте ImGui draw lists и доступные в вашем пакете расширения из [карты SDK](/ru/scripting/api/nuget/imgui-sdk). Справочник исходников не подтверждает двоичную совместимость всех опубликованных версий NuGet.

@@ -37,7 +37,7 @@ Log.Info($"Foreground HWND: 0x{hwnd.ToInt64():X}");
 
 static class NativeMethods
 {
-    [DllImport("user32.dll", SetLastError = true)]
+    [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();
 }
 ```
@@ -67,7 +67,8 @@ DllCall("user32.dll\MessageBoxW", "ptr", 0, "str", "Hello", "str", "EyeAuras", "
 ```csharp
 using System.Runtime.InteropServices;
 
-NativeMethods.MessageBoxW(IntPtr.Zero, "Hello", "EyeAuras", 0);
+var result = NativeMethods.MessageBoxW(IntPtr.Zero, "Hello", "EyeAuras", 0);
+Log.Info($"MessageBox result: {result}");
 
 static class NativeMethods
 {
@@ -96,6 +97,10 @@ static class NativeMethods
 | `CallbackCreate` | delegate плюс `Marshal.GetFunctionPointerForDelegate(...)` | Держите delegate живым всё время, пока native-код может его вызвать. |
 | Опция `Cdecl` | `CallingConvention = CallingConvention.Cdecl` | Используйте только если native-функция действительно работает через `cdecl`. |
 
+Примеры выполняются в C# Action на Windows. Первый пишет в журнал числовой HWND, который может быть нулевым: он не создаёт и не владеет окном. Второй показывает модальное окно `Hello`, ждёт закрытия и пишет код результата. Токен остановки скрипта этим нативным вызовам не передаётся. Это не пример универсальной обёртки над callback или произвольным ABI.
+
+Сигнатуры и результаты: [GetForegroundWindow](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow), [MessageBoxW](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxw). При переносе другой функции проверяйте её собственный контракт.
+
 ## Ссылки для проверки
 
 - Документация AHK:
@@ -107,6 +112,4 @@ static class NativeMethods
 - Документация EyeAuras:
   [Window Handles](../windows-subsystems/window-handles),
   [Scripting Runtime](../scripting/runtime).
-- Исходники EyeAuras:
-  [UnsafeNative.WindowUtils.cs](../../../../../Sources/PoeShared.Native/Native/UnsafeNative.WindowUtils.cs),
-  [WindowHandleExtensions.cs](../../../../../Sources/PoeShared.Wpf/Scaffolding/WindowHandleExtensions.cs).
+- Контракты EyeAuras: [контекст скрипта](../scripting/runtime), [ввод](../ISendInputScriptingApi), [окна](../windows-subsystems/window-handles). Точные типы и сигнатуры сверяйте с SDK/XML своей версии; базовый срез — EyeAuras `20fd3d4`, PoeEye `0e02c98`.

@@ -9,7 +9,7 @@ dateCreated: 2024-11-04T00:26:45.232Z
 ---
 # Blazor в контексте EyeAuras
 
-По состоянию на ноябрь 2024 года в EA есть два основных способа использовать Blazor.
+Начать можно с C# Overlay v3, видимостью которого управляет аура, или с окна, созданного действием C# Script.
 
 ## C# Overlay
 
@@ -28,8 +28,7 @@ dateCreated: 2024-11-04T00:26:45.232Z
 - Готово — отрисуется оверлей с кликабельной кнопкой
 ![C# Overlay Example](https://s3.eyeauras.net/media/2024/11/Code_MJvkplH0Iiqmm9SV.png)
 
-> IMPORTANT! Текстовый редактор, используемый в этом оверлее, скоро будет заменён. Поэтому я не буду подробно разбирать его устройство и вместо этого рекомендую обратить внимание на вариант №2 — скрипты.
-{.is-info}
+Для новых примеров выбирайте C# Overlay v3. Его файлы разобраны в [серии об оверлеях](/ru/scripting/blazor-windows/1-intro).
 
 ## C# Script Action
 
@@ -46,16 +45,49 @@ dateCreated: 2024-11-04T00:26:45.232Z
 ![New Razor Component](https://s3.eyeauras.net/media/2024/11/EyeAuras_I6MYDieptaZe5a8u.png)
 - В **Script.csx** добавьте:
 ```csharp
+using EyeAuras.Shared.Scripting;
+using PoeShared.Scaffolding;
+
 var window = GetService<IDialogWindowUnstableScriptingApi>() // get DialogWindow API
     .CreateWindow<UserComponent>() //create new window with UserComponent inside
     .AddTo(ExecutionAnchors); //destroy when script is stopped
 
 window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-window.ShowDialog();
+window.ShowDialog(cancellationToken);
 ```
+- В `UserComponent.razor` оставьте один компонент счётчика (если такой же метод есть в `UserComponent.cs`, удалите дубликат):
+
+```razor
+@using Microsoft.AspNetCore.Components.Web
+@using PoeShared.Blazor
+@inherits BlazorReactiveComponent
+
+<button class="btn btn-primary" @onclick="Increment">Click Me</button>
+<p>Clicks: @count</p>
+
+@code {
+    private int count;
+    private void Increment() => count++;
+}
+```
+
 - Нажмите **Run** — и получите своё первое диалоговое окно через Blazor Windows API! Обратите внимание: пока окно открыто, скрипт продолжает работать, а при остановке скрипта окно закрывается.
 ![Blazor window](https://s3.eyeauras.net/media/2024/11/EyeAuras_fmFnsjgMCW8P6Z4b.png)
 
 ### Что такое IDialogWindowUnstableScriptingApi?
 
-Это основной интерфейс для работы с диалоговыми окнами. Есть и другие варианты, но сейчас это самый высокоуровневый и безопасный способ: он берёт на себя выгрузку окон при выгрузке ауры, очистку ресурсов и прочие служебные задачи. Название **Unstable** означает не то, что интерфейс плохой, а то, что он новый и в нём ещё возможны breaking changes. Со временем он станет **Stable**.
+Это основной интерфейс для работы с диалоговыми окнами. Есть и другие варианты, но сейчас это самый высокоуровневый и безопасный способ: он берёт на себя выгрузку окон при выгрузке ауры, очистку ресурсов и прочие служебные задачи. Название **Unstable** означает не то, что интерфейс плохой, а то, что он новый и в нём ещё возможны breaking changes. Это имя не гарантирует будущую совместимость.
+## Передать данные из скрипта в компонент
+
+Если окну нужны начальные данные, создайте в этом же проекте обычный файл `WindowModel.cs`:
+
+```csharp
+public sealed class WindowModel
+{
+    public string Title { get; set; } = "Настройки";
+}
+```
+
+В `Script.csx` передайте `new WindowModel { Title = "Моё окно" }` аргументом `CreateWindow<UserComponent>(...)`. В Razor используйте `@inherits BlazorReactiveComponent<WindowModel>` и выводите `@DataContext.Title`. Хост передаёт именно этот объект; переменные `Script.csx` и его `cancellationToken` не становятся полями компонента. Простое изменение свойства модели извне не даёт автоматической подписки: для этого нужен механизм обновления.
+
+[Операции оконного API](/ru/scripting/api/IDialogWindowUnstableScriptingApi) и [карта Blazor](/ru/scripting/api/core/blazor) помогут перейти от примера к нужному контракту вашей версии SDK.

@@ -65,12 +65,28 @@ dateCreated: 2026-04-22T00:00:00.000Z
 - `SourceListEx<T>` / `SourceCacheEx<T, TKey>` - обёртки PoeShared вокруг источников DynamicData с учётом времени жизни.
 - `BindableReactiveObject` / `ReactiveBinding` - инфраструктура привязки по путям свойств для динамических сценариев source/target binding.
 
-## Паттерн `PropertyBinder`
+## Подготовка примеров и время жизни
+
+Примеры ниже относятся к классам проекта приложения или скрипта, а не к
+глобальным членам `Script.csx`. Нужны `PoeShared.Scaffolding`, `PropertyBinder`,
+`ReactiveUI`, `DynamicData` и `System.Reactive.Linq` в соответствующем проекте.
+В обычном проекте auto-properties требуют обработки уведомлений, например
+`PropertyChanged.Fody`; само наследование от `DisposableReactiveObject`
+не превращает каждое присваивание auto-property в `PropertyChanged`.
+
+В срезе PoeEye `0e02c98` `Dispose()` базового объекта освобождает `Anchors`.
+Сначала определите владельца подписки, затем добавьте её в его `Anchors`.
+Переданный в `SourceCacheEx` источник тоже становится его ресурсом: не
+освобождайте общий cache через случайный временный wrapper.
+Опциональный scheduler wrapper переносит уведомления материализованной
+коллекции, а не все изменения произвольных полей объекта.
+
+## Паттерн PropertyBinder
 
 Используйте `Binder<T>` для стабильного вычисляемого состояния на уровне объекта. Не создавайте binder-ы внутри render loop, polling loop или кода, который выполняется каждый frame.
 
 ```csharp
-private sealed class CharacterState : DisposableReactiveObject
+public sealed class CharacterState : DisposableReactiveObject
 {
     private static readonly Binder<CharacterState> Binder = new();
 
@@ -89,6 +105,11 @@ private sealed class CharacterState : DisposableReactiveObject
         Binder.Attach(this).AddTo(Anchors);
     }
 
+    public sealed class TargetInfo : DisposableReactiveObject
+    {
+        public string Name { get; set; } = "";
+    }
+
     public string Name { get; set; } = "";
     public int Level { get; set; }
     public TargetInfo? Target { get; set; }
@@ -97,9 +118,19 @@ private sealed class CharacterState : DisposableReactiveObject
 }
 ```
 
+После создания `CharacterState`, присваивания `Name = "Mage"` и `Level = 5`
+привязка обновляет `DisplayName` до `Mage (5)`, если свойства посылают
+уведомления. `Target == null` даёт `<no target>`. Binder создаётся один раз
+для типа, подключение — для каждого экземпляра; освобождение экземпляра
+останавливает его привязки. Пример предполагает настроенный weaver проекта.
+
 ## Паттерн Rx-подписок
 
 Используйте Rx для потоков и side effect-ов. Всегда освобождайте подписки вместе с объектом-владельцем.
+
+Этот фрагмент размещается в конструкторе вашего объекта с уведомляющим
+`IsRunning`, `Log` и `Anchors`, например наследника
+`DisposableReactiveObjectWithLogger`:
 
 ```csharp
 this.WhenAnyValue(x => x.IsRunning)
@@ -122,6 +153,10 @@ this.WhenAnyValue(x => x.IsRunning)
 
 Используйте DynamicData, когда коллекция меняется со временем. Предпочитайте пайплайны change set вместо ручного сравнения списков.
 
+Ниже — члены класса `InventoryVm : DisposableReactiveObject`. Определите
+свой `ItemVm` со свойствами `string Id` и `bool IsVisible`; заполнение cache
+покажет только элементы, для которых фильтр возвращает `true`:
+
 ```csharp
 private readonly SourceCache<ItemVm, string> items = new(x => x.Id);
 
@@ -140,7 +175,12 @@ public InventoryVm()
 }
 ```
 
-Для пакетных изменений используйте `Edit(...)`:
+Фильтр проверяет элемент при изменении cache; одно изменение `IsVisible`
+внутри уже добавленного объекта само по себе не обещает повторной фильтрации.
+Для такого сценария нужен отдельный поток обновления/refresh.
+
+Для пакетных изменений используйте `Edit(...)` в методе `InventoryVm`,
+где `newItems` — входная последовательность `ItemVm`:
 
 ```csharp
 items.Edit(update =>

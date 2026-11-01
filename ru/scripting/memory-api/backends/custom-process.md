@@ -8,7 +8,7 @@ editor: markdown
 dateCreated: 2026-04-16T16:20:00.000Z
 ---
 
-# Как сделать кастомный `IProcess`
+# Как сделать кастомный IProcess
 
 Если у вас уже есть свой драйвер, bridge или другой способ читать память, почти никогда не нужно писать "ещё один Memory API". Обычно достаточно собрать два слоя:
 
@@ -38,38 +38,25 @@ public interface IMemoryBackend : IDisposable, IMemorySpan
 
 Чаще всего именно сюда ложится ваш вызов драйвера, `IOCTL`, RPC или bridge к DMA.
 
-Сверху вы делаете `IProcess` и сразу отдаёте `MemoryAccessor`:
+Сверху реализация `IProcess` связывает транспорт с контекстом процесса. Входы интеграции — уже открытый клиент транспорта, PID в его адресном пространстве, сведения о модулях/потоках/регионах и явный владелец подключения. Универсального `MyDriverClient` в SDK нет: эти операции должен дать ваш транспорт.
+
+Полный минимальный контракт сборки такой:
+
+1. `IMemoryBackend` отдаёт `BaseAddress` (`long`), `MemorySize` (`int`), `IsValid` и raw-чтение/запись по абсолютному адресу. `true` означает успешную операцию; интерфейс не сообщает число переданных байт и не принимает токен отмены. Не скрывайте частичное чтение как полное.
+2. Создайте `new MemoryAccessor(log, backend)` и верните его как `IProcessMemory Memory`. Типизированное чтение, строки и PE-helper'ы работают через этот accessor, их не нужно реализовывать в драйвере.
+3. `IProcess` также предоставляет `IFluentLog Log`, `bool IsValid`, `string? ProcessName`, `int ProcessId`, `GetProcessModules()`, `GetThreads()`, `VirtualQuery(IntPtr)` и `GetMemoryRegions()`. Модули возвращают реальные базы/размеры цели, без них `MemoryOfModule` не сможет выбрать диапазон.
+4. Владелец останавливает потребителей и освобождает accessor, backend и транспорт согласно выбранному владению. Конструктор `MemoryAccessor` не привязывает backend к своему `Dispose`; нельзя считать одну эту строку полной реализацией lifetime.
+
+Результат — объект, который можно передать обычному коду без знания транспорта:
 
 ```csharp
-public sealed class MyDriverProcess : DisposableReactiveObject, IProcess
+static int ReadValue(EyeAuras.Memory.IProcess process, long absoluteAddress)
 {
-    public MyDriverProcess(MyDriverClient driver, int processId, string? processName = null)
-    {
-        ProcessId = processId;
-        ProcessName = processName;
-
-        var memoryBackend = new MyDriverMemoryBackend(driver, processId).AddTo(Anchors);
-        Memory = new MemoryAccessor(Log, memoryBackend).AddTo(Anchors);
-    }
-
-    public string? ProcessName { get; }
-    public int ProcessId { get; }
-    public IProcessMemory Memory { get; }
-
-    public IReadOnlyList<ProcessModuleInformation> GetProcessModules() => driver.GetModules(ProcessId);
-    public IReadOnlyList<ProcessThreadInformation> GetThreads() => driver.GetThreads(ProcessId);
-    public MemoryBasicInformation VirtualQuery(IntPtr address) => driver.VirtualQuery(ProcessId, address);
-    public IReadOnlyList<MemoryBasicInformation> GetMemoryRegions() => driver.GetMemoryRegions(ProcessId);
+    return process.Memory.Read<int>(absoluteAddress);
 }
 ```
 
-Ключевая строка здесь одна:
-
-```csharp
-Memory = new MemoryAccessor(Log, memoryBackend);
-```
-
-Именно она подключает весь верхний слой EyeAuras.
+Метод возвращает `int` или передаёт ошибку чтения вызывающему коду. Он заимствует процесс, не закрывает его и не доказывает работоспособность транспорта. Контракты сверены с EyeAuras `20fd3d4`; подключение конкретного драйвера остаётся входом интеграции.
 
 ## Ещё один вариант - DLL внутри процесса и IPC
 

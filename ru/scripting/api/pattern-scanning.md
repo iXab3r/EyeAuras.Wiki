@@ -10,6 +10,8 @@ dateCreated: 2024-12-15T10:54:50.446Z
 > Для AI-first навигации см. [AI Memory / Processes](./memory/processes) — там описаны подключение к процессу, работа с указателями, readers и место pattern scanning в memory workflow.
 {.is-info}
 
+# Поиск последовательности байтов
+
 ## Что такое Pattern Scanning
 
 Pattern scanning — это способ искать в памяти конкретные последовательности байтов. Он полезен, когда нужно найти функции, данные или код, которые во время работы программы не всегда находятся по одному и тому же адресу.
@@ -20,6 +22,27 @@ Pattern scanning — это способ искать в памяти конкр
 2. **Уникальные совпадения**. Паттерны работают как отпечатки пальцев — по уникальной последовательности байтов можно определить конкретный участок памяти.
 
 ---
+
+## Найти байты в известном буфере
+
+Для поиска не обязательно открывать процесс. Полный пример работает с байтовым содержимым через публичный `MemoryAccessor`:
+
+```csharp
+using EyeAuras.Memory;
+using EyeAuras.Memory.Scaffolding;
+
+using var memory = MemoryAccessor.FromByteArray(
+    new byte[] { 0x00, 0x55, 0x8B, 0x12, 0xEC, 0x00 });
+var pattern = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
+var start = memory.FindOffset(pattern);       // 1
+var marked = start < 0 ? -1 : start + pattern.PatternOffset; // 4
+```
+
+`??` принимает любой байт. `start` — смещение начала совпадения, `marked` — отмеченного байта. Здесь база массива равна нулю; для памяти модуля абсолютный адрес равен `memory.BaseAddress + start`, либо `+ marked`, если нужен маркер. При `-1` адрес не вычисляют. `GetOffset` вместо отсутствующего совпадения бросит исключение.
+
+В EyeAuras `20fd3d4` одиночный поиск синхронно копирует весь диапазон и учитывает `StartOffset`. Множественный поиск возвращает словарь и использует другой алгоритм: добавляет `PatternOffset`, не учитывает `StartOffset`, не гарантирует самое младшее совпадение и может пропустить образец на границе блоков. Токена отмены нет. Для большого диапазона учитывайте стоимость чтения и не запускайте поиск из UI/render callback. [Точные перегрузки и ограничения](/ru/scripting/api/memory/pattern-scanning).
+
+Пример с процессом ниже требует загруженного `MemoryModule`; в embedded-хосте объявите `UseMemory()` и дождитесь `EnsureReadyAsync()`. Одного metadata SDK для `LocalProcess` недостаточно.
 
 ## BytePattern
 
@@ -35,13 +58,13 @@ var modules = process.GetProcessModules(); //enumerate all loaded modules
 using var memory = process.MemoryOfModule("pathofexile.exe"); //memory implements IMemory
 Log.Info($"Process memory: {memory}, base: {memory.BaseAddress.ToHexadecimal()}");
 
-// will find a singular offset pointing at 4th byte in the sequence
+// Возвращает начало совпадения; одиночный поиск не прибавляет PatternOffset.
 var offset = memory.FindOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00")); 
 
 // will return dictionary with all found offsets for all given patterns
 var playerPattern = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
 var targetPattern = BytePattern.FromTemplate("BB AA ??");
-var offsetsByPattern = memory.FindOffset(playerPattern, targetPattern);
+var offsetsByPattern = memory.FindOffsets(playerPattern, targetPattern);
 
 // by using Get* instead of Find* the code will throw an exception in case pattern is not found
 var criticalOffset = memory.GetOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00")); 
@@ -61,7 +84,7 @@ var criticalOffset = memory.GetOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00
    - Используются escape-последовательности вида `\xAA\xBB\xCC`, как в C-style patterns.
    - Пример:
    ```csharp
-   var pattern = BytePattern.FromTemplate("\x55\x8B\xEC");
+   var pattern = BytePattern.FromTemplate(@"\x55\x8B\xEC");
    ```
    Эквивалентно массиву байтов `[0x55, 0x8B, 0xEC]`.
 
@@ -87,4 +110,4 @@ var criticalOffset = memory.GetOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00
    ```csharp
    var pattern = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
    ```
-   Здесь offset ставится прямо перед `EC`, то есть с пропуском `3` байтов. Это значит, что после нахождения паттерна итоговый offset будет `Offset + 3`
+   Маркер задаёт `PatternOffset = 3`. В EyeAuras `20fd3d4` одиночные `FindOffset`/`GetOffset` возвращают начало совпадения без этой прибавки; множественные `FindOffsets`/`GetOffsets` прибавляют её. Не переносите результат одной перегрузки в другую без учёта этого различия.

@@ -7,7 +7,9 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-06-27T21:27:31.399Z
 ---
-# Что это такое?
+# Найти цель в учебном Aim Trainer
+
+Это верхнеуровневый `C# Script` внутри EyeAuras для собственного учебного сеанса Aim Trainer. Откройте страницу target-tracking, проверьте заголовок окна в `GetWindow` и доступность указанного ONNX-файла. URL модели — вход примера, а не встроенный ресурс; первая загрузка требует доступа к нему. Нужны рабочие захват окна, ML runtime и выбранный симулятор ввода. Совместимость модели и внешних пакетов отдельно не проверена.
 
 В этом примере показано, **как сделать простой 2D aimbot с ESP-оверлеем** (отрисовкой поверх экрана) с помощью **ImGui** — библиотеки для создания интерфейсов в играх и приложениях.
 
@@ -45,9 +47,11 @@ AddNewExtension<ImGuiContainerExtensions>();
 var targetWindow = GetService<IWindowSelector>().GetWindow("Aim Trainer");
 
 var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForWindow(targetWindow);
+    .ForWindow(targetWindow)
+    .AddTo(ExecutionAnchors);
 
 var sendInput = GetService<ISendInputScriptingApi>();
+sendInput.TargetWindow = null; // ниже передаём экранные координаты
 
 var osd = GetService<IImGuiExperimentalApi>() 
     .AddTo(ExecutionAnchors);
@@ -56,7 +60,7 @@ var mlModelPath = @"https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604O
 
 osd.AddRenderer(() =>
 {
-    if (!targetWindow.IsForeground) return;
+    if (cancellationToken.IsCancellationRequested || !targetWindow.IsForeground) return;
 
     var windowBounds = targetWindow.DwmFrameBounds;
     osd.DrawFrame(windowBounds, Color.Purple);
@@ -89,3 +93,15 @@ osd.AddRenderer(() =>
 
 cancellationToken.WaitHandle.WaitOne(); 
 ```
+
+`MLSearchRaw` возвращает оболочку с `Detected.Predictions` и матрицами захвата. Без явных порогов используются confidence 30% и IoU 40%; первая запись не означает гарантированно лучшую или правильную цель. Пустой список — цель не найдена, ошибка загрузки/захвата — отдельная ошибка. Прямоугольник переводится из координат захвата через `WorldToScreen` до отправки ввода. При ненулевом `TargetWindow` оконная обёртка ввода сделала бы ещё одно преобразование.
+
+Скрипт меняет реальный курсор и кликает только при активном учебном окне. Между проверкой активности и кликом окно может измениться. Остановка проверяется между итерациями/кадрами; синхронное распознавание и уже начатый ввод токен не прерывает. CV и оверлей привязаны к `ExecutionAnchors`; `Captured` и изображения результата заимствованы, освобождать их отдельно нельзя.
+
+Распознавание выполняется прямо в callback отрисовки ImGui. Медленный вызов задержит кадр; это простой учебный вариант без отдельного рабочего потока. Не переносите общий CV/ImGui-контекст в `Task.Run` без отдельного согласования владения.
+
+## Дальше
+
+[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
+
+Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.
