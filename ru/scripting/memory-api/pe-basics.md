@@ -43,11 +43,14 @@ using System.Linq;
 using EyeAuras.Memory;
 using EyeAuras.Memory.Scaffolding;
 
-using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-using var kernel32 = process.MemoryOfModule("kernel32.dll");
+{
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    using var kernel32 = process.MemoryOfModule("kernel32.dll");
+    Log.Info($"Base: 0x{kernel32.BaseAddress.ToInt64():X}, размер: {kernel32.Size}");
+}
 ```
 
-После этого `kernel32` описывает базу и размер загруженного PE-образа. Это не копия DLL и не проверка границ при каждом чтении. Прямые адреса у этого backend абсолютные; процесс держим открытым до конца работы с представлением.
+Внутри блока `kernel32` описывает базу и размер загруженного PE-образа. Это не копия DLL и не проверка границ при каждом чтении. Прямые адреса у этого backend абсолютные; процесс держим открытым до конца работы с представлением.
 
 ## Что умеет Memory API
 
@@ -64,27 +67,29 @@ using System.Diagnostics;
 using EyeAuras.Memory;
 using EyeAuras.Memory.Scaffolding;
 
-using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-using var module = process.MemoryOfModule("kernel32.dll");
-foreach (var section in module.ReadSections())
 {
-    Log.Info($"{section.Name}: RVA=0x{section.VirtualAddress:X}, " +
-             $"VA=0x{section.StartVA:X}, end=0x{section.EndVA:X}");
-}
-foreach (var export in module.ReadExports())
-{
-    if (export.IsForwarder)
-        Log.Info($"{export.ExportName}: forwarder={export.ForwarderName}");
-    else
-        Log.Info($"{export.ExportName}: ordinal={export.Ordinal}, " +
-                 $"VA=0x{module.BaseAddress + (long)export.RVA:X}");
-}
-var imports = module.ReadImports();
-Log.Info($"Imports={imports.Count}");
-foreach (var import in imports)
-{
-    Log.Info($"{import.DllName}!{import.FunctionName}: " +
-             $"IAT slot VA=0x{module.BaseAddress + (long)import.IatEntryRva:X}");
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    using var module = process.MemoryOfModule("kernel32.dll");
+    foreach (var section in module.ReadSections())
+    {
+        Log.Info($"{section.Name}: RVA=0x{section.VirtualAddress:X}, " +
+                 $"VA=0x{section.StartVA:X}, end=0x{section.EndVA:X}");
+    }
+    foreach (var export in module.ReadExports())
+    {
+        if (export.IsForwarder)
+            Log.Info($"{export.ExportName}: forwarder={export.ForwarderName}");
+        else
+            Log.Info($"{export.ExportName}: ordinal={export.Ordinal}, " +
+                     $"VA=0x{module.BaseAddress + (long)export.RVA:X}");
+    }
+    var imports = module.ReadImports();
+    Log.Info($"Imports={imports.Count}");
+    foreach (var import in imports)
+    {
+        Log.Info($"{import.DllName}!{import.FunctionName}: " +
+                 $"IAT slot VA=0x{module.BaseAddress + (long)import.IatEntryRva:X}");
+    }
 }
 ```
 

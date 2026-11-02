@@ -31,11 +31,13 @@ Pattern scanning — это способ искать в памяти конкр
 using EyeAuras.Memory;
 using EyeAuras.Memory.Scaffolding;
 
-using var memory = MemoryAccessor.FromByteArray(
-    new byte[] { 0x00, 0x55, 0x8B, 0x12, 0xEC, 0x00 });
-var pattern = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
-var start = memory.FindOffset(pattern);       // 1
-var marked = start < 0 ? -1 : start + pattern.PatternOffset; // 4
+{
+    using var memory = MemoryAccessor.FromByteArray(
+        new byte[] { 0x00, 0x55, 0x8B, 0x12, 0xEC, 0x00 });
+    var pattern = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
+    var start = memory.FindOffset(pattern);       // 1
+    var marked = start < 0 ? -1 : start + pattern.PatternOffset; // 4
+}
 ```
 
 `??` принимает любой байт. `start` — смещение начала совпадения, `marked` — отмеченного байта. Здесь база массива равна нулю; для памяти модуля абсолютный адрес равен `memory.BaseAddress + start`, либо `+ marked`, если нужен маркер. При `-1` адрес не вычисляют. `GetOffset` вместо отсутствующего совпадения бросит исключение.
@@ -51,23 +53,25 @@ var marked = start < 0 ? -1 : start + pattern.PatternOffset; // 4
 Pattern scanning доступен для любого типа, реализующего интерфейс `IMemory`, например:
 
 ```csharp
-using var process = LocalProcess.ByProcessName("pathofexile"); //uses naive RPM under the hood
-Log.Info($"Process: {process}");
-var modules = process.GetProcessModules(); //enumerate all loaded modules
+{
+    using var process = LocalProcess.ByProcessName("pathofexile"); //uses naive RPM under the hood
+    Log.Info($"Process: {process}");
+    var modules = process.GetProcessModules(); //enumerate all loaded modules
 
-using var memory = process.MemoryOfModule("pathofexile.exe"); //memory implements IMemory
-Log.Info($"Process memory: {memory}, base: {memory.BaseAddress.ToHexadecimal()}");
+    using var memory = process.MemoryOfModule("pathofexile.exe"); //memory implements IMemory
+    Log.Info($"Process memory: {memory}, base: {memory.BaseAddress.ToHexadecimal()}");
 
-// Возвращает начало совпадения; одиночный поиск не прибавляет PatternOffset.
-var offset = memory.FindOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00")); 
+    // Возвращает начало совпадения; одиночный поиск не прибавляет PatternOffset.
+    var offset = memory.FindOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00"));
 
-// will return dictionary with all found offsets for all given patterns
-var playerPattern = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
-var targetPattern = BytePattern.FromTemplate("BB AA ??");
-var offsetsByPattern = memory.FindOffsets(playerPattern, targetPattern);
+    // will return dictionary with all found offsets for all given patterns
+    var playerPattern = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
+    var targetPattern = BytePattern.FromTemplate("BB AA ??");
+    var offsetsByPattern = memory.FindOffsets(playerPattern, targetPattern);
 
-// by using Get* instead of Find* the code will throw an exception in case pattern is not found
-var criticalOffset = memory.GetOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00")); 
+    // by using Get* instead of Find* the code will throw an exception in case pattern is not found
+    var criticalOffset = memory.GetOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00"));
+}
 ```
 
 ### Поддерживаемые типы паттернов

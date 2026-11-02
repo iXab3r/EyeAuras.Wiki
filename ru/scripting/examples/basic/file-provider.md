@@ -31,23 +31,25 @@ dateCreated: 2025-03-09T13:21:37.597Z
 
 `Script.csx`
 ```csharp 
-Log.Info("Hello, World!");
-
-//built-in FileProvider which allows to access script environment files
-var fileProvider = GetService<EyeAuras.Repl.IScriptFileProvider>(); 
-
-var files = fileProvider.GetDirectoryContents("/");
-Log.Info($"Script files:\n\t{files.DumpToTable()}");
-
-var readme = fileProvider.GetFileInfo("README.md");
-if (!readme.Exists)
 {
-    Log.Warn("README.md не найден однозначно; проверьте полное имя ресурса");
-    return;
+    Log.Info("Hello, World!");
+
+    //built-in FileProvider which allows to access script environment files
+    var fileProvider = GetService<EyeAuras.Repl.IScriptFileProvider>();
+
+    var files = fileProvider.GetDirectoryContents("/");
+    Log.Info($"Script files:\n\t{files.DumpToTable()}");
+
+    var readme = fileProvider.GetFileInfo("README.md");
+    if (!readme.Exists)
+    {
+        Log.Warn("README.md не найден однозначно; проверьте полное имя ресурса");
+        return;
+    }
+    using var stream = readme.CreateReadStream();
+    using var reader = new System.IO.StreamReader(stream);
+    Log.Info($"README:\n{reader.ReadToEnd()}");
 }
-using var stream = readme.CreateReadStream();
-using var reader = new System.IO.StreamReader(stream);
-Log.Info($"README:\n{reader.ReadToEnd()}");
 ```
 
 `README.md`

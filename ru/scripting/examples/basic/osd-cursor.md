@@ -33,27 +33,29 @@ using System.Drawing;
 using EyeAuras.Shared.Scripting;
 using EyeAuras.Blazor.Controls.ScreenOverlay;
 
-using var canvas = GetService<IOnScreenCanvasScriptingApi>().Create();
-try
 {
-    Log.Info("Booting up OSD");
-    using var cursorBox = canvas.AddRectangle();
-    cursorBox.Size = new Size(10, 10);
-    cursorBox.Background = Color.Transparent;
-    cursorBox.BorderThickness = 2;
-    cursorBox.BorderColor = Color.Green;
-
-    while (!cancellationToken.IsCancellationRequested)
+    using var canvas = GetService<IOnScreenCanvasScriptingApi>().Create();
+    try
     {
-        var cursor = System.Windows.Forms.Cursor.Position;
-        cursorBox.Location = new Point(cursor.X - 5, cursor.Y - 5);
-        Sleep(16); // пауза хоста учитывает отмену скрипта
+        Log.Info("Booting up OSD");
+        using var cursorBox = canvas.AddRectangle();
+        cursorBox.Size = new Size(10, 10);
+        cursorBox.Background = Color.Transparent;
+        cursorBox.BorderThickness = 2;
+        cursorBox.BorderColor = Color.Green;
+
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            var cursor = System.Windows.Forms.Cursor.Position;
+            cursorBox.Location = new Point(cursor.X - 5, cursor.Y - 5);
+            Sleep(16); // пауза хоста учитывает отмену скрипта
+        }
     }
-}
-finally
-{
-    canvas.Clear(); // пока proxy ещё передаёт удаление общему canvas
-    Log.Info("OSD routine has stopped");
+    finally
+    {
+        canvas.Clear(); // пока proxy ещё передаёт удаление общему canvas
+        Log.Info("OSD routine has stopped");
+    }
 }
 ```
 

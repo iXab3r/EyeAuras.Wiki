@@ -23,28 +23,30 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-AddNewExtension<ImGuiContainerExtensions>();
-using var imgui = GetService<IImGuiExperimentalApi>();
-var frame = 0;
-using var rendering = imgui.AddRenderer(_ =>
 {
-    var visible = ImGui.Begin("Frame counter##operation-demo");
+    AddNewExtension<ImGuiContainerExtensions>();
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    var frame = 0;
+    using var rendering = imgui.AddRenderer(_ =>
+    {
+        var visible = ImGui.Begin("Frame counter##operation-demo");
+        try
+        {
+            if (visible)
+                ImGui.TextUnformatted($"Frame: {++frame}");
+        }
+        finally
+        {
+            ImGui.End();
+        }
+    });
     try
     {
-        if (visible)
-            ImGui.TextUnformatted($"Frame: {++frame}");
+        await Task.Delay(Timeout.Infinite, cancellationToken);
     }
-    finally
+    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
     {
-        ImGui.End();
     }
-});
-try
-{
-    await Task.Delay(Timeout.Infinite, cancellationToken);
-}
-catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-{
 }
 ```
 
@@ -53,6 +55,54 @@ catch (OperationCanceledException) when (cancellationToken.IsCancellationRequest
 Исходники EyeAuras `20fd3d4` регистрируют `IImGuiExperimentalApi` как создаваемый экземпляр, но экземпляры арендуют общий overlay `Main`. Его настройки, шрифты и изображения общие: изменение `NoActivate`, `VSync`, FPS или шрифта по умолчанию затрагивает других пользователей overlay. `AddRenderer` не привязывает возвращённую подписку к lifetime API. В callback нельзя ждать, читать процесс или выполнять долгую работу.
 
 `RunOnce(Action<IImGuiExperimentalApi>)` планирует один callback и возвращает отменяемую через `Dispose` регистрацию; это не ожидание завершения кадра. У этих методов нет параметра токена отмены. Нативный запуск и совместимость опубликованных версий пакета здесь не проверены.
+
+### Прочитать размер на ближайшем кадре
+
+После настройки пакета и `ImGuiContainerExtensions` выполните в верхнеуровневом
+скрипте. Этот блок получает собственный API и освобождает его после операции:
+
+```csharp
+using ImGuiNET;
+using EyeAuras.ImGuiSdk;
+using System.Threading.Tasks;
+
+{
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    var done = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+    using var once = imgui.RunOnce(_ =>
+    {
+        var size = ImGui.GetIO().DisplaySize;
+        Log.Info($"Размер области ImGui: {size.X} x {size.Y}");
+        done.TrySetResult(true);
+    });
+    await done.Task.WaitAsync(cancellationToken);
+}
+```
+
+Чтение выполняется в render-контексте, не в обычном потоке скрипта.
+`DisplaySize` — размер основной области отображения в единицах ImGui;
+не подменяйте его `GetContentRegionAvail()` текущего окна. Для многовидового
+режима нужны контракты соответствующего viewport своей версии ImGui.NET.
+В отличие от `AddRenderer`, `RunOnce` не повторяет обработчик каждый кадр.
+Освобождение регистрации до callback отменяет ещё не выполненный вызов,
+но не прерывает уже начавшийся. Здесь Stop прерывает ожидание, затем `using`
+снимает регистрацию. Сама регистрация не является Task выполнения.
+
+### Что общее у двух скриптов
+
+`Main` содержит `OsdOverlay`, наследующий `ClickableTransparentOverlay.Overlay`.
+CTO создаёт нативный ImGui-контекст для этого overlay. Поэтому два экземпляра
+API и две подписки не означают два независимых контекста. Скриптам принадлежат
+их модели, callbacks и управляемые окна, но общий render-loop, контекст,
+настройки overlay, атлас шрифтов и зависимости ImGui.NET/нативной ImGui
+используются совместно. Управляемое окно — область внутри общего overlay,
+не отдельное нативное окно Windows.
+
+Не вызывайте `ImGui.CreateContext()` поверх работающего контекста EyeAuras
+и не считайте другую версию ImGui.NET независимой от ABI нативной библиотеки
+хоста. Версию пакета подбирают к поставке EyeAuras; отдельный проект скрипта
+не даёт изоляцию процесса. Отдельный CTO overlay — другой сценарий с
+собственным render-loop и ответственностью за совместимость.
 
 ## Что обычно хотят сделать
 
@@ -121,6 +171,26 @@ var imgui = GetService<IImGuiExperimentalApi>();
 - API и подписки освобождает их владелец; менеджер освобождает закрытое окно при обработке кадров.
 - Render callback вызывается каждый кадр, поэтому он должен быть быстрым и неблокирующим.
 
+## Открыть несколько управляемых окон
+
+Основная перегрузка — `OpenNew<TContent>(Func<TContent> factory, string titleBase, ...)`,
+где `TContent : ICanBeDisplayedInImGui`; результат — `ImGuiWindowHost`.
+Фабрика создаёт **отдельный экземпляр** состояния для каждого окна. В
+[`getting-started`](/ru/scripting/imgui/getting-started) есть полный пример
+двух счётчиков, адресного закрытия и ожидания очистки при Stop.
+
+Host вызывает `ImGui.Begin` и гарантированный `ImGui.End`; в `ToImGui()`
+контента рисуйте только содержимое. Менеджер выделяет `InstanceId`, а host
+использует стабильный `Id` в метке `Title###Id`: одинаковые видимые заголовки
+не объединяют состояние. Крестик или `ImGuiWindowCtx.Close()` запрашивает
+закрытие этого host. Менеджер удаляет закрытый host и освобождает его при
+обработке кадров; для контента с `IDisposable` вызывается `Dispose`.
+`Close(window)` — запрос, а не синхронное подтверждение удаления.
+
+`IImGuiWindowContent.ToImGui(ImGuiWindowCtx)` получает контекст уже после
+`Begin`, а `IImGuiWindowContentPreBegin.PreBegin` вызывается **до** `Begin`.
+Не вызывайте глобальный `CloseAll()` для очистки своего запуска.
+
 ## Встроенные хелперы и контролы
 
 `ImGuiEx` — первое место, куда стоит смотреть, прежде чем писать собственные виджеты.
@@ -157,6 +227,19 @@ var imgui = GetService<IImGuiExperimentalApi>();
   - `ImDrawListWorldExtensions` содержит W2S/world-space helpers для ESP-style рисования: линии, 2D/3D boxes, spheres, cylinders и world text.
 
 ## Ресурсы, шрифты и ассеты
+
+Чтение bytes ресурса или декодирование картинки можно сделать до отрисовки,
+но `GetOrAddImage`, `AddFont`, `RemoveImage` и `RemoveFont` меняют ресурсы,
+которые использует renderer. Выполняйте регистрацию и удаление в render-контексте:
+через `RunOnce` либо однократную ветку первого кадра. Сам `GetService` не
+переносит эти вызовы на нужный поток. Не ставьте регистрацию в каждый кадр.
+
+При Stop сначала запретите новые обращения и снимите свой `AddRenderer`,
+затем запланируйте удаление принадлежащих вам image/font регистраций через
+`RunOnce` и дождитесь callback, пока API ещё удерживает overlay. Только после
+этого освобождайте свою долю API и загруженное изображение. Выбирайте собственные
+стабильные имена текстур: атлас и cache общие, удаление чужого имени затронет
+другой скрипт. Без работающего render-loop завершение такой очистки не гарантировано.
 
 - Шрифты можно загружать из embedded resource bytes, сгенерированных статических byte array, файлов и других источников байтов.
 - Используйте `IImGuiExperimentalApi.AddFont(...)` для регистрации шрифта и `ReplaceFont(...)`, чтобы сделать его шрифтом по умолчанию.

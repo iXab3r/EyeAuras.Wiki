@@ -157,13 +157,15 @@ Log.Debug(() => string.Join(", ", Variables.Select(x => x.Name)));
 ### Замерить локальную операцию
 
 ```csharp
-using var timer = Log.CreateProfiler("Attach session")
-    .WithLoggingOnDisposal()
-    .WithMinElapsedThreshold(TimeSpan.FromMilliseconds(100));
+{
+    using var timer = Log.CreateProfiler("Attach session")
+        .WithLoggingOnDisposal()
+        .WithMinElapsedThreshold(TimeSpan.FromMilliseconds(100));
 
-timer.Step("Started");
-await Task.Delay(150, cancellationToken);
-timer.Step("Delay completed");
+    timer.Step("Started");
+    await Task.Delay(150, cancellationToken);
+    timer.Step("Delay completed");
+}
 ```
 
 В верхнеуровневом скрипте этот пример измеряет ожидаемую задержку.

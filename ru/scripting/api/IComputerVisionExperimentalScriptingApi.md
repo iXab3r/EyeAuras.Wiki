@@ -23,16 +23,18 @@ OpenCV-модуль регистрирует сервис и провайдер 
 using System.Drawing;
 using EyeAuras.OpenCVAuras.Scripting;
 
-var api = GetService<IComputerVisionExperimentalScriptingApi>();
-using var cv = api.ForScreen();
-var result = cv.PixelSearchRaw(Color.Red);
-if (result.Detected.Bounds is { } bounds)
 {
-    Log.Info($"Красный пиксель на экране: {result.ToScreenPoint(bounds)}");
-}
-else
-{
-    Log.Info("Красный пиксель не найден");
+    var api = GetService<IComputerVisionExperimentalScriptingApi>();
+    using var cv = api.ForScreen();
+    var result = cv.PixelSearchRaw(Color.Red);
+    if (result.Detected.Bounds is { } bounds)
+    {
+        Log.Info($"Красный пиксель на экране: {result.ToScreenPoint(bounds)}");
+    }
+    else
+    {
+        Log.Info("Красный пиксель не найден");
+    }
 }
 ```
 
@@ -90,10 +92,12 @@ Accessor принадлежит вызывающему коду; `using` воз�
 ```csharp
 using EyeAuras.OpenCVAuras.Scripting;
 
-var api = GetService<IComputerVisionExperimentalScriptingApi>();
-using var cv = api.ForScreen();
-using var snapshot = cv.ProcessPixels(image => image.Clone());
-Log.Info($"Размер копии: {snapshot.Width} x {snapshot.Height}");
+{
+    var api = GetService<IComputerVisionExperimentalScriptingApi>();
+    using var cv = api.ForScreen();
+    using var snapshot = cv.ProcessPixels(image => image.Clone());
+    Log.Info($"Размер копии: {snapshot.Width} x {snapshot.Height}");
+}
 ```
 
 Callback получает общий `Image<Bgr, byte>`: не освобождайте и не сохраняйте

@@ -109,13 +109,15 @@ Log.Info($"Сохранено: {count.GetOrThrow()}");
 ```csharp
 using System.Reactive.Linq;
 
-var level = Variables.Get<int>("exampleLevel");
-level.Value = 1;
-using var subscription = level.Listen()
-    .Subscribe(value => Log.Info($"Уровень: {value}"));
-level.Value = 2;
-var removed = level.Remove();
-Log.Info($"Запись удалена: {removed}");
+{
+    var level = Variables.Get<int>("exampleLevel");
+    level.Value = 1;
+    using var subscription = level.Listen()
+        .Subscribe(value => Log.Info($"Уровень: {value}"));
+    level.Value = 2;
+    var removed = level.Remove();
+    Log.Info($"Запись удалена: {removed}");
+}
 ```
 
 Если у родителя нет одноимённой переменной, подписчик получает текущее значение `1`, затем `2`, затем `0` после удаления. При наличии родительского значения оно снова становится видимым. Повторяющиеся значения отсекаются через `DistinctUntilChanged`; удаление не обещает отдельного события, если эффективное значение не изменилось. `Remove()` возвращает `true`, если локальная запись существовала и была удалена. Для долгоживущего интерфейса привяжите подписку к его владельцу; сам `Listen()` не задаёт UI-поток.

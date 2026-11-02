@@ -75,12 +75,14 @@ using System.Diagnostics;
 using EyeAuras.Memory;
 using EyeAuras.Memory.Scaffolding;
 
-using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-using var kernel32 = process.MemoryOfModule("kernel32.dll");
+{
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    using var kernel32 = process.MemoryOfModule("kernel32.dll");
 
-Log.Info($"Process: {process.ProcessName} ({process.ProcessId})");
-Log.Info($"Modules: {process.GetProcessModules().Count}");
-Log.Info($"kernel32 exports: {kernel32.ReadExports().Count}");
+    Log.Info($"Process: {process.ProcessName} ({process.ProcessId})");
+    Log.Info($"Modules: {process.GetProcessModules().Count}");
+    Log.Info($"kernel32 exports: {kernel32.ReadExports().Count}");
+}
 ```
 
 В журнале появятся имя и PID текущего процесса, число модулей и экспортов `kernel32.dll`. `MemoryOfModule` задаёт базу и размер модуля для PE-helper'ов и поиска; это не защита от чтения за его границами. Адреса прямого чтения остаются абсолютными. Процесс должен жить дольше представления модуля.
@@ -126,29 +128,31 @@ using System;
 using System.Diagnostics;
 using EyeAuras.Memory;
 
-using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-IProcessControlApi control = process;
-var region = control.AllocateMemory(
-    IntPtr.Zero, 4096,
-    MemoryAllocationType.Commit | MemoryAllocationType.Reserve,
-    MemoryProtectionType.ReadWrite);
-try
 {
-    process.Memory.Write<int>(region.Address, 742);
-    var oldProtection = control.ProtectMemory(
-        region.Address, region.Size, MemoryProtectionType.ReadOnly);
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    IProcessControlApi control = process;
+    var region = control.AllocateMemory(
+        IntPtr.Zero, 4096,
+        MemoryAllocationType.Commit | MemoryAllocationType.Reserve,
+        MemoryProtectionType.ReadWrite);
     try
     {
-        Log.Info($"Value={process.Memory.Read<int>(region.Address)}");
+        process.Memory.Write<int>(region.Address, 742);
+        var oldProtection = control.ProtectMemory(
+            region.Address, region.Size, MemoryProtectionType.ReadOnly);
+        try
+        {
+            Log.Info($"Value={process.Memory.Read<int>(region.Address)}");
+        }
+        finally
+        {
+            control.ProtectMemory(region.Address, region.Size, oldProtection);
+        }
     }
     finally
     {
-        control.ProtectMemory(region.Address, region.Size, oldProtection);
+        control.FreeMemory(region);
     }
-}
-finally
-{
-    control.FreeMemory(region);
 }
 ```
 

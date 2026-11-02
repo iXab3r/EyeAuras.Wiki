@@ -35,26 +35,28 @@ using EyeAuras.Roxy.Api;
 using EyeAuras.Shared.Scripting;
 using EyeAuras.Blazor.Controls.ScreenOverlay;
 
-var sendInputApi = GetService<ISendInputScriptingApi>();
-using var canvas = GetService<IOnScreenCanvasScriptingApi>().Create();
-try
 {
-    using var rectangle = canvas.AddRectangle();
-    rectangle.BorderColor = Color.Azure;
-    rectangle.BorderThickness = 1;
-    rectangle.Size = new Size(32, 32);
-
-    Log.Info("Starting tracking");
-    while (!cancellationToken.IsCancellationRequested)
+    var sendInputApi = GetService<ISendInputScriptingApi>();
+    using var canvas = GetService<IOnScreenCanvasScriptingApi>().Create();
+    try
     {
-        rectangle.Location = sendInputApi.CursorPosition;
-        Sleep(16); // ограничиваем частоту обновления и учитываем остановку
+        using var rectangle = canvas.AddRectangle();
+        rectangle.BorderColor = Color.Azure;
+        rectangle.BorderThickness = 1;
+        rectangle.Size = new Size(32, 32);
+
+        Log.Info("Starting tracking");
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            rectangle.Location = sendInputApi.CursorPosition;
+            Sleep(16); // ограничиваем частоту обновления и учитываем остановку
+        }
     }
-}
-finally
-{
-    canvas.Clear();
-    Log.Info("Completed tracking");
+    finally
+    {
+        canvas.Clear();
+        Log.Info("Completed tracking");
+    }
 }
 ```
 

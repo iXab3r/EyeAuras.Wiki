@@ -41,11 +41,19 @@ using System.Diagnostics;
 using EyeAuras.Memory;
 using EyeAuras.Memory.Scaffolding;
 
-using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-using var moduleMemory = process.MemoryOfModule("kernel32.dll");
+{
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    using var moduleMemory = process.MemoryOfModule("kernel32.dll");
+    var candidates = moduleMemory.EnumerateCodeCaves(minBytes: 64, alignment: 16).ToArray();
+    Log.Info($"Кандидатов: {candidates.Length}");
+}
 ```
 
 После этого можно перечислить кандидатов:
+
+Дальше — фрагменты для настройки поиска **внутри открытого блока** с `moduleMemory`,
+не отдельные скрипты после его закрытия. Полный helper с получением модуля
+и материализацией результата приведён в начале страницы.
 
 ```csharp
 var caves = moduleMemory.EnumerateCodeCaves(

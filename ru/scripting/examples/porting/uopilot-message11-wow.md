@@ -268,222 +268,224 @@ using EyeAuras.OpenCVAuras.Scripting;
 using EyeAuras.Shared.Services;
 using PoeShared.Scaffolding;
 
-var SendInputWindow = GetService<ISendInputScriptingApi>();
-var SendInput = SendInputWindow; // все клавиши этого сценария адресованы одному окну
-var rng = new Random();
-var imageDirectory = @"C:\Scripts\GWYN\Image";
-var password = "YOUR_PASSWORD"; // задайте локально перед запуском
-string Image(string name) => Path.Combine(imageDirectory, name);
-int blz = 0, disc = 0, login = 0;
-Rectangle world1 = default, d2 = default, ring = default;
-
-DateTimeOffset Rapidfire = default, tPet = default, tHeal = default,
-    tFetch = default, tDejunk = default, Buff = default;
-
-int random(int max) => rng.Next(max);
-void Press(Key key, int delayMs)
 {
-    cancellationToken.ThrowIfCancellationRequested();
-    SendInput.KeyDown(key);
-    try { Sleep(delayMs); }
-    finally { SendInput.KeyUp(key); }
-}
+    var SendInputWindow = GetService<ISendInputScriptingApi>();
+    var SendInput = SendInputWindow; // все клавиши этого сценария адресованы одному окну
+    var rng = new Random();
+    var imageDirectory = @"C:\Scripts\GWYN\Image";
+    var password = "YOUR_PASSWORD"; // задайте локально перед запуском
+    string Image(string name) => Path.Combine(imageDirectory, name);
+    int blz = 0, disc = 0, login = 0;
+    Rectangle world1 = default, d2 = default, ring = default;
 
-//------------------------------------------------------
+    DateTimeOffset Rapidfire = default, tPet = default, tHeal = default,
+        tFetch = default, tDejunk = default, Buff = default;
 
-var window = GetService<IWindowSelector>().GetWindow("1Wow.exe");
+    int random(int max) => rng.Next(max);
+    void Press(Key key, int delayMs)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        SendInput.KeyDown(key);
+        try { Sleep(delayMs); }
+        finally { SendInput.KeyUp(key); }
+    }
 
-using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForWindow(window) //работать будем с окном
-    .EnableOsd(10); //включаем встроенный OSD
+    //------------------------------------------------------
 
-SendInputWindow.TargetWindow = window; //этот SendInput будет работать с окном
+    var window = GetService<IWindowSelector>().GetWindow("1Wow.exe");
 
-mainLoop:
-while (!cancellationToken.IsCancellationRequested)
-{
-    for (var i = 0; i < 350; i++)
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
+        .ForWindow(window) //работать будем с окном
+        .EnableOsd(10); //включаем встроенный OSD
+
+    SendInputWindow.TargetWindow = window; //этот SendInput будет работать с окном
+
+    mainLoop:
+    while (!cancellationToken.IsCancellationRequested)
+    {
+        for (var i = 0; i < 350; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            blz = cv.CountPixels(12083459, 97, 146, 231, 7, 11);
+            disc = cv.CountPixels(14408, 95, 146, 122, 19, 4);
+            login = cv.CountPixels(50678, 95, 193, 121, 5, 5);
+            world1 = cv.ImageSearch(Image("world.bmp"), 90, Rectangle.FromLTRB(69, 237, 85, 253));
+            d2 = cv.ImageSearch(Image("vopros.bmp"), 90, Rectangle.FromLTRB(310, 243, 319, 253));
+            ring = cv.ImageSearch(Image("ring.bmp"), 90, Rectangle.FromLTRB(2, 171, 11, 183));
+
+
+            if (blz > 4 && disc > 10 && ring.IsEmpty)
+            {
+                goto reloger;
+            }
+
+            if (!world1.IsEmpty && d2.IsEmpty && ring.IsEmpty)
+            {
+                goto reloger;
+            }
+
+
+            //State #3
+            if (d2.IsEmpty && ring.IsEmpty && login > 3)
+            {
+                goto reloger;
+            }
+
+            Sleep(150 + random(250));
+            Press(Key.D1, 50 + random(100));
+
+            Sleep(159 + random(250));
+            Press(Key.D1, 50 + random(100));
+
+            Sleep(150 + random(250));
+            Press(Key.D1, 50 + random(100));
+
+            Sleep(150 + random(250));
+            Press(Key.D1, 50 + random(100));
+
+            //Rapifire
+            if (Rapidfire < DateTimeOffset.Now)
+            {
+                Sleep(175 + random(475));
+                Press(Key.D2, 50 + random(100));
+                Rapidfire = DateTimeOffset.Now + TimeSpan.FromMilliseconds(500 + random(100));
+            }
+
+            // Buff
+            if (Buff < DateTimeOffset.Now)
+            {
+                Sleep(175 + random(300));
+                Press(Key.D4, 50 + random(50));
+                Buff = DateTimeOffset.Now + TimeSpan.FromMilliseconds(600000 + random(100));
+            }
+
+            // Trueshot
+            if (tDejunk < DateTimeOffset.Now)
+            {
+                Sleep(175 + random(300));
+                Press(Key.F4, 50 + random(50));
+                tDejunk = DateTimeOffset.Now + TimeSpan.FromMilliseconds(120000 + random(1000));
+            }
+
+            // Fetch
+            if (tFetch < DateTimeOffset.Now)
+            {
+                Sleep(150 + random(150));
+                Press(Key.F5, 150 + random(150));
+                Sleep(150 + random(150));
+                Press(Key.F5, 150 + random(150));
+                tFetch = DateTimeOffset.Now + TimeSpan.FromMilliseconds(5000 + random(5000));
+            }
+
+            // Volley
+            if (tHeal < DateTimeOffset.Now)
+            {
+                Sleep(150 + random(150));
+                Press(Key.F7, 150 + random(150));
+                Sleep(150 + random(150));
+                tHeal = DateTimeOffset.Now + TimeSpan.FromMilliseconds(45000 + random(5000));
+            }
+
+            // Pet Res or Call
+            if (tPet < DateTimeOffset.Now)
+            {
+                Sleep(175 + random(300));
+                Press(Key.D5, 50 + random(50));
+                Sleep(175 + random(300));
+                Press(Key.F3, 50 + random(50));
+                tPet = DateTimeOffset.Now + TimeSpan.FromMilliseconds(85000 + random(1000));
+            }
+        }
+
+        Sleep(250 + random(300));
+        Press(Key.F6, 1 + random(10));
+        Sleep(100 + random(10000));
+        Press(Key.F8, 1 + random(10));
+        Sleep(3000 + random(300));
+        Press(Key.D0, 1 + random(10));
+        Sleep(3000 + random(400));
+        Press(Key.D8, 1 + random(10));
+        Sleep(300 + random(400));
+        Press(Key.D7, 1 + random(10));
+        Sleep(3000 + random(5000));
+        Press(Key.F3, 1 + random(10));
+    }
+
+    return; // отмена главного цикла не должна проваливаться в reloger
+
+    reloger:
     {
         cancellationToken.ThrowIfCancellationRequested();
         blz = cv.CountPixels(12083459, 97, 146, 231, 7, 11);
-        disc = cv.CountPixels(14408, 95, 146, 122, 19, 4);
-        login = cv.CountPixels(50678, 95, 193, 121, 5, 5);
-        world1 = cv.ImageSearch(Image("world.bmp"), 90, Rectangle.FromLTRB(69, 237, 85, 253));
-        d2 = cv.ImageSearch(Image("vopros.bmp"), 90, Rectangle.FromLTRB(310, 243, 319, 253));
-        ring = cv.ImageSearch(Image("ring.bmp"), 90, Rectangle.FromLTRB(2, 171, 11, 183));
 
-
-        if (blz > 4 && disc > 10 && ring.IsEmpty)
+        var banResult = cv.ImageSearchRaw(Image("ban.bmp"), 85, Rectangle.FromLTRB(196, 122, 210, 125));
+        if (banResult.Detected.Success && banResult.Detected.Similarity > 90 && blz > 4)
         {
-            goto reloger;
-        }
-
-        if (!world1.IsEmpty && d2.IsEmpty && ring.IsEmpty)
-        {
-            goto reloger;
-        }
-
-
-        //State #3
-        if (d2.IsEmpty && ring.IsEmpty && login > 3)
-        {
-            goto reloger;
-        }
-
-        Sleep(150 + random(250));
-        Press(Key.D1, 50 + random(100));
-
-        Sleep(159 + random(250));
-        Press(Key.D1, 50 + random(100));
-
-        Sleep(150 + random(250));
-        Press(Key.D1, 50 + random(100));
-
-        Sleep(150 + random(250));
-        Press(Key.D1, 50 + random(100));
-
-        //Rapifire
-        if (Rapidfire < DateTimeOffset.Now)
-        {
-            Sleep(175 + random(475));
-            Press(Key.D2, 50 + random(100));
-            Rapidfire = DateTimeOffset.Now + TimeSpan.FromMilliseconds(500 + random(100));
-        }
-
-        // Buff
-        if (Buff < DateTimeOffset.Now)
-        {
-            Sleep(175 + random(300));
-            Press(Key.D4, 50 + random(50));
-            Buff = DateTimeOffset.Now + TimeSpan.FromMilliseconds(600000 + random(100));
-        }
-
-        // Trueshot
-        if (tDejunk < DateTimeOffset.Now)
-        {
-            Sleep(175 + random(300));
-            Press(Key.F4, 50 + random(50));
-            tDejunk = DateTimeOffset.Now + TimeSpan.FromMilliseconds(120000 + random(1000));
-        }
-
-        // Fetch
-        if (tFetch < DateTimeOffset.Now)
-        {
-            Sleep(150 + random(150));
-            Press(Key.F5, 150 + random(150));
-            Sleep(150 + random(150));
-            Press(Key.F5, 150 + random(150));
-            tFetch = DateTimeOffset.Now + TimeSpan.FromMilliseconds(5000 + random(5000));
-        }
-
-        // Volley
-        if (tHeal < DateTimeOffset.Now)
-        {
-            Sleep(150 + random(150));
-            Press(Key.F7, 150 + random(150));
-            Sleep(150 + random(150));
-            tHeal = DateTimeOffset.Now + TimeSpan.FromMilliseconds(45000 + random(5000));
-        }
-
-        // Pet Res or Call
-        if (tPet < DateTimeOffset.Now)
-        {
-            Sleep(175 + random(300));
-            Press(Key.D5, 50 + random(50));
-            Sleep(175 + random(300));
-            Press(Key.F3, 50 + random(50));
-            tPet = DateTimeOffset.Now + TimeSpan.FromMilliseconds(85000 + random(1000));
+            return; //stop
         }
     }
 
-    Sleep(250 + random(300));
-    Press(Key.F6, 1 + random(10));
-    Sleep(100 + random(10000));
-    Press(Key.F8, 1 + random(10));
-    Sleep(3000 + random(300));
-    Press(Key.D0, 1 + random(10));
-    Sleep(3000 + random(400));
-    Press(Key.D8, 1 + random(10));
-    Sleep(300 + random(400));
-    Press(Key.D7, 1 + random(10));
-    Sleep(3000 + random(5000));
-    Press(Key.F3, 1 + random(10));
-}
-
-return; // отмена главного цикла не должна проваливаться в reloger
-
-reloger:
-{
-    cancellationToken.ThrowIfCancellationRequested();
-    blz = cv.CountPixels(12083459, 97, 146, 231, 7, 11);
-
-    var banResult = cv.ImageSearchRaw(Image("ban.bmp"), 85, Rectangle.FromLTRB(196, 122, 210, 125));
-    if (banResult.Detected.Success && banResult.Detected.Similarity > 90 && blz > 4)
-    {
-        return; //stop
-    }
-}
-
-login = cv.CountPixels(50678, 95, 193, 121, 5, 5);
-// Disconnected
-if (login > 3 || disc > 10 || !world1.IsEmpty)
-{
-    if (disc > 10 && blz > 4)
-    {
-        Press(Key.Escape, 80 + random(150));
-        goto login;
-    }
-
-// Login screen
-login:
-    cancellationToken.ThrowIfCancellationRequested();
-    ring = cv.ImageSearch(Image("ring.bmp"), 90, Rectangle.FromLTRB(2, 171, 11, 183));
     login = cv.CountPixels(50678, 95, 193, 121, 5, 5);
-
-    if (login > 3 && blz > 4 && ring.IsEmpty)
+    // Disconnected
+    if (login > 3 || disc > 10 || !world1.IsEmpty)
     {
-        var text = cv.CountPixels(6710886, 95, 113, 141, 4, 3);
-        if (text > 0)
+        if (disc > 10 && blz > 4)
         {
-            Press(Key.End, 80 + random(150));
-            Sleep(100);
-            SendInput.KeyDown(Key.Back);
-            try { Sleep(5000); }
-            finally { SendInput.KeyUp(Key.Back); }
+            Press(Key.Escape, 80 + random(150));
             goto login;
         }
-        else
+
+    // Login screen
+    login:
+        cancellationToken.ThrowIfCancellationRequested();
+        ring = cv.ImageSearch(Image("ring.bmp"), 90, Rectangle.FromLTRB(2, 171, 11, 183));
+        login = cv.CountPixels(50678, 95, 193, 121, 5, 5);
+
+        if (login > 3 && blz > 4 && ring.IsEmpty)
         {
-            SendInput.Text(password);  ///// YOUR PASSWORD
-            Sleep(500 + random(5000));
-            Press(Key.Enter, 80 + random(150));
-            Sleep(15000 + random(100));
-            goto world;
+            var text = cv.CountPixels(6710886, 95, 113, 141, 4, 3);
+            if (text > 0)
+            {
+                Press(Key.End, 80 + random(150));
+                Sleep(100);
+                SendInput.KeyDown(Key.Back);
+                try { Sleep(5000); }
+                finally { SendInput.KeyUp(Key.Back); }
+                goto login;
+            }
+            else
+            {
+                SendInput.Text(password);  ///// YOUR PASSWORD
+                Sleep(500 + random(5000));
+                Press(Key.Enter, 80 + random(150));
+                Sleep(15000 + random(100));
+                goto world;
+            }
         }
+
+        Sleep(500);
+        goto login;
+
+    // Enter World
+    world:
+        cancellationToken.ThrowIfCancellationRequested();
+        ring = cv.ImageSearch(Image("ring.bmp"), 90, Rectangle.FromLTRB(2, 171, 11, 183));
+        var world = cv.ImageSearchRaw(Image("world.bmp"), 90, Rectangle.FromLTRB(69, 237, 85, 253));
+        d2 = cv.ImageSearch(Image("vopros.bmp"), 90, Rectangle.FromLTRB(310, 243, 319, 253));
+
+        if (world.Detected.Success && world.Detected.Similarity > 90 && d2.IsEmpty && ring.IsEmpty)
+        {
+            Sleep(180 + random(5000));
+            Press(Key.Enter, 80 + random(150));
+            Sleep(5000);
+            goto mainLoop;
+        }
+        Sleep(500);
+        goto world;
     }
-
     Sleep(500);
-    goto login;
-
-// Enter World
-world:
-    cancellationToken.ThrowIfCancellationRequested();
-    ring = cv.ImageSearch(Image("ring.bmp"), 90, Rectangle.FromLTRB(2, 171, 11, 183));
-    var world = cv.ImageSearchRaw(Image("world.bmp"), 90, Rectangle.FromLTRB(69, 237, 85, 253));
-    d2 = cv.ImageSearch(Image("vopros.bmp"), 90, Rectangle.FromLTRB(310, 243, 319, 253));
-
-    if (world.Detected.Success && world.Detected.Similarity > 90 && d2.IsEmpty && ring.IsEmpty)
-    {
-        Sleep(180 + random(5000));
-        Press(Key.Enter, 80 + random(150));
-        Sleep(5000);
-        goto mainLoop;
-    }
-    Sleep(500);
-    goto world;
+    goto mainLoop;
 }
-Sleep(500);
-goto mainLoop;
 ```
 
 `ImageSearchRaw` возвращает оболочку с `Detected`; прежде чем использовать сходство, проверяем `Success`. Обычный `ImageSearch` возвращает `Rectangle.Empty` при отсутствии результата. Для `ForWindow` прямоугольники относятся к окну; здесь они используются как признаки состояния, без кликов по необработанным координатам кадра. `Sleep` учитывает отмену, а отдельные вызовы CV и ввода синхронны и не получают токен скрипта. Локальная функция `Press` освобождает нажатую клавишу в `finally`, даже если пауза отменена. Это не гарантия обработки ввода самой игрой.

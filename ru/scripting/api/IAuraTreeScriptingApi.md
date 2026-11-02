@@ -49,6 +49,34 @@ var tree = AuraTree.FindBehaviorTreeByPath("MyProject/BehaviorTrees/Tree1");
 Log.Info($"Папка найдена: {folder != null}, дерево найдено: {tree != null}");
 ```
 
+## Выполнить существующий макрос
+
+Макрос — уже настроенное дерево поведения. Например, создайте папку
+`Automation` и макрос `DailyRoutine`, затем выполните в C# Action:
+
+```csharp
+var macro = AuraTree.FindMacroByPath("Automation/DailyRoutine");
+if (macro == null)
+{
+    Log.Info("Макрос не найден");
+    return;
+}
+var status = await macro.ExecuteAsync(cancellationToken);
+Log.Info($"Результат макроса: {status}");
+```
+
+`IMacroAccessor.ExecuteAsync(CancellationToken)` возвращает
+`Task<EyeAuras.BehaviorTree.Nodes.NodeStatus>` и передаёт токен в `Tick`
+дерева. После `await` получите статус `Success`, `Failure` или `Running`,
+а не `bool`. Не подменяйте `Running` успехом и не добавляйте автоматический
+повтор макроса без решения, нужен ли он вашему сценарию. Отмена кооперативная:
+её поддержку внутри конкретных узлов нужно учитывать отдельно.
+
+`GetMacroByPath` требует существующий путь и при отсутствии бросает
+`ArgumentException`; `FindMacroByPath` допускает отсутствие. Эти методы
+работают через дерево, даже несмотря на неинициализированное свойство
+`Macros` в этой версии. Accessor заимствован — не освобождайте его.
+
 ## Получить настроенный компонент ауры
 
 Путь указывает на ауру, а параметр типа — на нужный компонент. Для ауры `MyFolder/Aura1`, в которой уже настроен триггер поиска изображения:

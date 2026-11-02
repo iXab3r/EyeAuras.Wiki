@@ -104,6 +104,66 @@ for (var step = 1; step <= 3; step++)
 с текущим токеном. Обычному классу передайте `CancellationToken` явно и
 используйте подходящий метод ожидания; `Sleep` не глобальная функция C#.
 
+## Сохранить настройку и запросить перезапуск
+
+`IScriptRestartController` запрашивает перезапуск **текущего host**. В срезе
+`20fd3d4` штатная реализация подключена для C# Script Action; другой host
+может предоставить `UnsupportedScriptRestartController` и бросить
+`NotSupportedException`. Наличие интерфейса в SDK не гарантирует поддержку.
+Action должен оставаться живым, иметь `Context` и быть разрешён к исполнению:
+обычный путь `ExecuteAsync` отклоняет `IsIgnored`/отключённый action.
+
+Пример верхнеуровневого C# Action: запишите переменную `NextTargetTitle`
+владельца скрипта, затем запустите его. Текущее значение хранится в
+`TargetTitle`. Если значения различаются, скрипт сохраняет новое и один раз
+запрашивает перезапуск:
+
+```csharp
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using EyeAuras.Scripting.Api;
+
+var runToken = cancellationToken;
+var target = Variables.Get<string>("TargetTitle");
+Log.Info($"Настройка этого запуска: {target.Value}");
+var proposed = Variables.Get<string>("NextTargetTitle");
+if (proposed.TryGetValue(out var next) &&
+    !string.Equals(target.Value, next, StringComparison.Ordinal))
+{
+    target.Value = next;
+    await GetService<IScriptRestartController>().RequestRestartAsync(
+        new ScriptRestartRequest
+        {
+            Reason = "Изменилась цель",
+            Delay = TimeSpan.FromMilliseconds(500)
+        }, runToken);
+    Log.Info("Запрос принят; ожидаем отмену текущего запуска");
+}
+try
+{
+    await Task.Delay(Timeout.Infinite, runToken);
+}
+catch (OperationCanceledException) when (runToken.IsCancellationRequested)
+{
+}
+```
+
+Новый запуск прочитает сохранённое `TargetTitle`. Проверка равенства не даёт
+этому примеру перезапускать себя бесконечно. Для изменения настройки во время
+работы ту же последовательность «сохранить → запросить» вызывайте из своей
+обработки UI или изменения конфигурации; пример выше проверяет её на старте.
+Живые окна, подписки и Task через перезапуск не передаются.
+
+`await RequestRestartAsync` ждёт принятия запроса, **не нового запуска**.
+Coordinator сначала ждёт `Delay`, затем вызывает отмену текущего action и
+ставит повторное выполнение в очередь. Это не гарантированный интервал между
+двумя запусками. Текущий код должен дойти до отменяемого ожидания и освободить
+ресурсы; синхронную бесконечную работу токен насильно не прерывает. Токен
+метода отменяет принятие запроса до постановки, а не служит ручкой отмены уже
+принятого перезапуска. Повторный запрос при уже ожидающем запросе игнорируется;
+освобождение action отменяет ожидающую оркестрацию.
+
 ## Вынести вычисление в обычный класс
 
 В `Totals.cs` проекта скрипта поместите класс:

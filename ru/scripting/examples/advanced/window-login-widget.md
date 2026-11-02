@@ -31,10 +31,12 @@ dateCreated: 2025-02-27T19:43:55.329Z
 using PhantomPixel;
 using PoeShared.Blazor.Wpf;
 
-using var window = GetService<IBlazorWindow>();
-window.ViewType = typeof(MainWindow);
-window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-window.ShowDialog(cancellationToken);
+{
+    using var window = GetService<IBlazorWindow>();
+    window.ViewType = typeof(MainWindow);
+    window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+    window.ShowDialog(cancellationToken);
+}
 ```
 
 **MainWindow.razor**

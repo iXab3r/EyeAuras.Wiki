@@ -38,19 +38,21 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using EyeAuras.Memory;
 
-using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-var buffer = Marshal.AllocHGlobal(16);
-try
 {
-    process.Memory.Write<int>(buffer, 742);
-    process.Memory.Write<float>(buffer + 0x04, 1.5f);
-    var hp = process.Memory.Read<int>(buffer);
-    var speed = process.Memory.Read<float>(buffer + 0x04);
-    Log.Info($"HP={hp}, speed={speed}");
-}
-finally
-{
-    Marshal.FreeHGlobal(buffer);
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    var buffer = Marshal.AllocHGlobal(16);
+    try
+    {
+        process.Memory.Write<int>(buffer, 742);
+        process.Memory.Write<float>(buffer + 0x04, 1.5f);
+        var hp = process.Memory.Read<int>(buffer);
+        var speed = process.Memory.Read<float>(buffer + 0x04);
+        Log.Info($"HP={hp}, speed={speed}");
+    }
+    finally
+    {
+        Marshal.FreeHGlobal(buffer);
+    }
 }
 ```
 
@@ -64,6 +66,10 @@ finally
 - переходить по pointer chain
 
 ## Чтение и запись простых значений
+
+Ниже фрагменты чтения предполагают открытый `process` и действующие адреса.
+Помещайте их внутрь блока владения reader из подготовки либо передавайте
+reader параметром helper-метода; после закрытия блока его использовать нельзя.
 
 Для простых случаев почти всегда нужны именно эти методы:
 
@@ -172,19 +178,21 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using EyeAuras.Memory;
 
-using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-var buffer = Marshal.AllocHGlobal(0x40);
-try
 {
-    var player = buffer + 0x10;
-    process.Memory.Write<long>(buffer, player.ToInt64());
-    process.Memory.Write<int>(player + 0x18, 742);
-    var health = process.Memory.ReadPointerChain<int>(buffer, 0x18);
-    Log.Info($"HP={health}");
-}
-finally
-{
-    Marshal.FreeHGlobal(buffer);
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    var buffer = Marshal.AllocHGlobal(0x40);
+    try
+    {
+        var player = buffer + 0x10;
+        process.Memory.Write<long>(buffer, player.ToInt64());
+        process.Memory.Write<int>(player + 0x18, 742);
+        var health = process.Memory.ReadPointerChain<int>(buffer, 0x18);
+        Log.Info($"HP={health}");
+    }
+    finally
+    {
+        Marshal.FreeHGlobal(buffer);
+    }
 }
 ```
 
@@ -208,16 +216,18 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using EyeAuras.Memory;
 
-using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-var namePtr = Marshal.AllocHGlobal(64);
-try
 {
-    process.Memory.WriteString(namePtr, "Player");
-    Log.Info(process.Memory.ReadString(namePtr.ToInt64(), 7));
-}
-finally
-{
-    Marshal.FreeHGlobal(namePtr);
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    var namePtr = Marshal.AllocHGlobal(64);
+    try
+    {
+        process.Memory.WriteString(namePtr, "Player");
+        Log.Info(process.Memory.ReadString(namePtr.ToInt64(), 7));
+    }
+    finally
+    {
+        Marshal.FreeHGlobal(namePtr);
+    }
 }
 ```
 

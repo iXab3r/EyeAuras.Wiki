@@ -38,8 +38,8 @@ dateCreated: 2026-04-21T00:00:00.000Z
   - `PickColor(IWindowHandle targetWindow = default)`
 - `OsdRegionSelectionResult` — выбранная область, матрицы преобразования и окно под курсором.
 - `OsdRegionTransformationMatrices` — `ScreenToWindow` и `WindowToScreen`.
-- `OsdPointSelectionResult` — выбранная точка.
-- `OsdColorSelectionResult` — считанный цвет.
+- `OsdPointSelectionResult` — `Point`, `Matrices`, `WindowUnderCursor`.
+- `OsdColorSelectionResult` — `Color`, `Point`, `Matrices`, `WindowUnderCursor`.
 
 ## Выбрать окно и область внутри него
 
@@ -63,16 +63,39 @@ Log.Info($"Окно: {window.Title}; область: {result.Region}");
 Для выбора без привязки к окну выполните отдельный C# Script:
 
 ```csharp
+using System;
 using EyeAuras.Shared.Osd;
 
 var selection = GetService<IOsdSelectionService>();
-var point = await selection.PickPoint();
-Log.Info($"Точка: {point.Point}");
-var color = await selection.PickColor();
-Log.Info($"Цвет: {color.Color}; точка: {color.Point}");
+try
+{
+    var point = await selection.PickPoint();
+    Log.Info($"Точка: {point.Point}");
+    var underCursor = point.WindowUnderCursor;
+    Log.Info(underCursor == null || !underCursor.IsWindow
+        ? "Окно под курсором недоступно"
+        : $"Окно под курсором: {underCursor.Title}, PID: {underCursor.ProcessId}");
+
+    var color = await selection.PickColor();
+    var c = color.Color;
+    Log.Info($"RGB({c.R}, {c.G}, {c.B}), HEX #{c.R:X2}{c.G:X2}{c.B:X2}; точка: {color.Point}");
+}
+catch (OperationCanceledException)
+{
+    Log.Info("Выбор отменён пользователем");
+}
 ```
 
 Без `targetWindow` матрицы единичные, координаты остаются экранными. Выбор цвета использует снимок рабочего стола, сделанный при начале этого выбора. Это разовая интерактивная операция, а не поток захвата для CV.
+
+`WindowUnderCursor` есть у всех трёх структур результатов, а не только у
+выбора области. Оно получено при завершении выбора и может быть `null` или
+уже устареть. Это заимствованное окно под курсором, **не** переданный
+`targetWindow`. Передача целевого окна задаёт привязку координат; без неё
+`Point` экранная, с ней — относительно начала `DwmFrameBounds` цели через
+`Matrices.WindowToScreen` этого среза. `Matrices` не содержит настройки
+источника изображения для OCR: для перевода в его ROI нужны ещё преобразования
+конкретного захвата.
 
 ## Координаты и версия контракта
 

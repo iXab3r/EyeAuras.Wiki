@@ -92,11 +92,13 @@ Log.Info($"Runs = {Variables.GetValue<int>("runs")}");
 ```csharp
 using System.Reactive.Linq;
 
-var status = Variables.Get<string>("status");
-using var subscription = status.Listen()
-    .Subscribe(value => Log.Info($"Status = {value}"));
-status.Value = "Ready";
-await Task.Delay(1000, cancellationToken);
+{
+    var status = Variables.Get<string>("status");
+    using var subscription = status.Listen()
+        .Subscribe(value => Log.Info($"Status = {value}"));
+    status.Value = "Ready";
+    await Task.Delay(1000, cancellationToken);
+}
 ```
 
 `Listen()` выдаёт текущее значение и последующие отличающиеся значения;

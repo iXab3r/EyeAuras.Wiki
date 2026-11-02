@@ -88,12 +88,14 @@ Max Duration: 0.46 ms
 Чтобы включить профилирование для [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi), вызовите `EnableProfiling`. После этого accessor записывает предусмотренные реализацией внутренние шаги CV; это не перехват любого метода приложения.
 
 ```csharp
-var targetWindow = GetService<IWindowSelector>().GetWindow("Aim Trainer");
-using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForWindow(targetWindow)
-    .EnableProfiling();
-cv.ProcessPixels(image => Log.Info($"Frame: {image.Size}"));
-Log.Info(cv.Profiler.RenderPlainText());
+{
+    var targetWindow = GetService<IWindowSelector>().GetWindow("Aim Trainer");
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
+        .ForWindow(targetWindow)
+        .EnableProfiling();
+    cv.ProcessPixels(image => Log.Info($"Frame: {image.Size}"));
+    Log.Info(cv.Profiler.RenderPlainText());
+}
 ```
 
 > Важно! `EnableProfiling` включает тайминги только для этого конкретного экземпляра [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi) и только в рамках текущего скрипта. Если вы хотите профилировать сразу несколько скриптов, используйте `IProfilerProvider` вместе с `MiniProfiler GetOrAdd(string name)` — выберите уникальное имя профайлера и используйте его совместно в нескольких скриптах.
@@ -103,6 +105,10 @@ Log.Info(cv.Profiler.RenderPlainText());
 Если вы включили профилирование в [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi), EyeAuras начнёт автоматически записывать внутренние шаги каждого вызова. Но обычно, помимо внутренних этапов, хочется замерять и свои действия: движение мыши, вычисления, собственную логику и т. п.
 
 Делается это очень просто: в [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi) используйте `Step` и оборачивайте измеряемый участок в `using`, например так:
+
+Следующий фрагмент добавляет измерение в **уже работающий** код с `cv`,
+`sendInput` и `movePosition`. Он размещается внутри их области жизни;
+это не отдельный скрипт после завершения предыдущего блока.
 
 ```csharp
 using(cv.Profiler.Step($"Mouse Move"))

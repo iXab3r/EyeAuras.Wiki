@@ -73,45 +73,47 @@ using System;
 
 const int PortNumber = 52080;
 
-Log.Info("Creating web-app builder");
+{
+    Log.Info("Creating web-app builder");
 
-var builder = Host
-   .CreateDefaultBuilder()
-   .ConfigureAppConfiguration((context, config) =>
-   {
-       //Very important line! 
-       //This is required to run the server in EA infrastructure
-       config.Sources.Clear();
-   })
-   .ConfigureWebHostDefaults(webBuilder =>
-   {
-       Log.Info("Setting up web-options");
-       webBuilder
-          .ConfigureKestrel(serverOptions =>
-          {
-              serverOptions.ConfigureEndpointDefaults(endpointOptions => { endpointOptions.Protocols = HttpProtocols.Http1; });
-              serverOptions.ListenAnyIP(PortNumber, listenOptions => { listenOptions.Protocols = HttpProtocols.Http1AndHttp2; });
-          })
-          .Configure((ctx, app) =>
-          {
-              app.UseRouting();
-              app.UseEndpoints(endpoints =>
-               {
-                   endpoints.MapGet("/hello", () =>
+    var builder = Host
+       .CreateDefaultBuilder()
+       .ConfigureAppConfiguration((context, config) =>
+       {
+           //Very important line!
+           //This is required to run the server in EA infrastructure
+           config.Sources.Clear();
+       })
+       .ConfigureWebHostDefaults(webBuilder =>
+       {
+           Log.Info("Setting up web-options");
+           webBuilder
+              .ConfigureKestrel(serverOptions =>
+              {
+                  serverOptions.ConfigureEndpointDefaults(endpointOptions => { endpointOptions.Protocols = HttpProtocols.Http1; });
+                  serverOptions.ListenAnyIP(PortNumber, listenOptions => { listenOptions.Protocols = HttpProtocols.Http1AndHttp2; });
+              })
+              .Configure((ctx, app) =>
+              {
+                  app.UseRouting();
+                  app.UseEndpoints(endpoints =>
                    {
-                       //that could be any kind of code
-                       return "Hello, world!";
+                       endpoints.MapGet("/hello", () =>
+                       {
+                           //that could be any kind of code
+                           return "Hello, world!";
+                       });
                    });
-               });
-          });
-   });
+              });
+       });
 
-Log.Info("Building web-server");
-using var host = builder.Build();
+    Log.Info("Building web-server");
+    using var host = builder.Build();
 
-Log.Info("Starting web-server");
-await host.RunAsync(cancellationToken);
-Log.Info("Terminated");
+    Log.Info("Starting web-server");
+    await host.RunAsync(cancellationToken);
+    Log.Info("Terminated");
+}
 ```
 
 `ListenAnyIP` слушает доступные сетевые интерфейсы, а не только loopback. Доступ с другой машины зависит от сети и firewall. `RunAsync(cancellationToken)` связывает работу хоста с остановкой скрипта; уже запущенные обработчики и внешние операции имеют собственные правила завершения. HTTP-контейнер `services` создаётся отдельно от контейнера EyeAuras: сервисы скрипта не появляются в контроллерах автоматически. `config.Sources.Clear()` оставляет явную настройку этого примера; оно не гарантирует совместимость любой версии ASP.NET.

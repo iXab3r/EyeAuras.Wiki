@@ -57,17 +57,19 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-var runToken = cancellationToken;
-var status = Variables.Get<string>("status");
-using var subscription = status.Listen()
-    .Subscribe(value => Log.Info($"Status = {value}"));
-try
 {
-    await Task.Delay(Timeout.Infinite, runToken);
-}
-catch (OperationCanceledException) when (runToken.IsCancellationRequested)
-{
-    Log.Info("Наблюдение остановлено");
+    var runToken = cancellationToken;
+    var status = Variables.Get<string>("status");
+    using var subscription = status.Listen()
+        .Subscribe(value => Log.Info($"Status = {value}"));
+    try
+    {
+        await Task.Delay(Timeout.Infinite, runToken);
+    }
+    catch (OperationCanceledException) when (runToken.IsCancellationRequested)
+    {
+        Log.Info("Наблюдение остановлено");
+    }
 }
 ```
 

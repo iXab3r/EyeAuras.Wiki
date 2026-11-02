@@ -31,13 +31,15 @@ API экспериментальный. Здесь описан контракт
 ```csharp
 using EyeAuras.Shared.Scripting;
 
-var dialogs = GetService<IDialogWindowUnstableScriptingApi>();
-using var window = dialogs.CreateWindow<MyScript.HelloDialog>();
-window.Title = "Пример диалога";
-window.Width = 400;
-window.Height = 300;
-window.ShowDialog(cancellationToken);
-Log.Info("Ожидание диалога завершено");
+{
+    var dialogs = GetService<IDialogWindowUnstableScriptingApi>();
+    using var window = dialogs.CreateWindow<MyScript.HelloDialog>();
+    window.Title = "Пример диалога";
+    window.Width = 400;
+    window.Height = 300;
+    window.ShowDialog(cancellationToken);
+    Log.Info("Ожидание диалога завершено");
+}
 ```
 
 Появится окно с текстом компонента. `ShowDialog` ждёт его закрытия; реализация
@@ -88,24 +90,26 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using EyeAuras.Shared.Scripting;
 
-var runToken = cancellationToken;
-var dialogs = GetService<IDialogWindowUnstableScriptingApi>();
-var model = new MyScript.WindowStatus { Text = "Окно готово" };
-using var window = dialogs.CreateWindow<MyScript.StatusPanel>(model);
-window.Title = "Состояние";
-window.Width = 400;
-window.Height = 240;
+{
+    var runToken = cancellationToken;
+    var dialogs = GetService<IDialogWindowUnstableScriptingApi>();
+    var model = new MyScript.WindowStatus { Text = "Окно готово" };
+    using var window = dialogs.CreateWindow<MyScript.StatusPanel>(model);
+    window.Title = "Состояние";
+    window.Width = 400;
+    window.Height = 240;
 
-var closed = window.WhenClosed.Take(1).ToTask(runToken);
-window.Show();
-try
-{
-    await closed;
-    Log.Info("Окно закрыто");
-}
-catch (OperationCanceledException) when (runToken.IsCancellationRequested)
-{
-    Log.Info("Показ окна остановлен");
+    var closed = window.WhenClosed.Take(1).ToTask(runToken);
+    window.Show();
+    try
+    {
+        await closed;
+        Log.Info("Окно закрыто");
+    }
+    catch (OperationCanceledException) when (runToken.IsCancellationRequested)
+    {
+        Log.Info("Показ окна остановлен");
+    }
 }
 ```
 

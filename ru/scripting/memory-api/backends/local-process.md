@@ -20,9 +20,11 @@ dateCreated: 2026-04-16T17:05:00.000Z
 using System.Diagnostics;
 using EyeAuras.Memory;
 
-using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-foreach (var module in process.GetProcessModules())
-    Log.Info($"{module.ModuleName}: 0x{module.BaseAddress:X}");
+{
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    foreach (var module in process.GetProcessModules())
+        Log.Info($"{module.ModuleName}: 0x{module.BaseAddress:X}");
+}
 ```
 
 Результат — снимок модулей процесса EyeAuras. Для другой цели используйте выбранный PID; поиск по имени выбирает первое совпадение и не различает несколько одинаковых процессов.
@@ -55,10 +57,12 @@ Reader владеет лениво открываемыми OS handle и зак�
 using System.Diagnostics;
 using EyeAuras.Memory;
 
-using var byPid = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-using var byName = LocalProcess.ByProcessName("notepad");
+{
+    using var byPid = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    using var byName = LocalProcess.ByProcessName("notepad");
 
-var processes = LocalProcess.GetProcesses();
+    var processes = LocalProcess.GetProcesses();
+}
 ```
 
 ## Что он даёт
@@ -84,12 +88,14 @@ var processes = LocalProcess.GetProcesses();
 using EyeAuras.Memory;
 using EyeAuras.Memory.Scaffolding;
 
-using var process = LocalProcess.ByProcessName("game");
-using var moduleMemory = process.MemoryOfModule("game.exe");
+{
+    using var process = LocalProcess.ByProcessName("game");
+    using var moduleMemory = process.MemoryOfModule("game.exe");
 
-var sections = moduleMemory.ReadSections();
-var imports = moduleMemory.ReadImports();
-var exports = moduleMemory.ReadExports();
+    var sections = moduleMemory.ReadSections();
+    var imports = moduleMemory.ReadImports();
+    var exports = moduleMemory.ReadExports();
+}
 ```
 
 Если потом хотите перейти от внешнего чтения к более активной internal-практике, полезны [DLL Memory Hack](https://gamehacking.academy/pages/3/03/), [DLL Injector](https://gamehacking.academy/pages/7/01/) и [Code Caves & DLL's](https://gamehacking.academy/pages/3/04/).

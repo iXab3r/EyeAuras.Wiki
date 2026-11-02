@@ -33,35 +33,37 @@ using EyeAuras.Repl;
 using ImGuiNET;
 using PoeShared.Scaffolding;
 
-AddNewExtension<ImGuiContainerExtensions>();
-
-var files = GetService<IScriptFileProvider>();
-var fontPath = "MyScript.Roboto-Regular.ttf"; // полное имя вашего ресурса
-var fontData = FontData.Load(files, fontPath);
-using var osd = GetService<IImGuiExperimentalApi>();
-ImGuiFontSpec font = default;
-
-using var rendering = osd.AddRenderer(() =>
 {
-    // И регистрация, и использование шрифта происходят в потоке отрисовки.
-    if (!font.IsInitialized)
-    {
-        font = osd.AddFont(fontData, 20, "Roboto", ImGuiFontRangeType.Cyrillic);
-    }
+    AddNewExtension<ImGuiContainerExtensions>();
 
-    ImGuiEx.PushFont(font);
-    try
-    {
-        ImGui.ShowDemoWindow();
-    }
-    finally
-    {
-        ImGuiEx.PopFont(font);
-    }
-});
+    var files = GetService<IScriptFileProvider>();
+    var fontPath = "MyScript.Roboto-Regular.ttf"; // полное имя вашего ресурса
+    var fontData = FontData.Load(files, fontPath);
+    using var osd = GetService<IImGuiExperimentalApi>();
+    ImGuiFontSpec font = default;
 
-// Не завершать выполнение сразу после регистрации обработчика.
-cancellationToken.WaitHandle.WaitOne();
+    using var rendering = osd.AddRenderer(() =>
+    {
+        // И регистрация, и использование шрифта происходят в потоке отрисовки.
+        if (!font.IsInitialized)
+        {
+            font = osd.AddFont(fontData, 20, "Roboto", ImGuiFontRangeType.Cyrillic);
+        }
+
+        ImGuiEx.PushFont(font);
+        try
+        {
+            ImGui.ShowDemoWindow();
+        }
+        finally
+        {
+            ImGuiEx.PopFont(font);
+        }
+    });
+
+    // Не завершать выполнение сразу после регистрации обработчика.
+    cancellationToken.WaitHandle.WaitOne();
+}
 ```
 
 ### FontData.cs

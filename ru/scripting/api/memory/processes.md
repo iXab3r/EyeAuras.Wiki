@@ -55,6 +55,36 @@ reader открытым у вызывающего кода, а не возвра
 См. [Embedded SDK](../nuget/embedded-sdk). `ByProcessName(string)` принимает
 имя с `.exe` или без него, но для выбора конкретного экземпляра используйте PID.
 
+## Открыть reader по выбранному окну
+
+Обычный пользовательский доступ не требует KD, MPFS или дополнительного
+драйвера, но требует **загруженного runtime-модуля `EyeAuras.Memory`**.
+Он регистрирует `ILocalProcessBuilder`; одна metadata-ссылка этого не делает.
+В отдельном embedded-host сначала вызовите `UseMemory()` и дождитесь
+`EnsureReadyAsync()`, как описано выше. В desktop EyeAuras эти регистрации
+обеспечивает host после загрузки модуля.
+
+Пример C# Script с интерактивным выбором окна и чтением списка модулей:
+
+```csharp
+using EyeAuras.Memory;
+using EyeAuras.Shared.Osd;
+
+var window = await GetService<IOsdSelectionService>().PickWindow();
+{
+    using var process = LocalProcess.ByProcessId(window.ProcessId);
+    Log.Info($"Reader PID: {process.ProcessId}; доступен: {process.IsValid}");
+    foreach (var module in process.GetProcessModules())
+        Log.Info(module.ModuleName);
+}
+```
+
+Reader освобождается при выходе из блока; заимствованный `window` — нет.
+Для долгого чтения держите блок открытым ожидаемой работой с токеном запуска.
+Права доступа Windows, разрядность, завершение цели и переиспользование PID
+нужно учитывать отдельно. Не подменяйте отсутствие регистрации builder
+обещанием, что любой PID обязательно удастся открыть.
+
 ## Найти модуль и перейти к известному смещению
 
 У helper уже есть открытый `IProcess`, настоящее имя модуля из предыдущего

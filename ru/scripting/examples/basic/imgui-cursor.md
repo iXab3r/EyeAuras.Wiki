@@ -25,19 +25,21 @@ using ImGuiNET;
 using System.Numerics;
 using PoeShared.Scaffolding;
 
-AddNewExtension<ImGuiContainerExtensions>();
-using var osd = GetService<IImGuiExperimentalApi>();
-using var renderer = osd.AddRenderer(() =>
 {
-    if (cancellationToken.IsCancellationRequested) return;
-    var cursor = ImGui.GetMousePos();
-    ImGui.GetBackgroundDrawList().AddRect(
-        cursor - new Vector2(5, 5),
-        cursor + new Vector2(5, 5),
-        ImGui.GetColorU32(new Vector4(0f, 1f, 0f, 1f)),
-        0f, ImDrawFlags.None, 1f);
-});
-cancellationToken.WaitHandle.WaitOne();
+    AddNewExtension<ImGuiContainerExtensions>();
+    using var osd = GetService<IImGuiExperimentalApi>();
+    using var renderer = osd.AddRenderer(() =>
+    {
+        if (cancellationToken.IsCancellationRequested) return;
+        var cursor = ImGui.GetMousePos();
+        ImGui.GetBackgroundDrawList().AddRect(
+            cursor - new Vector2(5, 5),
+            cursor + new Vector2(5, 5),
+            ImGui.GetColorU32(new Vector4(0f, 1f, 0f, 1f)),
+            0f, ImDrawFlags.None, 1f);
+    });
+    cancellationToken.WaitHandle.WaitOne();
+}
 ```
 
 Пока скрипт работает, вокруг курсора рисуется зелёная рамка 10×10. `ImGui.GetMousePos()` возвращает точку в системе координат ImGui; здесь не подставляются нативные экранные координаты с неучтённым началом окна. Рисование выполняется только внутри обработчика кадра; нельзя блокировать его ожиданием отмены. При остановке сначала снимается подписка, затем освобождается экземпляр API. Он использует общее окно `Main`: не закрывайте его напрямую, оно может обслуживать другие скрипты. [Карта ImGui SDK](/ru/scripting/api/nuget/imgui-sdk) ведёт к контрактам и ограничениям времени жизни. Работа графики и конкретной версии пакета требует проверки в Windows.

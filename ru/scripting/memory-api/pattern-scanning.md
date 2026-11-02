@@ -25,8 +25,10 @@ using System.Diagnostics;
 using EyeAuras.Memory;
 using EyeAuras.Memory.Scaffolding;
 
-using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-using var memory = process.MemoryOfModule("kernel32.dll");
+{
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    using var memory = process.MemoryOfModule("kernel32.dll");
+}
 ```
 
 Поиск будет ограничен базой и размером выбранного модуля. Само представление `IMemory` не проверяет границы каждого прямого чтения; не передавайте ему произвольные адреса.
@@ -71,12 +73,14 @@ var withOffset = BytePattern.FromTemplate("48 ^ 85 C0 74 0A");
 using EyeAuras.Memory;
 using EyeAuras.Memory.Scaffolding;
 
-using var memory = MemoryAccessor.FromByteArray(
-    new byte[] { 0x90, 0x48, 0x85, 0xC0, 0x74, 0x0A, 0x90 });
-var pattern = BytePattern.FromTemplate("48 ^ 85 ?? 74 0A");
-var raw = memory.FindOffset(pattern);
-var marked = memory.GetOffsets(pattern)[pattern];
-Log.Info($"Raw=0x{raw:X}, marked=0x{marked:X}");
+{
+    using var memory = MemoryAccessor.FromByteArray(
+        new byte[] { 0x90, 0x48, 0x85, 0xC0, 0x74, 0x0A, 0x90 });
+    var pattern = BytePattern.FromTemplate("48 ^ 85 ?? 74 0A");
+    var raw = memory.FindOffset(pattern);
+    var marked = memory.GetOffsets(pattern)[pattern];
+    Log.Info($"Raw=0x{raw:X}, marked=0x{marked:X}");
+}
 ```
 
 Результат — `Raw=0x1, marked=0x2`. Здесь адреса буфера являются индексами массива, а не VA процесса. Это проверка понимания шаблона, не проверка доступа к Windows-процессу.
@@ -88,18 +92,20 @@ using System.Diagnostics;
 using EyeAuras.Memory;
 using EyeAuras.Memory.Scaffolding;
 
-using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-using var memory = process.MemoryOfModule("kernel32.dll");
-var pattern = BytePattern.FromTemplate("48 85 C0 74 0A");
-var offset = memory.FindOffset(pattern);
-if (offset >= 0)
 {
-    var va = memory.BaseAddress + offset;
-    Log.Info($"Offset=0x{offset:X}, VA=0x{va:X}");
-}
-else
-{
-    Log.Info("Сигнатура не найдена в kernel32.dll");
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    using var memory = process.MemoryOfModule("kernel32.dll");
+    var pattern = BytePattern.FromTemplate("48 85 C0 74 0A");
+    var offset = memory.FindOffset(pattern);
+    if (offset >= 0)
+    {
+        var va = memory.BaseAddress + offset;
+        Log.Info($"Offset=0x{offset:X}, VA=0x{va:X}");
+    }
+    else
+    {
+        Log.Info("Сигнатура не найдена в kernel32.dll");
+    }
 }
 ```
 
