@@ -50,22 +50,24 @@ IWindowListProvider WindowsProvider { get; init; }
 IWindowMatcher WindowMatcher { get; init; }
 ISendInputScriptingApi SendInput { get; init; }
 
-using var WindowSelector = WindowSelectorFactory.Create();
-WindowMatchExpression target = "notepad.exe";
-
-var window = WindowSelector.FindWindow(target);
-if (window == null)
 {
-    Log.Info("Notepad is not open");
-    return;
-}
+    using var WindowSelector = WindowSelectorFactory.Create();
+    WindowMatchExpression target = "notepad.exe";
 
-Log.Info($"Window exists: {window.Title}");
+    var window = WindowSelector.FindWindow(target);
+    if (window == null)
+    {
+        Log.Info("Notepad is not open");
+        return;
+    }
 
-var foreground = WindowsProvider.GetForegroundWindow();
-if (foreground != null && WindowMatcher.IsMatch(foreground, target))
-{
-    SendInput.Text("hello");
+    Log.Info($"Window exists: {window.Title}");
+
+    var foreground = WindowsProvider.GetForegroundWindow();
+    if (foreground != null && WindowMatcher.IsMatch(foreground, target))
+    {
+        SendInput.Text("hello");
+    }
 }
 ```
 
@@ -127,9 +129,11 @@ WinActivate "ahk_exe notepad.exe"
 ```csharp
 IFactory<IWindowSelector> WindowSelectorFactory { get; init; }
 
-using var WindowSelector = WindowSelectorFactory.Create();
-var window = WindowSelector.GetWindow("notepad.exe");
-window.Activate(TimeSpan.FromMilliseconds(500));
+{
+    using var WindowSelector = WindowSelectorFactory.Create();
+    var window = WindowSelector.GetWindow("notepad.exe");
+    window.Activate(TimeSpan.FromMilliseconds(500));
+}
 ```
 
 `GetWindow(...)` бросает исключение, если совпадений нет, а активация тоже может завершиться исключением, если Windows не переключит окно на передний план за время ожидания. В реализации при нулевом foreground ожидание может продолжиться до 10 секунд, поэтому переданные 500 мс не являются строгим пределом длительности вызова. `Activate(...)` — это обёртка `WindowHandleExtensions` над `UnsafeNative.ActivateWindow(...)`.

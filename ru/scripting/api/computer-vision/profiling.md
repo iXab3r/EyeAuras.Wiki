@@ -52,18 +52,20 @@ using EyeAuras.OpenCVAuras.Scripting;
 using EyeAuras.Shared.Scaffolding;
 using StackExchange.Profiling;
 
-var api = GetService<IComputerVisionExperimentalScriptingApi>();
-using var cv = api.ForScreen().EnableProfiling();
-for (var i = 0; i < 3; i++)
 {
-    cancellationToken.ThrowIfCancellationRequested();
-    using (cv.Profiler.Step($"Проход {i}"))
+    var api = GetService<IComputerVisionExperimentalScriptingApi>();
+    using var cv = api.ForScreen().EnableProfiling();
+    for (var i = 0; i < 3; i++)
     {
-        var count = cv.CountPixels(Color.Red);
-        Log.Info($"Красных пикселей: {count}");
+        cancellationToken.ThrowIfCancellationRequested();
+        using (cv.Profiler.Step($"Проход {i}"))
+        {
+            var count = cv.CountPixels(Color.Red);
+            Log.Info($"Красных пикселей: {count}");
+        }
     }
+    Log.Info(cv.Profiler.RenderPlainText());
 }
-Log.Info(cv.Profiler.RenderPlainText());
 ```
 
 Отчёт появляется после закрытия шагов `using`, рядом с числом найденных

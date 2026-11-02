@@ -14,6 +14,41 @@ dateCreated: 2024-02-23T23:07:10.725Z
 > Импортировать готовый пример можно отсюда https://eu.eyeauras.net/share/S20240223230622FB6T3303xKok
 {.is-info}
 
+## Поиск прямо из скрипта
+
+Для разового поиска создавать ауру с триггером не нужно. В работающем
+EyeAuras с модулем OpenCV выберите окно и укажите свой абсолютный путь к
+PNG-шаблону. Пример использует стандартный `ForWindow`, полный кадр без ROI
+и явный порог сходства. Настройки этого accessor и координаты источника
+описаны в [захвате и OCR](/ru/scripting/api/computer-vision/images).
+
+```csharp
+using System.Drawing;
+using EyeAuras.OpenCVAuras.Scripting;
+using EyeAuras.Shared.Osd;
+using PoeShared.Scaffolding;
+
+var window = await GetService<IOsdSelectionService>().PickWindow();
+{
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>().ForWindow(window);
+    var found = cv.ImageSearch(
+        @"C:\Templates\marker.png",
+        similarityThreshold: new Percentage(90),
+        region: Rectangle.Empty);
+    Log.Info(found.IsEmpty ? "Совпадений нет" : $"Найдено относительно окна: {found}");
+}
+```
+
+`Percentage(90)` означает 90 процентов, не `0.9`. `Rectangle.Empty` в
+аргументе выбирает всю область, а в результате означает отсутствие совпадения.
+Для оконного accessor простой результат уже преобразован в координаты окна.
+Не вызывайте для него ещё раз raw `ToScreen`. Если нужны матрицы, используйте
+`ImageSearchRaw`, проверьте nullable `Detected.Bounds` и примените `ToScreen`
+к локальной области именно этого raw-результата. Ошибки чтения файла или
+захвата не следует выдавать за отсутствие совпадения.
+
+## Использовать настроенный триггер ауры
+
 1. Создаем ауру(в примере называется ImageSearch), кидаем в нее триггер Image Search
 2. В `Image Search` выберите окно или экран, изображение-образец и область поиска. Выставьте порог сходства; начальное значение триггера — 80 процентов. Это настройка готового триггера, а не значение 95 процентов из API `CvAccessor`.
 3. В той же папке создаем ауру с действием `C# Script` и вставляем код в верхнеуровневый файл. Путь `.\ImageSearch` ищется относительно контекста скрипта; в найденной ауре должен быть `IImageSearchTrigger`.

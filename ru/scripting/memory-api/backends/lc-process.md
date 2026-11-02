@@ -57,8 +57,10 @@ dateCreated: 2026-04-16T19:10:00.986Z
 ```csharp
 using EyeAuras.Memory.MPFS;
 
-var processes = LCProcess.FPGA().GetProcesses();
-using var process = LCProcess.FPGA().ByProcessName("game.exe");
+{
+    var processes = LCProcess.FPGA().GetProcesses();
+    using var process = LCProcess.FPGA().ByProcessName("game.exe");
+}
 ```
 
 Практически это даёт главное преимущество `LCProcess`: чтение идёт внешним путём, а не через обычное открытие процесса. По документации PCILeech и PCILeech FPGA, именно FPGA-сценарий даёт полный доступ к 64-bit memory space без зависимости от обычного process handle на целевой системе.
@@ -80,11 +82,13 @@ using var process = LCProcess.FPGA().ByProcessName("game.exe");
 ```csharp
 using EyeAuras.Memory.MPFS;
 
-var vms = LCProcess.HyperV().ListVirtualMachines();
+{
+    var vms = LCProcess.HyperV().ListVirtualMachines();
 
-using var process = LCProcess.HyperV()
-    .UseVirtualMachineByIndex(0)
-    .ByProcessName("game.exe");
+    using var process = LCProcess.HyperV()
+        .UseVirtualMachineByIndex(0)
+        .ByProcessName("game.exe");
+}
 ```
 
 Главная ценность здесь в том, что память читается **снаружи виртуальной машины**. Это даёт несколько очень понятных плюсов:
@@ -108,8 +112,10 @@ using var process = LCProcess.HyperV()
 ```csharp
 using EyeAuras.Memory.MPFS;
 
-var processes = LCProcess.WinPMEM().GetProcesses();
-using var process = LCProcess.WinPMEM().ByProcessId(1234);
+{
+    var processes = LCProcess.WinPMEM().GetProcesses();
+    using var process = LCProcess.WinPMEM().ByProcessId(1234);
+}
 ```
 
 Обычно это самый удобный способ проверить, что ваш сценарий вообще работает в модели `LCProcess`, ещё до перехода на `FPGA`.
@@ -126,8 +132,10 @@ using var process = LCProcess.WinPMEM().ByProcessId(1234);
 ```csharp
 using EyeAuras.Memory.MPFS;
 
-using var process = LCProcess.Custom("-device", "hvmm://id=0")
-    .ByProcessName("game.exe");
+{
+    using var process = LCProcess.Custom("-device", "hvmm://id=0")
+        .ByProcessName("game.exe");
+}
 ```
 
 Сюда же относятся `WithDevice(...)`, `WithRemote(...)`, `WithAdditionalArguments(...)`, `WithPrinting(...)` и `WaitForInitialize(...)`.

@@ -200,17 +200,19 @@ Log.Info(Variables.Get<string>("text").Value); // "42"
 using System.Collections.Generic;
 using System.Reactive.Linq;
 
-var hp = Variables.Get<int>("batchExample.hp");
-var observed = new List<int>();
-using var sub = hp.Listen().Subscribe(x => {
-    Log.Info($"HP: {x}");
-    observed.Add(x);
-});
+{
+    var hp = Variables.Get<int>("batchExample.hp");
+    var observed = new List<int>();
+    using var sub = hp.Listen().Subscribe(x => {
+        Log.Info($"HP: {x}");
+        observed.Add(x);
+    });
 
-hp.Value = 100; // HP: 100
-hp.Value = 100; // not emitted (distinct)
-hp.Value = 90;  // HP: 90
-hp.Remove();    // HP: 0, если у родителя нет batchExample.hp
+    hp.Value = 100; // HP: 100
+    hp.Value = 100; // not emitted (distinct)
+    hp.Value = 90;  // HP: 90
+    hp.Remove();    // HP: 0, если у родителя нет batchExample.hp
+}
 ```
 
 Подписка действует до конца этого блока благодаря `using var`. Для наблюдения
@@ -323,28 +325,30 @@ for (var i = 0; i < maxAttempts; i++)
 ```csharp
 using System.Reactive.Linq;
 
-var v = Variables.Get<int>("n");
+{
+    var v = Variables.Get<int>("n");
 
-// чтение/запись
-int x = v.Value;  // default, если значение отсутствует или преобразование не удалось
-v.Value = 10;     // запись
+    // чтение/запись
+    int x = v.Value;  // default, если значение отсутствует или преобразование не удалось
+    v.Value = 10;     // запись
 
-// строгий сценарий
-var required = v.GetOrThrow(); // исключение, если нет значения/неверный тип/null
+    // строгий сценарий
+    var required = v.GetOrThrow(); // исключение, если нет значения/неверный тип/null
 
-// аккуратное чтение
-if (v.TryGetValue(out var val)) { /* ok */ } else { /* no value */ }
+    // аккуратное чтение
+    if (v.TryGetValue(out var val)) { /* ok */ } else { /* no value */ }
 
-// подписка на изменения
-using var sub = v.Listen().Subscribe(value => Log.Info($"n = {value}"));
+    // подписка на изменения
+    using var sub = v.Listen().Subscribe(value => Log.Info($"n = {value}"));
 
-// удаление
-var removed = v.Remove();
+    // удаление
+    var removed = v.Remove();
 
-// прочее
-bool has = v.HasValue; // существует ли запись?
-string name = v.Name;
-var src = v.Source; // откуда читает/куда пишет
+    // прочее
+    bool has = v.HasValue; // существует ли запись?
+    string name = v.Name;
+    var src = v.Source; // откуда читает/куда пишет
+}
 ```
 
 Не путайте `v.TryGetValue(out value)` у handle с `Variables.TryGetValue<T>(name, out value)` у accessor. Второй делает прямое приведение сохранённого объекта и может выбросить исключение при несовместимом типе. Подробные перегрузки — [IVariablesScriptingApi](/ru/scripting/api/IVariablesScriptingApi), маршруты к SDK/reference — [карта переменных](/ru/scripting/api/scripting/variables).

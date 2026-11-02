@@ -39,15 +39,17 @@ dateCreated: 2026-04-21T00:00:00.000Z
 ```csharp
 IFactory<IWindowSelector> WindowSelectorFactory { get; init; }
 
-using var selector = WindowSelectorFactory.Create();
-var window = selector.FindWindow("notepad.exe");
-if (window == null)
 {
-    Log.Info("Подходящее окно пока не найдено");
-    return;
+    using var selector = WindowSelectorFactory.Create();
+    var window = selector.FindWindow("notepad.exe");
+    if (window == null)
+    {
+        Log.Info("Подходящее окно пока не найдено");
+        return;
+    }
+    window.Activate(TimeSpan.FromMilliseconds(500));
+    Log.Info($"Выбрано окно: {window.Title}");
 }
-window.Activate(TimeSpan.FromMilliseconds(500));
-Log.Info($"Выбрано окно: {window.Title}");
 ```
 
 Отдельным selector владеет этот запуск, `using` освобождает его подписки. Дескриптор и внедрённая фабрика остаются за инфраструктурой host. В обычный класс передайте фабрику через конструктор. Пример требует работающего desktop-host, его нативных регистраций и UI Core; SDK предоставляет типы, а не живой список окон.
@@ -72,27 +74,29 @@ using EyeAuras.Shared.Services;
 using PoeShared.Native;
 using PoeShared.Prism;
 
-var runToken = cancellationToken;
-var factory = GetService<IFactory<IWindowSelector>>();
-using var selector = factory.Create();
-selector.OnlyVisible = true;
-selector.WindowFilter = candidate => string.Equals(
-    Path.GetFileNameWithoutExtension(candidate.ProcessName),
-    "notepad", StringComparison.OrdinalIgnoreCase);
-selector.TargetWindow = "#1";
-
-IWindowHandle window;
-while (true)
 {
-    runToken.ThrowIfCancellationRequested();
-    window = selector.ActiveWindow;
-    if (window != null && window.IsWindow)
+    var runToken = cancellationToken;
+    var factory = GetService<IFactory<IWindowSelector>>();
+    using var selector = factory.Create();
+    selector.OnlyVisible = true;
+    selector.WindowFilter = candidate => string.Equals(
+        Path.GetFileNameWithoutExtension(candidate.ProcessName),
+        "notepad", StringComparison.OrdinalIgnoreCase);
+    selector.TargetWindow = "#1";
+
+    IWindowHandle window;
+    while (true)
     {
-        break;
+        runToken.ThrowIfCancellationRequested();
+        window = selector.ActiveWindow;
+        if (window != null && window.IsWindow)
+        {
+            break;
+        }
+        await Task.Delay(250, runToken);
     }
-    await Task.Delay(250, runToken);
+    Log.Info($"Найден Блокнот: {window.Title}");
 }
-Log.Info($"Найден Блокнот: {window.Title}");
 ```
 
 `#1` выбирает первое совпадение **после** фильтрации; наличие нескольких окон
@@ -107,6 +111,55 @@ Log.Info($"Найден Блокнот: {window.Title}");
 `selector.ActiveWindow` на каждой итерации: сохранённая переменная `window`
 сама не переключается на новое окно. Дескриптор заимствован у инфраструктуры,
 его не добавляют в собственный `using`.
+
+## Получить независимый список окон процесса
+
+Чтобы сохранить выбор другого selector, читайте снимок `IWindowListProvider`,
+не меняя `TargetWindow`. В C# Script с работающим desktop-host:
+
+```csharp
+using System;
+using System.IO;
+using System.Linq;
+using EyeAuras.Shared.Services;
+
+var provider = GetService<IWindowListProvider>();
+provider.RefreshWindowList();
+var snapshot = provider.WindowList.Items.ToArray();
+var matches = snapshot.Where(w => w.IsWindow && string.Equals(
+    Path.GetFileNameWithoutExtension(w.ProcessName),
+    "notepad", StringComparison.OrdinalIgnoreCase)).ToArray();
+foreach (var w in matches)
+    Log.Info($"{w.Title}, PID: {w.ProcessId}");
+```
+
+Это снимок списка, а не гарантия существования каждого окна во время
+последующей операции. Провайдер и handles заимствованы; не освобождайте их.
+Для **строкового выражения**, которое может совпадать с разными полями,
+используйте `GetService<IWindowMatcher>().FindMatches(snapshot, expression)`.
+Передавайте материализованный массив: контракт метода принимает
+`IReadOnlyList<IWindowHandle>`, а не произвольный ленивый `IEnumerable`.
+
+## Проверить процесс foreground-окна
+
+Это отдельный запрос, он не читает и не меняет цель существующего selector:
+
+```csharp
+using System;
+using System.IO;
+using EyeAuras.Shared.Services;
+
+var foreground = GetService<IWindowListProvider>().GetForegroundWindow();
+var isNotepad = foreground != null && foreground.Handle != IntPtr.Zero &&
+    foreground.IsWindow && string.Equals(
+        Path.GetFileNameWithoutExtension(foreground.ProcessName),
+        "notepad", StringComparison.OrdinalIgnoreCase);
+Log.Info($"Блокнот на переднем плане: {isNotepad}");
+```
+
+Провайдер может вернуть обёртку нулевого HWND, поэтому одной проверки
+managed-ссылки на `null` недостаточно. Состояние foreground меняется сразу
+после чтения; эта проверка не блокирует переключение окна пользователем.
 
 ## Перевести точку относительно рамки окна
 
@@ -129,21 +182,23 @@ using EyeAuras.Shared.Scaffolding;
 using PoeShared.Native;
 using PoeShared.Prism;
 
-using var selector = GetService<IFactory<IWindowSelector>>().Create();
-var window = selector.FindWindow("notepad.exe");
-if (window == null || !window.IsWindow)
 {
-    Log.Info("Окно пока не найдено; запустите пример ещё раз");
-    return;
-}
+    using var selector = GetService<IFactory<IWindowSelector>>().Create();
+    var window = selector.FindWindow("notepad.exe");
+    if (window == null || !window.IsWindow)
+    {
+        Log.Info("Окно пока не найдено; запустите пример ещё раз");
+        return;
+    }
 
-var tracker = GetService<IWindowBoundsTrackerFactory>();
-using var subscription = tracker.Track(window).Subscribe(
-    bounds => Log.Info(bounds.HasValue
-        ? $"Границы: {bounds.Value}"
-        : "Границы недоступны"),
-    error => Log.Error("Отслеживание границ завершилось ошибкой", error));
-await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
+    var tracker = GetService<IWindowBoundsTrackerFactory>();
+    using var subscription = tracker.Track(window).Subscribe(
+        bounds => Log.Info(bounds.HasValue
+            ? $"Границы: {bounds.Value}"
+            : "Границы недоступны"),
+        error => Log.Error("Отслеживание границ завершилось ошибкой", error));
+    await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
+}
 ```
 
 Первое значение приходит при подписке, следующие — при изменении границ.
@@ -235,6 +290,7 @@ await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
 
 - Базовые правила `WindowMatchExpression`:
   - обычный текст сопоставляется с process path, process name или title;
+  - сравнение текста, включая полное совпадение в кавычках, использует `OrdinalIgnoreCase`; regex использует `RegexOptions.IgnoreCase`. Проверяются также аргументы запуска; process name сравнивается целиком, остальные поля могут давать частичное совпадение;
   - текст в кавычках — строгое совпадение;
   - `/pattern/` — это regex;
   - `0x...` или `&H...` сопоставляется с нативным handle;

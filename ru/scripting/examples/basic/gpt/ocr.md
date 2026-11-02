@@ -27,33 +27,35 @@ using OpenAI.Chat;
 using Emgu.CV;
 using System;
 
-var targetWindow = GetService<IWindowSelector>().GetWindow("OCR Demo");
-using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForWindow(targetWindow);
-
-cancellationToken.ThrowIfCancellationRequested();
-var jpegBytes = cv.ProcessPixels(image => image.ToJpegData());
-cancellationToken.ThrowIfCancellationRequested();
-
-var openAIClient = new OpenAIClient("<your-api-key-here>");
-var chatClient = openAIClient.GetChatClient("gpt-4o");
-var recognizedText = RecognizeImage(chatClient, jpegBytes);
-Log.Info($"Recognition Result: {recognizedText}");
-
-string RecognizeImage(
-    OpenAI.Chat.ChatClient client,
-    byte[] jpegBytes)
 {
-    var imageBytes = BinaryData.FromBytes(jpegBytes);
-    List<ChatMessage> messages =
-    [
-        new UserChatMessage(
-                ChatMessageContentPart.CreateTextPart("Perform OCR on the image and print found text and window in which it was found"),
-                ChatMessageContentPart.CreateImagePart(imageBytes, "image/jpeg")),
-        ];
+    var targetWindow = GetService<IWindowSelector>().GetWindow("OCR Demo");
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
+        .ForWindow(targetWindow);
 
-    ChatCompletion completion = client.CompleteChat(messages);
-    return completion.Content[0].Text;
+    cancellationToken.ThrowIfCancellationRequested();
+    var jpegBytes = cv.ProcessPixels(image => image.ToJpegData());
+    cancellationToken.ThrowIfCancellationRequested();
+
+    var openAIClient = new OpenAIClient("<your-api-key-here>");
+    var chatClient = openAIClient.GetChatClient("gpt-4o");
+    var recognizedText = RecognizeImage(chatClient, jpegBytes);
+    Log.Info($"Recognition Result: {recognizedText}");
+
+    string RecognizeImage(
+        OpenAI.Chat.ChatClient client,
+        byte[] jpegBytes)
+    {
+        var imageBytes = BinaryData.FromBytes(jpegBytes);
+        List<ChatMessage> messages =
+        [
+            new UserChatMessage(
+                    ChatMessageContentPart.CreateTextPart("Perform OCR on the image and print found text and window in which it was found"),
+                    ChatMessageContentPart.CreateImagePart(imageBytes, "image/jpeg")),
+            ];
+
+        ChatCompletion completion = client.CompleteChat(messages);
+        return completion.Content[0].Text;
+    }
 }
 ```
 

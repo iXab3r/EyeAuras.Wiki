@@ -21,15 +21,17 @@ dateCreated: 2025-07-16T10:36:31.172Z
 using EyeAuras.ImGuiSdk;
 using ImGuiNET;
 
-AddNewExtension<ImGuiContainerExtensions>();
-using var imgui = GetService<IImGuiExperimentalApi>();
-using var renderer = imgui.AddRenderer(() =>
 {
-    ImGui.Begin("Пример");
-    ImGui.Text("Hello, World");
-    ImGui.End();
-});
-cancellationToken.WaitHandle.WaitOne();
+    AddNewExtension<ImGuiContainerExtensions>();
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    using var renderer = imgui.AddRenderer(() =>
+    {
+        ImGui.Begin("Пример");
+        ImGui.Text("Hello, World");
+        ImGui.End();
+    });
+    cancellationToken.WaitHandle.WaitOne();
+}
 ```
 
 Появится окно с текстом. Скрипт ждёт остановки пользователем, после чего `using` освобождает подписку и экземпляр API. Возвращаемый `AddRenderer` объект удаляет обработчик при `Dispose`; его нужно освобождать отдельно. Рисование выполняется в обработчике кадра, поэтому не помещайте туда `Sleep`, ожидание сети или чтение большого файла. Обычный C# класс не получает `GetService`, `AddNewExtension` и `cancellationToken` как глобальные функции — зависимости ему передаёт вызывающий код.

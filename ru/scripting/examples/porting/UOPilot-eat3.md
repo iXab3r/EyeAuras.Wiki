@@ -164,111 +164,113 @@ using EyeAuras.Roxy.Api;
 using EyeAuras.Scripting.Api;
 using PoeShared.Scaffolding;
 
-var imageDirectory = @"C:\Scripts\Eat";
-var stateGate = new object();
-bool enabled = false, runOnce = false, captureCursor = false;
-Point savedCursor = Point.Empty;
-var SendInput = GetService<ISendInputScriptingApi>();
-var SendInputWindow = GetService<ISendInputScriptingApi>();
-SendInput.TargetWindow = null;
-var window = GetService<IWindowSelector>().GetWindow("TL.exe");
-SendInputWindow.TargetWindow = window;
-using var cv = GetService<IComputerVisionExperimentalScriptingApi>().ForWindow(window).EnableOsd(10);
-
-while (!cancellationToken.IsCancellationRequested)
 {
-    bool run, capture;
-    lock (stateGate)
+    var imageDirectory = @"C:\Scripts\Eat";
+    var stateGate = new object();
+    bool enabled = false, runOnce = false, captureCursor = false;
+    Point savedCursor = Point.Empty;
+    var SendInput = GetService<ISendInputScriptingApi>();
+    var SendInputWindow = GetService<ISendInputScriptingApi>();
+    SendInput.TargetWindow = null;
+    var window = GetService<IWindowSelector>().GetWindow("TL.exe");
+    SendInputWindow.TargetWindow = window;
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>().ForWindow(window).EnableOsd(10);
+
+    while (!cancellationToken.IsCancellationRequested)
     {
-        capture = captureCursor;
-        captureCursor = false;
-        run = enabled || runOnce;
-        runOnce = false;
-    }
-    if (capture)
-    {
-        savedCursor = SendInput.CursorPosition;
-        Log.Info($"Точка правого клика: {savedCursor}");
-    }
-    if (run) MainScript();
-    Sleep(100);
-}
-
-void MainScript()
-{
-    if (savedCursor.IsEmpty)
-    {
-        Log.Warn("Сначала сохраните точку клавишей F5");
-        return;
-    }
-    window.Activate();
-    Sleep(2500);
-
-    SendInput.KeyPress(Key.F);
-    Sleep(300);
-
-    SendInput.MouseClick(1005, 1005);
-    Sleep(200);
-
-    int FoundX, FoundY;
-
-    if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian.bmp"))
-    {
-        Sleep(1000);
-        if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian.bmp"))
+        bool run, capture;
+        lock (stateGate)
         {
-            if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian1.bmp"))
-            {
-                Log.Warn($"Объект 'Vegetarian' не найден!");
-                Sleep(2000);
-                Log.Warn($"Скрипт выключен");
-                return;
-            }
+            capture = captureCursor;
+            captureCursor = false;
+            run = enabled || runOnce;
+            runOnce = false;
         }
-    }
-
-    SendInputWindow.MouseClick(FoundX, FoundY);
-    Sleep(200);
-
-    SendInputWindow.MouseClick(1499, 1004);
-    Sleep(200);
-
-    SendInputWindow.KeyPress(Key.Escape);
-    Sleep(200);
-
-    Sleep(600);
-    SendInput.MouseRightClick(savedCursor.X, savedCursor.Y);
-}
-
-bool MyImageSearch(out int FoundX, out int FoundY, int X1, int Y1, int X2, int Y2, string ImageFile)
-{
-    Rectangle result;
-    for (int i = 0; i < 10; i++)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        result = cv.ImageSearch(Path.Combine(imageDirectory, ImageFile),
-            similarityThreshold: 95, region: Rectangle.FromLTRB(X1, Y1, X2, Y2));
-        if (!result.IsEmpty)
+        if (capture)
         {
-            //found the image
-            FoundX = result.X;
-            FoundY = result.Y;
-            return true;
+            savedCursor = SendInput.CursorPosition;
+            Log.Info($"Точка правого клика: {savedCursor}");
         }
+        if (run) MainScript();
         Sleep(100);
     }
-    FoundX = FoundY = 0;
-    return false;
+
+    void MainScript()
+    {
+        if (savedCursor.IsEmpty)
+        {
+            Log.Warn("Сначала сохраните точку клавишей F5");
+            return;
+        }
+        window.Activate();
+        Sleep(2500);
+
+        SendInput.KeyPress(Key.F);
+        Sleep(300);
+
+        SendInput.MouseClick(1005, 1005);
+        Sleep(200);
+
+        int FoundX, FoundY;
+
+        if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian.bmp"))
+        {
+            Sleep(1000);
+            if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian.bmp"))
+            {
+                if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian1.bmp"))
+                {
+                    Log.Warn($"Объект 'Vegetarian' не найден!");
+                    Sleep(2000);
+                    Log.Warn($"Скрипт выключен");
+                    return;
+                }
+            }
+        }
+
+        SendInputWindow.MouseClick(FoundX, FoundY);
+        Sleep(200);
+
+        SendInputWindow.MouseClick(1499, 1004);
+        Sleep(200);
+
+        SendInputWindow.KeyPress(Key.Escape);
+        Sleep(200);
+
+        Sleep(600);
+        SendInput.MouseRightClick(savedCursor.X, savedCursor.Y);
+    }
+
+    bool MyImageSearch(out int FoundX, out int FoundY, int X1, int Y1, int X2, int Y2, string ImageFile)
+    {
+        Rectangle result;
+        for (int i = 0; i < 10; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            result = cv.ImageSearch(Path.Combine(imageDirectory, ImageFile),
+                similarityThreshold: 95, region: Rectangle.FromLTRB(X1, Y1, X2, Y2));
+            if (!result.IsEmpty)
+            {
+                //found the image
+                FoundX = result.X;
+                FoundY = result.Y;
+                return true;
+            }
+            Sleep(100);
+        }
+        FoundX = FoundY = 0;
+        return false;
+    }
+
+    [Keybind(Hotkey = "F3")]
+    void RunOnce() { lock (stateGate) runOnce = true; }
+
+    [Keybind(Hotkey = "F5")]
+    void SaveCursor() { lock (stateGate) captureCursor = true; }
+
+    [Keybind(Hotkey = "F6")]
+    void ToggleScript() { lock (stateGate) enabled = !enabled; }
 }
-
-[Keybind(Hotkey = "F3")]
-void RunOnce() { lock (stateGate) runOnce = true; }
-
-[Keybind(Hotkey = "F5")]
-void SaveCursor() { lock (stateGate) captureCursor = true; }
-
-[Keybind(Hotkey = "F6")]
-void ToggleScript() { lock (stateGate) enabled = !enabled; }
 ```
 
 При успешном поиске выбирается левый верхний угол найденного образца. `ImageSearch` для `ForWindow` уже возвращает координаты окна; их передаём в отдельный `SendInputWindow` с тем же `TargetWindow`. Для экранных точек используем `SendInput.TargetWindow = null`, чтобы стандартный контроллер не преобразовал их повторно. При отсутствии обоих образцов выводится предупреждение и проход заканчивается.

@@ -32,16 +32,18 @@ using System;
 using System.Threading.Tasks;
 using EyeAuras.Shared.Scripting;
 
-var dialogs = GetService<IDialogWindowUnstableScriptingApi>();
-using var window = dialogs.CreateWindow<MyScript.WindowBody>();
-window.Title = "Моё окно";
-window.Width = 480;
-window.Height = 320;
-window.Show();
-await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
-window.Width = 640;
-await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
-window.Close();
+{
+    var dialogs = GetService<IDialogWindowUnstableScriptingApi>();
+    using var window = dialogs.CreateWindow<MyScript.WindowBody>();
+    window.Title = "Моё окно";
+    window.Width = 480;
+    window.Height = 320;
+    window.Show();
+    await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+    window.Width = 640;
+    await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+    window.Close();
+}
 ```
 
 Окно показывается немодально, через пять секунд получает новую ширину, затем

@@ -44,21 +44,23 @@ using System.Threading.Tasks;
 using EyeAuras.Shared.Scripting;
 using EyeAuras.Blazor.Controls.ScreenOverlay;
 
-var api = GetService<IOnScreenCanvasScriptingApi>();
-using var canvas = api.Create();
-try
 {
-    using var rectangle = canvas.AddRectangle();
-    rectangle.Location = new Point(100, 100);
-    rectangle.Size = new Size(240, 120);
-    rectangle.Background = Color.Transparent;
-    rectangle.BorderColor = Color.Red;
-    rectangle.BorderThickness = 2;
-    await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
-}
-finally
-{
-    canvas.Clear();
+    var api = GetService<IOnScreenCanvasScriptingApi>();
+    using var canvas = api.Create();
+    try
+    {
+        using var rectangle = canvas.AddRectangle();
+        rectangle.Location = new Point(100, 100);
+        rectangle.Size = new Size(240, 120);
+        rectangle.Background = Color.Transparent;
+        rectangle.BorderColor = Color.Red;
+        rectangle.BorderThickness = 2;
+        await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+    }
+    finally
+    {
+        canvas.Clear();
+    }
 }
 ```
 
@@ -86,6 +88,78 @@ finally
 Для Razor нужен реальный компонент и доступные ему зависимости; члены верхнего
 уровня скрипта не становятся переменными компонента. Размер, видимость и
 позицию задавайте самому объекту. Контракт здесь — EyeAuras `20fd3d4`.
+
+## Показать подпись до Stop
+
+HTML-объект подходит для короткой подписи. Пример C# Script создаёт собственный
+canvas и размещает подпись рядом с известной экранной точкой:
+
+```csharp
+using System;
+using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
+using EyeAuras.Shared.Scripting;
+using EyeAuras.Blazor.Controls.ScreenOverlay;
+
+{
+    using var canvas = GetService<IOnScreenCanvasScriptingApi>().Create();
+    try
+    {
+        using var label = canvas.AddHtmlObject();
+        label.Location = new Point(320, 180);
+        label.Size = new Size(180, 36);
+        label.Html = "<div style='color:white;background:#222;padding:4px'>Найден объект</div>";
+        label.IsVisible = true;
+        try { await Task.Delay(Timeout.Infinite, cancellationToken); }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
+    }
+    finally { canvas.Clear(); }
+}
+```
+
+`Location` — положение в экранных координатах, а не координаты внутри окна
+или CV-кадра. Для переменного пользовательского текста сначала примените
+`System.Net.WebUtility.HtmlEncode`, затем вставляйте его в доверенную
+обёртку. Не присваивайте произвольную разметку из внешнего источника.
+
+## Обновлять один объект и временно скрывать его
+
+В следующем отдельном C# Script одна рамка меняет положение. Четыре шага она
+скрыта; затем появляется снова. Это модель обновлений, поступающих от вашего
+источника, а не подписка на несуществующий глобальный поток прямоугольников:
+
+```csharp
+using System.Drawing;
+using System.Threading.Tasks;
+using EyeAuras.Shared.Scripting;
+using EyeAuras.Blazor.Controls.ScreenOverlay;
+
+{
+    using var canvas = GetService<IOnScreenCanvasScriptingApi>().Create();
+    try
+    {
+        using var box = canvas.AddRectangle();
+        box.Size = new Size(100, 60);
+        box.Background = Color.Transparent;
+        box.BorderColor = Color.Lime;
+        box.BorderThickness = 2;
+        for (var step = 0; step < 12; step++)
+        {
+            box.Location = new Point(100 + step * 10, 120);
+            box.IsVisible = step < 4 || step >= 8;
+            await Task.Delay(250, cancellationToken);
+        }
+    }
+    finally { canvas.Clear(); }
+}
+```
+
+В реальном обработчике меняйте свойства сохранённого `box`, а не вызывайте
+`AddRectangle()` на каждом обновлении. Его `Id` остаётся тем же.
+`IsVisible = false` сохраняет объект для следующего показа, `Dispose`
+окончательно удаляет регистрацию, а `Clear()` касается только этого canvas.
+Не заменяйте свою область владения глобальным canvas другого скрипта.
 
 ## Основные API
 

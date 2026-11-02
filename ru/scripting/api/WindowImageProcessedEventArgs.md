@@ -25,18 +25,20 @@ dateCreated: 2024-04-13T11:37:08.113Z
 using System.Drawing;
 using EyeAuras.OpenCVAuras.Scripting;
 
-var api = GetService<IComputerVisionExperimentalScriptingApi>();
-using var cv = api.ForScreen();
-var processed = cv.PixelSearchRaw(Color.Red);
-if (processed.Detected.Bounds is { } localBounds)
 {
-    var screenBounds = processed.ToScreen(localBounds);
-    var screenPoint = processed.ToScreenPoint(localBounds);
-    Log.Info($"Область: {screenBounds}, центр: {screenPoint}");
-}
-else
-{
-    Log.Info("Совпадений нет");
+    var api = GetService<IComputerVisionExperimentalScriptingApi>();
+    using var cv = api.ForScreen();
+    var processed = cv.PixelSearchRaw(Color.Red);
+    if (processed.Detected.Bounds is { } localBounds)
+    {
+        var screenBounds = processed.ToScreen(localBounds);
+        var screenPoint = processed.ToScreenPoint(localBounds);
+        Log.Info($"Область: {screenBounds}, центр: {screenPoint}");
+    }
+    else
+    {
+        Log.Info("Совпадений нет");
+    }
 }
 ```
 

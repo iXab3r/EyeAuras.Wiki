@@ -61,12 +61,14 @@ dateCreated: 2026-04-21T00:00:00.000Z
 ```csharp
 using EyeAuras.Shared.Scripting;
 
-var dialogs = GetService<IDialogWindowUnstableScriptingApi>();
-using var window = dialogs.CreateWindow<MyScript.HelloWindow>();
-window.Title = "Пример";
-window.Width = 480;
-window.Height = 320;
-window.ShowDialog(cancellationToken);
+{
+    var dialogs = GetService<IDialogWindowUnstableScriptingApi>();
+    using var window = dialogs.CreateWindow<MyScript.HelloWindow>();
+    window.Title = "Пример";
+    window.Width = 480;
+    window.Height = 320;
+    window.ShowDialog(cancellationToken);
+}
 ```
 
 Появится нативное окно с Razor-содержимым, скрипт продолжится после закрытия

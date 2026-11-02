@@ -73,41 +73,43 @@ using System;
 
 const int PortNumber = 52080;
 
-Log.Info("Creating web-app builder");
-
-using var host = await Task.Run(() =>
 {
-    var builder = Host
-    .CreateDefaultBuilder()
-    .ConfigureAppConfiguration((context, config) =>
-    {
-        //Very important line! 
-        //This is required to run the server in EA infrastructure
-        config.Sources.Clear();
-    })
-    .ConfigureWebHostDefaults(webBuilder =>
-    {
-        Log.Info("Setting up web-options");
-        webBuilder
-           .ConfigureKestrel(options => ConfigureKestrel(options))
-           .Configure((ctx, app) => { ConfigureAppAndEnvironment(Log, app, ctx.HostingEnvironment); });
+    Log.Info("Creating web-app builder");
 
-        webBuilder.ConfigureServices(services => {
-            var manager = new ApplicationPartManager();
-            services.AddSingleton<ApplicationPartManager>(manager);
-            services
-                .AddControllers()
-                .AddApplicationPart(typeof(InjectController).Assembly); //that line will ensure that Controllers are properly detected
+    using var host = await Task.Run(() =>
+    {
+        var builder = Host
+        .CreateDefaultBuilder()
+        .ConfigureAppConfiguration((context, config) =>
+        {
+            //Very important line!
+            //This is required to run the server in EA infrastructure
+            config.Sources.Clear();
+        })
+        .ConfigureWebHostDefaults(webBuilder =>
+        {
+            Log.Info("Setting up web-options");
+            webBuilder
+               .ConfigureKestrel(options => ConfigureKestrel(options))
+               .Configure((ctx, app) => { ConfigureAppAndEnvironment(Log, app, ctx.HostingEnvironment); });
+
+            webBuilder.ConfigureServices(services => {
+                var manager = new ApplicationPartManager();
+                services.AddSingleton<ApplicationPartManager>(manager);
+                services
+                    .AddControllers()
+                    .AddApplicationPart(typeof(InjectController).Assembly); //that line will ensure that Controllers are properly detected
+            });
         });
-    });
 
-    Log.Info("Building web-server");
-    return builder.Build();
-}, cancellationToken);
+        Log.Info("Building web-server");
+        return builder.Build();
+    }, cancellationToken);
 
-Log.Info("Starting web-server");
-await host.RunAsync(cancellationToken);
-Log.Info("Terminated");
+    Log.Info("Starting web-server");
+    await host.RunAsync(cancellationToken);
+    Log.Info("Terminated");
+}
 
 private static void ConfigureAppAndEnvironment(
     IFluentLog log,

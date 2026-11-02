@@ -37,9 +37,11 @@ using EyeAuras.ImGuiSdk; // required for registration methods
 using ImGuiNET;          // access to ImGui APIs
 using System.Numerics;   // for Vector2/Vector3 use with ImGui
 
-AddNewExtension<ImGuiContainerExtensions>(); // registers IImGuiExperimentalApi and others
+{
+    AddNewExtension<ImGuiContainerExtensions>(); // registers IImGuiExperimentalApi and others
 
-using var osd = GetService<IImGuiExperimentalApi>();
+    using var osd = GetService<IImGuiExperimentalApi>();
+}
 ```
 
 ---
@@ -63,16 +65,18 @@ using EyeAuras.ImGuiSdk;
 using ImGuiNET;
 using System.Numerics;
 
-AddNewExtension<ImGuiContainerExtensions>();
-
-using var osd = GetService<IImGuiExperimentalApi>();
-
-using var rendering = osd.AddRenderer(() =>
 {
-    ImGui.ShowDemoWindow();
-});
+    AddNewExtension<ImGuiContainerExtensions>();
 
-cancellationToken.WaitHandle.WaitOne(); // keep running until script is stopped
+    using var osd = GetService<IImGuiExperimentalApi>();
+
+    using var rendering = osd.AddRenderer(() =>
+    {
+        ImGui.ShowDemoWindow();
+    });
+
+    cancellationToken.WaitHandle.WaitOne(); // keep running until script is stopped
+}
 ```
 
 ![ImGui Demo window](https://s3.eyeauras.net/media/2025/06/EyeAuras_KXCTkIyw7EU3oo3q.gif)
@@ -102,45 +106,48 @@ using ImGuiNET;
 using System.Numerics;
 
 // Создайте рядом ауру TargetAura с триггером HotkeyIsActive.
-var trigger = AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
 
-AddNewExtension<ImGuiContainerExtensions>();
-
-using var osd = GetService<IImGuiExperimentalApi>();
-
-using var rendering = osd.AddRenderer(() =>
 {
-    var visible = ImGui.Begin("My UI");
-    try
+    var trigger = AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
+
+    AddNewExtension<ImGuiContainerExtensions>();
+
+    using var osd = GetService<IImGuiExperimentalApi>();
+
+    using var rendering = osd.AddRenderer(() =>
     {
-        if (!visible) return;
-        ImGui.Text("Control window flags and interaction behavior.");
-
-        var isActive = trigger.TriggerValue ?? false;
-        if (ImGui.Checkbox("Is Active", ref isActive))
+        var visible = ImGui.Begin("My UI");
+        try
         {
-            trigger.TriggerValue = isActive;
-        }
-        ImGui.SameLine();
-        ImGui.TextDisabled("(Gets/Sets whether Trigger is active or not)");
+            if (!visible) return;
+            ImGui.Text("Control window flags and interaction behavior.");
 
-        ImGui.Separator();
-        if (trigger.IsActive == true)
-        {
-            ImGui.TextColored(new Vector4(0f, 1f, 0f, 1f), "Trigger is currently ACTIVE");
-        }
-        else
-        {
-            ImGui.TextColored(new Vector4(1f, 0f, 0f, 1f), "Trigger is currently INACTIVE");
-        }
-    }
-    finally
-    {
-        ImGui.End();
-    }
-});
+            var isActive = trigger.TriggerValue ?? false;
+            if (ImGui.Checkbox("Is Active", ref isActive))
+            {
+                trigger.TriggerValue = isActive;
+            }
+            ImGui.SameLine();
+            ImGui.TextDisabled("(Gets/Sets whether Trigger is active or not)");
 
-cancellationToken.WaitHandle.WaitOne();
+            ImGui.Separator();
+            if (trigger.IsActive == true)
+            {
+                ImGui.TextColored(new Vector4(0f, 1f, 0f, 1f), "Trigger is currently ACTIVE");
+            }
+            else
+            {
+                ImGui.TextColored(new Vector4(1f, 0f, 0f, 1f), "Trigger is currently INACTIVE");
+            }
+        }
+        finally
+        {
+            ImGui.End();
+        }
+    });
+
+    cancellationToken.WaitHandle.WaitOne();
+}
 ```
 
 ![Toggle](https://s3.eyeauras.net/media/2025/06/EyeAuras_950pfgdzIy4pe780.gif)
@@ -164,3 +171,141 @@ cancellationToken.WaitHandle.WaitOne();
 закрытия окна других скриптов. Параметры частоты кадров, общий overlay,
 шрифты и время жизни разобраны в
 [операциях IImGuiExperimentalApi](/ru/scripting/api/IImGuiExperimentalApi).
+
+
+## Два окна с отдельным состоянием
+
+После подключения пакета из начала страницы выполните этот вариант
+`Script.csx`. Оба окна имеют свой счётчик и свой крестик. Содержимое находится
+в обычном классе `CounterPanel`; его можно вынести в `.cs` файл проекта.
+
+```csharp
+using System;
+using System.Reactive.Disposables;
+using System.Threading;
+using System.Threading.Tasks;
+using EyeAuras.ImGuiSdk;
+using ImGuiNET;
+
+{
+    AddNewExtension<ImGuiContainerExtensions>();
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    var first = ImGuiWindowManager.OpenNew(() => new CounterPanel(), "Первый");
+    var second = ImGuiWindowManager.OpenNew(() => new CounterPanel(), "Второй");
+    var firstClosed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+    var secondClosed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+    first.Anchors.Add(Disposable.Create(() => firstClosed.TrySetResult(true)));
+    second.Anchors.Add(Disposable.Create(() => secondClosed.TrySetResult(true)));
+    try
+    {
+        await Task.WhenAll(firstClosed.Task, secondClosed.Task).WaitAsync(cancellationToken);
+    }
+    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+    {
+    }
+    finally
+    {
+        ImGuiWindowManager.Close(first);
+        ImGuiWindowManager.Close(second);
+        // API ещё жив: менеджер должен обработать закрытие на кадре.
+        await Task.WhenAll(firstClosed.Task, secondClosed.Task);
+    }
+}
+
+public sealed class CounterPanel : ICanBeDisplayedInImGui
+{
+    private int count;
+    public void ToImGui()
+    {
+        if (ImGui.Button("Добавить")) count++;
+        ImGui.TextUnformatted($"Значение: {count}");
+    }
+}
+```
+
+Менеджер сам рисует окна каждый кадр; отдельный `AddRenderer` для них не
+нужен. `CounterPanel` не вызывает `Begin/End`: ими владеет `ImGuiWindowHost`.
+Закрытие одного окна не закрывает второе. Когда закрыты оба, скрипт завершится;
+Stop запрашивает закрытие оставшихся и ждёт освобождения hosts, пока API ещё
+удерживает общий overlay. Это требует работающего render-loop, а не гарантирует
+завершение при отказе нативного renderer. У контента с `IDisposable` менеджер
+тоже вызывает `Dispose`. Не заменяйте адресное закрытие на `CloseAll()`.
+
+## Выполнить работу по кнопке, не останавливая отрисовку
+
+Ниже — другой вариант `Script.csx` с той же подготовкой пакета. Кнопка
+запускает одну последовательность; повторные нажатия во время её работы
+игнорируются. Здесь задержки изображают асинхронную работу. Реальное тяжёлое
+вычисление также выполняйте вне render callback.
+
+```csharp
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using EyeAuras.ImGuiSdk;
+using ImGuiNET;
+
+{
+    AddNewExtension<ImGuiContainerExtensions>();
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    var runToken = cancellationToken;
+    using var stop = CancellationTokenSource.CreateLinkedTokenSource(runToken);
+    var workToken = stop.Token;
+    var gate = new object();
+    var worker = Task.CompletedTask;
+    var stopping = false;
+    var progress = 0;
+    var rendering = imgui.AddRenderer(_ =>
+    {
+        var visible = ImGui.Begin("Работа");
+        try
+        {
+            if (!visible) return;
+            var clicked = ImGui.Button("Начать");
+            lock (gate)
+            {
+                if (clicked && !stopping && worker.IsCompleted)
+                {
+                    Interlocked.Exchange(ref progress, 0);
+                    worker = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            for (var step = 1; step <= 10; step++)
+                            {
+                                await Task.Delay(200, workToken);
+                                Interlocked.Exchange(ref progress, step);
+                            }
+                        }
+                        catch (OperationCanceledException) when (workToken.IsCancellationRequested) { }
+                        catch (Exception error) { Log.Error("Операция не завершена", error); }
+                    });
+                }
+            }
+            ImGui.TextUnformatted($"Готово: {Volatile.Read(ref progress)}/10");
+        }
+        finally { ImGui.End(); }
+    });
+    try
+    {
+        await Task.Delay(Timeout.Infinite, runToken);
+    }
+    catch (OperationCanceledException) when (runToken.IsCancellationRequested) { }
+    finally
+    {
+        Task active;
+        lock (gate) { stopping = true; active = worker; }
+        rendering.Dispose();
+        stop.Cancel();
+        await active;
+    }
+}
+```
+
+Состояние задачи и запрет нового старта защищены `gate`, прогресс передаётся
+через `Interlocked`/`Volatile`. Внутри callback нет ожидания worker. При Stop
+сначала запрещается новый старт, снимается отрисовка, затем отменяется и
+ожидается работа. Только после этого `using` освобождает источник токена.
+Worker **не** освобождает `stop`: иначе следующий `Cancel()` владельца мог бы
+обратиться к уже освобождённому объекту. Методы ImGui вызываются только в
+render callback; API скриптового хоста в обычном `.cs`-классе нужно передавать явно.

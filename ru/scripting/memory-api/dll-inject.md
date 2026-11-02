@@ -29,8 +29,10 @@ dateCreated: 2026-04-16T23:20:00.000Z
 ```csharp
 using EyeAuras.Memory;
 
-using var process = LocalProcess.ByProcessName("game");
-process.InjectDll(@"C:\Tools\MyHack.dll");
+{
+    using var process = LocalProcess.ByProcessName("game");
+    process.InjectDll(@"C:\Tools\MyHack.dll");
+}
 ```
 
 Видимая обёртка проверяет наличие файла и передаёт работу в `RpmInjector`. Сигнатура — `void InjectDll(string fullDllPath)`: возвращаемого handle или адреса модуля здесь нет. Отсутствие исключения от вызова не заменяет проверку результата со стороны вашей DLL, например её собственного диагностического сообщения.
@@ -42,6 +44,10 @@ process.InjectDll(@"C:\Tools\MyHack.dll");
 Если `InjectDll(...)` это готовый high-level helper, то `CreateThread(...)` это уже более низкоуровневый строительный блок.
 
 Memory API даёт его через `IProcessControlApi`. Ниже фрагмент для уже открытого `ILocalProcess process` с заранее определёнными `IntPtr startAddress` и `IntPtr parameter`:
+
+Это фрагмент для уже открытого reader `process`. Вставляйте его в область
+владения reader, а не после закрытия блока предыдущего примера.
+`startAddress` и `parameter` должен подготовить вызывающий код.
 
 ```csharp
 var threadId = process.CreateThread(startAddress, parameter);
@@ -104,14 +110,16 @@ void QueueUserApc(IntPtr hThread, IntPtr apcRoutine, IntPtr apcArgument);
 ```csharp
 using EyeAuras.Memory;
 
-using var process = LocalProcess.ByProcessName("game");
+{
+    using var process = LocalProcess.ByProcessName("game");
 
-var mapping = process.InjectDllViaManualMapping(
-    @"C:\Tools\MyHack.dll",
-    LocalProcessMmapFlags.None);
+    var mapping = process.InjectDllViaManualMapping(
+        @"C:\Tools\MyHack.dll",
+        LocalProcessMmapFlags.None);
 
-Log.Info($"Base=0x{mapping.BaseAddress.ToInt64():X}");
-Log.Info($"EntryPoint=0x{mapping.EntryPoint.ToInt64():X}");
+    Log.Info($"Base=0x{mapping.BaseAddress.ToInt64():X}");
+    Log.Info($"EntryPoint=0x{mapping.EntryPoint.ToInt64():X}");
+}
 ```
 
 ### Маппинг из памяти
@@ -120,11 +128,13 @@ Log.Info($"EntryPoint=0x{mapping.EntryPoint.ToInt64():X}");
 using System.IO;
 using EyeAuras.Memory;
 
-using var process = LocalProcess.ByProcessName("game");
+{
+    using var process = LocalProcess.ByProcessName("game");
 
-var dllBytes = File.ReadAllBytes(@"C:\Tools\MyHack.dll");
-var mapping = process.InjectDllViaManualMapping(dllBytes, LocalProcessMmapFlags.None);
-Log.Info($"Base=0x{mapping.BaseAddress.ToInt64():X}");
+    var dllBytes = File.ReadAllBytes(@"C:\Tools\MyHack.dll");
+    var mapping = process.InjectDllViaManualMapping(dllBytes, LocalProcessMmapFlags.None);
+    Log.Info($"Base=0x{mapping.BaseAddress.ToInt64():X}");
+}
 ```
 
 Уникальные черты этого пути:

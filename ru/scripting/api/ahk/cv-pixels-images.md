@@ -34,15 +34,17 @@ if PixelSearch(&x, &y, 0, 0, 800, 600, 0xFF0000, 10)
 IComputerVisionExperimentalScriptingApi CV { get; init; }
 ISendInputScriptingApi SendInput { get; init; }
 
-using var screen = CV.ForScreen();
-var point = screen.PixelSearch(
-    Color.FromArgb(255, 255, 0, 0),
-    new Percentage(90),
-    new Rectangle(0, 0, 800, 600));
-
-if (!point.IsEmpty)
 {
-    SendInput.MouseLeftClick(point.X, point.Y);
+    using var screen = CV.ForScreen();
+    var point = screen.PixelSearch(
+        Color.FromArgb(255, 255, 0, 0),
+        new Percentage(90),
+        new Rectangle(0, 0, 800, 600));
+
+    if (!point.IsEmpty)
+    {
+        SendInput.MouseLeftClick(point.X, point.Y);
+    }
 }
 ```
 
