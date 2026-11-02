@@ -115,6 +115,11 @@ window.ShowDialog(cancellationToken);
 
 ## Основные API
 
+Для немодального окна с моделью есть [полный пример dialog API](../IDialogWindowUnstableScriptingApi):
+обычный `.cs`-класс, типизированный `DataContext` в Razor и ожидание `WhenClosed`
+с токеном текущего запуска. Добавление окна в anchors задаёт очистку, но не
+заменяет это ожидание. `ShowDialog` ждёт внутри вызова; `Show()` — нет.
+
 - `IBlazorWindow` — основной контракт окна; `Show`, `ShowDialog`, `Close`,
   `ShowDevTools`, `ViewType`, `DataContext`, `Container`.
 - `IBlazorWindowController` — свойства внешнего вида и поведения окна.

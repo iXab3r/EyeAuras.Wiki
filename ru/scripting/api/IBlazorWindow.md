@@ -87,5 +87,8 @@ preview-варианты относятся к конкретному окну. 
 `WaitForIdle(timeout)` ждёт очередь окна, а не загрузку всех сетевых ресурсов;
 нулевой timeout в WPF-реализации означает ожидание без ограничения.
 
-Примеры с моделью и выбор поверхности — в [карте Blazor Windows](windows-subsystems/blazor-windows).
+Полный пример с моделью и ожиданием немодального окна до крестика или Stop —
+в [dialog API](IDialogWindowUnstableScriptingApi). `Show()` и добавление окна
+в anchors сами по себе не удерживают текущий Run открытым.
+Выбор поверхности — в [карте Blazor Windows](windows-subsystems/blazor-windows).
 Для экранных аннотаций есть [OSD canvas](osd/screen-overlay).

@@ -29,16 +29,18 @@ dateCreated: 2025-02-27T19:43:55.329Z
 **Script.csx**
 ```csharp
 using PhantomPixel;
+using PoeShared.Blazor.Wpf;
 
 using var window = GetService<IBlazorWindow>();
 window.ViewType = typeof(MainWindow);
 window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-window.ShowDialog();
+window.ShowDialog(cancellationToken);
 ```
 
 **MainWindow.razor**
-```csharp
+```razor
 @namespace PhantomPixel
+@using PoeShared.Blazor
 @using EyeAuras.Blazor.Controls
 @inherits BlazorReactiveComponent
 
@@ -51,6 +53,10 @@ window.ShowDialog();
 ```
 
 `LoginWidget` получает `ILicenseAccessor` и `ILoginPopupDisplayer` из контейнера приложения. Нажатие вызывает popup входа; успешная авторизация зависит от служб приложения и внешнего сервиса. Виджет не выдаёт лицензию или sublicence lease и не доказывает доступность платного пака. В произвольном Blazor-хосте этих регистраций может не быть.
+
+Скрипт ждёт закрытия окна или Stop через `ShowDialog(cancellationToken)`, затем
+`using` освобождает окно. Этот токен задаёт ожидание окна; поддержку отмены
+сетевого входа нужно проверять отдельно в API loader своей версии.
 
 ## Дальше
 
