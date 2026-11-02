@@ -143,6 +143,12 @@ Log.Info($"Hub: {eyeHub.ConnectionState}");
 
 ### Lease доступа для paid pack / mini-app
 
+Ниже — подключение наблюдения внутри уже работающего скрипта. Сам блок
+не ждёт выдачи доступа и не удерживает Run открытым. Продолжите его ожидаемой
+операцией или [ожиданием до Stop](../scripting/async); иначе `ExecutionAnchors`
+сразу снимет подписку при возврате из скрипта. Это пример использования
+контракта loader своей версии, а не проверенная реализация авторизации.
+
 ```csharp
 var sublicenseManager = GetService<ISublicenseManager>();
 var lease = sublicenseManager.Rent(new AuraShareId("S20260209165639iiQZB0NCruAb"));

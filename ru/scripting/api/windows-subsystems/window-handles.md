@@ -58,11 +58,100 @@ Selector по умолчанию не требует видимость (`OnlyVi
 
 Активация синхронна, может восстановить свёрнутое окно и не принимает токен отмены. Успех зависит от foreground-политики Windows; не переносите её на UI-поток только потому, что это операция с окном.
 
+## Дождаться окна конкретного процесса
+
+Чтобы искать только процесс, задайте `WindowFilter`, а затем читайте живую
+цель selector. В этом примере верхнеуровневого C# Script откройте Блокнот
+после запуска скрипта:
+
+```csharp
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using EyeAuras.Shared.Services;
+using PoeShared.Native;
+using PoeShared.Prism;
+
+var runToken = cancellationToken;
+var factory = GetService<IFactory<IWindowSelector>>();
+using var selector = factory.Create();
+selector.OnlyVisible = true;
+selector.WindowFilter = candidate => string.Equals(
+    Path.GetFileNameWithoutExtension(candidate.ProcessName),
+    "notepad", StringComparison.OrdinalIgnoreCase);
+selector.TargetWindow = "#1";
+
+IWindowHandle window;
+while (true)
+{
+    runToken.ThrowIfCancellationRequested();
+    window = selector.ActiveWindow;
+    if (window != null && window.IsWindow)
+    {
+        break;
+    }
+    await Task.Delay(250, runToken);
+}
+Log.Info($"Найден Блокнот: {window.Title}");
+```
+
+`#1` выбирает первое совпадение **после** фильтрации; наличие нескольких окон
+не гарантирует выбор нужного документа. `ProcessName` в этом срезе берётся
+из имени исполняемого файла, а при недоступности пути — из
+`Process.ProcessName`. Поэтому здесь убрано расширение и сравнивается всё
+имя без учёта регистра. Совпадение текста в чужом заголовке больше не подходит.
+
+Цикл ждёт появления цели; Stop прерывает задержку и освобождает selector.
+`IsWindow` проверяет HWND в момент чтения, но окно всё равно может исчезнуть
+перед следующим вызовом. Для повторяющейся работы заново читайте
+`selector.ActiveWindow` на каждой итерации: сохранённая переменная `window`
+сама не переключается на новое окно. Дескриптор заимствован у инфраструктуры,
+его не добавляют в собственный `using`.
+
 ## Перевести точку относительно рамки окна
 
 У найденного `IWindowHandle` методы `ToScreen(Point)` и `FromScreen(Point)` прибавляют или вычитают начало `DwmFrameBounds`; невалидные границы дают исключение. Это координаты относительно рамки, а не обещание Win32 client area. Сначала выберите систему координат входа и backend ввода; свойства матриц OSD сами по себе не доказывают нужное преобразование.
 
 Для наблюдения границ `IWindowBoundsTrackerFactory.Track(window)` возвращает `IObservable<Rectangle?>`. Освобождайте свою подписку в конце операции; тип допускает `null`. В реализации этого среза связь освобождения нативного hook с подпиской явно не установлена, поэтому это не обещание полного завершения всех нативных ресурсов. Не предполагайте UI-поток доставки без проверки host.
+
+## Наблюдать границы выбранного окна
+
+Полный пример для C# Action: откройте Блокнот, запустите скрипт и перемещайте
+окно в течение десяти секунд. Выбор здесь использует обычное широкое выражение;
+для ограничения процессом примените фильтр из предыдущей операции.
+
+```csharp
+using System;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
+using EyeAuras.Shared.Services;
+using EyeAuras.Shared.Scaffolding;
+using PoeShared.Native;
+using PoeShared.Prism;
+
+using var selector = GetService<IFactory<IWindowSelector>>().Create();
+var window = selector.FindWindow("notepad.exe");
+if (window == null || !window.IsWindow)
+{
+    Log.Info("Окно пока не найдено; запустите пример ещё раз");
+    return;
+}
+
+var tracker = GetService<IWindowBoundsTrackerFactory>();
+using var subscription = tracker.Track(window).Subscribe(
+    bounds => Log.Info(bounds.HasValue
+        ? $"Границы: {bounds.Value}"
+        : "Границы недоступны"),
+    error => Log.Error("Отслеживание границ завершилось ошибкой", error));
+await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
+```
+
+Первое значение приходит при подписке, следующие — при изменении границ.
+Через десять секунд или при Stop подписка освобождается. Это наблюдение за
+одним HWND, оно не переподключается к новой цели selector. Допустимый `null`
+не следует считать гарантированным событием закрытия окна; поток может
+завершиться ошибкой. Фабрика — общий сервис, поэтому сам `tracker` здесь
+не освобождается.
 
 ## Детали API
 

@@ -54,11 +54,71 @@ WPF поддерживает обработку сообщений dispatcher в
 
 ## Передать модель в компонент
 
-Передайте свой объект аргументом `CreateWindow<T>(model)` и используйте компонент,
-который принимает этот тип через `DataContext`, например наследника
-`BlazorReactiveComponent<T>`. Модель и её уведомления об изменениях — часть
-вашего проекта, а не глобальные переменные Razor. `ViewDataContext` — устаревший
-псевдоним; используйте `DataContext`.
+Покажем модель в немодальном окне и оставим скрипт работать до его закрытия.
+Добавьте в тот же проект обычный файл `WindowStatus.cs`:
+
+```csharp
+namespace MyScript;
+
+public sealed class WindowStatus
+{
+    public string Text { get; init; }
+}
+```
+
+Компонент `StatusPanel.razor` получает именно эту модель через `DataContext`:
+
+```razor
+@namespace MyScript
+@using PoeShared.Blazor
+@inherits BlazorReactiveComponent<WindowStatus>
+
+@if (DataContext != null)
+{
+    <p>@DataContext.Text</p>
+}
+```
+
+Верхнеуровневый `Script.csx` создаёт модель и окно, подписывается на закрытие
+**до** показа, затем ожидает событие:
+
+```csharp
+using System;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
+using EyeAuras.Shared.Scripting;
+
+var runToken = cancellationToken;
+var dialogs = GetService<IDialogWindowUnstableScriptingApi>();
+var model = new MyScript.WindowStatus { Text = "Окно готово" };
+using var window = dialogs.CreateWindow<MyScript.StatusPanel>(model);
+window.Title = "Состояние";
+window.Width = 400;
+window.Height = 240;
+
+var closed = window.WhenClosed.Take(1).ToTask(runToken);
+window.Show();
+try
+{
+    await closed;
+    Log.Info("Окно закрыто");
+}
+catch (OperationCanceledException) when (runToken.IsCancellationRequested)
+{
+    Log.Info("Показ окна остановлен");
+}
+```
+
+В окне появится «Окно готово». Крестик завершает ожидание; остановка скрипта
+отменяет его. `Take(1)` завершает подписку после первого закрытия, а токен
+прерывает её при остановке. `using` освобождает окно в обоих случаях.
+`Show()` возвращает управление сразу, поэтому один вызов без последующего
+ожидания не задаёт длительность работы скрипта. `Hide()` не выдаёт закрытие.
+
+Модель здесь неизменяема после создания. Для изменяемого состояния нужны
+уведомления и обновление UI — см. [Blazor](core/blazor). Модель не становится
+глобальной переменной Razor. `ViewDataContext` — устаревший псевдоним;
+используйте `DataContext`.
 
 Свойства, события, нативные координаты и ограничения окна — в
 [IBlazorWindow](IBlazorWindow). Для выбора файла из Razor нужны отдельные

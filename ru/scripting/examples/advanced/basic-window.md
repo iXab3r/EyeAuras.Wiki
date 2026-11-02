@@ -31,16 +31,18 @@ dateCreated: 2025-02-27T19:39:18.852Z
 **Script.csx**
 ```csharp
 using PhantomPixel;
+using PoeShared.Blazor.Wpf;
 
 using var window = GetService<IBlazorWindow>();
 window.ViewType = typeof(MainWindow);
 window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-window.ShowDialog();
+window.ShowDialog(cancellationToken);
 ```
 
 **MainWindow.razor**
-```csharp
+```razor
 @namespace PhantomPixel
+@using PoeShared.Blazor
 @inherits BlazorReactiveComponent
 
 <h3 class="text-center">Interactive Counter</h3>
@@ -66,7 +68,11 @@ window.ShowDialog();
 }
 ```
 
-Нажатие `Click Me` увеличивает число и запрашивает `Refresh(nameof(IncrementCount))`. `ShowDialog()` удерживает скрипт до закрытия окна; созданное окно освобождается через `using`. UI-события компонента не дают права обращаться к произвольным WPF-объектам из рабочего потока.
+Нажатие `Click Me` увеличивает число и запрашивает `Refresh(nameof(IncrementCount))`.
+`ShowDialog(cancellationToken)` ждёт закрытия окна или Stop; `using` освобождает
+его после ожидания. В реализации WPF отмена обрабатывается внутри `ShowDialog`,
+поэтому наружный `OperationCanceledException` не обязателен. UI-события
+компонента не дают права обращаться к произвольным WPF-объектам из рабочего потока.
 
 ## Дальше
 

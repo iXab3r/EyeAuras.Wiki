@@ -42,6 +42,42 @@ dateCreated: 2026-04-22T00:00:00.000Z
 
 ## Частые сценарии
 
+### Оставить подписку или окно работать
+
+Регистрация ресурса и ожидание — разные действия. `.AddTo(ExecutionAnchors)`
+назначает очистку в конце текущего Run, но не удерживает Run открытым.
+Если после создания подписки, renderer или окна тело скрипта вернётся,
+ресурс в этих anchors будет освобождён сразу, даже без нажатия Stop.
+
+Для работы до Stop сохраните владельца и явно ждите отмену:
+
+```csharp
+using System;
+using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+var runToken = cancellationToken;
+var status = Variables.Get<string>("status");
+using var subscription = status.Listen()
+    .Subscribe(value => Log.Info($"Status = {value}"));
+try
+{
+    await Task.Delay(Timeout.Infinite, runToken);
+}
+catch (OperationCanceledException) when (runToken.IsCancellationRequested)
+{
+    Log.Info("Наблюдение остановлено");
+}
+```
+
+Пока скрипт работает, изменение `status` попадает в журнал. При Stop ожидание
+заканчивается, затем `using` снимает подписку. Если у операции есть собственное
+завершающее событие, ждите его вместо бесконечной задержки: пример
+[немодального окна](../IDialogWindowUnstableScriptingApi) заканчивается и по
+крестику, и по Stop. Произвольная фоновая Task не становится ожидаемой от
+добавления её владельца в anchors.
+
 ### Дождаться операции в текущем запуске
 
 В верхнеуровневом `Script.csx` токен предоставляет host:
