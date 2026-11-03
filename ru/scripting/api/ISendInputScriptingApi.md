@@ -11,12 +11,17 @@ dateCreated: 2025-03-21T23:36:13.915Z
 
 Отправляет текст, нажатия клавиш и движения мыши через выбранный симулятор ввода. Сервис внедряется в C# Action; обычный C# класс получает его через конструктор или параметр. Регистрацию предоставляет модуль Roxy работающего EyeAuras, одной ссылки на SDK недостаточно.
 
+В примерах `[Inject]` заполняет свойство при настройке экземпляра скрипта. Одного `get; init;` для внедрения недостаточно. Альтернатива — `[Dependency]` из Unity; настройка описана в [руководстве по DI](/ru/scripting/dependency-injection).
+
 ## Отправить текст и клавишу
 
 Откройте редактор текста и оставьте его активным перед выполнением этого C# Action:
 
 ```csharp
-ISendInputScriptingApi SendInput { get; init; }
+using Microsoft.AspNetCore.Components;
+using EyeAuras.Roxy.Api;
+
+[Inject] public ISendInputScriptingApi SendInput { get; init; }
 
 SendInput.TargetWindow = null;
 SendInput.Text("hello");
@@ -32,7 +37,10 @@ SendInput.KeyPress(Key.Enter);
 Для стандартного `Windows Input` без целевого окна координаты абсолютные, в пространстве виртуального рабочего стола:
 
 ```csharp
-ISendInputScriptingApi SendInput { get; init; }
+using Microsoft.AspNetCore.Components;
+using EyeAuras.Roxy.Api;
+
+[Inject] public ISendInputScriptingApi SendInput { get; init; }
 
 SendInput.TargetWindow = null;
 SendInput.MouseLeftClick(100, 200);
@@ -63,7 +71,10 @@ Log.Info($"Курсор после клика: {SendInput.CursorPosition}");
 `IsKeyDown(Key)` и `IsMouseDown(MouseButton)` возвращают `bool` через состояние выбранного контроллера. Это не подтверждённый эквивалент всех режимов logical/physical AutoHotkey.
 
 ```csharp
-ISendInputScriptingApi SendInput { get; init; }
+using Microsoft.AspNetCore.Components;
+using EyeAuras.Roxy.Api;
+
+[Inject] public ISendInputScriptingApi SendInput { get; init; }
 
 for (var i = 0; i < 3; i++)
 {
