@@ -55,6 +55,7 @@ dateCreated: 2025-06-28T09:04:25.549Z
 ## Пример кода
 
 ```csharp
+
 //this is a simple fullscreen ESP using Yolo 11s model for https://aimtrainer.io/target-tracking
 //open this YT video https://www.youtube.com/watch?v=rTqg2hEjGdE
 #r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
@@ -63,84 +64,116 @@ dateCreated: 2025-06-28T09:04:25.549Z
 using EyeAuras.ImGuiSdk;
 using ImGuiNET;
 using System.Numerics;
-AddNewExtension<ImGuiContainerExtensions>();
-
-var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForScreen()
-    .AddTo(ExecutionAnchors);
-
-var osd = GetService<IImGuiExperimentalApi>()
-    .AddTo(ExecutionAnchors);
-
-var mlModelPath = @"https://s3.eyeauras.net/public/eyeauras-ml/yolo/yolov11s.onnx";
-
-Log.Info("Working...");
-osd.AddRenderer(() =>
-{
-    if (cancellationToken.IsCancellationRequested) return;
-    bool enabled;
-    Rectangle captureRegion;
-    lock (StateGate)
-    {
-        enabled = IsEnabled;
-        captureRegion = CaptureRegion;
-    }
-    var drawList = ImGui.GetBackgroundDrawList();
-
-    //  Draw FPS in top-right corner of the capture area
-    float fps = ImGui.GetIO().Framerate;
-    var captureAreaBounds = captureRegion.IsEmpty
-        ? System.Windows.Forms.Screen.PrimaryScreen.Bounds
-        : captureRegion;
-    osd.DrawFrame(captureAreaBounds, Color.Purple);
-
-    string fpsText = $"FPS: {fps:F1}";
-    float fontSize = ImGui.GetFontSize() * 3f; // x3 size
-    var textSize = ImGui.CalcTextSize(fpsText) * 3f; // also scale position
-    drawList.AddText(
-        ImGui.GetFont(),
-        fontSize,
-        new Vector2(captureAreaBounds.Right - textSize.X - 10, captureAreaBounds.Top + 10),
-        Color.Yellow.ToImGuiColor(),
-        fpsText);
-    drawList.AddText(
-        ImGui.GetFont(),
-        fontSize,
-        new Vector2(captureAreaBounds.Left + 10, captureAreaBounds.Top + 10),
-        enabled ? Color.Purple.ToImGuiColor() : Color.Yellow.ToImGuiColor(),
-        $"F1 - {(enabled ? "Stop" : "Start")}, F2 - Select Region");
-
-    if (!enabled)
-    {
-        return;
-    }
-
-    // Perform ML-search
-    //or you can use Context Menu => Pick region to insert custom region - this will drastically improve quality
-    var result = cv.MLSearchRaw(mlModelPath, region: captureRegion);
-
-    var predictions = result.Detected.Predictions.Where(x => x.Score > 0.7).ToArray();
-
-    if (!predictions.Any()) return;
-
-    foreach (var prediction in predictions)
-    {
-        var predictionBounds = result.ToScreen(prediction.Rectangle);
-        osd.DrawFrame(predictionBounds, Color.AliceBlue);
-
-        var topLeft = new Vector2(predictionBounds.Left, predictionBounds.Top);
-        var label = $"{prediction.Label.Name} ({prediction.Score:P1})";
-        drawList.AddText(topLeft, Color.White.ToImGuiColor(), label);
-    }
-});
-
-cancellationToken.WaitHandle.WaitOne();
+using System;
+using System.Drawing;
+using System.Linq;
+using EyeAuras.OpenCVAuras.Scripting;
+using EyeAuras.Roxy.Api;
+using EyeAuras.Scripting.Api;
+using EyeAuras.Shared.Services;
+using PoeShared.Scaffolding;
 
 private object StateGate { get; } = new object();
 
 public bool IsEnabled { get; set; } = true;
 
 public Rectangle CaptureRegion { get; set; }
+
+{
+    AddNewExtension<ImGuiContainerExtensions>();
+
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
+        .ForScreen();
+
+    using var osd = GetService<IImGuiExperimentalApi>();
+
+    var mlModelPath = @"https://s3.eyeauras.net/public/eyeauras-ml/yolo/yolov11s.onnx";
+
+    Log.Info("Working...");
+    var renderGate = new object();
+    var renderStopped = false;
+    var renderRegistration = osd.AddRenderer(() =>
+    {
+        lock (renderGate)
+        {
+            if (renderStopped || cancellationToken.IsCancellationRequested) return;
+            bool enabled;
+            Rectangle captureRegion;
+            lock (StateGate)
+            {
+                enabled = IsEnabled;
+                captureRegion = CaptureRegion;
+            }
+            var drawList = ImGui.GetBackgroundDrawList();
+
+            //  Draw FPS in top-right corner of the capture area
+            float fps = ImGui.GetIO().Framerate;
+            var captureAreaBounds = captureRegion.IsEmpty
+                ? System.Windows.Forms.Screen.PrimaryScreen.Bounds
+                : captureRegion;
+            drawList.AddRect(
+                new Vector2(captureAreaBounds.Left, captureAreaBounds.Top),
+                new Vector2(captureAreaBounds.Right, captureAreaBounds.Bottom),
+                Color.Purple.ToImGuiColor());
+
+            string fpsText = $"FPS: {fps:F1}";
+            float fontSize = ImGui.GetFontSize() * 3f; // x3 size
+            var textSize = ImGui.CalcTextSize(fpsText) * 3f; // also scale position
+            drawList.AddText(
+                ImGui.GetFont(),
+                fontSize,
+                new Vector2(captureAreaBounds.Right - textSize.X - 10, captureAreaBounds.Top + 10),
+                Color.Yellow.ToImGuiColor(),
+                fpsText);
+            drawList.AddText(
+                ImGui.GetFont(),
+                fontSize,
+                new Vector2(captureAreaBounds.Left + 10, captureAreaBounds.Top + 10),
+                enabled ? Color.Purple.ToImGuiColor() : Color.Yellow.ToImGuiColor(),
+                $"F1 - {(enabled ? "Stop" : "Start")}, F2 - Select Region");
+
+            if (!enabled)
+            {
+                return;
+            }
+
+            // Perform ML-search
+            //or you can use Context Menu => Pick region to insert custom region - this will drastically improve quality
+            var result = cv.MLSearchRaw(mlModelPath, region: captureRegion);
+
+            var predictions = result.Detected.Predictions.Where(x => x.Score > 0.7).ToArray();
+
+            if (!predictions.Any()) return;
+
+            foreach (var prediction in predictions)
+            {
+                var predictionBounds = result.ToScreen(prediction.Rectangle);
+                drawList.AddRect(
+                    new Vector2(predictionBounds.Left, predictionBounds.Top),
+                    new Vector2(predictionBounds.Right, predictionBounds.Bottom),
+                    Color.AliceBlue.ToImGuiColor());
+
+                var topLeft = new Vector2(predictionBounds.Left, predictionBounds.Top);
+                var label = $"{prediction.Label.Name} ({prediction.Score:P1})";
+                drawList.AddText(topLeft, Color.White.ToImGuiColor(), label);
+            }
+        }
+    });
+
+    try
+    {
+        cancellationToken.WaitHandle.WaitOne();
+    }
+    finally
+    {
+        lock (renderGate)
+        {
+            // Wait for any current callback, then prevent all later work.
+            renderStopped = true;
+        }
+        renderRegistration.Dispose();
+    }
+}
 
 [Keybind(Hotkey = "F1", SuppressKey = true)]
 public void HandleF1()
@@ -175,10 +208,10 @@ public async Task HandleF2(EyeAuras.Shared.Osd.IOsdSelectionService osdSelection
 
 `MLSearchRaw` получает ROI именованным аргументом `region`. При пустом ROI захват определяется `ForScreen`, а рамка в этом примере берётся с основного экрана; это не утверждение, что они совпадают при любой конфигурации мониторов. Порог CV по умолчанию — confidence 30%, IoU 40%, затем код дополнительно оставляет `Score > 0.7`. Пустой список означает отсутствие подходящих предсказаний, а не ошибку загрузки модели. Каждый прямоугольник проходит через `result.ToScreen` перед отрисовкой.
 
-Состояние F1/F2 копируется под одним lock, чтобы `Rectangle` не читался одновременно с записью. Само распознавание остаётся в callback ImGui и может задерживать кадр. FPS показывает частоту ImGui, не отдельную скорость ML. `PickRegion` может быть отменён пользователем; токен проверяется после выбора, но этот вызов не объявляется отменяемым токеном скрипта. CV и ImGui освобождаются через `ExecutionAnchors`; нельзя передавать заимствованные кадры в фоновый поток или считать общий CV-контекст потокобезопасным.
+Состояние F1/F2 копируется под одним lock, чтобы `Rectangle` не читался одновременно с записью. Само распознавание остаётся в callback ImGui и может задерживать кадр. FPS показывает частоту ImGui, не отдельную скорость ML. `PickRegion` может быть отменён пользователем; токен проверяется после выбора, но этот вызов не объявляется отменяемым токеном скрипта. В `finally` выставляется флаг завершения под тем же lock, который охватывает callback, и снимается регистрация; затем `using` освобождает ImGui API и CV. Поэтому уже начавшийся callback завершится до освобождения ресурсов, а поздний не начнёт работу; нельзя передавать заимствованные кадры в фоновый поток или считать общий CV-контекст потокобезопасным.
 
 ## Дальше
 
 [Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
 
-Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.
+Операции CV и владение регистрацией сопоставлены с исходниками EyeAuras `20fd3d4`. Пример сохраняет историческую привязку `EyeAuras.ImGuiSdk 0.0.6`; её бинарная совместимость с этими исходниками и `ImGui.NET 1.91.6.1` не подтверждена. Рамки показаны через публичный draw list ImGui, а не отсутствующий в текущем интерфейсе `osd.DrawFrame`. Перед использованием проверьте сигнатуры SDK своей версии; компиляция и запуск этого листинга не выполнялись.

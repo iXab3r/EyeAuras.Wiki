@@ -25,7 +25,7 @@ dateCreated: 2026-11-03T00:00:00.000Z
 @inherits PoeShared.Blazor.BlazorReactiveComponent
 @inject IJsPoeBlazorUtils Js
 
-<textarea id="@fieldId" @ref="field" @bind="report"></textarea>
+<input type="text" id="@fieldId" @ref="field" @bind="report" />
 <button @onclick="Copy">Копировать</button>
 <button @onclick="ReadClipboard">Прочитать буфер</button>
 <button @onclick="Download">Скачать отчёт</button>
@@ -62,6 +62,8 @@ dateCreated: 2026-11-03T00:00:00.000Z
 «Копировать» передаёт содержимое поля в буфер. «Прочитать буфер» заменяет текст поля полученной строкой. «Скачать отчёт» предлагает браузерную загрузку UTF-8-файла с указанным именем: это не запись по произвольному пути на диске. Доступ к буферу и загрузкам зависит от возможностей и разрешений host.
 
 Обработчики выполняются после появления поля в DOM, поэтому `ElementReference` уже можно использовать. Для начального фокуса без кнопки вызывайте операцию после отрисовки компонента, а не в конструкторе или `OnInitialized`. Условно создаваемое поле также нужно сначала отрисовать.
+
+В этой версии методы выделения принимают только `HTMLInputElement`, поддерживающий выделение текста, например `<input type="text">` из примера. `textarea` и произвольные контейнеры этими helper-методами не поддерживаются. Это относится и к обеим формам `SelectAllTextInElement`, и к `SelectTextRangeInElement`.
 
 Сервис внедрён host и не принадлежит компоненту; не вызывайте его `DisposeAsync` после копирования. Все операции ожидаются через `Task`, поэтому ошибки остаются в обычной цепочке обработки события.
 
@@ -105,9 +107,9 @@ dateCreated: 2026-11-03T00:00:00.000Z
 
 | Вызов | Аргументы и результат |
 |---|---|
-| `SelectAllTextInElementById(string elementId)` | Выделяет текст по DOM-id |
-| `SelectAllTextInElement(ElementReference elementRef)` | Выделяет текст уже отрисованного поля |
-| `SelectTextRangeInElement(ElementReference elementRef, int? start = default, int? end = default, JsSelectionRangeDirection direction = Forward)` | Передаёт начало, конец и направление выделения; смещения относятся к текстовому полю |
+| `SelectAllTextInElementById(string elementId)` | Выделяет текст поддерживаемого input по DOM-id |
+| `SelectAllTextInElement(ElementReference elementRef)` | Выделяет текст уже отрисованного input |
+| `SelectTextRangeInElement(ElementReference elementRef, int? start = default, int? end = default, JsSelectionRangeDirection direction = Forward)` | Передаёт начало, конец и направление выделения; смещения относятся к поддерживаемому input |
 | `FocusElementById(string elementId)` | Устанавливает фокус по id, без символа `#` |
 | `ClickElementById(string elementId)` | Вызывает браузерный click элемента, а не глобальный ввод мыши |
 | `ScrollElementIntoView(ElementReference elementRef, string behavior = "smooth", string block = "nearest", string inline = "nearest")` | Прокрутка к элементу; `block` — вертикальное, `inline` — горизонтальное выравнивание |

@@ -108,7 +108,7 @@ static int ReadModuleInt32(IProcess process, string moduleName, int offset)
 `Dispose` этого accessor не заменяет освобождение процесса-владельца.
 
 Для сигнатуры используйте [готовые сканеры](./pattern-scanning), для PE —
-`MemoryExtensionsForImports`, `MemoryExtensionsForExports`, `ProcessPEExtensions`.
+`MemoryExtensionsForImports`, `ProcessExtensions.ReadExports`, `ProcessPEExtensions`.
 Не пишите свой сканер только ради обхода модуля. Полные основные объявления
 и операции со скалярами, массивами и цепочками находятся в
 [справочнике Memory](../memory).
@@ -169,7 +169,7 @@ static int ReadModuleInt32(IProcess process, string moduleName, int offset)
 - `LCProcess`, `ILCProcessBuilder` — readers на базе MPFS/LeechCore/VMM.
 - `MemoryExtensionsForPatterns`, `BytePattern`, `StringPattern` — signature scanning.
 - `MemoryExtensionsForCodeCaves`, `CodeCaveEntry` — перечисление code cave в рамках модуля; по умолчанию сканируются readable executable sections, а последовательности `0x00`, `0xCC` и `0x90` считаются допустимым заполнением cave.
-- `MemoryExtensionsForImports`, `MemoryExtensionsForExports`,
+- `MemoryExtensionsForImports`, `ProcessExtensions.ReadExports`,
   `ProcessPEExtensions` — PE-хелперы.
 - `MemoryExtensionsForEprocess` — backend-neutral helpers для чтения высокоуровневой информации о процессе, модулях, threads, process parameters и VAD-backed memory regions из `_EPROCESS`, PEB, loader-list, thread-list и VAD records через любой `IMemoryReader`, который умеет читать нужную virtual memory.
 - `MemoryExtensionsForTebPeb` — backend-neutral helpers для чтения адреса PEB из TEB, загруженных модулей из PEB loader lists и параметров запуска процесса из `RTL_USER_PROCESS_PARAMETERS` через любой `IMemoryReader`, который умеет читать целевое user-mode address space. Запрос TEB по живому локальному thread id/handle находится во внутреннем `Win32NativeShared`, а не на этой публичной поверхности.

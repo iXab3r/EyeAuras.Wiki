@@ -164,10 +164,19 @@ using EyeAuras.Roxy.Api;
 using EyeAuras.Scripting.Api;
 using PoeShared.Scaffolding;
 
+private object stateGate { get; } = new object();
+private bool enabled { get; set; }
+private bool runOnce { get; set; }
+private bool captureCursor { get; set; }
+
 {
     var imageDirectory = @"C:\Scripts\Eat";
-    var stateGate = new object();
-    bool enabled = false, runOnce = false, captureCursor = false;
+    lock (stateGate)
+    {
+        enabled = false;
+        runOnce = false;
+        captureCursor = false;
+    }
     Point savedCursor = Point.Empty;
     var SendInput = GetService<ISendInputScriptingApi>();
     var SendInputWindow = GetService<ISendInputScriptingApi>();
@@ -262,16 +271,19 @@ using PoeShared.Scaffolding;
         return false;
     }
 
-    [Keybind(Hotkey = "F3")]
-    void RunOnce() { lock (stateGate) runOnce = true; }
-
-    [Keybind(Hotkey = "F5")]
-    void SaveCursor() { lock (stateGate) captureCursor = true; }
-
-    [Keybind(Hotkey = "F6")]
-    void ToggleScript() { lock (stateGate) enabled = !enabled; }
 }
+
+[Keybind(Hotkey = "F3")]
+public void RunOnce() { lock (stateGate) runOnce = true; }
+
+[Keybind(Hotkey = "F5")]
+public void SaveCursor() { lock (stateGate) captureCursor = true; }
+
+[Keybind(Hotkey = "F6")]
+public void ToggleScript() { lock (stateGate) enabled = !enabled; }
 ```
+
+Атрибутированные обработчики F3/F5/F6 объявлены методами объекта скрипта за пределами исполняемого блока; локальные функции не обнаруживаются механизмом Keybind. Общие флаги хранятся в свойствах скрипта под одним lock и сбрасываются в начале запуска. Точка курсора и CV остаются локальными данными основного цикла.
 
 При успешном поиске выбирается левый верхний угол найденного образца. `ImageSearch` для `ForWindow` уже возвращает координаты окна; их передаём в отдельный `SendInputWindow` с тем же `TargetWindow`. Для экранных точек используем `SendInput.TargetWindow = null`, чтобы стандартный контроллер не преобразовал их повторно. При отсутствии обоих образцов выводится предупреждение и проход заканчивается.
 

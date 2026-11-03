@@ -248,7 +248,7 @@ public void RunSingleHotkey()
 - в Blazor `Script.csx` обычно выступает как точка входа, а реальный UI живет в Razor-компонентах
 - в ImGui UI часто рисуется прямо из метода `AddRenderer(...)`
 
-Следующий фрагмент относится к code-behind компонента на базе `BlazorReactiveComponent`. Это дополнение к [настройке окна](/ru/scripting/blazor-windows/getting-started), а не самостоятельный `.cs`-класс. Добавьте `Styles.css` и `Script.js` в ресурсы проекта. Для атрибута нужен `Microsoft.AspNetCore.Components`:
+Следующий фрагмент относится к code-behind компонента на базе `BlazorReactiveComponent`. Это дополнение к [настройке окна](/ru/scripting/blazor-windows/getting-started), а не самостоятельный `.cs`-класс. Добавьте `Styles.css` и `Script.js` в embedded-ресурсы корня проекта. В примере полные manifest names — `MyScript.Styles.css` и `MyScript.Script.js`. Замените `MyScript` фактическим префиксом ресурсов своего проекта; он не обязан совпадать с именем DLL. Как проверить имя, описано в [ресурсах скрипта](/ru/scripting/embedded-resources). Для атрибута нужен `Microsoft.AspNetCore.Components`:
 
 ```csharp
 [Inject] public PoeShared.Blazor.Services.IJsPoeBlazorUtils PoeBlazorUtils { get; init; }
@@ -256,15 +256,15 @@ public void RunSingleHotkey()
 protected override async Task OnInitializedAsync()
 {
     await base.OnInitializedAsync();
-    await PoeBlazorUtils.LoadCss("Styles.css");
+    await PoeBlazorUtils.LoadCss("MyScript.Styles.css");
 }
 
 protected override async Task OnAfterFirstRenderAsync()
 {
     await base.OnAfterFirstRenderAsync();
-    // Script.js должен экспортировать только поведение этого компонента.
+    // Это классический JS-файл без синтаксиса export ES-модуля.
     // Для нового кода предпочтителен импорт ES-модуля с явной очисткой.
-    await PoeBlazorUtils.LoadScript("Script.js");
+    await PoeBlazorUtils.LoadScript("MyScript.Script.js");
 }
 ```
 
@@ -327,7 +327,7 @@ using EyeAuras.Repl;
 
 - `Script.csx` компилируется особым образом
 - верхний уровень скрипта не полностью совпадает с телом обычного метода
-- без отдельного scope такие конструкции могут не скомпилироваться
+- явный блок задаёт понятную границу освобождения ресурсов конкретного запуска
 
 Внутри обычных методов, local function, `try`, `if`, `while` и других блоков `using` обычно работает без проблем.
 

@@ -46,7 +46,7 @@ using EyeAuras.Memory.Scaffolding;
 {
     using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
     using var kernel32 = process.MemoryOfModule("kernel32.dll");
-    Log.Info($"Base: 0x{kernel32.BaseAddress.ToInt64():X}, размер: {kernel32.Size}");
+    Log.Info($"Base: 0x{kernel32.BaseAddress:X}, размер: {kernel32.MemorySize}");
 }
 ```
 

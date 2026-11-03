@@ -26,79 +26,93 @@ dateCreated: 2025-06-27T21:35:22.410Z
 ## Пример кода
 
 ```csharp
+
 //this is a simple 2D aimbot + ESP for https://aimtrainer.io/target-tracking
+
+using System.Drawing;
+using System.Linq;
+using EyeAuras.Blazor.Controls.ScreenOverlay;
+using EyeAuras.OpenCVAuras.Scripting;
+using EyeAuras.Roxy.Api;
+using EyeAuras.Shared.Scripting;
+using EyeAuras.Shared.Services;
+using PoeShared.Scaffolding;
 
 //we're going to work with a specific window, lets find it
 var targetWindow = GetService<IWindowSelector>().GetWindow("Tracking - Aim Trainer");
 
-//this API is used to do Computer Vision stuff (image/text/color/ml search)
-var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForWindow(targetWindow)
-    .AddTo(ExecutionAnchors); //we're interested in this specific window
-
-//this API is used to generate mouse movements
-var sendInput = GetService<ISendInputScriptingApi>();
-sendInput.TargetWindow = null; // ниже передаём экранные координаты
-
-//pre-trained model we're going to use to find the target
-var mlModelPath = @"https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
-
-var osd = GetService<IOnScreenCanvasScriptingApi>()
-    .Create()
-    .AddTo(ExecutionAnchors);
-
-
-var windowRect = osd.AddRectangle()
-    .WithBorderColor(Color.Purple)
-    .WithBackground(Color.Transparent);
-var targetRect = osd.AddRectangle()
-    .WithBorderColor(Color.Red)
-    .WithBackground(Color.Transparent);
-
-while (!cancellationToken.WaitHandle.WaitOne(10))
 {
-    if (!targetWindow.IsForeground)
+    //this API is used to do Computer Vision stuff (image/text/color/ml search)
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
+        .ForWindow(targetWindow); // selected window
+
+    //this API is used to generate mouse movements
+    var sendInput = GetService<ISendInputScriptingApi>();
+    sendInput.TargetWindow = null; // ниже передаём экранные координаты
+
+    //pre-trained model we're going to use to find the target
+    var mlModelPath = @"https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
+
+    using var osd = GetService<IOnScreenCanvasScriptingApi>()
+        .Create();
+
+    try
     {
-        //do nothing if the window is not in the foreground
-        continue;
+        using var windowRect = osd.AddRectangle()
+            .WithBorderColor(Color.Purple)
+            .WithBackground(Color.Transparent);
+        using var targetRect = osd.AddRectangle()
+            .WithBorderColor(Color.Red)
+            .WithBackground(Color.Transparent);
+
+        while (!cancellationToken.WaitHandle.WaitOne(10))
+        {
+            if (!targetWindow.IsForeground)
+            {
+                //do nothing if the window is not in the foreground
+                continue;
+            }
+            //this method will be called many-many times per second, until OSD is closed
+            windowRect.WithRect(targetWindow.DwmFrameBounds);
+
+            //get predictions from the model
+            var result = cv.MLSearchRaw(mlModelPath);
+            if (!result.Detected.Predictions.Any())
+            {
+                //not found
+                continue;
+            }
+
+            var currentPosition = result //WindowImageProcessedEventArgs
+              .Detected //get detection results
+              .Predictions //get predictions
+              .First() //more specifically, first one
+              .Rectangle //get bounding box of that prediction IN LOCAL(aka World) coordinates
+              .Transform(result.ViewportTransforms.WorldToScreen); //transform World coordinates to Screen coordinates
+            Log.Info($"Found via ML @ {currentPosition}");
+
+            if (!currentPosition.IsEmpty)
+            {
+                //found the image
+                var targetCenter = currentPosition.ToWinRectangle().Center();
+
+                targetRect.WithRect(currentPosition.ToWinRectangle());
+
+                sendInput.MouseMoveTo(targetCenter);
+                sendInput.MouseClick();
+            }
+        }
     }
-    //this method will be called many-many times per second, until OSD is closed
-    windowRect.WithRect(targetWindow.DwmFrameBounds);
-
-    //get predictions from the model
-    var result = cv.MLSearchRaw(mlModelPath);
-    if (!result.Detected.Predictions.Any())
+    finally
     {
-        //not found
-        continue;
-    }
-
-    var currentPosition = result //WindowImageProcessedEventArgs
-      .Detected //get detection results
-      .Predictions //get predictions
-      .First() //more specifically, first one
-      .Rectangle //get bounding box of that prediction IN LOCAL(aka World) coordinates
-      .Transform(result.ViewportTransforms.WorldToScreen); //transform World coordinates to Screen coordinates
-    Log.Info($"Found via ML @ {currentPosition}");
-
-    if (!currentPosition.IsEmpty)
-    {
-        //found the image
-        var targetCenter = currentPosition.ToWinRectangle().Center();
-
-        targetRect.WithRect(currentPosition.ToWinRectangle());
-
-        sendInput.MouseMoveTo(targetCenter);
-        sendInput.MouseClick();
+        osd.Clear();
     }
 }
-
-
 ```
 
 `MLSearchRaw` возвращает оболочку с `Detected.Predictions` и матрицами захвата. Без явных порогов используются confidence 30% и IoU 40%; первая запись не означает гарантированно лучшую или правильную цель. Пустой список — цель не найдена, ошибка загрузки/захвата — отдельная ошибка. Прямоугольник переводится из координат захвата через `WorldToScreen` до отправки ввода. При ненулевом `TargetWindow` оконная обёртка ввода сделала бы ещё одно преобразование.
 
-Скрипт меняет реальный курсор и кликает только при активном учебном окне. Между проверкой активности и кликом окно может измениться. Остановка проверяется между итерациями/кадрами; синхронное распознавание и уже начатый ввод токен не прерывает. CV и оверлей привязаны к `ExecutionAnchors`; `Captured` и изображения результата заимствованы, освобождать их отдельно нельзя.
+Скрипт меняет реальный курсор и кликает только при активном учебном окне. Между проверкой активности и кликом окно может измениться. Остановка проверяется между итерациями/кадрами; синхронное распознавание и уже начатый ввод токен не прерывает. Прямоугольники освобождаются при выходе из `try`; затем `finally` очищает canvas, пока прокси ещё подключён, и внешняя область `using` освобождает canvas и CV; `Captured` и изображения результата заимствованы, освобождать их отдельно нельзя.
 
 ## Дальше
 
