@@ -103,6 +103,12 @@ instance. Starting another Download clears the previous association; successful
 preparation replaces it. Apply requires the same target reference and forwards
 the retained token with its current reporter and cancellation token to the supplied
 service, without resolving or preparing again, and completes with that service's Task.
+For the stock Share protocol, an explicit Download retry prepares the same selected
+pack/revision again and obtains a fresh artifact URL and SHA-256 together. A failed
+fetch or hash verification never produces a prepared token or enables Apply; retry
+does not reuse the previous artifact descriptor or choose a newer revision. There
+is no automatic retry loop. After successful preparation, remote artifact removal
+or republication does not change the retained local payload used by Apply.
 The application owner supplies operation and source serialization. This forwarding
 does not confer acceptance on author code. Staged files and the generic
 `ReadyToApply` projection alone do not establish helper ownership or successful installation.
