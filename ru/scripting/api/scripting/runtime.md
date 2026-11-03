@@ -279,3 +279,12 @@ Start/Stop. Для небольшой утилиты прямой вызов к�
 - `nuget/imgui-sdk.md`
 - `nuget/frida-sdk.md`
 Контракты — EyeAuras `20fd3d4`, PoeEye `0e02c98`; точные сигнатуры и состав host сверяйте с SDK/XML своей версии.
+
+## Объектный Action и Trigger
+
+Класс с наследованием от `CsharpScriptActionExecutor` или `CsharpScriptTriggerExecutor` получает возможности через базовый класс и внедрение зависимостей. Обычный helper такого доступа не имеет.
+
+- [Действие отдельным классом](../auras/actions) — `protected override Task Execute(CancellationToken)`, ожидаемый вызов `Run` и восстановление временного значения.
+- [Условие отдельным классом](../auras/triggers) — `protected override Task<bool?> Execute(CancellationToken)`, возврат текущей оценки и повторные оценки со стороны host.
+
+В этих примерах показаны оба файла: класс `.cs` и явный вызов из `Script.csx`. Наличие класса в проекте не заменяет описание точки входа и её времени жизни.

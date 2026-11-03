@@ -106,6 +106,16 @@ Use this shape when practical:
 ## Related Maps
 ```
 
+## Russian Operation Guides
+
+The Russian scripting documentation includes focused operation guides for shared infrastructure:
+
+- [Blazor JS and DOM operations](../../ru/scripting/api/core/blazor-js-operations) — clipboard, downloads, focus, selection, DOM inspection and registration ownership.
+- [Configuration operations](../../ru/scripting/api/core/configuration-operations) — serialization, editable copies, change observation and persistence.
+- [Script file provider operations](../../ru/scripting/api/scripting/file-provider-operations) — reading, listing and composing resource sources.
+
+These links identify the available Russian guides; they do not imply an English translation.
+
 ## Domain Maps
 
 - `core/eyeauras-structure.md` - product structure, Aura Tree, contexts,

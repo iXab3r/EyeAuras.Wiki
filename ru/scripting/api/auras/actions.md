@@ -27,6 +27,52 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 `Execute` и `ExecuteAsync` этой базовой реализации запрещены на UI-потоке. Наличие `Task` не означает автоматический перенос на другой поток. Для запуска списков ауры из C# Action используйте [IAuraAccessor](../IAuraAccessor); это другая операция, чем вызов одного компонента. Для простого нажатия из скрипта используйте [SendInput](../ISendInputScriptingApi).
 
+## Выполнить действие в отдельном классе
+
+Для действия с собственными методами используйте `CsharpScriptActionExecutor` из `EyeAuras.CsScriptAuras.Actions.CsharpScript`. Его точка выполнения — `protected override Task Execute(CancellationToken cancellationToken)`. Доступные через базовый класс `Variables`, `AuraTree`, `Context` и `Log` относятся к внедрённому контексту; это не обычные глобальные переменные C#.
+
+Пример временно выставляет локальную булеву переменную `busy` и возвращает её прежнее значение после ожидаемой работы. Перед запуском создайте такую переменную в текущей ауре. Добавьте в проект `PreparePanel.cs`:
+
+```csharp
+using System.Threading;
+using System.Threading.Tasks;
+using EyeAuras.CsScriptAuras.Actions.CsharpScript;
+
+public sealed class PreparePanel : CsharpScriptActionExecutor
+{
+    protected override async Task Execute(CancellationToken cancellationToken)
+    {
+        var busy = Variables.Get<bool>("busy");
+        var previous = busy.Value;
+        busy.Value = true;
+        try
+        {
+            await Task.Delay(250, cancellationToken);
+            Log.Info("Подготовка завершена");
+        }
+        finally
+        {
+            busy.Value = previous;
+        }
+    }
+}
+```
+
+В `Script.csx` C# Action явно создайте исполнителя через контейнер текущего скрипта и дождитесь его:
+
+```csharp
+{
+    using var action = GetService<PreparePanel>();
+    await action.Run(cancellationToken);
+}
+```
+
+`Run` вызывает `Execute` и связывает токен вызова с токеном самого исполнителя. При штатном завершении или отмене `finally` возвращает прежнее значение `busy`. Пример восстанавливает значение заранее существующей локальной записи; он не сохраняет отсутствие записи или происхождение унаследованного значения. Не используйте такую временную запись как межпоточный lock.
+
+Наличие файла класса само по себе не является показанным запуском: точку входа оставляйте явной. Не подменяйте `GetService` на `new PreparePanel()`: базовый класс требует контекст и сервисы. Исполнитель здесь создаётся для одной ожидаемой операции и освобождается в её блоке; не освобождайте таким способом заимствованные singleton-сервисы host.
+
+Контракт сверён с EyeAuras `20fd3d424d886f6c99b979536a148774d289d110`: [CsharpScriptActionExecutor](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.CsScriptAuras/Actions/CsharpScript/CsharpScriptActionExecutor.cs), [CsharpScriptExecutor](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.CsScriptAuras/UserSpace/CsharpScriptExecutor.cs).
+
 ## API
 
 - `AuraActionBase<TProperties>` — базовый класс для actions.

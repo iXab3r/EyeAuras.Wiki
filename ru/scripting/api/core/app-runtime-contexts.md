@@ -104,3 +104,9 @@ public sealed class Worker
 - [app-modules](app-modules)
 - [eyeauras-structure](eyeauras-structure)
 - [blazor-windows](../windows-subsystems/blazor-windows)
+
+## Выбрать контекст для готовой операции
+
+Для [JS/DOM](blazor-js-operations) используйте внедрённый сервис в Razor после появления элементов. Для [сериализации](configuration-operations) верхнеуровневый C# Action получает IConfigSerializer через GetService, а helper принимает его явно. [Файловый провайдер](../scripting/file-provider-operations) отделяет заимствованный сервис от созданного вызывающим потока.
+
+Наследники [CsharpScriptActionExecutor](../auras/actions) и [CsharpScriptTriggerExecutor](../auras/triggers) — отдельный случай: зависимости предоставляет их базовый класс и контейнер. Это не основание использовать Variables или Log как глобальные имена в обычном C# классе.
