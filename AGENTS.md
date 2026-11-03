@@ -10,13 +10,42 @@ dateCreated: 2026-03-31T00:13:33.096Z
 
 # EyeAuras.Wiki instructions
 
-These instructions apply to everything under `Submodules/EyeAuras.Wiki`.
+These instructions apply to the EyeAuras.Wiki repository, whether opened as a standalone
+checkout or as a submodule. Resolve paths below from this repository root. Applicable
+subtree AGENTS.md files add domain guidance.
+
+## Shared instructions and independent review
+
+AGENTS.md and the linked Markdown guides are canonical across current harnesses. Use
+native AGENTS.md loading when enabled and not overridden; otherwise supply the same files
+explicitly. Do not add a CLAUDE.md copy/import shim or pointer-only TOML registration.
+Native adapters are justified only by actual model/tool controls.
+
+Start every delegated architect or reviewer with no parent conversation or previous-task
+history. With spawn_agent, use fork_turns="none"; elsewhere use an equivalent fresh session.
+Supply one narrow question, the absolute repository root, applicable guides, goal, accepted
+constraints, scope/exclusions, acceptance criteria and evidence locations. Reviews identify
+exact base/head/target. Let the agent inspect relevant evidence and form its own perspective;
+do not forward the author's reasoning, conversation summary, desired verdict or earlier
+review conclusions. Label accepted decisions separately from proposals/unverified claims.
+
+Use a new completed-diff reviewer distinct from the author and earlier design/audit
+participants. Reuse it for fixes within the same review, identifying the final state.
+Reviewers remain read-only, including Git and external systems; the lead records findings
+and performs authorized writes. Report actual checks and limits. Role adoption grants no
+extra authority; coordinate disjoint writes when delegation is authorized.
+
+For instruction-only changes, check the scoped diff, links, frontmatter and whitespace.
+Static checks do not prove live Wiki rendering, synchronization or publication. Keep existing
+publication metadata and translation scope; instruction maintenance does not start a
+translator, Wiki synchronization, service action or announcement.
+New branches default to `bugfix/`; preserve explicitly requested or existing owned names.
 
 ## API Discovery Docs
 
 Most AI-first API documentation lives under `/scripting/api`.
 
-Start with `/scripting/api/AGENTS.md` when working on scripting APIs, SDK-facing
+Start with [scripting/api/AGENTS.md](scripting/api/AGENTS.md) when working on scripting APIs, SDK-facing
 examples, mini-apps, optional NuGet packages, windows/OSD/input, memory,
 computer vision, ML, reverse-engineering, auras, triggers, actions, overlays, or
 recipes. That file is the routing map for API discovery docs and should be kept
@@ -133,7 +162,12 @@ Rules:
 
 ## Technical/internal files
 
-Technical files such as `AGENTS.md` and similar workflow/instruction documents are treated differently from normal published wiki pages.
+Internal workflow/instruction files are treated differently from normal published wiki pages.
+The existing `scripting/api/**/AGENTS.md` discovery maps and their Russian counterparts
+also serve as published API documentation. Preserve their URLs, publication metadata and
+language counterparts; do not unpublish, delete or translate them solely because their
+filename is AGENTS.md. The rules below apply to internal-only guidance such as this root
+file and `ai-writing-style-state.md`.
 
 Rules:
 
@@ -262,7 +296,9 @@ Use decimal notation only for normal human-facing counts or values where decimal
 ## Working with translations
 
 - English root pages are the default source unless the task clearly starts from Russian content.
-- When both English and Russian versions exist, treat the **newer** one as the golden source.
+- Honor an explicitly selected source language/page. Otherwise use the newer substantive
+  authored content as the source, checking page history and actual changes; an updated
+  frontmatter date or translation-sync commit alone does not establish source authority.
 - When syncing an older counterpart to a newer one, do **not** rewrite the older document from scratch unless that is truly necessary.
 - Prefer incremental sync:
   - add missing sections
@@ -281,7 +317,7 @@ Use decimal notation only for normal human-facing counts or values where decimal
 ## Writing style
 
 - Prefer the Russian wiki style as the main writing reference when a Russian version exists.
-- Use `ai-writing-style-state.md` as the evolving style snapshot derived from non-AI-authored documents.
+- Use `ai-writing-style-state.md` as the evolving style snapshot derived from established reference pages; do not infer their authorship from tone alone.
 - Follow that style when creating new translated pages or syncing older ones.
 - In Russian pages, avoid gratuitous English words. Keep English only for real product names, UI labels, API names, file formats, code identifiers, commands, and search terms that users must recognize in the UI. Otherwise prefer natural Russian terms: for example `руководство` over `tutorial`, `набор данных` over `dataset`, `метки` over `labels`, `задачи` over `tasks`, `предсказания` over `predictions`, and `авторазметка` over `auto annotation`.
 - Treat brevity as a hard requirement. If a point is already clear, do not restate it in nearby sections.
