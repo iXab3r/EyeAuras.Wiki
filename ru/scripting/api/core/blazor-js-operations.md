@@ -142,7 +142,9 @@ await Js.RemoveClass(field, "selected");
 | `RegisterWindowTitleBarGestures<THandler>(ElementReference, DotNetObjectReference<THandler>, double? dragThresholdPixels = null)` | Возвращает `JsWindowTitleBarGestureRef`; ссылка на callback также принадлежит вызывающему |
 | `AddRootComponent(string elementId, string componentIdentifier, object initialParameters = default)` | Возвращает `IDynamicRootComponent`; освобождайте созданный компонент вместе с владельцем |
 
-Для callback передайте объект с нужным JS-invokable методом. Идентификатор динамического компонента и его metadata должны быть зарегистрированы в host до создания; наличие обычного Razor-типа не заменяет регистрацию. Эти операции предназначены для интеграции компонента с host, а не для неограниченного создания глобальных обработчиков.
+Для keyboard hook передайте объект с указанным JS-invokable методом. У `RegisterWindowTitleBarGestures` имена фиксированы: `HandleTitleBarDragStart`, `HandleTitleBarDoubleClick` и `HandleTitleBarContextMenu`. Их параметры должны совпадать с вызовами JS-модуля конкретного host. Строка про жесты заголовка — навигация по контракту и владению регистрацией, а не готовая интеграция заголовка: сигнатуры callback и полный пример его подключения здесь не приводятся.
+
+Идентификатор динамического компонента и его metadata должны быть зарегистрированы в host до создания; наличие обычного Razor-типа не заменяет регистрацию. Эти операции предназначены для интеграции компонента с host, а не для неограниченного создания глобальных обработчиков.
 
 У `JsBrowserShortcutSuppressionOptions` есть `Shortcuts`, `AllowCtrlAInEditable`, `AllowSelector`, `PreventDefault` и `StopPropagation`. По умолчанию Ctrl+A сохраняет обычное поведение в редактируемых элементах; поддеревья с `data-poe-browser-shortcuts="allow"` исключены, `PreventDefault` включён, `StopPropagation` выключен. Это регистрация в DOM текущего браузера, а не глобальный keyboard hook ОС.
 

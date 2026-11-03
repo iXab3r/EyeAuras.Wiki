@@ -73,21 +73,29 @@ public static class HelpResources
 
 ## Перечислить каталог
 
-В C# Action с подключёнными ресурсами:
+Сначала перечислите корень провайдера, чтобы увидеть доступные имена каталогов. В C# Action с подключёнными ресурсами:
 
 ```csharp
 using EyeAuras.Repl;
+using PoeShared.Scaffolding;
 
 var files = GetService<IScriptFileProvider>();
-var directory = files.GetDirectoryContents("docs");
+var directoryPath = "";
+var directory = files.GetDirectoryContents(directoryPath);
 if (directory.Exists)
 {
     foreach (var entry in directory)
     {
-        Log.Info($"{entry.Name}, каталог: {entry.IsDirectory}");
+        Log.Info($"{entry.GetSubpath()}, каталог: {entry.IsDirectory}");
     }
 }
+else
+{
+    Log.Info($"Каталог '{directoryPath}' не найден");
+}
 ```
+
+Для `ScriptEmbeddedResourceFileProvider` каталог строится из полного manifest name. Например, `Bot.docs.help.txt` проецируется в `Bot/docs/help.txt`; каталог этого файла — `Bot/docs`. Подставьте такой путь в `directoryPath` для перечисления его содержимого. Короткий `GetFileInfo("docs/help.txt")` может найти тот же файл по уникальному суффиксу, но это не делает `GetDirectoryContents("docs")` существующим каталогом. Если провайдеров несколько, учитывайте проекцию каждого источника.
 
 `GetDirectoryContents` возвращает записи каталога, а не рекурсивный список всех файлов. У composite содержимое объединяется; для одинаковых `Name` остаётся первая запись в порядке провайдеров.
 
