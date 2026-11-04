@@ -27,6 +27,28 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Скрипты работают внутри host-контекста с живыми сервисами и metadata текущей ауры.
 - SDK references дают доступ к символам, но живые host services по-прежнему зависят от runtime context и загруженных модулей.
 
+## Выбрать объект для своей задачи
+
+Если нужно найти ауру и прочитать её состояние из скрипта, начинайте с
+[IAuraTreeScriptingApi](../IAuraTreeScriptingApi) и возвращаемого accessor.
+Если пишете модуль, которому нужны triggers, overlays или списки actions
+текущей ауры, используйте переданный `IAuraContext`. Это разные уровни:
+accessor удобен скрипту, runtime-контекст связывает объекты приложения.
+
+`IAuraContext.IsActive` имеет тип `bool?`: не подменяйте неизвестное состояние
+безусловным `false` в логике приложения. `IsReady` описывает готовность ауры,
+а унаследованный `IEyeContext.IsLoaded` — загрузку владельца. Это разные
+сигналы. Фоновому сервису, который показывает результат пользователю,
+нужно учитывать выгрузку владельца, а не только своё локальное состояние.
+
+У `IFolderContext` общий базовый `IEyeContext`, но нет aura-специфичных списков
+`OnEnterActions`, `WhileActiveActions`, `OnExitActions`. Не приводите контекст
+папки к контексту ауры только ради доступа к этим коллекциям.
+
+Эта карта объясняет выбор уровня API по контрактам EyeAuras `20fd3d4`.
+Она не задаёт порядок исполнения каждого trigger или action; детали операции
+ищите в [карте actions](../auras/actions) или [triggers](../auras/triggers).
+
 ## Основные API
 
 - `IEyeContext` - общий runtime context для объекта EyeAuras.
@@ -68,8 +90,8 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 ## Связанные карты
 
-- `scripting/runtime.md`
-- `auras/overview.md`
-- `auras/entities.md`
-- `core/app-runtime-contexts.md`
-- `core/deployment.md`
+- [runtime](../scripting/runtime)
+- [overview](../auras/overview)
+- [entities](../auras/entities)
+- [app-runtime-contexts](app-runtime-contexts)
+- [deployment](deployment)

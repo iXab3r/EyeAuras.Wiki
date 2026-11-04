@@ -8,9 +8,30 @@ editor: markdown
 dateCreated: 2026-04-16T17:05:00.000Z
 ---
 
-# `LocalProcess`
+# LocalProcess
 
 `LocalProcess` это основной user-mode backend в EyeAuras. Если нужен самый прямой путь к локальному процессу через WinAPI, почти всегда начинать стоит с него. По духу это тот же внешний сценарий, что и в [External Memory Hack](https://gamehacking.academy/pages/3/02/), только с более удобным верхним слоем.
+
+## Получить модули выбранного процесса
+
+В C#-скрипте EyeAuras с загруженным `MemoryModule` можно открыть текущий процесс и вывести имена модулей:
+
+```csharp
+using System.Diagnostics;
+using EyeAuras.Memory;
+
+{
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    foreach (var module in process.GetProcessModules())
+        Log.Info($"{module.ModuleName}: 0x{module.BaseAddress:X}");
+}
+```
+
+Результат — снимок модулей процесса EyeAuras. Для другой цели используйте выбранный PID; поиск по имени выбирает первое совпадение и не различает несколько одинаковых процессов.
+
+В EyeAuras `20fd3d4` `LocalProcess` — статический фасад metadata-сборки, возвращающий `ILocalProcess`. Реальный builder регистрирует `MemoryModule`. В embedded-хосте нужен `UseMemory()` и завершённый `EnsureReadyAsync()` после запуска WPF/Prism runtime; ссылка на SDK сама builder не создаёт.
+
+Reader владеет лениво открываемыми OS handle и закрывает их при `Dispose`. Его `Memory` заимствуется на время жизни reader. `IsValid` проверяет состояние reader/процесса, но не доступность конкретного адреса. Чтение и перечисление синхронны; токен отмены их не прерывает. Нужные права, разрядность и успешный `OpenProcess` проверяются в реальном окружении.
 
 ## Когда подходит, а когда нет
 
@@ -36,10 +57,12 @@ dateCreated: 2026-04-16T17:05:00.000Z
 using System.Diagnostics;
 using EyeAuras.Memory;
 
-using var byPid = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-using var byName = LocalProcess.ByProcessName("notepad");
+{
+    using var byPid = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    using var byName = LocalProcess.ByProcessName("notepad");
 
-var processes = LocalProcess.GetProcesses();
+    var processes = LocalProcess.GetProcesses();
+}
 ```
 
 ## Что он даёт
@@ -65,17 +88,19 @@ var processes = LocalProcess.GetProcesses();
 using EyeAuras.Memory;
 using EyeAuras.Memory.Scaffolding;
 
-using var process = LocalProcess.ByProcessName("game");
-using var moduleMemory = process.MemoryOfModule("game.exe");
+{
+    using var process = LocalProcess.ByProcessName("game");
+    using var moduleMemory = process.MemoryOfModule("game.exe");
 
-var sections = moduleMemory.ReadSections();
-var imports = moduleMemory.ReadImports();
-var exports = moduleMemory.ReadExports();
+    var sections = moduleMemory.ReadSections();
+    var imports = moduleMemory.ReadImports();
+    var exports = moduleMemory.ReadExports();
+}
 ```
 
 Если потом хотите перейти от внешнего чтения к более активной internal-практике, полезны [DLL Memory Hack](https://gamehacking.academy/pages/3/03/), [DLL Injector](https://gamehacking.academy/pages/7/01/) и [Code Caves & DLL's](https://gamehacking.academy/pages/3/04/).
 
-## Где `NativeLocalProcess` лучше
+## Где NativeLocalProcess лучше
 
 `NativeLocalProcess` нужен не вместо `LocalProcess`, а когда процесс уже открыт нужным вам способом и вы хотите положить Memory API поверх готового handle.
 

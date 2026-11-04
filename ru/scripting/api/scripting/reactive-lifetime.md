@@ -7,7 +7,7 @@ tags: scripting, api, ai, disposable, reactive, lifetime, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
-# Карта по reactive lifetime
+# Время жизни ресурсов и реактивное состояние
 
 Справочная карта для классов, которым в скриптах и mini-apps нужны `IDisposable`, уведомления об изменении свойств или и то, и другое.
 
@@ -38,64 +38,80 @@ dateCreated: 2026-04-22T00:00:00.000Z
 - `RaiseAndSetIfChanged(ref field, value)` — helper для сеттера в ручных свойствах.
 - `DisposableReactiveObjectWithLogger` — та же модель времени жизни плюс лениво создаваемый type logger.
 
-## Типовые сценарии
+## Освободить подписку вместе с её владельцем
 
-### Владение ресурсами во вспомогательном объекте
+В `Script.csx` создадим объект, который наблюдает изменения списка. Здесь
+нет таймера или фоновой задачи: работа происходит при добавлении элементов.
+В обычном `.cs`-классе нужны те же `using` и ссылка на PoeShared.
+
+```csharp
+using System;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Reactive.Disposables;
+using PoeShared.Logging;
+using PoeShared.Scaffolding;
+
+{
+    var items = new ObservableCollection<string>();
+    using var observer = new ItemObserver(items, Log);
+    items.Add("Первый");
+    items.Add("Второй");
+}
+
+public sealed class ItemObserver : DisposableReactiveObject
+{
+    public ItemObserver(ObservableCollection<string> items, IFluentLog log)
+    {
+        NotifyCollectionChangedEventHandler handler = (_, _) =>
+            log.Info($"Элементов: {items.Count}");
+        items.CollectionChanged += handler;
+        Disposable.Create(() => items.CollectionChanged -= handler).AddTo(Anchors);
+    }
+}
+```
+
+В журнал попадут количества 1 и 2. Выход из блока вызывает `Dispose()`
+наблюдателя, а его `Anchors` снимает обработчик. Сам список передан в
+пользование и не становится собственностью наблюдателя.
+
+Для ресурса на весь Run вместо локального `using` можно использовать
+`.AddTo(ExecutionAnchors)`. После возврата тела скрипта эти anchors очищаются,
+даже если отмены не было. `Anchors` песочницы живёт дольше отдельного Run;
+`Anchors` вашего объекта принадлежит только этому объекту. Выберите одного
+владельца и не добавляйте заимствованные общие сервисы в его список очистки.
+
+## Уведомить UI об изменении состояния
+
+`DisposableReactiveObject` реализует `INotifyPropertyChanged`, но сам по себе
+не переписывает setter. В проектах с настроенным PropertyChanged.Fody или
+скриптовым weaver для простого изменяемого состояния используйте auto-property:
 
 ```csharp
 using PoeShared.Scaffolding;
 
-sealed class AttachedWindow : DisposableReactiveObject
+public sealed class ReaderState : DisposableReactiveObject
 {
-    private readonly ReProcess reProcess;
-
-    public AttachedWindow(IProcess process, ReProcess reProcess, IWindowHandle window)
-    {
-        this.reProcess = reProcess;
-
-        process.AddTo(Anchors);
-        reProcess.AddTo(Anchors);
-        window.AddTo(Anchors);
-    }
+    public bool IsAttached { get; set; }
 }
 ```
 
-### Добавление состояния для UI binding
+Это объявление модели, а не самостоятельное окно. Чтобы показать состояние,
+нужно создать экземпляр, передать его UI как модель и связать отображение
+с `IsAttached`: [настройка Blazor](/ru/scripting/api/core/blazor). Без
+настроенного weaving auto-property не отправит уведомление. Ручной setter
+нужен, если при присваивании есть дополнительная логика; не добавляйте его
+только ради обхода настройки weaver.
 
-```csharp
-sealed class ReaderState : DisposableReactiveObject
-{
-    private bool isAttached;
-
-    public bool IsAttached
-    {
-        get => isAttached;
-        set => RaiseAndSetIfChanged(ref isAttached, value);
-    }
-}
-```
-
-Если в проекте используется weaver скриптового runtime или Fody, уведомления могут работать и для простых auto-properties. Но если поведение должно быть очевидно из обычного C# кода без знания про weaver, лучше использовать явные сеттеры.
-
-### Осторожно с базовым классом, у которого есть logger
-
-```csharp
-sealed class BackgroundReader : DisposableReactiveObjectWithLogger
-{
-    public void Start()
-    {
-        Log.Info("Reader started");
-    }
-}
-```
-
-Для helper-классов, которыми владеет скрипт, чаще лучше передавать script `IFluentLog`, если лог должен оставаться привязанным к сессии пользовательского скрипта.
+Уведомление не переносит выполнение на UI-поток. Планирование UI и обновление
+компонента остаются отдельной обязанностью. `DisposableReactiveObjectWithLogger`
+даёт логгер типа; если нужен журнал скрипта, передайте `IFluentLog` как выше.
 
 ## Лучше использовать
 
 - `DisposableReactiveObject` вместо ручного `IDisposable`, если класс владеет несколькими disposable-ресурсами.
 - `.AddTo(Anchors)` для подписок, окон, readers, таймеров, сессий и дочерних объектов.
-- Явный `RaiseAndSetIfChanged`, если поведение уведомлений должно быть понятно прямо по C# коду.
+- Auto-properties с настроенным weaver для простого состояния; ручной setter для дополнительной логики.
 - `DisposableReactiveObjectWithLogger` только тогда, когда type logger действительно подходит для этой диагностической области.
 
 ## Чего избегать
@@ -139,3 +155,4 @@ sealed class BackgroundReader : DisposableReactiveObjectWithLogger
 - `core/app-runtime-contexts.md`
 - `windows-subsystems/blazor-windows.md`
 - `nuget/imgui-sdk.md`
+Контракты — EyeAuras `20fd3d4`, PoeEye `0e02c98`; сигнатуры и настройку weaving сверяйте с SDK/XML своей версии.

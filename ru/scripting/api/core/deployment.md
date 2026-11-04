@@ -41,6 +41,27 @@ dateCreated: 2026-04-22T00:00:00.000Z
 - Portable pack: распространять упакованную папку приложения или ZIP, где программа, config и контент идут вместе.
 - Mini-app: упаковать кастомный пользовательский сценарий, в котором EyeAuras в основном скрыт за UI автора.
 
+## Выбрать состав распространяемого pack
+
+Для обычного обмена начните с `Export` нужной папки в EyeAuras, выберите
+сохранение или публикацию, затем проверьте результат через `Import` в
+отдельном пользовательском окружении. Ссылка на опубликованный pack и
+подготовленная portable-папка — разные результаты. Пошаговый UI описан в
+[Export and Import](/ru/features/export-import) и [Packs](/ru/features/packs).
+
+В коде упаковки приложения настройки задаёт `PackAurasConfig`
+(`EyeAuras.Shared.Sharing`). В срезе `20fd3d4` исходные значения такие:
+`DistributionPolicy = Any`, `ScriptCompilationMode = ScriptOnly`,
+`ScriptProtectionMode = None`, `PackingMode = Embed`,
+`CompatibilityType = CurrentVersion`. Поэтому исходники не исчезают просто
+от того, что вы выбрали packed download.
+
+Чтобы распространять только подготовленную версию без текста скрипта,
+выберите `PackedOnly` и `BinariesOnly`; protection выбирается отдельно.
+После сборки проверьте состав полученного pack и запуск на целевой версии.
+Эти настройки не являются вызовом упаковщика: создание `PackAurasConfig`
+в произвольном скрипте само по себе ничего не экспортирует.
+
 ## Настройки pack
 
 - `PackDistributionPolicy.Any` — можно предлагать и import, и packed download.
@@ -63,7 +84,10 @@ dateCreated: 2026-04-22T00:00:00.000Z
 
 ## Запуск mini-app
 
-Mini-app обычно запускаются с аргументами EyePad:
+Ниже — схема аргументов EyePad для поставки, которая поддерживает этот
+сценарий. Замените путь на реально экспортированный файл. Поддержку флагов
+и итоговый UI проверяйте в своей версии loader; это не универсальный способ
+запустить любой SDK-проект:
 
 ```text
 EyeAuras.exe --pad --read-only --publish-single-file --ui splashOnly --readiness script --acceptLicense "path/to/Script.json"
@@ -89,13 +113,13 @@ EyeAuras.exe --pad --read-only --publish-single-file --ui splashOnly --readiness
 ## Лицензирование и sublicenses
 
 - Sublicenses — это ключи доступа автора pack для конкретного pack или mini-app.
-- Самому EyeAuras не нужна отдельная пользовательская лицензия для sublicenses; ключи дают доступ к продукту автора.
+- Sublicense относится к продукту автора; условия доступа платформы и конкретного pack проверяйте отдельно.
 - Пользователь может активировать ключ в существующем аккаунте или войти напрямую по ключу.
 - Автор настраивает модель длительности, freezes, количество сессий и опциональную hardware binding.
 - В современных packs доступ нужно запрашивать через `ISublicenseManager.Rent(...)`. Не полагайтесь на старые пассивные проверки вроде чтения `ILicenseAccessor.ShareSublicenses` как на основной механизм.
 - Lease сначала создаётся в состоянии pending и обновляется в фоне. Считайте доступ выданным только когда `ISublicenseLease.IsGranted` равно `true`.
 - Держите lease активным столько, сколько эта логическая сессия должна потреблять доступ.
-- Semi-offline-поведение может сохранять уже выданный доступ при временных разрывах соединения или сбоях, но это не полноценное offline licensing.
+- Не рассчитывайте на автономную выдачу доступа: поведение при потере связи зависит от версии loader и серверной политики.
 
 Для платных mini-app обычное направление по hardening такое:
 
@@ -103,6 +127,14 @@ EyeAuras.exe --pad --read-only --publish-single-file --ui splashOnly --readiness
 - `PackScriptCompilationMode.BinariesOnly`
 - `PackScriptProtectionMode.PerformanceFirst` или `PackScriptProtectionMode.SecurityFirst`
 - custom UI / mini-app flow, если автору нужен больший контроль над onboarding и licensing UX.
+
+## Границы проверки лицензирования
+
+Имена API лицензирования ниже помогают найти контракт в `EyeAuras.Loader.Shared`
+вашей поставки. Поведение сервера, гарантии semi-offline и детали защиты нельзя
+вывести из `PackAurasConfig` и enum. Перед коммерческим распространением
+проверяйте их по reference и работе именно вашей версии; описание параметров
+выше сверено с декларациями EyeAuras `20fd3d4`.
 
 ## API
 
@@ -141,13 +173,13 @@ EyeAuras.exe --pad --read-only --publish-single-file --ui splashOnly --readiness
 
 ## Исходные материалы
 
-- [Export and Import](../../../ru/features/export-import.md)
-- [Packs](../../../ru/features/packs.md)
-- [Mini-app](../../../ru/features/mini-app.md)
-- [EyePad](../../../ru/features/eyepad.md)
-- [C# Script Protection](../../../ru/features/script-protection.md)
-- [Sublicenses](../../../ru/features/sublicenses.md)
-- [Aura Library](../../../ru/aura-library.md)
+- [Export and Import](/ru/features/export-import.md)
+- [Packs](/ru/features/packs.md)
+- [Mini-app](/ru/features/mini-app.md)
+- [EyePad](/ru/features/eyepad.md)
+- [C# Script Protection](/ru/features/script-protection.md)
+- [Sublicenses](/ru/features/sublicenses.md)
+- [Aura Library](/ru/aura-library)
 
 ## Поисковые синонимы
 
@@ -174,9 +206,9 @@ EyeAuras.exe --pad --read-only --publish-single-file --ui splashOnly --readiness
 
 ## Related Maps
 
-- `core/eyeauras-structure.md`
-- `core/app-runtime-contexts.md`
-- `core/configuration-persistence.md`
-- `scripting/runtime.md`
-- `recipes/bot-memory-imgui-interface.md`
-- `recipes/bot-memory-behavior-tree.md`
+- [eyeauras-structure](eyeauras-structure)
+- [app-runtime-contexts](app-runtime-contexts)
+- [configuration-persistence](configuration-persistence)
+- [runtime](../scripting/runtime)
+- [bot-memory-imgui-interface](../recipes/bot-memory-imgui-interface)
+- [bot-memory-behavior-tree](../recipes/bot-memory-behavior-tree)

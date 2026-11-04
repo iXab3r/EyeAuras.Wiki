@@ -7,8 +7,9 @@ tags:
 editor: markdown
 dateCreated: 2024-09-11T21:03:45.385Z
 ---
+# Кликнуть по распознанному слову
 
-## Кликаем на распознанное слово
+Выполните код в `C# Script` EyeAuras рядом с аурой `Test`, содержащей настроенный `Text Search`. Путь `./Test` отсчитывается от текущего контекста дерева. Выберите окно/ROI и OCR-движок в триггере; `HVDK` замените точным текстом нужного сегмента. Ввод использует выбранный доступный симулятор и перемещает настоящий курсор.
 
 1. Создаем ауру, кидаем в нее триггер Text Search
 2. В триггере указываем зону захвата. Важно! Не забываем включить опцию `Include Text Segments` - по умолчанию она выключена ради увеличения производительности
@@ -16,7 +17,8 @@ dateCreated: 2024-09-11T21:03:45.385Z
 4. Копипастим, исправляем параметры поиска слова на желаемые
 
 ```csharp
-var sendInput = GetService<ISendInputUnstableScriptingApi>();
+var sendInput = GetService<ISendInputScriptingApi>();
+sendInput.TargetWindow = null; // ToScreen ниже даёт абсолютные координаты
 
 var ocr = AuraTree.GetTriggerByPath<ITextSearchTrigger>("./Test");
 
@@ -33,7 +35,8 @@ var textToClickOn =
     .Where(x => x.Text == "HVDK") //or any other logic
     .FirstOrDefault();
 if (textToClickOn == default){
-    throw new ArgumentException("Failed to find text segment matching your conditions");
+    Log.Info("Подходящий текстовый сегмент не найден");
+    return;
 }
 
 var textLocationOnScreen = data.ToScreen(textToClickOn.Region);
@@ -42,3 +45,12 @@ Log.Info($"Text: {textToClickOn.Text}, rel: {textToClickOn.Region}, screen: {tex
 sendInput.MouseMoveTo(textLocationOnScreen.Center());
 sendInput.MouseClick();
 ```
+
+
+При совпадении скрипт печатает исходную область и экранный прямоугольник, перемещает курсор в его центр и кликает. `Segments` — сегменты OCR, не обязательно слова; регистр и пробелы в сравнении учитываются. Отключённый `Include Text Segments` не равен отсутствию совпадения. Координаты `Region` локальны для распознанной области; `data.ToScreen` учитывает матрицы именно этого захвата. Изображения результата заимствованы. Триггер из дерева не принадлежит скрипту, освобождать его нельзя. Обновление и ввод синхронные; остановка между ними не отменяет уже начатую операцию.
+
+## Дальше
+
+[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi) · [Ввод](/ru/scripting/api/ISendInputScriptingApi)
+
+Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.

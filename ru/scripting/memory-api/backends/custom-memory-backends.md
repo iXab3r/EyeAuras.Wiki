@@ -8,7 +8,7 @@ editor: markdown
 dateCreated: 2026-04-16T16:45:00.000Z
 ---
 
-# Кастомные `IMemoryBackend` и их цепочки
+# Кастомные IMemoryBackend и их цепочки
 
 `IMemoryBackend` в EyeAuras маленький, и это хорошо: его удобно использовать не только как "финальный reader", но и как слой-декоратор. Поэтому поверх одного backend'а легко навесить статистику, логирование, кэширование или временную трассировку.
 
@@ -24,13 +24,38 @@ MemoryAccessor -> DriverBackend
 MemoryAccessor -> CacheBackend -> StatsBackend -> LoggingBackend -> DriverBackend
 ```
 
+## Временно поставить декоратор над существующей памятью
+
+Если `process` уже принадлежит хосту, передайте его в обычный метод. Сначала остановите параллельные чтения: замена backend не является синхронизированной транзакцией.
+
+```csharp
+static int ReadThroughDecorator(EyeAuras.Memory.IProcess process, long address)
+{
+    var original = process.Memory.Backend;
+    using var tracing = new MyTracingBackend(original);
+    process.Memory.UseMemoryBackend(tracing);
+    try
+    {
+        return process.Memory.Read<int>(address);
+    }
+    finally
+    {
+        process.Memory.UseMemoryBackend(original);
+    }
+}
+```
+
+Полный класс `MyTracingBackend` ниже пока просто перенаправляет вызовы, поэтому результат совпадает с обычным чтением `int`. Добавлять сбор статистики можно в его raw-методы. Он **заимствует** `inner`, а не освобождает чужой reader.
+
+В EyeAuras `20fd3d4` `UseMemoryBackend(IMemoryBackend)` только меняет ссылку. Он не освобождает старый backend и не принимает новый во владение; сам `MemoryAccessor.Dispose()` также не закрывает backend. Восстанавливайте ссылку до освобождения временного декоратора. Представление от `MemoryOfModule` обращается к исходной памяти и увидит подмену, но это не обещание для любого независимо созданного accessor. Адреса raw-вызовов остаются абсолютными; `BaseAddress` не прибавляется автоматически.
+
 ## Две важные точки API
 
 У `IProcessMemory` есть всё, что нужно для такой подмены:
 
 ```csharp
 var currentBackend = process.Memory.Backend;
-process.Memory.UseMemoryBackend(new MyWrappedBackend(currentBackend));
+process.Memory.UseMemoryBackend(new MyTracingBackend(currentBackend));
 ```
 
 После этого новый low-level слой начинает использоваться и для обычного чтения, и для `MemoryOfModule(...)`, и для `ReadExports()`, `ReadImports()`, сигнатур и `code cave`.
@@ -38,6 +63,9 @@ process.Memory.UseMemoryBackend(new MyWrappedBackend(currentBackend));
 ## Минимальный decorator backend
 
 ```csharp
+using System;
+using EyeAuras.Memory;
+
 internal sealed class MyTracingBackend : IMemoryBackend
 {
     private readonly IMemoryBackend inner;
@@ -58,7 +86,8 @@ internal sealed class MyTracingBackend : IMemoryBackend
         return inner.TryWriteMemory(address, source);
     }
 
-    public void Dispose() => inner.Dispose();
+    // В этом варианте inner принадлежит вызывающему коду.
+    public void Dispose() { }
 }
 ```
 
@@ -70,7 +99,7 @@ internal sealed class MyTracingBackend : IMemoryBackend
 - suspicious logging — быстро ловить `null`, near-null, мусорные и подозрительные адреса
 - page cache — уменьшать число дорогих чтений у драйвера, DMA или удалённого bridge
 
-Именно такие backend'ы уже были в `ScriptShock.MemoryApi`: `StatsMemoryBackend`, `SuspiciousAddressLoggingBackend`, `PageCachingMemoryBackend`, `CompositeMemoryBackend`.
+Именно такие backend'ы уже были в `ScriptShock.MemoryApi`: `StatsMemoryBackend`, `SuspiciousAddressLoggingBackend`, `PageCachingMemoryBackend`, `CompositeMemoryBackend`. Это исторические примеры, не обещание наличия этих классов в базовом SDK.
 
 ## Порядок слоёв важен
 
@@ -87,7 +116,7 @@ Cache -> Stats -> Driver
 
 - Не меняйте семантику `TryReadMemory(...)` и `TryWriteMemory(...)` без явной причины.
 - Если есть кэш, запись должна инвалидировать затронутые диапазоны.
-- `Dispose()` должен корректно пробрасываться вниз.
+- Заранее выберите владельца нижнего слоя. Заимствующий декоратор не закрывает `inner`; владеющий закрывает его ровно один раз.
 - Чем умнее backend, тем важнее thread-safety.
 
 ## Что читать дальше

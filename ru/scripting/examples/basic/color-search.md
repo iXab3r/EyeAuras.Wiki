@@ -7,8 +7,9 @@ tags:
 editor: markdown
 dateCreated: 2024-02-23T22:58:56.886Z
 ---
+# Вывести координаты найденной цветной области
 
-## Выводим координаты найденного цветного прямоугольника
+Это верхнеуровневый `C# Script` EyeAuras. Подготовьте рядом ауру `ColorSearch` с триггером `Color Search`: задайте цель захвата, ROI, цвет и диапазон сходства. Результат — экранный прямоугольник в журнале, без перемещения мыши.
 > Импортировать готовый пример можно отсюда https://eu.eyeauras.net/share/S20240223230313LBOJUBwnUmRU
 {.is-info}
 
@@ -25,7 +26,7 @@ var trigger = AuraTree.FindAuraByPath(@".\ColorSearch") // находим аур
 
 var matchResult = trigger.Refresh(); // заставляем триггер выполнить поиск
 
-if (matchResult.Detected.Success == false) {
+if (matchResult.Detected.Success != true || matchResult.Detected.Bounds == null) {
     // найти не удалось - больше делать нечего
     Log.Warn("Colored area not found");
     return;
@@ -41,3 +42,12 @@ Log.Info($"Colored area found @ {screenRect}");
 > Важно! Обратите внимание, что в самом триггере на поиск цвета указано искать цветной прямоугольник `Comparison Granularity = Average Color of 8x8 Pixel Blocks`
 > По умолчанию `Color Search` усредняет цвет **всего** выбранного региона, а это не то, что нам нужно
 {.is-warning}
+
+
+`Detected` содержит состояние и локальный `Bounds`; `ToScreen` переводит его через матрицы этого кадра. Без подходящей области скрипт выводит предупреждение. Ошибку захвата нужно отличать от обычного отсутствия совпадения по диагностике триггера. Значение порога берётся из настроенного триггера, а не из defaults отдельного CV accessor. Триггер из дерева и кадры результата заимствованы; не освобождайте их в скрипте. `Refresh()` выполняет синхронную операцию и сам по себе не обещает отмену токеном.
+
+## Дальше
+
+[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
+
+Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.

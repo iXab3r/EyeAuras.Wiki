@@ -9,7 +9,9 @@ dateCreated: 2025-03-02T23:41:52.118Z
 ---
 # Веб-сервер с контроллерами
 
-Мы уже разбирали, как создать [простой web-server](https://wiki.eyeauras.net/en/scripting/examples/advanced/simple-web-server). Теперь перейдём к более удобному и масштабируемому варианту.
+Это сервер внутри верхнеуровневого `C# Script` EyeAuras, а не отдельный ASP.NET-проект. Хост должен уметь загрузить все перечисленные `assemblyName` и совместимый ASP.NET Core runtime. Порт `52080` должен быть свободен. В примере используется HTTP; номер `52443` сам по себе не включает HTTPS — для него нужны отдельные настройки сертификата и endpoint.
+
+Мы уже разбирали, как создать [простой web-server](/ru/scripting/examples/advanced/simple-web-server). Теперь перейдём к более удобному и масштабируемому варианту.
 
 Когда вы вручную создаёте маршруты и сами парсите аргументы, всё работает — но довольно быстро код становится перегруженным и неудобным в поддержке.
 
@@ -31,7 +33,7 @@ dateCreated: 2025-03-02T23:41:52.118Z
 {.is-info}
 
 1. Создайте ауру со скриптом
-2. Скопируйте код, запустите его и проверьте консоль — там должна появиться строка `Starting web-server`, это значит, что сервер успешно стартовал
+2. Скопируйте код, запустите его и проверьте консоль — там должна появиться строка `Starting web-server`, это сообщение перед запуском, а не подтверждение занятого порта
 3. Откройте страницу через CURL или браузер
 
 ## Где это может пригодиться
@@ -71,41 +73,43 @@ using System;
 
 const int PortNumber = 52080;
 
-Log.Info("Creating web-app builder");
-
-var host = await Task.Run(() =>
 {
-    var builder = Host
-    .CreateDefaultBuilder()
-    .ConfigureAppConfiguration((context, config) =>
-    {
-        //Very important line! 
-        //This is required to run the server in EA infrastructure
-        config.Sources.Clear();
-    })
-    .ConfigureWebHostDefaults(webBuilder =>
-    {
-        Log.Info("Setting up web-options");
-        webBuilder
-           .ConfigureKestrel(options => ConfigureKestrel(options))
-           .Configure((ctx, app) => { ConfigureAppAndEnvironment(Log, app, ctx.HostingEnvironment); });
+    Log.Info("Creating web-app builder");
 
-        webBuilder.ConfigureServices(services => {
-            var manager = new ApplicationPartManager();
-            services.AddSingleton<ApplicationPartManager>(manager);
-            services
-                .AddControllers()
-                .AddApplicationPart(typeof(InjectController).Assembly); //that line will ensure that Controllers are properly detected
+    using var host = await Task.Run(() =>
+    {
+        var builder = Host
+        .CreateDefaultBuilder()
+        .ConfigureAppConfiguration((context, config) =>
+        {
+            //Very important line!
+            //This is required to run the server in EA infrastructure
+            config.Sources.Clear();
+        })
+        .ConfigureWebHostDefaults(webBuilder =>
+        {
+            Log.Info("Setting up web-options");
+            webBuilder
+               .ConfigureKestrel(options => ConfigureKestrel(options))
+               .Configure((ctx, app) => { ConfigureAppAndEnvironment(Log, app, ctx.HostingEnvironment); });
+
+            webBuilder.ConfigureServices(services => {
+                var manager = new ApplicationPartManager();
+                services.AddSingleton<ApplicationPartManager>(manager);
+                services
+                    .AddControllers()
+                    .AddApplicationPart(typeof(InjectController).Assembly); //that line will ensure that Controllers are properly detected
+            });
         });
-    });
 
-    Log.Info("Building web-server");
-    return builder.Build();
-}, cancellationToken);
+        Log.Info("Building web-server");
+        return builder.Build();
+    }, cancellationToken);
 
-Log.Info("Starting web-server");
-await host.RunAsync(cancellationToken);
-Log.Info("Terminated");
+    Log.Info("Starting web-server");
+    await host.RunAsync(cancellationToken);
+    Log.Info("Terminated");
+}
 
 private static void ConfigureAppAndEnvironment(
     IFluentLog log,
@@ -180,5 +184,15 @@ public sealed class InjectController : ControllerBase
     {
         return new OkObjectResult($"Base offset for module {moduleName} is XxX!");
     }
-}=
+}
 ```
+
+`ListenAnyIP` слушает доступные сетевые интерфейсы, а не только loopback. Доступ с другой машины зависит от сети и firewall. `RunAsync(cancellationToken)` связывает работу хоста с остановкой скрипта; уже запущенные обработчики и внешние операции имеют собственные правила завершения. HTTP-контейнер `services` создаётся отдельно от контейнера EyeAuras: сервисы скрипта не появляются в контроллерах автоматически. `config.Sources.Clear()` оставляет явную настройку этого примера; оно не гарантирует совместимость любой версии ASP.NET.
+
+Создайте оба файла в одном скриптовом проекте: `Script.csx` и отдельный `InjectController.cs` с namespace `GameGrit`. `AddApplicationPart(typeof(InjectController).Assembly)` указывает MVC сборку контроллера. Проверки: `/inject` возвращает объект с `Text = "Index page"`, `/inject/test` — приветствие, `/inject/getBaseOffset?moduleName=kernel32.dll` — демонстрационную строку `XxX!`. Последний endpoint не читает адрес модуля; это явная заглушка прикладной операции, а не пример готового сервиса чтения памяти.
+
+## Дальше
+
+[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Хостинг HTTP](/ru/scripting/api/scripting/web-server) · [Ссылки на сборки](/ru/scripting/api/scripting/references-and-resources)
+
+Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.

@@ -9,7 +9,7 @@ dateCreated: 2026-06-16T00:00:00.000Z
 ---
 # Карта Embedded SDK
 
-## Что обычно нужно
+## Когда нужен отдельный host
 
 - Заменить `EyeAuras.SDK` на `EyeAuras.SDK.Runtime` плюс feature packages для
   standalone app.
@@ -65,34 +65,76 @@ dateCreated: 2026-06-16T00:00:00.000Z
 - `UseOpenCVAuras()` — добавляется пакетом OpenCVAuras.
 - `UseRoxy()` — добавляется пакетом Roxy.
 
-## Типовой сценарий
+## Подключить локальную память к существующему WPF host
 
-Минимальный embedded host:
+Нужен Windows host с настроенным WPF/Prism startup и UI dispatcher. Подключите
+согласованные версии `EyeAuras.SDK.Runtime` и `EyeAuras.Memory` с их runtime
+payload; ссылки на metadata вместо модулей недостаточно. Существующий startup
+host должен создать Unity container и выполнить bootstrapper через обычный
+`Run(runWithDefaultConfiguration: true)`. Код ниже задаёт выбор capabilities,
+а не заменяет точку входа вашего WPF приложения:
 
 ```csharp
-using EyeAuras.BehaviorTree;
 using EyeAuras.Memory;
 using EyeAuras.SDK.Runtime;
+using Unity;
 
 public sealed class AppBootstrapper : EyeAurasRuntimeBootstrapper
 {
-    public AppBootstrapper(IUnityContainer container) : base(container)
-    {
-    }
+    public AppBootstrapper(IUnityContainer container) : base(container) { }
 
     protected override void ConfigureEmbeddedModules(IEyeAurasModuleSetBuilder modules)
     {
-        modules.UseUiCore();
-        modules.UseBehaviorTree();
         modules.UseMemory();
     }
 }
-
-var container = new UnityContainer();
-var bootstrapper = new AppBootstrapper(container);
-bootstrapper.Run(runWithDefaultConfiguration: true);
-await bootstrapper.EnsureReadyAsync(cancellationToken);
 ```
+
+`UseMemory()` сам добавляет `UseUiCore()` и `MemoryModule`. После `Run` host
+может выполнить следующую законченную операцию: дождаться модулей и получить
+список доступных процессов. `bootstrapper` — тот же экземпляр, которым владеет
+host, `cancellationToken` передаётся вызывающим приложением:
+
+```csharp
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using EyeAuras.Memory;
+
+static async Task<IReadOnlyList<ProcessInformation>> GetReadyProcesses(
+    AppBootstrapper bootstrapper, CancellationToken cancellationToken)
+{
+    await bootstrapper.EnsureReadyAsync(cancellationToken);
+    return LocalProcess.GetProcesses();
+}
+```
+
+Результат — descriptors с `Id` и `ProcessName`. Здесь используется статический
+facade `LocalProcess`, чей builder регистрирует `MemoryModule`; универсальный
+`GetService<T>` для любого контекста не требуется. Из выбранного PID можно
+[открыть reader и прочитать память](../memory/processes).
+
+`ConfigureEmbeddedModules` собирается один раз; имена модулей дедуплицируются
+без учёта регистра. `EnsureReadyAsync` настраивает assets и resolver, запускает
+загрузку, сообщает приложению о загрузке, затем ждёт и проверяет инициализацию
+запрошенных модулей. Ошибка readiness — ошибка startup, а не пустой успешный
+список. Token участвует в проверке/ожидании; он не обещает откатить уже загруженные
+модули или прервать каждую внутреннюю синхронную операцию.
+
+Host владеет bootstrapper, container и dispatcher; не освобождайте их сразу
+после чтения списка, если приложение продолжает пользоваться сервисами.
+Пример не является полным `Program.cs` для произвольной console app и не
+создаёт script sandbox с `Log`, `AuraTree` или `Variables`.
+
+## Версия контракта и пределы проверки
+
+Сверено по исходному API EyeAuras `20fd3d424d886f6c99b979536a148774d289d110`:
+`EyeAurasRuntimeBootstrapper`, `EyeAurasEmbeddedBootstrapper`,
+`IEyeAurasModuleSetBuilder`, `UseMemory()` и регистрация local process builder.
+`EyeAurasEmbeddedBootstrapper` — совместимый наследник Runtime bootstrapper.
+Пакетные номера в проектных metadata не доказывают доступность или бинарную
+совместимость опубликованных NuGet. Сверяйте target framework, payload и
+SDK/XML согласованной версии; startup и Windows runtime здесь не запускались.
 
 ## Сборки и пакеты
 

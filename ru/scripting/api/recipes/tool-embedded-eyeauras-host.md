@@ -23,6 +23,16 @@ dateCreated: 2026-04-22T00:00:00.000Z
 - Пользователю нужны окна на базе EyeAuras, экранная визуализация, скриптинг или автоматизация внутри этого host.
 - Обычный скрипт EyeAuras не является точкой входа.
 
+## Добавить Memory API в существующий WPF-хост
+
+Вход этой интеграции — Windows-приложение с WPF `Application`, живым UI dispatcher, Prism/Unity-композицией и собственным порядком запуска/остановки. Простого `Main` консольной программы или наличия STA недостаточно: bootstrapper опирается на инфраструктуру приложения и модулей.
+
+Подключите `EyeAuras.SDK.Runtime` и пакет возможностей памяти. В наследнике `EyeAurasRuntimeBootstrapper` переопределите `ConfigureEmbeddedModules(IEyeAurasModuleSetBuilder modules)` и вызовите `modules.UseMemory()`. `EyeAurasEmbeddedBootstrapper` из `EyeAuras.SDK.Embedded` — совместимый наследник этого runtime bootstrapper; это альтернативная упаковка, не дополнительный обязательный этап. Host-сервисы зарегистрируйте при композиции Unity до их использования модулями.
+
+Хост запускает bootstrapper своим WPF/Prism-путём и затем ожидает `EnsureReadyAsync(cancellationToken)`. Только после этого вызывайте `LocalProcess.GetProcesses()` и передавайте выбранный reader потребителям. `UseMemory()` добавляет UiCore, `PlusLoaderModule` и `MemoryModule`; metadata-фасад `LocalProcess` без загруженного модуля builder не имеет. Ожидаемый результат — список локальных процессов и работающий reader внутри существующего приложения.
+
+Readiness добавляет static web assets и ждёт инициализации заявленных модулей, но токен не откатывает запуск и не отменяет любую операцию модуля. Создание UI остаётся на dispatcher; события tick/render хоста не должны блокироваться ожиданием UI. На завершении сначала остановите потребителей и reader, затем освобождайте принадлежащие хосту runtime/container. Рецепт не обещает произвольный `GetService<T>` или автоматически доступные scripting/BT-сервисы. Эти границы сверены с EyeAuras `20fd3d4`; версия csproj не доказывает наличие совместимых опубликованных пакетов.
+
 ## Общая схема
 
 - Подключите `EyeAuras.SDK.Embedded` из host-приложения или плагина и создайте

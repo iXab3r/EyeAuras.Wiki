@@ -1,5 +1,5 @@
 ---
-title: ImGui: отрисовка курсора
+title: ImGui — отрисовка курсора
 description: Отрисовка курсора с помощью ImGui.
 published: true
 date: 2025-06-13T21:46:14.167Z
@@ -11,9 +11,42 @@ dateCreated: 2025-03-31T17:49:10.631Z
 
 В этом руководстве показано, как нарисовать простой визуальный оверлей — например, зелёную рамку вокруг курсора мыши — с помощью [Dear ImGui](https://github.com/ocornut/imgui) через библиотеку `ClickableTransparentOverlay`.
 
-Мы будем использовать **ImGui.NET** — официальный .NET-байндинг для ImGui — и рендерить всё прямо в полноэкранное прозрачное overlay-окно, которое не блокирует ввод мыши.
+Мы будем использовать **ImGui.NET** — .NET-обёртку для ImGui — и рендерить всё прямо в полноэкранное прозрачное overlay-окно, которое не блокирует ввод мыши.
 
 ---
+
+## Нарисовать рамку из C# Script через SDK
+
+Вставьте блок в верхнеуровневый файл действия `C# Script` живого EyeAuras. Подключите совместимую версию необязательного `EyeAuras.ImGuiSdk`, в которой есть `ImGuiContainerExtensions`, `IImGuiExperimentalApi` и `AddRenderer`. Исторический пример SDK использует `#r "nuget:EyeAuras.ImGuiSdk, 0.1.17"`; соответствие опубликованного пакета этим исходникам не проверено. Ниже показан контракт EyeAuras `20fd3d4` / PoeEye `0e02c98`, а не обещание совместимости любой версии пакета.
+
+```csharp
+using EyeAuras.ImGuiSdk;
+using ImGuiNET;
+using System.Numerics;
+using PoeShared.Scaffolding;
+
+{
+    AddNewExtension<ImGuiContainerExtensions>();
+    using var osd = GetService<IImGuiExperimentalApi>();
+    using var renderer = osd.AddRenderer(() =>
+    {
+        if (cancellationToken.IsCancellationRequested) return;
+        var cursor = ImGui.GetMousePos();
+        ImGui.GetBackgroundDrawList().AddRect(
+            cursor - new Vector2(5, 5),
+            cursor + new Vector2(5, 5),
+            ImGui.GetColorU32(new Vector4(0f, 1f, 0f, 1f)),
+            0f, ImDrawFlags.None, 1f);
+    });
+    cancellationToken.WaitHandle.WaitOne();
+}
+```
+
+Пока скрипт работает, вокруг курсора рисуется зелёная рамка 10×10. `ImGui.GetMousePos()` возвращает точку в системе координат ImGui; здесь не подставляются нативные экранные координаты с неучтённым началом окна. Рисование выполняется только внутри обработчика кадра; нельзя блокировать его ожиданием отмены. При остановке сначала снимается подписка, затем освобождается экземпляр API. Он использует общее окно `Main`: не закрывайте его напрямую, оно может обслуживать другие скрипты. [Карта ImGui SDK](/ru/scripting/api/nuget/imgui-sdk) ведёт к контрактам и ограничениям времени жизни. Работа графики и конкретной версии пакета требует проверки в Windows.
+
+## Отдельное окно через ClickableTransparentOverlay
+
+Ниже сохранён самостоятельный вариант с закреплённым `ClickableTransparentOverlay, 10.2.0`. Это альтернативный скрипт: не запускайте оба блока вместе. Он создаёт собственное окно на основном мониторе; методы внешнего пакета и поведение DPI здесь не проверены запуском.
 
 ## Что такое ImGui?
 
@@ -40,6 +73,9 @@ dateCreated: 2025-03-31T17:49:10.631Z
 
 using ClickableTransparentOverlay;
 using System.Threading.Tasks;
+using System.Threading;
+using PoeShared.Native;
+using PoeShared.Scaffolding;
 using ImGuiNET;
 
 try
@@ -84,13 +120,13 @@ internal class SampleOverlay : Overlay
         // Get the current ImGui draw list
         var drawList = ImGui.GetBackgroundDrawList();
 
-        // Get the current cursor position (in screen coordinates)
-        var cursorPosition = UnsafeNative.GetCursorPosition();
+        // Используем ту же систему координат, что и draw list
+        var cursorPosition = ImGui.GetMousePos();
 
         // Draw a green 10x10 rectangle centered on the cursor
         drawList.AddRect(
-            cursorPosition.OffsetBy(-5, -5).ToVector2(),
-            cursorPosition.OffsetBy(5, 5).ToVector2(),
+            cursorPosition - new System.Numerics.Vector2(5, 5),
+            cursorPosition + new System.Numerics.Vector2(5, 5),
             ImGui.GetColorU32(new System.Numerics.Vector4(0f, 1f, 0f, 1f)), // Green
             0f,                    // Corner rounding
             ImDrawFlags.None,     // No flags
@@ -105,9 +141,8 @@ internal class SampleOverlay : Overlay
 ## Основные моменты
 
 - `ImGui.GetBackgroundDrawList()` даёт доступ к canvas для рисования в фоновом слое.
-- `AddRect()` рисует прямоугольник в экранных координатах.
+- `AddRect()` принимает точки в системе координат draw list ImGui.
 - Цвет передаётся как `Vector4` (RGBA) и затем преобразуется через `ImGui.GetColorU32`.
-- `OffsetBy(x, y)` здесь предполагается как вспомогательный метод, который возвращает новый `Point`, смещённый на указанную дельту.
 - Базовый класс `Overlay` сам запускает frame loop и обрабатывает прозрачность окна.
 
 ---

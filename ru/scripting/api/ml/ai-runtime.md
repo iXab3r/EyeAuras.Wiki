@@ -75,6 +75,68 @@ API AI runtime позволяют создавать чат-сессии на б
 - `IEyeAurasAiGuidanceService.RefreshAsync` — создаёт или обновляет managed guidance pack из настроенного docs-репозитория, необязательного статуса MCP и времени генерации.
 - `IEyeAurasAiGuidanceService.ExportPackFolderAsync`, `ExportPackArchiveAsync`, `CopyPackToCsharpProjectAsync` и `CopyPackToSolutionProjectAsync` — экспортируют или копируют pack. Перегрузки без `EyeAurasAiGuidanceContext` предполагают, что вызывающей стороне нужна самая свежая документация, и перед экспортом или копированием пересобирают pack.
 
+## Создать сессию для функции приложения и закрыть её
+
+Ниже — операция для обычного C#-класса приложения/плагина. Хост передаёт
+зарегистрированный `AiEngine` параметром. В композиции `IServiceCollection`
+метод `AddAiCoreServices()` регистрирует engine, профили, resolver ключей,
+transport events и no-op speech service. Хост также должен предоставить
+`IConfigProvider<AiProfileRepositoryConfig>` из своей конфигурационной системы:
+одного вызова регистрации AI недостаточно для пустого контейнера.
+`AddAiDesktopServices()` добавляет desktop-сервисы, а compatibility-метод
+`EyeAuras.AISdk.AI.AddAiServices()` объединяет core и desktop.
+
+Этот пример не отправляет запрос провайдеру. Он создаёт сессию, подключает
+встроенный инструмент и возвращает его локальный результат:
+
+```csharp
+using System.Threading;
+using System.Threading.Tasks;
+using EyeAuras.AI;
+using EyeAuras.AI.PluginHost;
+using Microsoft.SemanticKernel;
+
+public static class SessionExample
+{
+    public static async Task<AiToolInvocationResult> RunAsync(
+        AiEngine engine, CancellationToken cancellationToken)
+    {
+        var session = engine.CreateSession(
+            options: new AiSessionOptions { EnableArtifactStore = false });
+        try
+        {
+            session.AddOrUpdatePlugin("hello", new AiHelloWorldPlugin());
+            return await session.PluginHost.InvokeToolAsync(
+                "hello", "echo_with_time",
+                new KernelArguments { ["request"] = "Привет" },
+                cancellationToken: cancellationToken);
+        }
+        finally
+        {
+            engine.RemoveSession(session.SessionId);
+        }
+    }
+}
+```
+
+Результат содержит `AiHelloWorldResponse`: исходную строку, сообщение и
+локальное/UTC-время хоста. `RemoveSession` удаляет запись из engine и освобождает
+сессию; один `Dispose` без удаления не описывает очистку реестра.
+Не вызывайте `ClearSessions()` при закрытии отдельной вкладки: он затрагивает
+и чужие сессии этого engine.
+
+`CreateSession` выбирает первый настроенный профиль, если он есть, иначе
+`ActiveProfile` остаётся `null`. Перед настоящим диалогом хост загружает профили
+через `IAiProfileRepository.Load()`, выбирает профиль, настраивает resolver ключа,
+инструменты и UI/event sink. Пример выше не проверяет эти интеграции и не доказывает
+совместимость провайдера. Прямой вызов `PluginHost` также не проходит session
+approval policy — границы описаны в [инструментах AI](ai-kernel-plugins).
+
+Верхнеуровневый скрипт не получает `engine` автоматически. Сначала нужна
+явная композиция проекта и передача зависимостей. Razor-компоненту их передают
+через DI или модель. Эта карта относится к EyeAuras `20fd3d4`, а не обещает
+одинаковую поверхность во всех версиях NuGet.
+
 ## Профили
 
 - `IAiProfileRepository.Load` / `Save` сохраняют и загружают состояние профилей моделей.

@@ -27,7 +27,7 @@ dateCreated: 2026-04-22T00:00:00.000Z
 - `ExecutionAnchors` владеет ресурсами, которые должны быть освобождены после завершения текущего запуска.
 - Обычные helper-классы используют стандартные async-паттерны C#; host-only globals в них автоматически недоступны.
 - Fire-and-forget задачи опасны, если они не перехватывают и не логируют все исключения и не учитывают отмену.
-- Для циклов, таймеров и пошаговых сценариев пакет NuGet `Coroutine` часто безопаснее и проще, чем разрозненный фоновый код на `Task`.
+- Для циклов, таймеров и пошаговых сценариев пакет NuGet `Coroutine` может быть удобнее, чем разрозненный фоновый код на `Task`; его lifetime нужно настроить отдельно.
 
 ## Правила безопасности
 
@@ -42,44 +42,125 @@ dateCreated: 2026-04-22T00:00:00.000Z
 
 ## Частые сценарии
 
-Ожидание одной операции:
+### Оставить подписку или окно работать
+
+Регистрация ресурса и ожидание — разные действия. `.AddTo(ExecutionAnchors)`
+назначает очистку в конце текущего Run, но не удерживает Run открытым.
+Если после создания подписки, renderer или окна тело скрипта вернётся,
+ресурс в этих anchors будет освобождён сразу, даже без нажатия Stop.
+
+Для работы до Stop сохраните владельца и явно ждите отмену:
 
 ```csharp
-var window = await osdSelectionService.PickWindow();
-Log.Info($"Selected PID {window.ProcessId}");
+using System;
+using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+{
+    var runToken = cancellationToken;
+    var status = Variables.Get<string>("status");
+    using var subscription = status.Listen()
+        .Subscribe(value => Log.Info($"Status = {value}"));
+    try
+    {
+        await Task.Delay(Timeout.Infinite, runToken);
+    }
+    catch (OperationCanceledException) when (runToken.IsCancellationRequested)
+    {
+        Log.Info("Наблюдение остановлено");
+    }
+}
 ```
 
-Безопасный запуск фоновой работы:
+Пока скрипт работает, изменение `status` попадает в журнал. При Stop ожидание
+заканчивается, затем `using` снимает подписку. Если у операции есть собственное
+завершающее событие, ждите его вместо бесконечной задержки: пример
+[немодального окна](../IDialogWindowUnstableScriptingApi) заканчивается и по
+крестику, и по Stop. Произвольная фоновая Task не становится ожидаемой от
+добавления её владельца в anchors.
+
+### Дождаться операции в текущем запуске
+
+В верхнеуровневом `Script.csx` токен предоставляет host:
 
 ```csharp
-_ = Task.Run(async () =>
+var runToken = cancellationToken;
+Log.Info("Waiting");
+await Task.Delay(1000, runToken);
+Log.Info("Completed");
+```
+
+Без остановки через секунду появится `Completed`. При отмене задержки
+возникает `OperationCanceledException`; код после `await` не выполняется.
+Обычному helper-методу передайте `runToken` параметром. `await` не переносит
+долгую синхронную работу на другой поток автоматически.
+
+### Запустить и дождаться своего worker
+
+Сохраните токен текущего запуска до создания задачи. В `AuraScriptRunner`
+среза `20fd3d4` глобальный токен сбрасывается после завершения запуска,
+а произвольные фоновые `Task` не ожидаются автоматически:
+
+```csharp
+var runToken = cancellationToken;
+var worker = Task.Run(async () =>
+{
+    await Task.Delay(250, runToken);
+    Log.Info("Worker completed");
+}, runToken);
+await worker;
+```
+
+Скрипт завершается после worker; отмена и ошибка доходят до ожидающего кода.
+Если нужен бесконечный цикл, ждите его до остановки запуска, а не оставляйте
+работать после возврата из скрипта.
+
+### Обработать отмену и ошибку цикла
+
+Если цикл сам отвечает за диагностику, обработайте ошибку на его внешней
+границе и всё равно дождитесь задачи:
+
+```csharp
+var runToken = cancellationToken;
+var worker = Task.Run(async () =>
 {
     try
     {
-        while (!cancellationToken.IsCancellationRequested)
+        while (true)
         {
-            await Task.Delay(250, cancellationToken);
+            await Task.Delay(250, runToken);
             Log.Debug("Tick");
         }
     }
-    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+    catch (OperationCanceledException) when (runToken.IsCancellationRequested)
     {
-        // Normal script stop.
+        Log.Info("Worker stopped");
     }
     catch (Exception ex)
     {
         Log.Error("Background worker failed", ex);
     }
-}, cancellationToken);
+});
+await worker;
 ```
 
-Использование Coroutines для пошаговых циклов:
+Во время работы идут `Tick`, если включён Debug. Остановка запуска отменяет
+задержку и приводит к `Worker stopped`. Если обработчик UI требует
+fire-and-forget, сохраните Task у владельца, обработайте ошибки и дождитесь
+её при закрытии. Один `_ = Task.Run(...)` не создаёт такого владельца.
+
+### Подключить Coroutine для пошагового сценария
+
+Пакет подключается отдельно; это не встроенная гарантия отмены EyeAuras:
 
 ```csharp
 #r "nuget: Coroutine, 2.1.5"
 ```
 
-Используйте код в стиле coroutine, если сценарий представляет собой повторяющуюся state machine, bot loop, retry flow или animation/timing sequence. Это предпочтительнее набора несвязанных background tasks, когда скрипту нужны предсказуемые шаги, отмена и понятные границы обработки ошибок.
+Используйте код в стиле coroutine, если сценарий представляет собой повторяющуюся state machine, bot loop, retry flow или animation/timing sequence. Сверьте API и правила остановки с документацией именно `Coroutine 2.1.5`.
+Исходники этого пакета не являются частью runtime EyeAuras; одна директива
+`#r` ещё не создаёт цикл и не связывает его с `cancellationToken`.
 
 ## Что предпочитать
 
@@ -119,8 +200,8 @@ _ = Task.Run(async () =>
 
 ## Связанные карты
 
-- `scripting/runtime.md`
-- `scripting/logging.md`
-- `scripting/references-and-resources.md`
-- `nuget/imgui-sdk.md`
-- `recipes/recipe.md`
+- [runtime](runtime)
+- [logging](logging)
+- [references-and-resources](references-and-resources)
+- [imgui-sdk](../nuget/imgui-sdk)
+- [recipe](../recipes/recipe)

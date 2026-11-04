@@ -7,159 +7,87 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-03-21T23:36:13.915Z
 ---
-> Для навигации в AI-first режиме см. [AI Input, Hooks, Hotkeys](./windows-subsystems/input-hooks-hotkeys), [AI Window Handles](./windows-subsystems/window-handles) и [AI OSD Selection](./osd/selection). Там описаны маршрутизация ввода, целевые окна, хуки и сценарии выбора.
-{.is-info}
+# ISendInputScriptingApi
+
+Отправляет текст, нажатия клавиш и движения мыши через выбранный симулятор ввода. Сервис внедряется в C# Action; обычный C# класс получает его через конструктор или параметр. Регистрацию предоставляет модуль Roxy работающего EyeAuras, одной ссылки на SDK недостаточно.
+
+В примерах `[Inject]` заполняет свойство при настройке экземпляра скрипта. Одного `get; init;` для внедрения недостаточно. Альтернатива — `[Dependency]` из Unity; настройка описана в [руководстве по DI](/ru/scripting/dependency-injection).
+
+## Отправить текст и клавишу
+
+Откройте редактор текста и оставьте его активным перед выполнением этого C# Action:
 
 ```csharp
-/// <summary>
-/// Provides an interface for simulating user input, including mouse and keyboard actions.
-/// </summary>
-public interface ISendInputScriptingApi : IScriptingApi
+using Microsoft.AspNetCore.Components;
+using EyeAuras.Roxy.Api;
+
+[Inject] public ISendInputScriptingApi SendInput { get; init; }
+
+SendInput.TargetWindow = null;
+SendInput.Text("hello");
+SendInput.KeyPress(Key.Enter);
+```
+
+При стандартном `Windows Input` текст и Enter отправляются активному приложению. Методы синхронные, результат — побочный эффект в приложении, а не возвращённое значение или подтверждение обработки ввода.
+
+`Text` принимает текст, а не грамматику AutoHotkey `Send`. Для отдельных клавиш используйте `KeyPress`, `KeyDown`, `KeyUp`; для сочетания — `Gesture(HotkeyGesture, InputEventType, int?)`. После ручного `KeyDown` нужен парный `KeyUp`.
+
+## Кликнуть в точке экрана
+
+Для стандартного `Windows Input` без целевого окна координаты абсолютные, в пространстве виртуального рабочего стола:
+
+```csharp
+using Microsoft.AspNetCore.Components;
+using EyeAuras.Roxy.Api;
+
+[Inject] public ISendInputScriptingApi SendInput { get; init; }
+
+SendInput.TargetWindow = null;
+SendInput.MouseLeftClick(100, 200);
+Log.Info($"Курсор после клика: {SendInput.CursorPosition}");
+```
+
+Перегрузка с координатами сначала двигает курсор, затем кликает. Положение не восстанавливается. `MouseMoveTo(x, y)` задаёт точку, `MouseMoveBy(x, y)` — смещение; есть перегрузки с `WinPoint`. `MouseRightClick`, `MouseClick`, `MouseDown`, `MouseUp` работают с кнопками `MouseButton`; `MouseLeftDoubleClick` выполняет два клика с интервалом.
+
+`TargetWindow` передаётся контроллеру, но **не гарантирует фоновый ввод**. Стандартный `Windows Input` обёрнут в `ForegroundInputController`: при ненулевом `TargetWindow` он запрашивает активацию окна, а абсолютную точку переводит через начало `DwmFrameBounds` в экранную перед передачей mapper. Без цели точка уже экранная. Относительное движение остаётся смещением. У других контроллеров семантика может отличаться; это не универсальный режим AHK `CoordMode` и не Win32 client origin. Преобразования относительно рамки окна описаны в [карте окон](./windows-subsystems/window-handles).
+
+## Настроить задержки и симулятор
+
+В реализации EyeAuras `20fd3d4`:
+
+| Настройка | Начальное значение / назначение |
+|---|---|
+| `InputSimulatorId` | Не задан: используется зарегистрированный стандартный `Windows Input` |
+| `InputSmootherId` | Не задан: сглаживание отсутствует |
+| `TargetWindow` | `null` |
+| `KeyPressDelay` | `RandomInteger(1, 5)`, мс |
+| `ClickDelay` | `RandomInteger(50, 100)`, мс |
+| `DoubleClickDelay` | `RandomInteger(150, 300)`, мс |
+
+Аргумент задержки `int?` переопределяет настройку конкретного вызова. Например, `SendInput.KeyPress(Key.F1, 20)` задаёт явную задержку. Доступные id берите из `IInputSimulatorProvider` / `IUserInputSmootherProvider`, а не из предположения, что драйвер установлен на любой машине.
+
+## Проверить состояние и остановить последовательность
+
+`IsKeyDown(Key)` и `IsMouseDown(MouseButton)` возвращают `bool` через состояние выбранного контроллера. Это не подтверждённый эквивалент всех режимов logical/physical AutoHotkey.
+
+```csharp
+using Microsoft.AspNetCore.Components;
+using EyeAuras.Roxy.Api;
+
+[Inject] public ISendInputScriptingApi SendInput { get; init; }
+
+for (var i = 0; i < 3; i++)
 {
-    /// <summary>
-    /// Gets or sets the identifier for the input simulator to use.
-    /// </summary>
-    string InputSimulatorId { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the identifier for the input smoother to use.
-    /// </summary>
-    string InputSmootherId { get; set; }
-    
-    /// <summary>
-    /// Gets or sets identifier of a window which will receive inputs
-    /// </summary>
-    IWindowHandle TargetWindow { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the delay range (in milliseconds) between key down and up event.
-    /// </summary>
-    RandomInteger KeyPressDelay { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the delay range (in milliseconds) before releasing mouse button.
-    /// </summary>
-    RandomInteger ClickDelay { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the delay range (in milliseconds) for a mouse double-click action.
-    /// </summary>
-    RandomInteger DoubleClickDelay { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the current cursor location on the screen. Setting the position is equivalent to MouseMoveTo()
-    /// Users current input simulator, specified by InputSimulatorId to get cursor position
-    /// </summary>
-    WinPoint CursorPosition { get; set; }
-    
-    /// <summary>
-    /// Moves the mouse cursor by a specified offset.
-    /// </summary>
-    /// <param name="x">The horizontal offset.</param>
-    /// <param name="y">The vertical offset.</param>
-    void MouseMoveBy(int x, int y);
-    
-    /// <summary>
-    /// Moves the mouse cursor by a specified offset.
-    /// </summary>
-    /// <param name="offset">The offset as a WinPoint.</param>
-    void MouseMoveBy(WinPoint offset);
-    
-    /// <summary>
-    /// Moves the mouse cursor to a specific location on the screen.
-    /// </summary>
-    /// <param name="x">The X coordinate of the location.</param>
-    /// <param name="y">The Y coordinate of the location.</param>
-    void MouseMoveTo(int x, int y);
-    
-    /// <summary>
-    /// Moves the mouse cursor to a specific location on the screen.
-    /// </summary>
-    /// <param name="location">The location as a WinPoint.</param>
-    void MouseMoveTo(WinPoint location);
-    
-    /// <summary>
-    /// Simulates a left mouse button click.
-    /// </summary>
-    /// <param name="clickDelayMs">Optional delay (in milliseconds) before releasing the button. Uses ClickDelay if not specified.</param>
-    void MouseLeftClick(int? clickDelayMs = default);
-    
-    /// <summary>
-    /// Simulates a double-click using the left mouse button.
-    /// </summary>
-    /// <param name="clickDelayMs">Optional delay (in milliseconds) before releasing the button. Uses ClickDelay if not specified.</param>
-    /// <param name="dblClickDelayMs">Optional delay (in milliseconds) between the two clicks. Uses DoubleClickDelay if not specified.</param>
-    void MouseLeftDoubleClick(int? clickDelayMs = default, int? dblClickDelayMs = default);
-    
-    /// <summary>
-    /// Simulates a right mouse button click.
-    /// </summary>
-    /// <param name="clickDelayMs">Optional delay (in milliseconds) before releasing the button. Uses ClickDelay if not specified.</param>
-    void MouseRightClick(int? clickDelayMs = default);
-    
-    /// <summary>
-    /// Simulates a mouse button click.
-    /// </summary>
-    /// <param name="button">The mouse button to simulate.</param>
-    /// <param name="clickDelayMs">Optional delay (in milliseconds) before releasing the button. Uses ClickDelay if not specified.</param>
-    void MouseClick(MouseButton button = default, int? clickDelayMs = default);
-    
-    /// <summary>
-    /// Simulates pressing down a mouse button.
-    /// </summary>
-    /// <param name="button">The mouse button to simulate.</param>
-    void MouseDown(MouseButton button = default);
-    
-    /// <summary>
-    /// Simulates releasing a mouse button.
-    /// </summary>
-    /// <param name="button">The mouse button to simulate.</param>
-    void MouseUp(MouseButton button = default);
-    
-    /// <summary>
-    /// Simulates pressing and releasing a keyboard key.
-    /// </summary>
-    /// <param name="key">The key to simulate.</param>
-    /// <param name="keyPressDelay">Optional delay (in milliseconds) before releasing the button. Uses KeyPressDelay if not specified.</param>
-    void KeyPress(Key key, int? keyPressDelay = default);
-    
-    /// <summary>
-    /// Simulates pressing down a keyboard key.
-    /// </summary>
-    /// <param name="key">The key to simulate.</param>
-    void KeyDown(Key key);
-    
-    /// <summary>
-    /// Simulates releasing a keyboard key.
-    /// </summary>
-    /// <param name="key">The key to simulate.</param>
-    void KeyUp(Key key);
-    
-    /// <summary>
-    /// Simulates a complex gesture involving keyboard keys or mouse buttons.
-    /// </summary>
-    /// <param name="gesture">The gesture to simulate.</param>
-    /// <param name="inputEventType">The type of input event to simulate (e.g., key press, key down, key up).</param>
-    /// <param name="keyPressDelay">Optional delay (in milliseconds) before releasing the button, works only for KeyPress events. Uses KeyPressDelay if not specified.</param>
-    void Gesture(HotkeyGesture gesture, InputEventType inputEventType, int? keyPressDelay = default);
-
-    /// <summary>
-    /// Simulates typing a string of text.
-    /// </summary>
-    /// <param name="text">The text to type.</param>
-    /// <param name="delayMs">Optional delay (in milliseconds) between each character. Uses KeyPressDelay if not specified.</param>
-    void Text(string text, int? delayMs = default);
-
-    /// <summary>
-    /// Returns status of a mouse button - whether it is pressed (down) or not
-    /// </summary>
-    /// <param name="button">The button which has to be checked</param>
-    bool IsMouseDown(MouseButton button = default);
-
-    /// <summary>
-    /// Returns status of a key - whether it is pressed (down) or not
-    /// </summary>
-    /// <param name="key">The key which has to be checked</param>
-    bool IsKeyDown(Key key);
+    cancellationToken.ThrowIfCancellationRequested();
+    SendInput.KeyPress(Key.F1);
+    Sleep(250);
 }
 ```
+
+Пример отправляет до трёх нажатий F1. Остановка скрипта прерывает `Sleep` и предотвращает следующие итерации. Однако сами операции API этой версии не принимают токен: внутренний `Send` использует `CancellationToken.None`, а `Text` синхронно ждёт контроллер без токена запуска. Не считайте остановку скрипта мгновенной отменой уже начатого ввода. Неготовый симулятор или запрещённое foreground-окно могут вызвать исключение.
+
+Сервис привязан к контексту скрипта; не освобождайте внедрённые общие сервисы самостоятельно. Для UI-кода учитывайте синхронное ожидание: это не асинхронный API диспетчера.
+
+## Связанные операции и справка
+
+[Хоткеи и хуки](./windows-subsystems/input-hooks-hotkeys), [окна](./windows-subsystems/window-handles), [перенос ввода с AHK](./ahk/keyboard-mouse). Полный контракт, включая координатные перегрузки, сверяйте с `EyeAuras.Roxy.Api.ISendInputScriptingApi` в SDK/XML своей версии. Устаревший [ISendInputUnstableScriptingApi](./ISendInputUnstableScriptingApi) не добавляет возможностей.

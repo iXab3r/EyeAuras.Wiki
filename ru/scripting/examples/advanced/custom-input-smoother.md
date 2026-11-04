@@ -7,8 +7,9 @@ tags:
 editor: markdown
 dateCreated: 2024-07-01T20:20:30.551Z
 ---
-
 # Добавляем сглаживание перемещений мыши
+
+Оба фрагмента выполняются в верхнеуровневом `C# Script` EyeAuras с загруженным модулем ввода. Первый выбирает готовый алгоритм, второй содержит полный класс собственного алгоритма. Нужен доступный симулятор ввода; код перемещает настоящий курсор основного монитора.
 По умолчанию, мышь "телепортируется" из точки А в точку Б, что не всегда является желаемым поведением. 
 Вот тут-то на помощь и приходят "смузеры" - инструменты, которые умеют строить план перемещения мыши по *какой-то* логике.
 Сам алгоритм может отличаться. По умолчанию в программу встроены алгоритмы от BenLand (`BenLandUserInputSmoother`) и Kalon (`KalonUserInputSmoother`). 
@@ -19,7 +20,7 @@ dateCreated: 2024-07-01T20:20:30.551Z
 Указав в коде `InputSmootherId` можно указать симулятору, что перемещения мыши нужно сглаживать
 
 ```csharp
-ISendInputUnstableScriptingApi SendInput { get; } = GetService<ISendInputUnstableScriptingApi>(); // нужно для отправки ввода
+var SendInput = GetService<ISendInputScriptingApi>(); // нужно для отправки ввода
 SendInput.InputSmootherId = "BenLandRandomizedFast"; // указываем здесь Id смузера
 ```
 
@@ -32,8 +33,11 @@ SendInput.InputSmootherId = "BenLandRandomizedFast"; // указываем зд�
 
 ```csharp
 using EyeAuras.Roxy.Services;
+using EyeAuras.Roxy.Shared;
+using System.Drawing;
+using System.Collections.Generic;
 
-ISendInputUnstableScriptingApi SendInput { get; } = GetService<ISendInputUnstableScriptingApi>(); // нужно для отправки ввода
+var SendInput = GetService<ISendInputScriptingApi>(); // нужно для отправки ввода
 
 var customSmoother = new CustomInputSmoother();
 GetService<IUserInputSmootherRegistrator>() // берем службу, которая отвечает за все наши "смузеры"
@@ -42,6 +46,7 @@ GetService<IUserInputSmootherRegistrator>() // берем службу, кото
 // а теперь говорим API, чтобы он использовал наш смузер
 SendInput.InputSmootherId = customSmoother.Id; // or something like "BenLandRandomizedFast";
 
+SendInput.TargetWindow = null; // координаты основного экрана
 var screenSize = System.Windows.Forms.SystemInformation.PrimaryMonitorSize; // берем размер основного экрана
 
 Log.Info($"Primary monitor size: {screenSize}");
@@ -55,7 +60,7 @@ Log.Info($"Movement completed, cursor is at: {SendInput.CursorPosition}");
 /// </summary>
 class CustomInputSmoother : IUserInputSmoother
 {
-    public string Id { get; init; } = "MySmoother";
+    public string Id { get; init; } = "MyScript.Linear20";
 
     public string Name { get; init; } = "This is my new cool input smoother";
 
@@ -86,3 +91,12 @@ class CustomInputSmoother : IUserInputSmoother
     }
 }
 ```
+
+
+`Generate` строит план из 21 точки, включая начало и конец; задержка каждой точки — 10 мс. Это не обещание точного времени перемещения. `Register` возвращает `void`, заменяет запись с тем же `Id` и не даёт токен удаления: регистрация не снимается автоматически при остановке скрипта. Выберите собственный стабильный идентификатор, чтобы не заменить чужой алгоритм. Вызов ввода синхронный и не принимает токен отмены скрипта.
+
+## Дальше
+
+[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Ввод и сглаживание](/ru/scripting/api/windows-subsystems/input-hooks-hotkeys) · [SendInput](/ru/scripting/api/ISendInputScriptingApi)
+
+Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.

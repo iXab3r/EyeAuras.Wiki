@@ -9,21 +9,23 @@ dateCreated: 2025-03-23T17:08:22.651Z
 ---
 # Что именно мы сравниваем?
 
+В `C# Script` EyeAuras откройте окно с заголовком `Aim Trainer` либо замените строку в `GetWindow`. Нужны доступные Emgu CV и захват окна. Скрипт выполняет прогрев, затем два прохода по новым кадрам и печатает число пикселей и отчёт; кадры могут отличаться. Для сравнения самих алгоритмов используйте одинаковый неподвижный кадр.
+
 Мы сравниваем два способа подсчёта пикселей заданного цвета. Оба метода определены прямо в скрипте и работают с изображениями в формате BGR (blue-green-red).
 
-## `CountPixelsNaive`
+## CountPixelsNaive
 
 Этот метод использует `Image<Bgr, byte>` и вызов `GetPixel(x, y)`, который внутри опирается на `CvInvoke.cvGet2D`.
 
-## `CountPixelsNaiveMem`
+## CountPixelsNaiveMem
 
 Этот метод читает данные напрямую из памяти.
 
 В обоих случаях используется одна и та же логика: для каждого пикселя вычисляется «расстояние» между цветами.
 
-# Сразу к результатам
+## Исторический результат
 
-Как видно, метод с чтением из памяти (**163.31ms**) работает более чем **в 2 раза** быстрее, чем `CvInvoke.cvGet2D` (**397.3ms**). И с увеличением размера изображения этот разрыв будет только расти.
+Как видно, метод с чтением из памяти (**163.31ms**) работает более чем **в 2 раза** быстрее, чем `CvInvoke.cvGet2D` (**397.3ms**). Это результат конкретного запуска, а не гарантия ускорения на другом изображении или компьютере.
 
 При этом сам код не становится заметно сложнее: основное изменение — добавление вспомогательной структуры `BgrByteColor` для представления цвета. Вся остальная логика остаётся почти такой же.
 
@@ -47,7 +49,7 @@ Test1\FindColor CV Profiler 0ms
 
 Кроме того, существует много других техник оптимизации, но это уже тема для отдельной статьи.
 
-# Пример кода
+## Пример кода
 
 ```csharp
 using Emgu.CV;
@@ -60,7 +62,8 @@ var targetWindow = GetService<IWindowSelector>().GetWindow("Aim Trainer");
 // This API is used to perform Computer Vision operations (image/text/color/ML search)
 var cv = GetService<IComputerVisionExperimentalScriptingApi>()
     .ForWindow(targetWindow)
-    .EnableProfiling();
+    .EnableProfiling()
+    .AddTo(ExecutionAnchors);
 
 var targetColor = Color.FromArgb(255, 88, 35);
 var bgrTargetColor = new Bgr(targetColor.B, targetColor.G, targetColor.R);
@@ -75,12 +78,14 @@ cv.ProcessPixels(img =>
 {
     Log.Info($"Processing image via Naive method: {img.Size}");
     var countPixels = CountPixelsNaive(img, bgrTargetColor, 100);
+    Log.Info($"Naive pixels: {countPixels}");
 });
 
 cv.ProcessPixels(img =>
 {
     Log.Info($"Processing image via Naive Mem method: {img.Size}");
     var countPixels = CountPixelsNaiveMem(img, bgrTargetColor, 100);
+    Log.Info($"Span pixels: {countPixels}");
 });
 
 Log.Info($"Results:\n{cv.Profiler.RenderPlainText()}");
@@ -165,3 +170,11 @@ private readonly record struct BgrByteColor
     public readonly byte Red;
 }
 ```
+
+`ProcessPixels` передаёт заимствованное `Image<Bgr, byte>` только на время callback. Не освобождайте его и не сохраняйте `AsReadOnlySpan2D` за пределами вызова. Нулевой счётчик — ни один пиксель не прошёл сравнение. Здесь `similarity = 100` даёт допуск 0, то есть точное равенство BGR; формула с евклидовым расстоянием принадлежит этим двум helper, а не задаёт общий контракт Color Search. ROI не указан — обрабатывается захват выбранного окна. Синхронный проход не прерывается токеном отмены. Логи и прогрев тоже влияют на измерение.
+
+## Дальше
+
+[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
+
+Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.

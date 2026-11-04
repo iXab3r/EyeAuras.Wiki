@@ -10,7 +10,7 @@ dateCreated: 2025-05-11T16:12:56.395Z
 # CSS-файлы
 CSS обычно подключается как отдельные файлы с описанием классов — иногда таких классов могут быть тысячи.
 
-## HTML-тег `head`
+## HTML-тег head
 Если кликнуть по C# overlay и нажать `F12` (открыть dev tools), в верхней части HTML вы увидите примерно следующее:
 ```html
 <head>
@@ -55,7 +55,7 @@ body, html {
 
 ```csharp
 <HeadContent>
-    <link href="Styles.css" rel="stylesheet"/>
+    <link href="MyScript.Styles.css" rel="stylesheet"/>
 </HeadContent>
 ```
 
@@ -63,8 +63,25 @@ body, html {
 
 ![Demo](https://s3.eyeauras.net/media/2025/05/OTFy9w6Fgm.png)
 
+В одной папке создайте ауру с **C# Overlay v3** и ауру `TargetAura`. В каждую целевую ауру добавьте `HotkeyIsActive` и настройте горячую клавишу в режиме переключения. Оставьте целевые ауры загруженными. Путь `./TargetAura` в примере ищется относительно контекста оверлея; при другой структуре дерева замените их. Если подходящих триггеров несколько, выбирается первый.
+
+Замените содержимое `UserOverlay.cs` и `UserOverlay.razor` в этом оверлее кодом ниже. Это две части одного `public partial` класса в одном пространстве имён. `AuraTree` получает компонент через `[Inject]`; глобальные переменные из `Script.csx` в него автоматически не передаются.
+
+## Подготовить ресурс
+
+Добавьте `Styles.css` в файлы этого C# Overlay v3 через `New` → `CSS` и сохраните приведённое ниже содержимое. Файл должен попасть в ресурсы скрипта. В примере входной путь — `MyScript.Styles.css`: **замените `MyScript` на пространство имён проекта**, а при вложенных папках используйте полное имя ресурса. Например, `Theme/Styles.css` в проекте `MyScript` получает имя `MyScript.Theme.Styles.css`.
+
+Имена manifest-ресурсов выводятся в отладочный журнал при подготовке скрипта; их также показывает `ScriptEmbeddedResourceFileProvider.GetManifestNames()` у конкретного провайдера. `GetService<IScriptFileProvider>()` может вернуть составной провайдер, поэтому приведение к этому классу не гарантировано. Используйте полное имя, а не предположение, что любой путь с окончанием `Styles.css` найдётся. Оконный хост подключает файловый провайдер скрипта к WebView2.
+
 ## UserOverlay.cs
 ```csharp
+using System;
+using System.Reactive.Linq;
+using Microsoft.AspNetCore.Components;
+using PoeShared.Blazor;
+using EyeAuras.Scripting.Api;
+using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
+
 public partial class UserOverlay : BlazorReactiveComponent {
 
     [Inject]
@@ -86,11 +103,13 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ## UserOverlay.razor
 ```html
+@using Microsoft.AspNetCore.Components.Web
+@using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
 <HeadContent>
-    <link href="Styles.css" rel="stylesheet"/>
+    <link href="MyScript.Styles.css" rel="stylesheet"/>
 </HeadContent>
 
 <h3 class="text-center shadow-1">CSS via HeadContent</h3>
@@ -115,12 +134,12 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ---
 
-# Разбор
+## Разбор
 
 ## UserOverlay.razor
 ```html
 <HeadContent>
-    <link href="Styles.css" rel="stylesheet"/>
+    <link href="MyScript.Styles.css" rel="stylesheet"/>
 </HeadContent>
 ```
 
@@ -135,4 +154,5 @@ public partial class UserOverlay : BlazorReactiveComponent {
 }
 ```
 
-Здесь хранятся наши стили. Сейчас класс только один, но вы можете создать столько классов, сколько нужно. Пользовательские стили подключаются последними, поэтому при необходимости вы можете полностью переопределить интерфейс.
+Здесь хранятся наши стили. Сейчас класс только один, но вы можете создать столько классов, сколько нужно. Результат — зелёная кнопка с чёрным текстом, шириной 80% родителя. Итоговый стиль зависит от специфичности селекторов и порядка правил; этот пример не гарантирует переопределение любого стиля хоста.
+Нажатие кнопки записывает `TriggerValue`; горячая клавиша меняет тот же триггер. Таймер в `ChangeTrackers` заставляет компонент перечитывать состояние примерно раз в секунду, поэтому внешнее изменение видно с задержкой. Добавляйте таймер до `base.OnInitialized()`: там список отслеживания запечатывается и подписки привязываются к `Anchors` компонента. Скрытие окна само по себе не равно уничтожению компонента.

@@ -8,13 +8,24 @@ editor: markdown
 dateCreated: 2025-03-23T13:10:35.553Z
 ---
 
-# Что это ?
-Пример скрипта на UO Pilot и как его практически полный эквивалент может выглядеть в EyeAuras.
-Единственное отличие - я перенес отображение статусных сообщений в лог. 
+# Перенести последовательность еды из UOPilot/AHK в EyeAuras
+
+Сохраним задачу исходного скрипта: активировать `TL.exe`, открыть меню клавишей `F`, найти `Vegetarian.bmp` (или запасной `Vegetarian1.bmp`), выбрать еду, закрыть меню и нажать правой кнопкой в сохранённой точке. Исходный AHK ниже оставлен для сравнения.
+
+## Выполнить последовательность в C# Script
+
+Поместите весь C# блок ниже в верхнеуровневый файл действия `C# Script` EyeAuras и запустите `Run`. Окно игры должно быть открыто. Положите оба образца в `C:\Scripts\Eat` или измените `imageDirectory`. Настройте раскладку и размеры окна под координаты примера: `1005,1005` — экранная точка, область поиска и `1499,1004` — координаты относительно окна, не обещание клиентских координат без рамки. Сначала нажмите `F5`, чтобы сохранить экранную точку правого клика; `F3` запросит один проход, `F6` включит/выключит повторение. Остановка `Run` завершает цикл.
+
+Все CV/ввод выполняются последовательно главным циклом, обработчики клавиш только меняют состояние под блокировкой. Пауза 100 мс идёт после прохода, а не задаёт точный период внешнего `SetTimer`: последовательность сама занимает время. GUI из AHK здесь заменён журналом, поведение таймеров и игровых средств ввода не заявляется эквивалентным.
+
+
+
+## Что переносим
+Ниже исходный AHK-скрипт и адаптация его основной последовательности для EyeAuras. Статусные сообщения перенесены в лог; таймер и управление выполнением устроены иначе, как описано выше.
 
 Альтернатива была бы использовать [Toast API](/ru/scripting/examples/basic/toast-wpf), OnScreenCanvas API или [BlazorWindows](/ru/scripting/blazor-windows/getting-started), но просто для отображения строки текста это все кажется перебором.
 
-# UO Pilot
+## UO Pilot
 
 ```js
 #NoEnv
@@ -87,15 +98,15 @@ return
 MainScript:
     WinActivate, TL.exe
     Sleep, 2500
-    
+
     SendInput, {f}
     Sleep, 300
-    
+
     CoordMode, Mouse, Screen
     Click, 1005, 1005
     CoordMode, Mouse, Window
     Sleep, 200
-    
+
     if !MyImageSearch(FoundX, FoundY, 640, 186, 1237, 939, "Vegetarian.bmp")
     {
         Sleep, 1000
@@ -112,13 +123,13 @@ MainScript:
     }
     Click, %FoundX%, %FoundY%
     Sleep, 200
-    
+
     Click, 1499, 1004
     Sleep, 200
-    
+
     SendInput, {Esc}
     Sleep, 200
-    
+
     Sleep, 600
     CoordMode, Mouse, Screen
     Click, right, %CursorX%, %CursorY%
@@ -140,132 +151,140 @@ MyImageSearch(ByRef FoundX, ByRef FoundY, X1, Y1, X2, Y2, ImageFile)
 }
 ```
 
-# EyeAuras C# Script
+
+## EyeAuras C# Script
+
 ```csharp
-ISendInputScriptingApi SendInput { get; init; }
+using System.Drawing;
+using System.IO;
+using System.Windows.Input;
+using EyeAuras.Shared.Services;
+using EyeAuras.OpenCVAuras.Scripting;
+using EyeAuras.Roxy.Api;
+using EyeAuras.Scripting.Api;
+using PoeShared.Scaffolding;
 
-ISendInputScriptingApi SendInputWindow { get; init; }
+private object stateGate { get; } = new object();
+private bool enabled { get; set; }
+private bool runOnce { get; set; }
+private bool captureCursor { get; set; }
 
-IComputerVisionExperimentalScriptingApi ComputerVision { get; init; }
-
-bool Toggle { get; set; }
-
-string ScriptDirectoryPath { get; init; } = AppDomain.CurrentDomain.BaseDirectory;
-
-int CursorX { get; set; }
-
-int CursorY { get; set; }
-
-//------------------------------------------------------
-
-SerialDisposable timerAnchor;
-
-Log.Info("Hello, World!");
-Log.Info($"Running the script from {ScriptDirectoryPath}");
-timerAnchor = new SerialDisposable().AddTo(ExecutionAnchors); //stop timer when script stops
-
-var window = GetService<IWindowSelector>().GetWindow("TL.exe");
-
-var cv = ComputerVision
-    .ForWindow(window) //работать будем с окном
-    .EnableOsd(10); //включаем встроенный OSD
-
-SendInputWindow.TargetWindow = window; //этот SendInput будет работать с окном
-
-//эта строчка заставит скрипт ждать, пока он не будет выключен
-//более эффективный эквивалент while(true) {}
-cancellationToken.WaitHandle.WaitOne();
-
-void MainScript()
 {
-    window.Activate();
-    Sleep(2500);
-
-    SendInput.KeyPress(Key.F);
-    Sleep(300);
-
-    SendInput.MouseClick(1005, 1005);
-    Sleep(200);
-
-    int FoundX, FoundY;
-
-    if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian.bmp"))
+    var imageDirectory = @"C:\Scripts\Eat";
+    lock (stateGate)
     {
-        Sleep(1000);
-        if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian.bmp"))
-        {
-            if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian1.bmp"))
-            {
-                Log.Warn($"Объект 'Vegetarian' не найден!");
-                Sleep(2000);
-                Log.Warn($"Скрипт выключен");
-                return;
-            }
-        }
+        enabled = false;
+        runOnce = false;
+        captureCursor = false;
     }
+    Point savedCursor = Point.Empty;
+    var SendInput = GetService<ISendInputScriptingApi>();
+    var SendInputWindow = GetService<ISendInputScriptingApi>();
+    SendInput.TargetWindow = null;
+    var window = GetService<IWindowSelector>().GetWindow("TL.exe");
+    SendInputWindow.TargetWindow = window;
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>().ForWindow(window).EnableOsd(10);
 
-    SendInputWindow.MouseClick(FoundX, FoundY);
-    Sleep(200);
-
-    SendInputWindow.MouseClick(1499, 1004);
-    Sleep(200);
-
-    SendInputWindow.KeyPress(Key.Escape);
-    Sleep(200);
-
-    Sleep(600);
-    SendInput.MouseRightClick(CursorX, CursorY);
-}
-
-bool MyImageSearch(out int FoundX, out int FoundY, int X1, int Y1, int X2, int Y2, string ImageFile)
-{
-    Rectangle result;
-    for (int i = 0; i < 10; i++)
+    while (!cancellationToken.IsCancellationRequested)
     {
-        result = cv.ImageSearch(ImageFile);
-        if (!result.IsEmpty)
+        bool run, capture;
+        lock (stateGate)
         {
-            //found the image
-            FoundX = result.X;
-            FoundY = result.Y;
-            return true;
+            capture = captureCursor;
+            captureCursor = false;
+            run = enabled || runOnce;
+            runOnce = false;
         }
+        if (capture)
+        {
+            savedCursor = SendInput.CursorPosition;
+            Log.Info($"Точка правого клика: {savedCursor}");
+        }
+        if (run) MainScript();
         Sleep(100);
     }
-    FoundX = FoundY = 0;
-    return false;
+
+    void MainScript()
+    {
+        if (savedCursor.IsEmpty)
+        {
+            Log.Warn("Сначала сохраните точку клавишей F5");
+            return;
+        }
+        window.Activate();
+        Sleep(2500);
+
+        SendInput.KeyPress(Key.F);
+        Sleep(300);
+
+        SendInput.MouseClick(1005, 1005);
+        Sleep(200);
+
+        int FoundX, FoundY;
+
+        if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian.bmp"))
+        {
+            Sleep(1000);
+            if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian.bmp"))
+            {
+                if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian1.bmp"))
+                {
+                    Log.Warn($"Объект 'Vegetarian' не найден!");
+                    Sleep(2000);
+                    Log.Warn($"Скрипт выключен");
+                    return;
+                }
+            }
+        }
+
+        SendInputWindow.MouseClick(FoundX, FoundY);
+        Sleep(200);
+
+        SendInputWindow.MouseClick(1499, 1004);
+        Sleep(200);
+
+        SendInputWindow.KeyPress(Key.Escape);
+        Sleep(200);
+
+        Sleep(600);
+        SendInput.MouseRightClick(savedCursor.X, savedCursor.Y);
+    }
+
+    bool MyImageSearch(out int FoundX, out int FoundY, int X1, int Y1, int X2, int Y2, string ImageFile)
+    {
+        Rectangle result;
+        for (int i = 0; i < 10; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            result = cv.ImageSearch(Path.Combine(imageDirectory, ImageFile),
+                similarityThreshold: 95, region: Rectangle.FromLTRB(X1, Y1, X2, Y2));
+            if (!result.IsEmpty)
+            {
+                //found the image
+                FoundX = result.X;
+                FoundY = result.Y;
+                return true;
+            }
+            Sleep(100);
+        }
+        FoundX = FoundY = 0;
+        return false;
+    }
+
 }
 
 [Keybind(Hotkey = "F3")]
-void RunOnce()
-{
-    Log.Info($"Запускаем блок логики единожды");
-    MainScript();
-}
+public void RunOnce() { lock (stateGate) runOnce = true; }
 
 [Keybind(Hotkey = "F5")]
-void ShowCoordinates()
-{
-    var cursorPosition = SendInput.CursorPosition;
-    Log.Info($"Координаты мыши: {cursorPosition}");
-    CursorX = cursorPosition.X;
-    CursorY = cursorPosition.Y;
-}
+public void SaveCursor() { lock (stateGate) captureCursor = true; }
 
 [Keybind(Hotkey = "F6")]
-void ToggleScript()
-{
-    Log.Info($"IsEnabled: {Toggle}");
-    Toggle = !Toggle;
-    if (Toggle)
-    {
-        timerAnchor.Disposable = Observable
-            .Timer(DateTimeOffset.Now, TimeSpan.FromMilliseconds(100))
-            .Subscribe(MainScript); //initialize the timer
-    }
-    else
-    {
-        timerAnchor.Disposable = null; //stop timer
-    }
-}
+public void ToggleScript() { lock (stateGate) enabled = !enabled; }
 ```
+
+Атрибутированные обработчики F3/F5/F6 объявлены методами объекта скрипта за пределами исполняемого блока; локальные функции не обнаруживаются механизмом Keybind. Общие флаги хранятся в свойствах скрипта под одним lock и сбрасываются в начале запуска. Точка курсора и CV остаются локальными данными основного цикла.
+
+При успешном поиске выбирается левый верхний угол найденного образца. `ImageSearch` для `ForWindow` уже возвращает координаты окна; их передаём в отдельный `SendInputWindow` с тем же `TargetWindow`. Для экранных точек используем `SendInput.TargetWindow = null`, чтобы стандартный контроллер не преобразовал их повторно. При отсутствии обоих образцов выводится предупреждение и проход заканчивается.
+
+`Rectangle.FromLTRB` переводит правую/нижнюю границу исходной области в ширину/высоту C# прямоугольника. `Sleep` и проверки между поисками учитывают отмену, синхронные CV/ввод не гарантируют немедленного прерывания. Симулятор должен быть доступен; Windows/игровой запуск здесь не проверен. [Карта CV](/ru/scripting/api/computer-vision/images) и [карта ввода](/ru/scripting/api/windows-subsystems/input-hooks-hotkeys) ведут к контрактам SDK.

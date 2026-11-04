@@ -27,6 +27,66 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Конвертеры конфигов переносят старые структуры в новые.
 - Карты замены метаданных сопоставляют перенесённые или переименованные типы конфигов.
 
+## Сохранить настройки сервиса
+
+В модуле приложения зарегистрируйте используемый тип конфигурации и получите
+`PoeShared.Modularity.IConfigProvider<TConfig>` через DI. `TConfig` должен
+реализовывать `IPoeEyeConfig` и иметь конструктор без параметров. Для примера
+ниже host уже предоставляет провайдер `IConfigProvider<PanelConfig>`:
+
+```csharp
+using PoeShared.Modularity;
+
+public sealed record PanelConfig : IPoeEyeConfig
+{
+    public string Caption { get; set; } = "Panel";
+}
+
+public sealed class PanelSettings
+{
+    private readonly IConfigProvider<PanelConfig> provider;
+    public PanelSettings(IConfigProvider<PanelConfig> provider) => this.provider = provider;
+
+    public void Rename(string caption)
+    {
+        provider.Save(provider.ActualConfig with { Caption = caption });
+    }
+}
+```
+
+После `Rename("Inventory")` провайдер получает новый конфиг с новым заголовком.
+Не меняйте `ActualConfig` на месте перед `Save`: `GenericConfigProvider`
+сравнивает сохраняемое значение с текущим и пропускает равные конфиги.
+Доступность файла, путь и фактическую запись обеспечивает конфигурация host.
+Это пример DI-сервиса, а не готовый top-level скрипт с универсальным
+`GetService<IConfigProvider<PanelConfig>>()`.
+
+Для наблюдения используйте `ListenTo(x => x.Caption)` или `WhenChanged`;
+подписку освобождайте вместе с владельцем. У интерфейса нет отдельного
+`SaveBuffered`: частые изменения объединяйте перед вызовом `Save`, учитывая,
+что отложенное сохранение нужно завершить до закрытия владельца.
+
+## Копия редактирование и перенос настроек
+
+[Операции конфигурации](configuration-operations) показывают, как получить `IConfigSerializer`, создать отдельную редактируемую копию, передать данные сжатой строкой и наблюдать выбранное поле через `IConfigProvider<TConfig>.ListenTo`. Страница включает перегрузки строкового, потокового и файлового ввода-вывода.
+
+Сериализация и сохранение — разные операции. Изменения копии попадут в рабочую конфигурацию только после явного `Save`; для сравнения с текущим значением передавайте новый экземпляр, не изменяя `ActualConfig` на месте.
+
+## Изменить формат без потери старых настроек
+
+Добавление обычного свойства обычно не требует менять `Version`.
+В `PoeConfigConverter` среза PoeEye `0e02c98` несовпадение версий запускает
+поиск конвертера. Если старая версия не имеет пути миграции, создаётся
+новый конфиг со значениями по умолчанию; более новая, чем поддерживается,
+версия вызывает ошибку. Поэтому `Version` — граница миграции или намеренного
+сброса, а не счётчик правок схемы.
+
+При переносе типов используйте replacement metadata, при изменении
+структуры — конвертер. Не отбрасывайте `PoeConfigMetadata`, если модуль
+с нужным типом временно отсутствует: обёртка сохраняет его идентичность и
+payload. Сериализатор скрипта дополнительно учитывает сборку скрипта и её
+зависимости, но не делает произвольный объект переносимым между версиями.
+
 ## API
 
 - `IConfigProvider<TConfig>` — типизированный провайдер настроек.
@@ -43,7 +103,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Используйте типизированные провайдеры конфигурации вместо произвольного хранения в файлах.
 - Сохраняйте полиморфные метаданные, а не отбрасывайте неизвестные сущности.
 - Для миграций используйте converters и replacements.
-- Для часто меняющегося состояния UI или профилей используйте buffered saves.
+- Для часто меняющегося состояния объединяйте изменения перед Save и завершайте свою очередь до закрытия владельца.
 
 ## Чего избегать
 
@@ -63,8 +123,8 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 ## Связанные карты
 
-- `core/app-runtime-contexts.md`
-- `recipes/bot-memory-imgui-interface.md`
-- `auras/entities.md`
-- `auras/overview.md`
-- `scripting/runtime.md`
+- [app-runtime-contexts](app-runtime-contexts)
+- [bot-memory-imgui-interface](../recipes/bot-memory-imgui-interface)
+- [entities](../auras/entities)
+- [overview](../auras/overview)
+- [runtime](../scripting/runtime)

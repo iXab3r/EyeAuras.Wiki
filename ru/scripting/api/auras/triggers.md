@@ -19,6 +19,52 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Редакторы триггеров и их метаданные описывают пользовательские настройки.
 - Actions выполняют работу после изменения состояния триггера.
 
+## Разобрать состояние триггера
+
+Начните с настроенного триггера в ауре, например `HotkeyIsActiveTrigger`. Найдите регистрацию, свойства и `CreateTriggerEventSource`: источник объясняет, какие события наблюдаются. Затем проверьте общую обработку в `AuraTriggerBase<TProperties>`, прежде чем делать вывод о конечном `IsActive`.
+
+Базовый класс переключает подписку на выделенном `TriggerScheduler`, учитывает отключение, `IsInverted`, `ActivationTimeout` и `DeactivationTimeout`. Поэтому событие на входе ещё не означает немедленную активацию ауры. `IsActive` имеет тип `bool?`; при отключении возможно неизвестное состояние. Подписками базового класса владеет экземпляр триггера.
+
+Результат этой проверки — связь «источник события → настройки задержки/инверсии → состояние», а не только найденный метод. Побочные эффекты размещайте в действиях. Для простого обработчика клавиши в C# Action удобнее [Keybind](../../keybinds), чем создавать триггер вручную.
+
+## Вернуть условие из отдельного класса
+
+`CsharpScriptTriggerExecutor` из `EyeAuras.CsScriptAuras.Triggers.CsharpScript` имеет точку выполнения `protected override Task<bool?> Execute(CancellationToken cancellationToken)`. Результат `true` означает выполненное условие, `false` — невыполненное, `null` — отсутствие определённого булева результата. Настройки самого триггера могут дополнительно применять инверсию и задержки.
+
+Следующий класс проверяет уже подготовленные переменные текущего контекста: `ready` типа `bool` и `pending` типа `int`. Добавьте в проект триггера файл `ReadyTrigger.cs`:
+
+```csharp
+using System.Threading;
+using System.Threading.Tasks;
+using EyeAuras.CsScriptAuras.Triggers.CsharpScript;
+
+public sealed class ReadyTrigger : CsharpScriptTriggerExecutor
+{
+    protected override Task<bool?> Execute(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var ready = Variables.Get<bool>("ready").Value;
+        var pending = Variables.Get<int>("pending").Value;
+        return Task.FromResult<bool?>(ready && pending == 0);
+    }
+}
+```
+
+В `Script.csx` C# Trigger оставьте явную точку вызова:
+
+```csharp
+{
+    using var trigger = GetService<ReadyTrigger>();
+    return await trigger.Run(cancellationToken);
+}
+```
+
+При `ready = true` и `pending = 0` текущая оценка возвращает `true`. Отсутствующее значение `ready` при таком default-чтении даст `false`; для обязательной конфигурации отдельно проверьте наличие и тип записи. Получайте исполнителя через контейнер, который внедряет `Variables`, `Context` и другие сервисы базового класса.
+
+Одна оценка возвращается host без собственного бесконечного цикла. Для повторной оценки настройте период C# Trigger; при отключённом периоде host может не выполнять регулярные оценки. Длительная работа в `Execute` задержит возврат результата и подчиняется токену и ограничению времени выполнения триггера.
+
+Контракт сверён с EyeAuras `20fd3d424d886f6c99b979536a148774d289d110`: [CsharpScriptTriggerExecutor](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.CsScriptAuras/Triggers/CsharpScript/CsharpScriptTriggerExecutor.cs), [CsharpScriptTrigger](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.CsScriptAuras/Triggers/CsharpScript/CsharpScriptTrigger.cs).
+
 ## Детали API
 
 - `AuraTriggerBase<TProperties>` — общая базовая реализация триггера.

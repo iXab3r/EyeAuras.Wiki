@@ -32,6 +32,30 @@ dateCreated: 2026-04-16T20:12:00.000Z
 - [External Memory Hack](https://gamehacking.academy/pages/3/02/)
 - [Code Caves & DLL's](https://gamehacking.academy/pages/3/04/)
 
+## Прочитать структуру по известному адресу
+
+В обычном C#-классе передайте открытый `IProcess` и абсолютный адрес структуры. Для приведённого ниже `PlayerData` весь объём операции такой:
+
+```csharp
+static PlayerData ReadPlayer(EyeAuras.Memory.IProcess process, long address)
+{
+    return process.Memory.Read<PlayerData>(address);
+}
+```
+
+Результат — снимок полей, а не живая привязка к памяти. Входной адрес должен указывать на начало именно этого layout в целевом процессе. `PlayerData` ниже не содержит managed-ссылок, поэтому подходит ограничению `where T : unmanaged`. Ошибка чтения приводит к исключению; токена отмены у метода нет.
+
+Для `NameEntry` со встроенной строкой ниже нужен другой путь:
+
+```csharp
+static NameEntry ReadName(EyeAuras.Memory.IProcess process, long address)
+{
+    return process.Memory.ReadManaged<NameEntry>(address);
+}
+```
+
+В EyeAuras `20fd3d4` этот метод имеет `where T : struct`, читает `Marshal.SizeOf<T>()` байт и использует `Marshal.PtrToStructure<T>`. `TryReadManaged` принимает `Span<T>`; массив таких структур создают как `new NameEntry[count]`, а не `stackalloc`, поскольку внутри есть `string`. Для `Read<T>(address, size)` аргумент `size` — число элементов, не байт. Размер указателя `nint` зависит от хоста: для фиксированного 32/64-битного layout цели выбирайте `uint`/`ulong`, если разрядность хоста может отличаться.
+
 ## Самое важное правило
 
 Memory API умеет читать структуры двумя разными путями:
@@ -44,9 +68,9 @@ Memory API умеет читать структуры двумя разными 
 - если структура обычная и без "сложных" полей, не усложняйте и читайте её как простую
 - если layout зависит от `MarshalAs`, строк или фиксированных managed-массивов, используйте `ReadManaged<T>(...)`
 
-## `Sequential` и `Explicit`
+## Sequential и Explicit
 
-### `LayoutKind.Sequential`
+### LayoutKind.Sequential
 
 Подходит, когда поля реально лежат подряд в том же порядке, что и в native-типе.
 
@@ -68,7 +92,7 @@ public struct PlayerStats
 - offsets получаются автоматически и без сюрпризов
 - специальных дыр и overlapping-полей нет
 
-### `LayoutKind.Explicit`
+### LayoutKind.Explicit
 
 Подходит, когда offsets известны заранее и вы хотите зафиксировать их вручную.
 
@@ -86,7 +110,7 @@ public struct PlayerData
 
 Именно этот стиль обычно удобнее всего в reverse engineering, потому что вы буквально переносите offsets из SDK, REClass, Cheat Engine или из дизасма в C#.
 
-## `Pack` и выравнивание
+## Pack и выравнивание
 
 Даже если поля идут "по порядку", итоговый layout может сломаться из-за выравнивания.
 
@@ -146,7 +170,7 @@ public struct ActorNode32
 
 Здесь есть три основных маршрута.
 
-### `fixed`
+### fixed
 
 Самый прямой `unmanaged`-вариант:
 
@@ -161,7 +185,7 @@ public unsafe struct FixedArrayStruct
 
 Это быстро и хорошо подходит для `Read<T>(...)`, но требует `unsafe`.
 
-### `InlineArray`
+### InlineArray
 
 Современный и аккуратный вариант для inline-массивов:
 
@@ -185,7 +209,7 @@ public struct InlineArrayStruct
 
 Это тоже хорошо стыкуется с быстрым маршрутом чтения.
 
-### `[MarshalAs(UnmanagedType.ByValArray)]`
+### MarshalAs ByValArray
 
 Подходит, когда нужен более гибкий маршрут:
 
@@ -232,7 +256,7 @@ Log.Info(entry.Name);
 
 - `ByValTStr` зависит от `CharSet` у самой структуры
 - для `Unicode` это будет UTF-16-представление
-- для `Ansi` это будет однобайтная строка
+- для `Ansi` используется платформенное ANSI-представление; не считайте его UTF-8
 - такую структуру не стоит читать через `Read<T>(...)`
 
 ## Смещения и helper-методы
@@ -256,7 +280,7 @@ var targetOffset = process.Memory.OffsetOf<PlayerData>(x => x.TargetId);
 - строите pointer math из имени поля
 - переносите offsets между разными участками кода
 
-Но practical rule здесь простой:
+Практическое правило здесь простое:
 
 - для простых структур такие helper'ы очень удобны
 - для сложных `[MarshalAs]`-layout'ов чаще проще читать структуру целиком через `ReadManaged<T>(...)`, чем строить ручной offset math

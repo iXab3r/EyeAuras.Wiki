@@ -15,39 +15,43 @@ Keybind'ы позволяют привязать определённую фун
 
 ---
 
-## Как это работает?
+## Назначить клавишу и дождаться нажатия
 
 Чтобы назначить горячую клавишу, используйте атрибут `[Keybind]`. Этот атрибут можно добавить к методу, и он будет вызываться при нажатии указанной клавиши.
 
-```csharp
-[Keybind("p")] // Simple example - triggers when 'p' is pressed
-[Keybind("Ctrl+2")] // Triggers only when 'Ctrl + 2' is pressed
-[Keybind("Ctrl+2", IgnoreModifiers = true)] // Triggers on ANY combination containing 'Ctrl + 2' (e.g., 'Ctrl + Alt + 2')
-public void OnKey(){
-    Log.Info("Key pressed");
-}
+Вставьте этот код в `Script.csx` у `C# Action`, запустите его и нажмите `Ctrl+2`:
 
-[Keybind(Hotkey = "4", SuppressKey = false)] // Handles the key, but it will still pass through to other apps
-public void HandleKeyWithInjectedServices(IAuraEventLoggingService loggingService){
-    Log.Info("Key pressed");
-    loggingService.LogMessage(new AuraEvent(){ Text = "Message", Loglevel = FluentLogLevel.Info });
+```csharp
+using System.Threading.Tasks;
+using EyeAuras.Scripting.Api;
+
+Log.Info("Waiting for Ctrl+2");
+var runToken = cancellationToken;
+await Task.Delay(System.Threading.Timeout.Infinite, runToken);
+
+[Keybind("Ctrl+2", SuppressKey = false)]
+public void OnKey()
+{
+    Log.Info("Ctrl+2 pressed");
 }
 ```
 
-> Важно! Keybind'ы работают только пока запущен скрипт.
+В `Event Log` появится `Ctrl+2 pressed`; комбинация также дойдёт до других приложений. Без ожидания скрипт сразу завершится и обработчик перестанет принимать нажатия. Остановка запуска отменяет ожидание.
+
+Runtime обнаруживает методы **объекта скрипта** при однократной настройке. Атрибут на методе произвольного helper-класса сам по себе не регистрирует хоткей. В текущей реализации обрабатываются клавиатурные комбинации.
 
 ---
 
-## Параметры атрибута `[Keybind]`
+## Параметры атрибута Keybind
 
 Атрибут `[Keybind]` поддерживает несколько параметров:
 
 - **`Hotkey`** — обязательный параметр, который задаёт горячую клавишу или комбинацию клавиш (например, `Ctrl+A`, `Shift+X`, `Alt+Tab`).
 - **`SuppressKey`** — подавляет событие нажатия клавиши и не даёт ему дойти до других приложений. По умолчанию — `true`. **Важно:** подавление работает независимо от настройки `ActivationType` (см. ниже).
-- **`IgnoreModifiers`** — игнорирует дополнительные клавиши-модификаторы. По умолчанию — `true`. Работает похоже на `*` в AutoHotkey (Wildcard).
+- **`IgnoreModifiers`** — игнорирует дополнительные клавиши-модификаторы. По умолчанию — `false`. Работает похоже на `*` в AutoHotkey (Wildcard).
 - **`ActivationType`** — определяет, когда должен сработать метод: при **KeyDown** (когда клавиша нажата) или при **KeyUp** (когда клавиша отпущена). По умолчанию — `KeyDown`.
 
-## Как работает `IgnoreModifiers`?
+## Как работает IgnoreModifiers?
 
 Если `IgnoreModifiers = true`, метод сработает даже в том случае, если одновременно нажаты дополнительные клавиши-модификаторы (например, `Shift`, `Alt`, `Ctrl`).
 
@@ -60,7 +64,7 @@ public void HandleKeyWithInjectedServices(IAuraEventLoggingService loggingServic
 [Keybind("Ctrl+2", IgnoreModifiers = false)] // Triggers ONLY on Ctrl+2
 ```
 
-## Как работает `ActivationType`?
+## Как работает ActivationType?
 
 Параметр `ActivationType` задаёт, в какой момент должен вызываться ваш метод:
 
@@ -70,19 +74,19 @@ public void HandleKeyWithInjectedServices(IAuraEventLoggingService loggingServic
 Примеры:
 
 ```csharp
-[Keybind("F1", ActivationType = KeyDown)] // Calls method when F1 is pressed
-[Keybind("F2", ActivationType = KeyUp)]   // Calls method when F2 is released
+[Keybind("F1", ActivationType = KeybindActivationType.KeyDown)] // Calls method when F1 is pressed
+[Keybind("F2", ActivationType = KeybindActivationType.KeyUp)]   // Calls method when F2 is released
 ```
 
-## Как работает `SuppressKey`?
+## Как работает SuppressKey?
 
 Если `SuppressKey = true`, нажатие клавиши не будет передано другим приложениям. Это полезно, если вы хотите обрабатывать клавишу исключительно внутри своего скрипта.
 
 **Важно:** подавление всегда работает независимо от `ActivationType`. Например:
 
 ```csharp
-[Keybind("F1", SuppressKey = true, ActivationType = KeyUp)] // Suppresses F1 and triggers on release
-[Keybind("F2", SuppressKey = true, ActivationType = KeyDown)] // Suppresses F2 and triggers on press
+[Keybind("F1", SuppressKey = true, ActivationType = KeybindActivationType.KeyUp)] // Suppresses F1 and triggers on release
+[Keybind("F2", SuppressKey = true, ActivationType = KeybindActivationType.KeyDown)] // Suppresses F2 and triggers on press
 ```
 
 Это помогает избежать «утечек» нажатий в нестандартных ситуациях.
@@ -91,12 +95,13 @@ public void HandleKeyWithInjectedServices(IAuraEventLoggingService loggingServic
 
 ## Переназначение клавиш
 
-Комбинируя параметры выше, можно полностью переназначить одну клавишу на другую. Например:
+Комбинируя параметры, можно отправлять `R` при нажатии и отпускании `D`. Следующие члены добавьте в тот же `Script.csx`, оставив ожидание из первого примера. Добавьте `using System.Windows.Input;` в начало файла. `ISendInputScriptingApi` должен быть доступен в host, а целевое окно и способ отправки ввода — настроены в EyeAuras.
 
-Теперь, независимо от того, какие ещё клавиши вы нажимаете вместе с `D`, она всегда будет заменяться на `R`.
+При `IgnoreModifiers = true` дополнительные модификаторы не мешают совпадению `D`. `SuppressKey` по умолчанию подавляет исходное событие. Отправка `R` зависит от выбранного input simulator; это не гарантия работы в каждом приложении. Если остановить скрипт между KeyDown и KeyUp, освобождение отправленной клавиши нужно предусмотреть отдельно.
 
 ```csharp
-ISendInputScriptingApi SendInput {get; init;} //initialize SendInput API
+[Unity.Dependency]
+public EyeAuras.Roxy.Api.ISendInputScriptingApi SendInput { get; init; }
 
 [Keybind(Hotkey = "d", ActivationType = KeybindActivationType.KeyDown, IgnoreModifiers = true)]
 public void OnKeyDownForD(){
@@ -117,50 +122,61 @@ public void OnKeyUpForD(){
 
 ### Как организовать последовательное выполнение
 
-Вот как можно организовать последовательную обработку нажатий — с помощью [SemaphoreSlim](https://learn.microsoft.com/en-us/dotnet/api/system.threading.semaphoreslim?view=net-9.0) можно сделать так, чтобы остальные обработчики ждали завершения текущего.
+Ниже два варианта для того же `Script.csx`. Добавьте `using System.Threading;` и выберите один обработчик. Свойство с семафором сохраняется между вызовами, в отличие от локальной переменной внутри обработчика.
 
 ```csharp
-// Allow only ONE active handler at a time - others will be queued
-SemaphoreSlim hotkeySemaphore = new(1);
+SemaphoreSlim HotkeySemaphore { get; } = new(1, 1);
 
-[Keybind("A")]
-public void HandleA(){
-   using var blockUntilCompleted = hotkeySemaphore.Rent(); //Important! This should be in all handlers you want to block
-
-   Log.Info("Processing key A");
-   Sleep(1000);    
+[Keybind("A", SuppressKey = false)]
+public async Task HandleA()
+{
+    var runToken = cancellationToken;
+    await HotkeySemaphore.WaitAsync(runToken);
+    try
+    {
+        Log.Info("Processing key A");
+        await Task.Delay(1000, runToken);
+    }
+    finally
+    {
+        HotkeySemaphore.Release();
+    }
 }
 ```
 
-Если нажать `A` несколько раз подряд, метод будет обрабатываться **по одному разу**, пока не завершится предыдущий вызов.
+Нажатия ждут освобождения семафора. Переданный токен отменяет ожидание; уже запланированный обработчик не считается автоматически остановленным вместе со скриптом. Не делайте `async void`: runtime ожидает возвращённый `Task`.
 
 ### Как пропускать лишние нажатия
 
-Если вам нужно **пропускать** лишние нажатия вместо постановки в очередь, код нужно организовать немного иначе — с проверкой доступных слотов.
+Если очередь не нужна, замените обработчик на этот, оставив то же свойство `HotkeySemaphore`:
 
 ```csharp
-SemaphoreSlim hotkeySemaphore = new(1);
-
-[Keybind("A")]
-public void HandleA(){
-   if (hotkeySemaphore.CurrentCount <= 0){ //Check for available slots
-       Log.Info("Skipping handler - key press already being processed");
-       return;
-   }
-
-   using var blockUntilCompleted = hotkeySemaphore.Rent(); //Occupy an available slot
-
-   Log.Info("Processing key A");
-   Sleep(1000);    
+[Keybind("A", SuppressKey = false)]
+public async Task HandleA()
+{
+    var runToken = cancellationToken;
+    if (!HotkeySemaphore.Wait(0))
+    {
+        return;
+    }
+    try
+    {
+        Log.Info("Processing key A");
+        await Task.Delay(1000, runToken);
+    }
+    finally
+    {
+        HotkeySemaphore.Release();
+    }
 }
 ```
 
-Если нажать `A` несколько раз подряд, одновременно будет выполняться только один обработчик, а остальные будут **пропущены**.
-
----
+`Wait(0)` проверяет и занимает слот одной операцией. Проверка `CurrentCount` перед отдельным захватом оставляет гонку: несколько обработчиков могут одновременно увидеть свободный слот.
 
 ## Полезные советы
 
 -  Используйте `IgnoreModifiers = true`, если хотите обрабатывать комбинации независимо от дополнительных модификаторов.
 -  Используйте `SemaphoreSlim` или другие механизмы синхронизации, если нужно не допускать одновременных вызовов одного и того же метода.
--  Помните, что методы могут принимать параметры — они будут автоматически запрошены через `GetService<>` (например, `IAuraEventLoggingService`).
+-  Помните, что методы могут принимать параметры — runtime разрешает их типы через Unity-контейнер при вызове (например, `IAuraEventLoggingService`). Нужная регистрация должна уже существовать. `Log`, `Sleep` и `cancellationToken` доступны здесь как члены host скрипта; в обычный класс зависимости передавайте явно.
+
+Сигнатуры: [KeybindAttribute](https://docs.eyeauras.net/api/EyeAuras.Scripting.Api.KeybindAttribute.html). Проверяйте версию reference относительно своей сборки EyeAuras.

@@ -30,6 +30,7 @@ Sleep 250
 
 ```csharp
 Sleep(250);
+Log.Info("Пауза завершилась");
 ```
 
 **Рекомендация:** хорошая и прямая замена. `Sleep(...)` в EyeAuras учитывает отмену, и для скриптов, которые пользователь может остановить в любой момент, это обычно удобнее.
@@ -48,11 +49,29 @@ count += 1
 ```csharp
 var count = 0;
 count += 1;
+Log.Info($"Счётчик: {count}");
 ```
 
 Для обычного состояния внутри скрипта используйте стандартные локальные переменные C#, поля и объекты. `ScriptVariable<T>` / `IVariablesScriptingApi` нужны только тогда, когда значение должно сохраняться между запусками, разделяться между скриптами или использоваться инфраструктурой EyeAuras вне скрипта.
 
 **Рекомендация:** для обычного состояния внутри скрипта это лучше, чем в AHK, потому что типы здесь явные и предсказуемые. Для общих и постоянных переменных нужны отдельные примеры.
+
+## Повторить работу с явной отменой
+
+В C# Action можно выполнить три шага с паузами:
+
+```csharp
+for (var i = 1; i <= 3; i++)
+{
+    cancellationToken.ThrowIfCancellationRequested();
+    Log.Info($"Шаг {i}");
+    Sleep(250);
+}
+```
+
+В журнале появятся шаги 1–3; остановка скрипта прерывает ожидание. Это последовательный цикл: пауза отсчитывается между шагами, а не независимый AHK `SetTimer` с приоритетами и правилами повторного входа. Локальный `count` создаётся заново при выполнении этого кода; для состояния между скриптами сначала выберите общий контекст в [руководстве по переменным](../../variables).
+
+`Sleep`, `Log` и `cancellationToken` предоставляет верхнему уровню среда EyeAuras. В обычный класс передавайте токен и logger; для асинхронной паузы используйте `await Task.Delay(250, token)` с полученным токеном.
 
 ## Ссылки для проверки
 
@@ -69,8 +88,4 @@ count += 1;
 - Документация EyeAuras:
   [Scripting Runtime](../scripting/runtime),
   [IVariablesScriptingApi](../IVariablesScriptingApi).
-- Исходники EyeAuras:
-  [AuraScriptSandbox.cs](../../../../../Sources/EyeAuras.Scripting/Api/AuraScriptSandbox.cs),
-  [AuraScriptRunner.cs](../../../../../Sources/EyeAuras.Scripting/AuraScriptRunner.cs),
-  [IVariablesScriptingApi.cs](../../../../../Sources/EyeAuras.Scripting/Api/IVariablesScriptingApi.cs),
-  [ScriptVariable.cs](../../../../../Sources/EyeAuras.Scripting.Metadata/UserSpace/ScriptVariable.cs).
+- Контракты EyeAuras: [контекст скрипта](../scripting/runtime), [ввод](../ISendInputScriptingApi), [окна](../windows-subsystems/window-handles). Точные типы и сигнатуры сверяйте с SDK/XML своей версии; базовый срез — EyeAuras `20fd3d4`, PoeEye `0e02c98`.

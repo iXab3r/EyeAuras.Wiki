@@ -47,7 +47,80 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Blazor windows — это нативные окна; для click-through-аннотаций поверх экрана
   используйте карты OSD/screen-overlay.
 
+## Быстро открыть своё окно
+
+Для desktop C# Script создайте файл `HelloWindow.razor`:
+
+```razor
+@namespace MyScript
+<h3>Моё окно</h3>
+```
+
+В верхнеуровневом коде скрипта получите API, зарегистрированный UI-модулем:
+
+```csharp
+using EyeAuras.Shared.Scripting;
+
+{
+    var dialogs = GetService<IDialogWindowUnstableScriptingApi>();
+    using var window = dialogs.CreateWindow<MyScript.HelloWindow>();
+    window.Title = "Пример";
+    window.Width = 480;
+    window.Height = 320;
+    window.ShowDialog(cancellationToken);
+}
+```
+
+Появится нативное окно с Razor-содержимым, скрипт продолжится после закрытия
+или обработки отмены. Созданное окно добавляется в ресурсы dialog API, а
+`using` явно завершает владение. `CreateWindow` устанавливает `AutoOwner = false`:
+не считайте, что другое окно приложения автоматически стало владельцем.
+Для `Show()` сохраняйте объект живым после вызова. WPF-реализация сериализует
+изменения через dispatcher окна; возврат из `Show` не подтверждает готовность DOM.
+
+В срезе PoeEye `0e02c98` `IBlazorWindow` наследует `INativeWindow`.
+Используйте `DataContext`, а не устаревшее `ViewDataContext`; режим заголовка —
+`TitleBarDisplayMode`, не старые `ShowTitleBar` / `ShowIconOnTitleBar`.
+Свойства цветов окна — WPF `Color`, размеры — `int`. Развёрнутые операции и
+события — в [IBlazorWindow](../IBlazorWindow), детали фабрики — в
+[dialog API](../IDialogWindowUnstableScriptingApi).
+
+## Открыть нативный выбор файла из Razor
+
+Диалог файла — отдельная операция, не `CreateWindow<T>`. В компоненте используйте
+обёртку, зарегистрированную desktop Blazor-хостом:
+
+```razor
+@using EyeAuras.Blazor.Shared.Services
+@inject IBlazorOpenFileDialog OpenFileDialog
+
+<button @onclick="PickFile">Выбрать файл</button>
+<p>@selectedPath</p>
+
+@code {
+    private string selectedPath;
+
+    private async Task PickFile()
+    {
+        var file = await OpenFileDialog.ShowDialog();
+        selectedPath = file?.FullName;
+    }
+}
+```
+
+После выбора путь появится под кнопкой. Обёртка сама вызывает нативный диалог
+на WPF UI scheduler. Для сохранения и папок есть `IBlazorSaveFileDialog` и
+`IBlazorFolderBrowserDialog`. При прямом вызове нативного диалога нужен явный
+переход через UI scheduler; `Task.Run(() => dialog.ShowDialog())` для этого
+не подходит. Обычный Blazor-обработчик после `await` обновляет UI; в компонентах
+на базе `BlazorReactiveComponent` внешние изменения проводите через `Refresh(tag)`.
+
 ## Основные API
+
+Для немодального окна с моделью есть [полный пример dialog API](../IDialogWindowUnstableScriptingApi):
+обычный `.cs`-класс, типизированный `DataContext` в Razor и ожидание `WhenClosed`
+с токеном текущего запуска. Добавление окна в anchors задаёт очистку, но не
+заменяет это ожидание. `ShowDialog` ждёт внутри вызова; `Show()` — нет.
 
 - `IBlazorWindow` — основной контракт окна; `Show`, `ShowDialog`, `Close`,
   `ShowDevTools`, `ViewType`, `DataContext`, `Container`.

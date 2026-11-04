@@ -8,13 +8,21 @@ editor: markdown
 dateCreated: 2026-04-16T19:10:00.986Z
 ---
 
-# `LCProcess`
+# LCProcess
 
 `LCProcess` это acquisition backend поверх [LeechCore](https://github.com/ufrisk/LeechCore) и [MemProcFS](https://github.com/ufrisk/MemProcFS). Если `LocalProcess` работает с локальным процессом через обычный WinAPI, то `LCProcess` читает память через внешний источник. Главный автор этой экосистемы это [Ulf Frisk](https://github.com/ufrisk).
 
 Для Memory API это важно по одной причине: вы всё ещё получаете привычный `IProcess`-подобный слой с модулями, регионами, `MemoryOfModule(...)`, импортами, экспортами и сигнатурами, но источник памяти уже другой.
 
-## ELI5 - что такое `DMA`, `FPGA` и зачем здесь `Hyper-V`
+## Подключить источник к инструменту анализа
+
+Сначала выберите источник памяти: FPGA, гостевую VM или WinPMEM. Входами служат настроенный источник, его нативные библиотеки и PID **в этом источнике**. PID локальной программы на машине интерфейса может обозначать совсем другой процесс. После выбора backend инструмент получает `IProcess`, перечисляет его модули и только затем применяет смещения для нужной версии программы.
+
+Результат — данные из выбранного источника, пригодные для PE-разбора или поиска сигнатур. Свежесть данных, доступность записи, инициализация MemProcFS и время жизни builder/подключения зависят от версии backend. Владелец источника держит его открытым, пока работают reader и представления памяти, и останавливает потребителей до закрытия.
+
+**Граница версии:** режимы, фабрики и советы ниже сохранены из Wiki `c950e48d`. Реализация LCProcess/MPFS и нативный стек недоступны для сверки; точный пакет, аргументы, значения по умолчанию и совместимость с оборудованием здесь не установлены. Не рассматривайте эти фрагменты как самостоятельную настройку DMA. Для обычного локального процесса есть [LocalProcess](/ru/scripting/memory-api/backends/local-process).
+
+## ELI5 - что такое DMA, FPGA и зачем здесь Hyper-V
 - `DMA` — **Direct Memory Access**, это сценарий, где память читается не через обычный `OpenProcess`, а через более низкий и более внешний путь.
 - `FPGA` — это программируемое железо, на базе которого в экосистеме Ulf Frisk строятся DMA-устройства.
 - `Hyper-V` — это сценарий, где хост читает память гостевой виртуальной машины снаружи.
@@ -38,7 +46,7 @@ dateCreated: 2026-04-16T19:10:00.986Z
 
 Если ничего из этого не нужно, почти всегда проще начать с `LocalProcess`.
 
-# Какие режимы есть
+## Какие режимы есть
 
 ## FPGA
 
@@ -49,8 +57,10 @@ dateCreated: 2026-04-16T19:10:00.986Z
 ```csharp
 using EyeAuras.Memory.MPFS;
 
-var processes = LCProcess.FPGA().GetProcesses();
-using var process = LCProcess.FPGA().ByProcessName("game.exe");
+{
+    var processes = LCProcess.FPGA().GetProcesses();
+    using var process = LCProcess.FPGA().ByProcessName("game.exe");
+}
 ```
 
 Практически это даёт главное преимущество `LCProcess`: чтение идёт внешним путём, а не через обычное открытие процесса. По документации PCILeech и PCILeech FPGA, именно FPGA-сценарий даёт полный доступ к 64-bit memory space без зависимости от обычного process handle на целевой системе.
@@ -72,11 +82,13 @@ using var process = LCProcess.FPGA().ByProcessName("game.exe");
 ```csharp
 using EyeAuras.Memory.MPFS;
 
-var vms = LCProcess.HyperV().ListVirtualMachines();
+{
+    var vms = LCProcess.HyperV().ListVirtualMachines();
 
-using var process = LCProcess.HyperV()
-    .UseVirtualMachineByIndex(0)
-    .ByProcessName("game.exe");
+    using var process = LCProcess.HyperV()
+        .UseVirtualMachineByIndex(0)
+        .ByProcessName("game.exe");
+}
 ```
 
 Главная ценность здесь в том, что память читается **снаружи виртуальной машины**. Это даёт несколько очень понятных плюсов:
@@ -100,8 +112,10 @@ using var process = LCProcess.HyperV()
 ```csharp
 using EyeAuras.Memory.MPFS;
 
-var processes = LCProcess.WinPMEM().GetProcesses();
-using var process = LCProcess.WinPMEM().ByProcessId(1234);
+{
+    var processes = LCProcess.WinPMEM().GetProcesses();
+    using var process = LCProcess.WinPMEM().ByProcessId(1234);
+}
 ```
 
 Обычно это самый удобный способ проверить, что ваш сценарий вообще работает в модели `LCProcess`, ещё до перехода на `FPGA`.
@@ -118,8 +132,10 @@ using var process = LCProcess.WinPMEM().ByProcessId(1234);
 ```csharp
 using EyeAuras.Memory.MPFS;
 
-using var process = LCProcess.Custom("-device", "hvmm://id=0")
-    .ByProcessName("game.exe");
+{
+    using var process = LCProcess.Custom("-device", "hvmm://id=0")
+        .ByProcessName("game.exe");
+}
 ```
 
 Сюда же относятся `WithDevice(...)`, `WithRemote(...)`, `WithAdditionalArguments(...)`, `WithPrinting(...)` и `WaitForInitialize(...)`.
@@ -129,7 +145,7 @@ using var process = LCProcess.Custom("-device", "hvmm://id=0")
 - [LeechCore API](https://github.com/ufrisk/LeechCore/wiki/LeechCore_API)
 - [LeechCore Python API](https://github.com/ufrisk/LeechCore/wiki/LeechCore_API_Python)
 
-# Что даёт LCProcess
+## Что даёт LCProcess
 
 Несмотря на acquisition-природу, сверху вы получаете знакомую модель:
 

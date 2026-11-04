@@ -8,7 +8,7 @@ editor: markdown
 dateCreated: 2026-05-03T00:00:00.000Z
 ---
 
-# `XignProcess`
+# XignProcess
 
 `XignProcess` это реализация `IProcess`, которая работает через XignCode3-драйвер
 определенной версии. Снаружи это обычный Memory API backend: у вас остается
@@ -42,6 +42,21 @@ curated layout set, или нужные PEB/thread/VAD структуры нел
 
 using EyeAuras.XignSdk;
 ```
+
+## Передать выбранный backend коду чтения
+
+На вход потребителю Memory API передайте уже созданный и принадлежащий хосту `IProcess`, а также известный абсолютный адрес поля. Тогда операция чтения не зависит от фабрики Xign:
+
+```csharp
+static int ReadHealth(EyeAuras.Memory.IProcess process, long healthAddress)
+{
+    return process.Memory.Read<int>(healthAddress);
+}
+```
+
+Возвращается значение `int` из памяти выбранного процесса; `healthAddress` — не RVA и не адрес переменной в вашем скрипте. `Read<int>` синхронен и может бросить исключение. Владелец должен удерживать reader живым до завершения чтений и освободить его после остановки потребителей.
+
+Контракт этого чтения сверён с EyeAuras `20fd3d4`. Последующие фабрики, lease и сведения о драйвере — историческое описание Wiki `c950e48d`: реализации `EyeAuras.XignSdk` для сверки нет. Точные сигнатуры, владение подключением и поведение драйвера требуют соответствующей версии пакета. Наблюдение от 1 мая ниже относится к прежней проверке автора, а не к гарантии на вашей машине.
 
 ## Зачем он нужен
 
@@ -82,10 +97,12 @@ Manager. Это заметно стабильнее, чем самодельны
 ```csharp
 using EyeAuras.XignSdk;
 
-using var process = XignProcess.ByProcessId(pid);
+{
+    using var process = XignProcess.ByProcessId(pid);
 
-var health = process.Memory.Read<int>(healthAddress);
-process.Memory.Write<int>(healthAddress, 100);
+    var health = process.Memory.Read<int>(healthAddress);
+    process.Memory.Write<int>(healthAddress, 100);
+}
 ```
 
 Если драйвер нужно загрузить перед открытием процесса:
@@ -93,15 +110,17 @@ process.Memory.Write<int>(healthAddress, 100);
 ```csharp
 using EyeAuras.XignSdk;
 
-using var process = XignProcess
-    .WithLoadDriver()
-    .ByProcessName("game.exe");
+{
+    using var process = XignProcess
+        .WithLoadDriver()
+        .ByProcessName("game.exe");
+}
 ```
 
 Загрузка идет обычным SCM-путем. SDK не занимается обходом подписи драйвера или
 политик Windows.
 
-## `EnterOpenProcess()`
+## EnterOpenProcess()
 
 По умолчанию `XignProcess` открывает handle процесса через драйвер на время
 операции и закрывает его после нее. Для одиночных вызовов это нормально. Для
@@ -110,15 +129,17 @@ using var process = XignProcess
 `EnterOpenProcess()` держит handle открытым до выхода из `using`:
 
 ```csharp
-using var process = XignProcess
-    .WithLoadDriver()
-    .ByProcessId(pid);
-
-using (process.EnterOpenProcess())
 {
-    var regions = process.GetMemoryRegions();
-    var module = process.MemoryOfModule("game.exe");
-    var value = process.Memory.Read<int>(address);
+    using var process = XignProcess
+        .WithLoadDriver()
+        .ByProcessId(pid);
+
+    using (process.EnterOpenProcess())
+    {
+        var regions = process.GetMemoryRegions();
+        var module = process.MemoryOfModule("game.exe");
+        var value = process.Memory.Read<int>(address);
+    }
 }
 ```
 
@@ -131,10 +152,12 @@ manual mapping или allocation/write/execute последовательнос�
 `WithOpenProcess()`:
 
 ```csharp
-using var process = XignProcess
-    .WithLoadDriver()
-    .WithOpenProcess()
-    .ByProcessId(pid);
+{
+    using var process = XignProcess
+        .WithLoadDriver()
+        .WithOpenProcess()
+        .ByProcessId(pid);
+}
 ```
 
 ## Что важно знать

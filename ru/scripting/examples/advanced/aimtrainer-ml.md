@@ -7,7 +7,9 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-06-27T21:27:31.399Z
 ---
-# Что это такое?
+# Найти цель в учебном Aim Trainer
+
+Это верхнеуровневый `C# Script` внутри EyeAuras для собственного учебного сеанса Aim Trainer. Откройте страницу target-tracking, проверьте заголовок окна в `GetWindow` и доступность указанного ONNX-файла. URL модели — вход примера, а не встроенный ресурс; первая загрузка требует доступа к нему. Нужны рабочие захват окна, ML runtime и выбранный симулятор ввода. Совместимость модели и внешних пакетов отдельно не проверена.
 
 В этом примере показано, **как сделать простой 2D aimbot с ESP-оверлеем** (отрисовкой поверх экрана) с помощью **ImGui** — библиотеки для создания интерфейсов в играх и приложениях.
 
@@ -32,60 +34,107 @@ dateCreated: 2025-06-27T21:27:31.399Z
 ##  Пример кода
 
 ```csharp
+
 //this is a simple 2D aimbot + ESP for https://aimtrainer.io/target-tracking
 
 #r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
 #r "nuget:ImGui.NET, 1.91.6.1"
- 
+
 using EyeAuras.ImGuiSdk;
 using ImGuiNET;
 using System.Numerics;
-AddNewExtension<ImGuiContainerExtensions>();
+using System;
+using System.Drawing;
+using System.Linq;
+using EyeAuras.OpenCVAuras.Scripting;
+using EyeAuras.Roxy.Api;
+using EyeAuras.Scripting.Api;
+using EyeAuras.Shared.Services;
+using PoeShared.Scaffolding;
 
-var targetWindow = GetService<IWindowSelector>().GetWindow("Aim Trainer");
-
-var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForWindow(targetWindow);
-
-var sendInput = GetService<ISendInputScriptingApi>();
-
-var osd = GetService<IImGuiExperimentalApi>() 
-    .AddTo(ExecutionAnchors);
-
-var mlModelPath = @"https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
-
-osd.AddRenderer(() =>
 {
-    if (!targetWindow.IsForeground) return;
+    AddNewExtension<ImGuiContainerExtensions>();
 
-    var windowBounds = targetWindow.DwmFrameBounds;
-    osd.DrawFrame(windowBounds, Color.Purple);
- 
-    var result = cv.MLSearchRaw(mlModelPath);
-    if (!result.Detected.Predictions.Any()) return;
+    var targetWindow = GetService<IWindowSelector>().GetWindow("Aim Trainer");
 
-    var currentPosition = result
-      .Detected
-      .Predictions
-      .First()
-      .Rectangle
-      .Transform(result.ViewportTransforms.WorldToScreen);
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
+        .ForWindow(targetWindow);
 
-    Log.Info($"Found via ML @ {currentPosition}");
+    var sendInput = GetService<ISendInputScriptingApi>();
+    sendInput.TargetWindow = null; // ниже передаём экранные координаты
 
-    if (!currentPosition.IsEmpty)
+    using var osd = GetService<IImGuiExperimentalApi>();
+
+    var mlModelPath = @"https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
+
+    var renderGate = new object();
+    var renderStopped = false;
+    var renderRegistration = osd.AddRenderer(() =>
     {
-        var targetCenter = currentPosition.ToWinRectangle().Center();
+        lock (renderGate)
+        {
+            if (renderStopped || cancellationToken.IsCancellationRequested || !targetWindow.IsForeground) return;
 
-        osd.DrawFrame(currentPosition, Color.AliceBlue);
-        
-        var drawList = ImGui.GetBackgroundDrawList();
-        drawList.AddCircle(targetCenter.ToVector2(), 10, Color.Red.ToImGuiColor());
+            var windowBounds = targetWindow.DwmFrameBounds;
+            var drawList = ImGui.GetBackgroundDrawList();
+            drawList.AddRect(
+                new Vector2(windowBounds.Left, windowBounds.Top),
+                new Vector2(windowBounds.Right, windowBounds.Bottom),
+                Color.Purple.ToImGuiColor());
 
-        sendInput.MouseMoveTo(targetCenter);
-        sendInput.MouseClick();
+            var result = cv.MLSearchRaw(mlModelPath);
+            if (!result.Detected.Predictions.Any()) return;
+
+            var currentPosition = result
+              .Detected
+              .Predictions
+              .First()
+              .Rectangle
+              .Transform(result.ViewportTransforms.WorldToScreen);
+
+            Log.Info($"Found via ML @ {currentPosition}");
+
+            if (!currentPosition.IsEmpty)
+            {
+                var targetCenter = currentPosition.ToWinRectangle().Center();
+
+                drawList.AddRect(
+                    new Vector2(currentPosition.Left, currentPosition.Top),
+                    new Vector2(currentPosition.Right, currentPosition.Bottom),
+                    Color.AliceBlue.ToImGuiColor());
+
+                drawList.AddCircle(targetCenter.ToVector2(), 10, Color.Red.ToImGuiColor());
+
+                sendInput.MouseMoveTo(targetCenter);
+                sendInput.MouseClick();
+            }
+        }
+    });
+
+    try
+    {
+        cancellationToken.WaitHandle.WaitOne();
     }
-});
-
-cancellationToken.WaitHandle.WaitOne(); 
+    finally
+    {
+        lock (renderGate)
+        {
+            // Wait for any current callback, then prevent all later work.
+            renderStopped = true;
+        }
+        renderRegistration.Dispose();
+    }
+}
 ```
+
+`MLSearchRaw` возвращает оболочку с `Detected.Predictions` и матрицами захвата. Без явных порогов используются confidence 30% и IoU 40%; первая запись не означает гарантированно лучшую или правильную цель. Пустой список — цель не найдена, ошибка загрузки/захвата — отдельная ошибка. Прямоугольник переводится из координат захвата через `WorldToScreen` до отправки ввода. При ненулевом `TargetWindow` оконная обёртка ввода сделала бы ещё одно преобразование.
+
+Скрипт меняет реальный курсор и кликает только при активном учебном окне. Между проверкой активности и кликом окно может измениться. Остановка проверяется между итерациями/кадрами; синхронное распознавание и уже начатый ввод токен не прерывает. Регистрация отрисовки снимается в `finally`, затем блок `using` освобождает ImGui API и CV; `Captured` и изображения результата заимствованы, освобождать их отдельно нельзя.
+
+Распознавание выполняется прямо в callback отрисовки ImGui. Медленный вызов задержит кадр; это простой учебный вариант без отдельного рабочего потока. Не переносите общий CV/ImGui-контекст в `Task.Run` без отдельного согласования владения.
+
+## Дальше
+
+[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
+
+Операции CV и владение регистрацией сопоставлены с исходниками EyeAuras `20fd3d4`. Пример сохраняет историческую привязку `EyeAuras.ImGuiSdk 0.0.6`; её бинарная совместимость с этими исходниками и `ImGui.NET 1.91.6.1` не подтверждена. Рамки показаны через публичный draw list ImGui, а не отсутствующий в текущем интерфейсе `osd.DrawFrame`. Перед использованием проверьте сигнатуры SDK своей версии; компиляция и запуск этого листинга не выполнялись.

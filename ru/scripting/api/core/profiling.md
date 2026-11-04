@@ -83,19 +83,32 @@ MiniProfiler не заменяет CPU sampler. Он показывает, ск�
 - `ProfilerProvider.Create(string name = default)` — создаёт изолированный MiniProfiler с `MemoryCacheStorage`.
 - `MiniProfilerExtensions.StepInfo(...)` — обёртка над `Step(...)`, которая при завершении пишет `Info` log с временем в миллисекундах.
 - `MiniProfilerExtensions.StepDebug(...)` — обёртка над `Step(...)`, которая при завершении пишет `Debug` log с временем в миллисекундах.
-- `MiniProfilerExtensions.Clear(...)` — очищает MiniProfiler, если он использует `MemoryCacheStorage`.
+- `MiniProfilerExtensions.Clear(...)` — очищает кэш `MemoryCacheStorage`;
+  не обещает сброс уже существующего дерева таймингов.
 - `ICvAccessor.EnableProfiling()` — включает внутренние CV-steps для одного accessor'а.
 - `ICvAccessor.Profiler` — MiniProfiler, привязанный к одному CV accessor'у.
 - `MiniProfilerViewer` / `IMiniProfilerViewer` — встроенный viewer дерева/текста для данных MiniProfiler.
 - `JetBrains.Profiler.SelfApi.DotTrace` — запускает, сохраняет, архивирует и завершает performance profiling sessions.
 - `JetBrains.Profiler.SelfApi.DotMemory` — создаёт memory snapshots.
-- `IPerformanceProfilerService` — сервис EyeAuras, который оборачивает dotTrace/dotMemory.
-- `ProfilerController` — web endpoints для статуса, `startProfiling`, `stopProfiling` и `takeSnapshot`.
+- `IProfilerService` — сервис EyeAuras, который оборачивает dotTrace/dotMemory.
+- `ProfilerController` — ориентир для поиска web-интеграции в своей поставке;
+  наличие и доступность endpoint нужно проверять отдельно.
 - `IProfilerViewModel` — UI-состояние и команды профилирования, которые использует Settings и компактный profiler control в title bar.
 
-## Частые сценарии
+## Контракт профилирования в своей версии
+
+Для следующих примеров доступны `EyeAuras.Shared.Services` и
+`StackExchange.Profiling`. `ProfilerProvider` сверён по EyeAuras `20fd3d4`;
+WPF-команды — по PoeEye `0e02c98`. В этом слое контракт называется
+`PoeShared.Profiler.IProfilerService` и содержит `StartProfiling()`,
+`StopCollecting()` и `TakeMemorySnapshot()`, возвращающие `Task`.
+Наличие JetBrains-инструментов и web endpoint зависит от поставки host.
 
 ### Добавить MiniProfiler steps в код приложения
+
+Следующий фрагмент вставляется в существующую фазу старта, где
+`auraTreeConfigManager` — уже внедрённый менеджер дерева, `Log` — логгер
+сервиса. Это место инструментирования, а не отдельный скрипт:
 
 ```csharp
 using (ProfilerProvider.Startup.StepInfo(Log, "Loaded aura tree config"))
@@ -111,47 +124,42 @@ using (ProfilerProvider.Startup.StepInfo(Log, "Loaded aura tree config"))
 
 ```csharp
 using StackExchange.Profiling;
+using EyeAuras.Shared.Services;
 
-var profilerProvider = GetService<IProfilerProvider>();
+var profilerProvider = ProfilerProvider.Instance;
 var profiler = profilerProvider.GetOrAdd("My pack / Farm loop");
 
 using (profiler.Step("Loop iteration"))
 {
     using (profiler.Step("Read state"))
     {
-        ReadGameState();
+        await Task.Delay(20, cancellationToken);
     }
 
     using (profiler.Step("Choose action"))
     {
-        ChooseNextAction();
+        await Task.Delay(10, cancellationToken);
     }
 }
 
 Log.Info(profiler.RenderPlainText());
 ```
 
-Используйте общий именованный profiler, если в одном сценарии участвуют несколько scripts или helper classes.
+В верхнеуровневом скрипте пример выведет дерево с двумя ожидаемыми
+задержками. Замените их чтением состояния и выбором действия. Повторный
+`GetOrAdd` с тем же именем вернёт общий profiler. Если нужно измерить один
+запуск без прежней истории, используйте `ProfilerProvider.Create("One run")`.
+Общий именованный profiler полезен для нескольких скриптов или сервисов.
 
 ### Профилировать CV loop
 
-```csharp
-using StackExchange.Profiling;
-
-var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForWindow(targetWindow)
-    .EnableProfiling();
-
-using (cv.Profiler.Step("Loop iteration"))
-{
-    var match = cv.ImageSearchRaw("needle.png");
-
-    using (cv.Profiler.Step("Mouse move"))
-    {
-        sendInput.MouseMoveTo(match.Detected.Bounds.Value.Center());
-    }
-}
-```
+Сначала получите CV accessor для конкретного окна или экрана и вызовите
+`EnableProfiling()`. Вложенные `cv.Profiler.Step("...")` измеряют ваши блоки,
+а внутренние CV-шаги показывают работу самого accessor. Полная подготовка
+входного изображения и окна приведена в
+[профилировании CV](../computer-vision/profiling).
+Не копируйте движение мыши из примера поиска, пока не проверили найденный
+результат и систему координат.
 
 `EnableProfiling()` записывает внутренние CV-фазы: renting, preparation, refresh, model/search work и OSD.  
 Добавляйте свои steps вокруг не-CV-частей, чтобы в итоговом отчёте отдельно видеть detection, input, sleeps, logging и UI.
@@ -162,20 +170,22 @@ using (cv.Profiler.Step("Loop iteration"))
 2. Откройте встроенную панель profiler'а, если она доступна.
 3. Используйте Tree view, чтобы увидеть структуру parent/child таймингов.
 4. Используйте Text view или `RenderPlainText()`, если результат нужно скопировать в лог или в report.
-5. Для долгих сценариев очищайте profiler data или делайте ротацию.
+5. Для долгих сценариев создавайте отдельный profiler на ограниченный интервал.
 
 ### Собрать JetBrains performance capture
 
 1. Откройте Settings и нажмите **Start profiling**, либо вызовите endpoint запуска profiler'а, если управляете приложением удалённо.
 2. Воспроизведите лаги, пока идёт сбор профиля. Для support capture обычно достаточно 10-30 минут.
-3. Нажмите **Stop profiling**. EyeAuras сохранит архив `Performance-PID...` в папку `traces` приложения.
+3. Нажмите **Stop profiling**. В поставках с этой интеграцией ожидайте архив профиля; точное имя и каталог
+   проверьте по сообщению host.
 4. Приложите полученный файл через **Report a problem**, либо передайте его через cloud storage, если он слишком большой.
 
 ### Собрать JetBrains memory snapshot
 
 1. Дождитесь момента, когда потребление памяти уже явно стало ненормальным.
 2. Используйте действие снятия memory snapshot в profiler/report workflow или вызовите endpoint `takeSnapshot`, если управляете приложением удалённо.
-3. EyeAuras сохранит workspace `Memory-PID...` dotMemory в папку `traces` приложения.
+3. В поставках с этой интеграцией получите workspace dotMemory; каталог и имя
+   проверьте по сообщению host.
 4. Учитывайте, что во время записи snapshot'а приложение может подвисать или работать медленнее.
 5. Приложите полученный файл к report о проблеме.
 
@@ -193,7 +203,9 @@ using (cv.Profiler.Step("Loop iteration"))
 - Названия шагов MiniProfiler должны быть достаточно стабильными, если вы хотите сравнивать повторные прогоны.
 - Прогрев и стабильный режим лучше измерять отдельно; первые CV/ML/OCR-вызовы часто загружают модели, native libraries, capture resources или caches.
 - Если вы измеряете производительность, не стоит логировать внутри каждого tight loop step, если только накладные расходы logging сами не являются частью сценария.
-- Данные MiniProfiler живут в памяти. Для долгих loop'ов выводите summary, очищайте старые данные или ограничивайте окно профилирования.
+- Данные MiniProfiler живут в памяти. Для долгих циклов ограничивайте окно измерения и создавайте новый profiler.
+  `Clear()` чистит кэш хранилища, но не сбрасывает явно корневое дерево уже
+  существующего MiniProfiler.
 - Захваты JetBrains — это диагностика уровня support. Они полнее, чем MiniProfiler, но тяжелее и при сборе, и при анализе.
 - dotTrace объясняет CPU/time по всему процессу; dotMemory объясняет удержание heap и allocation'ы. Используйте profiler под тот симптом, который вы видите.
 
@@ -239,7 +251,7 @@ using (cv.Profiler.Step("Loop iteration"))
 - `JetBrains.Profiler.SelfApi`
 - `DotTrace`
 - `DotMemory`
-- `IPerformanceProfilerService`
+- `IProfilerService`
 - `ProfilerController`
 - `IProfilerViewModel`
 
@@ -267,14 +279,14 @@ using (cv.Profiler.Step("Loop iteration"))
 
 ## Связанные материалы
 
-- `computer-vision/profiling.md`
-- `scripting/logging.md`
-- `scripting/runtime.md`
-- `core/app-runtime-contexts.md`
-- `core/app-modules.md`
-- `core/blazor.md`
-- `../../../features/profiler.md`
-- `../../examples/advanced/profiling-cv.md`
+- [profiling](../computer-vision/profiling)
+- [logging](../scripting/logging)
+- [runtime](../scripting/runtime)
+- [app-runtime-contexts](app-runtime-contexts)
+- [app-modules](app-modules)
+- [blazor](blazor)
+- [profiler](../../../../features/profiler)
+- [profiling-cv](../../examples/advanced/profiling-cv)
 - [MiniProfiler .NET docs](https://miniprofiler.com/dotnet/)
 - [MiniProfiler profile-code docs](https://miniprofiler.com/dotnet/HowTo/ProfileCode)
 - [MiniProfiler GitHub repository](https://github.com/MiniProfiler/dotnet)

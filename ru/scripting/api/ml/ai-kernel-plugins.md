@@ -7,14 +7,14 @@ tags: scripting, api, ai, semantic-kernel, tools, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
-# Карта по `AiKernelPlugin` и discovery плагинов AI Kernel
+# Инструменты AiKernelPlugin
 
 `AiKernelPlugin` — это основная точка расширения, через которую возможности хоста становятся доступными для AI-сессий в виде вызываемых инструментов.
 
 ## Для чего это используют
 
 - Создать свой AI tool plugin.
-- Дать модели безопасный доступ к просмотру или изменению состояния хоста.
+- Дать модели инструменты просмотра или изменения состояния хоста с явно заданными ограничениями.
 - Добавить инструкции для сессии под конкретный набор инструментов.
 - Подключить локальный retrieval к сессии.
 - Требовать подтверждение перед рискованными вызовами инструментов.
@@ -42,46 +42,66 @@ dateCreated: 2026-04-22T00:00:00.000Z
 - Обычные helper-классы должны явно получать plugin, session или сервисы host-а. Не рассчитывайте на top-level удобства, доступные в скриптах.
 - В MCP-hosting используются те же методы `AiKernelPlugin`, но инструкции берутся из `GetMcpServerInstructions`.
 
-## Минимальная форма плагина
+## Зарегистрировать и вызвать свой инструмент
+
+Пример для обычного C#-кода приложения/плагина, где доступны сборки
+`EyeAuras.AI` и Semantic Kernel. Он создаёт локальный каталог инструментов,
+передаёт строку и получает её длину. Профиль модели, ключ и сетевой запрос не
+нужны. Это проверка контракта плагина; для вызова инструмента моделью дополнительно
+нужны сессия и настроенный провайдер — [AI runtime](ai-runtime).
 
 ```csharp
 using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
+using EyeAuras.AI.PluginHost;
 using EyeAuras.AI.SemanticKernel;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 
-public sealed class WorkspaceSummaryPlugin : AiKernelPlugin
+public sealed class TextLengthPlugin : AiKernelPlugin
 {
-    private readonly IWorkspaceIndex workspaceIndex;
-
-    public WorkspaceSummaryPlugin(IWorkspaceIndex workspaceIndex)
-    {
-        this.workspaceIndex = workspaceIndex;
-    }
-
-    public override void InitializeChatHistory(in ChatHistory chatHistory)
-    {
-        chatHistory.AddSystemMessage(
-            "Use workspace_summary_get before making claims about workspace state.");
-    }
-
-    [KernelFunction("workspace_summary_get")]
-    [Description("Return a concise summary of the current workspace state.")]
-    public WorkspaceSummary GetSummary(
-        [Description("Maximum number of items to include.")] int maxItems = 20,
+    [KernelFunction("text_length")]
+    [Description("Return the number of UTF-16 code units in the text.")]
+    public int GetLength(
+        [Description("Text to measure.")] string text,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return workspaceIndex.GetSummary(maxItems);
+        return text.Length;
+    }
+}
+
+public static class TextLengthExample
+{
+    public static async Task<AiToolInvocationResult> RunAsync(
+        CancellationToken cancellationToken)
+    {
+        var host = new AiPluginHost();
+        host.AddOrUpdatePlugin("text", new TextLengthPlugin());
+        try
+        {
+            return await host.InvokeToolAsync(
+                "text", "text_length",
+                new KernelArguments { ["text"] = "Привет" },
+                cancellationToken: cancellationToken);
+        }
+        finally
+        {
+            host.RemovePlugin("text");
+        }
     }
 }
 ```
 
-Регистрация:
+`RunAsync` возвращает `AiToolInvocationResult` с `Succeeded = true` и `Value = 6`.
+`ListTools()` перечислит `text.text_length`; токен передаётся методом хоста и
+не входит в схему аргументов модели. Регистрация удаляется в `finally`.
+`AiKernelPlugin` сам по себе не `IDisposable`: своими сервисами, подписками
+и прочими ресурсами плагина владеет ваш код.
 
-```csharp
-session.AddOrUpdatePlugin("workspace", new WorkspaceSummaryPlugin(index));
-```
+Для реальной чат-сессии тот же экземпляр подключается через
+`session.AddOrUpdatePlugin("text", plugin)`. Здесь `session` должна быть
+создана и принадлежать вашему хосту; это не глобальная переменная скрипта.
 
 ## Детали API
 
@@ -109,12 +129,21 @@ session.AddOrUpdatePlugin("workspace", new WorkspaceSummaryPlugin(index));
 - Retrieval payload-ы добавляются в контекст запроса через `AiConversationEngine`.
 - `AiDocsKnowledgeBasePlugin` — встроенный пример для markdown-документов: `IBm25KnowledgeBase`, `Bm25Document`, `Bm25SearchQuery` и `Bm25SearchHit`.
 
+## Где применяется политика
+
+Контракт ниже описывает EyeAuras `20fd3d4`. `AiToolCallFilter` применяет политику
+в интеграции Semantic Kernel. Прямой `IAiPluginHost.InvokeToolAsync`, использованный
+выше для локальной проверки, **не проверяет политику сессии**. Если приложение
+само вызывает этот метод, оно само принимает решение о допустимости операции.
+Не переносите гарантии фильтра автоматически на MCP, coding-agent или свой
+маршрут вызова. Политика не является изоляцией ОС.
+
 ## Подтверждение вызова инструментов
 
 - Используйте `AiFunctionInvocationPolicy`, если в сессии есть инструменты, которые могут менять состояние, работать с файлами, отправлять input, вызывать внешние сервисы или запускать дорогие операции.
 - Правила сопоставления принимают либо короткие имена инструментов, либо имена в формате `plugin.tool`.
 - Инструменты из whitelist запускаются без подтверждения.
-- Инструменты из blacklist требуют подтверждения, даже если режим по умолчанию разрешает вызовы.
+- Инструменты из blacklist требуют подтверждения, если не совпали с whitelist: whitelist проверяется первым.
 - При `AiFunctionInvocationDefaultMode.RequireApproval` все инструменты вне whitelist требуют approval callback.
 - `AiFunctionApprovalResult.Allow` выполняет инструмент.
 - `AiFunctionApprovalResult.Deny` блокирует его и может вернуть synthetic result.

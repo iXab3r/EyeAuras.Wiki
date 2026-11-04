@@ -25,10 +25,12 @@ AutoHotkey v2:
 ^!s::SendText "hello"
 ```
 
-Скрипт EyeAuras:
+C# Action в EyeAuras:
 
 ```csharp
 ISendInputScriptingApi SendInput { get; init; }
+
+await Task.Delay(Timeout.Infinite, cancellationToken);
 
 [Keybind("Ctrl+Alt+S", SuppressKey = true)]
 void SendHello()
@@ -36,6 +38,8 @@ void SendHello()
     SendInput.Text("hello");
 }
 ```
+
+Пример остаётся работающим C# Action благодаря ожиданию с токеном запуска. Пока запуск не завершён, Ctrl+Alt+S отправляет `hello` активному приложению; остановка завершает регистрацию. Уберите ожидание, если запуск уже удерживается вашим окном или основной задачей.
 
 Используйте `SuppressKey = false`, если исходная горячая клавиша должна по-прежнему доходить до активного приложения — это похоже на хоткеи AHK с префиксом `~`.
 
@@ -56,9 +60,13 @@ tracker.WhenAnyValue(x => x.IsActive)
     .AddTo(ExecutionAnchors);
 ```
 
-Этот пример с tracker предполагает, что вы вставляете его в скрипт, у которого уже есть норменный жизненный цикл — например, в окно, цикл, hosted service или более крупное mini-app. Не добавляйте в каждый пример искусственное ожидание только ради того, чтобы подписка не завершалась.
+Этот пример с tracker предполагает, что вы вставляете его в скрипт, у которого уже есть основной цикл выполнения — например, в окно, цикл, hosted service или более крупное mini-app. Не добавляйте в каждый пример искусственное ожидание только ради того, чтобы подписка не завершалась.
 
 **Рекомендация:** хороший вариант. Для фиксированных хоткеев используйте `[Keybind]`; `IHotkeyTracker` с Rx нужен только тогда, когда скрипту требуются горячие клавиши, настраиваемые во время выполнения, или композиция через observable.
+
+У `KeybindAttribute` по умолчанию `SuppressKey = true`, `IgnoreModifiers = false`, `ActivationType = KeyDown`. Обработчик планируется на фоновом планировщике; параметры разрешаются через контейнер скрипта, возвращённый `Task` ожидается. Это не перенос UI-вызовов на диспетчер и не автоматическая отмена всего кода обработчика.
+
+Трекер из фабрики и подписка в примере принадлежат текущему запуску (`ExecutionAnchors`). `IsEnabled` уже равен `true`. У обычного C# класса нет глобальных `SendInput`, `ExecutionAnchors` или `cancellationToken`: передайте зависимости и владельца ресурсов явно.
 
 ## Ссылки для сверки
 
@@ -73,11 +81,4 @@ tracker.WhenAnyValue(x => x.IsActive)
   [Input, Hooks, Hotkeys](../windows-subsystems/input-hooks-hotkeys),
   [ISendInputScriptingApi](../ISendInputScriptingApi),
   [Scripting Runtime](../scripting/runtime).
-- Исходники EyeAuras:
-  [KeybindAttribute.cs](../../../../../Sources/EyeAuras.Scripting/Api/KeybindAttribute.cs),
-  [HotkeyTrackerRuntimeVisitor.cs](../../../../../Sources/EyeAuras.Scripting/Visitors/HotkeyTrackerRuntimeVisitor.cs),
-  [IHotkeyTracker.cs](../../../../../Submodules/PoeEye/PoeEye/PoeShared.Wpf/UI/Hotkeys/IHotkeyTracker.cs),
-  [HotkeyTracker.cs](../../../../../Submodules/PoeEye/PoeEye/PoeShared.Wpf/UI/Hotkeys/HotkeyTracker.cs),
-  [HotkeyGesture.cs](../../../../../Submodules/PoeEye/PoeEye/PoeShared.Wpf/UI/Hotkeys/HotkeyGesture.cs),
-  [IHotkeyConverter.cs](../../../../../Submodules/PoeEye/PoeEye/PoeShared.Wpf/UI/Hotkeys/IHotkeyConverter.cs),
-  [HotkeyConverter.cs](../../../../../Submodules/PoeEye/PoeEye/PoeShared.Wpf/UI/Hotkeys/HotkeyConverter.cs).
+- Контракты EyeAuras: [контекст скрипта](../scripting/runtime), [ввод](../ISendInputScriptingApi), [окна](../windows-subsystems/window-handles). Точные типы и сигнатуры сверяйте с SDK/XML своей версии; базовый срез — EyeAuras `20fd3d4`, PoeEye `0e02c98`.

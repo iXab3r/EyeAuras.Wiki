@@ -69,6 +69,21 @@ dateCreated: 2026-04-22T00:00:00.000Z
 - `AuraScriptRunner<TSandbox>` — создает logger событий скрипта и регистрирует его как `IFluentLog` контейнера скрипта.
 - `AuraScriptSandbox.Log` / `IAuraScriptSandbox.Log` — script-level fluent log, доступный верхнеуровневому коду скрипта.
 
+## Выбрать место, где будет видно сообщение
+
+В `Script.csx` достаточно `Log.Info("Started")`: runner связывает логгер с
+категорией событий `Script`. Для обычного сервиса используйте
+`typeof(MyType).PrepareLogger()` из `PoeShared.Scaffolding`; сообщения идут
+в настроенные журналы приложения. Передача `Log` в helper сохраняет маршрут
+вызывающего скрипта. Конкретный файл журнала определяется настройками
+appender, а не именем helper-класса.
+
+Примеры ниже используют `PoeShared.Logging` и `PoeShared.Scaffolding`.
+Маршрут логгера сверён с `AuraScriptRunner` среза EyeAuras `20fd3d4`,
+перегрузки — с `IFluentLog` PoeEye `0e02c98`. Фактическую запись может
+отфильтровать уровень логирования; один вызов `Debug` не гарантирует видимую
+строку при любых настройках.
+
 ## Частые сценарии
 
 ### Создать type logger для сервиса
@@ -123,9 +138,8 @@ log.Info("Worker initialized");
 ### Добавить контекст для multi-session диагностики
 
 ```csharp
-var sessionLog = Log
-    .WithPrefix($"Session {session.Id}")
-    .WithSuffix(() => session.ProcessId?.ToString() ?? "no process");
+var sessionId = "local-session";
+var sessionLog = Log.WithPrefix($"Session {sessionId}");
 
 sessionLog.Info("Attaching to selected window");
 ```
@@ -135,12 +149,7 @@ sessionLog.Info("Attaching to selected window");
 ### Защитить дорогие dump'ы
 
 ```csharp
-Log.Debug(() => entities.DumpToNamedTable("Entities"));
-
-if (Log.IsDebugEnabled)
-{
-    Log.Debug(BuildLargeDiagnosticsReport());
-}
+Log.Debug(() => string.Join(", ", Variables.Select(x => x.Name)));
 ```
 
 Ленивая перегрузка — обычно лучший первый выбор. Ручные guard'ы полезны, если дорогая операция имеет side effects или возвращает сразу несколько сообщений.
@@ -148,15 +157,20 @@ if (Log.IsDebugEnabled)
 ### Замерить локальную операцию
 
 ```csharp
-using var timer = Log.CreateProfiler("Attach session")
-    .WithLoggingOnDisposal()
-    .WithMinElapsedThreshold(TimeSpan.FromMilliseconds(100));
+{
+    using var timer = Log.CreateProfiler("Attach session")
+        .WithLoggingOnDisposal()
+        .WithMinElapsedThreshold(TimeSpan.FromMilliseconds(100));
 
-timer.Step("Selected window");
-var process = processProvider.Open(window);
-timer.Step(() => $"Opened process {process.Id}");
+    timer.Step("Started");
+    await Task.Delay(150, cancellationToken);
+    timer.Step("Delay completed");
+}
 ```
 
+В верхнеуровневом скрипте этот пример измеряет ожидаемую задержку.
+При освобождении таймера сводка попадёт в лог, если достигнут порог 100 мс
+и включён нужный уровень. Замените задержку своей операцией.
 Используйте `BenchmarkTimer` для локальных диагностических breadcrumbs. Если нужно структурированное дерево таймингов или profiling report для пользователя, используйте MiniProfiler.
 
 ## Что стоит логировать
@@ -231,10 +245,10 @@ timer.Step(() => $"Opened process {process.Id}");
 
 ## Связанные карты
 
-- `core/profiling.md`
-- `core/app-runtime-contexts.md`
-- `core/app-modules.md`
-- `scripting/logging.md`
-- `scripting/runtime.md`
-- `scripting/container-extensions.md`
-- `computer-vision/profiling.md`
+- [profiling](profiling)
+- [app-runtime-contexts](app-runtime-contexts)
+- [app-modules](app-modules)
+- [logging](../scripting/logging)
+- [runtime](../scripting/runtime)
+- [container-extensions](../scripting/container-extensions)
+- [profiling](../computer-vision/profiling)

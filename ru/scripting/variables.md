@@ -11,7 +11,7 @@ dateCreated: 2025-10-19T11:24:15.492Z
 
 ## Зачем нужны переменные вне кода?
 
-Обычный скрипт живёт недолго: запускается, выполняет задачу и завершается. Но иногда нужно хранить настройки и результаты дольше — между перезапусками скрипта и даже делиться ими с другими скриптами. Для этого в EyeAuras есть «внешние» переменные — на уровне скриптов, аур и папок.
+Обычный скрипт живёт недолго: запускается, выполняет задачу и завершается. Но иногда нужно хранить настройки и результаты дольше — между запусками в том же контексте и даже делиться ими с другими скриптами. Для этого в EyeAuras есть «внешние» переменные — на уровне скриптов, аур и папок.
 
 Основные сценарии:
 - хранение настроек, которые редко меняются
@@ -24,16 +24,18 @@ dateCreated: 2025-10-19T11:24:15.492Z
   ```csharp
   var x = 123;
   ```
-- Свойства sandbox — поля/свойства класса вашего скрипта. Они сохраняются, пока вы не измените код (после изменения скрипт перекомпилируется, и свойства сбрасываются):
+- Свойства sandbox — поля/свойства класса вашего скрипта. Они сохраняются при повторном запуске с тем же контекстом. Изменение зависимой версии проекта или пересоздание контекста сбрасывает состояние:
   ```csharp
   int MyCounter { get; set; }
   // ...
   MyCounter = 16;
   Log.Info($"Counter: {MyCounter}");
   ```
-- Переменные Script/Aura/Folder — долговременное хранилище, видимое в UI и доступное другим скриптам. Именно о них и пойдёт речь в этой статье.
+- Переменные Script/Aura/Folder — хранилище выбранного владельца, видимое в UI и доступное другим скриптам через этого владельца. Именно о них и пойдёт речь в этой статье.
 
-## Общий принцип работы с переменными скрипта
+## Прочитать и увеличить счётчик
+
+Все примеры ниже — код для `Script.csx`. `Variables` и `AuraTree` предоставляет host. В обычный класс передайте `IVariablesScriptingApi` из `EyeAuras.Scripting.Api` либо готовый `ScriptVariable<T>` из `EyeAuras.Scripting.UserSpace`. Получение handle не создаёт запись и не требует `Dispose`; подпиской `Listen()` владеет вызывающий код. Это не гарантия сохранения произвольных объектов после перезапуска приложения.
 
 В «сыром» виде переменные можно читать и записывать через индексатор по строковому ключу:
 
@@ -49,7 +51,7 @@ Log.Info($"Counter: {Variables["myCounter"]}");
 ```csharp
 var myCounter = Variables.Get<int>("myCounter");
 myCounter.Value = myCounter.Value + 1;
-Log.Info($"Counter value: {myCounter}"); // 2, 3, 4, ...
+Log.Info($"Counter value: {myCounter.Value}"); // 2 после записи 1 выше; затем 3, 4, ...
 ```
 
 Снаружи это выглядит как обычная переменная: её можно читать, писать и логировать. Но внутри значение хранится в общем «хранилище переменных», доступном и другим скриптам.
@@ -63,6 +65,7 @@ Log.Info($"Counter value: {myCounter}"); // 2, 3, 4, ...
   ```
 - Переменная другой ауры или папки по пути:
   ```csharp
+  // В дереве должна существовать аура/папка по этому пути.
   var auraVar = Variables.Get<int>(@".\Gameplay\Bosses\Shaper", "attempts");
   auraVar.Value++;
   ```
@@ -73,12 +76,12 @@ Log.Info($"Counter value: {myCounter}"); // 2, 3, 4, ...
   Log.Info($"Status: {auraVar.Value}");
   ```
 
-## Самое важное поведение `ScriptVariable<T>`
+## Как выбрать способ чтения
 
 Ниже — простые правила, которые лучше понять один раз, чем потом долго отлаживать.
 
 - `Value`
-  - Читать всегда безопасно: исключения не выбрасываются.
+  - При отсутствии значения возвращается `default(T)`. Это не универсальная гарантия отсутствия исключений в пользовательских преобразованиях или сериализации.
   - Если значения нет или тип не подходит — возвращается `default(T)` (`0` для чисел, `false` для `bool`, `null` для ссылочных типов).
   - Присваивание просто записывает значение в хранилище.
   ```csharp
@@ -92,7 +95,7 @@ Log.Info($"Counter value: {myCounter}"); // 2, 3, 4, ...
   - `false`, если записи нет вообще.
   ```csharp
   var s = Variables.Get<string>("name");
-  Log.Info(s.HasValue); // false, записи нет
+  Log.Info(s.HasValue); // зависит от того, была ли запись раньше
   s.Value = null;
   Log.Info(s.HasValue); // true, запись есть, но значение null
   ```
@@ -113,8 +116,8 @@ Log.Info($"Counter value: {myCounter}"); // 2, 3, 4, ...
   ```
 
 - `GetOrThrow()`
-  - Единственный «небезопасный» способ чтения.
-  - Выбрасывает `InvalidOperationException`, если записи нет, значение `null` (для ссылочных типов) или его нельзя привести/конвертировать к `T`.
+  - Требует заданное значение нужного типа.
+  - Выбрасывает `InvalidOperationException`, если записи нет, значение `null` или его нельзя привести/конвертировать к `T`.
   ```csharp
   var required = Variables.Get<int>("port");
   var port = required.GetOrThrow(); // выбросит исключение, если нет записи, null или неверный тип
@@ -122,12 +125,12 @@ Log.Info($"Counter value: {myCounter}"); // 2, 3, 4, ...
 
 - `Remove()`
   - Удаляет запись из хранилища. Возвращает `true`, если запись существовала, и `false`, если нет.
-  - После `Remove()` чтение `Value` вернёт `default(T)`, `HasValue` станет `false`, а `Listen()` получит событие «сброс к значению по умолчанию».
+  - Удаляется локальная запись. Если у родителя есть одноимённое значение, оно снова станет видимым; иначе `Value` вернёт `default(T)` и `HasValue` станет `false`. `Listen()` получит новое эффективное значение, если оно отличается от предыдущего.
   ```csharp
   var v = Variables.Get<int>("x").Set(10);
-  v.Remove(); // true
-  Log.Info(v.Value);    // 0
-  Log.Info(v.HasValue); // false
+  v.Remove(); // true, если локальная запись существовала
+  Log.Info(v.Value);    // 0, если у родителя нет x
+  Log.Info(v.HasValue); // false, если у родителя нет x
   ```
 
 - Неявное преобразование к `T`
@@ -148,7 +151,7 @@ Log.Info($"Counter value: {myCounter}"); // 2, 3, 4, ...
   Log.Info(a.ToString()); // "a = 10"
   ```
 
-## Типы и конвертация: что происходит на самом деле
+## Типы и конвертация
 
 `ScriptVariable<T>` сначала пытается прочитать значение «как есть», а затем — сконвертировать его. Конвертация выполняется через внутренний репозиторий конвертеров (`IBindingValueConverterRepository`).
 
@@ -157,9 +160,11 @@ Log.Info($"Counter value: {myCounter}"); // 2, 3, 4, ...
 - Для строкового назначения (`T == string`) подходит почти любой тип — будет возвращён `value.ToString()`.
 - Для `Nullable<T>` конвертация идёт к базовому типу.
 - Если значение равно `null`, `TryGetValue` вернёт `false`, а `Value` — `default(T)`.
-- Если конвертации нет — `Value` вернёт `default(T)`, `TryGetValue` вернёт `false`, а `GetOrThrow` выбросит исключение.
+- Если преобразование для `TryGetValue` не найдено — он вернёт `false`, а `Value` вернёт `default(T)`.
 
-Примеры:
+**Ограничение реализации:** в рассмотренной версии `GetOrThrow()` после проверки точного типа передаёт конвертеру оболочку `AuraVariable`, а `TryGetValue()` и `Listen()` — её `Value`. Поэтому нельзя рассчитывать на одинаковую конвертацию. Для обязательных параметров храните сразу нужный тип. Между AssemblyLoadContext есть отдельная попытка преобразования одноимённых value types через JSON; она может выбросить исключение и не предназначена для произвольных классов.
+
+Примеры ниже предполагают, что для этих имён не зарегистрированы ваши собственные преобразования.
 
 ```csharp
 // 1) Типы совпадают — всё просто
@@ -167,47 +172,56 @@ Variables.Get<int>("n").Set(123);
 Log.Info(Variables.Get<int>("n").Value); // 123
 
 // 2) Чтение как другого типа
-((IScriptVariable)Variables.Get<int>("mix")).Value = "abc"; // записали строку в обход типобезопасности
+((EyeAuras.Scripting.UserSpace.IScriptVariable)Variables.Get<int>("mix")).Value = "abc"; // записали строку в обход типобезопасности
 var v = Variables.Get<int>("mix");
 Log.Info(v.Value);                  // 0 — default(int)
 Log.Info(v.TryGetValue(out var x)); // false
 // v.GetOrThrow(); // throws InvalidOperationException
 
 // 3) Почти всё можно превратить в string
-((IScriptVariable)Variables.Get<string>("text")).Value = 42;
+((EyeAuras.Scripting.UserSpace.IScriptVariable)Variables.Get<string>("text")).Value = 42;
 Log.Info(Variables.Get<string>("text").Value); // "42"
 ```
 
 Совет: если вам нужна конкретная конвертация, зарегистрируйте конвертер в `IBindingValueConverterRepository`. После этого `TryGetValue` и `Value` начнут возвращать нужный вам тип.
 
-## Подписка на изменения: `Listen()`
+## Наблюдать изменения и освободить подписку
 
 Если нужно реактивно отслеживать изменения переменной, используйте `Listen()`.
 
 - Возвращает `IObservable<T>`.
 - Сразу отправляет текущее значение (или `default(T)`, если записи нет).
 - Затем отправляет только действительно новые значения (`DistinctUntilChanged`).
-- `Remove()` отправляет событие «сброса» к `default(T)`.
+- `Remove()` меняет эффективное значение: на родительское либо на `default(T)`, если родительского нет.
 
 Пример:
 
 ```csharp
-var hp = Variables.Get<int>("hp");
-var observed = new List<int>();
-using var sub = hp.Listen().Subscribe(x => {
-    Log.Info($"HP: {x}");
-    observed.Add(x);
-});
+using System.Collections.Generic;
+using System.Reactive.Linq;
 
-hp.Value = 100; // HP: 100
-hp.Value = 100; // not emitted (distinct)
-hp.Value = 90;  // HP: 90
-hp.Remove();    // HP: 0 (default)
+{
+    var hp = Variables.Get<int>("batchExample.hp");
+    var observed = new List<int>();
+    using var sub = hp.Listen().Subscribe(x => {
+        Log.Info($"HP: {x}");
+        observed.Add(x);
+    });
+
+    hp.Value = 100; // HP: 100
+    hp.Value = 100; // not emitted (distinct)
+    hp.Value = 90;  // HP: 90
+    hp.Remove();    // HP: 0, если у родителя нет batchExample.hp
+}
 ```
 
-Для ссылочных типов первым значением будет `null`, затем новые значения, а потом снова `null` при `Remove()` или если вы сами присвоите `null`.
+Подписка действует до конца этого блока благодаря `using var`. Для наблюдения
+до Stop добавьте отменяемое ожидание из [карты async](/ru/scripting/api/scripting/async):
+одна подписка или её добавление в `ExecutionAnchors` не удерживает Run открытым.
+Начальное значение зависит от хранилища; отсутствие записи и явный `null` дают
+`default(T)`. Родительское значение тоже может стать видимым после удаления локального.
 
-## Переменные аур и папок, иерархия значений
+## Выбрать владельца и учитывать иерархию
 
 Каждая аура и папка тоже является контейнером переменных. Здесь действует иерархия: дочерние элементы «видят» значения родителей и могут их переопределять.
 
@@ -224,6 +238,8 @@ hp.Remove();    // HP: 0 (default)
   var auraVar = Variables.Get<int>(aura, "myCounter");
   auraVar.Value = 16;
   ```
+
+Пути в примерах требуют заранее созданного элемента дерева. Если его нет, перегрузка `Get<T>(path, name)` выбросит исключение. `Get<T>(source, name)` использует переданный `IHasVariables` и не ищет объект в дереве.
 
 Почему это важно: можно задать «значение по умолчанию» на папке — и все вложенные ауры смогут его читать. А там, где нужно, переопределить локально. Это очень удобно для общих настроек: целевое окно, input simulator и т. п.
 
@@ -245,12 +261,12 @@ hp.Remove();    // HP: 0 (default)
   if (a == b) { /* same values */ }
   if (a != b) { /* different values */ }
   ```
-- Числовые сравнения (когда `T` — сравнимый числовой тип):
+- Числовые сравнения делайте по `.Value`: у handle нет собственных операторов `<` и `>`.
   ```csharp
   var x = Variables.Get<int>("x").Set(2);
   var y = Variables.Get<int>("y").Set(3);
-  if (y > x) { /* yes, 3 > 2 */ }
-  if (x < 3) { /* yes */ }
+  if (y.Value > x.Value) { /* yes, 3 > 2 */ }
+  if (x.Value < 3) { /* yes */ }
   ```
 
 ## Типичные сценарии
@@ -259,16 +275,20 @@ hp.Remove();    // HP: 0 (default)
 - Счётчики запусков, задержки, интервалы — сохраняются между запусками.
 - Кэш промежуточных результатов, который нужен нескольким скриптам.
 
-Пример «config -> worker»:
+Пример «config -> worker»: заранее создайте папку `SharedConfig` рядом с контекстами обоих скриптов и укажите в обоих один и тот же путь. Вызов `Variables.Get<T>(name)` без владельца работает с текущим контекстом и сам по себе не связывает два разных скрипта.
 
 ```csharp
-// Config script
-Variables.Get<string>("target").Set("Shaper");
-Variables.Get<int>("maxAttempts").Set(5);
+// Config Script.csx — выполнить первым
+var shared = AuraTree.GetFolderByPath(@".\SharedConfig");
+Variables.Get<string>(shared, "target").Set("Shaper");
+Variables.Get<int>(shared, "maxAttempts").Set(5);
+```
 
-// Worker script
-var target = Variables.Get<string>("target").GetOrThrow();
-var maxAttempts = Variables.Get<int>("maxAttempts").GetOrThrow();
+```csharp
+// Worker Script.csx — тот же владелец
+var shared = AuraTree.GetFolderByPath(@".\SharedConfig");
+var target = Variables.Get<string>(shared, "target").GetOrThrow();
+var maxAttempts = Variables.Get<int>(shared, "maxAttempts").GetOrThrow();
 for (var i = 0; i < maxAttempts; i++)
 {
     Log.Info($"Try {i+1} on {target}");
@@ -278,7 +298,7 @@ for (var i = 0; i < maxAttempts; i++)
 ## Частые ошибки и как их избежать
 
 - «Почему `Value` вернул `0/false/null`, а не выбросил исключение?»
-  - Это ожидаемое поведение: `Value` никогда не выбрасывает исключения. Если нужна строгая проверка, используйте `GetOrThrow()`.
+  - Это ожидаемое поведение при отсутствии значения или неудачном преобразовании. Если нужна строгая проверка, используйте `GetOrThrow()`.
 
 - «`TryGetValue` вернул `false` для `null` — это баг?»
   - Нет. Для `TryGetValue` `null` означает «значения нет». Для ссылочных типов `HasValue` при этом будет `true` (запись существует), а `TryGetValue` — `false` (потому что реального значения нет).
@@ -287,7 +307,7 @@ for (var i = 0; i < maxAttempts; i++)
   - Подряд идущие одинаковые значения отфильтровываются.
 
 - «Я удалил переменную, что отправит `Listen()`?»
-  - `default(T)`. Для `int` это `0`, для `string` — `null` и так далее.
+  - Родительское значение либо `default(T)`, если родительского нет. Событие будет только при изменении эффективного значения.
 
 ## Рекомендации
 
@@ -296,33 +316,39 @@ for (var i = 0; i < maxAttempts; i++)
 - Для «необязательных» значений лучше использовать `TryGetValue`, а не сравнение с `default(T)`.
 - Не путайте `set null` и `Remove()`:
   - `set null` — запись остаётся (`HasValue == true`), но `TryGetValue == false`.
-  - `Remove()` — запись удаляется (`HasValue == false`), а `Value` возвращает `default(T)`.
+  - `Remove()` — удаляется локальная запись; родительское значение, если оно есть, снова видно.
 - Для подписок не забывайте вызывать `Dispose()` у возвращаемого `IDisposable` (обычно удобно через `using var ...`).
 - Давайте переменным понятные имена и придерживайтесь единого формата, например `snake_case` или `camelCase`.
 
 ## Краткая шпаргалка по API
 
 ```csharp
-var v = Variables.Get<int>("n");
+using System.Reactive.Linq;
 
-// чтение/запись
-int x = v.Value;  // безопасно, default если нет значения/неверный тип
-v.Value = 10;     // запись
+{
+    var v = Variables.Get<int>("n");
 
-// строгий сценарий
-var required = v.GetOrThrow(); // исключение, если нет значения/неверный тип/null
+    // чтение/запись
+    int x = v.Value;  // default, если значение отсутствует или преобразование не удалось
+    v.Value = 10;     // запись
 
-// аккуратное чтение
-if (v.TryGetValue(out var val)) { /* ok */ } else { /* no value */ }
+    // строгий сценарий
+    var required = v.GetOrThrow(); // исключение, если нет значения/неверный тип/null
 
-// подписка на изменения
-using var sub = v.Listen().Subscribe(x => Log.Info($"n = {x}"));
+    // аккуратное чтение
+    if (v.TryGetValue(out var val)) { /* ok */ } else { /* no value */ }
 
-// удаление
-var removed = v.Remove();
+    // подписка на изменения
+    using var sub = v.Listen().Subscribe(value => Log.Info($"n = {value}"));
 
-// прочее
-bool has = v.HasValue; // существует ли запись?
-string name = v.Name;
-IHasVariables src = v.Source; // откуда читает/куда пишет
+    // удаление
+    var removed = v.Remove();
+
+    // прочее
+    bool has = v.HasValue; // существует ли запись?
+    string name = v.Name;
+    var src = v.Source; // откуда читает/куда пишет
+}
 ```
+
+Не путайте `v.TryGetValue(out value)` у handle с `Variables.TryGetValue<T>(name, out value)` у accessor. Второй делает прямое приведение сохранённого объекта и может выбросить исключение при несовместимом типе. Подробные перегрузки — [IVariablesScriptingApi](/ru/scripting/api/IVariablesScriptingApi), маршруты к SDK/reference — [карта переменных](/ru/scripting/api/scripting/variables).

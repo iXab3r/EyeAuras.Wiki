@@ -7,270 +7,111 @@ tags: scripting, api, triggers, behavior trees, actions, folders, aura tree, ai-
 editor: markdown
 dateCreated: 2024-02-20T20:28:29.069Z
 ---
-> Навигация для AI-first сценариев: см. [AI Scripting Runtime](./scripting/runtime), [AI Auras Overview](./auras/overview) и [AI Aura Entities](./auras/entities). Там описаны навигация по дереву, сущности, регистрация и инфраструктура runtime.
-{.is-info}
-
 # IAuraTreeScriptingApi
 
-`IAuraTreeScriptingApi` дает доступ к Aura Tree из скриптов. С его помощью можно работать с аурами, папками и деревьями поведения: либо безопасно искать их, либо получать напрямую и обрабатывать ошибки через исключения.
+`AuraTree` позволяет найти существующую ауру, папку или дерево поведения и работать с их состоянием. Это доступ к живому дереву EyeAuras, а не создание независимых объектов. В C# Action свойство `AuraTree` и `Log` предоставляет среда скрипта. В обычный C# класс передавайте `IAuraTreeScriptingApi` явно.
 
-Интерфейс также предоставляет коллекции всех доступных аур, папок и behavior trees, а еще позволяет получать конкретные триггеры и действия из ауры по пути.
+## Найти ауру и прочитать состояние
 
-```csharp
-public interface IAuraTreeScriptingApi : IScriptingApi
-```
-
-## Как работает поиск по пути
-
-API поддерживает два варианта поиска:
-
-- `Find...ByPath(...)` — возвращает `null`, если объект не найден
-- `Get...ByPath(...)` — выбрасывает исключение, если объект не найден
-
-Во всех случаях `path` может быть как абсолютным, так и относительным.
-
-## Свойства
-
-### Aura
-
-Ссылка на ауру, в которой находится текущий скрипт, или `null`, если такой ауры нет.
-
-```csharp
-IAuraAccessor Aura { get; }
-```
-
-### Folder
-
-Ссылка на папку, в которой находится текущий скрипт.
-
-```csharp
-IFolderAccessor Folder { get; }
-```
-
-### Folders
-
-Содержит все папки в Aura Tree.
-
-```csharp
-IObservableList<IFolderAccessor> Folders { get; }
-```
-
-### Auras
-
-Содержит все ауры в Aura Tree.
-
-```csharp
-IObservableList<IAuraAccessor> Auras { get; }
-```
-
-### BehaviorTrees
-
-Содержит все деревья поведения в Aura Tree.
-
-```csharp
-IObservableList<IBehaviorTreeAccessor> BehaviorTrees { get; }
-```
-
-## Методы для аур
-
-### FindAuraByPath(string path)
-
-Ищет ауру по пути. Возвращает `null`, если ничего не найдено.
-
-```csharp
-IAuraAccessor FindAuraByPath(string path);
-```
-
-**Пример:**
+Создайте папку `MyFolder` и ауру `Aura1` в корне дерева. Выполните в C# Action:
 
 ```csharp
 var aura = AuraTree.FindAuraByPath("MyFolder/Aura1");
-if (aura != null)
+if (aura == null)
 {
-    Log.Info("Aura found!");
+    Log.Info("Аура MyFolder/Aura1 не найдена");
+    return;
 }
-else
-{
-    Log.Info("Aura not found.");
-}
+Log.Info($"Аура: {aura.FullPath}, загружена: {aura.IsLoaded}, активна: {aura.IsActive}");
 ```
 
-### GetAuraByPath(string path)
+В журнале появится путь и состояние найденной ауры. `IsActive` имеет тип `bool?`: `null` означает неизвестное состояние, а не `false`.
 
-Получает ауру по пути. Если ничего не найдено, выбрасывает исключение.
+Путь без `./` или `../` задаётся от корня Aura Tree. Префиксы `./` и `../` разрешаются относительно `Context.Path` текущего объекта. Можно использовать `/` или `\`; это пути дерева, а не файловой системы. Не добавляйте начальный разделитель к корневому пути.
 
-```csharp
-IAuraAccessor GetAuraByPath(string path);
-```
+Особый путь `"."` для поиска ауры возвращает текущую ауру, для поиска папки — текущую папку. Это исключение из общего разрешения путей. Из контекста ауры `AuraTree.Folder` указывает на её родительскую папку; из контекста папки — на саму папку. `Aura` и `Folder` могут отсутствовать в другом контексте.
 
-**Пример:**
+## Выбрать между Find и Get
 
-```csharp
-try
-{
-    var aura = AuraTree.GetAuraByPath("MyFolder/Aura1");
-    Log.Info("Aura found!");
-}
-catch (NotFoundException)
-{
-    Log.Info("Aura not found.");
-}
-```
+| Объект | Нормально, если отсутствует | Объект обязан существовать |
+|---|---|---|
+| Аура | `FindAuraByPath(path)` | `GetAuraByPath(path)` |
+| Папка | `FindFolderByPath(path)` | `GetFolderByPath(path)` |
+| Дерево поведения | `FindBehaviorTreeByPath(path)` | `GetBehaviorTreeByPath(path)` |
 
-## Методы для папок
+`Find` возвращает `null`, если путь отсутствует или ведёт к другому виду объекта. Это не обещание «никогда не бросает»: некорректный путь и рассогласование внутреннего кэша могут дать исключение. В реализации EyeAuras `20fd3d4` методы `Get` бросают **`ArgumentException`**, если поиск вернул `null`; пример с `NotFoundException` в XML этой версии неточен.
 
-### FindFolderByPath(string path)
-
-Ищет папку по пути. Возвращает `null`, если ничего не найдено.
-
-```csharp
-IFolderAccessor FindFolderByPath(string path);
-```
-
-**Пример:**
+Например, при наличии папки `MyProject/Folders/Folder1` и дерева `MyProject/BehaviorTrees/Tree1`:
 
 ```csharp
 var folder = AuraTree.FindFolderByPath("MyProject/Folders/Folder1");
-if (folder != null)
-{
-    Log.Info("Folder found!");
-}
-else
-{
-    Log.Info("Folder not found.");
-}
+var tree = AuraTree.FindBehaviorTreeByPath("MyProject/BehaviorTrees/Tree1");
+Log.Info($"Папка найдена: {folder != null}, дерево найдено: {tree != null}");
 ```
 
-### GetFolderByPath(string path)
+## Выполнить существующий макрос
 
-Получает папку по пути. Если ничего не найдено, выбрасывает исключение.
+Макрос — уже настроенное дерево поведения. Например, создайте папку
+`Automation` и макрос `DailyRoutine`, затем выполните в C# Action:
 
 ```csharp
-IFolderAccessor GetFolderByPath(string path);
+var macro = AuraTree.FindMacroByPath("Automation/DailyRoutine");
+if (macro == null)
+{
+    Log.Info("Макрос не найден");
+    return;
+}
+var status = await macro.ExecuteAsync(cancellationToken);
+Log.Info($"Результат макроса: {status}");
 ```
 
-**Пример:**
+`IMacroAccessor.ExecuteAsync(CancellationToken)` возвращает
+`Task<EyeAuras.BehaviorTree.Nodes.NodeStatus>` и передаёт токен в `Tick`
+дерева. После `await` получите статус `Success`, `Failure` или `Running`,
+а не `bool`. Не подменяйте `Running` успехом и не добавляйте автоматический
+повтор макроса без решения, нужен ли он вашему сценарию. Отмена кооперативная:
+её поддержку внутри конкретных узлов нужно учитывать отдельно.
+
+`GetMacroByPath` требует существующий путь и при отсутствии бросает
+`ArgumentException`; `FindMacroByPath` допускает отсутствие. Эти методы
+работают через дерево, даже несмотря на неинициализированное свойство
+`Macros` в этой версии. Accessor заимствован — не освобождайте его.
+
+## Получить настроенный компонент ауры
+
+Путь указывает на ауру, а параметр типа — на нужный компонент. Для ауры `MyFolder/Aura1`, в которой уже настроен триггер поиска изображения:
 
 ```csharp
-try
-{
-    var folder = AuraTree.GetFolderByPath("MyProject/Folders/Folder1");
-    Log.Info("Folder found!");
-}
-catch (NotFoundException)
-{
-    Log.Info("Folder not found.");
-}
+var trigger = AuraTree.GetTriggerByPath<IImageSearchTrigger>("MyFolder/Aura1");
+Log.Info($"Триггер: {trigger.Name}");
 ```
 
-## Методы для behavior trees
-
-### FindBehaviorTreeByPath(string path)
-
-Ищет дерево поведения по пути. Возвращает `null`, если ничего не найдено.
+Для действия последовательности ввода, уже добавленного в эту ауру:
 
 ```csharp
-IBehaviorTreeAccessor FindBehaviorTreeByPath(string path);
+var action = AuraTree.GetActionByPath<ISendSequenceAction>("MyFolder/Aura1");
+Log.Info($"Действие: {action.Name}");
 ```
 
-**Пример:**
+Методы возвращают первый компонент совместимого типа. Для действий порядок поиска: `OnEnterActions`, `WhileActiveActions`, `OnExitActions`. Если аура отсутствует, список пуст или нужного типа нет, возникает `ArgumentException`. Нельзя таким способом выбрать второе действие того же типа: для этого изучите соответствующую коллекцию у [IAuraAccessor](./IAuraAccessor).
+
+Полученный компонент остаётся частью ауры со своими настройками и временем жизни. Для разового нажатия клавиши используйте [SendInput](./ISendInputScriptingApi), а не создавайте действие ауры.
+
+## Наблюдать дерево и владеть своими подписками
+
+`Folders`, `Auras` и `BehaviorTrees` — живые `IObservableList` с объектами дерева. Например, снимок текущих аур можно вывести так:
 
 ```csharp
-var behaviorTree = AuraTree.FindBehaviorTreeByPath("MyProject/BehaviorTrees/Tree1");
-if (behaviorTree != null)
+foreach (var aura in AuraTree.Auras.Items.ToArray())
 {
-    Log.Info("Behavior tree found!");
-}
-else
-{
-    Log.Info("Behavior tree not found.");
+    Log.Info(aura.FullPath);
 }
 ```
 
-### GetBehaviorTreeByPath(string path)
+Не освобождайте полученные коллекции и найденные accessors: ими управляет дерево. Подписки, созданные вашим кодом, освобождайте вместе с владельцем, например через `ExecutionAnchors` текущего запуска. Удаление элемента дерева делает долговременное хранение accessor ненадёжным.
 
-Получает дерево поведения по пути. Если ничего не найдено, выбрасывает исключение.
+В интерфейсе также объявлены `Macros`, `FindMacroByPath` и `GetMacroByPath`. В срезе `20fd3d4` свойство `Macros` не инициализировано реализацией, поэтому его наличие в интерфейсе не гарантирует рабочую коллекцию. Сверяйте этот участок с SDK своей версии.
 
-```csharp
-IBehaviorTreeAccessor GetBehaviorTreeByPath(string path);
-```
+## Дальше
 
-**Пример:**
-
-```csharp
-try
-{
-    var behaviorTree = AuraTree.GetBehaviorTreeByPath("MyProject/BehaviorTrees/Tree1");
-    Log.Info("Behavior tree found!");
-}
-catch (NotFoundException)
-{
-    Log.Info("Behavior tree not found.");
-}
-```
-
-## Доступ к триггерам и действиям
-
-Эти методы позволяют получить триггер или действие нужного типа из ауры по пути.
-
-### GetTriggerByPath<TTrigger>(string path)
-
-Получает триггер указанного типа.
-
-Выбрасывает `ArgumentException`, если:
-
-- триггер указанного типа не найден по заданному пути
-- в ауре вообще нет триггеров
-
-```csharp
-public TTrigger GetTriggerByPath<TTrigger>(string path) where TTrigger : IAuraTrigger;
-```
-
-**Параметр типа:**
-
-- `TTrigger` — тип триггера, который нужно получить
-
-**Пример:**
-
-```csharp
-try
-{
-    var trigger = AuraTree.GetTriggerByPath<IImageSearchTrigger>("MyAuraPath");
-    Log.Info($"Trigger found: {trigger.Name}");
-}
-catch (ArgumentException ex)
-{
-    Log.Info(ex.Message);
-}
-```
-
-### GetActionByPath<TAction>(string path)
-
-Получает действие указанного типа.
-
-Выбрасывает `ArgumentException`, если:
-
-- действие указанного типа не найдено по заданному пути
-- в ауре вообще нет действий
-
-```csharp
-public TAction GetActionByPath<TAction>(string path) where TAction : IAuraAction;
-```
-
-**Параметр типа:**
-
-- `TAction` — тип действия, которое нужно получить
-
-**Пример:**
-
-```csharp
-try
-{
-    var action = AuraTree.GetActionByPath<ISendSequenceAction>("MyAuraPath");
-    Log.Info($"Action found: {action.Name}");
-}
-catch (ArgumentException ex)
-{
-    Log.Info(ex.Message);
-}
-```
+[Контекст скрипта](./scripting/runtime), [модель аур](./auras/overview), [регистрация компонентов](./auras/entities). Точные сигнатуры — в SDK/XML вашей версии; эта страница описывает операции по срезу EyeAuras `20fd3d4`.

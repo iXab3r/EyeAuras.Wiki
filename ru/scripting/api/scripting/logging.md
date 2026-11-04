@@ -50,25 +50,34 @@ dateCreated: 2026-04-22T00:00:00.000Z
 
 ## Типовые сценарии
 
-### Логирование из верхнего уровня скрипта
+### Записать результат работы скрипта
+
+Вставьте в тело `Script.csx`. Входные данные здесь заданы прямо в примере;
+`Log` предоставляет песочница:
 
 ```csharp
-Log.Info("Starting window selection");
-
-try
+var values = new[] { 12, 7, 19 };
+var total = 0;
+foreach (var value in values)
 {
-    var selectedWindow = await osd.PickWindow();
-    Log.Info($"Selected window: {selectedWindow.Title} ({selectedWindow.ProcessId})");
+    total += value;
 }
-catch (Exception ex)
-{
-    Log.Error("Failed to select a window", ex);
-}
+Log.Info($"Обработано {values.Length} значений, сумма {total}");
 ```
 
-### Передача `Log` во вспомогательный класс
+Результат — запись с суммой 38 в журнале скрипта, если уровень `Info` включён.
+Запись подтверждает только достижение этой строки кода, а не успех другой
+фоновой операции.
+
+### Передача Log во вспомогательный класс
+
+Класс можно разместить в отдельном `.cs`-файле проекта; вызов остаётся в
+`Script.csx`. Для `IFluentLog` нужен `using PoeShared.Logging;`.
 
 ```csharp
+using PoeShared.Logging;
+using PoeShared.Scaffolding;
+
 var reader = new EntityReader(Log.WithPrefix("EntityReader"));
 reader.Refresh();
 
@@ -83,14 +92,26 @@ public sealed class EntityReader
 
     public void Refresh()
     {
-        log.Debug("Refreshing entity list");
+        var values = new[] { 12, 7, 19 };
+        var total = 0;
+        foreach (var value in values) total += value;
+        log.Info($"Сумма {total}");
     }
 }
 ```
 
+После вызова `Refresh()` в журнале скрипта появится сумма 38 с префиксом `EntityReader`.
+
 ### Создание логгера в коде приложения или библиотеки
 
+В обычном проекте со ссылкой на PoeShared импортируйте
+`PoeShared.Logging` и `PoeShared.Scaffolding`. Это самостоятельный логгер типа,
+а не маршрут журнала конкретного скрипта.
+
 ```csharp
+using PoeShared.Logging;
+using PoeShared.Scaffolding;
+
 public sealed class MyService
 {
     private static readonly IFluentLog Log = typeof(MyService).PrepareLogger();
@@ -102,16 +123,20 @@ public sealed class MyService
 }
 ```
 
-### Как избежать дорогих `Debug`-сообщений
+В коде приложения вызовите `new MyService().Start()`: сообщение пойдёт в журнал типа, с учётом настроенных уровней и sinks.
+
+### Отложить построение подробной диагностики
+
+В `Script.csx` передайте построение строки в перегрузку с `Func<string>`:
 
 ```csharp
-Log.Debug(() => entities.DumpToNamedTable("Entities"));
-
-if (Log.IsDebugEnabled)
-{
-    Log.Debug(BuildLargeDiagnosticsReport());
-}
+var values = new[] { 12, 7, 19 };
+Log.Debug(() => $"Значения: {string.Join(", ", values)}");
 ```
+
+Лямбда позволяет логгеру отложить построение строки до проверки уровня.
+Она должна только собирать сообщение: не помещайте туда работу, от которой
+зависит результат скрипта. Для уже готовой строки обычный `Log.Info(text)` проще.
 
 ## Что имеет смысл логировать
 
@@ -180,3 +205,4 @@ if (Log.IsDebugEnabled)
 - `scripting/project-workflow.md`
 - `computer-vision/profiling.md`
 - `auras/entities.md`
+Контракты этой карты — EyeAuras `20fd3d4`, PoeEye `0e02c98`; точные перегрузки смотрите в SDK/XML своей версии.

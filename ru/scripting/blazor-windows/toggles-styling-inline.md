@@ -15,15 +15,26 @@ CSS (Cascading Style Sheets) описывает **внешний вид** инт
 
 ## [Bootstrap](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
 
-Bootstrap — это большая коллекция полезных CSS-классов для большинства типовых задач: цветные кнопки, редакторы и многое другое. EyeAuras автоматически загружает Bootstrap CSS/JS, поэтому все классы из документации по умолчанию доступны в любом overlay. Мы уже использовали их в предыдущих примерах.
+Bootstrap — это большая коллекция полезных CSS-классов для большинства типовых задач: цветные кнопки, редакторы и многое другое. EyeAuras автоматически загружает Bootstrap CSS/JS, поэтому в этих примерах используются его классы. Наличие конкретного класса или JS-плагина зависит от версии ресурсов хоста. Мы уже использовали их в предыдущих примерах.
 
 Но иногда стандартных стилей недостаточно, и хочется сделать что-то свое. Возьмем код, который переключает trigger, и просто перекрасим кнопку с помощью CSS.
 
 ![Demo](https://s3.eyeauras.net/media/2025/05/3UAeooHWHD.png)
 
+В одной папке создайте ауру с **C# Overlay v3** и ауру `TargetAura`. В каждую целевую ауру добавьте `HotkeyIsActive` и настройте горячую клавишу в режиме переключения. Оставьте целевые ауры загруженными. Путь `./TargetAura` в примере ищется относительно контекста оверлея; при другой структуре дерева замените их. Если подходящих триггеров несколько, выбирается первый.
+
+Замените содержимое `UserOverlay.cs` и `UserOverlay.razor` в этом оверлее кодом ниже. Это две части одного `public partial` класса в одном пространстве имён. `AuraTree` получает компонент через `[Inject]`; глобальные переменные из `Script.csx` в него автоматически не передаются.
+
 ## UserOverlay.cs
 
 ```csharp
+using System;
+using System.Reactive.Linq;
+using Microsoft.AspNetCore.Components;
+using PoeShared.Blazor;
+using EyeAuras.Scripting.Api;
+using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
+
 public partial class UserOverlay : BlazorReactiveComponent {
 
     [Inject]
@@ -46,6 +57,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 ## UserOverlay.razor
 
 ```html
+@using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
@@ -136,3 +148,4 @@ ChatGPT и другие боты хорошо справляются с CSS и �
 ```
 
 ![Demo 1](https://s3.eyeauras.net/media/2025/05/J0g2tAOpQa.gif)
+Нажатие кнопки записывает `TriggerValue`; горячая клавиша меняет тот же триггер. Таймер в `ChangeTrackers` заставляет компонент перечитывать состояние примерно раз в секунду, поэтому внешнее изменение видно с задержкой. Добавляйте таймер до `base.OnInitialized()`: там список отслеживания запечатывается и подписки привязываются к `Anchors` компонента. Скрытие окна само по себе не равно уничтожению компонента.

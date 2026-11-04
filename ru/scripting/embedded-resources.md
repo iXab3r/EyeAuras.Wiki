@@ -35,15 +35,34 @@ Embedded Resources — это механизм в скриптах, которы
 
 ## Как использовать
 
-Когда скрипт запускается, выбранные вами файлы загружаются автоматически, и скрипт может их использовать.
+Файлы включаются в сборку скрипта. Провайдер даёт доступ к их содержимому; сам по себе ресурс не становится загруженной моделью, шрифтом или исполняемой DLL.
 
-### Через IScriptFileProvider
+### Прочитать текст через IScriptFileProvider
 
-Этот способ позволяет прочитать содержимое файла как текст или как массив байтов. Что делать с этими байтами дальше — решаете вы.
+Добавьте через `Show Files` файл `docs/help.txt` с текстом `Справка проекта`.
+Теперь в `Script.csx` можно открыть поток и вывести содержимое:
 
 ```csharp
-var fontData = GetService<IScriptFileProvider>().ReadAllBytes("Roboto-Regular.ttf"); 
+using System.IO;
+using EyeAuras.Repl;
+
+{
+    var files = GetService<IScriptFileProvider>();
+    var file = files.GetFileInfo("docs/help.txt");
+    if (!file.Exists)
+    {
+        Log.Warn("Ресурс docs/help.txt не найден");
+        return;
+    }
+    using var stream = file.CreateReadStream();
+    using var reader = new StreamReader(stream);
+    Log.Info(reader.ReadToEnd());
+}
 ```
+
+Ожидаемый результат — текст файла в журнале. Поток и reader закрываются
+при выходе из блока. Провайдер получает скрипт; обычному C#-классу передайте
+`IScriptFileProvider` явно через конструктор или параметр.
 
 ### Через Blazor
 
@@ -53,7 +72,7 @@ var fontData = GetService<IScriptFileProvider>().ReadAllBytes("Roboto-Regular.tt
 <img src="Image 12.jpg" />
 ```
 
-Точно так же можно показывать видео, загружать текст, стили и всё остальное.
+Это разметка Razor-компонента окна, которое предоставляет файлы скрипта. Подготовка окна — в [Blazor Windows](/ru/scripting/blazor-windows/getting-started). В обычной внешней HTML-странице такой путь сам по себе ресурс сборки не открывает.
 
 ### Как подключаемую DLL
 
@@ -70,7 +89,7 @@ var fontData = GetService<IScriptFileProvider>().ReadAllBytes("Roboto-Regular.tt
 
 Готово. При компиляции скрипта EyeAuras найдет подходящую DLL среди ресурсов проекта и использует её. А при запуске скрипта загрузит её из ресурсов. Никаких отдельных файлов рядом держать не нужно.
 
-# Экспорт/импорт C# Solution
+## Экспорт/импорт C# Solution
 
 EyeAuras умеет экспортировать скрипт как полноценный C# `.sln`, который потом можно открыть в JetBrains Rider или Visual Studio.
 
@@ -95,11 +114,11 @@ Embedded resources (файлы) тоже экспортируются и пом�
 - в `.csproj` указывать `<EmbeddedResource Include="..."/>` для каждого ресурса
 - при необходимости добавлять `<None Remove="..."/>`, чтобы файл не копировался в выходную папку как обычный контент
 
-При импорте обратно EyeAuras просканирует `.csproj`, найдет все `EmbeddedResource`-элементы и покажет их в списке файлов скрипта. Имена и относительные пути сохраняются — это важно для корректного доступа из кода и Blazor.
+При импорте обратно EyeAuras просканирует `.csproj`, найдет все `EmbeddedResource`-элементы и покажет их в списке файлов скрипта. Имена и относительные пути сохраняются — это важно для корректного доступа из кода и Blazor. Здесь используется явный `Include`: импорт не является полным выполнением произвольных MSBuild targets или wildcard-правил.
 
 ![Пометка embedded resource в Rider](https://s3.eyeauras.net/media/2025/10/rider64_24V6ZnFu8u.png)
 
-# Как это устроено внутри
+## Как это устроено внутри
 
 При сборке скриптов EyeAuras старается максимально следовать логике официального компилятора: добавленные вами файлы включаются в итоговую DLL как Embedded Resources и доступны через `Assembly.GetManifestResourceNames` и `Assembly.GetManifestResourceStream`.
 
@@ -108,20 +127,19 @@ Embedded resources (файлы) тоже экспортируются и пом�
 - `Assembly.GetManifestResourceNames()` — возвращает полный список имен ресурсов, например `"DefaultNamespace.folder.file.ext"`
 - `Assembly.GetManifestResourceStream(fullName)` — открывает поток для чтения ресурса по его ПОЛНОМУ имени
 
-Пример «в лоб» (обычно это не нужно — удобнее использовать `IScriptFileProvider`):
+Чтобы увидеть исходные имена, выполните в `Script.csx`:
 
 ```csharp
-var asm = typeof(Script).Assembly; // your script’s assembly
-foreach (var name in asm.GetManifestResourceNames())
+foreach (var name in typeof(Script).Assembly.GetManifestResourceNames())
 {
-    Log.Info($"Resource: {name}");
+    Log.Info(name);
 }
-
-using var stream = asm.GetManifestResourceStream("MyScript.Images.logo.png");
-using var ms = new MemoryStream();
-stream.CopyTo(ms);
-var bytes = ms.ToArray();
 ```
+
+`Script` здесь — сгенерированный тип submission, а не глобальный тип для
+обычной библиотеки. Для открытия через `GetManifestResourceStream` нужно
+точное имя из этого списка и закрытие полученного потока. Обычно задача
+проще решается провайдером из примера выше.
 
 В EyeAuras удобнее использовать `IScriptFileProvider`, потому что он сам сопоставляет пути и находит нужный ресурс.
 
@@ -136,60 +154,54 @@ var bytes = ms.ToArray();
 - результат: `FullName = DefaultNamespace + "." + relative/path/with/dots`  
   Пример: проект с namespace `MyScript` и файл `Images/logo.png` → ресурс: `MyScript.Images.logo.png`
 
-Как искать ресурс в EyeAuras:
+Как искать ресурс в срезе EyeAuras `20fd3d4`:
 
-- можно указать короткий путь: `"logo.png"` — провайдер заменит слеши на точки и будет искать по суффиксу без учета регистра
-- можно указать подпапку: `"Images/logo.png"` или `"Images.logo.png"` — это надежнее
-- можно указать ПОЛНОЕ имя: `"MyScript.Images.logo.png"` — точное совпадение с учетом регистра
-- разделители `'/'`, `'\\'` и `'.'` в запросе взаимозаменяемы
+- Полное manifest name и полная форма со слешами принимаются без учёта регистра.
+- Путь с подпапкой, например `Images/logo.png`, допускает поиск по границе
+  суффикса manifest name. Дополнительно рассматриваются пути `wwwroot`.
+- Произвольное имя `logo.png` не гарантирует поиск по любой папке. Используйте
+  однозначный путь с подпапкой или полную идентичность.
+- Если кандидатов несколько, провайдер пишет предупреждение и возвращает
+  `IFileInfo` с `Exists == false`. Первый случайный ресурс не выбирается.
 
-Важно про совпадения и регистр:
+Например, для manifest name `MyScript.Images.logo.png` используйте полное
+имя или `MyScript/Images/logo.png`; `Images/logo.png` пригоден, если совпадение
+однозначно. Не считайте произвольный частичный путь с точками эквивалентом
+пути со слешами.
 
-- полное имя сравнивается строго и с учетом регистра
-- короткие и частичные пути ищутся через `EndsWith`, без учета регистра
-- если в проекте есть два файла с одинаковым окончанием пути (например, `a/logo.png` и `b/logo.png`), короткий запрос `"logo.png"` вернет первое совпадение. Чтобы избежать путаницы, указывайте подпапку или полное имя.
+`GetDirectoryContents` показывает диагностическую проекцию полных имён в
+дерево. Это не обещание восстановить исходную структуру папок проекта.
 
-Примеры запросов, которые сработают для `Images/logo.png`:
+## Прочитать большой ресурс без дополнительного массива
 
-- `"logo.png"`
-- `"Images/logo.png"`
-- `"Images.logo.png"`
-- `"MyScript.Images.logo.png"`
-
-EyeAuras старается упростить жизнь пользователю и поддерживает как полные имена (с точками), так и относительные (без namespace). Можно также использовать привычные пути вроде `folder/Image 12.jpg` вместо `folder.Image 12.jpg`.
-
-## Практические примеры (ELI5)
-
-- Прочитать JSON-конфиг как текст:
+Добавьте файл `video/tutorial.mp4` через `Show Files`. Этот пример не
+воспроизводит видео: он подсчитывает прочитанные байты, не создавая массив
+размером со весь файл. Выполните в `Script.csx`:
 
 ```csharp
-var files = GetService<IScriptFileProvider>();
-var json = files.ReadAllText("config.json");
-var cfg = JsonConvert.DeserializeObject<MyConfig>(json);
+using System.IO;
+using EyeAuras.Repl;
+
+{
+    var file = GetService<IScriptFileProvider>().GetFileInfo("video/tutorial.mp4");
+    if (!file.Exists) { Log.Warn("Видео не найдено"); return; }
+    using var stream = file.CreateReadStream();
+    var buffer = new byte[8192];
+    long total = 0;
+    int count;
+    while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        total += count;
+    }
+    Log.Info($"Прочитано {total} байт");
+}
 ```
 
-- Загрузить ONNX/ML-модель как байты:
-
-```csharp
-var files = GetService<IScriptFileProvider>();
-var model = files.ReadAllBytes("models/my_model.onnx");
-// pass the bytes into your ML library
-```
-
-- Открыть поток (для больших файлов):
-
-```csharp
-var files = GetService<IScriptFileProvider>();
-var file = files.GetFileInfo("video/tutorial.mp4");
-using var stream = file.CreateReadStream();
-// read in chunks without holding everything in memory
-```
-
-- Показать изображение в Blazor:
-
-```html
-<img src="Images/logo.png" />
-```
+Для JSON, шрифта или ML-модели чтение — только первый шаг. Далее нужен
+конкретный тип конфигурации или API библиотеки-потребителя. Не подменяйте
+загрузку модели получением массива байтов. `ReadAllBytes` подходит, когда
+потребитель требует именно весь массив.
 
 ## Загрузка DLL из ресурсов — как это работает
 
@@ -203,7 +215,7 @@ using var stream = file.CreateReadStream();
 - Во время выполнения
   - EyeAuras подписывается на `AssemblyLoadContext.Resolving` и пытается загрузить сборку из embedded resources.
 
-Полезный пример:
+Если вы уже добавили совместимую `Newtonsoft.Json.dll` в файлы скрипта, можно проверить её вызовом:
 
 ```csharp
 #r "assemblyPath: Newtonsoft.Json.dll"
@@ -233,13 +245,12 @@ foreach (var fi in files.GetDirectoryContents("/"))
 }
 ```
 
-- Если вам нужен именно список manifest names, а сервисом является `ScriptEmbeddedResourceFileProvider`:
-
-```csharp
-var files = GetService<IScriptFileProvider>() as ScriptEmbeddedResourceFileProvider;
-var names = files?.GetManifestNames() ?? Array.Empty<string>();
-Log.Info(string.Join("\n", names));
-```
+`GetService<IScriptFileProvider>()` может вернуть `CompositeScriptFileProvider`:
+провайдер ресурсов сборки объединяется с существующим провайдером. У первого
+имеющего файл провайдера есть приоритет, но внутри embedded-провайдера
+неоднозначный поиск остаётся `NotFound`. Поэтому приведение сервиса к
+`ScriptEmbeddedResourceFileProvider` не гарантирует список manifest names;
+для сборки используйте пример выше.
 
 ## FAQ и нюансы
 
@@ -249,16 +260,17 @@ Log.Info(string.Join("\n", names));
   - Проверьте регистр, если используете полное имя
 
 - Дубликаты имен
-  - Если есть два файла с одинаковым окончанием пути (`a/logo.png` и `b/logo.png`), короткий запрос `"logo.png"` может указать не на тот файл. Уточняйте путь через подпапку.
+  - Если есть два файла с одинаковым окончанием пути (`a/logo.png` и `b/logo.png`), неоднозначный запрос вернёт `NotFound`. Уточняйте путь через подпапку или полное manifest name.
 
 - Большие файлы
   - Читайте их как поток через `CreateReadStream()` — не держите всё целиком в памяти
 
 - Я изменил файл, но не вижу обновлений
-  - Embedded resources вшиваются в DLL. Перезапустите или пересоберите скрипт, чтобы новые байты попали в сборку.
+  - Embedded resources вшиваются в DLL. Обновите ресурс и перекомпилируйте скрипт, чтобы новые байты попали в сборку. `Watch` embedded-провайдера возвращает `NullChangeToken` и не следит за изменением старой сборки.
 
 - DLL не загружается
   - Проверьте, что `#r "assemblyPath: ..."` указывает на правильный файл.
 
 - Точки или слеши в путях?
-  - Работают оба варианта: `"Images/logo.png"`, `"Images.logo.png"` — провайдер нормализует путь в точки и ищет по суффиксу.
+  - Используйте полное manifest name либо путь со слешами. Не обещайте одинаковый поиск по суффиксу для любого частичного имени с точками.
+Контракты — EyeAuras `20fd3d4`, PoeEye `0e02c98`; точные сигнатуры сверяйте с SDK/XML своей версии.

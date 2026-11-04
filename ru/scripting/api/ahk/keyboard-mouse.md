@@ -30,7 +30,7 @@ SendText "hello"
 Send "{F1}"
 ```
 
-Скрипт EyeAuras:
+C# Action в EyeAuras (сервисы внедряет среда скрипта):
 
 ```csharp
 ISendInputScriptingApi SendInput { get; init; }
@@ -70,7 +70,7 @@ AutoHotkey v2:
 Click 100, 200
 ```
 
-Скрипт EyeAuras:
+C# Action в EyeAuras (сервисы внедряет среда скрипта):
 
 ```csharp
 ISendInputScriptingApi SendInput { get; init; }
@@ -79,6 +79,10 @@ SendInput.MouseLeftClick(100, 200);
 ```
 
 **Рекомендация:** хороший вариант. Используйте перегрузки с координатами или `WinPoint`, а не схему «сначала переместить мышь, потом кликнуть», если само движение курсора для вас не важно.
+
+При стандартном `Windows Input` точка `(100, 200)` задана на виртуальном рабочем столе. Пример AHK выше зависит от текущего `CoordMode`, поэтому без явного выбора системы координат это не полная эквивалентность. `TargetWindow` не делает ввод фоновым и не задаёт универсальное преобразование координат для всех симуляторов.
+
+`IsKeyDown` / `IsMouseDown` читают состояние выбранного контроллера, а не подтверждённый аналог всех режимов AHK logical/physical. В цикле выше `Sleep(10)` учитывает отмену запуска; таймаут ожидания не задан. Сами вызовы ввода синхронны и не получают токен запуска автоматически. Настройки задержек и ограничения — в [операциях SendInput](../ISendInputScriptingApi).
 
 ## Ссылки для проверки
 
@@ -98,6 +102,4 @@ SendInput.MouseLeftClick(100, 200);
 - Документация EyeAuras:
   [ISendInputScriptingApi](../ISendInputScriptingApi),
   [Input, Hooks, Hotkeys](../windows-subsystems/input-hooks-hotkeys).
-- Исходники EyeAuras:
-  [ISendInputScriptingApi.cs](../../../../../Sources/EyeAuras.Roxy.Shared/Api/ISendInputScriptingApi.cs),
-  [SendInputScriptingApi.cs](../../../../../Sources/EyeAuras.Roxy/Api/SendInputScriptingApi.cs).
+- Контракты EyeAuras: [контекст скрипта](../scripting/runtime), [ввод](../ISendInputScriptingApi), [окна](../windows-subsystems/window-handles). Точные типы и сигнатуры сверяйте с SDK/XML своей версии; базовый срез — EyeAuras `20fd3d4`, PoeEye `0e02c98`.

@@ -51,8 +51,8 @@ references, embedded files, `IScriptFileProvider`, ассеты DLL/image/font/m
 - В exported project files элементы embedded resources должны сохраняться в `.csproj`.
 - Import/live-import сканирует project resource metadata и сохраняет относительные пути.
 - `ScriptEmbeddedResourceFileProvider` преобразует manifest names обратно в path-like names.
-- Поиск resources поддерживает полные manifest names, относительные пути, dotted paths и leaf names, если они однозначны.
-- Если имена файлов дублируются, короткий поиск по leaf name может стать неоднозначным.
+- Используйте полное manifest name или путь с подпапкой через слеши. Произвольное имя без подпапки не является универсальным поиском по окончанию.
+- Неоднозначный поиск возвращает `IFileInfo` с `Exists == false` и пишет предупреждение; первый случайный ресурс не выбирается.
 - `Watch(...)` для embedded resources — это не live file watcher; resources вшиваются в compiled assembly.
 
 ## Детали API
@@ -66,33 +66,85 @@ references, embedded files, `IScriptFileProvider`, ассеты DLL/image/font/m
 - `CompositeScriptFileProvider` — объединяет несколько script file providers.
 - `ExposeEmbeddedResourcesScriptRuntimeVisitor` — подключает embedded resource provider к runtime context.
 
-## Частые сценарии
+## Подключить библиотеку и использовать её
 
-### Добавить optional SDK package
+Для NuGet-пакета укажите версию в начале `Script.csx`, затем вызовите API:
 
-1. Добавьте NuGet reference в top-level script или project file.
-2. Импортируйте namespace SDK.
-3. Добавьте container extension SDK, если для него нужна явная регистрация.
-4. Получите доступ к нужной возможности через подходящий для текущего контекста способ.
+```csharp
+#r "nuget: Newtonsoft.Json, 13.0.3"
+using Newtonsoft.Json;
 
-### Прочитать embedded file
+var text = JsonConvert.SerializeObject(new { Name = "Пример", Count = 3 });
+Log.Info(text);
+```
 
-1. Добавьте файл в script project как embedded resource.
-2. Получите `IScriptFileProvider` из текущего script/app context.
-3. Используйте `ReadAllText`, `ReadAllBytes`, `GetFileInfo` или `CreateReadStream`.
-4. Для файлов с типовыми именами лучше использовать имена с подпапкой.
+Ожидаемый результат — JSON с двумя полями в журнале. Пакет должен быть
+доступен для восстановления и совместим с runtime; это не проверка любого
+пакета NuGet. В экспортированном проекте соответствующая зависимость
+представляется `PackageReference`. Обычный helper-класс импортирует namespace,
+а не содержит собственную директиву `#r`.
 
-### Использовать resource в Blazor
+Если DLL уже доступна host, есть `#r "assemblyName: ИмяСборки"`. Если вы
+поставляете свою DLL, добавьте её в файлы скрипта и используйте
+`#r "assemblyPath: MyLib.dll"`. Это формы записи, а не готовые примеры вызова:
+для работы нужны сама совместимая сборка и её реальный API. Подключение
+типов не регистрирует сервисы SDK — см. [расширения контейнера](container-extensions).
 
-1. Добавьте CSS/JS/image/video как embedded resource.
-2. Сошлитесь на него из Razor по относительному пути или загружайте CSS/JS через Blazor utilities.
-3. Сохраняйте стабильные resource paths при export/import.
+## Прочитать текст из ресурсов скрипта
 
-### Использовать resource в ImGui
+В редакторе через `Show Files` → `Add Existing File...` добавьте файл
+`docs/help.txt` с текстом `Справка проекта`. Для IDE задайте явный
+`EmbeddedResource Include="docs/help.txt"` в `.csproj` и импортируйте проект.
+Теперь выполните в `Script.csx`:
 
-1. Добавьте image/font/markdown bytes как embedded resource.
-2. Прочитайте bytes через `IScriptFileProvider`.
-3. Используйте `IImGuiExperimentalApi.AddFont`, `ReplaceFont`, `GetOrAddImage` или `ImGuiEx.ImageRgba32`/`ImageFromUrl` в зависимости от типа asset.
+```csharp
+using System.IO;
+using EyeAuras.Repl;
+
+{
+    var files = GetService<IScriptFileProvider>();
+    var file = files.GetFileInfo("docs/help.txt");
+    if (!file.Exists)
+    {
+        Log.Warn("Ресурс docs/help.txt не найден");
+        return;
+    }
+    using var stream = file.CreateReadStream();
+    using var reader = new StreamReader(stream);
+    Log.Info(reader.ReadToEnd());
+}
+```
+
+Журнал покажет содержимое файла. Поток и reader закрываются при выходе из
+блока. Обычному классу передайте `IScriptFileProvider` и логгер явно.
+
+Провайдер хранит исходные manifest names. Полное имя и его форма со слешами
+принимаются без учёта регистра; путь с подпапкой допускает поиск по границе
+суффикса. Учитываются также варианты `wwwroot`. Все совпадения участвуют в
+проверке однозначности. `help.txt` не обещает найти любой ресурс в любой папке,
+а неоднозначный путь даёт `Exists == false`.
+
+`GetDirectoryContents` показывает диагностическое дерево полного имени, а
+не обязательно исходные папки проекта. `GetManifestNames()` есть у конкретного
+`ScriptEmbeddedResourceFileProvider`; сервис может быть составным, поэтому
+приведение к этому типу не гарантируется. Подробности: [ресурсы](/ru/scripting/embedded-resources).
+
+## Передать ресурс в UI или библиотеку
+
+Для Blazor добавьте `Images/logo.png` в файлы скрипта и в Razor-компоненте
+его окна используйте `<img src="Images/logo.png" />`. Окно должно предоставлять
+файлы скрипта: [настройка окна](/ru/scripting/blazor-windows/getting-started).
+Сам HTML вне этого host не получает доступ к ресурсам сборки.
+
+Для ImGui нужны пакет и регистрация SDK, затем чтение изображения/шрифта и
+передача в соответствующий API. Законченная настройка есть в
+[руководстве ImGui](/ru/scripting/imgui/getting-started). Наличие байтов само
+по себе не создаёт текстуру или загруженную ML-модель.
+
+Поток уменьшает дополнительные копии у вызывающего кода; `ReadAllBytes`
+создаёт целый массив. Embedded `Watch` возвращает `NullChangeToken`: новые
+байты появятся после обновления ресурсов и перекомпиляции, а не от наблюдения
+за старой сборкой.
 
 ## Что предпочтительно
 
@@ -109,7 +161,7 @@ references, embedded files, `IScriptFileProvider`, ассеты DLL/image/font/m
 - Не размещайте директивы `#r` внутри обычных C# helper classes.
 - Не рассчитывайте, что embedded resources обновятся без перекомпиляции.
 - Не загружайте большие models/videos целиком в память, если целевая library не требует bytes.
-- Не полагайтесь на поиск по leaf name, если у двух resources совпадает имя файла.
+- Не полагайтесь на произвольный поиск по имени без подпапки; используйте однозначный путь или manifest name.
 
 ## Research Anchors
 
@@ -154,3 +206,10 @@ references, embedded files, `IScriptFileProvider`, ассеты DLL/image/font/m
 - `windows-subsystems/blazor-windows.md`
 - `computer-vision/images.md`
 - `ml/ai.md`
+Контракты — EyeAuras `20fd3d4`, PoeEye `0e02c98`. Для точных сигнатур используйте SDK/XML своей версии; пакеты имеют собственные версии.
+
+## Приоритет и чтение источников ресурсов
+
+[Операции файлового провайдера](file-provider-operations) показывают чтение подготовленного ресурса, объединение двух `IScriptFileProvider` с явным приоритетом, перечисление каталога и смысл `Watch`. В `CompositeScriptFileProvider` побеждает первый существующий файл в порядке источников; при объединении каталога остаётся первая запись с данным `Name`.
+
+Провайдер, файловая запись и открытый поток имеют разное время жизни. Вызов `CreateReadStream()` создаёт поток, которым владеет вызывающий; полученный через host `IScriptFileProvider` не нужно освобождать как этот поток.

@@ -11,7 +11,115 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 Справочная карта по основным средствам чтения процессов, доступу к памяти процесса, pointer chain, pattern scanning, PE-хелперам, модулям, code cave и выбору backend.
 
-Читатели из опциональных пакетов вынесены в `nuget/`.
+Readers из опциональных пакетов вынесены в [карты NuGet](../nuget/frida-sdk).
+
+## Выбрать процесс и получить его модули
+
+В живом EyeAuras с загруженным модулем `EyeAuras.Memory` перечислите процессы,
+выберите PID нужной цели и откройте reader. Эти две операции можно выполнить
+в top-level C# скрипте; здесь нет выдуманного имени процесса:
+
+```csharp
+using EyeAuras.Memory;
+
+foreach (var info in LocalProcess.GetProcesses())
+{
+    Log.Info($"{info.Id} {info.ProcessName}");
+}
+```
+
+Полученный PID передайте следующему helper-методу. Он возвращает snapshot
+модулей и освобождает созданный reader. Обычный C# класс не получает `Log`
+или другие script globals автоматически:
+
+```csharp
+using System.Collections.Generic;
+using EyeAuras.Memory;
+
+static IReadOnlyList<ProcessModuleInformation> ReadModules(int processId)
+{
+    using var process = LocalProcess.ByProcessId(processId);
+    return process.GetProcessModules();
+}
+```
+
+`ProcessModuleInformation` содержит `ModuleName`, `FilePath`, `BaseAddress`
+типа `IntPtr` и `Size` в байтах. Адреса пригодны только пока соответствующая
+цель и её модули существуют. Reader владеет своими handles; `process.Memory`
+заимствован и не должен переживать reader. Для последующего чтения оставьте
+reader открытым у вызывающего кода, а не возвращайте его Memory из `using`.
+
+В standalone host references недостаточно: подключите `EyeAuras.SDK.Runtime`
+и `EyeAuras.Memory`, объявите `UseMemory()` и дождитесь `EnsureReadyAsync()`.
+Без регистрации builder `LocalProcess` выбрасывает `InvalidOperationException`.
+См. [Embedded SDK](../nuget/embedded-sdk). `ByProcessName(string)` принимает
+имя с `.exe` или без него, но для выбора конкретного экземпляра используйте PID.
+
+## Открыть reader по выбранному окну
+
+Обычный пользовательский доступ не требует KD, MPFS или дополнительного
+драйвера, но требует **загруженного runtime-модуля `EyeAuras.Memory`**.
+Он регистрирует `ILocalProcessBuilder`; одна metadata-ссылка этого не делает.
+В отдельном embedded-host сначала вызовите `UseMemory()` и дождитесь
+`EnsureReadyAsync()`, как описано выше. В desktop EyeAuras эти регистрации
+обеспечивает host после загрузки модуля.
+
+Пример C# Script с интерактивным выбором окна и чтением списка модулей:
+
+```csharp
+using EyeAuras.Memory;
+using EyeAuras.Shared.Osd;
+
+var window = await GetService<IOsdSelectionService>().PickWindow();
+{
+    using var process = LocalProcess.ByProcessId(window.ProcessId);
+    Log.Info($"Reader PID: {process.ProcessId}; доступен: {process.IsValid}");
+    foreach (var module in process.GetProcessModules())
+        Log.Info(module.ModuleName);
+}
+```
+
+Reader освобождается при выходе из блока; заимствованный `window` — нет.
+Для долгого чтения держите блок открытым ожидаемой работой с токеном запуска.
+Права доступа Windows, разрядность, завершение цели и переиспользование PID
+нужно учитывать отдельно. Не подменяйте отсутствие регистрации builder
+обещанием, что любой PID обязательно удастся открыть.
+
+## Найти модуль и перейти к известному смещению
+
+У helper уже есть открытый `IProcess`, настоящее имя модуля из предыдущего
+snapshot и известный byte offset поля `int` в этом модуле:
+
+```csharp
+using EyeAuras.Memory;
+using EyeAuras.Memory.Scaffolding;
+
+static int ReadModuleInt32(IProcess process, string moduleName, int offset)
+{
+    using var memory = process.MemoryOfModule(moduleName);
+    return memory.Read<int>(memory.BaseAddress + offset);
+}
+```
+
+`GetProcessModule` ищет `ModuleName` без учёта регистра и выбрасывает
+`ArgumentException`, если модуля нет; `TryFindProcessModule` возвращает `bool`.
+`MemoryOfModule` возвращает новый view с базой и размером, но чтение принимает
+**абсолютный адрес**, не RVA. Границы автоматически не проверяются.
+`Dispose` этого accessor не заменяет освобождение процесса-владельца.
+
+Для сигнатуры используйте [готовые сканеры](./pattern-scanning), для PE —
+`MemoryExtensionsForImports`, `ProcessExtensions.ReadExports`, `ProcessPEExtensions`.
+Не пишите свой сканер только ради обхода модуля. Полные основные объявления
+и операции со скалярами, массивами и цепочками находятся в
+[справочнике Memory](../memory).
+
+## Граница этой карты
+
+Основные операции выше сверены с исходным API EyeAuras `20fd3d4`.
+Дальнейшие списки сохраняют навигацию по расширенным контрактам этого среза:
+они не подтверждают наличие нужного драйвера, устройства или совместимость
+пакета на вашей машине. В частности, KD/MPFS требуют своего backend и среды;
+пакет metadata сам по себе не даёт живой доступ к памяти.
 
 ## Типовые задачи
 
@@ -33,7 +141,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 - `IProcess` — верхнеуровневая абстракция целевого процесса.
 - `IProcessMemory` — facade для памяти процесса.
-- `IMemoryAccessor` — практический API для чтения и записи.
+- `IMemoryAccessor` — общий контекст и описание диапазона; чтение и запись задают `IMemoryReader` и `IMemoryWriter`.
 - `IMemoryBackend` — выполняет низкоуровневые операции.
 - `RemoteMemoryObject` — небольшая базовая обёртка для объектов, которые представляют известный адрес внутри `IMemory` view.
 - `EyeAuras.Memory.Shared` содержит контракты.
@@ -48,7 +156,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
   `GetProcessModules()`, `GetThreads()`, `VirtualQuery(...)`,
   `GetMemoryRegions()`.
 - `IProcessMemory` — facade памяти процесса.
-- `IMemoryAccessor` — типизированные чтение/запись, чтение pointers и pointer chain.
+- `IMemoryReader` / `IMemoryWriter` — типизированные чтение/запись, pointers и pointer chain.
 - `IMemory` — view памяти, часто ограниченное модулем через `MemoryOfModule(...)`.
 - `RemoteMemoryObject` — базовый класс для memory object-обёрток, привязанных к адресу.
 - `IMemoryBackend` — контракт реализации backend.
@@ -61,10 +169,10 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - `LCProcess`, `ILCProcessBuilder` — readers на базе MPFS/LeechCore/VMM.
 - `MemoryExtensionsForPatterns`, `BytePattern`, `StringPattern` — signature scanning.
 - `MemoryExtensionsForCodeCaves`, `CodeCaveEntry` — перечисление code cave в рамках модуля; по умолчанию сканируются readable executable sections, а последовательности `0x00`, `0xCC` и `0x90` считаются допустимым заполнением cave.
-- `MemoryExtensionsForImports`, `MemoryExtensionsForExports`,
+- `MemoryExtensionsForImports`, `ProcessExtensions.ReadExports`,
   `ProcessPEExtensions` — PE-хелперы.
 - `MemoryExtensionsForEprocess` — backend-neutral helpers для чтения высокоуровневой информации о процессе, модулях, threads, process parameters и VAD-backed memory regions из `_EPROCESS`, PEB, loader-list, thread-list и VAD records через любой `IMemoryReader`, который умеет читать нужную virtual memory.
-- `MemoryExtensionsForTebPeb` — backend-neutral helpers для чтения адреса PEB из TEB, загруженных модулей из PEB loader lists и параметров запуска процесса из `RTL_USER_PROCESS_PARAMETERS` через любой `IMemoryReader`, который умеет читать целевое user-mode address space. Также содержит хелперы для запроса TEB по живой локальной OS thread-to-TEB схеме в сценариях, где старт идёт от Windows thread id или handle.
+- `MemoryExtensionsForTebPeb` — backend-neutral helpers для чтения адреса PEB из TEB, загруженных модулей из PEB loader lists и параметров запуска процесса из `RTL_USER_PROCESS_PARAMETERS` через любой `IMemoryReader`, который умеет читать целевое user-mode address space. Запрос TEB по живому локальному thread id/handle находится во внутреннем `Win32NativeShared`, а не на этой публичной поверхности.
 - `ReadProcessInformation` — читает PID и image-name по адресу `_EPROCESS`, не раскрывая сырые kernel structures.
 - `ReadPebAddressViaEprocess` — читает PEB pointer из `_EPROCESS`; для WOW64 processes возвращает WOW64 PEB, если он доступен.
 - `ReadProcessModulesViaEprocess` — читает загруженные модули через PEB, на который ссылается `_EPROCESS`, и возвращает `ProcessModuleInformation`.
@@ -72,8 +180,8 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - `ReadProcessThreadsViaEprocess` — обходит `_EPROCESS.ThreadListHead` и возвращает высокоуровневые `ProcessThreadInformation`.
 - `ReadMemoryRegionsViaEprocess` — обходит `_EPROCESS.VadRoot` и возвращает allocated VAD-backed `MemoryBasicInformation` ranges, отсортированные по base address.
 - `ReadMemoryRegionViaEprocess` — ищет один address в VAD-backed snapshot regions.
-- `ReadTebAddressViaThreadHandle` — запрашивает у живой локальной OS значение `ThreadBasicInformation.TebBaseAddress` по уже открытому thread handle.
-- `ReadTebAddressViaThreadId` — открывает живой локальный Windows thread по id, получает его TEB address и закрывает временный handle.
+- Внутренний `Win32NativeShared.ReadTebAddressViaThreadHandle` — запрашивает у живой локальной OS значение `ThreadBasicInformation.TebBaseAddress` по уже открытому thread handle.
+- Внутренний `Win32NativeShared.ReadTebAddressViaThreadId` — открывает живой локальный Windows thread по id, получает его TEB address и закрывает временный handle.
 - `ReadPebAddressViaTeb` — читает `TEB.ProcessEnvironmentBlock` по переданному адресу TEB и явно указанной архитектуре цели.
 - `ReadProcessModulesViaPeb` — читает загруженные модули по переданному адресу PEB и явно указанной архитектуре цели.
 - `ReadProcessModulesViaTeb` — объединяет чтение TEB-to-PEB и обход PEB loader-list.
@@ -95,7 +203,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Чтение pointer chain:
   - получить `IMemoryAccessor`;
   - вызвать `ReadPointerChain` или `ReadPointerChain32`;
-  - читать или записывать финальный адрес.
+  - получить значение `T` по цепочке; эти методы не возвращают адрес последнего поля.
 
 - Сканирование сигнатуры:
   - создать `BytePattern` или `StringPattern`;
@@ -131,7 +239,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Перечисление модулей из user-mode memory без OS snapshot API:
   - использовать backend, который умеет читать address space целевого процесса;
   - получить корректный адрес TEB или PEB из backend, thread metadata или другого надёжного способа обнаружения;
-  - для живых локальных window/hook сценариев определить owner thread id и вызвать `ReadTebAddressViaThreadId`; если подходящий thread handle уже открыт, используйте `ReadTebAddressViaThreadHandle`;
+  - для живых локальных window/hook сценариев получить TEB через доступную интеграцию; `ReadTebAddressViaThreadId` и `ReadTebAddressViaThreadHandle` находятся во внутреннем классе и не являются публичными script helpers;
   - вызвать `ReadPebAddressViaTeb(tebAddress, architecture)`, если старт идёт от TEB;
   - сначала вызвать `ReadArchitectureViaTeb(tebAddress)`, если архитектура неизвестна, а адрес TEB считается надёжным;
   - вызвать `ReadArchitectureViaPeb(pebAddress)`, если архитектура неизвестна и надёжен только адрес PEB;
@@ -156,8 +264,8 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Перед инструментами с возможностью записи предпочитайте проверку PID.
 - Для kernel/private structures предпочитайте явные versioned layout structs: объявляйте логические поля как auto-properties с `[field: FieldOffset(...)]`, маршрутизируйте доступ через небольшой типизированный интерфейс и держите типизированные static offsets для арифметики list/link pointers.
 - При работе с TEB/PEB helpers предпочитайте явно передавать архитектуру цели. Источник памяти может не совпадать с архитектурой текущего процесса.
-- Для живых локальных Windows user-mode сценариев, где уже известен thread id или handle, предпочитайте `ReadTebAddressViaThreadId` или `ReadTebAddressViaThreadHandle`, а затем проверяйте результат через `ReadArchitectureViaTeb`.
-- Для unmanaged scalar/struct значений в памяти процесса предпочитайте `IMemoryAccessor.Read<T>` и `IMemoryAccessor.Write<T>`. Byte arrays/spans используйте для реальных byte payload, например machine code, строк, file/protocol layouts или bulk buffers.
+- Для живых локальных Windows user-mode сценариев передайте известный TEB от интеграции и проверяйте layout через `ReadArchitectureViaTeb`; одних thread id/handle для вызова публичного memory extension недостаточно.
+- Для unmanaged scalar/struct значений в памяти процесса предпочитайте `process.Memory.Read<T>` и `process.Memory.Write<T>`. Byte arrays/spans используйте для реальных byte payload, например machine code, строк, file/protocol layouts или bulk buffers.
 - Перед тем как писать свой локальный scanner для code cave, сначала попробуйте `MemoryOfModule(...).EnumerateCodeCaves(...)`.
 
 ## Чего избегать

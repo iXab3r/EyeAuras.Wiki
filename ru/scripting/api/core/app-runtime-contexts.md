@@ -27,6 +27,44 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Код приложения или плагина использует DI и систему модулей приложения.
 - Код только для SDK может ссылаться на контракты, но не должен предполагать наличие активного хоста.
 
+## Передать возможность в обычный класс
+
+Если helper должен писать в журнал текущего скрипта, передайте ему готовый
+`IFluentLog`. Код вызова находится в `Script.csx`, а класс можно вынести в
+обычный `.cs` файл проекта:
+
+```csharp
+var worker = new Worker(Log);
+worker.Run();
+
+public sealed class Worker
+{
+    private readonly PoeShared.Logging.IFluentLog log;
+    public Worker(PoeShared.Logging.IFluentLog log) => this.log = log;
+    public void Run() => log.Info("Worker started");
+}
+```
+
+Результат — `Worker started` в журнале скрипта. Класс не ищет глобальный
+`Log` и может работать с другим логгером, если вызывающий код передаст его.
+Аналогично передавайте API переменных, дерева и токен отмены.
+
+## Выбрать способ получения сервиса
+
+| Где выполняется код | Как получить зависимость | Граница |
+|---|---|---|
+| Верхнеуровневый скрипт | Член sandbox или `GetService<T>()` | Только регистрации доступных контейнеров и подключённых расширений |
+| Обычный C# класс | Конструктор или параметр метода | Нет автоматического доступа к членам sandbox |
+| Razor-компонент | `[Inject]` / `@inject` | Только сервисы Blazor-host; `DataContext` передаётся отдельно |
+| Модуль приложения | DI приложения и регистрации Prism | Инициализацию выполняет host |
+| Отдельное SDK-приложение | Собственная настройка host/DI | Ссылка на сборку предоставляет типы, а не работающие сервисы |
+
+В `AuraScriptSandbox` среза `20fd3d4` поиск использует основной Unity-контейнер
+и зарегистрированные связанные контексты. Это не обещание, что произвольный
+сервис приложения доступен каждому скрипту. Владение созданными объектами
+проверяйте по конкретной регистрации; не заменяйте явный `using` предположением
+об универсальном автоматическом освобождении.
+
 ## Ключевые API
 
 - `AuraScriptSandbox` / `IAuraScriptSandbox` — поверхность возможностей top-level скрипта.
@@ -62,7 +100,13 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 ## Связанные карты
 
-- `scripting/runtime.md`
-- `core/app-modules.md`
-- `core/eyeauras-structure.md`
-- `windows-subsystems/blazor-windows.md`
+- [runtime](../scripting/runtime)
+- [app-modules](app-modules)
+- [eyeauras-structure](eyeauras-structure)
+- [blazor-windows](../windows-subsystems/blazor-windows)
+
+## Выбрать контекст для готовой операции
+
+Для [JS/DOM](blazor-js-operations) используйте внедрённый сервис в Razor после появления элементов. Для [сериализации](configuration-operations) верхнеуровневый C# Action получает IConfigSerializer через GetService, а helper принимает его явно. [Файловый провайдер](../scripting/file-provider-operations) отделяет заимствованный сервис от созданного вызывающим потока.
+
+Наследники [CsharpScriptActionExecutor](../auras/actions) и [CsharpScriptTriggerExecutor](../auras/triggers) — отдельный случай: зависимости предоставляет их базовый класс и контейнер. Это не основание использовать Variables или Log как глобальные имена в обычном C# классе.

@@ -25,16 +25,21 @@ AutoHotkey v2:
 A_Clipboard := "hello"
 ```
 
-Скрипт EyeAuras, предполагаемый вариант:
+C# Action в desktop-host с зарегистрированными нативными сервисами:
 
 ```csharp
 IClipboardManager Clipboard { get; init; }
 
 Clipboard.SetText("hello");
+Log.Info($"Прочитано: {Clipboard.GetText() ?? "<нет текста>"}");
 ```
 
-**Рекомендация:** Для базовой работы с текстом этого должно хватить после проверки доступности через DI.  
+**Рекомендация:** Для базового текста используйте сервис, зарегистрированный как `IClipboardManager` в нативном модуле.
 Полная миграция поведения AHK для буфера обмена пока не готова: для `ClipWait`, `ClipboardAll` и событий изменения нужны отдельные рецепты.
+
+После вызова в буфере должен быть текст `hello`, в журнале — прочитанное значение. `GetText()` может вернуть `null`, если текста нет или буфер не удалось открыть; `SetText()` может бросить исключение, например при занятом буфере. Это синхронная операция, токена отмены в контракте нет.
+
+Сервис общий, скрипт не должен его освобождать. В обычный класс передавайте `IClipboardManager` явно. Текстовый путь использует Win32 на вызывающем потоке; наличие UI scheduler в реализации не означает автоматический переход на него. Методы изображений и data object используют WinForms напрямую: для них отдельно обеспечьте подходящий STA/UI-контекст. Здесь показан только текст, без обещания переноса всех форматов, `ClipWait` или событий. См. [AHK-009](./ahk-gaps).
 
 ## Ссылки для проверки
 
@@ -45,6 +50,4 @@ Clipboard.SetText("hello");
 - Исходники AHK:
   [clipboard.cpp](https://github.com/AutoHotkey/AutoHotkey/blob/v2.0/source/clipboard.cpp),
   [wait.cpp](https://github.com/AutoHotkey/AutoHotkey/blob/v2.0/source/lib/wait.cpp).
-- Исходники EyeAuras:
-  [IClipboardManager.cs](../../../../../Submodules/PoeEye/PoeEye/PoeShared.Native/Native/IClipboardManager.cs),
-  [ClipboardManager.cs](../../../../../Submodules/PoeEye/PoeEye/PoeShared.Native/Native/ClipboardManager.cs).
+- Контракты EyeAuras: [контекст скрипта](../scripting/runtime), [ввод](../ISendInputScriptingApi), [окна](../windows-subsystems/window-handles). Точные типы и сигнатуры сверяйте с SDK/XML своей версии; базовый срез — EyeAuras `20fd3d4`, PoeEye `0e02c98`.

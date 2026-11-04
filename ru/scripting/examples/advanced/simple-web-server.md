@@ -9,6 +9,8 @@ dateCreated: 2025-03-02T23:25:27.998Z
 ---
 # Простой веб-сервер
 
+Это сервер внутри верхнеуровневого `C# Script` EyeAuras, а не отдельный ASP.NET-проект. Хост должен уметь загрузить все перечисленные `assemblyName` и совместимый ASP.NET Core runtime. Порт `52080` должен быть свободен. В примере используется HTTP; номер `52443` сам по себе не включает HTTPS — для него нужны отдельные настройки сертификата и endpoint.
+
 Вы можете поднять и запустить собственный локальный веб-сервер, который будет доступен другим пользователям. Это может быть полезно, если нужно посмотреть, что сейчас происходит внутри экземпляра EA, или удалённо управлять какими-то параметрами.
 
 Код для создания и запуска сервера довольно объёмный, но при необходимости его можно просто скопировать и использовать как основу.
@@ -28,11 +30,10 @@ dateCreated: 2025-03-02T23:25:27.998Z
 {.is-info}
 
 1. Создайте ауру со скриптом.
-2. Скопируйте код ниже, вставьте и запустите его. В консоли должна появиться строка `Starting web-server` — это значит, что всё прошло успешно.
-3. Откройте страницу через CURL или браузер.
+2. Скопируйте код ниже, вставьте и запустите его. В консоли должна появиться строка `Starting web-server` — после неё ещё может произойти ошибка запуска.
+3. Проверьте ответ `curl http://127.0.0.1:52080/hello` — ожидается `Hello, world!` (в варианте с контроллерами — `Hello World!`).
 
-> Обратите внимание: Chrome и Edge по умолчанию больше не позволяют открывать HTTP-сайты. Настройка self-signed сертификата и HTTPS — это уже отдельный дополнительный шаг, и его я оставлю вам и ChatGPT (я проверял, и он справился с первой попытки).
-{.is-info}
+
 
 ## Как это можно использовать?
 
@@ -72,43 +73,53 @@ using System;
 
 const int PortNumber = 52080;
 
-Log.Info("Creating web-app builder");
+{
+    Log.Info("Creating web-app builder");
 
-var builder = Host
-   .CreateDefaultBuilder()
-   .ConfigureAppConfiguration((context, config) =>
-   {
-       //Very important line! 
-       //This is required to run the server in EA infrastructure
-       config.Sources.Clear();
-   })
-   .ConfigureWebHostDefaults(webBuilder =>
-   {
-       Log.Info("Setting up web-options");
-       webBuilder
-          .ConfigureKestrel(serverOptions =>
-          {
-              serverOptions.ConfigureEndpointDefaults(endpointOptions => { endpointOptions.Protocols = HttpProtocols.Http1; });
-              serverOptions.ListenAnyIP(PortNumber, listenOptions => { listenOptions.Protocols = HttpProtocols.Http1AndHttp2; });
-          })
-          .Configure((ctx, app) =>
-          {
-              app.UseRouting();
-              app.UseEndpoints(endpoints =>
-               {
-                   endpoints.MapGet("/hello", () =>
+    var builder = Host
+       .CreateDefaultBuilder()
+       .ConfigureAppConfiguration((context, config) =>
+       {
+           //Very important line!
+           //This is required to run the server in EA infrastructure
+           config.Sources.Clear();
+       })
+       .ConfigureWebHostDefaults(webBuilder =>
+       {
+           Log.Info("Setting up web-options");
+           webBuilder
+              .ConfigureKestrel(serverOptions =>
+              {
+                  serverOptions.ConfigureEndpointDefaults(endpointOptions => { endpointOptions.Protocols = HttpProtocols.Http1; });
+                  serverOptions.ListenAnyIP(PortNumber, listenOptions => { listenOptions.Protocols = HttpProtocols.Http1AndHttp2; });
+              })
+              .Configure((ctx, app) =>
+              {
+                  app.UseRouting();
+                  app.UseEndpoints(endpoints =>
                    {
-                       //that could be any kind of code
-                       return "Hello, world!";
+                       endpoints.MapGet("/hello", () =>
+                       {
+                           //that could be any kind of code
+                           return "Hello, world!";
+                       });
                    });
-               });
-          });
-   });
+              });
+       });
 
-Log.Info("Building web-server");
-var host = builder.Build();
+    Log.Info("Building web-server");
+    using var host = builder.Build();
 
-Log.Info("Starting web-server");
-await host.RunAsync(cancellationToken);
-Log.Info("Terminated");
+    Log.Info("Starting web-server");
+    await host.RunAsync(cancellationToken);
+    Log.Info("Terminated");
+}
 ```
+
+`ListenAnyIP` слушает доступные сетевые интерфейсы, а не только loopback. Доступ с другой машины зависит от сети и firewall. `RunAsync(cancellationToken)` связывает работу хоста с остановкой скрипта; уже запущенные обработчики и внешние операции имеют собственные правила завершения. HTTP-контейнер `services` создаётся отдельно от контейнера EyeAuras: сервисы скрипта не появляются в контроллерах автоматически. `config.Sources.Clear()` оставляет явную настройку этого примера; оно не гарантирует совместимость любой версии ASP.NET.
+
+## Дальше
+
+[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Хостинг HTTP](/ru/scripting/api/scripting/web-server) · [Ссылки на сборки](/ru/scripting/api/scripting/references-and-resources)
+
+Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.

@@ -9,11 +9,13 @@ dateCreated: 2025-03-22T15:03:07.266Z
 ---
 # Сначала главное — что это такое
 
+Начните с короткого блока «Быстрый старт» в верхнеуровневом `C# Script` EyeAuras: вход — окно `Aim Trainer`, выход — размер кадра и текстовый отчёт в журнале. Ниже сохранён расширенный учебный пример с движением мыши и форматированием отчёта; это отдельный вариант, запускать оба блока подряд не требуется.
+
 Любую задачу обычно можно разбить на набор небольших шагов: найти изображение, передвинуть мышь, кликнуть, загрузить ML-модель и т. д. Каждый такой шаг потребляет ресурсы. Если точно измерять, сколько времени уходит на каждую операцию, становится понятно, где стоит подтянуть производительность, а где и так всё в порядке. Этот процесс называется профилированием.
 
-# Сразу посмотрим на результат
+## Посмотрим на результат
 
-Профилирование даёт точные замеры: сколько раз вызывался метод, сколько в среднем занимал вызов, как распределяются результаты и т. д.
+Профилирование записывает длительность отмеченных шагов. Подсчёт вызовов и статистику в этом примере строят вспомогательные методы ниже; незавершённые шаги без DurationMilliseconds пропускаются.
 
 Причём формат вывода может быть любым — вы сами решаете, что именно хотите анализировать. Например, для аим-бота с циклом `while` можно измерять, сколько времени занимает каждая операция на каждой итерации.
 
@@ -74,7 +76,7 @@ Max Duration: 0.46 ms
 
 Вариантов здесь много.
 
-# Инструмент — MiniProfiler
+## Инструмент — MiniProfiler
 
 В EyeAuras используется один из лучших «внутренних» профилировщиков — https://miniprofiler.com/.  
 Его создала та же команда, что стоит за https://stackoverflow.com/, и он уже много лет проверен в реальных проектах. Подробнее можно почитать [здесь (github)](https://github.com/MiniProfiler/dotnet) или [здесь (docs)](https://miniprofiler.com/dotnet/HowTo/ProfileCode).
@@ -83,13 +85,17 @@ Max Duration: 0.46 ms
 
 ## Быстрый старт
 
-Чтобы включить профилирование для [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi), просто вызовите `EnableProfiling`. После этого начнётся запись таймингов для всех методов этого API — будет замеряться каждая операция.
+Чтобы включить профилирование для [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi), вызовите `EnableProfiling`. После этого accessor записывает предусмотренные реализацией внутренние шаги CV; это не перехват любого метода приложения.
 
 ```csharp
-var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForWindow(targetWindow)  
-    .EnableProfiling() // enable profiling
-    .EnableOsd(fps: 10); 
+{
+    var targetWindow = GetService<IWindowSelector>().GetWindow("Aim Trainer");
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
+        .ForWindow(targetWindow)
+        .EnableProfiling();
+    cv.ProcessPixels(image => Log.Info($"Frame: {image.Size}"));
+    Log.Info(cv.Profiler.RenderPlainText());
+}
 ```
 
 > Важно! `EnableProfiling` включает тайминги только для этого конкретного экземпляра [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi) и только в рамках текущего скрипта. Если вы хотите профилировать сразу несколько скриптов, используйте `IProfilerProvider` вместе с `MiniProfiler GetOrAdd(string name)` — выберите уникальное имя профайлера и используйте его совместно в нескольких скриптах.
@@ -99,6 +105,10 @@ var cv = GetService<IComputerVisionExperimentalScriptingApi>()
 Если вы включили профилирование в [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi), EyeAuras начнёт автоматически записывать внутренние шаги каждого вызова. Но обычно, помимо внутренних этапов, хочется замерять и свои действия: движение мыши, вычисления, собственную логику и т. п.
 
 Делается это очень просто: в [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi) используйте `Step` и оборачивайте измеряемый участок в `using`, например так:
+
+Следующий фрагмент добавляет измерение в **уже работающий** код с `cv`,
+`sendInput` и `movePosition`. Он размещается внутри их области жизни;
+это не отдельный скрипт после завершения предыдущего блока.
 
 ```csharp
 using(cv.Profiler.Step($"Mouse Move"))
@@ -120,9 +130,11 @@ ChatGPT отлично справляется с такими задачами �
 
 ## Потребление памяти
 
-Важно! Все результаты профилирования хранятся в памяти. Если ничего с этим не делать, память со временем закончится, поэтому запись обычно ограничивают либо по времени («хранить последние 10 минут»), либо по объёму («хранить до 500 MB»). По умолчанию профайлер, настроенный в [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi), хранит данные за последние `60 minutes`. Настройки для этого будут добавлены позже.
+Важно! Все результаты профилирования хранятся в памяти. Если ничего с этим не делать, память со временем закончится, поэтому запись обычно ограничивают либо по времени («хранить последние 10 минут»), либо по объёму («хранить до 500 MB»). В CV accessor срок 60 минут задан для storage-кэша отчётов; он не ограничивает автоматически дерево таймингов текущего живого профайлера. Не оставляйте запись бесконечной.
 
-# Пример
+## Пример
+
+Расширенный вариант рассчитан на учебный Aim Trainer, доступный ONNX по указанному URL и загруженные сборки `StackExchange.Profiling` и `Mason.FluentHtml` (пространство имён для `HtmlBuilder`). Последняя нужна только для HTML-таблицы; её наличие в произвольном хосте не предполагается. `MLSearchLoop` делает до 10 итераций; для альтернативы замените один вызов на `ImageSearchLoop` или `ColorSearchLoop`. Для поиска картинки заранее создайте `C:\Images\target.png`. Прямоугольники ROI в коде — входы для конкретного расположения окна, замените их своей областью.
 
 ```csharp
 using System.Text;
@@ -145,7 +157,8 @@ var targetWindow = windowSelector.ActiveWindow ?? throw new InvalidOperationExce
 var cv = GetService<IComputerVisionExperimentalScriptingApi>()
     .ForWindow(targetWindow)  //for a specific window
     .EnableProfiling()
-    .EnableOsd(fps: 10); //with enabled on-screen-display refreshed @ 10 fps
+    .EnableOsd(fps: 10)
+    .AddTo(ExecutionAnchors);
 
 //this API is used to generate mouse movements
 var sendInput = GetService<ISendInputScriptingApi>();
@@ -174,13 +187,13 @@ private void MLSearchLoop()
     var mlModelPath = @"https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
    
     var loopIdx = 0;
-    while (true)
+    while (!cancellationToken.IsCancellationRequested && loopIdx < 10)
     {
         loopIdx++;
      
         using var _ = cv.Profiler.Step($"Loop #{loopIdx}");
      
-        var result = cv.MLSearchRaw(mlModelPath, new Rectangle(719, 406, 988, 584));
+        var result = cv.MLSearchRaw(mlModelPath, region: new Rectangle(719, 406, 988, 584));
         if (!result.Detected.Predictions.Any())
         {
             //not found
@@ -210,16 +223,16 @@ private void MLSearchLoop()
 
 private void ImageSearchLoop()
 {
-    var targetImagePath = @"C:\\Users\\Xab3r\\Documents\\ShareX\\Screenshots\\2025-03\\uupb4m3RQkfHa8sv.png";
+    var targetImagePath = @"C:\Images\target.png";
 
     var loopIdx = 0;
-    while (true)
+    while (!cancellationToken.IsCancellationRequested && loopIdx < 10)
     {
         loopIdx++;
       
         using var _ = cv.Profiler.Step($"Loop #{loopIdx}");
        
-        var position = cv.ImageSearch(targetImagePath, new Rectangle(714, 397, 999, 598));
+        var position = cv.ImageSearch(targetImagePath, region: new Rectangle(714, 397, 999, 598));
         if (position.IsEmpty)
         {
             //not found
@@ -244,16 +257,16 @@ private void ImageSearchLoop()
 
 private void ColorSearchLoop()
 {
-    var targetImagePath = @"C:\\Users\\Xab3r\\Documents\\ShareX\\Screenshots\\2025-03\\uupb4m3RQkfHa8sv.png";
+    var targetImagePath = @"C:\Images\target.png";
 
     var loopIdx = 0;
-    while (true)
+    while (!cancellationToken.IsCancellationRequested && loopIdx < 10)
     {
         loopIdx++;
 
         using var _ = cv.Profiler.Step($"Loop #{loopIdx}");
 
-        var position = cv.PixelSearch(Color.FromArgb(255, 87, 34), new Rectangle(714, 397, 999, 598));
+        var position = cv.PixelSearch(Color.FromArgb(255, 87, 34), region: new Rectangle(714, 397, 999, 598));
         if (position.IsEmpty)
         {
             //not found
@@ -412,3 +425,13 @@ public string RenderPerStepStatisticsHtml(MiniProfiler profiler)
     return htmlBuilder.ToString();
 }
 ```
+
+В расширенном варианте `sendInput.TargetWindow` задан, поэтому ML-прямоугольник преобразуется через `WorldToWindow`. Упрощённые `ImageSearch`/`PixelSearch` для `ForWindow` также возвращают оконные координаты. Обёртка ввода переводит их в экранные; повторный `ToScreen` здесь был бы ошибкой. Пустой результат пропускает ввод, ошибки CV могут прервать скрипт. У ML без явных порогов confidence 30%, IoU 40%; у поиска картинки/цвета — 95%. Это пороги алгоритмов, а не гарантия правильного совпадения.
+
+Остановка проверяется между проходами, не внутри синхронного распознавания или ввода. При обычном завершении 10 проходов печатается отчёт; при остановке/ошибке его вывод не гарантирован. Память дерева таймингов текущего профайлера и кэш хранения отчётов — разные вещи: TTL 60 минут у storage не обещает ограничение дерева живого профайлера. Для долгого наблюдения ограничивайте сам период сбора.
+
+## Дальше
+
+[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
+
+Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.
