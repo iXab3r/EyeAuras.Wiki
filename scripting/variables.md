@@ -1,97 +1,109 @@
 ---
 title: Variables
-description: usage in scripts
+description: Using variables in scripts
 published: true
-date: 2025-10-19T16:05:00.000Z
-tags: 
+date: 2026-11-06T00:00:00.000Z
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-10-19T11:24:15.492Z
 ---
+# Script Variables in EyeAuras
 
-# Script variables in EyeAuras
+## Why use variables outside your code
 
-## Why variables outside of code?
-A typical script lives briefly: it starts, does the job, and exits. But sometimes you want to keep settings and results longer — across script restarts and even share them with other scripts. EyeAuras provides “external” variables — at the level of scripts, auras, and folders — for that.
+A regular script is short-lived: it starts, does its job, and exits. But sometimes you need to keep settings or results around longer — between runs in the same context, or even share them with other scripts. For that, EyeAuras provides external variables at the script, aura, and folder levels.
 
-Main use cases:
-- store settings that rarely change
-- exchange data between scripts (config in one, logic in another)
-- see values in the UI on the Variables tab of an aura/folder
+Common use cases:
 
-## Where the data can live
-- Local variables — live within a method. The usual kind:
+- storing settings that rarely change
+- sharing data between scripts, for example config in one script and logic in another
+- viewing values in the UI on the **Variables** tab of an aura or folder
+
+## Where data can live
+
+- Local variables live inside a method. This is the usual case:
   ```csharp
   var x = 123;
   ```
-- Sandbox properties — fields/properties of your script class. They persist until you change the code (after a change the script is recompiled and properties reset):
+- Sandbox properties are fields or properties of your script class. They are preserved when the same context runs again. Changing the dependent project version or recreating the context resets the state:
   ```csharp
   int MyCounter { get; set; }
   // ...
   MyCounter = 16;
   Log.Info($"Counter: {MyCounter}");
   ```
-- Script/Aura/Folder variables — long-term storage, visible in the UI and available to other scripts. That’s what this article is about.
+- Script/Aura/Folder variables are stored under a selected owner, visible in the UI, and accessible to other scripts through that owner. That is what this article focuses on.
 
-## How to work with script variables in general
-In raw form, you can read/write variables via an indexer by string key:
+## Read and increment a counter
+
+All examples below are for `Script.csx`. `Variables` and `AuraTree` are provided by the host. In a regular class, pass `IVariablesScriptingApi` from `EyeAuras.Scripting.Api` or a ready-made `ScriptVariable<T>` from `EyeAuras.Scripting.UserSpace`. Getting a handle does not create a record and does not require `Dispose`; the caller owns any `Listen()` subscription. This is not a guarantee that arbitrary objects will survive an application restart.
+
+In raw form, variables can be read and written through a string-keyed indexer:
+
 ```csharp
 Variables["myCounter"] = 1;
 Log.Info($"Counter: {Variables["myCounter"]}");
 ```
-Cons: the type is lost, you need manual casting. In C#, that’s inconvenient and brittle.
 
-Solution — ScriptVariable<T>: define name and type once, then work type-safely.
+The downside is that you lose type safety and have to cast manually. In C#, that is inconvenient and error-prone.
+
+The usual solution is `ScriptVariable<T>`: you define the name and type once, then work with it safely.
+
 ```csharp
 var myCounter = Variables.Get<int>("myCounter");
 myCounter.Value = myCounter.Value + 1;
-Log.Info($"Counter value: {myCounter}"); // 2, 3, 4, ...
+Log.Info($"Counter value: {myCounter.Value}"); // 2 после записи 1 выше; затем 3, 4, ...
 ```
-Looks like a regular variable: you read, write, log. But internally, the value is stored in a shared “variables store” accessible to other scripts.
 
-## How to get a variable
+From the outside, it behaves like a normal variable: you can read it, write it, and log it. Internally, the value is stored in a shared variable store that other scripts can also access.
+
+## Getting a variable
+
 - Variable of the current script:
   ```csharp
   var v = Variables.Get<float>("speed");
   v.Value = 1.5f;
   ```
-- Variable of another aura/folder by path:
+- Variable of another aura or folder by path:
   ```csharp
+  // В дереве должна существовать аура/папка по этому пути.
   var auraVar = Variables.Get<int>(@".\Gameplay\Bosses\Shaper", "attempts");
   auraVar.Value++;
   ```
-- Variable when you already have an IHasVariables:
+- Variable when you already have an `IHasVariables`:
   ```csharp
   var aura = AuraTree.GetAuraByPath(@".\Something");
   var auraVar = Variables.Get<string>(aura, "status");
   Log.Info($"Status: {auraVar.Value}");
   ```
 
-## The most important behavior of ScriptVariable<T>
-Simple rules below — better to understand once than to debug for long.
+## Choosing how to read a value
 
-- Value
-  - Always safe to read: never throws.
-  - If there’s no value or type doesn’t match — returns default(T) (0 for numbers, false for bool, null for reference types).
-  - Assigning simply writes to the store.
+These rules are worth understanding once so you do not spend time debugging later.
+
+- `Value`
+  - If no value exists, it returns `default(T)`. This is not a universal guarantee against exceptions in custom conversions or serialization.
+  - If the value is missing or the type does not fit, it returns `default(T)` (`0` for numbers, `false` for `bool`, `null` for reference types).
+  - Assignment simply writes the value into storage.
   ```csharp
   var i = Variables.Get<int>("i");
-  Log.Info(i.Value); // 0 if the variable is not set
-  i.Value = 42;      // wrote 42
+  Log.Info(i.Value); // 0, если переменная не задана
+  i.Value = 42;      // записали 42
   ```
 
-- HasValue
-  - true if a record exists in the store (even if it’s null for a reference type).
-  - false if there is no record at all.
+- `HasValue`
+  - `true` if a record is visible in the effective storage, including an inherited one, even if it is `null` for a reference type.
+  - `false` if there is no record at all.
   ```csharp
   var s = Variables.Get<string>("name");
-  Log.Info(s.HasValue); // false, no record
+  Log.Info(s.HasValue); // зависит от того, была ли запись раньше
   s.Value = null;
-  Log.Info(s.HasValue); // true, record exists but value is null
+  Log.Info(s.HasValue); // true, запись есть, но значение null
   ```
 
-- TryGetValue(out T value)
-  - Returns true only if a record exists and the value is NOT null and can be cast/converted to T.
-  - Returns false if the record is absent, the value is null, or the type doesn’t fit.
+- `TryGetValue(out T value)`
+  - Returns `true` only if a record exists, the value is not `null`, and it can be cast or converted to `T`.
+  - Returns `false` if the record does not exist, the value is `null`, or the type is not compatible.
   ```csharp
   var f = Variables.Get<float>("ratio");
   if (f.TryGetValue(out var val))
@@ -104,26 +116,26 @@ Simple rules below — better to understand once than to debug for long.
   }
   ```
 
-- GetOrThrow()
-  - The only “unsafe” read.
-  - Throws InvalidOperationException if the record is missing, value is null (for reference types), or cannot be cast/converted to T.
+- `GetOrThrow()`
+  - Requires a defined value of the correct type.
+  - Throws `InvalidOperationException` if the record does not exist, the value is `null`, or it cannot be cast or converted to `T`.
   ```csharp
   var required = Variables.Get<int>("port");
-  var port = required.GetOrThrow(); // will throw if no record, null, or wrong type
+  var port = required.GetOrThrow(); // выбросит исключение, если нет записи, null или неверный тип
   ```
 
-- Remove()
-  - Deletes the record from the store. Returns true if the record existed, false if it didn’t.
-  - After Remove(), reading Value returns default(T), HasValue becomes false, and Listen() receives a “reset to default value”.
+- `Remove()`
+  - Removes the local override. It returns `true` if the name was visible before the call, including through an inherited value; `false` if the name was not found. Because of that, `true` does not prove that a local record was removed or that the effective value disappeared.
+  - Only the local record is removed. If a parent has a value with the same name, it becomes visible again; otherwise `Value` returns `default(T)` and `HasValue` becomes `false`. `Listen()` receives the new effective value if it differs from the previous one.
   ```csharp
   var v = Variables.Get<int>("x").Set(10);
-  v.Remove(); // true
-  Log.Info(v.Value);    // 0
-  Log.Info(v.HasValue); // false
+  v.Remove(); // локальное значение 10 удалено; при наличии родительского оно станет видимым
+  Log.Info(v.Value);    // 0, если у родителя нет x
+  Log.Info(v.HasValue); // false, если у родителя нет x
   ```
 
-- Implicit conversion to T
-  - You can write simply: int i = myIntVar;
+- Implicit conversion to `T`
+  - You can write simply: `int i = myIntVar;`
   ```csharp
   var myIntVar = Variables.Get<int>("score").Set(5);
   int i = myIntVar; // 5
@@ -132,7 +144,7 @@ Simple rules below — better to understand once than to debug for long.
   ```
 
 - String representation
-  - v.ToString() shows the name and current value, or "<not set>" if the record doesn’t exist.
+  - `v.ToString()` shows the name and current value, or `"<not set>"` if the record does not exist.
   ```csharp
   var a = Variables.Get<int>("a");
   Log.Info(a.ToString()); // "a = <not set>"
@@ -140,117 +152,140 @@ Simple rules below — better to understand once than to debug for long.
   Log.Info(a.ToString()); // "a = 10"
   ```
 
-## Types and conversions: what actually happens
-ScriptVariable<T> first tries to read the value “as is”, then tries to convert it. Conversion is done via an internal converters repository (IBindingValueConverterRepository).
+## Types and conversion
 
-- If the value is already T — it’s returned as is.
-- If it’s a different type but there’s a converter to T — it’s converted and returned.
-- For string target (T == string) almost any type is acceptable — value.ToString() is returned.
-- For Nullable<T> conversion goes to the underlying type.
-- If the value is null, TryGetValue returns false, and Value returns default(T).
-- If there’s no conversion — Value returns default(T), TryGetValue returns false, and GetOrThrow throws an exception.
+`ScriptVariable<T>` first tries to read the value as-is, then tries to convert it. Conversion is handled through the internal converter repository, `IBindingValueConverterRepository`.
 
-Examples:
+- If the value already has type `T`, it is returned as-is.
+- If it is a different type but there is a converter to `T`, the converted value is returned.
+- When the target is a string (`T == string`), almost any type works — it returns `value.ToString()`.
+- For `Nullable<T>`, conversion targets the underlying type.
+- If the value is `null`, `TryGetValue` returns `false`, and `Value` returns `default(T)`.
+- If no conversion is found for `TryGetValue`, it returns `false`, and `Value` returns `default(T)`.
+
+**Implementation limitation:** in the version discussed here, after checking the exact type, `GetOrThrow()` passes an `AuraVariable` wrapper to the converter, while `TryGetValue()` and `Listen()` pass its `Value`. So you should not assume identical conversion behavior. For required parameters, store the correct type directly. Between `AssemblyLoadContext` instances, there is also a separate attempt to convert same-named value types through JSON; that can throw exceptions and is not intended for arbitrary classes.
+
+The examples below assume you have not registered your own custom conversions for these names.
+
 ```csharp
-// 1) Matching types — straightforward
+// 1) Типы совпадают — всё просто
 Variables.Get<int>("n").Set(123);
 Log.Info(Variables.Get<int>("n").Value); // 123
 
-// 2) Reading as another type
-((IScriptVariable)Variables.Get<int>("mix")).Value = "abc"; // write a string "bypassing" type safety
+// 2) Чтение как другого типа
+((EyeAuras.Scripting.UserSpace.IScriptVariable)Variables.Get<int>("mix")).Value = "abc"; // записали строку в обход типобезопасности
 var v = Variables.Get<int>("mix");
 Log.Info(v.Value);                  // 0 — default(int)
 Log.Info(v.TryGetValue(out var x)); // false
 // v.GetOrThrow(); // throws InvalidOperationException
 
-// 3) Almost anything to string
-((IScriptVariable)Variables.Get<string>("text")).Value = 42;
+// 3) Почти всё можно превратить в string
+((EyeAuras.Scripting.UserSpace.IScriptVariable)Variables.Get<string>("text")).Value = 42;
 Log.Info(Variables.Get<string>("text").Value); // "42"
 ```
 
-Tip: if you need a specific conversion, register a converter in `IBindingValueConverterRepository`. Then TryGetValue/Value will start returning your desired type.
+Tip: if you need a specific conversion, register a converter in `IBindingValueConverterRepository`. After that, `TryGetValue` and `Value` will return the type you expect.
 
-## Subscriptions to changes: Listen()
-Want to reactively respond to variable changes? Use Listen().
-- Returns IObservable<T>.
-- Emits the current value immediately (or default(T) if the record doesn’t exist).
-- Then emits only truly new values (DistinctUntilChanged).
-- Remove() emits a “reset” to default(T).
+## Watch for changes and dispose subscriptions
+
+If you need to reactively track variable changes, use `Listen()`.
+
+- Returns `IObservable<T>`.
+- Immediately emits the current value, or `default(T)` if no record exists.
+- Then emits only genuinely new values via `DistinctUntilChanged`.
+- `Remove()` changes the effective value: it becomes the parent value, or `default(T)` if there is no parent value.
 
 Example:
-```csharp
-var hp = Variables.Get<int>("hp");
-var observed = new List<int>();
-using var sub = hp.Listen().Subscribe(x => {
-    Log.Info($"HP: {x}");
-    observed.Add(x);
-});
 
-hp.Value = 100; // HP: 100
-hp.Value = 100; // not emitted (distinct)
-hp.Value = 90;  // HP: 90
-hp.Remove();    // HP: 0 (default)
+```csharp
+using System.Collections.Generic;
+using System.Reactive.Linq;
+
+{
+    var hp = Variables.Get<int>("batchExample.hp");
+    var observed = new List<int>();
+    using var sub = hp.Listen().Subscribe(x => {
+        Log.Info($"HP: {x}");
+        observed.Add(x);
+    });
+
+    hp.Value = 100; // HP: 100
+    hp.Value = 100; // not emitted (distinct)
+    hp.Value = 90;  // HP: 90
+    hp.Remove();    // HP: 0, если у родителя нет batchExample.hp
+}
 ```
 
-For reference types, the first value will be null, then new values, then null again on Remove() or if you set null.
+Because of `using var`, the subscription stays active until the end of the block. If you want it to keep running until Stop, add a cancellable wait from the [async map](/scripting/api/scripting/async): a subscription by itself, or adding it to `ExecutionAnchors`, does not keep Run open. The initial value depends on the storage state; a missing record and an explicit `null` both produce `default(T)`. A parent value can also become visible again after removing the local one.
 
-## Aura and folder variables, value hierarchy
-Each aura/folder is also a variables container. There’s a hierarchy: children “see” the parent’s values and can override them.
+## Choosing an owner and understanding hierarchy
 
-Two access methods:
+Every aura and folder is also a variable container. Variables follow the tree hierarchy: child items can see parent values and override them locally.
+
+There are two ways to access them:
+
 - By path:
   ```csharp
   var auraVar = Variables.Get<int>(@".\Something", "myCounter");
   auraVar.Value = 16;
   ```
-- Via object:
+- By object:
   ```csharp
   var aura = AuraTree.GetAuraByPath(@".\Something");
   var auraVar = Variables.Get<int>(aura, "myCounter");
   auraVar.Value = 16;
   ```
 
-Why this matters: set a “default” on a folder — all nested auras can read it. Where needed, override locally. Very convenient for shared settings (target window, input simulator, etc.).
+The paths in these examples require that the tree item already exists. If it does not, `Get<T>(path, name)` throws an exception. `Get<T>(source, name)` uses the provided `IHasVariables` directly and does not search the tree.
 
-Nuance: variables prefixed with `default.` are often used as “base values” across the tree. If you override, say, `default.WindowSelector.TargetWindow` — it will affect window selection in all nested items.
+Why this matters: you can define a default value on a folder, and all nested auras can read it. Where needed, you can override it locally. This is especially useful for shared settings such as the target window, input simulator, and similar values.
 
-## Operators and niceties
-For convenience there are operators and implicit conversions.
+One detail worth knowing: variables with the `default.` prefix are often used as base values across the whole tree. For example, overriding `default.WindowSelector.TargetWindow` affects window selection in all nested items.
 
-- Implicit conversion to T:
+## Operators and small conveniences
+
+For convenience, `ScriptVariable<T>` also supports operators and implicit conversions.
+
+- Implicit conversion to `T`:
   ```csharp
   var score = Variables.Get<int>("score").Set(5);
   int current = score; // 5
   ```
-- Value equality:
+- Value comparison:
   ```csharp
   var a = Variables.Get<int>("a").Set(3);
   var b = Variables.Get<int>("b").Set(3);
   if (a == b) { /* same values */ }
   if (a != b) { /* different values */ }
   ```
-- Numeric comparisons (when T is a comparable numeric type):
+- For numeric comparisons, use `.Value`: the handle itself does not have `<` and `>` operators.
   ```csharp
   var x = Variables.Get<int>("x").Set(2);
   var y = Variables.Get<int>("y").Set(3);
-  if (y > x) { /* yes, 3 > 2 */ }
-  if (x < 3) { /* yes */ }
+  if (y.Value > x.Value) { /* yes, 3 > 2 */ }
+  if (x.Value < 3) { /* yes */ }
   ```
 
 ## Typical scenarios
-- A “config script” writes parameters, a “worker script” reads them.
-- Run counters, delays, intervals — persist between runs.
-- Cache intermediate results needed by several scripts.
 
-Example “config -> worker”:
+- A config script writes parameters, and a worker script reads them.
+- Counters, delays, and intervals are preserved between runs.
+- A cache of intermediate results is shared by several scripts.
+
+Example of a `config -> worker` setup: create a `SharedConfig` folder in advance next to the contexts of both scripts, and use the same path in both. Calling `Variables.Get<T>(name)` without an owner works only with the current context and does not automatically connect two different scripts.
+
 ```csharp
-// Config script
-Variables.Get<string>("target").Set("Shaper");
-Variables.Get<int>("maxAttempts").Set(5);
+// Config Script.csx — выполнить первым
+var shared = AuraTree.GetFolderByPath(@".\SharedConfig");
+Variables.Get<string>(shared, "target").Set("Shaper");
+Variables.Get<int>(shared, "maxAttempts").Set(5);
+```
 
-// Worker script
-var target = Variables.Get<string>("target").GetOrThrow();
-var maxAttempts = Variables.Get<int>("maxAttempts").GetOrThrow();
+```csharp
+// Worker Script.csx — тот же владелец
+var shared = AuraTree.GetFolderByPath(@".\SharedConfig");
+var target = Variables.Get<string>(shared, "target").GetOrThrow();
+var maxAttempts = Variables.Get<int>(shared, "maxAttempts").GetOrThrow();
 for (var i = 0; i < maxAttempts; i++)
 {
     Log.Info($"Try {i+1} on {target}");
@@ -258,50 +293,59 @@ for (var i = 0; i < maxAttempts; i++)
 ```
 
 ## Common mistakes and how to avoid them
-- “Why did Value return 0/false/null instead of throwing?”
-  - By design: Value never throws. Use GetOrThrow() for strictness.
 
-- “TryGetValue returned false for null — is that a bug?”
-  - No. For TryGetValue, null means “value is absent”. For reference types HasValue will be true (record exists) while TryGetValue is false (because there’s no actual value).
+- “Why did `Value` return `0/false/null` instead of throwing?”
+  - That is expected when the value is missing or conversion fails. If you need strict behavior, use `GetOrThrow()`.
 
-- “Why didn’t Listen() emit the same value the second time?”
+- “`TryGetValue` returned `false` for `null` — is that a bug?”
+  - No. For `TryGetValue`, `null` means “no usable value”. For reference types, `HasValue` is still `true` because the record exists, while `TryGetValue` is `false` because there is no actual value to return.
+
+- “Why did `Listen()` not emit the same value a second time?”
   - Consecutive identical values are filtered out.
 
-- “I removed a variable, what will Listen() emit?”
-  - default(T). For int — 0, for string — null, etc.
+- “I removed a variable. What will `Listen()` emit?”
+  - The parent value, or `default(T)` if there is no parent value. An event is sent only if the effective value actually changed.
 
-## Best practices
-- Declare ScriptVariable<T> once and reuse it.
-- For “required” parameters, read via GetOrThrow().
-- For “optional” ones, prefer TryGetValue over checking against default(T).
-- Don’t confuse set null and Remove():
-  - set null — the record remains (HasValue == true), but TryGetValue == false.
-  - Remove() — the record is gone (HasValue == false), Value returns default(T).
-- For subscriptions, don’t forget to Dispose() the returned IDisposable (use using var ...).
-- Give variables clear names and stick to a consistent format (e.g., snake_case or camelCase).
+## Recommendations
 
-## Quick API “cheatsheet”
+- Create a `ScriptVariable<T>` once and reuse it.
+- For required parameters, read them through `GetOrThrow()`.
+- For optional values, prefer `TryGetValue` over comparing with `default(T)`.
+- Do not confuse `set null` with `Remove()`:
+  - `set null` keeps the record (`HasValue == true`), but `TryGetValue == false`
+  - `Remove()` deletes the local record; if a parent value exists, it becomes visible again
+- For subscriptions, remember to call `Dispose()` on the returned `IDisposable` — usually with `using var ...`.
+- Give variables clear names and stick to one naming style such as `snake_case` or `camelCase`.
+
+## Quick API cheat sheet
+
 ```csharp
-var v = Variables.Get<int>("n");
+using System.Reactive.Linq;
 
-// read/write
-int x = v.Value;  // safe, default if no value/wrong type
-v.Value = 10;     // write
+{
+    var v = Variables.Get<int>("n");
 
-// strict scenarios
-var required = v.GetOrThrow(); // exception if missing/wrong type/null
+    // чтение/запись
+    int x = v.Value;  // default, если значение отсутствует или преобразование не удалось
+    v.Value = 10;     // запись
 
-// careful read
-if (v.TryGetValue(out var val)) { /* ok */ } else { /* no value */ }
+    // строгий сценарий
+    var required = v.GetOrThrow(); // исключение, если нет значения/неверный тип/null
 
-// subscribe to changes
-using var sub = v.Listen().Subscribe(x => Log.Info($"n = {x}"));
+    // аккуратное чтение
+    if (v.TryGetValue(out var val)) { /* ok */ } else { /* no value */ }
 
-// remove
-var removed = v.Remove();
+    // подписка на изменения
+    using var sub = v.Listen().Subscribe(value => Log.Info($"n = {value}"));
 
-// misc
-bool has = v.HasValue; // does the record exist?
-string name = v.Name;
-IHasVariables src = v.Source; // where it reads from/writes to
+    // удаление
+    var removed = v.Remove();
+
+    // прочее
+    bool has = v.HasValue; // существует ли запись?
+    string name = v.Name;
+    var src = v.Source; // откуда читает/куда пишет
+}
 ```
+
+Do not confuse `v.TryGetValue(out value)` on the handle with `Variables.TryGetValue<T>(name, out value)` on the accessor. The second one performs a direct cast of the stored object and may throw if the type is incompatible. For the full overload list, see [IVariablesScriptingApi](/scripting/api/IVariablesScriptingApi), and for SDK/reference navigation see the [variables map](/scripting/api/scripting/variables).
