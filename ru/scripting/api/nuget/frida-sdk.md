@@ -11,6 +11,23 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 Справочная карта по необязательным API `EyeAuras.FridaSdk`: устройства Frida, сессии, скрипты, payload'ы Frida Gadget, адаптеры `IProcess` поверх Frida и нативные named-pipe readers процессов через CAgent.
 
+## Владение сессией и остановка
+
+`FridaContainerExtensions` регистрирует `IFridaExperimentalApi` → `FridaExperimentalApi`.
+`FridaAgentProcess.BySession(session, rpcType)` заимствует сессию; его `Dispose`
+не заменяет `session.Detach()`. Для обычного скрипта владелец прекращает работу,
+отписывается от сообщений, вызывает `script.Unload()`, затем `session.Detach()`
+и освобождает wrapper-объекты. Для адаптера памяти сначала прекращают обращения
+к `process.Memory`, явно выгружают `process.Script`, затем освобождают адаптер
+и отключают сессию. Не вызывайте `Unload` после `Dispose` скрипта.
+
+В `FridaAgentRpcType` доступны только `Default`, `Frida`, `NamedPipeAsServer`
+и `NamedPipeAsClient`. Native-компоненты и совместимость опубликованных NuGet
+не проверялись запуском; наличие managed API не подтверждает готовность Gadget.
+
+
+[FridaSession](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.FridaSdk/Internal/FridaSession.cs) · [FridaScript](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.FridaSdk/Internal/FridaScript.cs) · [FridaAgentProcess](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.FridaSdk/FridaAgentProcess.cs)
+
 ## Выбрать способ подключения
 
 Если инструменту нужен только просмотр модулей и памяти, сначала выберите источник `IProcess`. Обычному локальному процессу достаточно [LocalProcess](/ru/scripting/memory-api/backends/local-process). Frida нужна, когда требуется именно сессия инструментации; CAgent — отдельный нативный агент с собственным транспортом.
@@ -19,7 +36,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 Сначала создают сессию, затем скрипт и подписки на его сообщения, затем загружают скрипт. Результат этой операции — сообщения из выбранного процесса, а не автоматически готовый `IProcess`. Адаптер `FridaAgentProcess` нужен отдельно, если следующий инструмент принимает `IProcess`. При завершении владелец должен остановить работу и освободить подписки, скрипт и сессию в соответствии с контрактом установленной версии.
 
-**Граница версии:** последующие имена, фабрики и примеры сохранены из Wiki `c950e48d`. Реализация Frida SDK и соответствующие бинарные контракты недоступны для этой сверки. Точные перегрузки, регистрация, передача владения сессией адаптеру и отмена требуют проверки по вашей версии пакета. Наличие типов или PID не доказывает доступность Frida/Gadget/CAgent. Ниже приведена навигация по интеграции, а не проверенный самостоятельный запуск SDK.
+**Граница версии:** Frida API сверено с исходниками `c8b2304`. В этом срезе `WHProcess` относится к отдельному `EyeAuras.Memory.WHSdk`, а CAgent/CLink API и `GetCAgentLibrary*` в Frida SDK отсутствуют. Разделы CAgent ниже сохранены как историческая навигация по Wiki `c950e48d`, а не контракт текущего пакета. Проверяйте их по конкретной установленной версии.
 
 ## Что такое Frida
 
@@ -38,8 +55,8 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Встроенный Frida agent script, который отдает операции с процессом и памятью через RPC.
 - `FridaAgentProcess` — адаптер `IProcess` поверх уже существующей Frida session.
 - Вспомогательные бинарники Frida Gadget находятся в семействе Frida binaries.
-- Байты нативной DLL CAgent и managed-клиенты находятся рядом с Frida SDK, но CAgent — это отдельный нативный reader процесса через named pipe, а не Frida script/session.
-- `WHProcess` — экспериментальный backend `IProcess` для x64 GUI-процессов, который использует Windows hook transport для чтения/записи памяти с низкими правами и небольших операций удаленного управления.
+- Исторические CAgent API ниже отсутствуют в проверенном срезе Frida SDK.
+- В отдельном пакете `EyeAuras.Memory.WHSdk` тип `WHProcess` — экспериментальный backend `IProcess` для x64 GUI-процессов, который использует Windows hook transport для чтения/записи памяти с низкими правами и небольших операций удаленного управления.
 
 ## Обязательная настройка
 
@@ -56,7 +73,7 @@ var frida = GetService<IFridaExperimentalApi>();
 
 Не считайте, что `IFridaExperimentalApi` или Frida binary helpers автоматически доступны из DI только потому, что пакет компилируется. Без `FridaContainerExtensions` получение сервиса может завершиться ошибкой или вернуть неполную конфигурацию хоста.
 
-`CAgentProcess.ByProcessId(...)` — это статическая фабрика process-reader'ов из того же пакета, но если скрипт также получает сервисы Frida SDK, `FridaContainerExtensions` все равно нужно добавить заранее.
+Эта регистрация предоставляет сервисы Frida, но не исторические фабрики CAgent из разделов ниже.
 
 ## Разделение по слоям
 
@@ -65,8 +82,8 @@ var frida = GetService<IFridaExperimentalApi>();
 | Frida session/script | Инструментация, хуки, свой JavaScript внутри целевого процесса | `IFridaExperimentalApi`, `IFridaSession`, `IFridaScript`, `IFridaLiveScript` |
 | Frida Gadget | Подключение к внедренному или встроенному runtime Frida по локальному порту | `FridaSdkBinaries`, `AttachByLocalPort` |
 | Process reader на базе Frida | Использовать Frida session как `IProcess` для memory/reverse-engineering инструментов | `FridaAgentProcess`, `FridaAgentRpcType`, `FridaMemoryBackend` |
-| CAgent process reader | Использовать нативную DLL + named-pipe RPC для операций с памятью и управлением процессом | `CAgentProcess`, `ICAgentProcess`, `IProcessControlApi` |
-| WH process reader | Использовать GUI window thread и Windows hook transport для экспериментальных low-permission probes памяти/процесса и x64 manual mapping | `WHProcess`, `WHProcess.ByWindowHandle`, `WHProcess.ExecuteCode`, `IProcessSupportsManualMapping` |
+| Исторический CAgent process reader | Использовать нативную DLL + named-pipe RPC для операций с памятью и управлением процессом | `CAgentProcess`, `ICAgentProcess`, `IProcessControlApi` |
+| Отдельный WHSdk process reader | Использовать GUI window thread и Windows hook transport для экспериментальных low-permission probes памяти/процесса и x64 manual mapping | `WHProcess`, `WHProcess.ByWindowHandle`, `WHProcess.ExecuteCode`, `IProcessSupportsManualMapping` |
 
 ## Типовые задачи
 
@@ -96,7 +113,7 @@ var frida = GetService<IFridaExperimentalApi>();
 - `AttachByLocalPort(...)` — подключиться к Frida Gadget/server на локальном порту.
 - `IFridaDevice` — абстракция устройства Frida.
 - `IFridaProcess` — информация о процессе, видимом Frida.
-- `IFridaSession` — сессия подключенного процесса, владеет скриптами, при `Dispose` отключается.
+- `IFridaSession` — сессия подключенного процесса. В этом срезе wrapper не связывает `Dispose` с `Detach` и не регистрирует созданные скрипты как свои ресурсы; владелец явно вызывает `Unload` и `Detach` до освобождения объектов.
 - `IFridaScript` — загруженный Frida JavaScript с `Load`, `Unload`, `Post`, `PostWithData`, `Rpc`, `Rpc<T>`, `Eternalize`, debugger controls и observables сообщений.
 - `IBasicFridaScript` — упрощенная поверхность script API, используемая agent wrappers.
 - `IFridaLiveScript` — script, привязанный к файлу или observable, который перезагружается при изменении содержимого.
@@ -120,10 +137,9 @@ var frida = GetService<IFridaExperimentalApi>();
 - `FridaAgentRpcType` выбирает транспорт:
   - `Default` / `Frida` — встроенный RPC Frida.
   - `NamedPipeAsServer` / `NamedPipeAsClient` — managed/TypeScript named-pipe bridge вокруг Frida agent script.
-  - `NativeNamedPipeAsClient` / `NativeCompositeNamedPipeAsClient` — client-режимы named pipe в нативном стиле.
 - Этот слой подходит, когда Frida session уже существует, а следующему API нужен `IProcess`.
 
-## API CAgent
+## API CAgent — историческая интеграция
 
 - CAgent — это нативная DLL/payload, которая работает внутри целевого процесса.
 - CAgent поднимает named-pipe RPC server, имя которого формируется из id целевого процесса.
@@ -163,7 +179,7 @@ var frida = GetService<IFridaExperimentalApi>();
 5. Создайте script из исходника или файла.
 6. Подпишитесь на потоки логов, ошибок и сообщений.
 7. Загрузите script.
-8. При остановке mini-app выгрузите его или вызовите `Dispose`.
+8. Остановите работу и освободите подписки; явно вызовите `Unload` скрипта и `Detach` сессии до освобождения wrapper-объектов.
 
 ### Использовать Frida session как IProcess
 
@@ -179,7 +195,9 @@ var frida = GetService<IFridaExperimentalApi>();
 3. Подключитесь через `AttachByLocalPort(port)`.
 4. Дальше работайте с результатом как с обычной Frida session.
 
-### Использовать CAgent process reader
+### Исторический CAgent process reader
+
+Нужна соответствующая историческая версия CAgent; в проверенном срезе исходников этого API нет.
 
 1. Убедитесь, что доступен необязательный пакет/reference Frida SDK.
 2. Добавьте `FridaContainerExtensions`, если скрипт получает `IFridaExperimentalApi`, чтобы взять байты DLL CAgent или другие сервисы SDK.
@@ -188,7 +206,9 @@ var frida = GetService<IFridaExperimentalApi>();
 5. Проверьте, что возвращаемый `ProcessId` совпадает с ожидаемым процессом.
 6. Используйте полученную поверхность `IProcess`/`IProcessControlApi`.
 
-### Выполнить manual mapping CAgent через WHProcess
+### Исторический manual mapping CAgent через WHProcess
+
+Нужны соответствующие исторические helpers для CAgent payload и отдельный пакет WHSdk.
 
 1. Подключитесь к x64 GUI-цели через `WHProcess.ByWindowHandle(...)`, `ByProcessId(...)` или `ByThreadId(...)`.
 2. Убедитесь, что цель соответствует требованиям WH control, особенно что у `WHProcess` есть доступ к существующей RWX trampoline page.
@@ -279,6 +299,6 @@ var frida = GetService<IFridaExperimentalApi>();
 
 ## Связанные карты
 
-- `memory/processes.md`
-- `reverse-engineering/reprocess.md`
-- `scripting/runtime.md`
+- [memory/processes.md](/ru/scripting/api/memory/processes)
+- [reverse-engineering/reprocess.md](/ru/scripting/api/reverse-engineering/reprocess)
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)

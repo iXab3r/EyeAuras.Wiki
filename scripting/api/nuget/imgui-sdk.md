@@ -3,7 +3,7 @@ title: AI NuGet: ImGui SDK
 description: AI-first map for the optional EyeAuras ImGui SDK package.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, imgui, nuget
+tags: scripting, api, ai, imgui, nuget, ai-translated
 editor: markdown
 dateCreated: 2026-04-21T00:00:00.000Z
 ---
@@ -11,6 +11,90 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 Reference map for optional `EyeAuras.ImGuiSdk`: ImGui render loop, managed
 ImGui windows, reusable content, images, fonts, and RE-style tool windows.
+
+
+## Package versions
+
+Packages from the [EyeAuras feed](https://packages.eyeauras.net/v3/index.json) have different surfaces:
+
+| Package | Confirmed surface |
+| --- | --- |
+| `0.1.17` | Old `DrawFrame`, `DrawBox`, `MeasureText`, `AddFontFromMemoryTTF` |
+| `0.1.42` | `AddFont`, `ReplaceFont`, `RemoveFont`, `RunOnce`, FPS settings; no `ImGuiWindowManager` |
+| `0.1.47` | Managed windows and `ComboBoxEx`, `DropdownButton`, `ToggleButton`; CTO `11.5.28` |
+
+Use the selected DLL/XML for signatures; behavior below follows source `c8b2304ac`. This map includes newer capabilities, so its entire catalogue is not available in a `0.1.42` project. `TableTabState` belongs to `EyeAuras.AI.Desktop`, not the ImGui package. Symbol availability does not establish a successful native run.
+
+## Show a window for one script Run
+
+In an EyeAuras top-level C# script, reference the package and register its extension before resolving the API. This complete operation displays a frame counter until Stop:
+
+```csharp
+#r "nuget: EyeAuras.ImGuiSdk, 0.1.47"
+using EyeAuras.ImGuiSdk;
+using ImGuiNET;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+{
+    AddNewExtension<ImGuiContainerExtensions>();
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    var frame = 0;
+    using var rendering = imgui.AddRenderer(_ =>
+    {
+        var visible = ImGui.Begin("Frame counter##operation-demo");
+        try
+        {
+            if (visible)
+                ImGui.TextUnformatted($"Frame: {++frame}");
+        }
+        finally
+        {
+            ImGui.End();
+        }
+    });
+    try
+    {
+        await Task.Delay(Timeout.Infinite, cancellationToken);
+    }
+    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+    {
+    }
+}
+```
+
+The callback runs on the render thread. `AddRenderer` returns its own disposable subscription; reverse using order removes it before the API. `GetService` alone does not establish cleanup. An ordinary class receives the API and token explicitly.
+
+Instances rent shared overlay `Main`: settings, fonts and images are shared. Keep waits, process reads and lengthy work outside the frame callback. `RunOnce` schedules one callback and returns a cancellable registration, not a completion Task.
+
+### Read the display size on one frame
+
+After package and extension setup, this top-level block owns its API for the operation:
+
+```csharp
+using ImGuiNET;
+using EyeAuras.ImGuiSdk;
+using System.Threading.Tasks;
+
+{
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    var done = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+    using var once = imgui.RunOnce(_ =>
+    {
+        var size = ImGui.GetIO().DisplaySize;
+        Log.Info($"ImGui display size: {size.X} x {size.Y}");
+        done.TrySetResult(true);
+    });
+    await done.Task.WaitAsync(cancellationToken);
+}
+```
+
+`DisplaySize` is the main display area in ImGui units, not the current window's `GetContentRegionAvail()`. Multi-viewport work needs the corresponding viewport contract. Stop cancels the wait and disposes the pending registration; disposal does not interrupt a callback already running.
+
+### What two scripts share
+
+`Main` contains the CTO `OsdOverlay` and its native ImGui context. Two API instances or subscriptions do not create independent contexts. Script models and callbacks have their own owners, while the render loop, settings, font atlas and ImGui native dependencies are shared. A managed ImGui window is a region inside that overlay, not a separate Windows native window. A standalone CTO overlay has its own lifecycle and compatibility requirements.
 
 ## User Intents
 
@@ -54,7 +138,7 @@ AddNewExtension<ImGuiContainerExtensions>();
 var imgui = GetService<IImGuiExperimentalApi>();
 ```
 
-Do not assume `IImGuiExperimentalApi`, `ImGuiWindowManager`, or other ImGui SDK
+Do not assume `IImGuiExperimentalApi` or other resolved ImGui SDK
 services are available just because the package compiles. Without
 `ImGuiContainerExtensions`, service resolution can fail or return an incomplete
 host setup.
@@ -249,6 +333,8 @@ ID rules for generated UI:
 Example shape:
 
 ```csharp
+public sealed record ReaderOption(string Name);
+
 static bool ReaderPicker(
     string label,
     IReadOnlyList<ReaderOption> readers,
@@ -321,12 +407,12 @@ static bool SearchBox(string label, ref string filter)
 - Prefer `AddRenderer` for root overlay rendering.
 - Prefer `ImGuiWindowManager.OpenNew` for tool windows.
 - Prefer `ICanBeDisplayedInImGui` for reusable panels.
-- Prefer `recipes/bot-memory-imgui-interface.md` for root-window,
+- Prefer [recipes/bot-memory-imgui-interface.md](/en/scripting/api/recipes/bot-memory-imgui-interface) for root-window,
   bot-loop, and ImGui-plus-Blazor architecture.
-- Prefer `windows-subsystems/blazor-windows.md` for Razor UI.
-- Prefer `osd/screen-overlay.md` for screen annotations.
+- Prefer [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows) for Razor UI.
+- Prefer [osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay) for screen annotations.
 - Prefer stable ImGui IDs for every stateful or repeated control.
-- Prefer `scripting/references-and-resources.md` for package/resource and
+- Prefer [scripting/references-and-resources.md](/en/scripting/api/scripting/references-and-resources) for package/resource and
   embedded file rules.
 
 ## Avoid
@@ -364,52 +450,41 @@ static bool SearchBox(string label, ref string filter)
   `ImDrawListWorldExtensions`, `ColorExtensions`, `ImGui context`,
   `ImGui.NET`, `render callback exception`, `process-global singleton`.
 
-## Search Synonyms
+## ImGui window cleanup and operation selection
 
-- ImGui
-- ImGui SDK
-- immediate mode UI
-- ImGui window
-- render loop
-- tool window
-- ImGui overlay
-- ImGui image
-- ImGui font
-- ImGuiContainerExtensions
-- ImGui font range
-- AddFontFromMemoryTTF
-- embedded font
-- embedded image
-- ImGuiEx
-- ImGui ID
-- PushID
-- hidden label
-- stable label
-- stateful control
-- control state
-- custom ImGui control
-- filterable table
-- sortable table
-- row context menu
-- TableTabState
-- property grid
-- hotkey editor
-- markdown
-- Font Awesome
-- world to screen
-- ESP drawing
-- ImGui singleton
-- ImGui context
-- multiple ImGui versions
-- render callback exception
+For immediate mode UI, reference `EyeAuras.ImGuiSdk`, register
+`ImGuiContainerExtensions`, and obtain `IImGuiExperimentalApi` in the script.
+`AddRenderer` adds a callback to the render loop and returns a separate
+subscription. The tool window / ImGui overlay owner disposes that subscription
+**before** the API; obtaining a service through `GetService` does not define its
+cleanup. Await Run cancellation outside the callback, as in the
+[complete window example](/en/scripting/imgui/getting-started).
+
+| Operation | Contract and material condition |
+| --- | --- |
+| One-time reading in an ImGui context | `RunOnce` schedules a callback without awaiting a frame; separately await the result with cancellation |
+| ImGui image or embedded image | Use image helpers and `IScriptFileProvider`; retain the resource ownership contract |
+| ImGui font, embedded font, font range | Use SDK font registration; direct `AddFontFromMemoryTTF` requires the correct render context and backing-memory lifetime |
+| Stateful control and custom ImGui control | Stable ImGui ID, `PushID`, hidden label / stable label separate control state from displayed text |
+| Filterable table, sortable table and row context menu | Use the documented table helpers and `TableTabState`; preserve stable row identity |
+| Property grid, hotkey editor, markdown and Font Awesome | Start with the existing `ImGuiEx` and SDK controls described above |
+| World to screen and ESP drawing | Convert coordinates explicitly before drawing; screen and world coordinates are not interchangeable |
+
+The `Main` overlay, settings and resources are shared by its users. Changing
+one API's settings does not create an independent ImGui singleton. Compatibility
+between multiple ImGui.NET versions and a native render loop does not follow
+from a successful script compilation. Handle render callback exceptions at the
+callback boundary rather than expecting an outer script catch to own that thread.
 
 ## Related Maps
 
-- `auras/overlays.md`
-- `recipes/bot-memory-imgui-interface.md`
-- `windows-subsystems/blazor-windows.md`
-- `osd/screen-overlay.md`
-- `reverse-engineering/reprocess.md`
-- `scripting/async.md`
-- `scripting/container-extensions.md`
-- `scripting/references-and-resources.md`
+- [auras/overlays.md](/en/scripting/api/auras/overlays)
+- [recipes/bot-memory-imgui-interface.md](/en/scripting/api/recipes/bot-memory-imgui-interface)
+- [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows)
+- [osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay)
+- [reverse-engineering/reprocess.md](/en/scripting/api/reverse-engineering/reprocess)
+- [scripting/async.md](/en/scripting/api/scripting/async)
+- [scripting/container-extensions.md](/en/scripting/api/scripting/container-extensions)
+- [scripting/references-and-resources.md](/en/scripting/api/scripting/references-and-resources)
+
+ID rules: [Dear ImGui FAQ](https://github.com/ocornut/imgui/blob/v1.91.6/docs/FAQ.md#q-about-the-id-stack-system).

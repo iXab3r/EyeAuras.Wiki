@@ -37,8 +37,7 @@ dateCreated: 2025-06-27T21:27:31.399Z
 
 //this is a simple 2D aimbot + ESP for https://aimtrainer.io/target-tracking
 
-#r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
-#r "nuget:ImGui.NET, 1.91.6.1"
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
 
 using EyeAuras.ImGuiSdk;
 using ImGuiNET;
@@ -137,4 +136,4 @@ using PoeShared.Scaffolding;
 
 [Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
 
-Операции CV и владение регистрацией сопоставлены с исходниками EyeAuras `20fd3d4`. Пример сохраняет историческую привязку `EyeAuras.ImGuiSdk 0.0.6`; её бинарная совместимость с этими исходниками и `ImGui.NET 1.91.6.1` не подтверждена. Рамки показаны через публичный draw list ImGui, а не отсутствующий в текущем интерфейсе `osd.DrawFrame`. Перед использованием проверьте сигнатуры SDK своей версии; компиляция и запуск этого листинга не выполнялись.
+В примере выбран `EyeAuras.ImGuiSdk 0.1.47`; опубликованная сборка содержит используемый API отрисовки. Его зависимости ImGui должны соответствовать хосту, поэтому отдельная историческая ссылка на `ImGui.NET 1.91.6.1` убрана. Контракты CV сверены с исходниками, но это не проверка запуска модели и графики. [Различия версий SDK](/ru/scripting/api/nuget/imgui-sdk).

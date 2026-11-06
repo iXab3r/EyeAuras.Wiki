@@ -32,12 +32,19 @@ EyeAuras script:
 ```csharp
 ISendInputScriptingApi SendInput { get; init; }
 
+await Task.Delay(Timeout.Infinite, cancellationToken);
+
 [Keybind("Ctrl+Alt+S", SuppressKey = true)]
 void SendHello()
 {
     SendInput.Text("hello");
 }
 ```
+
+The token-aware wait keeps the C# Action running. Ctrl+Alt+S sends `hello`
+while Run is active. Omit it if an awaited window or main task already owns
+the lifetime. Run completion disables future dispatch; an already scheduled
+callback is not automatically drained or cancelled.
 
 Use `SuppressKey = false` when the original hotkey should still reach the
 active application, similar to AHK hotkeys with the `~` prefix.
@@ -50,7 +57,7 @@ IFactory<IHotkeyTracker> HotkeyTrackerFactory { get; init; }
 
 var tracker = HotkeyTrackerFactory.Create().AddTo(ExecutionAnchors);
 tracker.Hotkey = new HotkeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Alt);
-tracker.HotkeyMode = HotkeyMode.Click;
+tracker.HotkeyMode = HotkeyMode.Hold;
 tracker.SuppressKey = true;
 
 tracker.WhenAnyValue(x => x.IsActive)
@@ -67,6 +74,17 @@ not add a fake wait to every sample only to keep the subscription alive.
 `IHotkeyTracker` with Rx only when the script needs runtime hotkeys or
 observable composition.
 
+The tracker and observer belong to `ExecutionAnchors`; `IsEnabled` defaults to
+true. Hold reports active on key down and inactive on release, so the true filter
+handles each press. `HotkeyMode.Click` toggles on release and would send only on
+alternating cycles, so it is not the direct replacement shown here.
+
+`KeybindAttribute` defaults to suppression, exact modifiers and KeyDown activation.
+Handlers are scheduled in the background; parameters are resolved from the script
+container and a returned Task is waited. UI dispatch and cooperative cancellation
+remain your responsibility. Ordinary classes receive their services and lifetime
+owner explicitly. See [keybind lifetime](/en/scripting/keybinds).
+
 ## Verification Links
 
 - AHK docs:
@@ -80,11 +98,11 @@ observable composition.
   [Input, Hooks, Hotkeys](../windows-subsystems/input-hooks-hotkeys),
   [ISendInputScriptingApi](../ISendInputScriptingApi),
   [Scripting Runtime](../scripting/runtime).
-- EyeAuras source:
-  [KeybindAttribute.cs](../../../../../Sources/EyeAuras.Scripting/Api/KeybindAttribute.cs),
-  [HotkeyTrackerRuntimeVisitor.cs](../../../../../Sources/EyeAuras.Scripting/Visitors/HotkeyTrackerRuntimeVisitor.cs),
-  [IHotkeyTracker.cs](../../../../../Submodules/PoeEye/PoeEye/PoeShared.Wpf/UI/Hotkeys/IHotkeyTracker.cs),
-  [HotkeyTracker.cs](../../../../../Submodules/PoeEye/PoeEye/PoeShared.Wpf/UI/Hotkeys/HotkeyTracker.cs),
-  [HotkeyGesture.cs](../../../../../Submodules/PoeEye/PoeEye/PoeShared.Wpf/UI/Hotkeys/HotkeyGesture.cs),
-  [IHotkeyConverter.cs](../../../../../Submodules/PoeEye/PoeEye/PoeShared.Wpf/UI/Hotkeys/IHotkeyConverter.cs),
-  [HotkeyConverter.cs](../../../../../Submodules/PoeEye/PoeEye/PoeShared.Wpf/UI/Hotkeys/HotkeyConverter.cs).
+- EyeAuras contracts: [keybinds](/en/scripting/keybinds),
+  [input and trackers](/en/scripting/api/windows-subsystems/input-hooks-hotkeys).
+
+AHK `~` allows native key handling, `*` allows extra modifiers, and `$` forces the
+keyboard hook to avoid ordinary Send self-triggering. In EyeAuras,
+`SuppressKey = false` and `IgnoreModifiers = true` cover the first two basic
+intentions; no identical `$`/SendLevel behavior is promised. Required modifiers
+still apply. Suppression happens before activation-edge filtering.

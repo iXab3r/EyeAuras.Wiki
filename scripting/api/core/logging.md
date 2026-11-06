@@ -3,7 +3,7 @@ title: AI Core Logging
 description: AI-first map of EyeAuras and PoeShared logging APIs, fluent logs, log4net bridges, and script log routing.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, logging, diagnostics
+tags: scripting, api, ai, logging, ai-translated, diagnostics
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -116,6 +116,12 @@ timing logs.
 - `AuraScriptSandbox.Log` / `IAuraScriptSandbox.Log` - script-level fluent log
   exposed to top-level script code.
 
+## Choose where a message appears
+
+In `Script.csx`, `Log.Info("Started")` uses the runner's Script event route. In an ordinary service, `typeof(MyType).PrepareLogger()` from `PoeShared.Scaffolding` writes to configured application appenders. Passing the script Log into a helper preserves its event route. The appender configuration determines a log file, not the helper's name.
+
+Examples use `PoeShared.Logging` and `PoeShared.Scaffolding`. Level filtering can suppress output; calling Debug alone does not guarantee a visible line.
+
 ## Common Flows
 
 ### Create A Service Type Logger
@@ -201,14 +207,20 @@ expensive work has side effects or returns several messages.
 ### Time A Local Operation
 
 ```csharp
-using var timer = Log.CreateProfiler("Attach session")
-    .WithLoggingOnDisposal()
-    .WithMinElapsedThreshold(TimeSpan.FromMilliseconds(100));
+{
+    using var timer = Log.CreateProfiler("Attach session")
+        .WithLoggingOnDisposal()
+        .WithMinElapsedThreshold(TimeSpan.FromMilliseconds(100));
 
-timer.Step("Selected window");
-var process = processProvider.Open(window);
-timer.Step(() => $"Opened process {process.Id}");
+    timer.Step("Started");
+    await Task.Delay(150, cancellationToken);
+    timer.Step("Delay completed");
+}
 ```
+
+In a top-level script, the timer measures the awaited delay. Replace it with your
+operation. Disposal logs the summary only when elapsed time exceeds 100 ms and
+the log level is enabled.
 
 Use `BenchmarkTimer` for local diagnostic breadcrumbs. Use MiniProfiler when
 you need a structured timing tree or user-facing profiling report.
@@ -291,10 +303,30 @@ you need a structured timing tree or user-facing profiling report.
 
 ## Related Maps
 
-- `core/profiling.md`
-- `core/app-runtime-contexts.md`
-- `core/app-modules.md`
-- `scripting/logging.md`
-- `scripting/runtime.md`
-- `scripting/container-extensions.md`
-- `computer-vision/profiling.md`
+- [core/profiling.md](/en/scripting/api/core/profiling)
+- [core/app-runtime-contexts.md](/en/scripting/api/core/app-runtime-contexts)
+- [core/app-modules.md](/en/scripting/api/core/app-modules)
+- [scripting/logging.md](/en/scripting/api/scripting/logging)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [scripting/container-extensions.md](/en/scripting/api/scripting/container-extensions)
+- [computer-vision/profiling.md](/en/scripting/api/computer-vision/profiling)
+
+
+## Timer and Microsoft logging adapter limits
+
+`BenchmarkTimer` logs each step by default at Debug; disposal summaries are
+opt-in. `WithMinElapsedThreshold` gates the disposal summary, not step logging.
+`WithCondition` gates recording steps and the summary. `ResetStep` resets the
+previous-step timestamp, not total `Elapsed`. Supply your logger explicitly
+through `Log.CreateProfiler` for script diagnostics.
+
+The Microsoft adapters do not preserve scope state: `BeginScope` returns an
+empty disposable. Trace maps to Debug; Critical is written as Error, while
+`FluentLogger.IsEnabled(Critical)` returns false in this snapshot.
+`Logger4Log4Net.MinimumLevel` is also implemented as an upper bound
+(`MinimumLevel < logLevel` rejects the event), not a normal minimum threshold.
+`Log4NetLoggerProvider` copies that setting when a category logger is first
+created; changing it does not update cached loggers. `Log4NetLoggerFactory`
+owns its provider and does not support `AddProvider`.
+
+[BenchmarkTimer](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared/Scaffolding/BenchmarkTimer.cs) · [Logger4Log4Net](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared/Logging/Logger4Log4Net.cs).

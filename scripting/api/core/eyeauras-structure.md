@@ -1,9 +1,9 @@
 ---
-title: AI Core: EyeAuras Structure
+title: AI Core — EyeAuras Structure
 description: AI-first map of the EyeAuras application structure and runtime containers.
 published: true
 date: 2026-04-21T00:00:00.000Z
-tags: scripting, api, ai, core
+tags: scripting, api, ai, core, ai-translated
 editor: markdown
 dateCreated: 2026-04-21T00:00:00.000Z
 ---
@@ -32,6 +32,23 @@ actions, overlays, behavior trees, macros, variables, and script workspaces.
 - SDK references expose symbols; live host services still depend on runtime
   context and loaded modules.
 
+## Choose the object for the task
+
+For script-side aura lookup and state, start with
+[IAuraTreeScriptingApi](../IAuraTreeScriptingApi) and its returned accessor.
+For module code that needs the current aura's triggers, overlays or action lists,
+use the supplied `IAuraContext`. These serve different runtime layers.
+
+`IAuraContext.IsActive` is `bool?`: preserve unknown state when the distinction
+matters. `IsReady` describes aura readiness; inherited `IEyeContext.IsLoaded`
+describes owner loading. A background service showing results must account for
+owner unload. `IFolderContext` shares `IEyeContext` but has no aura-specific
+`OnEnterActions`, `WhileActiveActions` or `OnExitActions` collections.
+Do not cast a folder to an aura context to access them.
+
+This map chooses API layers; execution details belong in the
+[action](../auras/actions) and [trigger](../auras/triggers) maps.
+
 ## API Details
 
 - `IEyeContext` - broad runtime context for an EyeAuras object, including its
@@ -56,9 +73,9 @@ actions, overlays, behavior trees, macros, variables, and script workspaces.
 
 - Identify the current product context before choosing APIs.
 - Use accessors for script-facing aura/folder/macro work.
-- Use `auras/entities.md` when researching how user-facing components are
+- Use [auras/entities.md](/en/scripting/api/auras/entities) when researching how user-facing components are
   registered.
-- Use `scripting/runtime.md` when top-level script vs helper-class behavior
+- Use [scripting/runtime.md](/en/scripting/api/scripting/runtime) when top-level script vs helper-class behavior
   matters.
 
 ## Avoid
@@ -83,8 +100,8 @@ actions, overlays, behavior trees, macros, variables, and script workspaces.
 
 ## Related Maps
 
-- `scripting/runtime.md`
-- `auras/overview.md`
-- `auras/entities.md`
-- `core/app-runtime-contexts.md`
-- `core/deployment.md`
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [auras/overview.md](/en/scripting/api/auras/overview)
+- [auras/entities.md](/en/scripting/api/auras/entities)
+- [core/app-runtime-contexts.md](/en/scripting/api/core/app-runtime-contexts)
+- [core/deployment.md](/en/scripting/api/core/deployment)

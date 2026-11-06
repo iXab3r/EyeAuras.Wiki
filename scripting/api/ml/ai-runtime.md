@@ -3,7 +3,7 @@ title: AI Runtime APIs
 description: AI-first map of chat sessions, model profiles, retrieval, MCP, and Blazor chat UI.
 published: true
 date: 2026-04-25T00:00:00.000Z
-tags: scripting, api, ai, ml, semantic-kernel, mcp
+tags: scripting, api, ai, ml, semantic-kernel, mcp, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -155,6 +155,46 @@ surface through MCP.
 - `AiApiType.ChatCompletions` uses Semantic Kernel chat completions wiring.
 - `AiApiType.Responses` is handled by the Responses adapter path.
 
+## Create and close an app-owned session
+
+An ordinary app/plugin helper receives its registered `AiEngine` explicitly. `AddAiCoreServices()` registers the engine, profiles, key resolver, transport events and no-op speech service in `IServiceCollection`. The host must also supply `IConfigProvider<AiProfileRepositoryConfig>` through its configuration infrastructure; AI registration alone does not make an empty container sufficient. `AddAiDesktopServices()` adds desktop services; the compatibility `EyeAuras.AISdk.AI.AddAiServices()` combines them.
+
+This operation creates a session and invokes a local built-in tool without sending a provider request:
+
+```csharp
+using System.Threading;
+using System.Threading.Tasks;
+using EyeAuras.AI;
+using EyeAuras.AI.PluginHost;
+using Microsoft.SemanticKernel;
+
+public static class SessionExample
+{
+    public static async Task<AiToolInvocationResult> RunAsync(
+        AiEngine engine, CancellationToken cancellationToken)
+    {
+        var session = engine.CreateSession(
+            options: new AiSessionOptions { EnableArtifactStore = false });
+        try
+        {
+            session.AddOrUpdatePlugin("hello", new AiHelloWorldPlugin());
+            return await session.PluginHost.InvokeToolAsync(
+                "hello", "echo_with_time",
+                new KernelArguments { ["request"] = "Hello" },
+                cancellationToken: cancellationToken);
+        }
+        finally
+        {
+            engine.RemoveSession(session.SessionId);
+        }
+    }
+}
+```
+
+The value contains `AiHelloWorldResponse`: echoed text, a message and local/UTC host time. `RemoveSession` removes the registry entry and disposes the session. Do not call `ClearSessions()` for one tab because it affects other sessions owned by that engine.
+
+`CreateSession` selects the first configured profile or leaves `ActiveProfile` null. Before a real conversation, load profiles with `IAiProfileRepository.Load()`, select a profile, configure key resolution, tools and the UI/event sink. This local example does not validate those integrations. Direct plugin invocation does not enforce session approval policy; see [tool policy boundaries](ai-kernel-plugins).
+
 ## Retrieval And Docs
 
 - `AiDocsKnowledgeBasePlugin` exposes `doc_search`,
@@ -296,7 +336,7 @@ diagnostics or replay alignment, not for business logic.
 - Prefer `CodexThreadListItem` and `CodexWorkspaceAttachment` over duplicating
   app-specific thread/workspace DTOs.
 - Prefer `IEyeAurasAiGuidanceService` for guidance-pack export/copy workflows
-  instead of manually copying docs or editing a user's project `AGENTS.md`.
+  instead of manually copying docs or editing a user's project [AGENTS.md](/en/scripting/api/AGENTS).
 - Prefer `AiFunctionInvocationPolicy` for risky tools.
 - Prefer `IAiEventSink` events for UI/telemetry instead of parsing logs.
 
@@ -385,8 +425,24 @@ diagnostics or replay alignment, not for business logic.
 
 ## Related Maps
 
-- `ml/ai.md`
-- `ml/ai-kernel-plugins.md`
-- `scripting/runtime.md`
-- `windows-subsystems/blazor-windows.md`
-- `recipes/script-ai-editor-assistant.md`
+- [ml/ai.md](/en/scripting/api/ml/ai)
+- [ml/ai-kernel-plugins.md](/en/scripting/api/ml/ai-kernel-plugins)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows)
+- [recipes/script-ai-editor-assistant.md](/en/scripting/api/recipes/script-ai-editor-assistant)
+
+See [documentation search and snapshot identity](/en/scripting/api/ml/documentation-retrieval) for reading contracts, metadata, citations and refresh behavior.
+
+## Lifecycle boundaries
+
+At `c8b2304`, `CodexChatController.StartAsync` catches startup failures and sets `StartSessionError`; task completion alone does not establish readiness. Check `IsStarted` and the error state. `StopAsync` clears owned workspaces and stops the manager. Controller disposal clears workspaces but does not replace explicit manager shutdown. `SessionRemoving` fires before engine removal so the host can dispose UI adapters. Before a turn, `PrepareActiveSessionForRequestAsync` prepares attachments, invokes the host callback and refreshes options. A selected file's writable root is its parent directory, not just that file.
+
+MCP captures its tool catalog and instructions at startup. To change that set, stop the host, change registrations and start it again. `StopAsync` stops and disposes its web app; `Dispose` invokes this route synchronously. The host does not own the engine's session registry. MCP instructions are not tool permission enforcement.
+
+Guidance `RefreshAsync()` rebuilds the pack without forcing a Git refresh by default. Set `RefreshDocsRepository=true` to request an update; no-context export/copy overloads do this themselves. Explicit-context overloads reuse the selected snapshot. `ResolveExistingContextAsync` resolves existing state paths and does not establish server freshness.
+
+The core speech service reports `IsAvailable=false` and returns an unsuccessful result. The desktop adapter reports true because an implementation exists, creates a speech session per call, sets its profile, awaits recognition and disposes the session. That does not validate a microphone, key or provider availability. See the [UI recipe](/en/scripting/api/recipes/script-ai-editor-assistant) for separate component, view-model and session-handle ownership.
+
+Pre-retrieval depends on the backend: Responses intentionally skips it. See [retrieval composition and tool policy](ai-kernel-plugins) and [documentation freshness](documentation-retrieval).
+
+[Source contracts](https://github.com/iXab3r/EyeAuras/tree/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.AI)

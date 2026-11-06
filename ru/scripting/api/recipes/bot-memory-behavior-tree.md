@@ -82,8 +82,15 @@ dateCreated: 2026-04-22T00:00:00.000Z
 
 ## Что почитать дальше
 
-- `windows-subsystems/blazor-windows.md`
-- `windows-subsystems/window-handles.md`
-- `memory/processes.md`
-- `auras/overview.md`
-- `scripting/runtime.md`
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows)
+- [windows-subsystems/window-handles.md](/ru/scripting/api/windows-subsystems/window-handles)
+- [memory/processes.md](/ru/scripting/api/memory/processes)
+- [auras/overview.md](/ru/scripting/api/auras/overview)
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)
+## Время жизни корня и пример pack
+
+В срезе `c8b2304` установка `IsLoaded=false` сразу закрывает вход новых tick; отмена, ожидание выполняющихся вызовов и сброс принадлежащих корню деревьев/session завершаются асинхронно. Повторная загрузка ждёт этой очистки. Конфигурация графа и значения blackboard сохраняются. Код, игнорирующий отмену, может задержать завершение. `IsTicking=false` не равнозначно выгрузке; ручной tick загруженного неактивного дерева — отдельный маршрут. У reader-а памяти свой владелец: выгрузка корня не обещает освобождения постороннего reader-а.
+
+Страница связанного pack указывает ревизию 33, EyeAuras 1.9.9774.0 и описывает сочетание C# reader и BT. Содержимое загружаемого пакета и работа в игре здесь не проверялись. Скриншоты показывают архитектуру; offsets и ревизию выбирайте для своей версии цели.
+
+[Реализация корня](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.BehaviorTree/BehaviorTreeRootNode.cs)

@@ -11,7 +11,7 @@ dateCreated: 2025-03-17T22:25:15.654Z
 
 Встроенный путь EyeAuras AI проходит через `EyeAuras.AI`, `AiEngine`, настроенный профиль и сессию; для интерфейса редактора есть `IScriptAiChatSessionFactory`. Эти сервисы требуют регистраций своего хоста и не являются автоматически доступным `GetService` любого скрипта. Настройка и владение сессией описаны в [AI runtime](/ru/scripting/api/ml/ai-runtime) и [карте AI-клиентов](/ru/scripting/api/ml/script-ai-clients).
 
-Ниже сохранён отдельный исторический вариант прямого обращения к провайдеру — `OpenAI` версии `2.1.0`, модель `gpt-4o`. Это не вызов встроенного помощника EyeAuras и не обновление примера под новый SDK. По [описанию OpenAI](https://developers.openai.com/api/docs/models/gpt-4o) модель принимает текст и изображения; это не подтверждает компиляцию примера с пакетом 2.1.0 или доступ к модели у конкретного аккаунта.
+Ниже сохранён отдельный исторический вариант прямого обращения к провайдеру — `OpenAI` версии `2.1.0`, модель `gpt-4o`. Это не вызов встроенного помощника EyeAuras и не обновление примера под новый SDK. По [описанию OpenAI](https://developers.openai.com/api/docs/models/gpt-4o) модель принимает текст и изображения и сейчас помечена Deprecated; это не гарантирует доступ у конкретного аккаунта. Сигнатуры `CreateImagePart`, `GetChatClient` и `CompleteChat` проверены по XML пакета `OpenAI 2.1.0`; `ToJpegData(int)` возвращает JPEG-байты по XML `Emgu.CV 4.9.0.5494`.
 
 ## Подготовить один кадр и отправить запрос
 
@@ -26,6 +26,7 @@ using OpenAI;
 using OpenAI.Chat;
 using Emgu.CV;
 using System;
+using System.Collections.Generic;
 
 {
     var targetWindow = GetService<IWindowSelector>().GetWindow("OCR Demo");
@@ -33,7 +34,7 @@ using System;
         .ForWindow(targetWindow);
 
     cancellationToken.ThrowIfCancellationRequested();
-    var jpegBytes = cv.ProcessPixels(image => image.ToJpegData());
+    var jpegBytes = cv.ProcessPixels(image => image.ToJpegData(90));
     cancellationToken.ThrowIfCancellationRequested();
 
     var openAIClient = new OpenAIClient("<your-api-key-here>");

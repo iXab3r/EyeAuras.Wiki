@@ -3,7 +3,7 @@ title: How to Find an Aura
 description: A guide on how to find an aura and access its properties and triggers within a script.
 published: true
 date: 2024-02-23T23:14:03.060Z
-tags: aura, scripting, triggers, properties, C#
+tags: aura, scripting, triggers, properties, C#, ai-translated
 editor: markdown
 dateCreated: 2024-02-20T20:35:06.280Z
 ---
@@ -29,7 +29,7 @@ Let's set up what we will work with in the script:
 
 ## Now
 ```csharp
-var aura = AuraTree.GetAuraByPath(@".\Switch"); // or by absolute path AuraTree.GetAuraByPath(@"Examples\FindTrigger\Switch");
+var aura = AuraTree.GetAuraByPath(@".\Switch"); // or by absolute path AuraTree.GetAuraByPath(@"Examples\FindAura\Switch");
 
 // print the status, it will be true/false or null (for undefined state)
 Log.Info($"Aura {aura.FullPath} IsActive: {aura.IsActive}");
@@ -38,7 +38,9 @@ Log.Info($"Aura {aura.FullPath} IsActive: {aura.IsActive}");
 ![](https://i.imgur.com/deQdFyB.png)
 
 ## Let's Break It Down
-To access the aura tree (the left panel displaying your auras and folders), we use [AuraTree](/ru/scripting/api/IAuraTreeScriptingApi). 
-The `GetAuraByPath` method can search by absolute or relative path. If the aura is not found, it will halt the script with an error. There is a similar method called `FindAuraByPath`, which returns `null` if nothing is found. This `Get*` and `Find*` pattern is common and can be relied upon in various scenarios.
+To access the aura tree (the left panel displaying your auras and folders), we use [AuraTree](/en/scripting/api/IAuraTreeScriptingApi).
+The `GetAuraByPath` method can search by absolute or relative path. If the aura is not found, it will halt the script with an error. There is a similar method called `FindAuraByPath`, which returns `null` if nothing is found. This is the contract of these tree methods; a method prefix alone does not establish the behavior of every API.
 
-Once we have found the [aura](/ru/scripting/api/IAuraAccessor), we can read its current state from the `IsActive` property. Additionally, there are other important and useful properties such as the aura's name, triggers, actions within it, and more. We will explore these in the following examples.
+Once we have found the [aura](/en/scripting/api/IAuraAccessor), we can read its current state from the `IsActive` property. Additionally, there are other important and useful properties such as the aura's name, triggers, actions within it, and more. We will explore these in the following examples.
+
+The relative path uses the script tree context: Switch and Script are siblings inside FindAura. The absolute path starts at the tree root without the root folder name. The returned accessor is borrowed; it creates no aura and needs no Dispose. IsActive is a nullable bool read at that moment, not a change subscription.

@@ -34,7 +34,7 @@ dateCreated: 2025-06-28T09:04:25.549Z
 
 ## Используемые технологии
 
-- [EyeAuras.ImGuiSdk](https://www.nuget.org/packages/EyeAuras.ImGuiSdk)
+- [EyeAuras.ImGuiSdk](https://packages.eyeauras.net/v3/index.json)
 - [ImGui.NET](https://github.com/mellinoe/ImGui.NET)
 - API EyeAuras: CV (Computer Vision), ImGui, Input, Logging
 
@@ -58,8 +58,7 @@ dateCreated: 2025-06-28T09:04:25.549Z
 
 //this is a simple fullscreen ESP using Yolo 11s model for https://aimtrainer.io/target-tracking
 //open this YT video https://www.youtube.com/watch?v=rTqg2hEjGdE
-#r "nuget:EyeAuras.ImGuiSdk, 0.0.6"
-#r "nuget:ImGui.NET, 1.91.6.1"
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
 
 using EyeAuras.ImGuiSdk;
 using ImGuiNET;
@@ -214,4 +213,4 @@ public async Task HandleF2(EyeAuras.Shared.Osd.IOsdSelectionService osdSelection
 
 [Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
 
-Операции CV и владение регистрацией сопоставлены с исходниками EyeAuras `20fd3d4`. Пример сохраняет историческую привязку `EyeAuras.ImGuiSdk 0.0.6`; её бинарная совместимость с этими исходниками и `ImGui.NET 1.91.6.1` не подтверждена. Рамки показаны через публичный draw list ImGui, а не отсутствующий в текущем интерфейсе `osd.DrawFrame`. Перед использованием проверьте сигнатуры SDK своей версии; компиляция и запуск этого листинга не выполнялись.
+В примере выбран `EyeAuras.ImGuiSdk 0.1.47`; опубликованная сборка содержит используемый API отрисовки. Его зависимости ImGui должны соответствовать хосту, поэтому отдельная историческая ссылка на `ImGui.NET 1.91.6.1` убрана. Контракты CV сверены с исходниками, но это не проверка запуска модели и графики. [Различия версий SDK](/ru/scripting/api/nuget/imgui-sdk).

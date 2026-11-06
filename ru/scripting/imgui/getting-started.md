@@ -31,7 +31,7 @@ EyeAuras `20fd3d4`, что само по себе не подтверждает 
 `GetService`, `AddNewExtension` и токен запуска предоставляет хост скрипта.
 
 ```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.1.42"
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
  
 using EyeAuras.ImGuiSdk; // required for registration methods
 using ImGuiNET;          // access to ImGui APIs
@@ -59,7 +59,7 @@ using System.Numerics;   // for Vector2/Vector3 use with ImGui
 >  Примечание: ваш метод будет вызываться **на каждом кадре**, поэтому избегайте `sleep` и любого долгого блокирующего кода.
 
 ```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.1.42"
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
  
 using EyeAuras.ImGuiSdk;
 using ImGuiNET;
@@ -98,7 +98,7 @@ using System.Numerics;
 И это всё. Никакого отдельного управления состоянием, никаких `sleep`, никакой ручной обработки кликов — всё работает в immediate mode. Поначалу синтаксис может показаться непривычным, но ChatGPT **очень хорошо** знает ImGui, так что смело задавайте вопросы.
 
 ```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.1.42"
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
 
 using EyeAuras.ImGuiSdk;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
@@ -174,6 +174,8 @@ using System.Numerics;
 
 
 ## Два окна с отдельным состоянием
+
+Для всех примеров этой страницы выбрана `0.1.47`: метаданные опубликованной сборки подтверждают `ImGuiWindowManager` и `ImGuiWindowHost`. В `0.1.42` этих типов нет, хотя базовый `AddRenderer` в ней уже есть. Пакет `0.1.47` зависит от `EyeAuras.ClickableTransparentOverlay 11.5.28`; используйте совместимую сборку приложения.
 
 После подключения пакета из начала страницы выполните этот вариант
 `Script.csx`. Оба окна имеют свой счётчик и свой крестик. Содержимое находится

@@ -3,7 +3,7 @@ title: Error Reporting Discovery Map
 description: Public problem reporting contracts and editable report comments.
 published: true
 date: 2026-10-11T00:00:00.000Z
-tags: scripting, api, reporting
+tags: scripting, api, reporting, ai-translated
 editor: markdown
 dateCreated: 2026-10-11T00:00:00.000Z
 ---
@@ -24,7 +24,7 @@ provides the dialog implementation from `PoeShared.Wpf.dll`.
 
 ## Host / Runtime Contexts
 
-Top-level scripts can resolve the service with
+In a desktop host with reporting registered, top-level scripts can resolve the service with
 `GetService<IErrorReportingService>()`. Ordinary helper classes receive the
 service through a constructor or explicit parameter. Razor components use
 `[Inject]`. Referencing the SDK alone does not create a desktop reporting host.
@@ -53,7 +53,13 @@ GetService<IErrorReportingService>().ReportProblem(new ExceptionDialogConfig
 });
 ```
 
-The user can change or clear the comment. Clearing it omits `comment.txt`.
+Run this in a desktop script to open the report dialog with the initial comment.
+The user chooses save, send, or close. Return from `ReportProblem` means the
+dialog closed, not that a report was sent successfully: there is no send-result
+value or cancellation token. Avoid calling it from a latency-sensitive render
+or hook callback. The implementation marshals to the WPF dispatcher when needed.
+
+The user can change or clear the comment. Clearing it omits `comment.txt`; whitespace-only text still counts as non-empty and is included.
 The initial value is copied when opening the dialog; it is not continuously
 bound back to the immutable config.
 
@@ -75,7 +81,9 @@ support archive.
 
 ## Related Maps
 
-- `core/app-runtime-contexts.md`
-- `core/logging.md`
-- `scripting/runtime.md`
+- [core/app-runtime-contexts.md](/en/scripting/api/core/app-runtime-contexts)
+- [core/logging.md](/en/scripting/api/core/logging)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
 - [Report archive format and receiving reports](/features/problem-reports)
+
+Contract and dispatcher behavior: [ExceptionDialogDisplayer](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Wpf/UI/ExceptionViewer/ExceptionDialogDisplayer.cs). Dialog availability and report delivery depend on desktop host configuration.

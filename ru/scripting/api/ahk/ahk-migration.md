@@ -34,8 +34,8 @@ dateCreated: 2026-04-22T00:00:00.000Z
 | [Keyboard And Mouse](./keyboard-mouse) | `Send`, `SendText`, `SendInput`, `GetKeyState`, `KeyWait`, `MouseMove`, `Click` | Есть конверсии для прямого ввода, ожидания клавиши и кликов по координатам. Грамматика `Send` пока остаётся пробелом. |
 | [Windows](./windows) | `WinExist`, `WinActive`, `WinWait`, `WinActivate`, `ControlClick`, `ControlSend` | Есть поиск и активация одного окна. Нужна полная таблица токенов `WinTitle`. |
 | [CV, Pixels, And Images](./cv-pixels-images) | `CoordMode`, `PixelGetColor`, `PixelSearch`, `ImageSearch` | Есть конверсия `PixelSearch`. Нужны `CoordMode` и таблицы для чтения цвета одного пикселя. |
-| [Runtime, Timers, And State](./runtime-state) | `Sleep`, `SetTimer`, переменные, globals, shared state | Есть `sleep` и обычное состояние. Нужны recipes для таймеров и общих переменных. |
-| [Clipboard](./clipboard) | `A_Clipboard`, `ClipboardAll`, `ClipWait`, события буфера обмена | Есть заготовка. Нужна проверка script DI и событий. |
+| [Runtime, Timers, And State](./runtime-state) | `Sleep`, `SetTimer`, переменные, globals, shared state | Есть ограниченный цикл, различия таймеров и ссылки на общие переменные. |
+| [Clipboard](./clipboard) | `A_Clipboard`, `ClipboardAll`, `ClipWait`, события буфера обмена | Описаны чтение/запись текста и DI; события всех форматов остаются отдельной задачей. |
 | [DLL And Native Interop](./dll-native) | `DllCall`, `CallbackCreate`, `Buffer`, `NumGet`, `NumPut`, raw Win32 | Сначала прямые примеры P/Invoke; существующие API EyeAuras/PoeShared можно использовать как варианты переписывания. |
 | [AHK Gaps](./ahk-gaps) | Междоменные семантические различия и список того, что ещё надо проверить | Здесь ведётся учёт нерешённых моментов и кандидатов на helper-функции. |
 

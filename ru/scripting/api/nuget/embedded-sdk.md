@@ -90,7 +90,7 @@ public sealed class AppBootstrapper : EyeAurasRuntimeBootstrapper
 }
 ```
 
-`UseMemory()` сам добавляет `UseUiCore()` и `MemoryModule`. После `Run` host
+`UseMemory()` сам добавляет `UseUiCore()`, `PlusLoaderModule` и `MemoryModule`. После `Run` host
 может выполнить следующую законченную операцию: дождаться модулей и получить
 список доступных процессов. `bootstrapper` — тот же экземпляр, которым владеет
 host, `cancellationToken` передаётся вызывающим приложением:
@@ -182,8 +182,14 @@ SDK/XML согласованной версии; startup и Windows runtime зд
 
 ## Связанные карты
 
-- `core/app-runtime-contexts.md`
-- `core/app-modules.md`
-- `core/login-and-licensing.md`
-- `windows-subsystems/blazor-windows.md`
-- `recipes/tool-embedded-eyeauras-host.md`
+- [core/app-runtime-contexts.md](/ru/scripting/api/core/app-runtime-contexts)
+- [core/app-modules.md](/ru/scripting/api/core/app-modules)
+- [core/login-and-licensing.md](/ru/scripting/api/core/login-and-licensing)
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows)
+- [recipes/tool-embedded-eyeauras-host.md](/ru/scripting/api/recipes/tool-embedded-eyeauras-host)
+
+`EnsureReadyAsync` вызывайте при старте, а не перед каждой операцией памяти.
+`Dispose` bootstrapper освобождает его зарегистрированные ресурсы; остановку
+собственного container и dispatcher организует host.
+
+[Runtime bootstrapper](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.SDK.Runtime/EyeAurasRuntimeBootstrapper.cs).

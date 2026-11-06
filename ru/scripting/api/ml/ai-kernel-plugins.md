@@ -239,8 +239,19 @@ public static class TextLengthExample
 
 ## Связанные карты
 
-- `ml/ai-runtime.md`
-- `ml/ai.md`
-- `scripting/runtime.md`
-- `reverse-engineering/reprocess.md`
-- `recipes/script-ai-editor-assistant.md`
+- [ml/ai-runtime.md](/ru/scripting/api/ml/ai-runtime)
+- [ml/ai.md](/ru/scripting/api/ml/ai)
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)
+- [reverse-engineering/reprocess.md](/ru/scripting/api/reverse-engineering/reprocess)
+- [recipes/script-ai-editor-assistant.md](/ru/scripting/api/recipes/script-ai-editor-assistant)
+См. [поиск документации и версию снимка](/ru/scripting/api/ml/documentation-retrieval): чтение контракта, метаданные, ссылки и обновление базы.
+
+## Композиция retrieval и инструкции MCP
+
+В срезе `c8b2304` фабрика выбирает null-сервис, единственный сервис либо `CompositeAiRetrievalService`. Composite вызывает сервисы последовательно, объединяет уникальные тексты и оставляет первый hit для каждого `ChunkId` без учёта регистра. Общий лимит повторно не применяется: `InjectedCharCount` суммируется. Ошибка сервиса прерывает композицию; Chat Completions и Codex сообщают о пропуске retrieval и продолжают запрос, кроме отмены. Backend Responses намеренно не выполняет предварительное retrieval-внедрение. Наличие плагина поэтому не гарантирует одинаковый контекст у всех backend-ов.
+
+MCP собирает инструкции при старте из базового текста и секций плагинов, упорядоченных по имени. Метод по умолчанию извлекает только непустые уникальные system messages из временной истории; он не читает живую историю чата. Инструкции — контекст клиента, не механизм разрешений.
+
+Фильтр использует callback из `AiFunctionInvocationPolicy`; переопределение `AiKernelPlugin.AiFunctionApprovalCallback` само по себе не подключает его к политике. Связь должен установить хост. Если подтверждение обязательно, отсутствие callback или решения блокирует вызов. Таймаут инструмента запрашивает отмену текущего запроса, но не прерывает принудительно код, игнорирующий отмену.
+
+[Source contracts](https://github.com/iXab3r/EyeAuras/tree/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.AI)

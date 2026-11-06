@@ -3,7 +3,7 @@ title: 8. Adding CSS – Inline
 description:
 published: true
 date: 2025-08-17T09:21:21.000Z
-tags:
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T15:48:02.521Z
 ---
@@ -20,8 +20,21 @@ Sometimes standard styles aren't enough and you want something custom. Let's tak
 
 ![Demo](https://s3.eyeauras.net/media/2025/05/3UAeooHWHD.png)
 
+## Prepare the overlay and target auras
+
+Create a **C# Overlay v3** aura and `TargetAura` in the same folder. Add `HotkeyIsActive` in toggle mode to each target and keep them loaded. The shown `./TargetAura` paths resolve relative to the overlay context; adjust them to your actual tree. If several triggers match, the first is selected.
+
+Replace `UserOverlay.cs` and `UserOverlay.razor` with the corresponding complete blocks below. They are parts of one `public partial` class in the same namespace. `[Inject]` supplies `AuraTree`; Script.csx globals are not component globals.
+
 ## UserOverlay.cs
 ```csharp
+using System;
+using System.Reactive.Linq;
+using Microsoft.AspNetCore.Components;
+using PoeShared.Blazor;
+using EyeAuras.Scripting.Api;
+using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
+
 public partial class UserOverlay : BlazorReactiveComponent {
 
     [Inject]
@@ -43,6 +56,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ## UserOverlay.razor
 ```html
+@using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
@@ -77,7 +91,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ---
 
-# Breakdown
+## Breakdown
 ## UserOverlay.razor
 ```html
 <style>
@@ -90,7 +104,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 ```
 This is an inline style—define a CSS class directly in the component and use it right away. It's simple and fine for small projects, but has downsides. It's better to switch to proper CSS files as your project grows; that's the standard approach in web development.
 
-# Additional
+## Additional
 ChatGPT and other bots handle CSS well and can generate all kinds of classes. For example, here's CSS from ChatGPT 4o that adds a gradient. We're not discussing optimality—leave that to the pros :)
 ```css
 .custom-button {
@@ -127,3 +141,5 @@ ChatGPT and other bots handle CSS well and can generate all kinds of classes. Fo
 }
 ```
 ![Demo 1](https://s3.eyeauras.net/media/2025/05/J0g2tAOpQa.gif)
+
+The button writes `TriggerValue`, and the hotkey changes the same trigger. The `ChangeTrackers` timer rereads it about once per second, so external changes appear with a delay. Add the timer before `base.OnInitialized()`, which seals the tracker list and owns the subscriptions through component `Anchors`. Hiding a window is not the same as disposing its component.

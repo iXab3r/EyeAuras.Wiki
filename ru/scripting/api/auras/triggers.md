@@ -118,8 +118,8 @@ public sealed class ReadyTrigger : CsharpScriptTriggerExecutor
 
 ## Связанные карты
 
-- `auras/entities.md`
-- `auras/actions.md`
-- `windows-subsystems/input-hooks-hotkeys.md`
-- `windows-subsystems/window-handles.md`
-- `computer-vision/images.md`
+- [auras/entities.md](/ru/scripting/api/auras/entities)
+- [auras/actions.md](/ru/scripting/api/auras/actions)
+- [windows-subsystems/input-hooks-hotkeys.md](/ru/scripting/api/windows-subsystems/input-hooks-hotkeys)
+- [windows-subsystems/window-handles.md](/ru/scripting/api/windows-subsystems/window-handles)
+- [computer-vision/images.md](/ru/scripting/api/computer-vision/images)

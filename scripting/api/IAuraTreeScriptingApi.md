@@ -27,7 +27,16 @@ The API supports two lookup patterns:
 - `Find...ByPath(...)` — returns `null` if the item is not found
 - `Get...ByPath(...)` — throws an exception if the item is not found
 
-In all cases, the `path` can be either absolute or relative.
+Paths without `./` or `../` start at the Aura Tree root; do not add a leading
+separator. Relative paths start at the current object's `Context.Path`.
+Both `/` and `\` are accepted on the Windows desktop host. These are tree
+paths, not filesystem paths. `.` specially returns the current aura or folder
+for the corresponding lookup; in an aura context, `Folder` is its parent folder.
+Neither accessor is guaranteed in every host context.
+
+`Find` can still throw for malformed paths or an inconsistent accessor cache.
+In source `c8b2304`, `Get` throws `ArgumentException` when the lookup returns
+null; the older XML example naming `NotFoundException` does not match that implementation.
 
 ## Properties
 
@@ -41,7 +50,7 @@ IAuraAccessor Aura { get; }
 
 ### `Folder`
 
-Reference to the folder that contains the current script.
+The current folder in a folder context, or the parent folder in an aura context. It can be null in other contexts.
 
 ```csharp
 IFolderAccessor Folder { get; }
@@ -111,7 +120,7 @@ try
     var aura = AuraTree.GetAuraByPath("MyFolder/Aura1");
     Log.Info("Aura found!");
 }
-catch (NotFoundException)
+catch (ArgumentException)
 {
     Log.Info("Aura not found.");
 }
@@ -157,7 +166,7 @@ try
     var folder = AuraTree.GetFolderByPath("MyProject/Folders/Folder1");
     Log.Info("Folder found!");
 }
-catch (NotFoundException)
+catch (ArgumentException)
 {
     Log.Info("Folder not found.");
 }
@@ -203,7 +212,7 @@ try
     var behaviorTree = AuraTree.GetBehaviorTreeByPath("MyProject/BehaviorTrees/Tree1");
     Log.Info("Behavior tree found!");
 }
-catch (NotFoundException)
+catch (ArgumentException)
 {
     Log.Info("Behavior tree not found.");
 }
@@ -274,3 +283,51 @@ catch (ArgumentException ex)
     Log.Info(ex.Message);
 }
 ```
+## Run a configured macro
+
+In an EyeAuras C# Action, `AuraTree`, `Log`, and `cancellationToken` come from
+the script host. Ordinary helper classes receive `IAuraTreeScriptingApi`
+explicitly. Create an `Automation` folder and a `DailyRoutine` macro, then run:
+
+```csharp
+var macro = AuraTree.FindMacroByPath("Automation/DailyRoutine");
+if (macro == null)
+{
+    Log.Info("Macro not found");
+    return;
+}
+var status = await macro.ExecuteAsync(cancellationToken);
+Log.Info($"Macro result: {status}");
+```
+
+`ExecuteAsync(CancellationToken)` returns
+`Task<EyeAuras.BehaviorTree.Nodes.NodeStatus>` and passes the token to the tree's
+`Tick`. Interpret `Success`, `Failure`, or `Running` explicitly; `Running` is not
+success and does not request an automatic repeat. Cancellation also depends on
+the participating nodes. `GetMacroByPath` requires an existing path and throws
+`ArgumentException` when absent. The lookup methods work independently of the
+`Macros` property, which is not initialized in this implementation.
+
+## Component order and ownership
+
+`GetTriggerByPath<T>` and `GetActionByPath<T>` return the first compatible
+component of an existing aura. Actions are searched in `OnEnterActions`,
+`WhileActiveActions`, then `OnExitActions` order. Use the appropriate collection
+on [IAuraAccessor](./IAuraAccessor) to choose another component of the same type.
+Configure the image-search trigger or input-sequence action before using the
+examples above. For a one-off key press, use [SendInput](./ISendInputScriptingApi).
+
+The collections and accessors are borrowed live tree objects; do not dispose
+them. Dispose subscriptions created by your code, for example with the current
+Run's `ExecutionAnchors`. Do not retain an accessor after its tree item is removed.
+`IsActive` is nullable: null means unknown, not false. `IsLoaded` is independent.
+
+```csharp
+foreach (var aura in AuraTree.Auras.Items.ToArray())
+{
+    Log.Info($"{aura.FullPath}: loaded={aura.IsLoaded}, active={aura.IsActive}");
+}
+```
+
+Contract and path resolution: [AuraTreeScriptingApi](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Scripting/AuraTreeScriptingApi.cs),
+[AuraTreeService](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Core/Services/AuraTreeService.cs).

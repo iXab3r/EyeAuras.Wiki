@@ -3,13 +3,43 @@ title: Pattern Scanning
 description: 
 published: true
 date: 2026-04-21T00:00:00.000Z
-tags: 
+tags: , ai-translated
 editor: markdown
 dateCreated: 2024-12-15T10:55:40.847Z
 ---
 
 > AI-first navigation: see [AI Memory / Processes](./memory/processes) for process attachment, pointer access, readers, and where pattern scanning fits in memory workflows.
 {.is-info}
+
+# Find a byte sequence
+
+## Search a known buffer
+
+This complete operation uses public memory abstractions without opening a process:
+
+```csharp
+using EyeAuras.Memory;
+using EyeAuras.Memory.Scaffolding;
+
+{
+    using var memory = MemoryAccessor.FromByteArray(
+        new byte[] { 0x00, 0x55, 0x8B, 0x12, 0xEC, 0x00 });
+    var pattern = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
+    var start = memory.FindOffset(pattern); // 1
+    var marked = start < 0 ? -1 : start + pattern.PatternOffset; // 4
+}
+```
+
+`??` accepts any byte. This array has base zero. For a module, add its base to
+the found offset; never add it to `-1`. `GetOffset` throws on a missing match.
+Single search honors `StartOffset` but does not add `PatternOffset`; multi-search
+adds `PatternOffset`, ignores `StartOffset`, may miss block-boundary matches and
+need not return the lowest match. Both are synchronous without cancellation;
+keep large scans off the UI/render callback. See [exact contracts](memory/pattern-scanning).
+
+The process example below additionally requires the loaded Memory module.
+Embedded hosts must declare `UseMemory()` and await `EnsureReadyAsync()`;
+metadata references alone are insufficient.
 
 ## What is Pattern Scanning?
 Pattern scanning is a method used to search for specific byte sequences in memory. It’s useful for finding functions, data, or code that doesn’t always stay at the same location when a program is running.
@@ -20,7 +50,7 @@ Pattern scanning is a method used to search for specific byte sequences in memor
 
 ---
 
-## `BytePattern`
+## BytePattern
 The `BytePattern` class has been added to support multiple ways of defining patterns. These updates make it easier to work with different types of patterns commonly used in scanning memory.
 
 Pattern scanning is available on any type implementing `IMemory` interface, e.g.
@@ -32,13 +62,13 @@ var modules = process.GetProcessModules(); //enumerate all loaded modules
 using var memory = process.MemoryOfModule("pathofexile.exe"); //memory implements IMemory
 Log.Info($"Process memory: {memory}, base: {memory.BaseAddress.ToHexadecimal()}");
 
-// will find a singular offset pointing at 4th byte in the sequence
+// Single search returns the match start; add PatternOffset separately.
 var offset = memory.FindOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00")); 
 
 // will return dictionary with all found offsets for all given patterns
 var playerPattern = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
 var targetPattern = BytePattern.FromTemplate("BB AA ??");
-var offsetsByPattern = memory.FindOffset(playerPattern, targetPattern);
+var offsetsByPattern = memory.FindOffsets(playerPattern, targetPattern);
 
 // by using Get* instead of Find* the code will throw an exception in case pattern is not found
 var criticalOffset = memory.GetOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00")); 
@@ -57,7 +87,7 @@ var criticalOffset = memory.GetOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00
    - Use escape sequences like `\xAA\xBB\xCC`, like in C-Style patterns.
    - Example:  
    ```csharp
-   var pattern = BytePattern.FromTemplate("\x55\x8B\xEC");
+   var pattern = BytePattern.FromTemplate(@"\x55\x8B\xEC");
    ```
    is equivalent to the byte array `[0x55, 0x8B, 0xEC]`.
 
@@ -83,4 +113,4 @@ var criticalOffset = memory.GetOffset(BytePattern.FromTemplate("55 8B ?? ^ EC 00
    ```csharp
    var pattern = BytePattern.FromTemplate("55 8B ?? ^ EC 00");
    ``` 
-   sets the offset right before `EC` (skipping `3` bytes). That means after the pattern is found, final offset will be `Offset + 3`
+   sets `PatternOffset = 3`. Single `FindOffset`/`GetOffset` return the match start; multi-pattern methods add that offset.

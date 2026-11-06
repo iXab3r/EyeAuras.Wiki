@@ -112,3 +112,21 @@ using EyeAuras.Memory.Scaffolding;
 - [Memory API - С чего начать](/ru/scripting/memory-api/getting-started)
 - [Кастомный IProcess](/ru/scripting/memory-api/backends/custom-process)
 - [Кастомные memory backend](/ru/scripting/memory-api/backends/custom-memory-backends)
+
+## Владение handle и управление через NativeLocalProcess
+
+`NativeLocalProcess.ByProcessHandle(handle, ownsHandle: false)` по умолчанию
+заимствует открытый handle. Удерживайте его действительным всё время работы
+wrapper, затем закройте самостоятельно. `ownsHandle: true` передаёт владение
+wrapper. `ByProcessId` открывает и владеет новым handle. Его `isReadOnly`
+исключает права записи, а `omitCreateThreadPermissions` — создания потока;
+эти флаги не добавляют прав, которых у вызывающего нет.
+
+`AllocateMemory` возвращает дескриптор адреса и размера, а не владеющий ресурсом
+`IDisposable`: освободите память через `FreeMemory`. `ProtectMemory` возвращает
+предыдущее protection. `CreateRemoteThread` возвращает ID потока и закрывает
+временный handle, не ожидая завершения. `ExecuteCode` ждёт результат потока
+и закрывает handle в `finally`. Принятие APC-запроса не доказывает выполнение
+целевым потоком. `IsValid` этого native wrapper означает только, что он не освобождён.
+
+[NativeLocalProcess на c8b2304](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory/NativeLocalProcess.cs).

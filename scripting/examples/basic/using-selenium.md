@@ -3,7 +3,7 @@ title: Automating Edge Browser with Selenium
 description: 
 published: true
 date: 2024-08-29T14:45:43.817Z
-tags: Selenium, Browser Automation, MS Edge, Web Development
+tags: Selenium, Browser Automation, MS Edge, Web Development, ai-translated
 editor: markdown
 dateCreated: 2024-08-29T14:37:33.998Z
 ---
@@ -13,7 +13,18 @@ dateCreated: 2024-08-29T14:37:33.998Z
 
 ## Why?
 Searching for images and simulating user input is useful when working with games or unstructured data. If the task involves automating something in a browser, I highly recommend looking into using [Selenium](https://www.selenium.dev/) and [MS Edge](https://www.microsoft.com/en-us/edge?ep=657&form=MA13FJ&es=40). This combination, proven by time and the entire industry, allows you to work with web pages and gives you full control over what happens there. Essentially, **Selenium** solves the same problems as the eye, but exclusively for browsers.  
-A huge advantage of this type of automation is that you can manage multiple windows simultaneously without any issues of input overlap or incorrect detections - browsers are completely isolated from each other.
+A huge advantage of this type of automation is that you can manage multiple windows simultaneously without any issues of input overlap or incorrect detections - WebDriver commands target a specific browser session. Shared files, processes and machine resources are not fully isolated by this.
+
+## Open Bing and submit a query
+
+Paste the whole example into a top-level EyeAuras C# Script on Windows. It needs
+installed Edge, NuGet/network access, a writable driver directory and a matching
+Edge WebDriver. The pinned package versions are retained from the original
+example; compatibility with your installed browser is not established here.
+
+Inputs are `https://www.bing.com`, element name `q`, and `Selenium C# example`.
+The page, form and network timing can change. `Sleep(5000)` is a fixed pause,
+not a check that the DOM is ready.
 
 ## What's Happening Here
 The code below performs several actions:
@@ -44,6 +55,7 @@ using (var driver = InitializeSeleniumDriver())
     driver.Navigate().GoToUrl("https://www.bing.com");
 
     Sleep(5000);
+    cancellationToken.ThrowIfCancellationRequested();
 
     // Find the search box using its name attribute
     IWebElement searchBox = driver.FindElement(By.Name("q"));
@@ -56,6 +68,7 @@ using (var driver = InitializeSeleniumDriver())
 
     // Wait for a few seconds to see the results
     Sleep(5000);
+    cancellationToken.ThrowIfCancellationRequested();
 }
 
 private EdgeDriver InitializeSeleniumDriver(){
@@ -78,3 +91,16 @@ private EdgeDriver InitializeSeleniumDriver(){
     return new EdgeDriver(service, options);
 }
 ```
+
+## Pinned version contracts
+
+[EdgeDriver 4.24.0](https://github.com/SeleniumHQ/selenium/blob/selenium-4.24.0/dotnet/src/webdriver/Edge/EdgeDriver.cs)
+has the `(EdgeDriverService, EdgeOptions)` constructor used here.
+[WebDriver.Dispose](https://github.com/SeleniumHQ/selenium/blob/selenium-4.24.0/dotnet/src/webdriver/WebDriver.cs)
+sends Quit when a session exists and disposes the command executor.
+[WebDriverManager 2.17.4](https://github.com/rosolko/WebDriverManager.Net/blob/2.17.4/WebDriverManager/DriverManager.cs)
+returns the binary path from `SetUpDriver`; without an explicit version it selects
+Latest, with the current working directory as the default download base.
+Latest does not mean a match for your installed browser. The example checks
+cancellation explicitly after Sleep; synchronous WebDriver calls use their own
+timeouts. Browser execution and current Bing DOM compatibility remain unverified.

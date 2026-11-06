@@ -232,7 +232,7 @@ Start/Stop. Для небольшой утилиты прямой вызов к�
 - Предпочитайте `ScriptContainerExtension` для общих сервисов, принадлежащих скрипту.
 - Для небольших инструментов и прототипов предпочитайте простые однофайловые скрипты, если разбиение кода только добавит лишнюю сложность.
 - Добавляйте полезное диагностическое логирование вокруг настройки, выбора, валидации, ошибок и очистки ресурсов.
-- Используйте `recipes/recipe.md`, если нужны более высокоуровневые рекомендации, которые объединяют несколько областей API.
+- Используйте [recipes/recipe.md](/ru/scripting/api/recipes/recipe), если нужны более высокоуровневые рекомендации, которые объединяют несколько областей API.
 
 ## Чего избегать
 
@@ -262,22 +262,22 @@ Start/Stop. Для небольшой утилиты прямой вызов к�
 
 ## Связанные карты
 
-- `core/eyeauras-structure.md`
-- `core/app-runtime-contexts.md`
-- `recipes/recipe.md`
-- `scripting/container-extensions.md`
-- `scripting/logging.md`
-- `scripting/references-and-resources.md`
-- `scripting/project-workflow.md`
-- `scripting/variables.md`
-- `auras/actions.md`
-- `auras/triggers.md`
-- `auras/overlays.md`
-- `windows-subsystems/blazor-windows.md`
-- `windows-subsystems/input-hooks-hotkeys.md`
-- `osd/screen-overlay.md`
-- `nuget/imgui-sdk.md`
-- `nuget/frida-sdk.md`
+- [core/eyeauras-structure.md](/ru/scripting/api/core/eyeauras-structure)
+- [core/app-runtime-contexts.md](/ru/scripting/api/core/app-runtime-contexts)
+- [recipes/recipe.md](/ru/scripting/api/recipes/recipe)
+- [scripting/container-extensions.md](/ru/scripting/api/scripting/container-extensions)
+- [scripting/logging.md](/ru/scripting/api/scripting/logging)
+- [scripting/references-and-resources.md](/ru/scripting/api/scripting/references-and-resources)
+- [scripting/project-workflow.md](/ru/scripting/api/scripting/project-workflow)
+- [scripting/variables.md](/ru/scripting/api/scripting/variables)
+- [auras/actions.md](/ru/scripting/api/auras/actions)
+- [auras/triggers.md](/ru/scripting/api/auras/triggers)
+- [auras/overlays.md](/ru/scripting/api/auras/overlays)
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows)
+- [windows-subsystems/input-hooks-hotkeys.md](/ru/scripting/api/windows-subsystems/input-hooks-hotkeys)
+- [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay)
+- [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk)
+- [nuget/frida-sdk.md](/ru/scripting/api/nuget/frida-sdk)
 Контракты — EyeAuras `20fd3d4`, PoeEye `0e02c98`; точные сигнатуры и состав host сверяйте с SDK/XML своей версии.
 
 ## Объектный Action и Trigger

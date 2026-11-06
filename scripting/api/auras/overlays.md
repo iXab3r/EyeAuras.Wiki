@@ -1,9 +1,9 @@
 ---
-title: AI Auras: Overlays
+title: AI Auras — Overlays
 description: AI-first map of aura overlays and visual output surfaces.
 published: true
 date: 2026-04-21T00:00:00.000Z
-tags: scripting, api, ai, overlays
+tags: scripting, api, ai, overlays, ai-translated
 editor: markdown
 dateCreated: 2026-04-21T00:00:00.000Z
 ---
@@ -24,6 +24,22 @@ by aura workflows.
 - Blazor OSD screen overlay is lower-level drawing, not the same as an aura
   overlay entity.
 - ImGui windows are optional package UI surfaces.
+
+## Choose the UI surface
+
+For a panel saved with an aura and controlled by its lifetime, start with
+`CsharpScriptOverlay` and its entity registration. Properties store configuration;
+`AuraOverlayContentBase` holds visibility, bounds, opacity and window commands.
+It is created on the overlay dispatcher and retains its `Scheduler`; arbitrary
+background-thread UI access is not appropriate.
+
+A bot status panel enabled with the aura belongs here. A temporary rectangle
+around a detection belongs to [OSD canvas](../osd/screen-overlay), a separate
+Razor window to [Blazor windows](../windows-subsystems/blazor-windows), and
+immediate-mode rendering to the separately loaded [ImGui SDK](../nuget/imgui-sdk).
+The choice determines configuration and resource ownership. An `IOnScreenCanvas`
+or ImGui assembly reference does not create an Aura Tree overlay entity;
+use the cancellation and coordinate contract of the selected surface.
 
 ## API Details
 
@@ -46,9 +62,9 @@ Recompilation and project import replace that context; disposing it must not dis
 
 - Prefer aura overlay entities when UI is part of aura configuration/lifecycle.
 - Prefer Blazor-hosted overlay views for retained EyeAuras overlay UI.
-- Prefer `osd/screen-overlay.md` for screen annotations and CV debug boxes.
-- Prefer `windows-subsystems/blazor-windows.md` for real native windows.
-- Prefer `nuget/imgui-sdk.md` for ImGui SDK windows.
+- Prefer [osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay) for screen annotations and CV debug boxes.
+- Prefer [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows) for real native windows.
+- Prefer [nuget/imgui-sdk.md](/en/scripting/api/nuget/imgui-sdk) for ImGui SDK windows.
 
 ## Avoid
 
@@ -75,9 +91,9 @@ Recompilation and project import replace that context; disposing it must not dis
 
 ## Related Maps
 
-- `auras/entities.md`
-- `auras/actions.md`
-- `auras/triggers.md`
-- `osd/screen-overlay.md`
-- `windows-subsystems/blazor-windows.md`
-- `nuget/imgui-sdk.md`
+- [auras/entities.md](/en/scripting/api/auras/entities)
+- [auras/actions.md](/en/scripting/api/auras/actions)
+- [auras/triggers.md](/en/scripting/api/auras/triggers)
+- [osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay)
+- [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows)
+- [nuget/imgui-sdk.md](/en/scripting/api/nuget/imgui-sdk)

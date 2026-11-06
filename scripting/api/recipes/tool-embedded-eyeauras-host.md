@@ -42,37 +42,31 @@ dateCreated: 2026-04-22T00:00:00.000Z
 - Draw visuals through host rendering or OSD APIs.
 - Add Behavior Tree or hosted scripting only if users need editable automation.
 
-Minimal shape:
+## Add Memory API to an existing WPF host
 
-```csharp
-public sealed class MyEmbeddedBootstrapper : EyeAurasEmbeddedBootstrapper
-{
-    private readonly IMyHostService hostService;
+The input is a Windows application with WPF startup, a live UI dispatcher,
+Prism/Unity composition and its own shutdown order. An STA annotation alone does
+not provide the dispatcher lifetime or full host composition.
 
-    public MyEmbeddedBootstrapper(IUnityContainer container, IMyHostService hostService) : base(container)
-    {
-        this.hostService = hostService;
-    }
+Reference `EyeAuras.SDK.Runtime` and the memory feature package. Derive from
+`EyeAurasRuntimeBootstrapper`, override `ConfigureEmbeddedModules`, and call
+`modules.UseMemory()`. The compatible `EyeAurasEmbeddedBootstrapper` is an
+alternative packaging surface, not an additional required bootstrap stage.
+Register caller-owned services before modules use them.
 
-    protected override void ConfigureContainer()
-    {
-        base.ConfigureContainer();
-        Container.RegisterInstance<IMyHostService>(hostService);
-    }
+Run the bootstrapper through the host's normal WPF/Prism startup, then await
+`EnsureReadyAsync(cancellationToken)`. Only then call `LocalProcess.GetProcesses()`
+and open an owned reader for the chosen PID. `UseMemory()` includes UiCore,
+`PlusLoaderModule` and `MemoryModule`; the metadata facade alone has no registered
+builder. The [complete capability and enumeration example](/en/scripting/api/nuget/embedded-sdk)
+shows the required namespaces, inputs and result.
 
-    protected override void ConfigureEmbeddedModules(IEyeAurasModuleSetBuilder modules)
-    {
-        modules.UseUiCore();
-        modules.UseBehaviorTree();
-        modules.UseMemory();
-    }
-}
-
-var container = new UnityContainer();
-var bootstrapper = new MyEmbeddedBootstrapper(container, hostService);
-bootstrapper.Run(runWithDefaultConfiguration: true);
-await bootstrapper.EnsureReadyAsync(cancellationToken);
-```
+Readiness configures assets and validates requested modules; cancellation does not
+undo startup. Keep UI creation on its dispatcher and do not block host tick/render
+callbacks waiting for UI. At shutdown, stop consumers and dispose readers before
+releasing the host-owned runtime/container. Scripting and BT services still need
+their owning modules. Source `c8b2304` establishes these boundaries; compatible
+published payloads and Windows execution must be checked for the chosen release.
 
 ## Choices
 
@@ -126,8 +120,8 @@ await bootstrapper.EnsureReadyAsync(cancellationToken);
 
 ## Related Maps
 
-- `core/app-runtime-contexts.md`
-- `core/app-modules.md`
-- `windows-subsystems/blazor-windows.md`
-- `osd/screen-overlay.md`
-- `scripting/runtime.md`
+- [core/app-runtime-contexts.md](/en/scripting/api/core/app-runtime-contexts)
+- [core/app-modules.md](/en/scripting/api/core/app-modules)
+- [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows)
+- [osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)

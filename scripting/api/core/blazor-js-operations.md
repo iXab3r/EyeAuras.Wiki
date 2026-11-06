@@ -167,3 +167,13 @@ Contracts and implementation were checked against PoeEye `0e02c98dcab4bff263684f
 - [Blazor basics](blazor)
 - [Blazor Windows](../windows-subsystems/blazor-windows)
 - [Lifetime and subscriptions](../scripting/reactive-lifetime)
+
+## Title-bar callback signatures
+
+The callbacks `HandleTitleBarDragStart`, `HandleTitleBarDoubleClick`, and
+`HandleTitleBarContextMenu` are invoked without arguments in the JS module.
+The default drag threshold is 4 viewport pixels, clamped to at least 1.
+Disposing the registration clears pending pointer capture and removes its
+listeners. The callback reference remains caller-owned.
+
+[JS implementation](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Blazor/wwwroot/ts/blazorUtils.input.ts).

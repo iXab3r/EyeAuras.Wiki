@@ -98,7 +98,7 @@ Log.Info("ImGui API resolved");
 
 Это получение API, а не создание окна. Продолжение — [первое окно ImGui](/ru/scripting/imgui/getting-started). Версия здесь взята из примеров Wiki; доступность пакета и совместимость с вашей сборкой EyeAuras нужно проверить при восстановлении и запуске.
 
-Для `EyeAuras.FridaSdk` встречается аналогичный вызов `AddNewExtension<FridaContainerExtensions>()`. Реализация этого внешнего пакета здесь не подтверждена; его регистрацию и требования проверяйте по документации выбранной версии. Примеры составных проектов: [Aim Trainer ML](/ru/scripting/examples/advanced/aimtrainer-ml) и [YOLO11 ESP](/ru/scripting/examples/advanced/yolo11-esp).
+Для `EyeAuras.FridaSdk` встречается аналогичный вызов `AddNewExtension<FridaContainerExtensions>()`. В исходниках `c8b2304ac` расширение регистрирует `IFridaExperimentalApi` через `RegisterType`, как и ImGui. Совместимость конкретного пакета проверяйте отдельно; время жизни описано в [карте Frida SDK](/ru/scripting/api/nuget/frida-sdk). Примеры составных проектов: [Aim Trainer ML](/ru/scripting/examples/advanced/aimtrainer-ml) и [YOLO11 ESP](/ru/scripting/examples/advanced/yolo11-esp).
 
 Внутри другой extension для зависимости используется `Container.AddNewExtensionIfNotExists<T>()` из `PoeShared.Scaffolding`. Это операция контейнера, тогда как `AddNewExtension<T>()` в `Script.csx` — метод песочницы.
 

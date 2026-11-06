@@ -65,8 +65,8 @@ accessor удобен скрипту, runtime-контекст связывае�
 
 - Сначала определяйте текущий product context, и только потом выбирайте API.
 - Для работы с aura, folder и macro из скриптов используйте accessors.
-- Если разбираетесь, как регистрируются пользовательские компоненты, смотрите `auras/entities.md`.
-- Если важна разница между top-level script и helper-классами, смотрите `scripting/runtime.md`.
+- Если разбираетесь, как регистрируются пользовательские компоненты, смотрите [auras/entities.md](/ru/scripting/api/auras/entities).
+- Если важна разница между top-level script и helper-классами, смотрите [scripting/runtime.md](/ru/scripting/api/scripting/runtime).
 
 ## Чего избегать
 

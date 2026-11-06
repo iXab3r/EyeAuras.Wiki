@@ -27,9 +27,9 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - `IComputerVisionExperimentalScriptingApi` — точка входа для CV в скриптах.
 - `ICvAccessor` выполняет операции с изображениями, текстом, цветами и пикселями.
 - В aura-сценариях используются классы триггеров.
-- Для debug-боксов и подписей используйте `osd/screen-overlay.md`.
-- Поиск с ML-моделями частично относится к `ml/ai.md`.
-- Профилирование и производительность описаны в `computer-vision/profiling.md`.
+- Для debug-боксов и подписей используйте [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay).
+- Поиск с ML-моделями частично относится к [ml/ai.md](/ru/scripting/api/ml/ai).
+- Профилирование и производительность описаны в [computer-vision/profiling.md](/ru/scripting/api/computer-vision/profiling).
 
 ## Прочитать текст с основного экрана
 
@@ -182,8 +182,8 @@ Raw-методы возвращают оболочку `WindowImageProcessedEven
 - Для CV в скриптах используйте `IComputerVisionExperimentalScriptingApi` и `ICvAccessor`.
 - Для aura-сценариев предпочитайте встроенные триггеры.
 - Для захвата используйте готовые capture services, а не собственную логику скриншотов.
-- Для отладки областей используйте `osd/screen-overlay.md`.
-- Прежде чем гадать, где тормозит CV-цикл, откройте `computer-vision/profiling.md`.
+- Для отладки областей используйте [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay).
+- Прежде чем гадать, где тормозит CV-цикл, откройте [computer-vision/profiling.md](/ru/scripting/api/computer-vision/profiling).
 
 ## Чего лучше избегать
 
@@ -198,24 +198,34 @@ Raw-методы возвращают оболочку `WindowImageProcessedEven
   `TextSearchTrigger`, `IRecognitionEngineProvider`, `ColorSearchTrigger`,
   `WindowCaptureService`, `WindowCaptureTriggerBase`.
 
-## Синонимы для поиска
+## Image search, OCR и захват экрана
 
-- image search
-- template match
-- feature match
-- OCR
-- text recognition
-- color search
-- pixel search
-- window capture
-- screen capture
-- OpenCV
-- Emgu CV
+Для поиска шаблона (image search, template match) создайте оконный или экранный
+`ICvAccessor` через `IComputerVisionExperimentalScriptingApi`, вызовите
+`ImageSearchRaw` и проверьте nullable `Detected.Bounds`. Accessor принадлежит
+вызывающему коду; raw-результат содержит матрицы для перевода координат.
+[Полный пример поиска изображения](/ru/scripting/examples/basic/image-search)
+показывает создание accessor, загрузку шаблона, результат и освобождение.
+
+Для text recognition / OCR используйте `TextSearch` с доступным движком;
+для window capture / screen capture и собственного OpenCV или Emgu CV-кода —
+`ProcessPixels`. Кадр в callback заимствован; сохранение копии требует `Clone()`
+и отдельного освобождения. Выше приведены полные примеры OCR и сохранения PNG.
+Feature match, color search и pixel search доступны через соответствующие
+[операции CV](/ru/scripting/api/IComputerVisionExperimentalScriptingApi).
 
 ## Смежные карты
 
-- `osd/screen-overlay.md`
-- `computer-vision/profiling.md`
-- `ml/ai.md`
-- `osd/selection.md`
-- `windows-subsystems/window-handles.md`
+- [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay)
+- [computer-vision/profiling.md](/ru/scripting/api/computer-vision/profiling)
+- [ml/ai.md](/ru/scripting/api/ml/ai)
+- [osd/selection.md](/ru/scripting/api/osd/selection)
+- [windows-subsystems/window-handles.md](/ru/scripting/api/windows-subsystems/window-handles)
+
+## Доступность OCR и кодирование файла
+
+`IRecognitionEngineProvider.KnownEngines` строится при создании провайдера. Windows OCR зависит от поддержки WinRT и установленных языков. Tesseract ищет `.traineddata` в папках `tessdata` данных пользователя, приложения и модуля OpenCV; константа `WellKnownOcrEngines.English` сама по себе не устанавливает язык. При `engineId = null` триггер выбирает первый известный движок; неизвестный ID не разрешается в движок. Проверяйте доступные ID в своей поставке.
+
+XML `Emgu.CV 4.9.0.5494` описывает `Image.Save(path)` как выбор формата по расширению файла; для примера PNG требуется `.png`. `ToJpegData(int quality)` возвращает JPEG в `byte[]`. Это контракты пакета, а не проверка установленного нативного кодека.
+
+[Провайдер OCR](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.OpenCVAuras/Services/RecognitionEngineProvider.cs) · [Выбор движка триггером](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.OpenCVAuras/Triggers/TextSearch/TextSearchTrigger.cs).

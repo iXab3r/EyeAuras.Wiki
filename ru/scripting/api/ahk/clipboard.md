@@ -51,3 +51,7 @@ Log.Info($"Прочитано: {Clipboard.GetText() ?? "<нет текста>"}"
   [clipboard.cpp](https://github.com/AutoHotkey/AutoHotkey/blob/v2.0/source/clipboard.cpp),
   [wait.cpp](https://github.com/AutoHotkey/AutoHotkey/blob/v2.0/source/lib/wait.cpp).
 - Контракты EyeAuras: [контекст скрипта](../scripting/runtime), [ввод](../ISendInputScriptingApi), [окна](../windows-subsystems/window-handles). Точные типы и сигнатуры сверяйте с SDK/XML своей версии; базовый срез — EyeAuras `20fd3d4`, PoeEye `0e02c98`.
+
+AHK v2 `ClipWait` по умолчанию ждёт текст или файлы, принимает timeout в секундах
+и возвращает false при его истечении. `WaitFor = 1` допускает любые данные.
+Один вызов `GetText()` не заменяет это ожидание или снимок всех форматов.

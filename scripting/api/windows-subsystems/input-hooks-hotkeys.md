@@ -3,7 +3,7 @@ title: AI Windows: Input, Hooks, Hotkeys
 description: AI-first map of input sending, hooks, interception, and hotkey services.
 published: true
 date: 2026-04-21T00:00:00.000Z
-tags: scripting, api, ai, input, hotkeys
+tags: scripting, api, ai, input, hotkeys, ai-translated
 editor: markdown
 dateCreated: 2026-04-21T00:00:00.000Z
 ---
@@ -81,7 +81,7 @@ APIs, input simulators, smoothers, suppression, and native detours.
   input.
 - Prefer `ISendInputScriptingApi` for script input output.
 - Prefer provider-discovered simulator/smoother ids.
-- Prefer `osd/selection.md` for selecting a target window first.
+- Prefer [osd/selection.md](/en/scripting/api/osd/selection) for selecting a target window first.
 
 ## Avoid
 
@@ -117,6 +117,21 @@ APIs, input simulators, smoothers, suppression, and native detours.
   - registration is active only while the script execution tracker is in the
     running state.
 
+## Send input without creating an aura component
+
+In a C# Action, inject the service and send one key to the active application:
+
+```csharp
+ISendInputScriptingApi SendInput { get; init; }
+
+SendInput.KeyPress(Key.F1);
+Log.Info("F1 request sent");
+```
+
+Roxy registers this API; the default simulator is Windows Input. The log confirms call completion, not that the application processed the key. TargetWindow does not guarantee background input. See [SendInput operations](../ISendInputScriptingApi) for timing, coordinates and cancellation.
+
+For key reactions use the complete [Keybind example](../../keybinds). A dynamic tracker and its subscription belong to the caller. Native event callbacks and background keybinds do not authorize direct UI mutation; use the UI dispatcher when needed. Ordinary classes receive these dependencies explicitly.
+
 ## Research Anchors
 
 - `KeybindAttribute`, `KeybindActivationType`,
@@ -149,8 +164,16 @@ APIs, input simulators, smoothers, suppression, and native detours.
 
 ## Related Maps
 
-- `scripting/runtime.md`
-- `auras/triggers.md`
-- `auras/actions.md`
-- `osd/selection.md`
-- `windows-subsystems/window-handles.md`
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [auras/triggers.md](/en/scripting/api/auras/triggers)
+- [auras/actions.md](/en/scripting/api/auras/actions)
+- [osd/selection.md](/en/scripting/api/osd/selection)
+- [windows-subsystems/window-handles.md](/en/scripting/api/windows-subsystems/window-handles)
+
+## Tracker, provider and detour boundaries
+
+IHotkeyTracker Hold follows key-down/up; Click toggles on key-up, so filtering IsActive == true in Click mode does not invoke on every press. With HandleApplicationKeys false, Click events are excluded while EyeAuras itself is active. This tracker behavior is separate from KeybindAttribute.ActivationType.
+
+InputSimulatorProvider.ResolveById returns a registered object; Resolve(idOrName) returns an observable and may create a proxy before a real backend is registered. A known name does not establish IsAvailable. The smoother provider likewise resolves registered IDs; a catalogue entry does not install a driver.
+
+[HookEngine](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Hooking/HookEngine.cs) is a separate current-process native detour mechanism. It retains the detour delegate, returns an original-call delegate and requires explicit hook enabling. Dispose disables hooks and releases its allocator. This is not keyboard hotkey registration or a guarantee of safe patching while other threads execute the affected function.

@@ -124,7 +124,7 @@ public sealed class PreparePanel : CsharpScriptActionExecutor
 
 ## Связанные карты
 
-- `auras/entities.md`
-- `auras/triggers.md`
-- `auras/overlays.md`
-- `scripting/runtime.md`
+- [auras/entities.md](/ru/scripting/api/auras/entities)
+- [auras/triggers.md](/ru/scripting/api/auras/triggers)
+- [auras/overlays.md](/ru/scripting/api/auras/overlays)
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)

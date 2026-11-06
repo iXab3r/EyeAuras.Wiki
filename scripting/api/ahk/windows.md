@@ -48,26 +48,29 @@ if WinActive("ahk_exe notepad.exe")
 EyeAuras script, one-shot check:
 
 ```csharp
-IWindowSelector WindowSelector { get; init; }
+IFactory<IWindowSelector> WindowSelectorFactory { get; init; }
 IWindowListProvider WindowsProvider { get; init; }
 IWindowMatcher WindowMatcher { get; init; }
 ISendInputScriptingApi SendInput { get; init; }
 
-WindowMatchExpression target = "notepad.exe";
-
-var window = WindowSelector.FindWindow(target);
-if (window == null)
 {
-    Log.Info("Notepad is not open");
-    return;
-}
+    using var WindowSelector = WindowSelectorFactory.Create();
+    WindowMatchExpression target = "notepad.exe";
 
-Log.Info($"Window exists: {window.Title}");
+    var window = WindowSelector.FindWindow(target);
+    if (window == null)
+    {
+        Log.Info("Notepad is not open");
+        return;
+    }
 
-var foreground = WindowsProvider.GetForegroundWindow();
-if (foreground != null && WindowMatcher.IsMatch(foreground, target))
-{
-    SendInput.Text("hello");
+    Log.Info($"Window exists: {window.Title}");
+
+    var foreground = WindowsProvider.GetForegroundWindow();
+    if (foreground != null && WindowMatcher.IsMatch(foreground, target))
+    {
+        SendInput.Text("hello");
+    }
 }
 ```
 
@@ -104,13 +107,25 @@ behavior.
 only for must-exist code and `FindMatches(...)` only when all matches or a
 supplied window list matter.
 
-AHK `WinTitle` strings are not copied literally. For example,
-`ahk_exe notepad.exe` usually becomes an EyeAuras expression like
-`notepad.exe`. EyeAuras expressions can also use quoted strict text,
-`/regex/`, `0x...` handles, `#2` for the second match, and properties such as
-`[type=toplevel]`. Case rules, `SetTitleMatchMode`, hidden windows,
-`ahk_class`, `ahk_id`, `ahk_pid`, and Last Found Window semantics are tracked in
-[AHK Gaps](./ahk-gaps).
+AHK `WinTitle` strings are not copied literally. `notepad.exe` also searches
+path, title and arguments, so it is broader than `ahk_exe notepad.exe`. To restrict
+the process, set `WindowFilter` and compare the normalized full `ProcessName` as
+shown in the [window map](/en/scripting/api/windows-subsystems/window-handles).
+Quoted text is an exact comparison, not a process-only selector. EyeAuras also
+supports `/regex/`, `0x...`, `#2` and `[type=toplevel]`.
+
+## Wait for a target or foreground change
+
+`FindWindow` is an immediate query, not `WinWait`. Keep a selector alive and poll
+its current `ActiveWindow` with `await Task.Delay(..., cancellationToken)`; the
+[window map](/en/scripting/api/windows-subsystems/window-handles) provides the
+complete wait-for-visible-Notepad operation. Re-read the target for repeated work
+and check `IsWindow`; a saved handle does not automatically follow a new window.
+
+For `WinWaitActive`, check `IWindowListProvider.GetForegroundWindow()` instead.
+Apply the same process constraint there; a broad text `IsMatch` does not reproduce
+it. AHK v2 wait timeouts are in seconds and return HWND or zero on timeout. An
+EyeAuras selector's `ActiveWindow` means selected target, not OS foreground.
 
 ## Activate Window
 
@@ -123,14 +138,19 @@ WinActivate "ahk_exe notepad.exe"
 EyeAuras script:
 
 ```csharp
-IWindowSelector WindowSelector { get; init; }
+IFactory<IWindowSelector> WindowSelectorFactory { get; init; }
 
-var window = WindowSelector.GetWindow("notepad.exe");
-window.Activate(TimeSpan.FromMilliseconds(500));
+{
+    using var WindowSelector = WindowSelectorFactory.Create();
+    var window = WindowSelector.GetWindow("notepad.exe");
+    window.Activate(TimeSpan.FromMilliseconds(500));
+}
 ```
 
 `GetWindow(...)` throws when there is no match, and activation can throw if
-Windows does not switch foreground within the timeout. `Activate(...)` is the
+Windows does not switch foreground within the timeout. When foreground is zero,
+the implementation can wait up to ten seconds, so 500 ms is not a strict duration
+bound. `Activate(...)` is the
 `WindowHandleExtensions` wrapper over `UnsafeNative.ActivateWindow(...)`.
 
 Do not instantiate or route through `WinActivateAction` from script. Actions,
@@ -141,6 +161,14 @@ abstraction for a thin operation such as window activation.
 **Recommendation:** Use `WindowHandleExtensions.Activate(...)` from script
 after resolving an `IWindowHandle`. Mention `WinActivateAction` only as an Aura
 Tree configuration option, not as the API equivalent.
+
+These are desktop C# Action examples. A factory creates an owned selector, and
+`using` releases its subscriptions without changing somebody else's selection.
+The factory and window handles are borrowed. `FindWindow` sets `TargetWindow`
+and immediately reads `ActiveWindow`; live enumeration may update later.
+`OnlyVisible` defaults to false; assigning a target defaults to top-level external
+windows unless the expression overrides those properties. The complete grammar,
+case behavior and `FindMatches`/`IsMatch` distinction are in the window map.
 
 ## Verification Links
 
@@ -161,11 +189,4 @@ Tree configuration option, not as the API equivalent.
 - EyeAuras docs:
   [Window Handles](../windows-subsystems/window-handles),
   [Input, Hooks, Hotkeys](../windows-subsystems/input-hooks-hotkeys).
-- EyeAuras source:
-  [IWindowSelector.cs](../../../../../Sources/EyeAuras.Shared/Services/IWindowSelector.cs),
-  [IWindowListProvider.cs](../../../../../Sources/EyeAuras.Shared/Services/IWindowListProvider.cs),
-  [WindowMatchExpression.cs](../../../../../Sources/EyeAuras.Shared.Metadata/Services/WindowMatchExpression.cs),
-  [IWindowMatcher.cs](../../../../../Sources/EyeAuras.Shared/Services/IWindowMatcher.cs),
-  [WindowSelectorExtensions.cs](../../../../../Sources/EyeAuras.Shared/Scaffolding/WindowSelectorExtensions.cs),
-  [WindowHandleExtensions.cs](../../../../../Sources/PoeShared.Wpf/Scaffolding/WindowHandleExtensions.cs),
-  [UnsafeNative.WindowUtils.cs](../../../../../Sources/PoeShared.Native/Native/UnsafeNative.WindowUtils.cs).
+- EyeAuras contracts: [window matching and tracking](/en/scripting/api/windows-subsystems/window-handles).

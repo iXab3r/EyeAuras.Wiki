@@ -3,7 +3,7 @@ title: AutoHotkey Migration Gaps
 description: Known semantic gaps and verification backlog for AutoHotkey to EyeAuras migration docs.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ahk, autohotkey, migration, gaps
+tags: scripting, api, ahk, autohotkey, migration, gaps, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -34,7 +34,7 @@ Status values:
 | AHK-005 | Hotkey prefixes | AHK supports `~`, `*`, `$`, `Up`, left/right modifiers, custom combos with `&`, and context-sensitive `#HotIf`. | `KeybindAttribute` with `SuppressKey`, `IgnoreModifiers`, `ActivationType`, plus `IHotkeyTracker` for runtime hotkeys. | Map AHK prefixes to EyeAuras keybind properties. Custom two-key combos and `#HotIf` conditions may need recipes rather than direct translation. | Mapped |
 | AHK-006 | Window matching | AHK `WinTitle` supports `A`, `ahk_exe`, `ahk_class`, `ahk_id`, `ahk_pid`, `SetTitleMatchMode`, hidden-window rules, and per-thread Last Found Window behavior. | `WindowMatchExpression`, `IWindowMatcher`, `IWindowListProvider`, `IWindowSelector`. | Basic title/process/path/handle matching is mapped. Still need a token-by-token table for AHK `WinTitle`, case rules, hidden windows, `A`, and Last Found Window. In EyeAuras, store the resolved `IWindowHandle` explicitly instead of relying on implicit last-found state. | Open |
 | AHK-007 | Control-level input | `ControlClick` and `ControlSend` can target controls and sometimes avoid activating the window. | `ISendInputScriptingApi.TargetWindow`, send-input actions, possible native/window services. | Verify whether there is a script-facing control-level API. If not, mark as rewrite/native interop territory. | Open |
-| AHK-008 | Timers | `SetTimer` creates timed subroutines with period, one-shot negative periods, priority, deletion, and reentrancy rules. | Script services with loops or observables; Aura Tree timer components only for configurable aura behavior. | Need a recommended pattern for repeating work and a section explaining that AHK timer thread semantics do not directly translate. Also document EyeAuras `TimerTrigger` 100 ms resolution floor as an aura-component constraint, not a script API default. | Open |
+| AHK-008 | Timers | `SetTimer` creates timed subroutines with period, one-shot negative periods, priority, deletion, and reentrancy rules. | Script services with loops or observables; Aura Tree timer components only for configurable aura behavior. | Need a recommended pattern for repeating work and a section explaining that AHK timer thread semantics do not directly translate. Do not transfer a specific `TimerTrigger` constraint to all C# script timers. | Open |
 | AHK-009 | Clipboard wait/events | `A_Clipboard`, `ClipWait`, `ClipboardAll`, and `OnClipboardChange` cover text, all formats, waiting, and events. | `IClipboardManager` has text, image, file-drop, data object, and contains methods. | Verify DI availability in scripts, UI thread constraints, wait/change-event service availability, and full-format preservation. | Open |
 | AHK-010 | Pixel read | `PixelGetColor` returns a single RGB hex string at a coordinate and has `Alt`/`Slow` modes. | `ICvAccessor.ProcessPixels`, `PixelSearch`, `PickColor`. | Need a concise one-pixel color recipe and notes about visibility, cursor obstruction, and full-screen/game capture differences. | Candidate helper |
 | AHK-011 | Pixel/image search errors | AHK v2 returns values/throws exceptions depending on function and failure mode; v1 often used `ErrorLevel`. | EyeAuras `PixelSearch` returns `Point.Empty`, `ImageSearch` returns `Rectangle.Empty`, raw APIs expose processed event args. | Need a v1/v2/error-handling migration table. | Open |
@@ -43,17 +43,25 @@ Status values:
 | AHK-014 | DPI and monitors | AHK coordinate APIs are affected by `CoordMode`, DPI, active-window client area, and multi-monitor layouts. | `IWindowHandle` bounds, `ForScreen()`, `ForWindow(...)`, OSD transform matrices. | Need multi-monitor and DPI examples for mouse, CV, and region selection. | Open |
 | AHK-015 | DLL and native interop | `DllCall`, `CallbackCreate`, `Buffer`, `NumGet`, and `NumPut` make native calls and pointer/struct work easy but very dynamic. | Direct migration is typed C# P/Invoke wrappers or small domain services; existing EyeAuras/PoeShared APIs are rewrite options. | Need a fuller native-interop guide for structs, callbacks, ownership, bitness, and when to replace raw interop with existing APIs. | Open |
 
+## Using This List
+
+Start with a focused page: [input](./keyboard-mouse), [windows](./windows), [hotkeys](./hotkeys), [CV](./cv-pixels-images), [state](./runtime-state), [clipboard](./clipboard), or [DLLs](./dll-native). Complete the operation in its declared context. Keep any uncovered AHK mode as a separate requirement instead of silently substituting a similar method.
+
+These statuses concern full AHK parity. They do not imply that the corresponding EyeAuras API is missing. The domain pages explain desktop input coordinates, selectors that retain their target without waiting, native clipboard registration and the ambiguous CV `(0, 0)` result. Those contracts do not establish every AHK mode.
+
+Examples use AHK v2. Check [v2 changes](https://github.com/AutoHotkey/AutoHotkeyDocs/blob/v2/docs/v2-changes.htm) before transferring v1 command syntax or `ErrorLevel`. Primary references are linked beside the domain operations.
+
 ## Source Anchors To Recheck
 
 EyeAuras:
 
-- `scripting/api/ISendInputScriptingApi.md`
-- `scripting/api/IComputerVisionExperimentalScriptingApi.md`
-- `scripting/api/IVariablesScriptingApi.md`
-- `scripting/api/windows-subsystems/input-hooks-hotkeys.md`
-- `scripting/api/windows-subsystems/window-handles.md`
-- `scripting/api/osd/selection.md`
-- `scripting/api/scripting/runtime.md`
+- [scripting/api/ISendInputScriptingApi.md](/en/scripting/api/ISendInputScriptingApi)
+- [scripting/api/IComputerVisionExperimentalScriptingApi.md](/en/scripting/api/IComputerVisionExperimentalScriptingApi)
+- [scripting/api/IVariablesScriptingApi.md](/en/scripting/api/IVariablesScriptingApi)
+- [scripting/api/windows-subsystems/input-hooks-hotkeys.md](/en/scripting/api/windows-subsystems/input-hooks-hotkeys)
+- [scripting/api/windows-subsystems/window-handles.md](/en/scripting/api/windows-subsystems/window-handles)
+- [scripting/api/osd/selection.md](/en/scripting/api/osd/selection)
+- [scripting/api/scripting/runtime.md](/en/scripting/api/scripting/runtime)
 - `Sources/EyeAuras.Scripting/Api/KeybindAttribute.cs`
 - `Sources/EyeAuras.Roxy.Shared/Api/ISendInputScriptingApi.cs`
 - `Sources/EyeAuras.Shared/Services/IWindowSelector.cs`

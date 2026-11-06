@@ -30,6 +30,7 @@ Sleep 250
 
 ```csharp
 Sleep(250);
+cancellationToken.ThrowIfCancellationRequested();
 Log.Info("Пауза завершилась");
 ```
 
@@ -89,3 +90,10 @@ for (var i = 1; i <= 3; i++)
   [Scripting Runtime](../scripting/runtime),
   [IVariablesScriptingApi](../IVariablesScriptingApi).
 - Контракты EyeAuras: [контекст скрипта](../scripting/runtime), [ввод](../ISendInputScriptingApi), [окна](../windows-subsystems/window-handles). Точные типы и сигнатуры сверяйте с SDK/XML своей версии; базовый срез — EyeAuras `20fd3d4`, PoeEye `0e02c98`.
+
+В AHK v2 `Sleep 0` уступает выполнение, а `Sleep -1` проверяет очередь сообщений;
+это не переносимые значения для EyeAuras `Sleep`. У `SetTimer` положительный
+период означает повтор, отрицательный — один вызов, ноль — удаление таймера,
+но не прерывание уже работающего callback. Текущий provider EyeAuras не учитывает
+отмену в ожиданиях до 30 мс; более длинное ожидание может вернуться раньше без
+исключения. Перед продолжением защищённой работы проверяйте токен.

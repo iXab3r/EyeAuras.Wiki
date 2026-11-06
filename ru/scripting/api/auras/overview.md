@@ -41,10 +41,10 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 ## Куда смотреть в первую очередь
 
-- Используйте `auras/entities.md` для регистрации и фабрик.
-- Используйте `auras/actions.md` для выполнения actions.
-- Используйте `auras/triggers.md` для activation/event sources.
-- Используйте `auras/overlays.md` для overlay entities.
+- Используйте [auras/entities.md](/ru/scripting/api/auras/entities) для регистрации и фабрик.
+- Используйте [auras/actions.md](/ru/scripting/api/auras/actions) для выполнения actions.
+- Используйте [auras/triggers.md](/ru/scripting/api/auras/triggers) для activation/event sources.
+- Используйте [auras/overlays.md](/ru/scripting/api/auras/overlays) для overlay entities.
 
 ## Синонимы для поиска
 
@@ -61,9 +61,9 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 ## Связанные карты
 
-- `core/eyeauras-structure.md`
-- `auras/entities.md`
-- `auras/actions.md`
-- `auras/triggers.md`
-- `auras/overlays.md`
-- `scripting/runtime.md`
+- [core/eyeauras-structure.md](/ru/scripting/api/core/eyeauras-structure)
+- [auras/entities.md](/ru/scripting/api/auras/entities)
+- [auras/actions.md](/ru/scripting/api/auras/actions)
+- [auras/triggers.md](/ru/scripting/api/auras/triggers)
+- [auras/overlays.md](/ru/scripting/api/auras/overlays)
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)

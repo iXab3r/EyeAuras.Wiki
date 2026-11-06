@@ -1,9 +1,9 @@
 ---
-title: AI Auras: Triggers
+title: AI Auras — Triggers
 description: AI-first map of aura triggers and trigger-related infrastructure.
 published: true
 date: 2026-04-21T00:00:00.000Z
-tags: scripting, api, ai, triggers
+tags: scripting, api, ai, triggers, ai-translated
 editor: markdown
 dateCreated: 2026-04-21T00:00:00.000Z
 ---
@@ -19,6 +19,56 @@ aura activation.
 - Trigger behavior is usually near `CreateTriggerEventSource`.
 - Trigger editors/metadata describe user-facing configuration.
 - Actions perform work after trigger state changes.
+
+## Trace trigger state
+
+For a configured `HotkeyIsActiveTrigger`, inspect its registration, properties and
+`CreateTriggerEventSource`, then the shared `AuraTriggerBase<TProperties>` pipeline.
+The base switches subscriptions on `TriggerScheduler` and applies disabling,
+`IsInverted`, `ActivationTimeout` and `DeactivationTimeout`. An incoming event
+therefore does not imply immediate aura activation. `IsActive` is `bool?` and can
+be unknown when disabled. The trigger owns its subscriptions. Put side effects
+in actions; for a simple C# Action key handler, start with [Keybind](../../keybinds).
+
+## Return a condition from a class
+
+Prepare current-context variables `ready` (`bool`) and `pending` (`int`), then
+add `ReadyTrigger.cs` to the C# Trigger project:
+
+```csharp
+using System.Threading;
+using System.Threading.Tasks;
+using EyeAuras.CsScriptAuras.Triggers.CsharpScript;
+
+public sealed class ReadyTrigger : CsharpScriptTriggerExecutor
+{
+    protected override Task<bool?> Execute(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var ready = Variables.Get<bool>("ready").Value;
+        var pending = Variables.Get<int>("pending").Value;
+        return Task.FromResult<bool?>(ready && pending == 0);
+    }
+}
+```
+
+Call it explicitly from `Script.csx`:
+
+```csharp
+{
+    using var trigger = GetService<ReadyTrigger>();
+    return await trigger.Run(cancellationToken);
+}
+```
+
+`ready = true` and `pending = 0` return `true`; default-reading an absent `ready`
+returns `false`. Check presence and type separately for mandatory configuration.
+The container supplies the executor's host context. `true`, `false` and `null`
+represent satisfied, unsatisfied and unknown conditions before trigger inversion
+and delays. Return one evaluation to the host; configure the C# Trigger period
+for repeated evaluation. A disabled period need not produce regular evaluations.
+Long work delays the result and remains subject to cancellation and the trigger's
+execution timeout.
 
 ## API Details
 
@@ -83,8 +133,8 @@ aura activation.
 
 ## Related Maps
 
-- `auras/entities.md`
-- `auras/actions.md`
-- `windows-subsystems/input-hooks-hotkeys.md`
-- `windows-subsystems/window-handles.md`
-- `computer-vision/images.md`
+- [auras/entities.md](/en/scripting/api/auras/entities)
+- [auras/actions.md](/en/scripting/api/auras/actions)
+- [windows-subsystems/input-hooks-hotkeys.md](/en/scripting/api/windows-subsystems/input-hooks-hotkeys)
+- [windows-subsystems/window-handles.md](/en/scripting/api/windows-subsystems/window-handles)
+- [computer-vision/images.md](/en/scripting/api/computer-vision/images)

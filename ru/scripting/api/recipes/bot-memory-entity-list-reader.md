@@ -25,7 +25,7 @@ dateCreated: 2026-04-22T00:00:00.000Z
 
 ## Пример
 
-[Assault Cube 1.3.0.2 Radar](https://eyeauras.net/share/S20241111183049Hs524Q7FisJ1) — это очень маленький публичный pack с одной аурой `CsharpScript`. На странице pack он описан как демо Memory API вместе с BlazorWindow для отрисовки радара.
+[Assault Cube 1.3.0.2 Radar](https://eyeauras.net/share/S20241111183049Hs524Q7FisJ1) — историческая демонстрация Memory API и BlazorWindow. Публичная страница указывает ревизию 1, EyeAuras 1.5.7733.0 и целевую игру Assault Cube 1.3.0.2. Это не подтверждает корректность смещений или работу радара на другой версии.
 
 ![Демо радара Assault Cube](https://s3.eyeauras.net/media/2024/11/ac_client_OCl6NDHXWXR9G0aC.jpg)
 
@@ -88,7 +88,7 @@ static ulong[] ReadEntityAddresses(
 
 ## Связанные материалы
 
-- `memory/processes.md`
-- `windows-subsystems/blazor-windows.md`
-- `reverse-engineering/reprocess.md`
-- `scripting/runtime.md`
+- [memory/processes.md](/ru/scripting/api/memory/processes)
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows)
+- [reverse-engineering/reprocess.md](/ru/scripting/api/reverse-engineering/reprocess)
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)

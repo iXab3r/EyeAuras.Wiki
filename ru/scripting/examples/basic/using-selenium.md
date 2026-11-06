@@ -51,6 +51,7 @@ using (var driver = InitializeSeleniumDriver())
     driver.Navigate().GoToUrl("https://www.bing.com");
 
     Sleep(5000);
+    cancellationToken.ThrowIfCancellationRequested();
 
     // Find the search box using its name attribute
     IWebElement searchBox = driver.FindElement(By.Name("q"));
@@ -63,6 +64,7 @@ using (var driver = InitializeSeleniumDriver())
 
     // Wait for a few seconds to see the results
     Sleep(5000);
+    cancellationToken.ThrowIfCancellationRequested();
 }
 
 EdgeDriver InitializeSeleniumDriver(){
@@ -86,4 +88,15 @@ EdgeDriver InitializeSeleniumDriver(){
 }
 ```
 
-На экране должны появиться Bing и результаты запроса. `SetUpDriver` может скачать драйвер и создать файлы в рабочем окружении; точный путь напечатается в журнале. `using` завершает сессию драйвера; здесь `LeaveBrowserRunning = false`, браузер не оставляется намеренно. `Sleep` учитывает отмену скрипта, но синхронные вызовы WebDriver не получают его токен и могут ждать собственного тайм-аута. Этот пример не запускался в браузере. [Карта автоматизации браузера](/ru/scripting/api/scripting/browser-automation) помогает выбрать следующий шаг.
+На экране должны появиться Bing и результаты запроса. `SetUpDriver` может скачать драйвер и создать файлы в рабочем окружении; точный путь напечатается в журнале. `using` завершает сессию драйвера; здесь `LeaveBrowserRunning = false`, браузер не оставляется намеренно. После `Sleep` пример явно проверяет отмену. Синхронные вызовы WebDriver не получают токен скрипта и могут ждать собственного тайм-аута. Этот пример не запускался в браузере. [Карта автоматизации браузера](/ru/scripting/api/scripting/browser-automation) помогает выбрать следующий шаг.
+
+## Контракты закреплённых версий
+
+[EdgeDriver 4.24.0](https://github.com/SeleniumHQ/selenium/blob/selenium-4.24.0/dotnet/src/webdriver/Edge/EdgeDriver.cs)
+имеет используемый конструктор `(EdgeDriverService, EdgeOptions)`.
+[WebDriver.Dispose](https://github.com/SeleniumHQ/selenium/blob/selenium-4.24.0/dotnet/src/webdriver/WebDriver.cs)
+отправляет команду Quit при наличии сессии и освобождает исполнитель команд.
+[WebDriverManager 2.17.4](https://github.com/rosolko/WebDriverManager.Net/blob/2.17.4/WebDriverManager/DriverManager.cs)
+возвращает путь бинарника из `SetUpDriver`; без явной версии он выбирает Latest,
+а каталог загрузки по умолчанию основан на текущем рабочем каталоге.
+Latest не означает совпадение с версией установленного браузера.

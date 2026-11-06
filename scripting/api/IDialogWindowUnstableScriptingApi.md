@@ -3,277 +3,122 @@ title: IDialogWindowUnstableScriptingApi
 description: 
 published: true
 date: 2026-04-21T00:00:00.000Z
-tags: 
+tags: ai-translated
 editor: markdown
 dateCreated: 2024-11-03T23:15:54.436Z
 ---
+# Open a dialog from a script
 
-> AI-first navigation: see [AI Blazor Windows](./windows-subsystems/blazor-windows) for the window-hosting model and when to use dialog windows versus overlay or ImGui surfaces.
-{.is-info}
+`IDialogWindowUnstableScriptingApi` creates a Blazor window for a Razor component.
+This experimental contract refers to EyeAuras `20fd3d4` / PoeEye `0e02c98`.
+Older copied interfaces with `ShowTitleBar` and `ViewDataContext` do not describe
+this version.
+
+## Show a window and wait for close
+
+Add `HelloDialog.razor` with a public component in namespace `MyScript`:
+
+```razor
+@namespace MyScript
+<h3>Hello from EyeAuras</h3>
+<p>Close the window to continue the script.</p>
+```
+
+Run the following top-level script in desktop EyeAuras. Its UI module registers
+the dialog API and `IBlazorWindow` factory; an assembly reference does not create
+those services:
 
 ```csharp
+using EyeAuras.Shared.Scripting;
 
-/// <summary>
-/// Provides an unstable scripting API for creating and managing dialog windows in a Blazor-based environment.
-/// </summary>
-public interface IDialogWindowUnstableScriptingApi : IScriptingApi
 {
-    /// <summary>
-    /// Creates a new dialog window instance for a specified Blazor component.
-    /// </summary>
-    /// <typeparam name="T">
-    /// The type of the Blazor component to be displayed in the dialog window. Must implement <see cref="IComponent"/>.
-    /// </typeparam>
-    /// <returns>
-    /// An <see cref="IBlazorWindow"/> representing the created dialog window.
-    /// </returns>
-    /// <example>
-    /// <code>
-    /// // Create a new instance of a dialog window containing a custom Blazor component
-    /// var dialogApi = GetService<IDialogWindowUnstableScriptingApi>();
-    /// var myWindow = dialogApi.CreateWindow<MyCustomComponent>();
-    /// 
-    /// // Set properties on the window (e.g., title and size)
-    /// myWindow.Title = "Custom Dialog";
-    /// myWindow.Width = 400;
-    /// myWindow.Height = 300;
-    /// 
-    /// // Show the window modally
-    /// myWindow.ShowDialog();
-    /// </code>
-    /// </example>
-    IBlazorWindow CreateWindow<T>(object dataContext = default) where T : IComponent;
-}
-
-/// <summary>
-/// Defines the contract for a Blazor window with configurable UI properties, event-driven lifecycle, and window state operations.
-/// </summary>
-public interface IBlazorWindow : IBlazorWindowController, IDisposableReactiveObject
-{
-    /// <summary>
-    /// Gets or sets type of View which will be displayed within the window.
-    /// </summary>
-    Type ViewType { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the data context which will be assigned to View.
-    /// </summary>
-    object ViewDataContext { get; set; }
-
-    /// <summary>
-    /// Gets or sets the startup location of the window.
-    /// </summary>
-    WindowStartupLocation WindowStartupLocation { get; set; }
-}
-
-/// <summary>
-/// Defines the contract for a Blazor window with configurable UI properties, event-driven lifecycle, and window state operations.
-/// </summary>
-public interface IBlazorWindowController
-{
-    /// <summary>
-    /// Gets or sets the window resize mode, defining how the user can resize the window.
-    /// </summary>
-    ResizeMode ResizeMode { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the title bar is visible.
-    /// </summary>
-    bool ShowTitleBar { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the icon is shown in the title bar.
-    /// </summary>
-    bool ShowIconOnTitleBar { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the window should appear in the taskbar.
-    /// </summary>
-    bool ShowInTaskbar { get; set; }
-
-    /// <summary>
-    /// Gets or sets the padding around the window content.
-    /// </summary>
-    Thickness Padding { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the window should be click-through (i.e., not interactable).
-    /// </summary>
-    bool IsClickThrough { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the window is in debug mode.
-    /// </summary>
-    bool IsDebugMode { get; set; }
-
-    /// <summary>
-    /// Gets or sets the opacity of the window.
-    /// </summary>
-    double Opacity { get; set; }
-
-    /// <summary>
-    /// Gets or sets the title text of the window.
-    /// </summary>
-    string Title { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the window should remain on top of other windows.
-    /// </summary>
-    bool Topmost { get; set; }
-
-    /// <summary>
-    /// Gets or sets the horizontal position of the window.
-    /// </summary>
-    int Left { get; set; }
-
-    /// <summary>
-    /// Gets or sets the vertical position of the window.
-    /// </summary>
-    int Top { get; set; }
-
-    /// <summary>
-    /// Gets or sets the width of the window.
-    /// </summary>
-    int Width { get; set; }
-
-    /// <summary>
-    /// Gets or sets the height of the window.
-    /// </summary>
-    int Height { get; set; }
-
-    /// <summary>
-    /// Gets or sets the minimum width of the window.
-    /// </summary>
-    int MinWidth { get; set; }
-
-    /// <summary>
-    /// Gets or sets the minimum height of the window.
-    /// </summary>
-    int MinHeight { get; set; }
-
-    /// <summary>
-    /// Gets or sets the maximum width of the window.
-    /// </summary>
-    int MaxWidth { get; set; }
-
-    /// <summary>
-    /// Gets or sets the maximum height of the window.
-    /// </summary>
-    int MaxHeight { get; set; }  
-    
-    /// <summary>
-    /// Gets or sets background color of the window. Can use transparent to hide bg entirely.
-    /// </summary>
-    Color BackgroundColor { get; set; }
-
-    /// <summary>
-    /// Observable sequence for when a key is pressed while the window has focus.
-    /// </summary>
-    IObservable<KeyEventArgs> WhenKeyDown { get; }
-
-    /// <summary>
-    /// Observable sequence for when a key is released while the window has focus.
-    /// </summary>
-    IObservable<KeyEventArgs> WhenKeyUp { get; }
-
-    /// <summary>
-    /// Observable sequence for when a key is pressed before other event handlers process the input.
-    /// </summary>
-    IObservable<KeyEventArgs> WhenPreviewKeyDown { get; }
-
-    /// <summary>
-    /// Observable sequence for when a key is released before other event handlers process the input.
-    /// </summary>
-    IObservable<KeyEventArgs> WhenPreviewKeyUp { get; }
-
-    /// <summary>
-    /// Observable sequence for when the window is fully loaded and rendered.
-    /// </summary>
-    IObservable<EventArgs> WhenLoaded { get; }
-
-    /// <summary>
-    /// Observable sequence for when the window is closed.
-    /// </summary>
-    IObservable<EventArgs> WhenClosed { get; }
-
-    /// <summary>
-    /// Observable sequence for when the window is about to close, allowing cancellation.
-    /// </summary>
-    IObservable<CancelEventArgs> WhenClosing { get; }
-
-    /// <summary>
-    /// Observable sequence for when the window is activated.
-    /// </summary>
-    IObservable<EventArgs> WhenActivated { get; }
-
-    /// <summary>
-    /// Observable sequence for when the window is deactivated.
-    /// </summary>
-    IObservable<EventArgs> WhenDeactivated { get; }
-
-    /// <summary>
-    /// Occurs when a key is pressed while the window has focus.
-    /// </summary>
-    event KeyEventHandler KeyDown;
-
-    /// <summary>
-    /// Occurs when a key is released while the window has focus.
-    /// </summary>
-    event KeyEventHandler KeyUp;
-
-    /// <summary>
-    /// Occurs before any other event handlers for a key-down event.
-    /// </summary>
-    event KeyEventHandler PreviewKeyDown;
-
-    /// <summary>
-    /// Occurs before any other event handlers for a key-up event.
-    /// </summary>
-    event KeyEventHandler PreviewKeyUp;
-
-    /// <summary>
-    /// Occurs when the window is about to close, providing the option to cancel.
-    /// </summary>
-    event CancelEventHandler Closing;
-
-    /// <summary>
-    /// Occurs when the window is activated.
-    /// </summary>
-    event EventHandler Activated;
-
-    /// <summary>
-    /// Occurs when the window is deactivated.
-    /// </summary>
-    event EventHandler Deactivated;
-
-    /// <summary>
-    /// Occurs when the window is fully loaded and rendered.
-    /// </summary>
-    event EventHandler Loaded;
-
-    /// <summary>
-    /// Occurs when the window is closed.
-    /// </summary>
-    event EventHandler Closed;
-
-    /// <summary>
-    /// Hides the window, making it invisible without closing it.
-    /// </summary>
-    void Hide();
-
-    /// <summary>
-    /// Shows the window, making it visible.
-    /// </summary>
-    void Show();
-
-    /// <summary>
-    /// Shows the window as a modal dialog, blocking other interactions until closed.
-    /// </summary>
-    void ShowDialog(CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Closes the window, releasing all associated resources.
-    /// </summary>
-    void Close();
+    var dialogs = GetService<IDialogWindowUnstableScriptingApi>();
+    using var window = dialogs.CreateWindow<MyScript.HelloDialog>();
+    window.Title = "Dialog example";
+    window.Width = 400;
+    window.Height = 300;
+    window.ShowDialog(cancellationToken);
+    Log.Info("Dialog wait completed");
 }
 ```
+
+The window displays the component text. `ShowDialog` waits for close while the WPF
+implementation continues dispatcher message processing. It handles token cancellation
+internally, so do not require an `OperationCanceledException` at the caller.
+`using` also releases the window when an exception leaves the script.
+
+`CreateWindow<T>(object dataContext = default)` sets `ViewType`, `DataContext` and
+`AutoOwner = false`, and adds the window to the API's resources. It does not promise
+automatic ownership by another application window. For a modeless window, use
+`Show()` and retain ownership until the work ends; a using scope containing only
+Show ends its lifetime immediately.
+
+## Pass a model and await a modeless window
+
+Add an ordinary `WindowStatus.cs` file to the same project:
+
+```csharp
+namespace MyScript;
+
+public sealed class WindowStatus
+{
+    public string Text { get; init; }
+}
+```
+
+Create `StatusPanel.razor`, receiving the model through `DataContext`:
+
+```razor
+@namespace MyScript
+@using PoeShared.Blazor
+@inherits BlazorReactiveComponent<WindowStatus>
+
+@if (DataContext != null)
+{
+    <p>@DataContext.Text</p>
+}
+```
+
+In top-level `Script.csx`, subscribe before showing the window and then await close:
+
+```csharp
+using System;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
+using EyeAuras.Shared.Scripting;
+
+{
+    var runToken = cancellationToken;
+    var dialogs = GetService<IDialogWindowUnstableScriptingApi>();
+    var model = new MyScript.WindowStatus { Text = "Window ready" };
+    using var window = dialogs.CreateWindow<MyScript.StatusPanel>(model);
+    window.Title = "Status";
+    window.Width = 400;
+    window.Height = 240;
+
+    var closed = window.WhenClosed.Take(1).ToTask(runToken);
+    window.Show();
+    try
+    {
+        await closed;
+        Log.Info("Window closed");
+    }
+    catch (OperationCanceledException) when (runToken.IsCancellationRequested)
+    {
+        Log.Info("Window display stopped");
+    }
+}
+```
+
+The window displays `Window ready`. Its close button completes the wait; Stop
+cancels it. `Take(1)` ends the subscription after the first close, and cancellation
+ends it on Stop. `using` releases the window in either case. `Show()` returns
+immediately; showing alone defines no script duration. `Hide()` is not Close.
+
+The model is immutable after construction in this example. Mutable state needs
+notifications and UI refresh; see [Blazor](core/blazor). The model is not a Razor
+global. Use `DataContext`, not the obsolete `ViewDataContext` alias.
+
+See [IBlazorWindow](IBlazorWindow) for properties, events and native geometry.
+Native file dialogs from Razor use separate wrappers described in the
+[Blazor window map](windows-subsystems/blazor-windows).

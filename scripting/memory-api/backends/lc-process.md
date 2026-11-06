@@ -13,6 +13,40 @@ dateCreated: 2026-04-16T18:25:00.000Z
 
 For the Memory API, this matters for one simple reason: you still get the familiar `IProcess`-like layer with modules, regions, `MemoryOfModule(...)`, imports, exports, and signatures, but the memory source is different.
 
+## Attach a source to an analysis tool
+
+Choose FPGA, guest VM or WinPMEM first. Supply its configured native components and a PID from that source; a local UI process PID may identify a different target. Pass the resulting IProcess to the tool, enumerate its modules, then apply offsets for the target application version.
+
+The resulting data can feed PE parsing or signature search. Freshness, write support and native initialization are backend contracts. Keep the source alive while readers and memory views use it, and stop consumers before releasing it.
+
+## Factories, arguments and ownership in the current source
+
+The managed wrapper contract was checked at `c8b2304`: [LCProcess](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.MPFS/LCProcess.cs), [builder contract](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.MPFS/ILCProcessBuilder.cs), [arguments](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.MPFS/LCProcessArgumentsBuilder.cs), [memory backend](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.MPFS/Internal/LCMemoryBackend.cs).
+
+| Factory or operation | Behavior |
+| --- | --- |
+| `LCProcess.FPGA()` | Selects device `FPGA` and waits for initialization |
+| `LCProcess.WinPMEM()` | Selects device `pmem` and waits for initialization |
+| `LCProcess.HyperV()` | Selects device `hvmm` and waits for initialization |
+| `UseVirtualMachineByIndex(index)` | Changes device to `hvmm://id=<index>` |
+| `LCProcess.Custom(args)` | Passes additional arguments without enabling initialization waiting itself |
+| `WaitForInitialize(true)` / `WithPrinting(true)` | Adds `-waitinitialize` / `-printf` |
+| `GetProcesses()` | Creates a temporary VMM, returns a process-list snapshot and disposes the VMM |
+| `ByProcessId` / `ByProcessName` | Creates a separate VMM; a successful `LCProcess` owns it and its memory backend/accessor |
+
+The builder stores arguments and does not implement `IDisposable`. Create a new
+builder for a separate connection: the current argument builder appends settings
+to its list, so building the same instance repeatedly can duplicate arguments.
+Dispose the returned `ILCProcess` after its consumers finish.
+`ListVirtualMachines()` creates a separate temporary VMM without passing this
+builder's arguments; do not treat it as the list of an already configured connection.
+
+This is wrapper source review, not execution of MemProcFS, FPGA, Hyper-V or
+WinPMEM. Native libraries, the device and Windows compatibility remain environment
+requirements. A PID belongs to the selected memory source. Backend reads request
+`NoCache`, which does not promise a coherent point-in-time snapshot of all process
+regions. The following examples need a prepared source.
+
 ## ELI5: what are `DMA`, `FPGA`, and why is `Hyper-V` involved?
 
 - `DMA` means **Direct Memory Access**. In this scenario, memory is read through a lower-level, more external path instead of regular `OpenProcess`.

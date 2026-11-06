@@ -3,7 +3,7 @@ title: AI Scripting: Reactive Lifetime
 description: AI-first map for DisposableReactiveObject, Anchors, AddTo, and script property-change weaving.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, disposable, reactive, lifetime
+tags: scripting, api, ai, disposable, reactive, lifetime, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -12,7 +12,7 @@ dateCreated: 2026-04-22T00:00:00.000Z
 Reference map for classes that need disposal, property-change notifications, or
 both in scripts and mini-apps.
 
-Use `core/reactivity.md` for `PropertyBinder`, Rx/ReactiveUI, DynamicData, and
+Use [core/reactivity.md](/en/scripting/api/core/reactivity) for `PropertyBinder`, Rx/ReactiveUI, DynamicData, and
 live collection patterns built on top of this lifetime model.
 
 ## User Intents
@@ -55,44 +55,66 @@ live collection patterns built on top of this lifetime model.
 
 ## Common Flows
 
-### Own Resources In A Helper Object
+### Dispose a subscription with its owner
+
+Run this in `Script.csx`. Work happens when items are added; there is no timer
+or background task. An ordinary helper class needs the same imports and PoeShared
+reference, with the script logger passed explicitly.
+
+```csharp
+using System;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Reactive.Disposables;
+using PoeShared.Logging;
+using PoeShared.Scaffolding;
+
+{
+    var items = new ObservableCollection<string>();
+    using var observer = new ItemObserver(items, Log);
+    items.Add("First");
+    items.Add("Second");
+}
+
+public sealed class ItemObserver : DisposableReactiveObject
+{
+    public ItemObserver(ObservableCollection<string> items, IFluentLog log)
+    {
+        NotifyCollectionChangedEventHandler handler = (_, _) =>
+            log.Info($"Items: {items.Count}");
+        items.CollectionChanged += handler;
+        Disposable.Create(() => items.CollectionChanged -= handler).AddTo(Anchors);
+    }
+}
+```
+
+The log reports counts 1 and 2. Leaving the block disposes the observer;
+its anchors remove the handler. The collection remains borrowed.
+For a whole Run, `.AddTo(ExecutionAnchors)` is an alternative owner. Those
+anchors are disposed when the script body returns, even without cancellation.
+Sandbox `Anchors` live longer than a Run; a helper object's `Anchors` belong to
+that instance. Choose one owner and do not add borrowed host services to it.
+
+### Notify UI bindings about state
+
+`DisposableReactiveObject` implements `INotifyPropertyChanged` but does not
+rewrite setters by itself. With the script weaver or configured PropertyChanged.Fody,
+use an auto-property for simple mutable state:
 
 ```csharp
 using PoeShared.Scaffolding;
 
-sealed class AttachedWindow : DisposableReactiveObject
+public sealed class ReaderState : DisposableReactiveObject
 {
-    private readonly ReProcess reProcess;
-
-    public AttachedWindow(IProcess process, ReProcess reProcess, IWindowHandle window)
-    {
-        this.reProcess = reProcess;
-
-        process.AddTo(Anchors);
-        reProcess.AddTo(Anchors);
-        window.AddTo(Anchors);
-    }
+    public bool IsAttached { get; set; }
 }
 ```
 
-### Add Property State For UI Binding
-
-```csharp
-sealed class ReaderState : DisposableReactiveObject
-{
-    private bool isAttached;
-
-    public bool IsAttached
-    {
-        get => isAttached;
-        set => RaiseAndSetIfChanged(ref isAttached, value);
-    }
-}
-```
-
-With the script/runtime weaver or Fody in project code, simple auto-properties
-may also get notification behavior. Use explicit setters when the code must be
-obvious without knowing the weaver.
+Create the model and bind it to your UI; this declaration does not create a
+window. Without weaving, the auto-property does not notify. Use a custom setter
+when assignment needs additional behavior. Notifications do not marshal work to
+the UI thread; scheduling and component refresh remain separate responsibilities.
+See [Blazor](../core/blazor).
 
 ### Use Logger-Aware Base Carefully
 
@@ -115,8 +137,7 @@ should stay tied to the user's script session.
   that own multiple disposables.
 - Prefer `.AddTo(Anchors)` for subscriptions, windows, readers, timers,
   sessions, and child objects.
-- Prefer explicit `RaiseAndSetIfChanged` when property notification behavior
-  must be clear in plain C#.
+- Prefer auto-properties for simple state with configured weaving; use custom setters for assignment-time behavior.
 - Prefer `DisposableReactiveObjectWithLogger` only when a type logger is the
   right diagnostic context.
 
@@ -158,10 +179,23 @@ should stay tied to the user's script session.
 
 ## Related Maps
 
-- `core/reactivity.md`
-- `scripting/runtime.md`
-- `scripting/logging.md`
-- `scripting/async.md`
-- `core/app-runtime-contexts.md`
-- `windows-subsystems/blazor-windows.md`
-- `nuget/imgui-sdk.md`
+- [core/reactivity.md](/en/scripting/api/core/reactivity)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [scripting/logging.md](/en/scripting/api/scripting/logging)
+- [scripting/async.md](/en/scripting/api/scripting/async)
+- [core/app-runtime-contexts.md](/en/scripting/api/core/app-runtime-contexts)
+- [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows)
+- [nuget/imgui-sdk.md](/en/scripting/api/nuget/imgui-sdk)
+
+
+## Script weaver boundary
+
+`DefaultAuraScriptFactory` includes `NotifyPropertyChangedRewriterVisitor`,
+which applies the assembly weaver after compilation. The weaver looks for a
+compatible instance `RaiseAndSetIfChanged<T>(ref T, T, string)` on the type
+or its base classes. Merely implementing `INotifyPropertyChanged` is not enough.
+Recognized auto-property setters are rewritten through that helper;
+`DoNotNotify` on a property or setter excludes it. This does not promise the
+complete PropertyChanged.Fody feature set for arbitrary script classes.
+
+[Weaver at c8b2304](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Repl/Weavers/AddNotifyPropertyChangedWeaver.cs).

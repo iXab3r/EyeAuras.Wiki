@@ -3,7 +3,7 @@ title: Recipe: Mini-App With Custom AI Chat Interface
 description: Short recommendation recipe for adding a custom AI chat interface to a script editor or mini-app.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, recipe, blazor
+tags: scripting, api, ai, recipe, blazor, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -23,6 +23,16 @@ dateCreated: 2026-04-22T00:00:00.000Z
   at.
 - The chat may call tools such as docs search, diagnostics, or safe editor
   actions.
+
+## Attach chat to one editor tab
+
+This is an integration inside a working EyeAuras Blazor host, not a standalone runtime bootstrap. Supply a configured `AiEngine`, a model profile with key resolution, `IAiSpeechToTextService` for the view model, AI UI static assets, and the tab owner. Pass editor context explicitly; the current document, selection and diagnostics do not become model context automatically.
+
+The owner calls `AiEngine.CreateSession(context, options)`, creates `new AiChatViewModel(session, speechToTextService)`, and passes it as `DataContext` to `AiChatComponent`. `CreateSession` selects the first configured profile, if one exists; show missing-profile state before sending. The component loads CSS/JS through `_content/EyeAuras.AI`, so a view model alone is not a configured UI host.
+
+Before sending, update the permitted editor context. Add tools to the session plugin host, separating inspection, edit proposals and application of changes. Invocation policy and the tool enforce changes; model response text does not grant access. Documentation retrieval is optional for displaying the panel.
+
+The expected result is a conversation and tool surface scoped to the selected tab. On close, cancel current work, dispose the UI/view model and call `AiEngine.RemoveSession(session.SessionId)` to remove and dispose the registered session. Component disposal does not unregister the session. Provider requests and keys are external inputs, not validated by this integration outline.
 
 ## Shape
 
@@ -64,7 +74,15 @@ dateCreated: 2026-04-22T00:00:00.000Z
 
 ## Related Maps
 
-- `ml/ai-runtime.md`
-- `ml/ai-kernel-plugins.md`
-- `scripting/runtime.md`
-- `windows-subsystems/blazor-windows.md`
+- [ml/ai-runtime.md](/en/scripting/api/ml/ai-runtime)
+- [ml/ai-kernel-plugins.md](/en/scripting/api/ml/ai-kernel-plugins)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows)
+
+## Ownership in the editor factory
+
+At `c8b2304`, `IScriptAiChatSessionFactory.CreateSession(scriptRunner, context)` loads profiles and applies its registered configurators to the new session. The workspace configurator receives `scriptRunner.Script`; it does not automatically read every visible selection. The returned `IAiChatSessionHandle` removes the session from its engine on disposal, falling back to direct session disposal if it is no longer registered.
+
+`AiChatViewModel` owns its event queue, timeline, subscriptions and request cancellation source. Disposal requests cancellation and clears the session event sink; it does not dispose the borrowed session or speech service. Use one active event-sink owner per session: replacing the sink or disposing another attached view model can disconnect the UI. `AiChatComponent.DisposeAsync` stops its heartbeat and releases JavaScript listeners/module; the tab owner still owns its view model and session handle.
+
+[Source contracts](https://github.com/iXab3r/EyeAuras/tree/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.AI/UI)

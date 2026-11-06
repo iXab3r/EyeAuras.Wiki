@@ -3,7 +3,7 @@ title: AI NuGet: CLink RPC
 description: AI-first map for proto-first generated CLink RPC services and the reusable managed CLinkRPC runtime.
 published: true
 date: 2026-05-22T00:00:00.000Z
-tags: scripting, api, ai, clink, rpc, protobuf, nuget, ipc
+tags: scripting, api, ai, clink, rpc, protobuf, nuget, ipc, ai-translated
 editor: markdown
 dateCreated: 2026-05-22T00:00:00.000Z
 ---
@@ -12,6 +12,20 @@ dateCreated: 2026-05-22T00:00:00.000Z
 Reference map for optional `EyeAuras.CLink.Rpc` APIs: reusable CLinkRPC
 sessions, CLink connection transport adaptation, and proto-first generated
 service clients and servers.
+
+This page preserves the Wiki `c950e48d` reference snapshot. The available
+EyeAuras source at `c8b2304` does not contain the CLink RPC generator/runtime.
+Exact generated signatures, ownership, handshake, streaming and peer/transport
+compatibility are not verified here. Use the tools and SDK/XML of your installed
+package before applying the examples. The Calculator sample has not been built
+or executed; `Version="..."` and `address` are integration inputs, not supplied values.
+
+
+## Choose the component contract
+
+This is an optional proto-first integration: define messages and services in `.proto`, generate client/server code, then connect compatible peers through CLink. An ordinary application owns transport, sessions and calls; script globals do not supply that setup.
+
+Install matching package/tools/MSBuild targets on both sides and supply a supported absolute transport address. The first build produces contract code, not an RPC connection. For Calculator, the expected result is Value == 5 only if the selected generator produces those types and the peers are compatible. Streaming SubscribeEvents and its DTOs must belong to your own proto; Process(item) means application processing, not a CLink method. The retained historical example is not a standalone second Calculator service.
 
 ## Concept Model
 
@@ -232,30 +246,27 @@ when that runtime exists.
 - Avoid broad DTO graphs until the proto generator and compatibility tests
   intentionally cover them.
 
-## Research Anchors
+## CLink protobuf session and generated service
 
-- `EyeAuras.CLink.Rpc`
-- `CLinkRpcSession`
-- `CLinkConnectionRpcTransport`
-- `CLinkRpcOptions`
-- generated CLink RPC client
-- generated CLink RPC server
-- protobuf request
-- protobuf response
-- descriptor fingerprint
+In the installed package, inspect `EyeAuras.CLink.Rpc`, `CLinkRpcSession`,
+`CLinkConnectionRpcTransport` and `CLinkRpcOptions` for the session/transport
+contract. A descriptor fingerprint concerns compatibility of generated
+protobuf request/response contracts, not the business meaning of a method.
 
-## Search Synonyms
 
-- CLink RPC
-- proto-first RPC
-- protobuf CLink
-- generated service
-- generated CLink client
-- CLinkRPC session
-- IPC contract
-- CLink service
+For proto-first RPC, define messages and a service in `.proto`, then build them
+with the installed `EyeAuras.CLink.Rpc` generator. The CLink RPC client and server
+need a matching IPC contract and supported transport address. A generated
+service is not a connection: after generation, run both peers and own the
+session and call-result lifetimes.
+
+The Calculator section above preserves a historical generated API shape:
+`Add(2, 3)` should return `5` only with compatible package and peer versions.
+The `CLinkRpcSession`, transport and streaming signatures here have not been
+verified against current SDK/XML. Check them in the installed package using
+the [contract version selection guide](/en/scripting/api/reference).
 
 ## Related Maps
 
-- `nuget/frida-sdk.md`
-- `memory/processes.md`
+- [nuget/frida-sdk.md](/en/scripting/api/nuget/frida-sdk)
+- [memory/processes.md](/en/scripting/api/memory/processes)

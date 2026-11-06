@@ -180,3 +180,7 @@ using EyeAuras.Memory;
 - [Чтение экспортов модулей](/ru/scripting/examples/advanced/memory/read-exports)
 - [Сканирование паттернов](/ru/scripting/api/pattern-scanning)
 - [API памяти](/ru/scripting/api/memory)
+
+В native local backend среза `c8b2304` выделение вызывает `VirtualAllocEx`, освобождение — `VirtualFreeEx` с нулевым размером и `MEM_RELEASE`. Передавайте исходную базу выделения, а не адрес внутри него. Дескриптор хранит запрошенный размер, а не округлённый ОС объём выделения. Защита следует страничным правилам Windows и возвращает прежнее значение через backend. Освобождение process-wrapper не заменяет явного освобождения созданных вами регионов.
+
+[Контракт NativeLocalProcess](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory/NativeLocalProcess.cs)

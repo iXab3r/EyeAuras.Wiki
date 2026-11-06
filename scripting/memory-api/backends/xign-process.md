@@ -18,7 +18,7 @@ Information gathering is intentionally lower-level than `LocalProcess`.
 `GetMemoryRegions()` are backed by `_EPROCESS`, PEB, loader-list, thread-list,
 and VAD structures. `XignProcess` resolves the target `_EPROCESS` from the
 driver-opened handle and then reads kernel addresses through Xign command 788
-and target user-mode addresses through command 787.
+and target user-mode addresses through the selected memory core.
 
 These information paths are fail-fast. If the current Windows build is not in
 the curated layout set, or if the required PEB/thread/VAD structures cannot be
@@ -30,6 +30,32 @@ In short:
 - `LocalProcess` — standard WinAPI
 - `LCProcess` — memory access through a DMA board
 - `XignProcess` — a local process accessed through the XignCode3 driver
+
+Creation and ownership are checked against [XignProcess at c8b2304](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.XignSdk/XignProcess.cs).
+Builder-created wrappers own their connections; wrappers over supplied connections
+borrow them. `ByProcessId` can lazily resolve EPROCESS through a temporary handle;
+name selection requires `WithEprocess(address)`. Driver observations below are
+historical, not a guarantee for your Windows version.
+
+## Pass a backend into a reader
+
+In an EyeAuras script, reference a compatible `EyeAuras.XignSdk` package and import its namespace. For ordinary C# code, add the package to the host project. Supply a real PID, driver environment and absolute field address; these are integration inputs, not values defined by the snippets.
+
+```csharp
+#r "nuget: EyeAuras.XignSdk"
+using EyeAuras.XignSdk;
+```
+
+A consumer can accept a host-owned process independently of the Xign factory:
+
+```csharp
+static int ReadHealth(EyeAuras.Memory.IProcess process, long healthAddress)
+{
+    return process.Memory.Read<int>(healthAddress);
+}
+```
+
+The result is an int from the selected process. healthAddress is neither an RVA nor a script-variable address. Read is synchronous and may throw. Keep the reader alive until consumers stop, then dispose it at its owner boundary.
 
 ## Why use it
 
@@ -54,10 +80,12 @@ If the driver is already loaded:
 ```csharp
 using EyeAuras.XignSdk;
 
-using var process = XignProcess.ByProcessId(pid);
+{
+    using var process = XignProcess.ByProcessId(pid);
 
-var health = process.Memory.Read<int>(healthAddress);
-process.Memory.Write<int>(healthAddress, 100);
+    var health = process.Memory.Read<int>(healthAddress);
+    process.Memory.Write<int>(healthAddress, 100);
+}
 ```
 
 If the driver needs to be loaded before opening the process:
@@ -65,52 +93,61 @@ If the driver needs to be loaded before opening the process:
 ```csharp
 using EyeAuras.XignSdk;
 
-using var process = XignProcess
-    .WithLoadDriver()
-    .ByProcessName("game.exe");
+{
+    using var process = XignProcess
+        .WithLoadDriver()
+        .ByProcessId(pid);
+}
 ```
 
 The driver is loaded through the standard SCM path. The SDK does not bypass driver signature checks or Windows policies.
 
 ## EnterOpenProcess()
 
-By default, `XignProcess` opens the process handle through the driver for the duration of each operation, then closes it afterward. That is fine for one-off calls, but it adds unnecessary overhead for a longer series of operations.
+Without a lease, memory reads and writes select the handleless core. While an
+`EnterOpenProcess()` lease is active, they select the open-handle core. Resolving
+EPROCESS by PID can separately open and close a temporary handle.
 
 `EnterOpenProcess()` keeps the handle open until you leave the `using` block:
 
 ```csharp
-using var process = XignProcess
-    .WithLoadDriver()
-    .ByProcessId(pid);
-
-using (process.EnterOpenProcess())
 {
-    var regions = process.GetMemoryRegions();
-    var module = process.MemoryOfModule("game.exe");
-    var value = process.Memory.Read<int>(address);
+    using var process = XignProcess
+        .WithLoadDriver()
+        .ByProcessId(pid);
+
+    using (process.EnterOpenProcess())
+    {
+        var regions = process.GetMemoryRegions();
+        var module = process.MemoryOfModule("game.exe");
+        var value = process.Memory.Read<int>(address);
+    }
 }
 ```
 
 Use it around batches of reads/writes, module or region enumeration, manual mapping, or allocation/write/execute sequences. Nested `EnterOpenProcess()` calls reuse the same handle and only close it after the last scope exits.
 
-If the handle should stay open for the entire lifetime of the object, create the process with `WithOpenProcess()`:
+To keep the handle open throughout a block, hold a separate lease next to the process.
+The current builder has no `WithOpenProcess()` method:
 
 ```csharp
-using var process = XignProcess
-    .WithLoadDriver()
-    .WithOpenProcess()
-    .ByProcessId(pid);
+{
+    using var process = XignProcess
+        .WithLoadDriver()
+        .ByProcessId(pid);
+    using var lease = process.EnterOpenProcess();
+    // Use the process while the lease is open.
+}
 ```
 
 ## Important details
 
-`XignProcess` does not mean every method is a separate driver command. Some operations go through Xign, while others use normal WinAPI on top of a handle that was obtained through the driver. For Memory API users, this usually does not matter, but it is useful to know when diagnosing issues.
-
-Process information and region enumeration use structure-backed reads. Process
-control still uses the handle where the operation is inherently OS-controlled:
-allocation, protection changes, freeing memory, process/thread suspend/resume,
-remote thread creation, writes, and User APC helpers remain WinAPI-backed where
-there is no equivalent Xign command in this SDK.
+Reads and writes use the selected memory core. Allocation, free, protection
+and `ExecuteCode` delegate to the command-820 handleless core.
+`CreateRemoteThread`, process/thread suspend/resume and both `QueueUserApc`
+overloads throw `NotSupportedException` in the current wrapper. Acquiring an
+`EnterOpenProcess()` lease does not enable them. Process information and
+regions are read through process structures.
 
 `GetMemoryRegions()` reports allocated VAD-backed ranges only. It does not list
 free address-space holes, and it should not be treated as a byte-for-byte clone
@@ -118,7 +155,7 @@ of `VirtualQueryEx` output.
 
 `ExecuteCode` calls code that is already present inside the target process. For an x86 process, addresses must fit into the 32-bit user-mode range. Manual mapping is built on top of the shared `LibraryMapper`, so it uses the same `process.Memory` and `ExecuteCode` as other backends.
 
-The APC path uses regular `OpenThread` / `QueueUserAPC`, so the APC will run only when the target thread enters an alertable wait.
+Manual mapping in this source snapshot supports only x64 targets.
 
 ## Limits and requirements
 

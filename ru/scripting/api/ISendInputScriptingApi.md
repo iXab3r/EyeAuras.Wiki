@@ -19,6 +19,7 @@ dateCreated: 2025-03-21T23:36:13.915Z
 
 ```csharp
 using Microsoft.AspNetCore.Components;
+using System.Windows.Input;
 using EyeAuras.Roxy.Api;
 
 [Inject] public ISendInputScriptingApi SendInput { get; init; }
@@ -38,6 +39,7 @@ SendInput.KeyPress(Key.Enter);
 
 ```csharp
 using Microsoft.AspNetCore.Components;
+using System.Windows.Input;
 using EyeAuras.Roxy.Api;
 
 [Inject] public ISendInputScriptingApi SendInput { get; init; }
@@ -72,6 +74,7 @@ Log.Info($"Курсор после клика: {SendInput.CursorPosition}");
 
 ```csharp
 using Microsoft.AspNetCore.Components;
+using System.Windows.Input;
 using EyeAuras.Roxy.Api;
 
 [Inject] public ISendInputScriptingApi SendInput { get; init; }
@@ -84,7 +87,7 @@ for (var i = 0; i < 3; i++)
 }
 ```
 
-Пример отправляет до трёх нажатий F1. Остановка скрипта прерывает `Sleep` и предотвращает следующие итерации. Однако сами операции API этой версии не принимают токен: внутренний `Send` использует `CancellationToken.None`, а `Text` синхронно ждёт контроллер без токена запуска. Не считайте остановку скрипта мгновенной отменой уже начатого ввода. Неготовый симулятор или запрещённое foreground-окно могут вызвать исключение.
+Пример отправляет до трёх нажатий F1. Stop запрашивает отмену; явная проверка токена предотвращает следующие итерации. `Sleep` при отмене может вернуться раньше, не выбрасывая исключение. Однако сами операции API этой версии не принимают токен: внутренний `Send` использует `CancellationToken.None`, а `Text` синхронно ждёт контроллер без токена запуска. Не считайте остановку скрипта мгновенной отменой уже начатого ввода. Неготовый симулятор или запрещённое foreground-окно могут вызвать исключение.
 
 Сервис привязан к контексту скрипта; не освобождайте внедрённые общие сервисы самостоятельно. Для UI-кода учитывайте синхронное ожидание: это не асинхронный API диспетчера.
 

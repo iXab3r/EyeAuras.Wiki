@@ -40,7 +40,7 @@ Log.Info($"Foreground HWND: 0x{hwnd.ToInt64():X}");
 
 static class NativeMethods
 {
-    [DllImport("user32.dll", SetLastError = true)]
+    [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();
 }
 ```
@@ -75,7 +75,8 @@ EyeAuras C# script:
 ```csharp
 using System.Runtime.InteropServices;
 
-NativeMethods.MessageBoxW(IntPtr.Zero, "Hello", "EyeAuras", 0);
+var result = NativeMethods.MessageBoxW(IntPtr.Zero, "Hello", "EyeAuras", 0);
+Log.Info($"MessageBox result: {result}");
 
 static class NativeMethods
 {
@@ -106,6 +107,16 @@ charset, calling convention, and lifetime rules.
 | `CallbackCreate` | delegate plus `Marshal.GetFunctionPointerForDelegate(...)` | Keep the delegate alive for as long as native code can call it. |
 | `Cdecl` option | `CallingConvention = CallingConvention.Cdecl` | Use only when the native function is actually cdecl. |
 
+The examples run in a top-level C# Action on Windows. The first logs a numeric
+HWND that may be zero; it neither creates nor owns a window. The second displays
+a modal Hello dialog, waits for it to close and logs the returned button code.
+Neither native call receives the script cancellation token. These examples do
+not define a wrapper for arbitrary callbacks or ABIs.
+
+Contracts: [GetForegroundWindow](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow)
+and [MessageBoxW](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxw).
+Check the function-specific contract when translating another DLL call.
+
 ## Verification Links
 
 - AHK docs:
@@ -117,6 +128,11 @@ charset, calling convention, and lifetime rules.
 - EyeAuras docs:
   [Window Handles](../windows-subsystems/window-handles),
   [Scripting Runtime](../scripting/runtime).
-- EyeAuras source:
-  [UnsafeNative.WindowUtils.cs](../../../../../Sources/PoeShared.Native/Native/UnsafeNative.WindowUtils.cs),
-  [WindowHandleExtensions.cs](../../../../../Sources/PoeShared.Wpf/Scaffolding/WindowHandleExtensions.cs).
+- EyeAuras contracts: [window handles](/en/scripting/api/windows-subsystems/window-handles).
+
+A function pointer does not keep its managed delegate alive. Keep a strong
+reference until native callbacks are unregistered and no callback can still run.
+Use the generic `Marshal.GetFunctionPointerForDelegate<TDelegate>` overload and
+an ABI-compatible delegate signature; unregister before releasing its owner.
+
+[Marshal callback contract](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.marshal.getfunctionpointerfordelegate).

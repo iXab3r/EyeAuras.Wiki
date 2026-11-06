@@ -78,7 +78,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 ## Что лучше делать
 
 - Начинайте с регистраций модуля, если хотите найти пользовательские сущности.
-- Для семантики регистрации и фабрик используйте `auras/entities.md`.
+- Для семантики регистрации и фабрик используйте [auras/entities.md](/ru/scripting/api/auras/entities).
 - Для регистраций из опциональных SDK-пакетов смотрите карты пакетов в `nuget/`.
 
 ## Чего лучше избегать
@@ -102,3 +102,18 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - [overview](../auras/overview)
 - [app-runtime-contexts](app-runtime-contexts)
 - [configuration-persistence](configuration-persistence)
+
+## Завершение загрузчика и проверка payload
+
+В исходниках `c8b2304` `AppModuleConfigurator` проверяет подпись инвентаря.
+Хеши и размеры payload остаются метаданными инвентаря. Лицензируемый загрузчик
+фильтрует полученные при авторизации ключи по выбранным модулям и blacklist,
+затем загружает зашифрованные payload, если не включён lazy mode. Его сигнал
+готовности возможен и при пустом выборе или записанных в лог ошибках отдельных
+модулей: это не доказательство загрузки всех запрошенных сборок. Embedded
+`EnsureReadyAsync` отдельно проверяет статус payload и состояние инициализации
+Prism-модулей. Ошибка первичного загрузчика передаётся через `LoadModules()`;
+один observable готовности не является каналом ошибок.
+
+[AppModuleConfigurator](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Prism/Modularity/AppModuleConfigurator.cs),
+[LicensedModuleLoader](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Loader/Services/LicensedModuleLoader.cs).

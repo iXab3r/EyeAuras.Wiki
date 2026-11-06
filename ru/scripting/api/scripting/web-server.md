@@ -194,8 +194,24 @@ using Microsoft.Extensions.DependencyInjection;
 
 ## Связанные карты
 
-- `scripting/runtime.md`
-- `scripting/references-and-resources.md`
-- `scripting/project-workflow.md`
-- `scripting/container-extensions.md`
-Срез EyeAuras `20fd3d4`, PoeEye `0e02c98`; свойства сборки указывают ASP.NET Core 7.0.0. Реализация ASP.NET поставляется внешними сборками: точные контракты смотрите в reference своей версии, а доступность порта проверяйте запуском.
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)
+- [scripting/references-and-resources.md](/ru/scripting/api/scripting/references-and-resources)
+- [scripting/project-workflow.md](/ru/scripting/api/scripting/project-workflow)
+- [scripting/container-extensions.md](/ru/scripting/api/scripting/container-extensions)
+В desktop-проекте среза `c8b2304` указан `Microsoft.Extensions.Hosting 8.0.19`.
+Неиспользуемое свойство `AspNetCoreVersion=7.0.0` само по себе не определяет
+версию загруженных сборок. Проверяйте сборки установленного host.
+
+По [исходникам RunAsync 8.0.19](https://github.com/dotnet/runtime/blob/v8.0.19/src/libraries/Microsoft.Extensions.Hosting.Abstractions/src/HostingAbstractionsHostExtensions.cs)
+отмена вызывает `StopApplication`, затем ожидается остановка и вызывается
+`StopAsync` без уже отменённого токена. `RunAsync` сам освобождает host в `finally`,
+в том числе при ошибке запуска. Это не принудительная отмена любых задач обработчика.
+
+[Kestrel](https://github.com/dotnet/aspnetcore/blob/v8.0.19/src/Servers/Kestrel/Core/src/KestrelServerOptions.cs)
+различает loopback и все интерфейсы; номер порта не включает TLS.
+[MVC discovery](https://github.com/dotnet/aspnetcore/blob/v8.0.19/src/Mvc/Mvc.Core/src/Controllers/ControllerFeatureProvider.cs)
+выбирает публичные невложенные неабстрактные контроллеры без открытых generic-параметров.
+[AddApplicationPart](https://github.com/dotnet/aspnetcore/blob/v8.0.19/src/Mvc/Mvc.Core/src/DependencyInjection/MvcCoreMvcBuilderExtensions.cs)
+добавляет части сборки, а [MapControllers](https://github.com/dotnet/aspnetcore/blob/v8.0.19/src/Mvc/Mvc.Core/src/Builder/ControllerEndpointRouteBuilderExtensions.cs)
+требует регистрации сервисов контроллеров. Это проверка исходников, без запуска
+данного скрипта EyeAuras или подключения внешнего клиента.

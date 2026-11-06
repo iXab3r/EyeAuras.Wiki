@@ -58,6 +58,7 @@ while (SendInput.IsMouseDown(MouseButton.Left) && !cancellationToken.IsCancellat
 {
     Sleep(10);
 }
+cancellationToken.ThrowIfCancellationRequested();
 ```
 
 **Рекомендация:** неудобно, но как низкоуровневый запасной вариант использовать можно. Небольшой helper вроде `WaitUntilReleased(...)` был бы дружелюбнее; вопросы timeout, logical vs physical state и семантики down vs up отслеживаются в [AHK Gaps](./ahk-gaps).
@@ -82,7 +83,7 @@ SendInput.MouseLeftClick(100, 200);
 
 При стандартном `Windows Input` точка `(100, 200)` задана на виртуальном рабочем столе. Пример AHK выше зависит от текущего `CoordMode`, поэтому без явного выбора системы координат это не полная эквивалентность. `TargetWindow` не делает ввод фоновым и не задаёт универсальное преобразование координат для всех симуляторов.
 
-`IsKeyDown` / `IsMouseDown` читают состояние выбранного контроллера, а не подтверждённый аналог всех режимов AHK logical/physical. В цикле выше `Sleep(10)` учитывает отмену запуска; таймаут ожидания не задан. Сами вызовы ввода синхронны и не получают токен запуска автоматически. Настройки задержек и ограничения — в [операциях SendInput](../ISendInputScriptingApi).
+`IsKeyDown` / `IsMouseDown` читают состояние выбранного контроллера, а не подтверждённый аналог всех режимов AHK logical/physical. В текущем provider `Sleep(10)` сам не учитывает отмену; здесь её проверяют условие цикла и следующий checkpoint. Таймаут ожидания не задан. Сами вызовы ввода синхронны и не получают токен запуска автоматически. Настройки задержек и ограничения — в [операциях SendInput](../ISendInputScriptingApi).
 
 ## Ссылки для проверки
 
@@ -103,3 +104,12 @@ SendInput.MouseLeftClick(100, 200);
   [ISendInputScriptingApi](../ISendInputScriptingApi),
   [Input, Hooks, Hotkeys](../windows-subsystems/input-hooks-hotkeys).
 - Контракты EyeAuras: [контекст скрипта](../scripting/runtime), [ввод](../ISendInputScriptingApi), [окна](../windows-subsystems/window-handles). Точные типы и сигнатуры сверяйте с SDK/XML своей версии; базовый срез — EyeAuras `20fd3d4`, PoeEye `0e02c98`.
+
+AHK v2 по умолчанию задаёт координаты относительно client area активного окна.
+Для сравнения с desktop-координатами примера используйте в AHK
+`CoordMode "Mouse", "Screen"`. `GetKeyState` по умолчанию читает logical state;
+`P` означает physical, `T` — toggle. У `KeyWait` исходный режим — physical release,
+`D` меняет его на нажатие, `L` — на logical state, `T` задаёт timeout в секундах.
+Физическое отслеживание зависит от hooks; один polling-вызов не заменяет все режимы.
+
+[AHK v2 coordinate modes](https://github.com/AutoHotkey/AutoHotkeyDocs/blob/v2/docs/lib/CoordMode.htm).
