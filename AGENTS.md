@@ -45,6 +45,12 @@ New branches default to `bugfix/`; preserve explicitly requested or existing own
 
 Most AI-first API documentation lives under `/scripting/api`.
 
+When authoring, updating or auditing API documentation, use the
+[api-docs-author role](docs/roles/api-docs-author.md) and its
+[API documentation practice](docs/practices/api-documentation.md).
+The role owns the documentation workflow; the discovery maps below supply domain context.
+Available roles are listed in the [role index](docs/roles/README.md).
+
 Start with [scripting/api/AGENTS.md](scripting/api/AGENTS.md) when working on scripting APIs, SDK-facing
 examples, mini-apps, optional NuGet packages, windows/OSD/input, memory,
 computer vision, ML, reverse-engineering, auras, triggers, actions, overlays, or
