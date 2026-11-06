@@ -24,6 +24,73 @@ This is especially useful if you:
 - use modular packages like ImGui or Frida
 - want your helper classes to be created through DI instead of `new`
 
+## Register and resolve a complete service
+
+Add `CounterServices.cs` to the script project:
+
+```csharp
+using EyeAuras.Scripting.Api;
+using Unity;
+using PoeShared.Logging;
+
+public interface ICounter
+{
+    int Next();
+}
+
+public sealed class Counter : ICounter
+{
+    private int value;
+    public int Next() => ++value;
+}
+
+public sealed class CounterServices : ScriptContainerExtension
+{
+    protected override void Initialize()
+    {
+        Container.RegisterSingleton<ICounter, Counter>();
+    }
+}
+```
+
+Then run this in `Script.csx`:
+
+```csharp
+var counter = GetService<ICounter>();
+Log.Info($"Counter: {counter.Next()}");
+```
+
+The Event Log shows `Counter: 1`, then `Counter: 2` on another Run with the same context. This is one instance per script container. Recreating that context resets it; concurrent callers would need synchronization.
+
+The runtime discovers concrete `ScriptContainerExtension` types in the compiled container assembly when creating the context, before script execution. This project extension is automatic. Referencing an arbitrary DLL does not guarantee registration of every extension it contains.
+
+To pass dependencies into an ordinary class, add this to the same file:
+
+```csharp
+public sealed class CounterReporter
+{
+    private readonly ICounter counter;
+    private readonly IFluentLog log;
+
+    public CounterReporter(ICounter counter, IFluentLog log)
+    {
+        this.counter = counter;
+        this.log = log;
+    }
+
+    public void Report() => log.Info($"Counter: {counter.Next()}");
+}
+```
+
+Add `Container.RegisterType<CounterReporter>();` to `Initialize()`, then run:
+
+```csharp
+var reporter = GetService<CounterReporter>();
+reporter.Report();
+```
+
+DI supplies the shared counter and script logger. Resolving a service does not establish ownership; do not assume every `GetService` result must be disposed manually or is automatically disposed for you.
+
 ## Why you need it
 
 EyeAuras already gives you a sandbox and a set of built-in services. But sometimes you want to add your own things to the container, for example:
@@ -66,7 +133,7 @@ But `MyHelper` is just a regular C# class. It does not have direct access to `Lo
 
 That is why container extensions are especially useful for related classes: they let DI create those classes and automatically inject their constructor dependencies.
 
-## A realistic example from a game bot
+## A registration sketch for a game bot
 
 In a real bot, an extension usually registers more than just a simple “counter” service.
 
@@ -77,7 +144,7 @@ A typical example looks like this:
 - `IBotBrain` makes decisions based on ready-made services
 - the UI can live in ImGui or Blazor and read the same data
 
-A simplified extension might look like this:
+The following is a registration sketch. `EntityManager`, `GeodataManager`, `BotBrain` and the UI types belong to your project; this is not a standalone runnable sample:
 
 ```csharp
 public sealed class BotContainerExtensions : ScriptContainerExtension
@@ -201,7 +268,9 @@ var frida = GetService<IFridaExperimentalApi>();
 
 This is convenient because you only enable the subsystems your script actually needs.
 
-Live examples:
+The SDK versions in these examples are historical package choices; check restore and compatibility with your installed host. Current source registers both APIs through `RegisterType`, so their resolved instances are owned by the caller. Full UI and instrumentation lifetimes are described in the [ImGui SDK map](/en/scripting/api/nuget/imgui-sdk) and [Frida SDK map](/en/scripting/api/nuget/frida-sdk).
+
+Larger examples:
 
 - [Aim Trainer ML](/scripting/examples/advanced/aimtrainer-ml)
 - [YOLO11 ESP](/scripting/examples/advanced/yolo11-esp)
@@ -231,15 +300,15 @@ is DI-container-level code inside the extension itself.
 
 ## How the runtime discovers `ScriptContainerExtension`
 
-EyeAuras scans loaded assemblies and looks for classes that inherit from `ScriptContainerExtension`.
+At context creation EyeAuras scans the compiled container assembly for concrete `ScriptContainerExtension` types. This is not a guarantee that every arbitrary loaded DLL is scanned.
 
-During script setup, the runtime can also:
+During one-time script-object setup, the runtime can also:
 
 - inspect properties on the script object
 - fill properties marked with `[Dependency]`
 - fill properties marked with `[Inject]`
 
-So the extension is responsible for registering services, and the runtime helps you use those services inside the script.
+Properties with setters, including `init`, are filled during one-time setup, not on every Run. Manual extension registration inside the script does not rerun property injection. Resolve newly registered services explicitly after registration.
 
 ## `[Inject]`, `[Dependency]`, and `GetService<T>()` alongside extensions
 

@@ -56,7 +56,12 @@ static int ReadHealth(EyeAuras.Memory.IProcess process, long healthAddress)
 
 Возвращается значение `int` из памяти выбранного процесса; `healthAddress` — не RVA и не адрес переменной в вашем скрипте. `Read<int>` синхронен и может бросить исключение. Владелец должен удерживать reader живым до завершения чтений и освободить его после остановки потребителей.
 
-Контракт этого чтения сверён с EyeAuras `20fd3d4`. Последующие фабрики, lease и сведения о драйвере — историческое описание Wiki `c950e48d`: реализации `EyeAuras.XignSdk` для сверки нет. Точные сигнатуры, владение подключением и поведение драйвера требуют соответствующей версии пакета. Наблюдение от 1 мая ниже относится к прежней проверке автора, а не к гарантии на вашей машине.
+Создание и владение сверены с [XignProcess на c8b2304](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.XignSdk/XignProcess.cs).
+Builder создаёт собственное подключение; wrapper поверх переданного подключения
+его не освобождает. `ByProcessId` допускает ленивое разрешение `_EPROCESS` через
+временный handle. Выбор по имени требует `WithEprocess(address)`.
+Драйверные наблюдения ниже исторические, не гарантия вашей версии Windows.
+
 
 ## Зачем он нужен
 
@@ -113,7 +118,7 @@ using EyeAuras.XignSdk;
 {
     using var process = XignProcess
         .WithLoadDriver()
-        .ByProcessName("game.exe");
+        .ByProcessId(pid);
 }
 ```
 
@@ -122,9 +127,9 @@ using EyeAuras.XignSdk;
 
 ## EnterOpenProcess()
 
-По умолчанию `XignProcess` открывает handle процесса через драйвер на время
-операции и закрывает его после нее. Для одиночных вызовов это нормально. Для
-серии операций это лишняя работа.
+Без lease чтение и запись выбирают handleless core. При активном lease
+`EnterOpenProcess()` используется open-handle core. Разрешение `_EPROCESS`
+по PID может отдельно открыть и закрыть временный handle.
 
 `EnterOpenProcess()` держит handle открытым до выхода из `using`:
 
@@ -148,30 +153,27 @@ manual mapping или allocation/write/execute последовательнос�
 `EnterOpenProcess()` переиспользуют тот же handle и закроют его только после
 выхода из последнего scope.
 
-Если handle должен жить весь lifetime объекта, создавайте процесс через
-`WithOpenProcess()`:
+Если handle нужен на всё время блока, удерживайте отдельный lease рядом с процессом.
+Метода `WithOpenProcess()` у текущего builder нет:
 
 ```csharp
 {
     using var process = XignProcess
         .WithLoadDriver()
-        .WithOpenProcess()
         .ByProcessId(pid);
+    using var lease = process.EnterOpenProcess();
+    // Работа с процессом, пока lease открыт.
 }
 ```
 
 ## Что важно знать
 
-`XignProcess` не означает, что каждый метод является отдельной командой
-драйвера. Часть операций идет через Xign, часть через обычный WinAPI поверх
-handle, который был получен через драйвер. Для пользователя Memory API это
-обычно не важно, но полезно понимать при диагностике.
-
-Process information и region enumeration используют structure-backed reads.
-Process control по-прежнему использует handle там, где операция по природе
-контролируется ОС: allocation, protection changes, free memory,
-process/thread suspend/resume, remote thread creation, writes и User APC helper
-остаются WinAPI-backed, если для них нет отдельной Xign-команды в SDK.
+Чтение и запись используют выбранный memory core, а allocation, free,
+protection и `ExecuteCode` направляются в command-820 handleless core.
+`CreateRemoteThread`, suspend/resume процесса и потоков и обе перегрузки
+`QueueUserApc` в текущем wrapper бросают `NotSupportedException`.
+`EnterOpenProcess()` не включает эти методы. Process information и регионы
+читаются через структуры процесса.
 
 `GetMemoryRegions()` возвращает только allocated VAD-backed ranges. Он не
 перечисляет свободные holes адресного пространства и не является побайтным
@@ -182,8 +184,7 @@ process/thread suspend/resume, remote thread creation, writes и User APC helper
 строится поверх общего `LibraryMapper`, поэтому использует тот же `process.Memory`
 и `ExecuteCode`, что и другие backend'и.
 
-APC-путь использует обычный `OpenThread` / `QueueUserAPC`, поэтому APC выполнится
-только когда целевой поток войдет в alertable wait.
+Manual mapping в этом исходном срезе разрешён только для x64 target.
 
 ## Где границы
 

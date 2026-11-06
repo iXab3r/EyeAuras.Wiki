@@ -11,7 +11,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 Краткая карта по отрисовке аннотаций поверх экрана через overlay-канвас на базе Blazor: прямоугольники, HTML-метки, Razor-компоненты и CV debug boxes.
 
-Интерактивный выбор объектов вынесен в `osd/selection.md`.
+Интерактивный выбор объектов вынесен в [osd/selection.md](/ru/scripting/api/osd/selection).
 
 ## Что обычно нужно
 
@@ -178,8 +178,8 @@ using EyeAuras.Blazor.Controls.ScreenOverlay;
 - Для кода приложения и runtime-логики используйте `IOnScreenService`.
 - Для встроенных объектов используйте `AddRectangle`, `AddHtmlObject` и `AddRazor<T>`.
 - Для очистки предпочитайте корректно освобождать объекты и canvas через dispose.
-- Для настоящих окон используйте `windows-subsystems/blazor-windows.md`.
-- Для UI на ImGui используйте `nuget/imgui-sdk.md`.
+- Для настоящих окон используйте [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows).
+- Для UI на ImGui используйте [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk).
 
 ## Чего избегать
 
@@ -208,7 +208,7 @@ using EyeAuras.Blazor.Controls.ScreenOverlay;
 
 ## Смежные карты
 
-- `osd/selection.md`
-- `windows-subsystems/blazor-windows.md`
-- `nuget/imgui-sdk.md`
-- `computer-vision/images.md`
+- [osd/selection.md](/ru/scripting/api/osd/selection)
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows)
+- [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk)
+- [computer-vision/images.md](/ru/scripting/api/computer-vision/images)

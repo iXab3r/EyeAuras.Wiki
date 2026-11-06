@@ -3,7 +3,7 @@ title: AI Discovery Maps
 description: AI-first routing map for EyeAuras scripting APIs.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, discovery
+tags: scripting, api, ai, discovery, ai-translated
 editor: markdown
 dateCreated: 2026-04-21T00:00:00.000Z
 ---
@@ -15,6 +15,8 @@ Discovery maps do not duplicate the full public API. SDK assemblies, XML docs,
 and generated metadata remain the canonical reference. These files provide
 portable routing information: relevant symbols, package or assembly hints,
 terminology, relationships between APIs, and common flows.
+
+[Full contract and version selection](/en/scripting/api/reference)
 
 ## Keep This Updated
 
@@ -59,13 +61,44 @@ single large file.
 - `recipes/` - concrete implementation recipes that assemble multiple API
   areas into project architectures.
 
+## Start from the operation
+
+| Task | Start here | Check before calling |
+| --- | --- | --- |
+| Read or change a variable | [Variables](IVariablesScriptingApi) | Owner and accessor versus typed handle |
+| Move script code to a class | [Runtime contexts](core/app-runtime-contexts) | Explicit dependencies |
+| Save settings | [Configuration](core/configuration-persistence) | Provider, new config instance and migration version |
+| Refresh Razor UI | [Blazor](core/blazor) | DataContext notifications and subscription lifetime |
+| Open a problem report | [Reports](core/error-reporting) | Desktop host and service registration |
+| Measure an operation | [Profiling](core/profiling) | Local/shared profiler and measurement boundary |
+| Await work and stop it with the script | [Async](scripting/async) | Current-run token and awaited Task |
+| Show a non-modal model window | [Dialog API](IDialogWindowUnstableScriptingApi) | Model, Razor and close/Stop wait |
+| Execute an existing macro | [AuraTree](IAuraTreeScriptingApi) | Path, ExecuteAsync(token), NodeStatus |
+| Save a setting and restart C# Action | [Runtime](scripting/runtime) | Host support, request acceptance, cooperative cancellation |
+| Create ImGui windows or button work | [ImGui](/scripting/imgui/getting-started) | Separate state, Begin/End ownership and worker completion |
+| Wait for a process window | [Window selectors](windows-subsystems/window-handles) | Process filter, HWND and cancellation |
+| Work with page DOM | [Browser automation](scripting/browser-automation) | Packages, browser and compatible driver |
+
+A complete example identifies project files, dependencies, setup, call, result and
+material limits. For subscriptions, windows and background work, state what keeps
+the script running and who releases the resource. Anchors assign cleanup; they
+do not keep execution open. Label declaration/setup fragments and link a complete
+operation. In `Script.csx`, place executable `using var` statements inside an
+explicit `{ ... }` block, leaving imports and type declarations outside; see
+[script scope](scripting/runtime).
+
+Contract versions belong to the domain page or package. These names are routing
+anchors, not proof that every service is registered in every host. Core pages
+identify their source revision and the [reference](reference) explains SDK/XML
+selection; optional packages have independent versions.
+
 ## Research Order
 
 1. Identify the product context: aura, folder, behavior tree, macro, trigger,
    action, overlay, script, or app/plugin code.
 2. Identify the execution surface: top-level script, ordinary C# class,
    object-style script executor, Razor component, or app/plugin module.
-3. Read `core/eyeauras-structure.md`, then the relevant domain map.
+3. Read [core/eyeauras-structure.md](/en/scripting/api/core/eyeauras-structure), then the relevant domain map.
 4. Search available SDK references, XML docs, generated metadata, and referenced
    assemblies for exact symbols from the map.
 5. Check how the current context exposes the needed capability: host member,
@@ -118,118 +151,118 @@ These links identify the available Russian guides; they do not imply an English 
 
 ## Domain Maps
 
-- `core/eyeauras-structure.md` - product structure, Aura Tree, contexts,
+- [core/eyeauras-structure.md](/en/scripting/api/core/eyeauras-structure) - product structure, Aura Tree, contexts,
   lifecycle, variables, and where scripts run.
-- `core/app-runtime-contexts.md` - app vs SDK vs top-level script vs ordinary
+- [core/app-runtime-contexts.md](/en/scripting/api/core/app-runtime-contexts) - app vs SDK vs top-level script vs ordinary
   C# class execution contexts.
-- `core/app-modules.md` - Prism modules, module loading, dynamic modules, and
+- [core/app-modules.md](/en/scripting/api/core/app-modules) - Prism modules, module loading, dynamic modules, and
   module-private assets.
-- `core/blazor.md` - PoeShared.Blazor reactive components, `ReactiveSection`,
+- [core/blazor.md](/en/scripting/api/core/blazor) - PoeShared.Blazor reactive components, `ReactiveSection`,
   dynamic view resolution, content repository, and JS utilities.
-- `core/logging.md` - `IFluentLog`, log4net bridges, app/service logging,
+- [core/logging.md](/en/scripting/api/core/logging) - `IFluentLog`, log4net bridges, app/service logging,
   script event log routing, logger context, and log-based timing helpers.
-- `core/error-reporting.md` - problem report dialogs, prefilled editable
+- [core/error-reporting.md](/en/scripting/api/core/error-reporting) - problem report dialogs, prefilled editable
   comments, report archives, and `IErrorReportingService`.
-- `core/login-and-licensing.md` - custom login UI, key login,
+- [core/login-and-licensing.md](/en/scripting/api/core/login-and-licensing) - custom login UI, key login,
   `IEyeHubService`, `ILicenseAccessor`, `LoginWidget`, and modern sublicense
   lease flows.
-- `core/profiling.md` - MiniProfiler timing trees, startup/app/script/CV
+- [core/profiling.md](/en/scripting/api/core/profiling) - MiniProfiler timing trees, startup/app/script/CV
   profiling, JetBrains dotTrace/dotMemory captures, and report workflows.
-- `core/reactivity.md` - PropertyBinder, Rx/ReactiveUI, DynamicData,
+- [core/reactivity.md](/en/scripting/api/core/reactivity) - PropertyBinder, Rx/ReactiveUI, DynamicData,
   `SourceList`/`SourceCache`, reactive bindings, and collection
   synchronization.
-- `core/configuration-persistence.md` - config providers, config serializer,
+- [core/configuration-persistence.md](/en/scripting/api/core/configuration-persistence) - config providers, config serializer,
   metadata wrappers, migrations, and replacements.
-- `core/deployment.md` - export/import, packs, portable packs, mini-apps,
+- [core/deployment.md](/en/scripting/api/core/deployment) - export/import, packs, portable packs, mini-apps,
   EyePad launch, script protection, and sublicensing.
-- `scripting/runtime.md` - script APIs, dependency/capability access,
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime) - script APIs, dependency/capability access,
   accessors, folders, variables, macros, keybinds, and helper class rules.
-- `scripting/async.md` - top-level `await`, background task safety,
+- [scripting/async.md](/en/scripting/api/scripting/async) - top-level `await`, background task safety,
   cancellation, fire-and-forget hazards, and coroutine-style script loops.
-- `scripting/container-extensions.md` - script DI composition,
+- [scripting/container-extensions.md](/en/scripting/api/scripting/container-extensions) - script DI composition,
   `ScriptContainerExtension`, optional SDK registration, and service graph
   setup.
-- `scripting/logging.md` - `Log`, `IFluentLog`, log levels, helper-class
+- [scripting/logging.md](/en/scripting/api/scripting/logging) - `Log`, `IFluentLog`, log levels, helper-class
   logger passing, scoped prefixes, exception logs, and diagnostic breadcrumbs.
-- `scripting/reactive-lifetime.md` - `DisposableReactiveObject`, `Anchors`,
+- [scripting/reactive-lifetime.md](/en/scripting/api/scripting/reactive-lifetime) - `DisposableReactiveObject`, `Anchors`,
   `AddTo`, `INotifyPropertyChanged`, and script/runtime NPC weaving.
-- `scripting/references-and-resources.md` - NuGet/assembly references,
+- [scripting/references-and-resources.md](/en/scripting/api/scripting/references-and-resources) - NuGet/assembly references,
   embedded resources, `IScriptFileProvider`, DLL/image/font/model assets.
-- `scripting/project-workflow.md` - export/import/live-import, IDE workflow,
+- [scripting/project-workflow.md](/en/scripting/api/scripting/project-workflow) - export/import/live-import, IDE workflow,
   C# Overlay iteration, and multi-project solution boundaries.
-- `scripting/variables.md` - `ScriptVariable<T>`, variable hierarchy,
+- [scripting/variables.md](/en/scripting/api/scripting/variables) - `ScriptVariable<T>`, variable hierarchy,
   `Value`/`HasValue`/`TryGetValue` semantics, listeners, and `default.*`
   variables.
-- `scripting/web-server.md` - script-hosted ASP.NET Core/Kestrel endpoints,
+- [scripting/web-server.md](/en/scripting/api/scripting/web-server) - script-hosted ASP.NET Core/Kestrel endpoints,
   minimal APIs, controllers, and cancellation-bound server lifetime.
-- `scripting/browser-automation.md` - Selenium/WebDriver browser automation as
+- [scripting/browser-automation.md](/en/scripting/api/scripting/browser-automation) - Selenium/WebDriver browser automation as
   an alternative to screen/CV/input automation for web pages.
-- `auras/entities.md` - `IAuraRegistrator`, entity mappings, factories,
+- [auras/entities.md](/en/scripting/api/auras/entities) - `IAuraRegistrator`, entity mappings, factories,
   proxies, linked-aura evaluators, event log, and lifecycle events.
-- `auras/actions.md` - action execution, action registration, script actions,
+- [auras/actions.md](/en/scripting/api/auras/actions) - action execution, action registration, script actions,
   and lifecycle action lists.
-- `auras/triggers.md` - trigger event sources, trigger registration, script
+- [auras/triggers.md](/en/scripting/api/auras/triggers) - trigger event sources, trigger registration, script
   triggers, and activation state.
-- `auras/overlays.md` - aura overlay entities and how they differ from OSD,
+- [auras/overlays.md](/en/scripting/api/auras/overlays) - aura overlay entities and how they differ from OSD,
   Blazor windows, and ImGui windows.
-- `auras/overview.md` - broad aura pack overview and cross-links.
-- `windows-subsystems/window-handles.md` - `IWindowHandle`, raw handle bridges,
+- [auras/overview.md](/en/scripting/api/auras/overview) - broad aura pack overview and cross-links.
+- [windows-subsystems/window-handles.md](/en/scripting/api/windows-subsystems/window-handles) - `IWindowHandle`, raw handle bridges,
   enumeration, matching, selectors, and trackers.
-- `windows-subsystems/blazor-windows.md` - Blazor-backed native windows,
+- [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows) - Blazor-backed native windows,
   WebView2 hosts, dialog windows, Razor view resolution, and automation.
-- `windows-subsystems/input-hooks-hotkeys.md` - keyboard/mouse hooks, hotkeys,
+- [windows-subsystems/input-hooks-hotkeys.md](/en/scripting/api/windows-subsystems/input-hooks-hotkeys) - keyboard/mouse hooks, hotkeys,
   send-input APIs, input simulators, smoothers, and redirection.
-- `osd/selection.md` - `IOsdSelectionService` and interactive window/region/
+- [osd/selection.md](/en/scripting/api/osd/selection) - `IOsdSelectionService` and interactive window/region/
   point/color picking.
-- `osd/screen-overlay.md` - Blazor OSD screen overlay canvas, rectangles,
+- [osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay) - Blazor OSD screen overlay canvas, rectangles,
   HTML/Razor overlay objects, and CV debug annotations.
-- `memory/processes.md` - core process readers, memory access, modules, pointer
+- [memory/processes.md](/en/scripting/api/memory/processes) - core process readers, memory access, modules, pointer
   chains, pattern scanning, KD, and MPFS.
-- `nuget/imgui-sdk.md` - optional `EyeAuras.ImGuiSdk` package, render loop,
+- [nuget/imgui-sdk.md](/en/scripting/api/nuget/imgui-sdk) - optional `EyeAuras.ImGuiSdk` package, render loop,
   managed ImGui windows, image/font textures, and ImGui content.
-- `nuget/embedded-sdk.md` - optional `EyeAuras.SDK.Runtime` and
+- [nuget/embedded-sdk.md](/en/scripting/api/nuget/embedded-sdk) - optional `EyeAuras.SDK.Runtime` and
   `EyeAuras.SDK.Embedded` packages, standalone bootstrapper startup,
   `ConfigureEmbeddedModules`, `EnsureReadyAsync`, and package-contributed
   `UseX()` capability declarations.
-- `nuget/clink-rpc.md` - optional `EyeAuras.CLink.Rpc` package,
+- [nuget/clink-rpc.md](/en/scripting/api/nuget/clink-rpc) - optional `EyeAuras.CLink.Rpc` package,
   proto-first generated CLinkRPC services, protobuf payloads over CLinkRPC
   frames, reusable CLinkRPC sessions, and CLink connection transport adapters.
-- `nuget/frida-sdk.md` - optional `EyeAuras.FridaSdk` package, Frida
+- [nuget/frida-sdk.md](/en/scripting/api/nuget/frida-sdk) - optional `EyeAuras.FridaSdk` package, Frida
   sessions/scripts, Frida Gadget payloads, Frida-backed `IProcess` adapters,
   and CAgent native CLink process readers.
-- `nuget/xign-sdk.md` - optional `EyeAuras.XignSdk` package, SCM-only Xign
+- [nuget/xign-sdk.md](/en/scripting/api/nuget/xign-sdk) - optional `EyeAuras.XignSdk` package, SCM-only Xign
   driver loading, typed device commands, and driver-backed `XignProcess`.
-- `nuget/fairplay-sdk.md` - optional `EyeAuras.Memory.FairPlaySdk` package,
+- [nuget/fairplay-sdk.md](/en/scripting/api/nuget/fairplay-sdk) - optional `EyeAuras.Memory.FairPlaySdk` package,
   SCM-only FairPlay driver loading, raw device connection infrastructure, and
   the `FairPlayKDProcess` adapter with FairPlay-opened process-handle reads,
   writes, allocation/protection, manual mapping, and APC helpers.
-- `computer-vision/images.md` - screen/window capture, image search, OCR,
+- [computer-vision/images.md](/en/scripting/api/computer-vision/images) - screen/window capture, image search, OCR,
   OpenCV, color, and pixel workflows.
-- `computer-vision/profiling.md` - MiniProfiler, `EnableProfiling`,
+- [computer-vision/profiling.md](/en/scripting/api/computer-vision/profiling) - MiniProfiler, `EnableProfiling`,
   `cv.Profiler.Step`, plain-text reports, warm-up, and profiling memory costs.
-- `ml/ai.md` - index for ML model inference and app AI integration.
-- `ml/ai-runtime.md` - `AiEngine`, chat sessions, profiles, retrieval,
+- [ml/ai.md](/en/scripting/api/ml/ai) - index for ML model inference and app AI integration.
+- [ml/ai-runtime.md](/en/scripting/api/ml/ai-runtime) - `AiEngine`, chat sessions, profiles, retrieval,
   Blazor chat UI, MCP hosting, Responses API, and desktop scripting AI.
-- `ml/ai-kernel-plugins.md` - `AiKernelPlugin`, `[KernelFunction]` tools,
+- [ml/ai-kernel-plugins.md](/en/scripting/api/ml/ai-kernel-plugins) - `AiKernelPlugin`, `[KernelFunction]` tools,
   plugin host, tool approval, retrieval plugins, and tool design rules.
-- `ml/script-ai-clients.md` - built-in `EyeAuras.AISdk` / `EyeAuras.AI`
+- [ml/script-ai-clients.md](/en/scripting/api/ml/script-ai-clients) - built-in `EyeAuras.AISdk` / `EyeAuras.AI`
   script AI path first, with direct external provider NuGets as explicit
   escape hatches.
-- `reverse-engineering/reprocess.md` - `ReProcess`, RE workspace builder,
+- [reverse-engineering/reprocess.md](/en/scripting/api/reverse-engineering/reprocess) - `ReProcess`, RE workspace builder,
   RE tabs/actions/inspectors, and AI RE tools.
 
 ## Recipes
 
-- `recipes/recipe.md` - required shape and writing rules for recipes.
-- `recipes/bot-memory-imgui-interface.md` - recipe for a memory-reading bot
+- [recipes/recipe.md](/en/scripting/api/recipes/recipe) - suggested shape and writing rules for recipes.
+- [recipes/bot-memory-imgui-interface.md](/en/scripting/api/recipes/bot-memory-imgui-interface) - recipe for a memory-reading bot
   with ImGui UI and optional in-app scripting.
-- `recipes/bot-memory-behavior-tree.md` - recipe for reading memory and feeding
+- [recipes/bot-memory-behavior-tree.md](/en/scripting/api/recipes/bot-memory-behavior-tree) - recipe for reading memory and feeding
   Behavior Tree automation.
-- `recipes/bot-memory-entity-list-reader.md` - recipe for a primitive
+- [recipes/bot-memory-entity-list-reader.md](/en/scripting/api/recipes/bot-memory-entity-list-reader) - recipe for a primitive
   memory-backed entity list, radar, or debug table.
-- `recipes/tool-embedded-eyeauras-host.md` - recipe for adding EyeAuras-powered
+- [recipes/tool-embedded-eyeauras-host.md](/en/scripting/api/recipes/tool-embedded-eyeauras-host) - recipe for adding EyeAuras-powered
   tools to another app/plugin host.
-- `recipes/script-ai-editor-assistant.md` - recipe for adding AI chat to script
+- [recipes/script-ai-editor-assistant.md](/en/scripting/api/recipes/script-ai-editor-assistant) - recipe for adding AI chat to script
   editors or mini-apps.
 
 ## Known Starting Points
@@ -279,8 +312,9 @@ These links identify the available Russian guides; they do not imply an English 
 
 - Variables:
   `IVariablesScriptingApi` creates typed `ScriptVariable<T>` handles;
-  `Value` is safe/defaulting, `TryGetValue` is strict non-throwing,
-  `GetOrThrow` is strict throwing, `Listen` observes changes.
+  `Value` defaults when reading fails; handle `TryGetValue` attempts conversion,
+  `GetOrThrow` requires a value, and `Listen` observes changes. The similarly named
+  `IVariablesAccessor.TryGetValue<T>` uses a direct cast; it is not equivalent.
 
 - Script-hosted web APIs:
   `Host.CreateDefaultBuilder`, Kestrel, minimal endpoints, controllers,
@@ -374,7 +408,7 @@ These links identify the available Russian guides; they do not imply an English 
 
 - Login and licensing:
   `IEyeHubService.PerformLogin(username, password)`,
-  `IEyeHubService.PerformLogin(key, key)` for key login,
+  `IEyeHubService.LoginWithLicenseKey(key)` for key login,
   `IEyeHubService.ActivateLicenseKey(key)` for existing accounts,
   `ILicenseAccessor` for profile/license projection, and
   `ISublicenseManager.Rent(AuraShareId)` for paid-pack runtime leases.
@@ -422,10 +456,9 @@ These links identify the available Russian guides; they do not imply an English 
   `AiDocsKnowledgeBasePlugin` adds BM25-backed `doc_*` documentation tools.
 
 - Script AI clients:
-  use built-in `EyeAuras.AISdk` / `EyeAuras.AI` infrastructure first for
-  profiles, sessions, Semantic Kernel tools, retrieval, MCP/Codex, and reusable
-  chat UI; direct provider NuGets are ordinary script-owned dependencies for
-  intentional escape-hatch cases.
+  the built-in AI runtime supplies host integrations; direct provider NuGets
+  are separate script-owned dependencies. A project name does not imply a
+  published package or registered host services; see the domain map.
 
 - Reverse engineering:
   `ReProcess`, `ReProcessBuilder`, `IReProcess`, `IReFacade`,

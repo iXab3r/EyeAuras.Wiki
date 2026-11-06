@@ -15,7 +15,7 @@ dateCreated: 2025-03-23T17:08:22.651Z
 
 ## CountPixelsNaive
 
-Этот метод использует `Image<Bgr, byte>` и вызов `GetPixel(x, y)`, который внутри опирается на `CvInvoke.cvGet2D`.
+Этот метод использует `Image<Bgr, byte>` и индексатор `image[y, x]`, который в Emgu 4.9.0 вызывает `CvInvoke.cvGet2D`.
 
 ## CountPixelsNaiveMem
 
@@ -68,7 +68,7 @@ var cv = GetService<IComputerVisionExperimentalScriptingApi>()
 var targetColor = Color.FromArgb(255, 88, 35);
 var bgrTargetColor = new Bgr(targetColor.B, targetColor.G, targetColor.R);
 
-// The first call is ALWAYS slower due to initialization
+// Warm up initialization before comparing subsequent calls
 cv.ProcessPixels(img =>
 {
     Log.Info("Initialization pass");
@@ -178,3 +178,5 @@ private readonly record struct BgrByteColor
 [Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
 
 Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.
+
+[Реализация индексатора Emgu](https://github.com/emgucv/emgucv/blob/4.9.0/Emgu.CV/Core/Image.cs). Исторические замеры выше не повторялись.

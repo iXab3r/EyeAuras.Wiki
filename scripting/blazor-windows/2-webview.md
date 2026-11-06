@@ -3,7 +3,7 @@ title: 2. BlazorWindows and WebView2
 description:
 published: true
 date: 2025-08-17T09:21:21.000Z
-tags:
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T00:47:25.172Z
 ---
@@ -16,13 +16,13 @@ You can think of `WebView2` as the part of the application responsible for rende
 
 `BlazorWindows` is the framework that ties everything together—WebView, HTML, C# and CSS—allowing you to create interactive windows. This technology powers overlays and many parts of EyeAuras.
 
-# What's the difference between windows and overlays?
+## What's the difference between windows and overlays?
 Overlays are a variety of windows: it's the same window but with different display options. For example, an overlay is usually drawn on top of other windows.
 
 EyeAuras has several overlay types:
 ![Overlays](https://s3.eyeauras.net/media/2025/05/mIYLrG2yj2.png)
 
-# C# Overlay
+## C# Overlay
 This is one of the main ways to quickly create an interface in EyeAuras.
 The idea is simple:
 - we have a configured overlay window with a position, name and visibility condition. More on the contents below.
@@ -53,3 +53,7 @@ Mentioned only briefly since it is no longer recommended. It will be removed in 
 ![v2](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_DKdQydbTcq.png)
 Visually it looks like this.
 ![Window](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_AvrTCKw3p6.png) ![Overlay](https://s3.eyeauras.net/media/2025/05/n02buCY4RI.png)
+
+At `c8b2304`, Overlay selects `TitleBarDisplayMode.None`, Window selects `Default`, and this host disables its close button. Overlay forces Topmost; Window uses the configured value. `IsLocked` selects `ResizeMode.NoResize` or `CanResize`. These are window-host settings, not properties of the Razor component.
+
+[CsharpAuraOverlay](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.CsScriptAuras/Overlays/CsharpOverlay/CsharpAuraOverlay.cs).

@@ -56,7 +56,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 - Если хоткей читается из сохранённого текста или пользовательского ввода — `IHotkeyConverter`.
 - Для отправки ввода из скрипта — `ISendInputScriptingApi`.
 - Для simulator/smoother — id, найденные через provider.
-- Для начала работы с целевым окном — `osd/selection.md`.
+- Для начала работы с целевым окном — [osd/selection.md](/ru/scripting/api/osd/selection).
 
 ## Чего лучше избегать
 
@@ -129,8 +129,16 @@ Log.Info("Запрос F1 отправлен");
 
 ## Связанные карты
 
-- `scripting/runtime.md`
-- `auras/triggers.md`
-- `auras/actions.md`
-- `osd/selection.md`
-- `windows-subsystems/window-handles.md`
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)
+- [auras/triggers.md](/ru/scripting/api/auras/triggers)
+- [auras/actions.md](/ru/scripting/api/auras/actions)
+- [osd/selection.md](/ru/scripting/api/osd/selection)
+- [windows-subsystems/window-handles.md](/ru/scripting/api/windows-subsystems/window-handles)
+
+## Границы tracker, provider и detour
+
+У `IHotkeyTracker` режим `Hold` следует за нажатием/отпусканием, а `Click` переключает состояние на отпускании; фильтр `IsActive == true` в Click не означает вызов на каждое нажатие. `HandleApplicationKeys = false` исключает Click-события, когда активно само приложение. Это контракт tracker, а не способ изменить `KeybindAttribute.ActivationType`.
+
+`InputSimulatorProvider.ResolveById` возвращает зарегистрированный объект, а `Resolve(idOrName)` возвращает observable и может создать proxy до регистрации реального backend. Наличие имени не доказывает `IsAvailable`. Provider сглаживания также разрешает зарегистрированные ID; каталог страницы не устанавливает драйверы.
+
+[HookEngine](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Hooking/HookEngine.cs) — отдельный механизм нативных detour текущего процесса. Он удерживает delegate, возвращает delegate оригинального вызова и требует отдельного включения hook; Dispose отключает hooks и освобождает allocator. Это не регистрация клавиатурного хоткея и не гарантия безопасного изменения функций, уже исполняемых другими потоками.

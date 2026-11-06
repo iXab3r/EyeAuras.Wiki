@@ -39,7 +39,7 @@ void SendHello()
 }
 ```
 
-Пример остаётся работающим C# Action благодаря ожиданию с токеном запуска. Пока запуск не завершён, Ctrl+Alt+S отправляет `hello` активному приложению; остановка завершает регистрацию. Уберите ожидание, если запуск уже удерживается вашим окном или основной задачей.
+Пример остаётся работающим C# Action благодаря ожиданию с токеном запуска. Пока запуск не завершён, Ctrl+Alt+S отправляет `hello` активному приложению; завершение Run отключает дальнейшие вызовы. Уже запланированный callback при этом не обязан завершиться или отмениться. Уберите ожидание, если запуск уже удерживается вашим окном или основной задачей.
 
 Используйте `SuppressKey = false`, если исходная горячая клавиша должна по-прежнему доходить до активного приложения — это похоже на хоткеи AHK с префиксом `~`.
 
@@ -51,7 +51,7 @@ IFactory<IHotkeyTracker> HotkeyTrackerFactory { get; init; }
 
 var tracker = HotkeyTrackerFactory.Create().AddTo(ExecutionAnchors);
 tracker.Hotkey = new HotkeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Alt);
-tracker.HotkeyMode = HotkeyMode.Click;
+tracker.HotkeyMode = HotkeyMode.Hold;
 tracker.SuppressKey = true;
 
 tracker.WhenAnyValue(x => x.IsActive)
@@ -82,3 +82,12 @@ tracker.WhenAnyValue(x => x.IsActive)
   [ISendInputScriptingApi](../ISendInputScriptingApi),
   [Scripting Runtime](../scripting/runtime).
 - Контракты EyeAuras: [контекст скрипта](../scripting/runtime), [ввод](../ISendInputScriptingApi), [окна](../windows-subsystems/window-handles). Точные типы и сигнатуры сверяйте с SDK/XML своей версии; базовый срез — EyeAuras `20fd3d4`, PoeEye `0e02c98`.
+
+В примере tracker выбран `Hold`: `IsActive` становится true при нажатии и false
+при отпускании. `Click` переключает состояние при отпускании и вызывал бы
+отправку лишь через цикл нажатия. AHK `~` пропускает исходную клавишу, `*` допускает
+лишние модификаторы, `$` принудительно использует keyboard hook против
+самовызова через Send. Первым двум намерениям соответствуют `SuppressKey = false`
+и `IgnoreModifiers = true`; полного аналога `$`/SendLevel здесь не обещается.
+Обязательные модификаторы сохраняются, подавление происходит до фильтра edge.
+См. [время жизни keybind](/ru/scripting/keybinds).

@@ -14,7 +14,7 @@ EyeAuras scripts are regular C# code that runs inside the EyeAuras runtime envir
 > For AI-assisted API research, start from [AI Discovery Maps](/scripting/api/AGENTS). They route broad questions to focused maps and separate base SDK concepts from optional packages such as ImGui SDK and Frida SDK.
 {.is-info}
 
-## The most important distinction: `Script.csx` vs regular classes
+## The most important distinction: Script.csx vs regular classes
 
 This is one of the most important concepts in the whole system.
 
@@ -24,9 +24,12 @@ Code inside `Script.csx` goes through special EyeAuras processing:
 - it has direct access to `Log`, `Sleep(...)`, `GetService<T>()`, `AuraTree`, `Variables`, `cancellationToken`
 - code rewriters are applied to it, which adjust some constructs automatically
 
-For example, inside `Script.csx` itself, you can write this:
+In a top-level C# Script with the input module available, this sends F to the current input target. Choose the intended target before running:
 
 ```csharp
+using System.Windows.Input;
+using EyeAuras.Roxy.Api;
+
 Log.Info("Script started");
 Sleep(100);
 
@@ -39,6 +42,8 @@ But helper classes that sit next to the script are just **regular C#**. They do 
 If you write a separate class, it cannot just call `Log` or `AuraTree` on its own:
 
 ```csharp
+using PoeShared.Logging;
+
 public sealed class Helper
 {
     private readonly IFluentLog log;
@@ -117,9 +122,9 @@ Before you decide to build a separate program, it helps to understand what EyeAu
 
 If you are building a private or commercial solution, licensing, key login, packs, and code protection can save a lot of time.
 
-### When to use `Keybind`, and how it compares to AutoHotkey
+### When to use Keybind, and how it compares to AutoHotkey
 
-`[Keybind]` lets you attach a hotkey handler directly to a script method.
+`[Keybind]` lets you attach a hotkey handler directly to a script method. Add `using EyeAuras.Scripting.Api;`. The declarations below are fragments of an active script with its own lifetime, not standalone long-running scripts. Pick one F1 variant. See [complete setup](/en/scripting/keybinds).
 
 If you have used AutoHotkey before, the idea is very similar:
 
@@ -246,7 +251,7 @@ One more important distinction:
 - in Blazor, `Script.csx` usually acts as the entry point, while the real UI lives in Razor components
 - in ImGui, the UI is often drawn directly from the `AddRenderer(...)` method
 
-Minimal Blazor lifecycle example:
+The following members belong to the code-behind of a `BlazorReactiveComponent`, with `Styles.css` and `Script.js` included in the project resources. They are not standalone Script.csx code:
 
 ```csharp
 [Inject] public PoeShared.Blazor.Services.IJsPoeBlazorUtils PoeBlazorUtils { get; init; }
@@ -274,11 +279,11 @@ Examples:
 - [ImGui getting started](/scripting/imgui/getting-started)
 - [Aim Trainer ML](/scripting/examples/advanced/aimtrainer-ml)
 
-### Syntax details specific to `Script.csx`
+### Syntax details specific to Script.csx
 
 There are a few small syntax details that often surprise people, because `Script.csx` is not compiled like a regular `.cs` file. It is compiled as a Roslyn submission script.
 
-#### `using Namespace;` and `using` for IDisposable are different things
+#### using Namespace; and using for IDisposable are different things
 
 Normal namespace directives work as usual:
 
@@ -289,7 +294,7 @@ using OpenQA.Selenium;
 
 But resource disposal constructs at the top level of `Script.csx` require a bit more care.
 
-#### For top-level disposable `using`, it is better to wrap it in its own scope
+#### For top-level disposable using, it is better to wrap it in its own scope
 
 If you want to dispose resources directly at the top level of `Script.csx`, it is best to create an explicit scope with `{}`.
 
@@ -298,15 +303,19 @@ This applies to both `using var` and `using (...) { ... }`.
 Simplest version:
 
 ```csharp
+using System.IO;
+
 {
-    using var canvas = GetService<IOnScreenCanvasScriptingApi>().Create();
-    Log.Info("Canvas created");
+    using var stream = new MemoryStream(new byte[] { 1, 2, 3 });
+    Log.Info($"Stream length: {stream.Length}");
 }
 ```
 
-Or like this:
+First add `docs/help.md` to the project resources. Another scoped example:
 
 ```csharp
+using EyeAuras.Repl;
+
 {
     using (var stream = GetService<IScriptFileProvider>().GetFileInfo("docs/help.md").CreateReadStream())
     {
@@ -319,7 +328,7 @@ Why:
 
 - `Script.csx` is compiled in a special way
 - the script top level does not fully match the body of a normal method
-- without a separate scope, such constructs may fail to compile
+- an explicit block defines the disposal boundary for this run; this is a lifetime recommendation, not a categorical compiler restriction
 
 Inside normal methods, local functions, `try`, `if`, `while`, and other blocks, `using` usually works without issues.
 
@@ -335,20 +344,25 @@ Examples:
 - [OSD cursor rendering](/scripting/examples/basic/osd-cursor)
 - [CV profiling](/scripting/examples/advanced/profiling-cv)
 
-#### You can use `async/await` freely
+#### You can use async/await freely
 
 You can use `async/await` normally in `Script.csx`.
 
 For example:
 
 ```csharp
-var text = await File.ReadAllTextAsync("input.txt");
+var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "eyeauras-example.txt");
+await System.IO.File.WriteAllTextAsync(path, "Example", cancellationToken);
+var text = await System.IO.File.ReadAllTextAsync(path, cancellationToken);
+System.IO.File.Delete(path);
 Log.Info(text);
 ```
 
 Or this:
 
 ```csharp
+using System.Threading.Tasks;
+
 async Task<int> LoadValue()
 {
     await Task.Delay(100);
@@ -434,7 +448,7 @@ Examples:
 - [Mouse tracking with overlay](/scripting/examples/basic/mouse-track-with-overlay)
 - [Print variables on screen](/scripting/examples/basic/print-variables-on-screen)
 
-### What is `cancellationToken`, and where does it come from
+### What is cancellationToken, and where does it come from
 
 `cancellationToken` is automatically available in every script. EyeAuras passes it into the sandbox before the script starts.
 
@@ -443,7 +457,7 @@ Very briefly, `CancellationToken` in .NET is the standard object used to tell co
 In practice, this means:
 
 - when the script needs to stop, the program sends a cancellation signal
-- `Sleep(...)` finishes early
+- waits longer than 30 ms may finish early; check cancellation explicitly
 - long-running code can stop cleanly and release resources
 
 Important: EyeAuras can inject some cancellation logic automatically, but in real code it is still better to write explicit, readable, cancellation-aware logic yourself.
@@ -476,7 +490,7 @@ If you have an active loop, use an explicit cancellation check:
 ```csharp
 while (!cancellationToken.IsCancellationRequested)
 {
-    DoSomething();
+    Log.Info("Working");
     Sleep(50);
 }
 ```
@@ -491,7 +505,7 @@ Important points:
 
 - do not create a busy loop without `Sleep(...)` unless you have a very good reason
 - if the loop waits internally, try to make that wait cancellation-aware
-- `Sleep(...)` in EyeAuras already knows how to finish early when the script stops
+- `Sleep(...)` longer than 30 ms may return early on Stop; the loop condition still owns cancellation
 
 Short version:
 
@@ -505,13 +519,13 @@ Examples:
 - [UOPilot eat3](/scripting/examples/porting/UOPilot-eat3)
 - [YOLO11 ESP](/scripting/examples/advanced/yolo11-esp)
 
-### Why `Sleep(...)` is better than `Thread.Sleep(...)` in scripts
+### Why Sleep(...) is better than Thread.Sleep(...) in scripts
 
 In `Script.csx`, it is almost always better to use sandbox `Sleep(...)`.
 
 Why:
 
-- `Sleep(...)` is tied to `cancellationToken` and can finish early on stop
+- `Sleep(...)` longer than 30 ms is cancellation-aware and may return early on Stop
 - EyeAuras specifically optimizes this mechanism for automation scenarios
 - `Thread.Sleep(...)` in `Script.csx` is additionally rewritten by a rewriter into `Sleep(...)`
 
@@ -527,7 +541,7 @@ Practical rule:
 - do not use `Thread.Sleep(...)`
 - use `Task.Delay(...)` only if you specifically need the async model and understand why
 
-### Which rewriters EyeAuras applies to `Script.csx`
+### Which rewriters EyeAuras applies to Script.csx
 
 EyeAuras applies code rewriters to `Script.csx`. This is another reason why it is important to separate script code from regular classes.
 
@@ -543,7 +557,7 @@ This is a useful safety net, but not a reason to write sloppy code. The best pra
 - write `Sleep(...)` yourself
 - do not rely fully on rewriter “magic”
 
-### What are `Anchors`, `ExecutionAnchors`, and disposable resources for
+### What are Anchors, ExecutionAnchors, and disposable resources for
 
 In EyeAuras, it helps to think not only “what object did I create,” but also “when should it die.”
 
@@ -560,7 +574,7 @@ Short rule:
 - if a resource should die when the current run stops, add it to `ExecutionAnchors`
 - if the resource should live longer, until the script or helper itself is unloaded, use `Anchors`
 
-Example:
+After the package and container setup in [ImGui getting started](/en/scripting/imgui/getting-started), the ownership step is:
 
 ```csharp
 var overlay = GetService<IImGuiExperimentalApi>()
@@ -575,7 +589,7 @@ Examples:
 - [Mouse track with overlay](/scripting/examples/basic/mouse-track-with-overlay)
 - [Aim Trainer ML](/scripting/examples/advanced/aimtrainer-ml)
 
-### What is `IScriptingApiContext`
+### What is IScriptingApiContext
 
 `IScriptingApiContext` is an internal script context object. It contains:
 
@@ -592,7 +606,7 @@ Normally, a regular script author does not need to create `IScriptingApiContext`
 
 This becomes especially important if you build your own libraries, extensions, or move code from one file into a larger structure.
 
-### When exactly to use `ExecutionAnchors`
+### When exactly to use ExecutionAnchors
 
 If your script creates resources that should die with the **current script run**, attach them to `ExecutionAnchors`.
 
@@ -671,7 +685,7 @@ Examples:
 - [Text search](/scripting/examples/basic/text-search)
 - [How to find an image](/scripting/examples/basic/image-search)
 
-### What is `AddNewExtension<T>()`, and when do you need it
+### What is AddNewExtension<T>(), and when do you need it
 
 Some EyeAuras features are packaged as separate container extensions. This is how you connect a new set of services to the DI container.
 
@@ -740,7 +754,7 @@ The best portable option is usually:
 1. add the DLL to the script files as an embedded resource
 2. reference it via `#r "assemblyPath: MyLib.dll"`
 
-Minimal example:
+This sketch assumes your own `MyLib.dll` exports `MyLib.SomeLibraryHelper`; those names are integration inputs, not SDK types:
 
 ```csharp
 #r "assemblyPath: MyLib.dll"
@@ -771,7 +785,7 @@ A [pack](/features/packs) is a portable version of your EyeAuras-based solution.
 
 What matters for scripts:
 
-- in newer pack revisions, NuGet packages are preloaded and included in the pack
+- NuGet packaging depends on the selected compilation and distribution settings; validate the packaged project dependencies
 - project resources are also included in the pack
 - if you want a portable solution, do not depend on absolute paths on a local disk
 
@@ -854,7 +868,7 @@ Good baseline patterns:
 - `cancellationToken.WaitHandle.WaitOne();`
 - `while (!cancellationToken.IsCancellationRequested) { ... }`
 
-### Use sandbox features in `Script.csx`, and write normal C# in related classes
+### Use sandbox features in Script.csx, and write normal C# in related classes
 
 This rule is simple, but very useful.
 
@@ -898,15 +912,15 @@ Examples using the newer API:
 - [Aim Trainer ML](/scripting/examples/advanced/aimtrainer-ml)
 - [Profiling CV](/scripting/examples/advanced/profiling-cv)
 
-### Prefer `Variables.Get<T>()` for variables
+### Prefer Variables.Get<T>() for variables
 
 You can work through the string indexer, but typed access via `ScriptVariable<T>` is usually much cleaner and safer.
 
-### Use `Find*` for optional objects, `Get*` for required ones
+### Use Find* for optional objects, Get* for required ones
 
 This simple rule greatly reduces accidental crashes and makes the code’s intent much clearer.
 
-### If the script creates per-run resources, attach them to `ExecutionAnchors`
+### If the script creates per-run resources, attach them to ExecutionAnchors
 
 This is especially important for:
 
@@ -922,7 +936,7 @@ Examples:
 - [Mouse track with overlay](/scripting/examples/basic/mouse-track-with-overlay)
 - [YOLO11 ESP](/scripting/examples/advanced/yolo11-esp)
 
-### Do not forget `AddNewExtension<T>()` for libraries that require separate registration
+### Do not forget AddNewExtension<T>() for libraries that require separate registration
 
 If a package explicitly tells you to call `AddNewExtension<T>()`, that is not just a `using`. It is real registration of a new set of services in the container.
 
@@ -940,7 +954,7 @@ Examples:
 - [Aim Trainer ML](/scripting/examples/advanced/aimtrainer-ml)
 - [YOLO11 ESP](/scripting/examples/advanced/yolo11-esp)
 
-### When the script gets large, move to a `.sln`
+### When the script gets large, move to a .sln
 
 If the code has grown big, do not try to keep everything in one file forever.
 
@@ -955,7 +969,7 @@ That is exactly what [Export / Import / Live Import](/scripting/ide-integration)
 
 For app-like script projects with a bot loop, custom script runtime, ImGui root
 UI, Blazor tool windows, profiles, and buffered config saves, use the
-[ImGui memory bot recipe](/scripting/api/recipes/imgui-memory-bot-custom-scripting).
+[ImGui memory bot recipe](/scripting/api/recipes/bot-memory-imgui-interface).
 
 One practical detail: `Export` clears the target folder before exporting the project, so do not export into a directory that contains important files.
 
@@ -967,9 +981,12 @@ Read more: [IDE, AI, and MCP integration](/scripting/ide-integration)
 
 ### How to find an image on screen
 
-For most tasks, the simplest and most reliable approach is to use a configured `Image Search` trigger and read its result from the script.
+Prepare an Image Search trigger at `.\ImageSearch`, including its capture region and template. See the [complete setup](/en/scripting/examples/basic/image-search). Read its result from the top-level script:
 
 ```csharp
+using EyeAuras.OpenCVAuras.Triggers.ImageSearch;
+using PoeShared.Scaffolding;
+
 var trigger = AuraTree.GetTriggerByPath<IImageSearchTrigger>(@".\ImageSearch");
 var result = trigger.Refresh();
 
@@ -992,9 +1009,12 @@ See also:
 
 ### How to press a button or send a key
 
-For that, you usually need `ISendInputScriptingApi`:
+Run this in `Script.csx` with the input module registered. Select the intended input target before running:
 
 ```csharp
+using System.Windows.Input;
+using EyeAuras.Roxy.Api;
+
 var input = GetService<ISendInputScriptingApi>();
 input.KeyPress(Key.F);
 input.MouseLeftClick();
@@ -1024,7 +1044,13 @@ The general pattern is almost always the same:
 3. take the center
 4. move the mouse and click
 
+Prepare the same trigger and intended input target before this separate script:
+
 ```csharp
+using EyeAuras.Roxy.Api;
+using EyeAuras.OpenCVAuras.Triggers.ImageSearch;
+using PoeShared.Scaffolding;
+
 var input = GetService<ISendInputScriptingApi>();
 var trigger = AuraTree.GetTriggerByPath<IImageSearchTrigger>(@".\ImageSearch");
 var result = trigger.Refresh();
@@ -1087,23 +1113,26 @@ Embedded resources are useful when you want to ship files together with the scri
 - json config
 - a DLL that is inconvenient to pull in through NuGet
 
-Two of the simplest scenarios:
+Two resource operations:
 
-Show an image in Blazor:
+Include `Images/logo.png` as a project resource, then use this in the Razor component of a configured Blazor window:
 
 ```html
 <img src="Images/logo.png" />
 ```
 
-Read a text file from the script:
+Add `docs/help.md` through `Show Files`, then read it from `Script.csx`:
 
 ```csharp
+using EyeAuras.Repl;
+using PoeShared.Scaffolding;
+
 var files = GetService<IScriptFileProvider>();
 var helpText = files.ReadAllText("docs/help.md");
 Log.Info(helpText);
 ```
 
-One small practical detail that often saves time: it is better to write `Images/logo.png` or `docs/help.md`, not just `logo.png` or `help.md`. Short names are convenient, but if path endings match, it is easy to pick up the wrong file.
+Use a full resource path or an unambiguous suffix. An ambiguous short name returns not-found, not an arbitrary matching file. See the linked resource contract for manifest naming and composite precedence.
 
 If a library already exists on NuGet, it is almost always better to use it through `#r "nuget: ..."`. Embedded resources are especially good for your own files and portable DLLs.
 
@@ -1117,7 +1146,7 @@ Examples:
 
 - [Getting started](/scripting/getting-started)
 - [Sandbox](/scripting/sandbox)
-- [ImGui memory bot recipe](/scripting/api/recipes/imgui-memory-bot-custom-scripting)
+- [ImGui memory bot recipe](/scripting/api/recipes/bot-memory-imgui-interface)
 - [Hotkeys](/scripting/keybinds)
 - [Dependency Injection](/scripting/dependency-injection)
 - [Script Container Extensions](/scripting/script-container-extensions)
@@ -1131,3 +1160,11 @@ Examples:
 - [Mini-app](/features/mini-app)
 - [Pack licenses](/features/sublicenses)
 - [Script protection](/features/script-protection)
+
+## Boundaries of these recommendations
+
+In the checked PoeEye implementation, `Sleep` delays of at most 30 ms do not check cancellation. Longer waits may return early but do not themselves throw cancellation exceptions. Check the token in loops and before subsequent actions. Removing a Keybind subscription does not interrupt an already running or scheduled callback. A gate prevents overlapping handlers; it does not replace waiting for work to finish before resource cleanup.
+
+The `Find`/`Get` convention describes specific AuraTree contracts, not every SDK method. For input in screen coordinates, choose the intended `TargetWindow` and backend explicitly; a CV transform does not select the input target. Rewriters do not replace explicit lifetime handling or isolate arbitrary code.
+
+Pack dependencies follow its compilation/protection configuration; local DLLs and files are not universally included. See [deployment contracts](/en/scripting/api/core/deployment), [resource contracts](/en/scripting/api/scripting/references-and-resources), and the versioned [ImGui setup](/en/scripting/imgui/getting-started). Source review covers EyeAuras `c8b2304`; it does not establish a native run of every linked example.

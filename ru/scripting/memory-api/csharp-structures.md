@@ -148,8 +148,8 @@ public struct PackedHeader
 [StructLayout(LayoutKind.Sequential)]
 public struct ActorNode64
 {
-    public nuint Next;
-    public nuint Prev;
+    public ulong Next;
+    public ulong Prev;
     public int Id;
 }
 ```
@@ -256,7 +256,7 @@ Log.Info(entry.Name);
 
 - `ByValTStr` зависит от `CharSet` у самой структуры
 - для `Unicode` это будет UTF-16-представление
-- для `Ansi` используется платформенное ANSI-представление; не считайте его UTF-8
+- для `Ansi` на Windows используется системная ANSI code page, а на Unix — UTF-8; кодировка определяется платформой marshalling, а не целевым процессом
 - такую структуру не стоит читать через `Read<T>(...)`
 
 ## Смещения и helper-методы
@@ -347,3 +347,11 @@ var targetOffset = process.Memory.OffsetOf<PlayerData>(x => x.TargetId);
 - [Memory API - С чего начать](/ru/scripting/memory-api/getting-started)
 - [PE basics](/ru/scripting/memory-api/pe-basics)
 - [Code Cave](/ru/scripting/memory-api/code-caves)
+
+## Проверить layout перед чтением
+
+`Pack` ограничивает выравнивание, а не размер каждого поля; значение `0` означает default платформы, не отсутствие padding. Сравните размер и смещения с ABI цели. `nint`/`nuint` имеют разрядность хоста, поэтому `ActorNode64` выше использует `ulong`, а 32-битный вариант — `uint`.
+
+`InlineArray` требует подходящих runtime и компилятора (для показанного синтаксиса — .NET 8 / C# 12 или новее) и одного instance-поля. Здесь `float` не содержит managed-ссылок. Атрибут не превращает произвольный ссылочный тип в unmanaged. `Read<T>` читает managed-представление unmanaged-структуры; атрибуты marshalling применяются только на маршруте `ReadManaged<T>`.
+
+Официальные контракты: [Pack](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.structlayoutattribute.pack?view=net-8.0), [InlineArray](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.inlinearrayattribute?view=net-8.0), [CharSet](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/charset). Эти правила не определяют неизвестный layout внешней программы.

@@ -167,3 +167,13 @@ await Js.RemoveClass(field, "selected");
 - [Основа Blazor](blazor)
 - [Окна Blazor](../windows-subsystems/blazor-windows)
 - [Время жизни и подписки](../scripting/reactive-lifetime)
+
+
+## Сигнатуры callbacks заголовка
+
+JS вызывает `HandleTitleBarDragStart`, `HandleTitleBarDoubleClick` и
+`HandleTitleBarContextMenu` без аргументов. Порог перетаскивания по умолчанию —
+4 пикселя viewport, минимальное значение — 1. Освобождение регистрации снимает
+захват указателя и обработчики событий. Ссылка на callback принадлежит вызывающему.
+
+[Реализация JS](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Blazor/wwwroot/ts/blazorUtils.input.ts).

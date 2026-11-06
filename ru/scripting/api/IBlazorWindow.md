@@ -94,3 +94,20 @@ preview-варианты относятся к конкретному окну. 
 в anchors сами по себе не удерживают текущий Run открытым.
 Выбор поверхности — в [карте Blazor Windows](windows-subsystems/blazor-windows).
 Для экранных аннотаций есть [OSD canvas](osd/screen-overlay).
+
+## Очередь и наблюдаемая геометрия
+
+`GetWindowRect()` читает отслеживаемые свойства обёртки, а не выполняет свежий
+Win32-запрос. `SetWindowRect` обновляет эти свойства и ставит команду в очередь;
+возврат не является подтверждением ОС. WPF передаёт прямоугольник через
+`SetWindowPos` без активации и изменения Z-order.
+`WhenLoaded`, `WhenUnloaded`, `WhenClosed` переигрывают первое событие;
+клавиатура/мышь и `WhenClosing` используют общие живые потоки событий.
+
+`WaitForIdle` с положительным timeout может вернуться по истечении времени,
+не дождавшись маркера очереди; метод возвращает `void`, признака успеха нет.
+Неположительный timeout означает ожидание без ограничения. Это не проверка
+загрузки всех ресурсов WebView.
+
+Исходники PoeEye `0e02c98`: [NativeWindow](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Blazor.Wpf/Window/NativeWindow.cs),
+[очередь](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Blazor.Wpf/Window/NativeWindow.Queue.cs).

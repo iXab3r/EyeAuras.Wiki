@@ -3,11 +3,11 @@ title: How to Launch a Game/Process
 description: 
 published: true
 date: 2024-07-02T14:36:35.228Z
-tags: running programs, C# Script, process automation
+tags: running programs, C# Script, process automation, ai-translated
 editor: markdown
 dateCreated: 2024-07-02T14:36:35.228Z
 ---
-## Running an Arbitrary Program/Game
+# Running an Arbitrary Program/Game
 > You can import a ready-made example from here: [https://eyeauras.net/share/S20240702143616Nj8fr0gCxktL](https://eyeauras.net/share/S20240702143616Nj8fr0gCxktL)
 {.is-info}
 
@@ -18,10 +18,18 @@ dateCreated: 2024-07-02T14:36:35.228Z
 5. Pressing `F3` will launch `Notepad`.
 
 ```csharp
-// You can use either the short name
-Process.Start("notepad");
-// or the full path
-//Process.Start("C:/Windows/system32/notepad.exe");
+using System.Diagnostics;
 
-// Full documentation can be found here - [https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.start?view=net-8.0](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.start?view=net-8.0)
+{
+    using var process = Process.Start("notepad");
+    // Or supply an existing full path to the executable.
+}
 ```
+
+Run this in a top-level C# Script Action on Windows. Supply an available program
+name or an existing executable path. A game may also need a working directory
+configured through `ProcessStartInfo`. The expected visible result is Notepad.
+`using` releases the `Process` component; it does not terminate the launched program.
+Stopping the script does not stop the child process, and `Process.Start` accepts
+no cancellation token. See [Process.Start](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.start?view=net-8.0)
+and the [.NET 8.0.19 Close/Dispose implementation](https://github.com/dotnet/runtime/blob/v8.0.19/src/libraries/System.Diagnostics.Process/src/System/Diagnostics/Process.cs).

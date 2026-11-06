@@ -12,7 +12,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 Reference map for native window handles, raw `HWND` conversion, window
 enumeration, matching, foreground tracking, and bounds tracking.
 
-Interactive picking belongs to `osd/selection.md`.
+Interactive picking belongs to [osd/selection.md](/en/scripting/api/osd/selection).
 
 ## User Intents
 
@@ -34,6 +34,175 @@ Interactive picking belongs to `osd/selection.md`.
 - `IWindowHandleMatcher` and `IComplexWindowHandleMatcher` are infrastructure
   include/exclude predicates.
 - Foreground and bounds trackers wrap native event hooks.
+
+## Find and activate a window
+
+Open Notepad and run this top-level C# Action:
+
+```csharp
+IFactory<IWindowSelector> WindowSelectorFactory { get; init; }
+
+{
+    using var selector = WindowSelectorFactory.Create();
+    var window = selector.FindWindow("notepad.exe");
+    if (window == null)
+    {
+        Log.Info("No matching window yet");
+        return;
+    }
+    window.Activate(TimeSpan.FromMilliseconds(500));
+    Log.Info($"Selected window: {window.Title}");
+}
+```
+
+This Run owns the selector and its subscriptions. The factory and handles are
+borrowed host infrastructure. Ordinary classes receive the factory explicitly.
+The desktop host needs native registrations and UI Core; SDK types alone do not
+provide a live window list. `FindWindow` reads immediately and may return null;
+`GetWindow` throws `InvalidOperationException` in that case. Selection is not OS
+foreground. The current target is retained while it still matches.
+
+`OnlyVisible` defaults to false. Target assignment defaults to top-level external
+windows unless overridden. Plain text matches paths/titles/arguments or a whole
+process name, so `notepad.exe` is not AHK's process-only restriction. Activation
+is synchronous, may restore a minimized window, has no cancellation token and can
+fail under Windows foreground policy. A zero foreground can extend the wait to
+ten seconds; 500 ms is not a strict total-duration bound.
+
+## Wait for a window from one process
+
+Start this top-level script, then open Notepad:
+
+```csharp
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using EyeAuras.Shared.Services;
+using PoeShared.Native;
+using PoeShared.Prism;
+
+{
+    var runToken = cancellationToken;
+    var factory = GetService<IFactory<IWindowSelector>>();
+    using var selector = factory.Create();
+    selector.OnlyVisible = true;
+    selector.WindowFilter = candidate => string.Equals(
+        Path.GetFileNameWithoutExtension(candidate.ProcessName),
+        "notepad", StringComparison.OrdinalIgnoreCase);
+    selector.TargetWindow = "#1";
+
+    IWindowHandle window;
+    while (true)
+    {
+        runToken.ThrowIfCancellationRequested();
+        window = selector.ActiveWindow;
+        if (window != null && window.IsWindow)
+        {
+            break;
+        }
+        await Task.Delay(250, runToken);
+    }
+    Log.Info($"Notepad found: {window.Title}");
+}
+```
+
+`#1` selects the first result after filtering, not necessarily a particular
+Notepad document. Normalize the executable extension because `ProcessName` can
+come from a file name or the fallback `Process.ProcessName`. Stop cancels the
+delay and releases the selector. `IsWindow` is a point-in-time check, not a lock
+against window closure. Re-read `selector.ActiveWindow` on every later iteration;
+the local `window` variable does not follow future target changes.
+
+## Take a process window snapshot
+
+This C# Script reads the shared provider without changing another selector:
+
+```csharp
+using System;
+using System.IO;
+using System.Linq;
+using EyeAuras.Shared.Services;
+
+var provider = GetService<IWindowListProvider>();
+provider.RefreshWindowList();
+var snapshot = provider.WindowList.Items.ToArray();
+var matches = snapshot.Where(w => w.IsWindow && string.Equals(
+    Path.GetFileNameWithoutExtension(w.ProcessName),
+    "notepad", StringComparison.OrdinalIgnoreCase)).ToArray();
+foreach (var w in matches)
+    Log.Info($"{w.Title}, PID: {w.ProcessId}");
+```
+
+The array snapshots enumeration, not future window validity. Provider and handles
+are borrowed. For a text expression across multiple fields, pass the materialized
+array to `IWindowMatcher.FindMatches(snapshot, expression)`; its contract takes
+`IReadOnlyList<IWindowHandle>`, not an arbitrary lazy enumerable.
+
+## Check the foreground process
+
+This query does not read or modify a selector:
+
+```csharp
+using System;
+using System.IO;
+using EyeAuras.Shared.Services;
+
+var foreground = GetService<IWindowListProvider>().GetForegroundWindow();
+var isNotepad = foreground != null && foreground.Handle != IntPtr.Zero &&
+    foreground.IsWindow && string.Equals(
+        Path.GetFileNameWithoutExtension(foreground.ProcessName),
+        "notepad", StringComparison.OrdinalIgnoreCase);
+Log.Info($"Notepad is foreground: {isNotepad}");
+```
+
+The provider may wrap a zero HWND, so a non-null managed reference is insufficient.
+Foreground can change immediately after the read.
+
+## Convert a frame-relative point
+
+`ToScreen(Point)` and `FromScreen(Point)` add/subtract the origin of
+`DwmFrameBounds`; invalid bounds throw. This is frame-relative geometry, not a
+promise of Win32 client coordinates. Choose the input coordinate space and backend
+before using an OSD matrix or sending mouse input.
+
+## Observe one window's bounds
+
+Open Notepad, run this C# Action and move its window during the next ten seconds.
+The text expression is broad; use the earlier filter for process-only selection.
+
+```csharp
+using System;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
+using EyeAuras.Shared.Services;
+using EyeAuras.Shared.Scaffolding;
+using PoeShared.Native;
+using PoeShared.Prism;
+
+{
+    using var selector = GetService<IFactory<IWindowSelector>>().Create();
+    var window = selector.FindWindow("notepad.exe");
+    if (window == null || !window.IsWindow)
+    {
+        Log.Info("No window yet; run this example again");
+        return;
+    }
+
+    var tracker = GetService<IWindowBoundsTrackerFactory>();
+    using var subscription = tracker.Track(window).Subscribe(
+        bounds => Log.Info(bounds.HasValue
+            ? $"Bounds: {bounds.Value}"
+            : "Bounds unavailable"),
+        error => Log.Error("Bounds tracking failed", error));
+    await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
+}
+```
+
+The stream emits initial bounds and later changes. Ten seconds or Stop ends this
+subscription. It follows one HWND, not replacement selector targets. Nullable bounds
+do not guarantee a close event; the stream can fail. The factory is borrowed.
+The source does not establish native-hook disposal as a subscription completion
+barrier; do not assume a UI delivery thread or complete native teardown.
 
 ## API Details
 
@@ -136,9 +305,11 @@ Interactive picking belongs to `osd/selection.md`.
   - `/pattern/` is regex.
   - `0x...` or `&H...` matches a native handle.
   - `#2` selects the second matching window.
-  - `&&` and `||` combine simpler expressions.
-  - properties such as `[type=toplevel]`, `[type=child]`, `[visible]`, and
-    `[focus]` further constrain matching.
+  - `FindMatches` narrows results with `&&`; `||` takes the first nonempty
+    alternative, not a union. `IsMatch` accepts a simple expression.
+  - Text uses ordinal case-insensitive comparison; regex ignores case too.
+  - Selector consumes `[type=toplevel]`, `[type=child]` and `[ownedBy=...]`;
+    parsed `[visible]`/`[focus]` are not automatic filters. Use `OnlyVisible`.
 
 - Track bounds:
   - receive `IWindowBoundsTrackerFactory`.
@@ -201,7 +372,7 @@ Interactive picking belongs to `osd/selection.md`.
 
 ## Related Maps
 
-- `osd/selection.md`
-- `osd/screen-overlay.md`
-- `windows-subsystems/input-hooks-hotkeys.md`
-- `memory/processes.md`
+- [osd/selection.md](/en/scripting/api/osd/selection)
+- [osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay)
+- [windows-subsystems/input-hooks-hotkeys.md](/en/scripting/api/windows-subsystems/input-hooks-hotkeys)
+- [memory/processes.md](/en/scripting/api/memory/processes)

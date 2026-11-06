@@ -25,19 +25,42 @@ If you want some extra background, these are very useful:
 
 ## Getting started
 
-Most of the time, you open a process and work through `process.Memory`:
+Run these process examples in a top-level EyeAuras C# Script with the Memory
+module loaded. The host supplies `Log`; ordinary helpers must receive dependencies.
+An embedded host needs `UseMemory()` and completed `EnsureReadyAsync()`;
+see [Embedded SDK](/scripting/api/nuget/embedded-sdk). The caller owns readers
+created by `LocalProcess`; `process.Memory` is borrowed and must not outlive them.
+
+The first operation allocates its own 16 bytes in the current process, writes
+HP and speed, then reads them through the public API:
 
 ```csharp
+using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using EyeAuras.Memory;
 
-using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
-
-var hp = process.Memory.Read<int>(someHpAddress);
-var speed = process.Memory.Read<float>(someSpeedAddress);
-
-process.Memory.Write(someFlagAddress, 1);
+{
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    var buffer = Marshal.AllocHGlobal(16);
+    try
+    {
+        process.Memory.Write<int>(buffer, 742);
+        process.Memory.Write<float>(buffer + 0x04, 1.5f);
+        var hp = process.Memory.Read<int>(buffer);
+        var speed = process.Memory.Read<float>(buffer + 0x04);
+        Log.Info($"HP={hp}, speed={speed}");
+    }
+    finally
+    {
+        Marshal.FreeHGlobal(buffer);
+    }
+}
 ```
+
+The log shows HP `742` and speed `1.5`, formatted using the current culture.
+`Marshal` only owns the local buffer; `process.Memory` reads and writes its values.
+Do not release the buffer until its users finish.
 
 In EyeAuras, `process.Memory` is the main layer for working with memory. You use it to:
 
@@ -47,6 +70,9 @@ In EyeAuras, `process.Memory` is the main layer for working with memory. You use
 - follow pointer chains
 
 ## Reading and writing simple values
+
+The following fragments need an open reader and valid target addresses; keep
+them inside its owning scope or pass it to a helper.
 
 For simple cases, these are the methods you will use most often:
 
@@ -65,6 +91,11 @@ var header = process.Memory.Read(someAddress, 64);
 process.Memory.Write(someAddress, 123);
 process.Memory.Write(someAddress + 4, new byte[] { 0x90, 0x90, 0x90, 0x90 });
 ```
+
+`Read<T>(address, count)` counts elements; `Read(address, size)` counts bytes.
+Addresses are absolute virtual addresses. `TryRead`/`TryWrite` return success,
+not a transferred-byte count; underlying access errors can still throw.
+The methods are synchronous without cancellation.
 
 This path is best for:
 
@@ -112,78 +143,81 @@ If you have:
 
 then the read looks like this:
 
-```csharp
-var health = process.Memory.Read<int>(playerBase + 0x10);
-var mana = process.Memory.Read<int>(playerBase + 0x18);
-```
-
-### What a pointer chain is
-
-A `pointer chain` is when an address does not contain the final value, but a pointer to the next object.
-
-In simple terms:
-
-- address A leads to object B
-- inside B, an offset contains address C
-- inside C, the value you want is stored
-
-Typical flow:
-
-1. read a pointer
-2. add an offset
-3. read another pointer
-4. at the end, read the actual value
-
-![Example of a pointer chain from a static address to the HP value](https://s3.eyeauras.net/media/2026/04/memory-pointer-chain.svg)
-
-In code, that idea looks like this:
+A complete 64-bit-host example creates its own pointer chain:
 
 ```csharp
-var hp = process.Memory.ReadPointerChain<int>(
-    (IntPtr)0x140123456,
-    0x10,
-    0x20,
-    0x18);
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using EyeAuras.Memory;
+
+{
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    var buffer = Marshal.AllocHGlobal(0x40);
+    try
+    {
+        var player = buffer + 0x10;
+        process.Memory.Write<long>(buffer, player.ToInt64());
+        process.Memory.Write<int>(player + 0x18, 742);
+        var health = process.Memory.ReadPointerChain<int>(buffer, 0x18);
+        Log.Info($"HP={health}");
+    }
+    finally
+    {
+        Marshal.FreeHGlobal(buffer);
+    }
+}
 ```
 
-The address and offsets here are just examples. The point is not the exact numbers, but that each step either reads a pointer or, at the very end, reads the final normal value.
+The output is `HP=742`: read the pointer from `buffer`, then the value at
+`player + 0x18`. Intermediate offsets dereference pointers; the final offset
+locates `T`. Supply at least one offset. A null pointer yields `default(T)`;
+a failed read can throw. Zero therefore does not prove the chain was valid.
 
-EyeAuras has built-in helpers for this:
-
-- `ReadPointer(...)`
-- `ReadPointer32(...)`
-- `ReadPointerChain<T>(...)`
-- `ReadPointerChain32<T>(...)`
-
-```csharp
-var health = process.Memory.ReadPointerChain<int>(
-    playerManagerPtrAddress,
-    0x10,
-    0x20,
-    0x18);
-```
-
-For a 32-bit layout, use `ReadPointer32(...)` and `ReadPointerChain32<T>(...)`, otherwise you will simply read pointers with the wrong size.
-
-Important: if the chain hits `null`, `ReadPointerChain<T>(...)` returns `default` instead of throwing an exception. That is convenient, but it can also hide logic errors, so in more complex cases it is useful to log intermediate addresses separately.
+`ReadPointer` and the normal chain read 64-bit pointers without detecting target
+architecture. `ReadPointerChain32<T>` reads `uint`; the separate `ReadPointer32`
+reads `int` and can sign-extend it. For an explicit unsigned address, use
+`process.Memory.Read<uint>(address)`. `IntPtr` size describes the host.
 
 ## Strings and encodings
 
 The Memory API has three main helpers here:
 
 - `ReadString(...)` — `UTF-8`
-- `ReadStringA(...)` — single-byte `ASCII` / ANSI-style string
+- `ReadStringA(...)` — `Encoding.ASCII`, not the system ANSI code page
 - `ReadStringU(...)` — `UTF-16 LE` (`Encoding.Unicode`)
 
+This complete script owns its string buffer:
+
 ```csharp
-var utf8Name = process.Memory.ReadString(namePtr.ToInt64(), 64);
-var ansiName = process.Memory.ReadStringA(namePtr.ToInt64(), 64);
-var wideName = process.Memory.ReadStringU(namePtr.ToInt64(), 64);
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using EyeAuras.Memory;
+
+{
+    using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
+    var namePtr = Marshal.AllocHGlobal(64);
+    try
+    {
+        process.Memory.WriteString(namePtr, "Player");
+        Log.Info(process.Memory.ReadString(namePtr.ToInt64(), 7));
+    }
+    finally
+    {
+        Marshal.FreeHGlobal(namePtr);
+    }
+}
 ```
+
+The log shows `Player`; seven bytes include the six letters and NUL.
+For other text, reserve room for encoded UTF-8 bytes plus NUL. `WriteString`
+does not allocate the buffer.
 
 Practical rules:
 
-- the length parameter in `ReadStringU(...)` is in bytes, not characters
+- all three lengths are byte budgets; defaults are 256 bytes and `replaceNull=true`
+- UTF-16 needs a sufficient even length; an empty result may also mean a failed read
 - strings are trimmed at `\0` by default
 - if the encoding in memory is different, you will get garbage even if the address is correct
 - `WriteString(...)` currently writes a `UTF-8` string with a trailing `\0`
@@ -241,22 +275,33 @@ Usually, this is better:
 - read one memory block
 - parse it locally afterward
 
-```csharp
-var buffer = new byte[0x400];
+For an array of uniform records, use a typed array read. The caller supplies
+an open process, absolute array address and count for the target version:
 
-if (process.Memory.TryRead(playerBase, buffer.AsSpan()))
+```csharp
+using System;
+using System.Runtime.InteropServices;
+using EyeAuras.Memory;
+
+[StructLayout(LayoutKind.Explicit, Size = 0x30)]
+public struct ActorEntry
 {
-    var health = BitConverter.ToInt32(buffer, 0x10);
-    var mana = BitConverter.ToInt32(buffer, 0x18);
-    var targetId = BitConverter.ToInt64(buffer, 0x28);
+    [FieldOffset(0x10)] public int Health;
+    [FieldOffset(0x18)] public int Mana;
+    [FieldOffset(0x28)] public long TargetId;
+}
+
+public static class ActorReader
+{
+    public static ActorEntry[] ReadActors(IProcess process, IntPtr arrayAddress, int count)
+        => process.Memory.Read<ActorEntry>(arrayAddress, count);
 }
 ```
 
-If you have an array of identical elements, it is often more convenient to read it directly as a struct array:
-
-```csharp
-var actors = process.Memory.Read<ActorEntry>(actorsArrayAddress, actorCount);
-```
+The result contains `count` local records with stride `0x30`. This is an illustrative
+layout, not ready-made game offsets. The helper neither opens nor disposes the
+process. Raw spans and explicit decoding fit actual byte formats such as files,
+packets or dumps; ordinary scalar fields do not need that extra layer.
 
 Under the hood, `MemoryAccessor` already does a few useful things:
 
@@ -268,20 +313,11 @@ Even with that, batching still matters. In this kind of work, the biggest perfor
 
 ## Multithreading
 
-Multiple readers at the same time are generally fine. EyeAuras tests include both multiple sequential readers and multiple parallel readers.
-
-But it is important to understand the boundary here:
-
-- the API itself can usually handle parallel reads
-- the target process may still change its data between your reads
-
-So the problem is usually not that `MemoryAccessor` itself “breaks under threads”, but that the process data may already have changed by the time you read it.
-
-Practical advice:
-
-- if you need a consistent snapshot, read the whole block at once
-- if your backend supports it and the scenario is safe, you can temporarily freeze the process separately
-- do not split one logical object into dozens of unrelated reads across different threads without a good reason
+Parallel reads and a single block read do not guarantee a coherent snapshot:
+the target can mutate during copying. Thread requirements belong to the backend;
+a parallel test does not establish every implementation's thread safety.
+Do not replace a backend or dispose its process during a read. Use a target-side
+protocol or snapshot generation check when consistency across fields matters.
 
 ## Which read path to choose
 
@@ -313,6 +349,8 @@ And this path is not suitable if it already contains:
 - other reference-type fields
 
 This is the fastest path.
+
+The direct path requires `T : unmanaged`; `MarshalAs` alone does not satisfy it.
 
 ### Option 2 - the flexible path
 

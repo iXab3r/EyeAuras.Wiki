@@ -252,3 +252,23 @@ Log.Debug(() => string.Join(", ", Variables.Select(x => x.Name)));
 - [runtime](../scripting/runtime)
 - [container-extensions](../scripting/container-extensions)
 - [profiling](../computer-vision/profiling)
+
+
+## Границы таймера и Microsoft logging adapter
+
+`BenchmarkTimer` по умолчанию пишет каждый шаг на Debug; сводка при освобождении
+включается отдельно. `WithMinElapsedThreshold` ограничивает сводку, а не записи
+шагов. `WithCondition` ограничивает и шаги, и сводку. `ResetStep` сбрасывает
+отметку предыдущего шага, а не общий `Elapsed`. Для журнала скрипта передавайте
+логгер явно через `Log.CreateProfiler`.
+
+Microsoft-адаптеры не сохраняют scope: `BeginScope` возвращает пустой disposable.
+Trace записывается как Debug, Critical — как Error, при этом
+`FluentLogger.IsEnabled(Critical)` возвращает false в этом срезе.
+`Logger4Log4Net.MinimumLevel` реализован как верхняя граница
+(`MinimumLevel < logLevel` отклоняет запись), а не обычный минимальный уровень.
+`Log4NetLoggerProvider` копирует настройку при первом создании категории;
+её изменение не обновляет уже закэшированные логгеры. `Log4NetLoggerFactory`
+владеет провайдером и не поддерживает `AddProvider`.
+
+[BenchmarkTimer](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared/Scaffolding/BenchmarkTimer.cs) · [Logger4Log4Net](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared/Logging/Logger4Log4Net.cs).

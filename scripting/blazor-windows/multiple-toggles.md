@@ -3,7 +3,7 @@ title: 6. Multiple toggles
 description:
 published: true
 date: 2025-08-17T09:21:21.000Z
-tags:
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T14:52:06.974Z
 ---
@@ -11,8 +11,21 @@ dateCreated: 2025-05-11T14:52:06.974Z
 # Controlling an aura through the UI
 The code works but isn't perfect. Clicking the button toggles the trigger and aura correctly. But if you activate a trigger **with a hotkey**, the UI doesn't refresh automatically—it needs a signal. We'll use the same simple solution: refresh the interface **once per second**. Not optimal, but fine for our tiny UI.
 
+## Prepare the overlay and target auras
+
+Create a **C# Overlay v3** aura and `TargetAura 1`, `TargetAura 2`, `TargetAura 3` in the same folder. Add `HotkeyIsActive` in toggle mode to each target and keep them loaded. The shown `./TargetAura` paths resolve relative to the overlay context; adjust them to your actual tree. If several triggers match, the first is selected.
+
+Replace `UserOverlay.cs` and `UserOverlay.razor` with the corresponding complete blocks below. They are parts of one `public partial` class in the same namespace. `[Inject]` supplies `AuraTree`; Script.csx globals are not component globals.
+
 ## UserOverlay.cs
 ```csharp
+using System;
+using System.Reactive.Linq;
+using Microsoft.AspNetCore.Components;
+using PoeShared.Blazor;
+using EyeAuras.Scripting.Api;
+using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
+
 public partial class UserOverlay : BlazorReactiveComponent {
 
     [Inject]
@@ -46,6 +59,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ## UserOverlay.razor
 ```html
+@using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
@@ -68,7 +82,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ---
 
-# Breakdown
+## Breakdown
 ## UserOverlay.cs
 ```csharp
     public bool Trigger1IsActive
@@ -94,3 +108,5 @@ Key classes in the parent `<div>`:
 - `alert alert-info` – wrap buttons in a colored box for visibility
 
 The buttons themselves changed only by variable name and small style tweaks. See [here](https://getbootstrap.com/docs/5.3/components/buttons/) for more button styles. We'll cover customizing styles next.
+
+The button writes `TriggerValue`, and the hotkey changes the same trigger. The `ChangeTrackers` timer rereads it about once per second, so external changes appear with a delay. Add the timer before `base.OnInitialized()`, which seals the tracker list and owns the subscriptions through component `Anchors`. Hiding a window is not the same as disposing its component.

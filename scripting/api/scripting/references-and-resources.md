@@ -3,7 +3,7 @@ title: AI Scripting: References And Resources
 description: AI-first map for script references, NuGet packages, assembly references, and embedded resources.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, nuget, resources, references
+tags: scripting, api, ai, nuget, resources, references, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -99,35 +99,80 @@ EyeAuras package feed by default.
 - `ExposeEmbeddedResourcesScriptRuntimeVisitor` - attaches embedded resource
   provider to runtime context.
 
-## Common Flows
+## Add and use a library
 
-### Add Optional SDK Package
+Put an explicit package version at the start of `Script.csx`:
 
-1. Add the NuGet reference in the top-level script or project file.
-2. Import the SDK namespace.
-3. Add the SDK's container extension when it requires explicit registration.
-4. Resolve/use the capability through the context-appropriate access pattern.
+```csharp
+#r "nuget: Newtonsoft.Json, 13.0.3"
+using Newtonsoft.Json;
 
-### Read Embedded File
+var text = JsonConvert.SerializeObject(new { Name = "Example", Count = 3 });
+Log.Info(text);
+```
 
-1. Add the file to the script project as an embedded resource.
-2. Resolve `IScriptFileProvider` from the current script/app context.
-3. Use `ReadAllText`, `ReadAllBytes`, `GetFileInfo`, or `CreateReadStream`.
-4. Prefer subfolder-qualified names for files with common names.
+After successful restore and compilation, the log contains JSON with two fields.
+The package must be available and compatible with the runtime; this is not a
+promise to support every NuGet package. Export represents it as `PackageReference`.
+Ordinary helper classes import namespaces, not their own `#r` directives.
 
-### Use Resource In Blazor
+Use `#r "assemblyName: AssemblyName"` for metadata already available to the host.
+For your own DLL, add the compatible assembly as a script resource and use
+`#r "assemblyPath: MyLib.dll"`. These are reference forms, not complete library
+operations: you still need the library and its actual API. References do not
+register services; see [container extensions](container-extensions).
 
-1. Add CSS/JS/image/video as an embedded resource.
-2. Reference it from Razor by relative path, or load CSS/JS through Blazor
-   utilities.
-3. Keep resource paths stable when exporting/importing.
+## Read a text resource
 
-### Use Resource In ImGui
+Use `Show Files` → `Add Existing File...` to add `docs/help.txt` containing
+`Project help`. In an IDE, declare `EmbeddedResource Include="docs/help.txt"`
+in the project and import it. Run this in `Script.csx`:
 
-1. Add image/font/markdown bytes as an embedded resource.
-2. Read bytes through `IScriptFileProvider`.
-3. Use `IImGuiExperimentalApi.AddFont`, `ReplaceFont`, `GetOrAddImage`, or
-   `ImGuiEx.ImageRgba32`/`ImageFromUrl` depending on the asset.
+```csharp
+using System.IO;
+using EyeAuras.Repl;
+
+{
+    var files = GetService<IScriptFileProvider>();
+    var file = files.GetFileInfo("docs/help.txt");
+    if (!file.Exists)
+    {
+        Log.Warn("Resource docs/help.txt was not found");
+        return;
+    }
+    using var stream = file.CreateReadStream();
+    using var reader = new StreamReader(stream);
+    Log.Info(reader.ReadToEnd());
+}
+```
+
+The log shows the file's contents. The stream and reader close when the block
+ends; the provider is borrowed. Pass the provider and logger explicitly to helpers.
+
+The provider retains original manifest names. Full names and their slash forms
+are case-insensitive; folder-qualified paths allow a boundary-matched suffix lookup,
+including `wwwroot` variants. All candidates participate in ambiguity checks.
+A leaf name such as `help.txt` does not promise lookup in every folder; ambiguous
+paths return `Exists == false`.
+
+`GetDirectoryContents` exposes the manifest-name tree, which may differ from the
+original project folders. `GetManifestNames()` belongs to the concrete
+`ScriptEmbeddedResourceFileProvider`; the resolved service may be composite,
+so a cast is not guaranteed. See [embedded resources](/en/scripting/embedded-resources).
+
+## Pass resources to UI or a library
+
+Add `Images/logo.png` and use `<img src="Images/logo.png" />` in a Razor component
+whose [Blazor window](/en/scripting/blazor-windows/getting-started) exposes script files.
+The same HTML outside that host cannot access an assembly resource automatically.
+
+For ImGui, first install and register the SDK, then read the image/font and pass it
+to the appropriate API. See the complete [ImGui setup](/en/scripting/imgui/getting-started).
+Bytes alone do not create a texture or initialize an ML model.
+
+A stream avoids additional whole-file copies in caller code; `ReadAllBytes` allocates
+an array. Embedded `Watch` returns `NullChangeToken`: new bytes require updated
+resources and recompilation, not observation of the old assembly.
 
 ## Prefer
 
@@ -184,10 +229,21 @@ EyeAuras package feed by default.
 
 ## Related Maps
 
-- `scripting/container-extensions.md`
-- `scripting/project-workflow.md`
-- `nuget/imgui-sdk.md`
-- `nuget/frida-sdk.md`
-- `windows-subsystems/blazor-windows.md`
-- `computer-vision/images.md`
-- `ml/ai.md`
+- [scripting/container-extensions.md](/en/scripting/api/scripting/container-extensions)
+- [scripting/project-workflow.md](/en/scripting/api/scripting/project-workflow)
+- [nuget/imgui-sdk.md](/en/scripting/api/nuget/imgui-sdk)
+- [nuget/frida-sdk.md](/en/scripting/api/nuget/frida-sdk)
+- [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows)
+- [computer-vision/images.md](/en/scripting/api/computer-vision/images)
+- [ml/ai.md](/en/scripting/api/ml/ai)
+
+## How assemblyPath is resolved
+
+At source revision `c8b2304`, a separate visitor resolves relative paths against
+script resources. The file resolver probes an absolute path or a path relative to
+`AppDomain.CurrentDomain.BaseDirectory`, then tries assembly-name resolution for
+relative names. Pre-compilation directive processing also has a `FileInfo(path)`
+branch. Do not assume one base folder for arbitrary relative disk DLL paths:
+package portable DLLs as resources, or supply an explicit existing local path.
+
+[File resolver source](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Repl/Visitors/FileReferencesScriptVisitor.cs), [resource visitor](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Repl/Visitors/EmbeddedResourcesScriptVisitor.cs).

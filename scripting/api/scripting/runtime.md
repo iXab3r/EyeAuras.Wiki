@@ -27,7 +27,7 @@ classes, dependency access, accessors, variables, macros, and keybind metadata.
 
 - Top-level script code has host-provided capabilities.
 - Top-level script code can use `async`/`await`; async safety and background
-  work rules live in `scripting/async.md`.
+  work rules live in [scripting/async.md](/en/scripting/api/scripting/async).
 - Top-level script code can use `Log` directly for diagnostics.
 - `ExecutionAnchors` is a per-run disposal bucket; resources added there are
   disposed when the current script execution ends.
@@ -163,9 +163,9 @@ stdin/stdout/stderr protocol path.
 
 ## Disposable Scope In Top-Level Scripts
 
-Namespace `using` directives are fine at the top of script files. Disposable
-`using` statements/declarations in the executable top-level script body need an
-explicit scope in the scripting runtime.
+Namespace `using` directives belong at the top of script files. For disposable
+resources in these examples, use an explicit block: it makes the cleanup point
+within the current Run visible.
 
 Safe choices:
 
@@ -177,8 +177,9 @@ Safe choices:
   disposable to `ExecutionAnchors`.
 
 For small scripts, a single `{ ... }` block is usually the simplest and clearest
-option. Do not leave `using var` declarations directly in the root executable
-script body just because the exported IDE project compiles.
+option. Compiling the exported IDE project does not verify script-host execution
+or resource lifetime. The explicit block is the recommended example structure,
+not a claim that the compiler prohibits every other syntax form.
 
 ## API Details
 
@@ -229,17 +230,17 @@ script body just because the exported IDE project compiles.
 - Execute an aura:
   - resolve `IAuraAccessor`.
   - call `Execute` or `ExecuteAsync`.
-  - use `auras/actions.md` for action semantics.
+  - use [auras/actions.md](/en/scripting/api/auras/actions) for action semantics.
 
 - Bind a hotkey:
   - add `KeybindAttribute` to a script method.
-  - use `windows-subsystems/input-hooks-hotkeys.md` for lower-level input.
+  - use [windows-subsystems/input-hooks-hotkeys.md](/en/scripting/api/windows-subsystems/input-hooks-hotkeys) for lower-level input.
 
 - Use async safely:
   - `await` one-shot operations directly from top-level script code.
   - pass `cancellationToken` into async APIs when available.
   - catch/log exceptions at every fire-and-forget boundary.
-  - use `scripting/async.md` for background tasks and coroutine-style loops.
+  - use [scripting/async.md](/en/scripting/api/scripting/async) for background tasks and coroutine-style loops.
 
 - Run from EyePad console:
   - choose exactly one source: positional `inputFile`, `--run`, or `--eval`.
@@ -294,9 +295,9 @@ script body just because the exported IDE project compiles.
   code would only add ceremony.
 - Prefer useful diagnostic logging around setup, selections, validation,
   failures, and cleanup.
-- Prefer `scripting/async.md` before adding background tasks, timers, or
+- Prefer [scripting/async.md](/en/scripting/api/scripting/async) before adding background tasks, timers, or
   long-running async loops.
-- Prefer `recipes/recipe.md` when looking for higher-level implementation
+- Prefer [recipes/recipe.md](/en/scripting/api/recipes/recipe) when looking for higher-level implementation
   recommendations that combine multiple API areas.
 
 ## Avoid
@@ -357,22 +358,22 @@ script body just because the exported IDE project compiles.
 
 ## Related Maps
 
-- `core/eyeauras-structure.md`
-- `core/app-runtime-contexts.md`
-- `core/reactivity.md`
-- `recipes/recipe.md`
-- `scripting/async.md`
-- `scripting/container-extensions.md`
-- `scripting/logging.md`
-- `scripting/reactive-lifetime.md`
-- `scripting/references-and-resources.md`
-- `scripting/project-workflow.md`
-- `scripting/variables.md`
-- `auras/actions.md`
-- `auras/triggers.md`
-- `auras/overlays.md`
-- `windows-subsystems/blazor-windows.md`
-- `windows-subsystems/input-hooks-hotkeys.md`
-- `osd/screen-overlay.md`
-- `nuget/imgui-sdk.md`
-- `nuget/frida-sdk.md`
+- [core/eyeauras-structure.md](/en/scripting/api/core/eyeauras-structure)
+- [core/app-runtime-contexts.md](/en/scripting/api/core/app-runtime-contexts)
+- [core/reactivity.md](/en/scripting/api/core/reactivity)
+- [recipes/recipe.md](/en/scripting/api/recipes/recipe)
+- [scripting/async.md](/en/scripting/api/scripting/async)
+- [scripting/container-extensions.md](/en/scripting/api/scripting/container-extensions)
+- [scripting/logging.md](/en/scripting/api/scripting/logging)
+- [scripting/reactive-lifetime.md](/en/scripting/api/scripting/reactive-lifetime)
+- [scripting/references-and-resources.md](/en/scripting/api/scripting/references-and-resources)
+- [scripting/project-workflow.md](/en/scripting/api/scripting/project-workflow)
+- [scripting/variables.md](/en/scripting/api/scripting/variables)
+- [auras/actions.md](/en/scripting/api/auras/actions)
+- [auras/triggers.md](/en/scripting/api/auras/triggers)
+- [auras/overlays.md](/en/scripting/api/auras/overlays)
+- [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows)
+- [windows-subsystems/input-hooks-hotkeys.md](/en/scripting/api/windows-subsystems/input-hooks-hotkeys)
+- [osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay)
+- [nuget/imgui-sdk.md](/en/scripting/api/nuget/imgui-sdk)
+- [nuget/frida-sdk.md](/en/scripting/api/nuget/frida-sdk)

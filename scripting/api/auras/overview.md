@@ -22,6 +22,23 @@ overlays, behavior trees, script entities, and built-in aura packs.
 - Behavior tree nodes are tick-based aura entities.
 - Aura packs are registered by modules and described by metadata assemblies.
 
+## Choose the automation level
+
+For “condition becomes true → press F1 → display a panel”, an aura connects
+triggers, lifecycle action lists and overlays. Triggers report state; the aura
+runtime applies enabling conditions, actions perform work and overlays display UI.
+An unknown `bool?` state is not active.
+
+For one F1 press from a C# Action, acquire `ISendInputScriptingApi` and call
+`SendInput.KeyPress(System.Windows.Input.Key.F1)`; see the
+[complete input operation](/en/scripting/api/ISendInputScriptingApi) for injection,
+targeting and lifetime. For a user-configurable condition and action in the tree,
+use aura entities. These paths have different state and lifetime owners.
+
+Choose the [runtime context](/en/scripting/api/core/app-runtime-contexts) first,
+then follow the domain maps. Module registration and the input call are traced in
+source `c8b2304`; installed SDK/XML remains the exact version's contract.
+
 ## API Details
 
 - `DefaultAurasModule` - default triggers/actions/overlays/settings.
@@ -47,10 +64,10 @@ overlays, behavior trees, script entities, and built-in aura packs.
 
 ## Prefer
 
-- Use `auras/entities.md` for registration and factories.
-- Use `auras/actions.md` for action execution.
-- Use `auras/triggers.md` for activation/event sources.
-- Use `auras/overlays.md` for overlay entities.
+- Use [auras/entities.md](/en/scripting/api/auras/entities) for registration and factories.
+- Use [auras/actions.md](/en/scripting/api/auras/actions) for action execution.
+- Use [auras/triggers.md](/en/scripting/api/auras/triggers) for activation/event sources.
+- Use [auras/overlays.md](/en/scripting/api/auras/overlays) for overlay entities.
 
 ## Search Synonyms
 
@@ -67,9 +84,9 @@ overlays, behavior trees, script entities, and built-in aura packs.
 
 ## Related Maps
 
-- `core/eyeauras-structure.md`
-- `auras/entities.md`
-- `auras/actions.md`
-- `auras/triggers.md`
-- `auras/overlays.md`
-- `scripting/runtime.md`
+- [core/eyeauras-structure.md](/en/scripting/api/core/eyeauras-structure)
+- [auras/entities.md](/en/scripting/api/auras/entities)
+- [auras/actions.md](/en/scripting/api/auras/actions)
+- [auras/triggers.md](/en/scripting/api/auras/triggers)
+- [auras/overlays.md](/en/scripting/api/auras/overlays)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)

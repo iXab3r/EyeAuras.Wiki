@@ -3,17 +3,19 @@ title: 1. What is Blazor and how to use it in EyeAuras
 description:
 published: true
 date: 2025-08-17T09:21:21.000Z
-tags:
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T13:31:15.490Z
 ---
 
 [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) is a powerful tool that helps build convenient and beautiful interfaces in C#. It was originally intended for web development, but we will use it to build UI for our scripts—settings panels, overlays, pop‑ups. All of this can be done through the API available to you.
 
-# Examples from this series
+# Interfaces in EyeAuras
+
+## Examples from this series
 All examples can be downloaded [here](https://tinyurl.com/msfhaupc). I recommend downloading the whole pack rather than trying to import it into the current version.
 
-# Creating our first overlay
+## Creating our first overlay
 It's very easy:
 - Create a new aura
 ![New aura](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_KBChU81nd6.png)
@@ -43,9 +45,13 @@ It's the markup language on which the entire Internet is built. It controls wher
 ## [Razor](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-8.0)
 Razor is a markup language from Microsoft that lets you mix HTML, CSS and C# in one file.
 
-Let's create our first component and break down its parts. It will contain text and a button that increases a counter when clicked.
+Replace `UserOverlay.razor` in the created overlay with the example below. Keep its generated `@namespace` directive. Remove the old counter fields and methods from `UserOverlay.cs` if they duplicate these names; all counter logic in this variant lives in Razor.
 
-```html
+```razor
+@using Microsoft.AspNetCore.Components.Web
+@using PoeShared.Blazor
+@inherits BlazorReactiveComponent
+
 <h1>Counter</h1>
 
 <p>Current count: @currentCount</p>
@@ -61,3 +67,11 @@ Let's create our first component and break down its parts. It will contain text 
 ![Counter](https://s3.eyeauras.net/media/2024/11/msedge_Wvy12LEOv1bGyAOA.gif)
 
 In this small piece of code HTML and C# live together and complement each other. C# defines what happens when we click the button, while HTML/CSS define how everything looks.
+
+Blazor calls the handler and refreshes the count after a click. This is component-instance state; recreating the component resets it to zero. Continue with [overlay hosting](/en/scripting/blazor-windows/2-webview) and [Razor/code-behind](/en/scripting/blazor-windows/3-hello-world).
+
+The tutorial link leads to [Tutorial — Blazor Windows, revision 3](https://eyeauras.net/share/S20250511162645vYh4n3mqSLm0/3), created for EyeAuras **1.7.8354.0**. This is a historical pack; its download page does not establish file compatibility with the current editor.
+
+The current generator creates `UserOverlay.razor` with `@namespace` and `UserOverlay.cs` with the same `namespace`. Preserve these lines when replacing the example body: class name and namespace must match between both parts. The current entity is named `C# Overlay`; older screenshots use the v3 suffix.
+
+[RazorComponentTemplate](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Blazor.Shared/CodeEditor/Templates/RazorComponentTemplate.cs).

@@ -24,7 +24,7 @@ tool-calling или agent workflows. Начинайте со встроенно�
 
 ## Как это устроено
 
-- `EyeAuras.AI` — пакет с non-desktop runtime-поверхностью EyeAuras AI.
+- `EyeAuras.AI` — проект с non-desktop runtime-поверхностью EyeAuras AI.
 - `EyeAuras.AI.Desktop` — desktop AI helpers поверх `EyeAuras.AI`.
 - `EyeAuras.AISdk` — compatibility/legacy surface для проектов, которые всё
   ещё ожидают старую объединённую форму AI SDK.
@@ -142,8 +142,14 @@ finally
 
 ## Смежные карты
 
-- `ml/ai.md`
-- `ml/ai-runtime.md`
-- `ml/ai-kernel-plugins.md`
-- `computer-vision/images.md`
-- `scripting/references-and-resources.md`
+- [ml/ai.md](/ru/scripting/api/ml/ai)
+- [ml/ai-runtime.md](/ru/scripting/api/ml/ai-runtime)
+- [ml/ai-kernel-plugins.md](/ru/scripting/api/ml/ai-kernel-plugins)
+- [computer-vision/images.md](/ru/scripting/api/computer-vision/images)
+- [scripting/references-and-resources.md](/ru/scripting/api/scripting/references-and-resources)
+
+## Сборки и внешний клиент
+
+В исходниках `c8b2304` проекты `EyeAuras.AI` (`net8.0`) и `EyeAuras.AI.Desktop` (Windows TFM) помечены `IsPackable=false`; `EyeAuras.AISdk` ссылается на оба проекта. Не заменяйте проверку реальной поставки предположением, что каждое имя можно скачать через `#r nuget`. Согласуйте сборки с установленным host и экспортированным проектом.
+
+[Исторический пример vision](/ru/scripting/examples/basic/gpt/ocr) отдельно фиксирует OpenAI 2.1.0 и Emgu.CV 4.9.0.5494, формат JPEG и владение изображением. Его пакетные сигнатуры проверены, но успешный сетевой запрос к провайдеру не заявлен. Модель из старого примера не является рекомендацией для нового проекта.

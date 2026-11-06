@@ -1,9 +1,9 @@
 ---
-title: AI Scripting: Browser Automation
+title: AI Scripting — Browser Automation
 description: AI-first map for browser automation from script mini-apps, especially Selenium/WebDriver.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, browser, selenium
+tags: scripting, api, ai, browser, selenium, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -55,6 +55,43 @@ automation APIs such as Selenium/WebDriver.
 6. Find DOM elements and interact with them.
 7. Dispose the driver or intentionally leave browser running.
 
+## Open a page and read the DOM
+
+Start with the [Selenium example](/en/scripting/examples/basic/using-selenium):
+it includes package directives, EdgeDriver setup and DOM interaction.
+`Selenium.WebDriver` and `WebDriverManager` are separate script dependencies;
+do not resolve `IWebDriver` through EyeAuras `GetService` without registering it
+yourself. In ordinary .NET classes, these are regular NuGet dependencies.
+
+Before running, check the installed browser, matching driver version, access to
+driver downloads and a writable working directory. The old example's pinned
+package versions do not guarantee compatibility with today's browser. The remote
+page can change its markup too.
+
+After `Navigate().GoToUrl(url)`, locate an element using a known selector and
+read its `Text` or call `SendKeys` / `Click`. The observable result belongs to the
+created browser session; these calls are not global input to the user's active
+window. For dynamically loaded elements, use a bounded condition wait instead
+of an arbitrary delay.
+
+## End the session with its operation
+
+The driver owner closes the WebDriver session and releases its driver/service
+using `finally` or appropriate `using` blocks. For Selenium 4.24.0, disposing
+`WebDriver` sends Quit when a session exists, then disposes its command executor;
+a separate successful Quit call is not required before this `using` cleanup.
+[Versioned implementation](https://github.com/SeleniumHQ/selenium/blob/selenium-4.24.0/dotnet/src/webdriver/WebDriver.cs).
+
+Top-level script completion does not automatically wait for every external
+process. Capture the Run token before background work and check cancellation
+between actions. EyeAuras cancellation cannot interrupt arbitrary synchronous
+WebDriver calls; use the selected driver's command timeouts and shutdown policy.
+
+The sample uses Selenium 4.24.0 and WebDriverManager 2.17.4. The declarations
+and disposal/download paths are available in those projects' tagged source;
+that source check does not establish compatibility with your browser or the
+current Bing DOM. See the [example's contract links](/en/scripting/examples/basic/using-selenium).
+
 ## Prefer
 
 - Prefer Selenium/WebDriver for websites and browser apps.
@@ -101,7 +138,7 @@ automation APIs such as Selenium/WebDriver.
 
 ## Related Maps
 
-- `scripting/references-and-resources.md`
-- `scripting/web-server.md`
-- `windows-subsystems/input-hooks-hotkeys.md`
-- `computer-vision/images.md`
+- [scripting/references-and-resources.md](/en/scripting/api/scripting/references-and-resources)
+- [scripting/web-server.md](/en/scripting/api/scripting/web-server)
+- [windows-subsystems/input-hooks-hotkeys.md](/en/scripting/api/windows-subsystems/input-hooks-hotkeys)
+- [computer-vision/images.md](/en/scripting/api/computer-vision/images)

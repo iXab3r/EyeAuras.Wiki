@@ -1,9 +1,9 @@
 ---
-title: AI Memory: Processes
+title: AI Memory — Processes
 description: AI-first map of process attachment and memory process readers.
 published: true
 date: 2026-05-03T00:00:00.000Z
-tags: scripting, api, ai, memory
+tags: scripting, api, ai, memory, ai-translated
 editor: markdown
 dateCreated: 2026-04-21T00:00:00.000Z
 ---
@@ -13,6 +13,82 @@ Reference map for core process readers, process memory access, pointer chains,
 pattern scanning, PE helpers, modules, code caves, and backend selection.
 
 Optional package-specific readers belong in `nuget/`.
+
+## Select a process and read its modules
+
+In an EyeAuras script with the Memory module loaded, list candidates first:
+
+```csharp
+using EyeAuras.Memory;
+
+foreach (var info in LocalProcess.GetProcesses())
+    Log.Info($"{info.Id} {info.ProcessName}");
+```
+
+Pass the selected PID to this ordinary C# helper. The returned module snapshot
+outlives the reader; its addresses remain meaningful only while the target and
+its modules exist.
+
+```csharp
+using System.Collections.Generic;
+using EyeAuras.Memory;
+
+static IReadOnlyList<ProcessModuleInformation> ReadModules(int processId)
+{
+    using var process = LocalProcess.ByProcessId(processId);
+    return process.GetProcessModules();
+}
+```
+
+`ProcessModuleInformation` supplies `ModuleName`, `FilePath`, `BaseAddress`
+(`IntPtr`) and `Size` in bytes. The reader owns its handles; `process.Memory` is
+borrowed. Keep the reader open for subsequent reads instead of returning its
+Memory from a `using` block. `ByProcessName` accepts names with or without `.exe`;
+use a PID to select a particular instance.
+
+For an interactive script, obtain a window through the OSD picker:
+
+```csharp
+using EyeAuras.Memory;
+using EyeAuras.Shared.Osd;
+
+var window = await GetService<IOsdSelectionService>().PickWindow();
+{
+    using var process = LocalProcess.ByProcessId(window.ProcessId);
+    foreach (var module in process.GetProcessModules())
+        Log.Info(module.ModuleName);
+}
+```
+
+The window handle is borrowed. Picker cancellation exits through its cancellation
+exception; it does not provide a process to open. `IsValid` describes the reader,
+not a guarantee that the target will stay alive. See [selection](../osd/selection).
+
+A helper with an open reader, an actual module name and a known byte offset of
+an `int` field can read it as follows:
+
+```csharp
+using EyeAuras.Memory;
+using EyeAuras.Memory.Scaffolding;
+
+static int ReadModuleInt32(IProcess process, string moduleName, int offset)
+{
+    using var memory = process.MemoryOfModule(moduleName);
+    return memory.Read<int>(memory.BaseAddress + offset);
+}
+```
+
+`GetProcessModule` matches names without case sensitivity and throws
+`ArgumentException` when absent; `TryFindProcessModule` returns a Boolean.
+`MemoryOfModule` creates a view, but reads take absolute addresses and do not
+automatically enforce its bounds. Disposing the view does not dispose the process.
+For signatures use [pattern scanners](pattern-scanning); for scalar, array and
+pointer-chain operations see the [Memory reference](../memory).
+
+In an embedded host, declare `UseMemory()` and await `EnsureReadyAsync()` with
+the runtime and Memory modules available. Metadata references alone do not
+register `ILocalProcessBuilder`; `LocalProcess` throws `InvalidOperationException`
+without it. See [Embedded SDK](../nuget/embedded-sdk).
 
 ## User Intents
 
@@ -35,7 +111,8 @@ Optional package-specific readers belong in `nuget/`.
 
 - `IProcess` is the top-level target process abstraction.
 - `IProcessMemory` exposes process memory facade.
-- `IMemoryAccessor` is the practical read/write API.
+- `IMemoryAccessor` describes the memory context and range; `IMemoryReader` and
+  `IMemoryWriter` supply reading and writing.
 - `IMemoryBackend` performs low-level operations.
 - `RemoteMemoryObject` is a small helper base for objects that represent a
   known address inside an `IMemory` view.
@@ -54,7 +131,7 @@ Optional package-specific readers belong in `nuget/`.
   `GetProcessModules()`, `GetThreads()`, `VirtualQuery(...)`,
   `GetMemoryRegions()`.
 - `IProcessMemory` - process memory facade.
-- `IMemoryAccessor` - typed reads/writes, pointer reads, pointer-chain reads.
+- `IMemoryReader` / `IMemoryWriter` - typed reads/writes and pointer-chain operations.
 - `IMemory` - memory view, often module-scoped through `MemoryOfModule(...)`.
 - `RemoteMemoryObject` - base class for address-backed memory object wrappers.
 - `IMemoryBackend` - backend implementation contract.
@@ -79,7 +156,7 @@ Optional package-specific readers belong in `nuget/`.
 - `MemoryExtensionsForCodeCaves`, `CodeCaveEntry` - module-scoped code-cave
   enumeration; default scanning targets readable executable sections and treats
   `0x00`, `0xCC`, and `0x90` runs as valid cave padding.
-- `MemoryExtensionsForImports`, `MemoryExtensionsForExports`,
+- `MemoryExtensionsForImports`, `ProcessExtensions.ReadExports`,
   `ProcessPEExtensions` - PE helpers.
 - `MemoryExtensionsForEprocess` - backend-neutral helpers for reading
   high-level process, module, thread, process-parameter, and VAD-backed memory
@@ -88,9 +165,8 @@ Optional package-specific readers belong in `nuget/`.
 - `MemoryExtensionsForTebPeb` - backend-neutral helpers for reading a PEB
   address from a TEB, loaded modules from PEB loader lists, and process
   startup parameters from `RTL_USER_PROCESS_PARAMETERS` through any
-  `IMemoryReader` that can read the target user-mode address space. It also
-  contains local live-OS thread-to-TEB query helpers for flows that start from
-  a Windows thread id or handle.
+  `IMemoryReader` that can read the target user-mode address space. Local live-OS thread-to-TEB queries belong to the internal
+  `Win32NativeShared`, not this public memory-reader surface.
 - `ReadProcessInformation` - reads PID and image-name information from an
   `_EPROCESS` address without exposing raw kernel structures.
 - `ReadPebAddressViaEprocess` - reads the PEB pointer referenced by
@@ -106,9 +182,9 @@ Optional package-specific readers belong in `nuget/`.
   allocated VAD-backed `MemoryBasicInformation` ranges sorted by base address.
 - `ReadMemoryRegionViaEprocess` - resolves a single address against the
   VAD-backed region snapshot.
-- `ReadTebAddressViaThreadHandle` - queries the live local OS for
+- Internal `Win32NativeShared.ReadTebAddressViaThreadHandle` - queries the live local OS for
   `ThreadBasicInformation.TebBaseAddress` from an already-open thread handle.
-- `ReadTebAddressViaThreadId` - opens a live local Windows thread by id,
+- Internal `Win32NativeShared.ReadTebAddressViaThreadId` - opens a live local Windows thread by id,
   queries its TEB address, and closes the temporary handle.
 - `ReadPebAddressViaTeb` - reads `TEB.ProcessEnvironmentBlock` from a
   caller-supplied TEB address and explicit target architecture.
@@ -140,7 +216,7 @@ Optional package-specific readers belong in `nuget/`.
 - Read pointer chain:
   - get `IMemoryAccessor`.
   - call `ReadPointerChain` or `ReadPointerChain32`.
-  - read/write final address.
+  - receive the final value of type `T`; these methods do not return the final field address.
 
 - Scan signature:
   - create `BytePattern` or `StringPattern`.
@@ -368,8 +444,29 @@ Optional package-specific readers belong in `nuget/`.
 
 ## Related Maps
 
-- `pattern-scanning.md`
-- `windows-subsystems/window-handles.md`
-- `osd/selection.md`
-- `reverse-engineering/reprocess.md`
-- `recipes/bot-memory-entity-list-reader.md`
+- [pattern-scanning.md](/en/scripting/api/memory/pattern-scanning)
+- [windows-subsystems/window-handles.md](/en/scripting/api/windows-subsystems/window-handles)
+- [osd/selection.md](/en/scripting/api/osd/selection)
+- [reverse-engineering/reprocess.md](/en/scripting/api/reverse-engineering/reprocess)
+- [recipes/bot-memory-entity-list-reader.md](/en/scripting/api/recipes/bot-memory-entity-list-reader)
+
+## Kernel and snapshot boundaries
+
+At EyeAuras `c8b2304`, EPROCESS helpers select a curated x64 Windows layout using
+`osBuild`; omission uses the controller OS build. For a dump or another machine,
+pass the build of the memory source. The reader must resolve kernel virtual
+addresses and, for modules/parameters, the target process user address space.
+These helpers do not install a driver or switch address spaces for the caller.
+
+TEB/PEB readers support explicit x86/x64 layouts; choose the layout of the supplied
+address, including the chosen WOW64 view. EPROCESS architecture detection uses
+`WoW64Process`, whereas TEB detection checks its self pointer. None of these
+walks freezes the target: the returned lists are collected reads, not atomic
+snapshots. Traversal limits stop runaway walks rather than returning a complete
+list beyond the limit.
+
+VAD enumeration returns sorted allocated ranges, without free holes or per-page
+state. Its `MemoryBasicInformation.State` is set to `Commit`; it is not a live
+`VirtualQueryEx` result proving every page is committed/resident. Backend-specific
+control operations and native compatibility remain separate from these shared
+readers. See the [backend maps](../../memory-api/backends/lc-process) before selecting a provider.

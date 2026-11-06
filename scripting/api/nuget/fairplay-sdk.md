@@ -1,9 +1,9 @@
 ---
-title: AI NuGet: FairPlay SDK
+title: FairPlay SDK API map
 description: AI-first map for optional FairPlay driver infrastructure.
 published: true
 date: 2026-05-09T00:00:00.000Z
-tags: scripting, api, ai, fairplay, nuget, driver, memory
+tags: scripting, api, ai, fairplay, nuget, driver, memory, ai-translated
 editor: markdown
 dateCreated: 2026-05-09T00:00:00.000Z
 ---
@@ -12,6 +12,33 @@ dateCreated: 2026-05-09T00:00:00.000Z
 Reference map for optional `EyeAuras.Memory.FairPlaySdk` APIs. The SDK provides
 driver loading, low-level device connection infrastructure, and a
 `FairPlayKDProcess` adapter for the packaged `FairplayKD.sys` kernel driver.
+
+## Decide whether this package fits the integration
+
+FairPlay is optional. For ordinary local memory access, start with
+[LocalProcess](/en/scripting/api/memory/processes). The common
+`process.Memory.Read<T>` API does not imply that every backend supports the
+same targets and operations.
+
+The [SDK source](https://github.com/iXab3r/EyeAuras/tree/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.FairPlaySdk)
+provides public interfaces, factories and managed ownership rules. Driver loading
+and compatibility with a particular Windows environment require separate execution.
+A NuGet reference alone does not establish payload availability or device readiness.
+
+`ByProcessId` and `ByProcessName` neither load the driver nor retain a process
+handle by default. `WithLoadDriver()` enables loading; `WithOpenProcess()` holds
+the handle for the process wrapper's lifetime. Dispose the process wrapper: it
+owns its connection and memory backend. A connection returned directly from
+`manager.Create(...)` belongs to the caller. Dispose a lease from
+`EnterOpenProcess()` separately; it does not replace disposal of the process.
+
+## Read and write boundary
+
+The [memory backend](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.FairPlaySdk/Internal/FairPlayMemoryBackend.cs)
+uses direct driver reads only for the calling process. Writes use a FairPlay-opened
+process handle and Win32 `WriteProcessMemory`, requiring the full byte count for
+success. Do not interpret these as universal remote read/write operations through
+a driver memory-copy command.
 
 ## Important Caveat
 
@@ -113,8 +140,7 @@ and defaults to instance `0` when no valid registry override is present.
 
 ## Current Limitations
 
-- Only command `1` and the direct-read shape of command `0x78` have been
-  validated live.
+- Direct reads use command `0x78`; this source check does not establish successful driver execution.
 - `FairPlayKDProcess.Memory.TryReadMemory(...)` is currently restricted to the
   calling process.
 - `FairPlayKDProcess.Memory.TryWriteMemory(...)` uses a lazy FairPlay-opened
@@ -141,8 +167,7 @@ and defaults to instance `0` when no valid registry override is present.
   1. Ensure `Payloads/FairplayKD.sys` is present in the SDK project payload.
   2. Create `new FairPlayDriverManager()`.
   3. Call `Create(loadDriver: true)`.
-  4. Treat SCM, permission, signature, VBS, and policy failures as environment
-     setup issues.
+  4. Inspect the diagnostic message for SCM, permission, signature or policy failures; creating a manager does not mean that the device has opened.
 
 - Read a pinned current-process buffer through `IProcess`:
   1. Reference `EyeAuras.Memory.FairPlaySdk`.
@@ -212,6 +237,6 @@ and defaults to instance `0` when no valid registry override is present.
 
 ## Related Maps
 
-- `memory/processes.md`
-- `nuget/xign-sdk.md`
-- `nuget/frida-sdk.md`
+- [memory/processes.md](/en/scripting/api/memory/processes)
+- [nuget/xign-sdk.md](/en/scripting/api/nuget/xign-sdk)
+- [nuget/frida-sdk.md](/en/scripting/api/nuget/frida-sdk)

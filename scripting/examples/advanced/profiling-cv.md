@@ -3,15 +3,17 @@ title: Profiling with Computer Vision API
 description: measuring performance
 published: true
 date: 2025-10-19T16:05:00.000Z
-tags: 
+tags: scripting, profiling, ai-translated
 editor: markdown
 dateCreated: 2025-03-22T15:03:07.266Z
 ---
 
 # First things first — what is it?
+
+Start with the bounded quick-start C# Script: its input is an Aim Trainer window, and its output is a frame size and text report in the Event Log. The longer example also moves the mouse and formats reports; it is an alternative, not a second block to run immediately afterward.
 Any task is usually broken down into a set of small steps — find an image, move the mouse, click, load an ML model, etc. Each step costs some amount of resources. By measuring exactly how much time we spend on each operation, we can understand where to tighten the screws or optimize, and where things are already fine. This process is called profiling.
 
-# Let’s look at the results right away
+## Let’s look at the results right away
 With profiling you can get precise measurements — how many times a method was called, average call time, distribution of results, etc.
 
 Moreover, the output format can be anything you want — you decide what’s interesting to you. For example, for our aim bot that uses a while loop, we can measure how much time each operation takes on each iteration.
@@ -70,7 +72,7 @@ Or even render the same results as a table:
 
 There are plenty of options.
 
-# Tool — MiniProfiler
+## Tool — MiniProfiler
 EyeAuras uses one of the best "internal" profilers available — https://miniprofiler.com/.
 It was created by the same team behind https://stackoverflow.com/ and is battle-tested over the years.
 You can read more [here (github)](https://github.com/MiniProfiler/dotnet) or [here (docs)](https://miniprofiler.com/dotnet/HowTo/ProfileCode).
@@ -81,10 +83,14 @@ To start using it, just add the namespace `using StackExchange.Profiling;`. Tech
 To enable profiling for the [CV API](/scripting/api/IComputerVisionExperimentalScriptingApi), simply call `EnableProfiling`, and it will start recording timings for all methods of this API — every operation will be recorded.
 
 ```csharp
-var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForWindow(targetWindow)  
-    .EnableProfiling() // enable profiling
-    .EnableOsd(fps: 10); 
+{
+    var targetWindow = GetService<IWindowSelector>().GetWindow("Aim Trainer");
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
+        .ForWindow(targetWindow)
+        .EnableProfiling();
+    cv.ProcessPixels(image => Log.Info($"Frame: {image.Size}"));
+    Log.Info(cv.Profiler.RenderPlainText());
+}
 ```
 
 > Important! `EnableProfiling` turns on timings only for this particular [CV API](/scripting/api/IComputerVisionExperimentalScriptingApi) instance, in this specific script. If you want to profile several scripts at once, use `IProfilerProvider` with `MiniProfiler GetOrAdd(string name)` — pick a unique name for your profiler and share it across multiple scripts.
@@ -108,9 +114,9 @@ At some point you’ll probably want to render and analyze these data. To do tha
 ChatGPT handles tasks like this very well — both methods were authored by it. It knows MiniProfiler and how to extract data, so you only need to describe the output you want.
 
 ## Memory consumption
-Important! All profiling results are stored in memory. If you do nothing, that memory will eventually be exhausted, which is why recording is usually limited either by time ("store the last 10 minutes") or by memory ("store up to 500 MB"). By default, the profiler configured in the [CV API](/scripting/api/IComputerVisionExperimentalScriptingApi) keeps the last `60 minutes`. Configuration knobs for this will be added later.
+The 60-minute report-storage TTL does not limit the live timing tree; keep collection bounded.
 
-# Example
+## Example
 
 ```csharp
 using System.Text;
@@ -133,7 +139,8 @@ var targetWindow = windowSelector.ActiveWindow ?? throw new InvalidOperationExce
 var cv = GetService<IComputerVisionExperimentalScriptingApi>()
     .ForWindow(targetWindow)  //for a specific window
     .EnableProfiling()
-    .EnableOsd(fps: 10); //with enabled on-screen-display refreshed @ 10 fps
+    .EnableOsd(fps: 10)
+    .AddTo(ExecutionAnchors);
 
 //this API is used to generate mouse movements
 var sendInput = GetService<ISendInputScriptingApi>();
@@ -162,13 +169,13 @@ private void MLSearchLoop()
     var mlModelPath = @"https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
    
     var loopIdx = 0;
-    while (true)
+    while (!cancellationToken.IsCancellationRequested && loopIdx < 10)
     {
         loopIdx++;
      
         using var _ = cv.Profiler.Step($"Loop #{loopIdx}");
      
-        var result = cv.MLSearchRaw(mlModelPath, new Rectangle(719, 406, 988, 584));
+        var result = cv.MLSearchRaw(mlModelPath, region: new Rectangle(719, 406, 988, 584));
         if (!result.Detected.Predictions.Any())
         {
             //not found
@@ -198,16 +205,16 @@ private void MLSearchLoop()
 
 private void ImageSearchLoop()
 {
-    var targetImagePath = @"C:\\Users\\Xab3r\\Documents\\ShareX\\Screenshots\\2025-03\\uupb4m3RQkfHa8sv.png";
+    var targetImagePath = @"C:\Images\target.png";
 
     var loopIdx = 0;
-    while (true)
+    while (!cancellationToken.IsCancellationRequested && loopIdx < 10)
     {
         loopIdx++;
       
         using var _ = cv.Profiler.Step($"Loop #{loopIdx}");
        
-        var position = cv.ImageSearch(targetImagePath, new Rectangle(714, 397, 999, 598));
+        var position = cv.ImageSearch(targetImagePath, region: new Rectangle(714, 397, 999, 598));
         if (position.IsEmpty)
         {
             //not found
@@ -232,16 +239,16 @@ private void ImageSearchLoop()
 
 private void ColorSearchLoop()
 {
-    var targetImagePath = @"C:\\Users\\Xab3r\\Documents\\ShareX\\Screenshots\\2025-03\\uupb4m3RQkfHa8sv.png";
+    var targetImagePath = @"C:\Images\target.png";
 
     var loopIdx = 0;
-    while (true)
+    while (!cancellationToken.IsCancellationRequested && loopIdx < 10)
     {
         loopIdx++;
 
         using var _ = cv.Profiler.Step($"Loop #{loopIdx}");
 
-        var position = cv.PixelSearch(Color.FromArgb(255, 87, 34), new Rectangle(714, 397, 999, 598));
+        var position = cv.PixelSearch(Color.FromArgb(255, 87, 34), region: new Rectangle(714, 397, 999, 598));
         if (position.IsEmpty)
         {
             //not found
@@ -400,3 +407,9 @@ public string RenderPerStepStatisticsHtml(MiniProfiler profiler)
     return htmlBuilder.ToString();
 }
 ```
+
+The extended example requires its ONNX URL, window capture, MiniProfiler `4.3.8` and Mason.FluentHtml `3.0.1` for HTML output. Create `C:\Images\target.png` before selecting ImageSearchLoop. Replace the sample ROIs with your actual window regions. Pick one loop; each runs at most ten iterations.
+
+Because TargetWindow is set, ML uses WorldToWindow; simple ImageSearch/PixelSearch for ForWindow also return window coordinates. Input converts them to desktop coordinates, so another ToScreen would be wrong here. Empty results skip input; CV errors may stop the script. Defaults are confidence 30%/IoU 40% for ML and 95% for image/color search.
+
+Stop is checked between iterations, not during synchronous inference or input. Normal completion prints the report; errors or cancellation need not reach that line. Storage's 60-minute cache TTL does not bound a live profiler's timing tree. Limit the collection interval. The reporting helpers aggregate completed direct child steps and use simple sorted-sample indices for percentiles, not a statistically rigorous benchmark.

@@ -13,7 +13,7 @@ dateCreated: 2025-07-16T10:36:31.172Z
 
 ## Показать окно на каждом кадре
 
-В C# Script внутри EyeAuras подключите пакет, зарегистрируйте расширение контейнера и только затем получите сервис. Версия `0.1.42` сохранена из [руководства по ImGui](/ru/scripting/imgui/getting-started); соответствие конкретного установленного пакета описанному ниже исходному контракту нужно проверять отдельно.
+В C# Script внутри EyeAuras подключите пакет, зарегистрируйте расширение контейнера и только затем получите сервис. Версия `0.1.42` сохранена из [руководства по ImGui](/ru/scripting/imgui/getting-started); XML опубликованного пакета подтверждает перечисленные ниже члены; нативную совместимость с вашей сборкой нужно проверять отдельно.
 
 ```csharp
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.42"
@@ -70,4 +70,4 @@ using ImGuiNET;
 
 Контракт сверён с [IImGuiExperimentalApi](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.ImGuiSdk/IImGuiExperimentalApi.cs), [реализацией](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.ImGuiSdk/ImGuiExperimentalApi.cs) и [регистрацией контейнера](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.ImGuiSdk/Prism/ImGuiContainerExtensions.cs) версии EyeAuras `20fd3d424d886f6c99b979536a148774d289d110`. `WhenRender` предоставляет поток кадров с `TimeSpan`.
 
-Прежний список `MeasureText`, `DrawBox`, `DrawFrame`, `DrawCircleFilled` не является составом этого интерфейса в указанной версии. Для рисования используйте ImGui draw lists и доступные в вашем пакете расширения из [карты SDK](/ru/scripting/api/nuget/imgui-sdk). Справочник исходников не подтверждает двоичную совместимость всех опубликованных версий NuGet.
+`MeasureText`, `DrawBox`, `DrawFrame`, `DrawCircleFilled` относятся к старому интерфейсу пакета `0.1.17`; в `0.1.42` их уже нет, что видно в XML обоих опубликованных пакетов. Для рисования используйте ImGui draw lists и доступные в вашем пакете расширения из [карты SDK](/ru/scripting/api/nuget/imgui-sdk). Справочник исходников не подтверждает двоичную совместимость всех опубликованных версий NuGet.

@@ -1,9 +1,9 @@
 ---
-title: AI Windows: Blazor Windows
+title: AI Windows — Blazor Windows
 description: AI-first map of Blazor window framework APIs and window hosting.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, windows, blazor
+tags: scripting, api, ai, windows, blazor, ai-translated
 editor: markdown
 dateCreated: 2026-04-21T00:00:00.000Z
 ---
@@ -12,12 +12,12 @@ dateCreated: 2026-04-21T00:00:00.000Z
 Reference map for Blazor-backed native windows, WebView2 hosts, dialog windows,
 Razor view resolution, custom title bars, and window automation.
 
-Use `core/blazor.md` for shared Razor component infrastructure such as
+Use [core/blazor.md](/en/scripting/api/core/blazor) for shared Razor component infrastructure such as
 `BlazorReactiveComponent`, `ReactiveSection`, dynamic view resolution, content
 repository, and JS utilities.
 
-Use `osd/screen-overlay.md` for click-through desktop annotations and
-`nuget/imgui-sdk.md` for optional ImGui windows.
+Use [osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay) for click-through desktop annotations and
+[nuget/imgui-sdk.md](/en/scripting/api/nuget/imgui-sdk) for optional ImGui windows.
 
 ## User Intents
 
@@ -50,6 +50,43 @@ Use `osd/screen-overlay.md` for click-through desktop annotations and
 - A script-created Blazor window is opened explicitly by script/app code.
 - Blazor windows are native windows; use OSD/screen-overlay maps for
   click-through screen annotations.
+
+## Open a script-owned window
+
+Add `HelloWindow.razor` to a desktop C# Script project:
+
+```razor
+@namespace MyScript
+<h3>My window</h3>
+```
+
+Call the API registered by the UI module from the top-level script:
+
+```csharp
+using EyeAuras.Shared.Scripting;
+
+{
+    var dialogs = GetService<IDialogWindowUnstableScriptingApi>();
+    using var window = dialogs.CreateWindow<MyScript.HelloWindow>();
+    window.Title = "Example";
+    window.Width = 480;
+    window.Height = 320;
+    window.ShowDialog(cancellationToken);
+}
+```
+
+The native window displays the Razor content; the script continues after closing
+or processing cancellation. The dialog API tracks the created window, and `using`
+ends this operation's ownership explicitly. `CreateWindow` sets `AutoOwner = false`.
+With non-modal `Show()`, keep the window alive after the call: adding it to anchors
+does not wait for closure. The [dialog API](../IDialogWindowUnstableScriptingApi)
+has a complete model/`DataContext`/`WhenClosed` example.
+
+WPF queues window changes through its dispatcher; returning from `Show` does not
+prove the DOM is ready. At PoeEye `0e02c98`, `IBlazorWindow` inherits `INativeWindow`:
+use `DataContext`, `TitleBarDisplayMode`, WPF `Color` values and integer sizes.
+Older `ViewDataContext`, `ShowTitleBar` and `ShowIconOnTitleBar` examples do not
+match this contract. See [IBlazorWindow](../IBlazorWindow) for operations and events.
 
 ## API Details
 
@@ -317,10 +354,10 @@ resources without manually copying files next to the application.
   components, child component DOM, or third-party component markup.
 - Prefer `SuppressWellKnownBrowserShortcuts(...)` over one-off page-level
   scripts when a WebView app needs to block browser defaults.
-- Prefer `recipes/bot-memory-imgui-interface.md` when Blazor windows are
+- Prefer [recipes/bot-memory-imgui-interface.md](/en/scripting/api/recipes/bot-memory-imgui-interface) when Blazor windows are
   part of a larger ImGui-rooted script app.
-- Prefer `osd/screen-overlay.md` for drawing over the desktop.
-- Prefer `nuget/imgui-sdk.md` for ImGui-specific tools.
+- Prefer [osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay) for drawing over the desktop.
+- Prefer [nuget/imgui-sdk.md](/en/scripting/api/nuget/imgui-sdk) for ImGui-specific tools.
 
 ## Avoid
 
@@ -387,11 +424,11 @@ resources without manually copying files next to the application.
 
 ## Related Maps
 
-- `osd/screen-overlay.md`
-- `core/blazor.md`
-- `recipes/bot-memory-imgui-interface.md`
-- `nuget/imgui-sdk.md`
-- `scripting/project-workflow.md`
-- `scripting/references-and-resources.md`
-- `scripting/runtime.md`
-- `core/app-runtime-contexts.md`
+- [osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay)
+- [core/blazor.md](/en/scripting/api/core/blazor)
+- [recipes/bot-memory-imgui-interface.md](/en/scripting/api/recipes/bot-memory-imgui-interface)
+- [nuget/imgui-sdk.md](/en/scripting/api/nuget/imgui-sdk)
+- [scripting/project-workflow.md](/en/scripting/api/scripting/project-workflow)
+- [scripting/references-and-resources.md](/en/scripting/api/scripting/references-and-resources)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [core/app-runtime-contexts.md](/en/scripting/api/core/app-runtime-contexts)

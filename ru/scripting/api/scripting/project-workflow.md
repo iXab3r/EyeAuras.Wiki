@@ -57,7 +57,7 @@ dateCreated: 2026-04-22T00:00:00.000Z
 `Log.Info("Версия из EyeAuras");`. Сохраните свою копию перед импортом:
 импорт заменяет код скрипта содержимым проекта.
 
-1. В редакторе скрипта выполните `Export` в отдельную пустую папку. Не
+1. В редакторе скрипта выполните `Export` в отдельную пустую папку. Экспорт удаляет файлы и подпапки в выбранной папке, сохраняя `.git`. Не
    выбирайте папку с другими важными файлами. Путь к кнопкам и снимки экрана
    есть в [руководстве по IDE](/ru/scripting/ide-integration).
 2. Откройте экспортированный `.sln` в Rider или Visual Studio. Для сборки
@@ -125,7 +125,7 @@ restart зависит от поверхности и версии host.
 
 ## Research Anchors
 
-- `AuraScriptSerializerVisitor` — текущая сериализация; `ProjectSynchronizer` относится к устаревшему V2
+- `AuraScriptSynchronizer` — текущий импорт и наблюдение; `ProjectSynchronizer` относится к устаревшему V2
 - `AuraScriptSerializerVisitor`
 - `EmbeddedResourcesScriptVisitor`
 - `RazorVisitor`
@@ -157,12 +157,12 @@ restart зависит от поверхности и версии host.
 
 ## Related Maps
 
-- `scripting/runtime.md`
-- `scripting/container-extensions.md`
-- `scripting/references-and-resources.md`
-- `windows-subsystems/blazor-windows.md`
-- `core/deployment.md`
-- `recipes/recipe.md`
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)
+- [scripting/container-extensions.md](/ru/scripting/api/scripting/container-extensions)
+- [scripting/references-and-resources.md](/ru/scripting/api/scripting/references-and-resources)
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows)
+- [core/deployment.md](/ru/scripting/api/core/deployment)
+- [recipes/recipe.md](/ru/scripting/api/recipes/recipe)
 Контракты — EyeAuras `20fd3d4`, PoeEye `0e02c98`; формат проекта и символы сверяйте с экспортом и SDK/XML своей версии.
 
 ## Ресурсы после импорта проекта
@@ -170,3 +170,15 @@ restart зависит от поверхности и версии host.
 После импорта проверьте не только наличие файлов в проекте, но и возможность прочитать нужный ресурс через `IScriptFileProvider`. Его путь может отличаться от физического пути экспортированного проекта.
 
 [Операции файлового провайдера](file-provider-operations) содержат пример чтения с освобождением потока и правила приоритета нескольких источников. Подготовку embedded-ресурсов и `#r` см. в [подключении ресурсов](references-and-resources).
+
+## Текущая реализация импорта
+
+В срезе `c8b2304` `CsharpScriptEditor` использует `AuraScriptSynchronizer`.
+Обычный Import загружает solution один раз. Live Import сначала загружает его,
+затем повторяет загрузку по изменениям файлов с учётом `.gitignore`, `.eaignore`
+и исключений для сгенерированных файлов. Stop прекращает наблюдение, но не
+отменяет уже импортированные изменения. При `CompileOnce` оба режима запрещены.
+Это контракт загрузки проекта, а не обещание завершения прежних подписок.
+
+Исходники: [редактор](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.CsScriptAuras/Actions/CsharpScript/CsharpScriptEditor.cs),
+[синхронизация](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Scripting.Editor/Services/AuraScriptSynchronizer.cs).

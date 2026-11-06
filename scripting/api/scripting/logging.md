@@ -3,7 +3,7 @@ title: AI Scripting: Logging
 description: AI-first map for script logging, IFluentLog, helper-class logging, and diagnostic breadcrumbs.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, logging, diagnostics
+tags: scripting, api, ai, logging, diagnostics, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -81,23 +81,26 @@ Reference map for adding useful diagnostic logging to scripts and mini-apps.
 
 ### Log From Top-Level Script
 
-```csharp
-Log.Info("Starting window selection");
+Run in `Script.csx`; the sandbox supplies `Log`. The Event Log shows a sum of 38 when Info is enabled. This confirms that the logging line was reached, not completion of unrelated background work.
 
-try
+```csharp
+var values = new[] { 12, 7, 19 };
+var total = 0;
+foreach (var value in values)
 {
-    var selectedWindow = await osd.PickWindow();
-    Log.Info($"Selected window: {selectedWindow.Title} ({selectedWindow.ProcessId})");
+    total += value;
 }
-catch (Exception ex)
-{
-    Log.Error("Failed to select a window", ex);
-}
+Log.Info($"Processed {values.Length} values, sum {total}");
 ```
 
 ### Pass Log Into A Helper Class
 
+The call stays in `Script.csx`; the class may move to its own `.cs` file. It receives the script logger explicitly and prints sum 38 with the EntityReader prefix.
+
 ```csharp
+using PoeShared.Logging;
+using PoeShared.Scaffolding;
+
 var reader = new EntityReader(Log.WithPrefix("EntityReader"));
 reader.Refresh();
 
@@ -112,7 +115,10 @@ public sealed class EntityReader
 
     public void Refresh()
     {
-        log.Debug("Refreshing entity list");
+        var values = new[] { 12, 7, 19 };
+        var total = 0;
+        foreach (var value in values) total += value;
+        log.Info($"Sum {total}");
     }
 }
 ```
@@ -130,6 +136,9 @@ the top-level `Log` member, so messages appear in the EyeAuras event viewer.
 ### Create A Logger In App Or Library Code
 
 ```csharp
+using PoeShared.Logging;
+using PoeShared.Scaffolding;
+
 public sealed class MyService
 {
     private static readonly IFluentLog Log = typeof(MyService).PrepareLogger();
@@ -178,13 +187,11 @@ use `Log` for concise diagnostic breadcrumbs.
 
 ### Avoid Expensive Debug Messages
 
-```csharp
-Log.Debug(() => entities.DumpToNamedTable("Entities"));
+The logger evaluates the message factory only after its level check. Keep the lambda free of work needed for the script result.
 
-if (Log.IsDebugEnabled)
-{
-    Log.Debug(BuildLargeDiagnosticsReport());
-}
+```csharp
+var values = new[] { 12, 7, 19 };
+Log.Debug(() => $"Values: {string.Join(", ", values)}");
 ```
 
 ## What To Log
@@ -270,10 +277,10 @@ if (Log.IsDebugEnabled)
 
 ## Related Maps
 
-- `scripting/runtime.md`
-- `core/logging.md`
-- `scripting/container-extensions.md`
-- `scripting/reactive-lifetime.md`
-- `scripting/project-workflow.md`
-- `computer-vision/profiling.md`
-- `auras/entities.md`
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [core/logging.md](/en/scripting/api/core/logging)
+- [scripting/container-extensions.md](/en/scripting/api/scripting/container-extensions)
+- [scripting/reactive-lifetime.md](/en/scripting/api/scripting/reactive-lifetime)
+- [scripting/project-workflow.md](/en/scripting/api/scripting/project-workflow)
+- [computer-vision/profiling.md](/en/scripting/api/computer-vision/profiling)
+- [auras/entities.md](/en/scripting/api/auras/entities)

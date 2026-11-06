@@ -3,13 +3,123 @@ title: IComputerVisionExperimentalScriptingApi
 description: 
 published: true
 date: 2026-04-21T00:00:00.000Z
-tags: 
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-03-21T23:37:38.346Z
 ---
 
 > AI-first navigation: see [AI Computer Vision / Images](./computer-vision/images), [AI Screen Overlay / Blazor OSD](./osd/screen-overlay), and [AI ML and AI APIs](./ml/ai) for related capture, image processing, and model-facing APIs.
 {.is-info}
+
+# Computer vision from a script
+
+`IComputerVisionExperimentalScriptingApi` creates an `ICvAccessor` for capture
+and image analysis. The API is experimental. The operation contracts below refer
+to EyeAuras `20fd3d4`; the running application's OpenCV module registers the service
+and cache provider. Check your version's SDK/XML for the complete current surface.
+
+## Find a red pixel on the primary screen
+
+Run this complete example at the top level of a C# script in EyeAuras. Capture
+of the primary display must be available; drivers and DPI depend on the environment.
+No image file or ML model is needed:
+
+```csharp
+using System.Drawing;
+using EyeAuras.OpenCVAuras.Scripting;
+
+{
+    var api = GetService<IComputerVisionExperimentalScriptingApi>();
+    using var cv = api.ForScreen();
+    var result = cv.PixelSearchRaw(Color.Red);
+    if (result.Detected.Bounds is { } bounds)
+    {
+        Log.Info($"Red pixel on screen: {result.ToScreenPoint(bounds)}");
+    }
+    else
+    {
+        Log.Info("Red pixel not found");
+    }
+}
+```
+
+`ForScreen()` targets the primary display, not the entire virtual desktop.
+`Bounds == null` means no match. Capture/processing failures can throw; they are
+not converted into no match. The caller owns the accessor; `using` returns its
+cache lease.
+
+## Select a source and thresholds
+
+`ForWindow(IWindowHandle)` selects a window handle. For a match expression, set
+`ComputerVisionAccessorArgs.WindowMatchParams` and call `For(args)`; see the
+[window map](windows-subsystems/window-handles). The operation argument overrides
+the accessor threshold, which overrides the built-in default.
+
+| Setting | Default |
+| --- | --- |
+| `ImageSimilarityThreshold` | 95% |
+| `PixelSimilarityThreshold` | 95% |
+| `MLConfidenceThreshold` | 30% |
+| `MLIoUThreshold` | 40% |
+
+`region = default` means no additional ROI. A nonempty `System.Drawing.Rectangle`
+restricts the source in window coordinates for a window, or screen coordinates
+for a screen. Raw results use processed-image coordinates; use their `ToScreen`
+or `ToScreenPoint` to account for ROI and transforms.
+
+## Choose the operation result
+
+| Operation | Result and prerequisite |
+| --- | --- |
+| `ImageSearch(path, ...)` | `Rectangle`, empty on no match; requires an existing file or resolvable template resource |
+| `PixelSearch(color, ...)` | `Point`, default on no match; `(0, 0)` can also be a real result |
+| `TextSearch(region)` | Recognized string; requires an available OCR engine |
+| `ImageSearchRaw`, `PixelSearchRaw`, `TextSearchRaw`, `MLSearchRaw` | `WindowImageProcessedEventArgs<TDetectionResult>`, not a rectangle, string or array |
+| `CountPixels(color, ...)` | Number of matching pixels |
+| `ProcessPixels(callback, ...)` | Callback result or `void`; image is borrowed |
+
+Simple `ImageSearch` and `PixelSearch` return screen coordinates for a screen
+source and window coordinates for a window. Do not transform them again as raw
+results. Nullable `Detected.Bounds` distinguishes a pixel at the origin from no match.
+`TextSearchRaw` does not request word segments by default (`includeTextSegments: false`).
+ML needs a compatible model/runtime, not just a filename. See [image operations](computer-vision/images).
+
+## Process a frame and retain your own copy
+
+In the same script context:
+
+```csharp
+using EyeAuras.OpenCVAuras.Scripting;
+
+{
+    var api = GetService<IComputerVisionExperimentalScriptingApi>();
+    using var cv = api.ForScreen();
+    using var snapshot = cv.ProcessPixels(image => image.Clone());
+    Log.Info($"Copy size: {snapshot.Width} x {snapshot.Height}");
+}
+```
+
+The callback receives a shared `Image<Bgr, byte>`. Do not dispose it or retain it
+for later work. Your code owns and disposes the clone. `Captured` in a raw event is
+also shared mutable capture state, not an independent or thread-safe snapshot.
+`CountPixels` and `ProcessPixels` synchronously wait up to 30 seconds and accept
+no cancellation token. Do not put them in UI callbacks or run them concurrently
+over shared state without synchronization.
+
+## Cache, debugging and profiling
+
+The normal accessor leases a shared cache. `WithoutCaching()` supplies a separate
+surface without that mechanism; it is not a performance guarantee. Keep the normal
+cached route for macros and behavior trees.
+
+`EnableOsd()` supports a window accessor; the implementation rejects it for full-screen
+capture. Default `OsdFps` is 10; OSD and profiling initially are off.
+See [CV profiling](computer-vision/profiling) for `EnableProfiling()` and `Profiler`.
+
+## Reference listing
+
+The listing preserves the API shape; use the operation contracts above for ownership
+and result semantics, and the SDK/XML matching your installed version for signatures.
 
 ```csharp
 /// <summary>
@@ -22,7 +132,7 @@ public interface IComputerVisionExperimentalScriptingApi : IScriptingApi
 {
     /// <summary>
     /// Returns instance of CV API which BYPASS caching mechanism - with it you are on your
-    /// own. This will provide a bit better performance for a case when you have a single Script
+    /// own. This bypasses caching for a case when you have a single Script
     /// controlling everything. Absolutely not applicable for BTs/Macros usage.
     /// </summary>
     /// <returns></returns>

@@ -77,6 +77,20 @@ Anonymous creation remains supported; an ordinary caller cannot update an
 anonymous share. The existing owner/admin/grant resolver governs mutations.
 These are remote service contracts, not ambient top-level script capabilities.
 
+## Choose the distributed pack contents
+
+Start with Export on the desired folder, save or publish it, then check Import in
+an isolated user environment. A published link and a portable application folder
+are different deliverables; see [Export and Import](/en/features/export-import)
+and [Packs](/en/features/packs).
+
+`PackAurasConfig` in `EyeAuras.Shared.Sharing` defaults to `Any`, `ScriptOnly`,
+`None`, `Embed` and `CurrentVersion` for distribution, compilation, protection,
+packing and compatibility respectively. Packed download alone does not remove
+source. For a prepared binary distribution select `PackedOnly` and `BinariesOnly`,
+then choose protection separately and inspect the resulting artifact. Constructing
+this config in a script does not invoke the packer.
+
 ## Pack Settings
 
 - `PackDistributionPolicy.Any` - import or packed download can both be offered.
@@ -109,7 +123,8 @@ These are remote service contracts, not ambient top-level script capabilities.
 
 ## Mini-app Launch
 
-Mini-apps commonly use EyePad launch arguments:
+The following argument shape requires an exported script/config and a supporting
+EyePad build; it does not launch an arbitrary SDK project:
 
 ```text
 EyeAuras.exe --pad --read-only --publish-single-file --ui splashOnly --readiness script --acceptLicense "path/to/Script.json"
@@ -120,8 +135,9 @@ EyeAuras.exe --pad --read-only --publish-single-file --ui splashOnly --readiness
 - `--publish-single-file` asks the packing pipeline for a more self-contained
   build.
 - `--ui splashOnly` hides the main EyeAuras UI and keeps only the splash screen.
-- `--readiness script` treats the product as ready when the target script is
-  ready.
+- `--readiness script` requires the script to call
+  `IApplicationAccessor.ReportIsLoaded()` explicitly; script compilation alone
+  does not report readiness.
 - `--acceptLicense` skips the standard license agreement window for mini-app
   scenarios.
 - The final path points to the target script/config that should start.
@@ -155,9 +171,9 @@ EyeAuras.exe --pad --ui headless --readiness script --eval "Console.WriteLine(st
   to reverse engineer.
 - `PerformanceFirst` and `SecurityFirst` add protection/obfuscation on top of
   compiled scripts.
-- Public classes and public members are kept as public contract. Prefer
-  `internal` for implementation details that should be transformed more
-  aggressively.
+- Keep only consumer contracts public and implementation details internal.
+  Exact renaming/exclusion behavior depends on the deployed protection rules;
+  public visibility alone is not proof of what the resulting binary preserves.
 - Protection is not an absolute security guarantee and should be combined with
   careful licensing and server-side design for paid products.
 
@@ -210,7 +226,7 @@ For paid mini-apps, the usual hardening direction is:
 - `LoginWidget` - ready-made Blazor login widget for custom UI.
 
 For the detailed custom login/profile flow, including key login via
-`PerformLogin(key, key)`, see `core/login-and-licensing.md`.
+`LoginWithLicenseKey(key)`, see [core/login-and-licensing.md](/en/scripting/api/core/login-and-licensing).
 
 ## Publication tags
 
@@ -289,10 +305,35 @@ payload validation. These are transport APIs, not global top-level script member
 
 ## Related Maps
 
-- `core/eyeauras-structure.md`
-- `core/app-runtime-contexts.md`
-- `core/login-and-licensing.md`
-- `core/configuration-persistence.md`
-- `scripting/runtime.md`
-- `recipes/bot-memory-imgui-interface.md`
-- `recipes/bot-memory-behavior-tree.md`
+- [core/eyeauras-structure.md](/en/scripting/api/core/eyeauras-structure)
+- [core/app-runtime-contexts.md](/en/scripting/api/core/app-runtime-contexts)
+- [core/login-and-licensing.md](/en/scripting/api/core/login-and-licensing)
+- [core/configuration-persistence.md](/en/scripting/api/core/configuration-persistence)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [recipes/bot-memory-imgui-interface.md](/en/scripting/api/recipes/bot-memory-imgui-interface)
+- [recipes/bot-memory-behavior-tree.md](/en/scripting/api/recipes/bot-memory-behavior-tree)
+
+## Source-backed distribution boundaries
+
+At `c8b2304`, upload preparation retains the original source tree as `Content` and
+builds a separate `PackedContent`. `BinariesOnly` replaces C#/Razor source for
+projects found in the active script repository; invalid/missing project IDs or
+unresolved scripts are skipped. Other assets can remain. Inspect the produced
+artifact instead of treating the option as a whole-package source scrubber.
+
+For non-owners, `PackedOnly` rejects program download and directs the consumer to
+the website. `PreferPacked` depends on actual packed content availability; it is
+not compilation or protection by itself. Protection sends compiled resources to
+ShadowForge with levels 0/1/2 for None/PerformanceFirst/SecurityFirst. A selected
+level does not prove that a remote protection job or target-host launch succeeded.
+
+`--read-only` disables normal EyePad content change persistence; it does not sandbox
+arbitrary filesystem writes by scripts. `--publish-single-file` is a server packing
+request, not an instruction to repack a locally launched executable. Splash-only
+closes the splash when application readiness is reported. The command above needs
+the script-controlled readiness call, otherwise startup can stay pending.
+
+[Upload preparation](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Sharing/Services/ShareUploadPreparationService.cs),
+[precompilation](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Sharing/Services/PackingServiceCompiler.cs),
+[download policy](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Web/Services/DownloadPolicyCalculator.cs),
+[readiness contract](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Shared.Metadata/Modularity/EyeAurasReadinessMode.cs).

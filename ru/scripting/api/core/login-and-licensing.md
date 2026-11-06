@@ -68,15 +68,21 @@ dateCreated: 2026-04-22T00:00:00.000Z
 а после успеха обновляйте профиль по `ILicenseAccessor`. Для lease замените
 демонстрационный share id на id своего опубликованного pack.
 
-### Что зависит от версии loader
+### Контракт текущего loader
 
-Этот раздел сохраняет имена и сценарии существующего API. Реализации hub,
-серверной авторизации и lease не входят в доступный срез исходников
-EyeAuras `20fd3d4`; точные сигнатуры, поддержку отмены и поведение при
-разрыве связи проверяйте по `EyeAuras.Loader.Shared` своей поставки.
-В исходнике теста script visitor зафиксировано намерение освобождать lease
-с завершением запуска, но это не заменяет проверку реальной версии host.
-Не полагайтесь на недокументированный таймаут или автономную выдачу доступа.
+В исходниках `c8b2304` `PerformLogin(username, password)` выполняет вход в аккаунт,
+а `LoginWithLicenseKey(key)` использует отдельный путь key login. Старый пример
+`PerformLogin(key, key)` не заменяет этот вызов. `ActivateLicenseKey` требует
+принятую авторизованную сессию и обновляет лицензию в рамках той же сессии.
+Публичные методы не принимают `CancellationToken`; закрытие вашей формы само
+по себе не отменяет их. Дождитесь операции и обновляйте UI через его dispatcher.
+
+`SublicenseManager` регистрируется script visitor и требует активные
+`ExecutionAnchors`. Каждый `Rent` создаёт новый локальный lease и прикрепляет
+его к текущему Run. Начальное состояние — `LeasePending`; `WhenChanged` отдаёт
+текущее состояние поздним подписчикам. При завершении Run lease освобождается;
+можно освободить его раньше явно. Это удаляет локальное намерение и запускает
+фоновую синхронизацию, но не является подтверждением ответа сервера.
 
 Сам вызов `Rent` не должен запускать платную работу: до `IsGranted == true`
 показывайте ожидание. При последующей потере доступа остановите защищённую
@@ -111,10 +117,10 @@ Log.Info($"Logged in as {licenseAccessor.Username}");
 var eyeHub = GetService<IEyeHubService>();
 
 var key = licenseKey.Trim();
-var license = await eyeHub.PerformLogin(key, key);
+var license = await eyeHub.LoginWithLicenseKey(key);
 ```
 
-Для key login ожидается, что одно и то же значение ключа передается в оба аргумента. Сервер должен поддерживать этот режим; создание или выбор аккаунта — его политика. Не логируйте сырой ключ.
+Используйте отдельный `LoginWithLicenseKey`: выбор или создание аккаунта по ключу выполняет сервер. Не логируйте сырой ключ.
 
 ### Активация дополнительного ключа для существующего пользователя
 
@@ -146,8 +152,7 @@ Log.Info($"Hub: {eyeHub.ConnectionState}");
 Ниже — подключение наблюдения внутри уже работающего скрипта. Сам блок
 не ждёт выдачи доступа и не удерживает Run открытым. Продолжите его ожидаемой
 операцией или [ожиданием до Stop](../scripting/async); иначе `ExecutionAnchors`
-сразу снимет подписку при возврате из скрипта. Это пример использования
-контракта loader своей версии, а не проверенная реализация авторизации.
+сразу снимет подписку при возврате из скрипта. Подписка показывает статус; она не останавливает защищённую работу за вас.
 
 ```csharp
 var sublicenseManager = GetService<ISublicenseManager>();
@@ -174,7 +179,7 @@ lease.WhenChanged()
 - Отслеживайте busy state, чтобы повторные клики не запускали несколько login-запросов одновременно.
 - Проверяйте выбранный режим: username/password для входа в аккаунт, license key — для key login.
 - Вызывайте `Trim()` для usernames и keys. Для passwords этого делать не нужно, если только ваш собственный UX явно этого не требует.
-- Для key login вызывайте `PerformLogin(key, key)`.
+- Для key login вызывайте `LoginWithLicenseKey(key)`.
 - Очищайте поля password/key после успешного логина.
 - Показывайте ошибки операции логина в локальном UI.
 - Читайте профиль и отображение лицензии из `ILicenseAccessor`, а не из скопированного состояния формы логина.
@@ -190,7 +195,7 @@ lease.WhenChanged()
 ## Что предпочтительно
 
 - Используйте `LoginWidget`, если подходит стандартный host flow логина.
-- Используйте `IEyeHubService.PerformLogin(key, key)` для кастомных экранов key login.
+- Используйте `IEyeHubService.LoginWithLicenseKey(key)` для кастомных экранов key login.
 - Используйте `IEyeHubService.ActivateLicenseKey(...)`, чтобы привязать дополнительный ключ к уже вошедшему аккаунту.
 - Используйте `ILicenseAccessor` для отображения текущего профиля и лицензии.
 - Используйте `ISublicenseManager.Rent(...)` для авторизации современных платных packs или mini-apps.
@@ -244,3 +249,7 @@ lease.WhenChanged()
 - [references-and-resources](../scripting/references-and-resources)
 - [keylogin](../../../../features/keylogin)
 - [sublicenses](../../../../features/sublicenses)
+
+[Hub operations](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Loader/Services/EyeHubService.cs),
+[script lease owner](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Loader/Services/SublicenseManager.cs),
+[lease registry](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Loader/Services/SublicenseLeaseRegistry.cs).

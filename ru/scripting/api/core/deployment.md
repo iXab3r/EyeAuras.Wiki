@@ -97,7 +97,8 @@ EyeAuras.exe --pad --read-only --publish-single-file --ui splashOnly --readiness
 - `--read-only` не сохраняет изменения в aura/script между запусками.
 - `--publish-single-file` просит packing pipeline собрать более самодостаточный build.
 - `--ui splashOnly` скрывает основной UI EyeAuras и оставляет только splash screen.
-- `--readiness script` считает продукт готовым, когда готов целевой script.
+- `--readiness script` ждёт явного вызова `IApplicationAccessor.ReportIsLoaded()`
+  из скрипта; одна компиляция скрипта не сообщает готовность.
 - `--acceptLicense` пропускает стандартное окно лицензионного соглашения в сценариях mini-app.
 - Последний путь указывает на целевой script/config, который нужно запустить.
 
@@ -107,7 +108,9 @@ EyeAuras.exe --pad --read-only --publish-single-file --ui splashOnly --readiness
 - Предварительная компиляция ускоряет запуск и может убрать текст скриптов из packaged product.
 - `BinariesOnly` скрывает текст скриптов, но сам по себе не делает код невозможным для reverse engineering.
 - `PerformanceFirst` и `SecurityFirst` добавляют protection/obfuscation поверх compiled scripts.
-- Public classes и public members сохраняются как публичный контракт. Для деталей реализации, которые должны трансформироваться агрессивнее, лучше использовать `internal`.
+- Оставляйте публичными контракты потребителей, а детали реализации делайте `internal`.
+  Точное переименование и исключения зависят от правил установленного сервиса защиты;
+  одна публичная видимость не доказывает, что сохранено в итоговом binary.
 - Protection не даёт абсолютной гарантии безопасности и для платных продуктов должна сочетаться с аккуратной licensing-моделью и server-side design.
 
 ## Лицензирование и sublicenses
@@ -212,3 +215,28 @@ EyeAuras.exe --pad --read-only --publish-single-file --ui splashOnly --readiness
 - [runtime](../scripting/runtime)
 - [bot-memory-imgui-interface](../recipes/bot-memory-imgui-interface)
 - [bot-memory-behavior-tree](../recipes/bot-memory-behavior-tree)
+## Границы упаковки по исходникам
+
+В `c8b2304` подготовка upload сохраняет исходное дерево как `Content` и отдельно
+создаёт `PackedContent`. `BinariesOnly` заменяет C#/Razor-исходники проектов,
+найденных в активном script repository. Некорректный или отсутствующий project ID
+и не найденный скрипт пропускаются; прочие assets могут сохраниться. Проверяйте
+состав артефакта: этот параметр не гарантирует удаление любого исходного текста
+из всего пакета.
+
+Для не-владельца `PackedOnly` запрещает загрузку в программе и направляет на сайт.
+`PreferPacked` зависит от наличия prepared content и сам ничего не компилирует.
+Защита передаёт compiled resources в ShadowForge с уровнями 0/1/2 для
+None/PerformanceFirst/SecurityFirst. Выбор уровня не доказывает успешное завершение
+удалённой обработки или запуска на целевом host.
+
+`--read-only` отключает обычное сохранение изменений контента EyePad, но не
+запрещает скрипту произвольную запись файлов. `--publish-single-file` — запрос
+серверной упаковке, а не перепаковка запущенного локального executable.
+Splash-only закрывает splash при сообщении готовности приложения. Команда выше
+требует явного сообщения готовности из скрипта, иначе ожидание может продолжаться.
+
+[Upload preparation](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Sharing/Services/ShareUploadPreparationService.cs),
+[precompilation](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Sharing/Services/PackingServiceCompiler.cs),
+[download policy](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Web/Services/DownloadPolicyCalculator.cs),
+[readiness contract](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Shared.Metadata/Modularity/EyeAurasReadinessMode.cs).

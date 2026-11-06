@@ -31,17 +31,29 @@ Log.Info("Hello, world!");
 
 Congratulations, this was officially the first step towards mighty scripts of the future.
 
-# Oh, Manually Clicking Run Isn't Cool
+## Run the script with a hotkey
 
 To make it a bit more interesting, let's set up our script to run only when a specific key, for example, `F1`, is pressed.
 
 ## Adding the HotkeyIsActive Trigger to the Aura
 ![](https://i.imgur.com/j7ma0e1.png)
 
-## Switching it to `Click/Hold` mode and specifying `F1`
+## Select Click/Hold mode and F1
+
 ![](https://i.imgur.com/s3eKrnp.png)
 
-`Click/Hold` is used to deactivate the trigger immediately after pressing. So, by pressing `F1` twice, we will execute our script twice. The `Toggle` mode would toggle the trigger on and off with each press. Since our action is in the OnEnter block, pressing twice would execute our script only **once**.
 
 ## That's It!
 Now, every time you press `F1`, your script will print in the `Event Log`. Of course, this might not be the most exciting thing we can do, but more on that in the following examples.
+
+Run `Log.Info("Hello, world!");` in the top-level C# Script Action. EyeAuras supplies
+`Log`; no package or input is needed. The message appears in that Action's Event Log.
+Ordinary classes receive a logger explicitly. A fresh script's default template
+can vary by version.
+
+The current tracker sets Hold active on KeyDown and inactive on KeyUp. Click
+(Toggle in the UI) toggles on KeyUp. For an On Enter action, two press/release cycles
+produce two entries in Hold; in Toggle the second cycle turns the state off.
+This is a state-transition contract, not ordering of long-running actions.
+
+[HotkeyTracker implementation](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Wpf/UI/Hotkeys/HotkeyTracker.cs).

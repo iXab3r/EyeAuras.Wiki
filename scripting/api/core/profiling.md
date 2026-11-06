@@ -3,7 +3,7 @@ title: AI Core: Profiling
 description: AI-first map for MiniProfiler timings, JetBrains dotTrace/dotMemory captures, and profiling workflows.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, profiling, performance, diagnostics
+tags: scripting, api, ai, profiling, performance, diagnostics, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -111,8 +111,7 @@ Good fits:
   `Info` log with elapsed milliseconds when disposed.
 - `MiniProfilerExtensions.StepDebug(...)` - wraps `Step(...)` and writes a
   `Debug` log with elapsed milliseconds when disposed.
-- `MiniProfilerExtensions.Clear(...)` - clears a MiniProfiler backed by
-  `MemoryCacheStorage`.
+- `MiniProfilerExtensions.Clear(...)` - clears `MemoryCacheStorage`, not the existing profiler's timing tree.
 - `ICvAccessor.EnableProfiling()` - enables internal CV steps for one accessor.
 - `ICvAccessor.Profiler` - MiniProfiler associated with one CV accessor.
 - `MiniProfilerViewer` / `IMiniProfilerViewer` - in-app tree/text viewer for
@@ -120,7 +119,7 @@ Good fits:
 - `JetBrains.Profiler.SelfApi.DotTrace` - starts, saves, archives, and detaches
   performance profiling sessions.
 - `JetBrains.Profiler.SelfApi.DotMemory` - creates memory snapshots.
-- `IPerformanceProfilerService` - EyeAuras service wrapping dotTrace/dotMemory.
+- `PoeShared.Profiler.IProfilerService` - desktop service wrapping dotTrace/dotMemory; the Web host has a separate `IPerformanceProfilerService`.
 - `ProfilerController` - web endpoints for status, `startProfiling`,
   `stopProfiling`, and `takeSnapshot`.
 - `IProfilerViewModel` - UI-facing profiler state/commands used by Settings and
@@ -129,6 +128,8 @@ Good fits:
 ## Common Flows
 
 ### Add MiniProfiler Steps In App Code
+
+Insert this in an existing startup phase where `auraTreeConfigManager` is the injected tree manager and `Log` is the service logger. It is an instrumentation fragment, not a standalone script.
 
 ```csharp
 using (ProfilerProvider.Startup.StepInfo(Log, "Loaded aura tree config"))
@@ -144,48 +145,37 @@ Use `ProfilerProvider.Startup` for startup and first-load phases. Use
 
 ```csharp
 using StackExchange.Profiling;
+using EyeAuras.Shared.Services;
 
-var profilerProvider = GetService<IProfilerProvider>();
+var profilerProvider = ProfilerProvider.Instance;
 var profiler = profilerProvider.GetOrAdd("My pack / Farm loop");
 
 using (profiler.Step("Loop iteration"))
 {
     using (profiler.Step("Read state"))
     {
-        ReadGameState();
+        await Task.Delay(20, cancellationToken);
     }
 
     using (profiler.Step("Choose action"))
     {
-        ChooseNextAction();
+        await Task.Delay(10, cancellationToken);
     }
 }
 
 Log.Info(profiler.RenderPlainText());
 ```
 
-Use a shared named profiler when several scripts or helper classes contribute to
-one scenario.
+The top-level script logs a timing tree with two awaited delays. Replace them with your operations. `GetOrAdd` reuses the named profiler; use `ProfilerProvider.Create("One run")` for an isolated run without previous history.
 
 ### Profile A CV Loop
 
-```csharp
-using StackExchange.Profiling;
+Create a CV accessor for a specific window or screen, then call
+`EnableProfiling()`. Wrap your own work with `cv.Profiler.Step("...")`;
+internal steps measure the accessor's phases. See the complete setup in
+[CV profiling](../computer-vision/profiling). Check a nullable detection result
+and its coordinate space before using it for input.
 
-var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForWindow(targetWindow)
-    .EnableProfiling();
-
-using (cv.Profiler.Step("Loop iteration"))
-{
-    var match = cv.ImageSearchRaw("needle.png");
-
-    using (cv.Profiler.Step("Mouse move"))
-    {
-        sendInput.MouseMoveTo(match.Detected.Bounds.Value.Center());
-    }
-}
-```
 
 `EnableProfiling()` records internal CV phases such as renting, preparation,
 refresh, model/search work, and OSD. Add your own steps around non-CV work so
@@ -199,12 +189,11 @@ the final report separates detection from input, sleeps, logging, and UI.
 3. Use Tree view for parent/child timing shape.
 4. Use Text view or `RenderPlainText()` when the result should be copied into
    logs or a report.
-5. Clear or rotate profiler data for long-running scenarios.
+5. Use a separate profiler for each bounded interval in long-running scenarios.
 
 ### Collect A JetBrains Performance Capture
 
-1. Open Settings and use **Start profiling**, or call the profiler start
-   endpoint when controlling the app remotely.
+1. Open Settings and use **Start profiling**, or use the registered desktop profiler service. Web profiler endpoints collect the Web process.
 2. Reproduce the lag while profiling is collecting. For support captures,
    10-30 minutes is usually enough.
 3. Click **Stop profiling**. EyeAuras saves a `Performance-PID...` archive under
@@ -215,8 +204,7 @@ the final report separates detection from input, sleeps, logging, and UI.
 ### Collect A JetBrains Memory Snapshot
 
 1. Wait until memory usage is already clearly abnormal.
-2. Use the memory snapshot action in the profiler/report workflow, or call the
-   `takeSnapshot` endpoint when controlling the app remotely.
+2. Use the memory snapshot action in the profiler/report workflow, or use the desktop profiler service. The Web `takeSnapshot` endpoint snapshots the Web process.
 3. EyeAuras saves a `Memory-PID...` dotMemory workspace under the app `traces`
    folder.
 4. Expect the app to pause or slow down while the snapshot is being written.
@@ -329,16 +317,35 @@ the final report separates detection from input, sleeps, logging, and UI.
 
 ## Related Maps
 
-- `computer-vision/profiling.md`
-- `scripting/logging.md`
-- `scripting/runtime.md`
-- `core/app-runtime-contexts.md`
-- `core/app-modules.md`
-- `core/blazor.md`
-- `../../../features/profiler.md`
-- `../../examples/advanced/profiling-cv.md`
+- [computer-vision/profiling.md](/en/scripting/api/computer-vision/profiling)
+- [scripting/logging.md](/en/scripting/api/scripting/logging)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [core/app-runtime-contexts.md](/en/scripting/api/core/app-runtime-contexts)
+- [core/app-modules.md](/en/scripting/api/core/app-modules)
+- [core/blazor.md](/en/scripting/api/core/blazor)
+- [../../../features/profiler.md](/en/features/profiler)
+- [../../examples/advanced/profiling-cv.md](/en/scripting/examples/advanced/profiling-cv)
 - [MiniProfiler .NET docs](https://miniprofiler.com/dotnet/)
 - [MiniProfiler profile-code docs](https://miniprofiler.com/dotnet/HowTo/ProfileCode)
 - [MiniProfiler GitHub repository](https://github.com/MiniProfiler/dotnet)
 - [JetBrains dotTrace API reference](https://www.jetbrains.com/help/profiler/API_Reference.html)
 - [JetBrains dotMemory self-profiling API](https://www.jetbrains.com/help/dotmemory/Profiling_Guidelines__Advanced_Profiling_Using_dotTrace_API.html)
+
+
+## Verified host boundaries
+
+The pinned dependencies are MiniProfiler 4.3.8 and JetBrains.Profiler.SelfApi
+2.2.0. Their XML contracts confirm that `Step` times until disposal, `Ignore`
+scopes suppression, `SaveData` saves and stops collection, and the collected
+snapshot archive includes its index files. `EnsurePrerequisiteAsync` can download
+the profiler tools; it is not merely a local availability check.
+
+Desktop `PoeShared.Profiler.IProfilerService` exposes `StartProfiling()`,
+`StopCollecting()`, and `TakeMemorySnapshot()` as tasks. Its stop operation saves,
+archives, and detaches. The Web `ProfilerController` routes are `/profiler`,
+`/profiler/startProfiling`, `/profiler/stopProfiling`, and
+`/profiler/takeSnapshot`; they operate on the **Web process**, not an arbitrary
+desktop instance. Command routes require Admin authorization. Availability
+still depends on the deployed Web host and profiler prerequisites.
+
+[Desktop implementation](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Wpf/Profiler/PerformanceProfiler.cs) · [Web controller](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Web/Controllers/ProfilerController.cs).

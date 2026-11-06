@@ -3,80 +3,131 @@ title: Dependency Injection
 description: 
 published: true
 date: 2025-03-23T12:04:28.776Z
-tags: 
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-03-23T12:04:28.776Z
 ---
+# Dependency injection
 
-# What is Dependency Injection (DI)?
+DI lets your code request registered host services instead of constructing them.
+A type appearing in the SDK does not establish that the service is registered
+in the current host.
 
-**Dependency Injection (DI)** is a mechanism that allows your code to access various services and program functionality. Imagine you have a toolbox (DI container), and you can simply ask for the tool you need by name instead of building it yourself.
+## Resolve a service in Script.csx
 
-In simple terms:
-- You say: "I need a service for moving the mouse."
-- The program responds: "Here it is, take it and use it!"
+In an EyeAuras C# Script with input services registered:
 
-This approach helps you instantly see which parts of the program the script interacts with — it's clear what "tools" the script requires. 
-This not only simplifies script maintenance but also allows for some optimization techniques — when it's clear what the script needs, unused parts can be ignored to improve efficiency.
-
----
-
-# Ways to Obtain Services Using DI
-
-## 1. Init-only Properties (Recommended)
-Using `init` properties is a simple and safe way to receive dependencies. Such properties are initialized **once at script startup** and cannot be changed later.
-
-Example:
 ```csharp
-ISendInputScriptingApi SendInput { get; init; } // Automatically initialized when the script starts
+using EyeAuras.Roxy.Api;
 
-SendInput.MouseMoveTo(200, 100); // Moves the mouse to X200 Y100
-SendInput.MouseRightClick(); // Performs a right mouse click
+var input = GetService<ISendInputScriptingApi>();
+Log.Info($"Screen cursor: {input.CursorPosition}");
 ```
 
----
+This reads the cursor position without moving it. `GetService<T>()` resolves
+through the sandbox container and related contexts; it is not a nullable
+service-availability check. Repeated resolution need not create a new instance.
+Ownership depends on registration, so give your own resources an explicit
+[lifetime owner](/en/scripting/api/scripting/reactive-lifetime).
 
-## 2. The `Dependency` Attribute
-The `[Dependency]` attribute tells EyeAuras to automatically initialize a property when the script starts. Unlike `init`, such a property can be **changed** after the script starts.
+## Initialize a script property once
 
-Example:
+When several methods need the dependency, use a property. This is an alternative
+complete `Script.csx` body:
+
 ```csharp
-[Dependency] ISendInputScriptingApi SendInput { get; set; }
+using Microsoft.AspNetCore.Components;
+using EyeAuras.Roxy.Api;
 
-SendInput.MouseMoveTo(200, 100); // Moves the mouse to X200 Y100
-SendInput.MouseRightClick(); // Performs a right mouse click
+[Inject] public ISendInputScriptingApi Input { get; init; }
+
+Log.Info($"Screen cursor: {Input.CursorPosition}");
 ```
 
-When to use `Dependency`?
-- When a service may change dynamically (e.g., switching to another window)
-- When you want the ability to manually override the service
+Runtime discovers writable `[Inject]` properties during `OneTimeSetupScript`
+and assigns them through reflection. `init` restricts normal C# assignment;
+it does not trigger injection by itself. Setup belongs to the script instance,
+not every Run of a reused context.
 
----
+Unity `[Dependency]` is another supported attribute. Use `set` if your code
+needs to assign the property explicitly:
 
-## 3. The `GetService` Method (Most Powerful and Flexible Option)
-The `GetService` method is the most flexible way to access services in your script. It allows you to "on the fly" request the necessary dependency and use it immediately.
-
-Example for mouse control:
 ```csharp
-var sendInput = GetService<ISendInputScriptingApi>();
-sendInput.MouseMoveTo(200, 100); // Moves the mouse to X200 Y100
-sendInput.MouseRightClick(); // Performs a right mouse click
+using Unity;
+using EyeAuras.Roxy.Api;
+
+[Dependency] public ISendInputScriptingApi Input { get; set; }
+
+Log.Info($"Screen cursor: {Input.CursorPosition}");
 ```
 
-Example for playing sounds:
+A setter does not automatically switch services when the target window changes.
+
+## Pass a dependency to an ordinary class
+
+An object created with `new` does not automatically receive sandbox members.
+Put this class in `CursorReporter.cs`:
+
 ```csharp
-using PoeShared.Audio.Services; // Don't forget to include the namespace
-var sound = GetService<IPlaySoundScriptingApi>();
-sound.PlaySound(AudioNotificationType.Minions); // Plays a sound
+using EyeAuras.Roxy.Api;
+using PoeShared.Logging;
+
+public sealed class CursorReporter
+{
+    private readonly ISendInputScriptingApi input;
+    private readonly IFluentLog log;
+
+    public CursorReporter(ISendInputScriptingApi input, IFluentLog log)
+    {
+        this.input = input;
+        this.log = log;
+    }
+
+    public void Report() => log.Info($"Screen cursor: {input.CursorPosition}");
+}
 ```
 
-When to use `GetService`?
-- When services need to be created dynamically and in an unspecified number
-- When a service may change dynamically or be temporarily unavailable
+Then call it from `Script.csx`:
 
----
+```csharp
+using EyeAuras.Roxy.Api;
 
-# Which Method Should I Choose?
-- ✅ Use `init` properties for the easiest way to get access to services.
-- ✅ Use `[Dependency]` if you want the ability to change services while the script is running.
-- ✅ Use `GetService` in situations where a service is needed temporarily or may change dynamically.
+var reporter = new CursorReporter(GetService<ISendInputScriptingApi>(), Log);
+reporter.Report();
+```
+
+The class borrows both services and writes to the script log. It does not dispose
+them after the call. For larger object graphs, use a
+[ScriptContainerExtension](/en/scripting/api/scripting/container-extensions).
+Razor injection is performed by Blazor and does not apply to arbitrary objects.
+
+## Another registered service: sound
+
+With the default aura module and audio services available:
+
+```csharp
+using EyeAuras.DefaultAuras.Scripting;
+using PoeShared.Audio.Services;
+
+await GetService<IPlaySoundScriptingApi>()
+    .PlaySound(AudioNotificationType.Minions, playInBackground: false);
+```
+
+The task waits for playback when `playInBackground` is false; the default is
+true. This overload has no cancellation token and its implementation uses
+`CancellationToken.None`, so the script token does not cancel playback.
+
+## Choose the simplest acquisition
+
+- One call in a top-level script: `GetService<T>()`.
+- Several script methods: `[Inject]` or `[Dependency]` property.
+- An ordinary class: an explicit constructor parameter.
+
+Check exact registrations against the host and SDK version.
+[Mouse overlay](/en/scripting/examples/basic/mouse-track-with-overlay) and
+[displaying variables](/en/scripting/examples/basic/print-variables-on-screen)
+show these services in larger operations.
+
+Reading `CursorPosition` delegates to the selected `InputController`. The base controller returns `System.Windows.Forms.Cursor.Position` in screen coordinates; assigning the property instead invokes `MouseMoveTo`.
+
+[SendInputScriptingApi](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Roxy/Api/SendInputScriptingApi.cs).

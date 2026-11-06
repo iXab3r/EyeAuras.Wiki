@@ -3,11 +3,15 @@ title: How to Add Mouse Movement Smoothing
 description: 
 published: true
 date: 2024-07-01T20:34:21.401Z
-tags: mouse movement, smoothing, algorithms, custom input smoother
+tags: mouse movement, smoothing, algorithms, custom input smoother, ai-translated
 editor: markdown
 dateCreated: 2024-07-01T20:20:30.551Z
 ---
 # Adding Mouse Movement Smoothing
+Both snippets run in a top-level EyeAuras C# Script with the input module loaded
+and an available input simulator. The second moves the real primary-screen cursor.
+
+
 By default, the mouse "teleports" from point A to point B, which is not always the desired behavior. This is where "smoothers" come to the rescue - tools that can plan mouse movement based on some logic.
 The algorithm itself can vary. By default, the program includes algorithms from BenLand (`BenLandUserInputSmoother`) and Kalon (`KalonUserInputSmoother`).
 These algorithms have some parameters that you can adjust, but even by default, the program includes several presets, here are the most useful ones:
@@ -21,7 +25,7 @@ These algorithms have some parameters that you can adjust, but even by default, 
 By specifying `InputSmootherId` in the code, you can instruct the simulator to smooth out mouse movements
 
 ```csharp
-ISendInputUnstableScriptingApi SendInput { get; } = GetService<ISendInputUnstableScriptingApi>(); // needed for input sending
+var SendInput = GetService<ISendInputScriptingApi>(); // needed for input sending
 SendInput.InputSmootherId = "MlHumanMouseV1"; // or "MlHumanMouseFastV1"
 ```
 
@@ -34,8 +38,11 @@ SendInput.InputSmootherId = "MlHumanMouseV1"; // or "MlHumanMouseFastV1"
 
 ```csharp
 using EyeAuras.Roxy.Services;
+using EyeAuras.Roxy.Shared;
+using System.Drawing;
+using System.Collections.Generic;
 
-ISendInputUnstableScriptingApi SendInput { get; } = GetService<ISendInputUnstableScriptingApi>(); // needed for input sending
+var SendInput = GetService<ISendInputScriptingApi>(); // needed for input sending
 
 var customSmoother = new CustomInputSmoother();
 GetService<IUserInputSmootherRegistrator>() // get the service responsible for our "smoothers"
@@ -44,6 +51,7 @@ GetService<IUserInputSmootherRegistrator>() // get the service responsible for o
 // now tell the API to use our smoother
 SendInput.InputSmootherId = customSmoother.Id; // or something like "MlHumanMouseV1";
 
+SendInput.TargetWindow = null; // primary-screen coordinates
 var screenSize = System.Windows.Forms.SystemInformation.PrimaryMonitorSize; // get the size of the primary screen
 
 Log.Info($"Primary monitor size: {screenSize}");
@@ -57,7 +65,7 @@ Log.Info($"Movement completed, cursor is at: {SendInput.CursorPosition}");
 /// </summary>
 class CustomInputSmoother : IUserInputSmoother
 {
-    public string Id { get; init; } = "MySmoother";
+    public string Id { get; init; } = "MyScript.Linear20";
 
     public string Name { get; init; } = "This is my new cool input smoother";
 
@@ -88,3 +96,9 @@ class CustomInputSmoother : IUserInputSmoother
     }
 }
 ```
+
+`Generate` returns 21 points including both endpoints, each requesting a 10 ms
+delay. This does not promise exact wall-clock movement time. `Register` returns
+`void`, replaces an existing entry with the same ID and supplies no removal token;
+stopping the script does not unregister the smoother. Choose a stable private ID.
+The input call is synchronous and accepts no script cancellation token.

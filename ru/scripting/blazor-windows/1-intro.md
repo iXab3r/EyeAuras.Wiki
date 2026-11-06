@@ -80,3 +80,9 @@ Razor — это язык разметки от Microsoft, который поз
 В этом небольшом фрагменте кода HTML и C# работают вместе и дополняют друг друга. C# определяет, что произойдёт при нажатии на кнопку, а HTML/CSS отвечают за то, как всё выглядит.
 
 После клика Blazor вызывает обработчик и обновляет число. Это состояние экземпляра компонента; после его пересоздания счётчик начнётся с нуля. Продолжить можно с [устройства оверлея](/ru/scripting/blazor-windows/2-webview), затем [разделения Razor и C#](/ru/scripting/blazor-windows/3-hello-world).
+
+Ссылка на учебный пакет ведёт на [Tutorial — Blazor Windows, revision 3](https://eyeauras.net/share/S20250511162645vYh4n3mqSLm0/3), созданный для EyeAuras **1.7.8354.0**. Это исторический набор; страница загрузки сама по себе не подтверждает совместимость файлов с текущим редактором.
+
+Текущий генератор создаёт `UserOverlay.razor` с `@namespace` и `UserOverlay.cs` с тем же `namespace`. Сохраняйте эти строки при замене тела примера: имя класса и namespace обеих частей должны совпадать. Название сущности в текущем коде — `C# Overlay`; старые скриншоты используют суффикс v3.
+
+[RazorComponentTemplate](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Blazor.Shared/CodeEditor/Templates/RazorComponentTemplate.cs).

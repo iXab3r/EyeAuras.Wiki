@@ -11,7 +11,7 @@ dateCreated: 2026-04-22T00:00:00.000Z
 
 Справочная карта общей Blazor/Razor-инфраструктуры, которая используется в UI приложения EyeAuras, Blazor-окнах, C#-оверлеях, WebView2 host'ах и переиспользуемых UI-контролах.
 
-Для native window hosting используйте `windows-subsystems/blazor-windows.md`, для screen overlay rendering — `osd/screen-overlay.md`. Общие принципы `PropertyBinder`, Rx/ReactiveUI и DynamicData, на которых построены реактивные view-model и отслеживание коллекций, описаны в `core/reactivity.md`.
+Для native window hosting используйте [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows), для screen overlay rendering — [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay). Общие принципы `PropertyBinder`, Rx/ReactiveUI и DynamicData, на которых построены реактивные view-model и отслеживание коллекций, описаны в [core/reactivity.md](/ru/scripting/api/core/reactivity).
 
 ## Типовые задачи
 
@@ -173,7 +173,7 @@ registrator.RegisterViewType(typeof(MyDetailsView), typeof(MyModel), "Details");
 - Предпочитайте `BlazorContentPresenter` и регистрацию view для динамического UI.
 - Предпочитайте `IJsPoeBlazorUtils` для типовых операций с DOM, clipboard, focus, CSS и JS.
 - Предпочитайте `Anchors` для подписок компонента и других ресурсов, которыми владеет компонент.
-- Если задача связана с открытием, размерами, перемещением или управлением native Blazor-окном, переходите в `windows-subsystems/blazor-windows.md`.
+- Если задача связана с открытием, размерами, перемещением или управлением native Blazor-окном, переходите в [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows).
 
 ## Чего избегать
 

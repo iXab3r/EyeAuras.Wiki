@@ -124,3 +124,7 @@ reporter.Report();
 
 - [Отслеживание мыши с overlay](/ru/scripting/examples/basic/mouse-track-with-overlay)
 - [Печать переменных на экране](/ru/scripting/examples/basic/print-variables-on-screen)
+
+Чтение `CursorPosition` делегируется выбранному `InputController`. Базовый контроллер возвращает `System.Windows.Forms.Cursor.Position` в экранных координатах; присваивание этому свойству, напротив, вызывает `MouseMoveTo`.
+
+[SendInputScriptingApi](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Roxy/Api/SendInputScriptingApi.cs).

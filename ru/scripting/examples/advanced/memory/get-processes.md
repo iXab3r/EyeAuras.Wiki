@@ -28,7 +28,7 @@ Log.Info(processes.DumpToNamedTable("Processes"));
 В результате выполнения этого скрипта вы должны увидеть нечто подобное в `EventLog` — список с очень базовой информацией о запущенных процессах, содержащей их `ProcessId` (или `PID`) и `ProcessName`.
 ![Event Log](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_1k4NSsZyzm.png)
 
-> Следующие варианты сохранены как примеры интеграции с `LCProcess`. Нужны отдельно установленная совместимая MPFS/LeechCore-сборка, её нативные библиотеки и настроенное устройство/драйвер. Реализация этого backend не подтверждена в рассматриваемом срезе исходников; одна замена класса не доказывает готовность окружения.
+> Следующие варианты сохранены как примеры интеграции с `LCProcess`. Нужны отдельно установленная совместимая MPFS/LeechCore-сборка, её нативные библиотеки и настроенное устройство/драйвер. Фабрики и получение списка сверены с исходниками `c8b2304`; одна замена класса не доказывает готовность нативного окружения.
 {.is-warning}
 
 ### Использование LeechCore PMEM-драйвера
@@ -45,7 +45,7 @@ Log.Info(processes.DumpToNamedTable("Processes"));
 using EyeAuras.Memory;
 using EyeAuras.Memory.MPFS; // обратите внимание на новое пространство имён — LCProcess находится здесь
 
-var processes = LCProcess.GetProcesses("-device", "pmem");
+var processes = LCProcess.WinPMEM().GetProcesses();
 Log.Info(processes.DumpToNamedTable("Processes"));
 ```
 
@@ -61,7 +61,7 @@ Log.Info(processes.DumpToNamedTable("Processes"));
 using EyeAuras.Memory;
 using EyeAuras.Memory.MPFS;
 
-var processes = LCProcess.GetProcesses("-device", "hvmm://id=0");
+var processes = LCProcess.HyperV().UseVirtualMachineByIndex(0).GetProcesses();
 Log.Info(processes.DumpToNamedTable("Processes"));
 ```
 
@@ -74,7 +74,7 @@ Log.Info(processes.DumpToNamedTable("Processes"));
 
 ### Получение списка виртуальных машин Hyper-V
 
-На данный момент это требует запуска MemProcFS (основанного на LeechCore) отдельно.
+Для диагностики нативного Hyper-V plugin можно запустить MemProcFS отдельно; ниже сохранён пример его исторического вывода. Это не единственный managed API перечисления виртуальных машин.
 
 ```bash
 MemProcFS.exe -device hvmm://listvm
@@ -105,3 +105,5 @@ MemProcFS.exe -device hvmm://listvm
 [Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Процессы и память](/ru/scripting/api/memory/processes) · [Примитивы памяти](/ru/scripting/memory-api/memory-basics)
 
 Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.
+
+Фабрики LC и владение временным VMM при перечислении проверены по [LCProcess на c8b2304](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.MPFS/LCProcess.cs). `GetProcesses()` возвращает снимок списка и освобождает временный VMM. Нативный запуск не проверялся; [контракт backend](/ru/scripting/memory-api/backends/lc-process) описывает параметры и ограничения.

@@ -40,9 +40,9 @@ dateCreated: 2026-04-21T00:00:00.000Z
 ## Что использовать
 
 - Выбирайте aura overlay entities, если UI связан с конфигурацией и жизненным циклом ауры.
-- Для экранных аннотаций и CV debug boxes используйте `osd/screen-overlay.md`.
-- Для настоящих нативных окон используйте `windows-subsystems/blazor-windows.md`.
-- Для окон через ImGui SDK используйте `nuget/imgui-sdk.md`.
+- Для экранных аннотаций и CV debug boxes используйте [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay).
+- Для настоящих нативных окон используйте [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows).
+- Для окон через ImGui SDK используйте [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk).
 
 ## Чего избегать
 
@@ -67,9 +67,9 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 ## Связанные карты
 
-- `auras/entities.md`
-- `auras/actions.md`
-- `auras/triggers.md`
-- `osd/screen-overlay.md`
-- `windows-subsystems/blazor-windows.md`
-- `nuget/imgui-sdk.md`
+- [auras/entities.md](/ru/scripting/api/auras/entities)
+- [auras/actions.md](/ru/scripting/api/auras/actions)
+- [auras/triggers.md](/ru/scripting/api/auras/triggers)
+- [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay)
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows)
+- [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk)

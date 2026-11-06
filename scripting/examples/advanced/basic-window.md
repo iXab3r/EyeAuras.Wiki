@@ -3,14 +3,19 @@ title: Basic Window
 description: 
 published: true
 date: 2025-07-16T12:58:02.149Z
-tags: 
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-02-27T19:39:18.852Z
 ---
 
 # Blazor Window
-All user-controlled windows in EyeAuras are powered by its internal framework called BlazorWindows. 
-They are easy to create, thread-safe and fully support Blazor, bringing in best from two worlds(native/web dev) together.
+Create both `Script.csx` and `MainWindow.razor` in one C# Script project. The
+`PhantomPixel` namespace must match the script import and Razor declaration.
+The EyeAuras host supplies `GetService`, `IBlazorWindow` and the component base;
+this is not a standalone WPF application or an ordinary helper class.
+
+Window operations use the UI host infrastructure. This does not make arbitrary
+component state thread-safe.
 Syntax highlighting in Razor files is still rough on edges, so for anything more serious than `Hello, world`, I would recommend to use Component with code-behind. Then in `.cs` you will have a proper highlighting.
 
 And of course you can still export/import project and use Rider/Visual Studio with proper syntax highlighting even in Razor files.
@@ -27,15 +32,21 @@ And of course you can still export/import project and use Rider/Visual Studio wi
 
 **Script.csx**
 ```csharp
-var window = GetService<IBlazorWindow>();
-window.ViewType = typeof(MainWindow);
-window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-window.ShowDialog();
+using PhantomPixel;
+using PoeShared.Blazor.Wpf;
+
+{
+    using var window = GetService<IBlazorWindow>();
+    window.ViewType = typeof(MainWindow);
+    window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+    window.ShowDialog(cancellationToken);
+}
 ```
 
 **MainWindow.razor**
-```csharp
+```razor
 @namespace PhantomPixel
+@using PoeShared.Blazor
 @inherits BlazorReactiveComponent
 
 <h3 class="text-center">Interactive Counter</h3>
@@ -56,6 +67,18 @@ window.ShowDialog();
     private void IncrementCount()
     {
         count++;
+        Refresh(nameof(IncrementCount));
     }
 }
 ```
+
+Click Me increments the counter and requests `Refresh(nameof(IncrementCount))`.
+`ShowDialog(cancellationToken)` waits for close or Stop; `using` releases the window
+afterward. WPF handles cancellation inside ShowDialog, so an outer cancellation
+exception is not required. Component events do not permit arbitrary WPF access
+from worker threads.
+
+See [runtime contexts](/en/scripting/api/core/app-runtime-contexts),
+[Blazor windows](/en/scripting/api/windows-subsystems/blazor-windows) and
+[IBlazorWindow](/en/scripting/api/IBlazorWindow). These are source-backed contracts
+for EyeAuras `20fd3d4` / PoeEye `0e02c98`, not a claim this example was run in your host.

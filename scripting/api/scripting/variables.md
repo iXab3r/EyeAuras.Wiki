@@ -146,36 +146,26 @@ This description was verified against EyeAuras source commit `20fd3d424d886f6c99
 - Do not overuse global or shared variables for values that belong in local state.
 - Do not assume `default.*` names are harmless — they can affect nested systems.
 
-## Reference points for further study
+## ScriptVariable Listen and shared-state lifetime
 
-- `IVariablesScriptingApi`
-- `ScriptVariable<T>`
-- `IScriptVariable`
-- `IHasVariables`
-- `IBindingValueConverterRepository`
-- `Variables.Get`
-- `Variables.Item`
-- `HasValue`
-- `TryGetValue`
-- `GetOrThrow`
-- `Listen`
-- `Remove`
-- `default.WindowSelector.TargetWindow`
+`Variables.Get<T>` returns a `ScriptVariable<T>` for the selected `IHasVariables`.
+For a typed variable, read `Value`, `TryGetValue` or `GetOrThrow`; `HasValue`
+checks presence, and `IBindingValueConverterRepository` participates in type
+conversion. Untyped `IScriptVariable` and the `Variables.Item` indexer belong
+where the contract actually uses `object`.
 
-## Related search terms
+`Listen()` emits the current and subsequent distinct reactive variable values;
+the caller owns its subscription. For one Run's lifetime, use `using` inside the
+executed block or `ExecutionAnchors`. Unload does not dispose your subscription.
+The [lifetime examples](/en/scripting/api/scripting/variable-lifecycle-operations)
+cover Run completion, editing, unloading and owner selection.
 
-- script variables
-- aura variables
-- folder variables
-- tree variables
-- blackboard
-- shared state
-- typed variable
-- persistent setting
-- default variable
-- inherited variable
-- variable hierarchy
-- reactive variable
+Aura variables and folder variables form a variable hierarchy: an inherited
+value becomes visible after `Remove()` of a local override. This shared state /
+blackboard lives in the owner’s memory; it is not arbitrary persistent storage.
+Use a configuration provider for a persistent setting. Default variable names
+such as `default.WindowSelector.TargetWindow` belong to subsystem settings;
+do not use `default.*` merely to persist your own data.
 
 ## Related maps
 

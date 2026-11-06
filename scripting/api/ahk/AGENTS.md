@@ -14,26 +14,26 @@ These notes apply to files in `scripting/api/ahk/`.
 
 ## File Organization
 
-- Keep `ahk-migration.md` as the compact hub and table of contents. It should
+- Keep [ahk-migration.md](/en/scripting/api/ahk/ahk-migration) as the compact hub and table of contents. It should
   describe the overall plan, link to domain pages, and keep only a small
   at-a-glance matrix.
 - Put detailed mappings, code samples, recommendations, and verification links
-  into focused domain files such as `hotkeys.md`, `keyboard-mouse.md`,
-  `windows.md`, `cv-pixels-images.md`, `runtime-state.md`, `clipboard.md`, and
-  `dll-native.md`.
+  into focused domain files such as [hotkeys.md](/en/scripting/api/ahk/hotkeys), [keyboard-mouse.md](/en/scripting/api/ahk/keyboard-mouse),
+  [windows.md](/en/scripting/api/ahk/windows), [cv-pixels-images.md](/en/scripting/api/ahk/cv-pixels-images), [runtime-state.md](/en/scripting/api/ahk/runtime-state), [clipboard.md](/en/scripting/api/ahk/clipboard), and
+  [dll-native.md](/en/scripting/api/ahk/dll-native).
 - Keep the current domain-page format: front matter, short scope paragraph,
   `## Quick Map`, focused conversion sections, standalone
   `**Recommendation:**` paragraphs, then `## Verification Links`.
 - Split a domain file further only after it becomes hard to scan. For example,
-  `windows.md` can later split into `windows/matching.md`,
+  [windows.md](/en/scripting/api/ahk/windows) can later split into `windows/matching.md`,
   `windows/activation.md`, and `windows/controls.md` if needed.
-- Keep `ahk-gaps.md` as the cross-domain backlog. Domain files should link to
+- Keep [ahk-gaps.md](/en/scripting/api/ahk/ahk-gaps) as the cross-domain backlog. Domain files should link to
   gap IDs instead of duplicating uncertain semantics.
 
 ## Research First
 
 - Before writing or changing an AHK migration entry, read the parent discovery
-  map at `../AGENTS.md`, then read the relevant domain maps it points to.
+  map at [../AGENTS.md](/en/scripting/api/AGENTS), then read the relevant domain maps it points to.
 - Each AHK API or EyeAuras technology mentioned in the migration guide should
   have a nearby docs/source verification link. Prefer a short verification table
   over uncited claims.
@@ -143,5 +143,5 @@ ISendInputScriptingApi SendInput { get; init; }
   `while (...) { Sleep(...) }` loop for AHK `KeyWait` is valid but awkward; mark
   it as a candidate helper or prefer a higher-level EyeAuras pattern when one
   exists.
-- Put uncertain semantics in `ahk-gaps.md` instead of presenting them as direct
+- Put uncertain semantics in [ahk-gaps.md](/en/scripting/api/ahk/ahk-gaps) instead of presenting them as direct
   equivalents.
