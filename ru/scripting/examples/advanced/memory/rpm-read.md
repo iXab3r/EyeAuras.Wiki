@@ -30,7 +30,7 @@ Log.Info(processes.DumpToNamedTable("Processes"));
 
 ![Event Log](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_1k4NSsZyzm.png)
 
-> Следующие варианты сохранены как примеры интеграции с `LCProcess`. Нужны отдельно установленная совместимая MPFS/LeechCore-сборка, её нативные библиотеки и настроенное устройство/драйвер. Реализация этого backend не подтверждена в рассматриваемом срезе исходников; одна замена класса не доказывает готовность окружения.
+> Следующие варианты сохранены как примеры интеграции с `LCProcess`. Нужны отдельно установленная совместимая MPFS/LeechCore-сборка, её нативные библиотеки и настроенное устройство/драйвер. Фабрики и получение списка сверены с исходниками `c8b2304`; одна замена класса не доказывает готовность нативного окружения.
 {.is-warning}
 
 ## Использование LeechCore
@@ -58,7 +58,7 @@ LCProcess.WinPMEM().WithAdditionalArguments("-printf", "-v").GetProcesses(); //s
 
 //using other acquisition devices
 LCProcess.FPGA().GetProcesses(); //use FPGA DMA PCI-E 
-LCProcess.HyperV().GetProcesses(); //read info from the first system Hyper-V VM 
+LCProcess.HyperV().UseVirtualMachineByIndex(0).GetProcesses(); //select VM index 0 explicitly
 
 //or go full-custom with LeechCore args
 LCProcess.Custom("-device", "pmem").GetProcesses(); //allows to supply any custom arguments
@@ -83,3 +83,5 @@ Log.Info($"Processes: \n\t{processList.DumpToTable()}"); // dump process list to
 [Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Процессы и память](/ru/scripting/api/memory/processes) · [Примитивы памяти](/ru/scripting/memory-api/memory-basics)
 
 Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.
+
+Фабрики LC и владение временным VMM при перечислении проверены по [LCProcess на c8b2304](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.MPFS/LCProcess.cs). `GetProcesses()` возвращает снимок списка и освобождает временный VMM. Нативный запуск не проверялся; [контракт backend](/ru/scripting/memory-api/backends/lc-process) описывает параметры и ограничения.

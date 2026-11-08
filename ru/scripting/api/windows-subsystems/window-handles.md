@@ -11,7 +11,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 Справочная карта по нативным дескрипторам окон, преобразованию сырого `HWND`, перечислению окон, сопоставлению, отслеживанию foreground-окна и изменений границ окна.
 
-Интерактивный выбор окна описан в `osd/selection.md`.
+Интерактивный выбор окна описан в [osd/selection.md](/ru/scripting/api/osd/selection).
 
 ## Что обычно нужно сделать
 
@@ -352,7 +352,7 @@ using PoeShared.Prism;
 
 ## Связанные карты
 
-- `osd/selection.md`
-- `osd/screen-overlay.md`
-- `windows-subsystems/input-hooks-hotkeys.md`
-- `memory/processes.md`
+- [osd/selection.md](/ru/scripting/api/osd/selection)
+- [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay)
+- [windows-subsystems/input-hooks-hotkeys.md](/ru/scripting/api/windows-subsystems/input-hooks-hotkeys)
+- [memory/processes.md](/ru/scripting/api/memory/processes)

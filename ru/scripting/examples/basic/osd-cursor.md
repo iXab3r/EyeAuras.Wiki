@@ -48,7 +48,7 @@ using EyeAuras.Blazor.Controls.ScreenOverlay;
         {
             var cursor = System.Windows.Forms.Cursor.Position;
             cursorBox.Location = new Point(cursor.X - 5, cursor.Y - 5);
-            Sleep(16); // пауза хоста учитывает отмену скрипта
+            Sleep(16); // пауза между итерациями; отмену проверяет условие цикла
         }
     }
     finally

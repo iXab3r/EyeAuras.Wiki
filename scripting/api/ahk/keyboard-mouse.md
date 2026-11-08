@@ -30,7 +30,7 @@ SendText "hello"
 Send "{F1}"
 ```
 
-EyeAuras script:
+Top-level C# Action; the script host injects the service:
 
 ```csharp
 ISendInputScriptingApi SendInput { get; init; }
@@ -60,6 +60,7 @@ while (SendInput.IsMouseDown(MouseButton.Left) && !cancellationToken.IsCancellat
 {
     Sleep(10);
 }
+cancellationToken.ThrowIfCancellationRequested();
 ```
 
 **Recommendation:** Awkward but usable as a low-level fallback. A small helper
@@ -75,7 +76,7 @@ AutoHotkey v2:
 Click 100, 200
 ```
 
-EyeAuras script:
+Top-level C# Action; the script host injects the service:
 
 ```csharp
 ISendInputScriptingApi SendInput { get; init; }
@@ -85,6 +86,19 @@ SendInput.MouseLeftClick(100, 200);
 
 **Recommendation:** Good shape. Use coordinate or `WinPoint` overloads instead
 of moving first and clicking second unless the movement itself matters.
+
+With the default Windows Input simulator, `(100, 200)` is a virtual-desktop
+coordinate. AHK v2 defaults to active-window client coordinates; use
+`CoordMode "Mouse", "Screen"` on the AHK side for that coordinate comparison.
+`TargetWindow` neither guarantees background input nor supplies a universal
+coordinate conversion for every simulator.
+
+`IsKeyDown` and `IsMouseDown` query the selected controller's device state. The
+loop has no timeout, checks cancellation explicitly, and does not reproduce AHK
+hotkey thread rules. Current `Sleep(10)` itself ignores cancellation; the loop
+condition and following checkpoint provide cancellation here. Input calls are
+synchronous and do not automatically receive the Run token. See
+[SendInput operations](/en/scripting/api/ISendInputScriptingApi) for delays and targeting.
 
 ## Verification Links
 
@@ -104,6 +118,11 @@ of moving first and clicking second unless the movement itself matters.
 - EyeAuras docs:
   [ISendInputScriptingApi](../ISendInputScriptingApi),
   [Input, Hooks, Hotkeys](../windows-subsystems/input-hooks-hotkeys).
-- EyeAuras source:
-  [ISendInputScriptingApi.cs](../../../../../Sources/EyeAuras.Roxy.Shared/Api/ISendInputScriptingApi.cs),
-  [SendInputScriptingApi.cs](../../../../../Sources/EyeAuras.Roxy/Api/SendInputScriptingApi.cs).
+- EyeAuras contract: [SendInput operations](/en/scripting/api/ISendInputScriptingApi).
+
+AHK `GetKeyState` defaults to logical state; `P` requests physical state and `T`
+toggle state. `KeyWait` instead defaults to physical release, with `D` for press,
+`L` for logical state and `T` for a timeout in seconds. Physical tracking depends
+on installed hooks. Do not silently replace these modes with the same polling call.
+
+[AHK v2 coordinate modes](https://github.com/AutoHotkey/AutoHotkeyDocs/blob/v2/docs/lib/CoordMode.htm).

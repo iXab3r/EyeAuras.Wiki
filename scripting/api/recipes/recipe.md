@@ -1,20 +1,20 @@
 ---
-title: AI Recipes: Format
+title: AI Recipes — Format
 description: AI-first format for short EyeAuras recommendation recipes.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, recipes
+tags: scripting, api, ai, recipes, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
 # Recipe Format
 
-Recipes are short recommendation cards. They are not tutorials, architecture
-essays, or reproductions of private projects.
+Recipes combine APIs for a concrete task. This suggested shape does not impose
+a mandatory standard on the whole Wiki. Start with the task and prerequisites,
+then show a useful operation or complete integration design. Discovery maps
+route to domains; the versioned reference supplies precise contracts.
 
-Use recipes to choose a direction. Use discovery maps to find exact APIs.
-
-## Required Shape
+## Describe the operation
 
 ```md
 # Recipe Name
@@ -30,7 +30,11 @@ Use recipes to choose a direction. Use discovery maps to find exact APIs.
 
 ## Example Illustration
 
-## Shape
+## Context and Inputs
+
+## Operation
+
+## Result and Constraints
 
 ## Choices
 
@@ -59,9 +63,12 @@ Omit sections that do not apply.
   the end result obvious.
 - Do not describe private paths, DSLs, business logic, secrets, or exact file
   layouts.
-- Use `Shape` for the intended runtime shape, not implementation steps.
+- Put runtime context, required services/packages and input sources beside the operation.
+- Code must perform the useful core; do not substitute an undefined helper or invented engine.
+- An architecture recipe may omit executable code when inputs, composition, data flow, observable result and resource ownership are explicit.
+- State result, address/thread/cancellation limits and contract version with the operation.
 - Use `Choices` only for decisions specific to this recipe.
-- Use `APIs To Look Up` as search anchors, not a full API inventory.
+- Use `APIs To Look Up` for discovery; it does not replace setup and the main operation.
 - Link to maps for detail instead of repeating them.
 - Avoid numbered build scripts unless the page is explicitly a tutorial.
 
@@ -76,12 +83,12 @@ Omit sections that do not apply.
 
 ## Existing Recipes
 
-- `recipes/bot-memory-imgui-interface.md` - bot using Memory API and ImGui UI.
-- `recipes/bot-memory-behavior-tree.md` - bot using Memory API and Behavior
+- [recipes/bot-memory-imgui-interface.md](/en/scripting/api/recipes/bot-memory-imgui-interface) - bot using Memory API and ImGui UI.
+- [recipes/bot-memory-behavior-tree.md](/en/scripting/api/recipes/bot-memory-behavior-tree) - bot using Memory API and Behavior
   Tree.
-- `recipes/bot-memory-entity-list-reader.md` - primitive entity-list reader
+- [recipes/bot-memory-entity-list-reader.md](/en/scripting/api/recipes/bot-memory-entity-list-reader) - primitive entity-list reader
   using Memory API and a small UI.
-- `recipes/tool-embedded-eyeauras-host.md` - tool/integration that adds
+- [recipes/tool-embedded-eyeauras-host.md](/en/scripting/api/recipes/tool-embedded-eyeauras-host) - tool/integration that adds
   EyeAuras capabilities to another host app.
-- `recipes/script-ai-editor-assistant.md` - AI chat assistant for script editors
+- [recipes/script-ai-editor-assistant.md](/en/scripting/api/recipes/script-ai-editor-assistant) - AI chat assistant for script editors
   and mini-apps.

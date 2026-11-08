@@ -3,72 +3,87 @@ title: 11. Connecting JavaScript
 description:
 published: true
 date: 2025-08-17T09:21:21.000Z
-tags:
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-12T00:32:40.408Z
 ---
+# Attach JavaScript to a component
 
-# JavaScript and why we need it in 2025
-JS turned static pages into interactive portals long ago. Today so many libraries and frameworks are built on top of JS that it's harder to find places where it's *not* used.
+`IJsPoeBlazorUtils.LoadScript(string scriptPath)` loads a classic script and returns a `Task`. It does not import an ES module or register automatic cleanup. A third-party library's files, globals and shutdown are its own contract.
 
-Sooner or later you'll want to use a JS library to enhance user experience. For example, we'll take an absolutely useless but pretty snippet from https://codepen.io/—a creative playground for many talented people. Highly recommended.
+For custom behavior, use an ES module. This example adds a button that changes a neighboring element's text without global functions or DOM event subscriptions.
 
-So, how do we load JavaScript in Blazor?
+## C# Overlay v3 files
 
-## LoadScript
-Just like with [CSS](/scripting/blazor-windows/toggles-styling-cssfile), we can use `IJsPoeBlazorUtils` to load a script whenever we need.
-```csharp
-/// <summary>
-/// Loads a JavaScript file dynamically and returns a promise that completes when the script loads.
-/// </summary>
-Task LoadScript(string scriptPath);
+Create an aura with **C# Overlay v3** and add `Status.js` to the project resources; see [embedded resources](/en/scripting/embedded-resources). Its full manifest path depends on the namespace. The example uses `MyScript.Status.js`; replace this with the actual name listed in script preparation diagnostics. Folders contribute to the name, for example `MyScript.UI.Status.js`. A bare suffix is not a universal resource URL.
+
+Replace `UserOverlay.razor` with the code below and remove conflicting members from `UserOverlay.cs`. The host supplies the project file provider and injects `JsRuntime` into `BlazorReactiveComponent`.
+
+### Status.js
+
+```javascript
+export function setStatus(element, text) {
+    element.textContent = text;
+}
 ```
-> IMPORTANT: This method is for loading plain JavaScript. If you want to load [modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) use [another approach](https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/location-of-javascript?view=aspnetcore-9.0).
 
-## What do we want to achieve?
-Since this is just a demo of script loading (and scripts can do anything), we're not aiming for functionality—just an animation.
+### UserOverlay.razor
+
+```razor
+@using System.Threading.Tasks
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Web
+@using PoeShared.Blazor
+@inherits BlazorReactiveComponent
+
+<button class="btn btn-primary" disabled="@(module == null)" @onclick="ShowStatus">
+    Change text through JS
+</button>
+<span @ref="statusElement">Waiting</span>
+
+@code {
+    private ElementReference statusElement;
+    private IJSObjectReference module;
+
+    protected override async Task OnAfterFirstRenderAsync()
+    {
+        await base.OnAfterFirstRenderAsync();
+        module = await JsRuntime.InvokeAsync<IJSObjectReference>(
+            "import", "./MyScript.Status.js");
+        await Refresh("module-loaded");
+    }
+
+    private async Task ShowStatus()
+    {
+        await module.InvokeVoidAsync("setStatus", statusElement, "Done");
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (module != null)
+            {
+                await module.DisposeAsync();
+            }
+        }
+        finally
+        {
+            await base.DisposeAsync();
+        }
+    }
+}
+```
+
+After the first render the module loads and enables the button. Clicking it changes “Waiting” to “Done”. Await the import and calls. If the resource is missing, inspect its full name and WebView2 errors; the example assumes the host serves it at the shown URL.
+
+Disposal releases `IJSObjectReference`. If you add timers, event listeners or library instances, export and call a cleanup function before disposing the module reference. This example changes only its dedicated span; do not mutate DOM children managed dynamically by Razor.
+
+## Load a classic script
+
+For an existing integration, inject `PoeShared.Blazor.Services.IJsPoeBlazorUtils` with `[Inject]` and call `await PoeBlazorUtils.LoadScript("MyScript.Library.js")` from `OnAfterFirstRenderAsync`, using the actual full resource path. CSS uses `await PoeBlazorUtils.LoadCss("MyScript.Styles.css")`. These calls do not import the ES-module exports from `Status.js`.
+
+The historical [series sample](/en/scripting/blazor-windows/1-intro) loaded CDN-hosted `rgba.js`, local `Script.js` and canvas CSS in this way. The image below shows that animation, while the complete example above only changes text. CDN availability and the library's API require separate verification.
 
 ![Demo](https://s3.eyeauras.net/media/2025/05/9dIx2khkoQ.gif)
-
-## Code
-As examples grow larger, I'll show only the relevant parts worth explaining. You can find the rest by downloading the sample project from [this page](https://wiki.eyeauras.net/ru/scripting/blazor-windows/1-intro).
-
----
-
-# Code review
-
-## UserOverlay.cs
-```csharp
-[Inject]
-public PoeShared.Blazor.Services.IJsPoeBlazorUtils PoeBlazorUtils { get; init; }
-```
-Just like `IAuraTreeScriptingApi`, we inject another service—this time to load CSS and scripts.
-
-```csharp
-protected override async Task OnAfterFirstRenderAsync()
-{
-    await base.OnAfterFirstRenderAsync();
-    await PoeBlazorUtils.LoadCss("Styles.css");
-    await PoeBlazorUtils.LoadScript("https://raw.githack.com/strangerintheq/rgba/0.0.8/rgba.js");
-    await PoeBlazorUtils.LoadScript("Script.js");
-}
-```
-In one place we load styles and two scripts. One script is on a CDN (`rgba.js`), the other is local (`Script.js`). Mix approaches as needed, though for EyeAuras local storage is generally preferred.
-
-Note that we load everything right after the first render. As a programmer you must decide which scripts to load and when. Here I chose `OnAfterFirstRenderAsync`, but another example might use `OnInitializedAsync` or even a mix. For more about the component lifecycle see [this Microsoft article](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-9.0).
-
-```css
-canvas {
-    position: absolute;
-    width: 100% !important;
-    left: 0;
-    top: 1.5em;
-    height: calc(100% - 1.5em) !important;
-}
-```
-A bit of CSS magic:
-- `position: absolute;` — draw the element in absolute coordinates, independent of its place in the tree. Common for graphics, pop‑ups etc.
-- `width: 100% !important;` — take 100% width; `!important` overrides other styles. Needed here because `rgba.js` sets canvas size itself.
-- `left: 0;` — with absolute positioning we usually specify the location; here we pin it to the left edge.
-- `top: 1.5em;` — add top padding to leave room for the header. There's a more reliable way, but for the demo this is fine.
-- `height: calc(100% - 1.5em) !important;` — combined from everything above: "Important! Element height must be 100% of page height minus 1.5em (header)."

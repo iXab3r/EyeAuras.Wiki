@@ -12,8 +12,8 @@ dateCreated: 2026-04-21T00:00:00.000Z
 Справочная карта по нативным окнам на Blazor, хостам WebView2, диалоговым окнам,
 разрешению Razor view, кастомным title bar и автоматизации окон.
 
-Для desktop-аннотаций с click-through используйте `osd/screen-overlay.md`, а для
-опциональных ImGui-окон — `nuget/imgui-sdk.md`.
+Для desktop-аннотаций с click-through используйте [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay), а для
+опциональных ImGui-окон — [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk).
 
 ## Типовые задачи
 
@@ -206,9 +206,9 @@ using EyeAuras.Shared.Scripting;
 - Для CSS/JS/изображений, которые поставляются вместе с mini-app, предпочитайте
   embedded resources и относительные пути.
 - Если Blazor windows — часть большого script app с корнем на ImGui,
-  предпочитайте `recipes/bot-memory-imgui-interface.md`.
-- Для рисования поверх desktop предпочитайте `osd/screen-overlay.md`.
-- Для инструментов, завязанных на ImGui, предпочитайте `nuget/imgui-sdk.md`.
+  предпочитайте [recipes/bot-memory-imgui-interface.md](/ru/scripting/api/recipes/bot-memory-imgui-interface).
+- Для рисования поверх desktop предпочитайте [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay).
+- Для инструментов, завязанных на ImGui, предпочитайте [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk).
 
 ## Чего избегать
 
@@ -255,10 +255,10 @@ using EyeAuras.Shared.Scripting;
 
 ## Связанные карты
 
-- `osd/screen-overlay.md`
-- `recipes/bot-memory-imgui-interface.md`
-- `nuget/imgui-sdk.md`
-- `scripting/project-workflow.md`
-- `scripting/references-and-resources.md`
-- `scripting/runtime.md`
-- `core/app-runtime-contexts.md`
+- [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay)
+- [recipes/bot-memory-imgui-interface.md](/ru/scripting/api/recipes/bot-memory-imgui-interface)
+- [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk)
+- [scripting/project-workflow.md](/ru/scripting/api/scripting/project-workflow)
+- [scripting/references-and-resources.md](/ru/scripting/api/scripting/references-and-resources)
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)
+- [core/app-runtime-contexts.md](/ru/scripting/api/core/app-runtime-contexts)

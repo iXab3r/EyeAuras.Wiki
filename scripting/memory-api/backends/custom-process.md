@@ -7,7 +7,7 @@ tags: c#, scripting, memory, reverse-engineering, extensibility, ai-translated
 editor: markdown
 dateCreated: 2026-04-16T16:20:00.000Z
 ---
-# How to create a custom `IProcess`
+# How to create a custom IProcess
 
 If you already have your own driver, bridge, or another way to read memory, you almost never need to build “yet another Memory API”. In most cases, two layers are enough:
 
@@ -37,38 +37,29 @@ public interface IMemoryBackend : IDisposable, IMemorySpan
 
 In most cases, this is where your driver call, `IOCTL`, RPC, or DMA bridge lives.
 
-On top of that, you implement `IProcess` and expose `MemoryAccessor` right away:
+The process wrapper connects this transport to a process context. Integration inputs are an already-open transport client, a PID in its address space, module/thread/region information, and an explicit connection owner. The SDK has no universal `MyDriverClient`; your transport supplies those operations.
+
+1. `IMemoryBackend` also supplies inherited `BaseAddress` (`long`) and `MemorySize` (`int`), validity, and raw reads/writes at absolute addresses. `true` means success; the interface has no transferred-byte count or cancellation token. Do not report a partial read as a complete read.
+2. Create `new MemoryAccessor(log, backend)` and expose it as `IProcessMemory Memory`. Typed reads, strings and PE helpers use this accessor.
+3. `IProcess` also provides `IFluentLog Log`, `bool IsValid`, `string? ProcessName`, `int ProcessId`, `GetProcessModules()`, `GetThreads()`, `VirtualQuery(IntPtr)` and `GetMemoryRegions()`. Modules must report the target's actual bases and sizes for `MemoryOfModule` to select a range.
+4. The owner stops consumers and disposes the accessor, backend and transport according to their ownership. Constructing `MemoryAccessor` does not attach the backend to accessor disposal.
+
+The resulting object can be consumed without knowing its transport:
 
 ```csharp
-public sealed class MyDriverProcess : DisposableReactiveObject, IProcess
+static int ReadValue(EyeAuras.Memory.IProcess process, long absoluteAddress)
 {
-    public MyDriverProcess(MyDriverClient driver, int processId, string? processName = null)
-    {
-        ProcessId = processId;
-        ProcessName = processName;
-
-        var memoryBackend = new MyDriverMemoryBackend(driver, processId).AddTo(Anchors);
-        Memory = new MemoryAccessor(Log, memoryBackend).AddTo(Anchors);
-    }
-
-    public string? ProcessName { get; }
-    public int ProcessId { get; }
-    public IProcessMemory Memory { get; }
-
-    public IReadOnlyList<ProcessModuleInformation> GetProcessModules() => driver.GetModules(ProcessId);
-    public IReadOnlyList<ProcessThreadInformation> GetThreads() => driver.GetThreads(ProcessId);
-    public MemoryBasicInformation VirtualQuery(IntPtr address) => driver.VirtualQuery(ProcessId, address);
-    public IReadOnlyList<MemoryBasicInformation> GetMemoryRegions() => driver.GetMemoryRegions(ProcessId);
+    return process.Memory.Read<int>(absoluteAddress);
 }
 ```
 
-There is one key line here:
+This helper returns an `int` or propagates a read error. It borrows the process and does not close it or validate the transport. Contracts were checked at EyeAuras `20fd3d4`; connecting the specific driver remains an integration input.
 
-```csharp
-Memory = new MemoryAccessor(Log, memoryBackend);
-```
+## Alternative transport through an in-process DLL
 
-That is what connects your backend to the full EyeAuras upper layer.
+A custom process can also communicate with your DLL inside the target using a named pipe, shared memory or another IPC mechanism. The agent handles reads, writes and process metadata; the external stack still consists of a transport client, `IMemoryBackend`, then `IProcess`.
+
+This allows in-process work or higher-level target data to be exposed through the same consumer API. You must supply DLL delivery, protocol, serialization and versioning. An agent crash can affect the target process, and this has different protection constraints from external reading. See [DLL injection](/en/scripting/memory-api/dll-inject) for delivery mechanisms.
 
 ## What you should implement right away
 

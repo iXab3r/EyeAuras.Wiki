@@ -3,7 +3,7 @@ title: 4. Creating a toggle
 description:
 published: true
 date: 2025-08-17T09:21:21.000Z
-tags:
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T14:24:53.840Z
 ---
@@ -22,8 +22,19 @@ That's it: pressing the hotkey toggles the aura state.
 ## Solution using C# Overlay
 Create another overlay. We'll draw the button there.
 
+## Prepare the overlay and target auras
+
+Create a **C# Overlay v3** aura and `TargetAura` in the same folder. Add `HotkeyIsActive` in toggle mode to each target and keep them loaded. The shown `./TargetAura` paths resolve relative to the overlay context; adjust them to your actual tree. If several triggers match, the first is selected.
+
+Replace `UserOverlay.cs` and `UserOverlay.razor` with the corresponding complete blocks below. They are parts of one `public partial` class in the same namespace. `[Inject]` supplies `AuraTree`; Script.csx globals are not component globals.
+
 ## UserOverlay.cs
 ```csharp
+using Microsoft.AspNetCore.Components;
+using PoeShared.Blazor;
+using EyeAuras.Scripting.Api;
+using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
+
 public partial class UserOverlay : BlazorReactiveComponent {
 
     [Inject]
@@ -44,6 +55,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ## UserOverlay.razor
 ```csharp
+@using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
@@ -70,7 +82,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ---
 
-# Breakdown
+## Breakdown
 Let's go through it in detail.
 
 ## UserOverlay.cs
@@ -81,7 +93,7 @@ Let's go through it in detail.
 EyeAuras heavily uses Dependency Injection. Read more about it [here](/scripting/dependency-injection). In short, it lets us access various parts of the program. Here we ask for access to the aura tree. EyeAuras ensures it's available when the script runs. Since we'll change the state of an aura, we need the aura tree.
 
 ```csharp
-public IDefaultTrigger Trigger
+public IHotkeyIsActiveTrigger Trigger
 {
    get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
 }
@@ -123,3 +135,5 @@ We tell Blazor to render a `ToggleButton`. The key part is `@bind-IsChecked="@Tr
 }
 ```
 This block shows different text depending on whether the trigger is active. Note that clicking the button updates the text as well.
+
+Blazor updates the button and text after its click event. External hotkey changes are not yet observed; add [UI refresh](/en/scripting/blazor-windows/reactive-toggle) next. Writing `TriggerValue` changes this trigger; other conditions still affect the aura’s final activity.

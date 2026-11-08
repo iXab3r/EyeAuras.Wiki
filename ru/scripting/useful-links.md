@@ -9,7 +9,7 @@ dateCreated: 2025-09-21T11:29:06.078Z
 ---
 # Полезные ресурсы для разработки и реверс-инжиниринга
 
-Эта подборка помогает выбрать, что читать: синтаксис и базовые типы — в C# Language Reference и .NET API Browser, UI — в разделе Blazor, структуры Windows и бинарные форматы — в разделе реверс-инжиниринга. Это внешние ресурсы; их текущая доступность, лицензии и совместимость примеров с вашей версией .NET здесь не проверены.
+Эта подборка помогает выбрать, что читать: синтаксис и базовые типы — в C# Language Reference и .NET API Browser, UI — в разделе Blazor, структуры Windows и бинарные форматы — в разделе реверс-инжиниринга. Это внешние ресурсы. Выбирайте документацию под свою версию .NET и проверяйте условия выбранного инструмента перед использованием; список не гарантирует совместимость всех внешних примеров с EyeAuras.
 
 Для запуска кода внутри EyeAuras сначала смотрите [контекст скрипта](/ru/scripting/sandbox), [подключение пакетов](/ru/scripting/nuget) и [карты API](/ru/scripting/api/AGENTS). Пример из обычного .NET-приложения может требовать другой регистрации служб, runtime или UI host.
 
@@ -22,8 +22,8 @@ dateCreated: 2025-09-21T11:29:06.078Z
 * **C# Language Design Notes** — предложения по языку и заметки со встреч: [https://github.com/dotnet/csharplang](https://github.com/dotnet/csharplang)
 * **.NET Runtime Source** — внутреннее устройство JIT, GC и BCL: [https://github.com/dotnet/runtime](https://github.com/dotnet/runtime)
 * **.NET Performance Guide** — паттерны, типичные проблемы и оптимизация: [https://learn.microsoft.com/dotnet/standard/garbage-collection/performance](https://learn.microsoft.com/dotnet/standard/garbage-collection/performance)
-* **Maoni’s GC Blog** — подробные материалы по внутренностям GC: [https://devblogs.microsoft.com/dotnet/tag/garbage-collection/](https://devblogs.microsoft.com/dotnet/tag/garbage-collection/)
-* **Stephen Toub on Async** — сильные статьи про async/await, tasks и производительность: [https://devblogs.microsoft.com/dotnet/author/stoub/](https://devblogs.microsoft.com/dotnet/author/stoub/)
+* **Maoni’s GC Blog** — подробные материалы по внутренностям GC: [https://devblogs.microsoft.com/dotnet/author/maoni/](https://devblogs.microsoft.com/dotnet/author/maoni/)
+* **Stephen Toub on Async** — сильные статьи про async/await, tasks и производительность: [https://devblogs.microsoft.com/dotnet/how-async-await-really-works/](https://devblogs.microsoft.com/dotnet/how-async-await-really-works/)
 * **Source Generators** — концепции и практические руководства: [https://learn.microsoft.com/dotnet/csharp/roslyn-sdk/source-generators-overview](https://learn.microsoft.com/dotnet/csharp/roslyn-sdk/source-generators-overview)
 * **P/Invoke Reference** — community-база сигнатур для Win32: [https://www.pinvoke.net/](https://www.pinvoke.net/)
 * **NativeAOT** — AOT-компиляция приложений .NET: [https://learn.microsoft.com/dotnet/core/deploying/native-aot/](https://learn.microsoft.com/dotnet/core/deploying/native-aot/)
@@ -46,7 +46,7 @@ dateCreated: 2025-09-21T11:29:06.078Z
 * **MudBlazor** — популярная библиотека UI-компонентов: [https://mudblazor.com/](https://mudblazor.com/)
 * **Radzen Blazor** — UI-контролы и инструменты: [https://blazor.radzen.com/](https://blazor.radzen.com/)
 * **Blazorise** — библиотека компонентов: [https://blazorise.com/](https://blazorise.com/)
-* **.NET WebAssembly Docs** — детали runtime для WASM: [https://learn.microsoft.com/aspnet/core/blazor/webassembly/](https://learn.microsoft.com/aspnet/core/blazor/webassembly/)
+* **.NET WebAssembly Docs** — детали runtime для WASM: [https://learn.microsoft.com/aspnet/core/blazor/webassembly-build-tools-and-aot](https://learn.microsoft.com/aspnet/core/blazor/webassembly-build-tools-and-aot)
 * **gRPC & Minimal APIs** — backend-подходы, которые часто используют вместе с Blazor: [https://learn.microsoft.com/aspnet/core/grpc/](https://learn.microsoft.com/aspnet/core/grpc/) и [https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis](https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis)
 * **NSwag/Swashbuckle** — OpenAPI для C# clients/UI: [https://github.com/RicoSuter/NSwag](https://github.com/RicoSuter/NSwag) и [https://github.com/domaindrivendev/Swashbuckle.AspNetCore](https://github.com/domaindrivendev/Swashbuckle.AspNetCore)
 
@@ -55,17 +55,17 @@ dateCreated: 2025-09-21T11:29:06.078Z
 ## Реверс-инжиниринг
 
 * **Vergilius Project** — layouts/offsets структур ядра Windows: [https://www.vergiliusproject.com/](https://www.vergiliusproject.com/)
-* **Ghidra** — open-source набор инструментов от NSA: [https://ghidra-sre.org/](https://ghidra-sre.org/)
-* **IDA Free** — дизассемблер и отладчик (бесплатная версия): [https://hex-rays.com/ida-free/](https://hex-rays.com/ida-free/)
+* **Ghidra** — open-source набор инструментов от NSA: [https://github.com/NationalSecurityAgency/ghidra](https://github.com/NationalSecurityAgency/ghidra)
+* **IDA Free** — дизассемблер и отладчик с бесплатной некоммерческой лицензией; актуальные условия смотрите у автора: [https://hex-rays.com/ida-free](https://hex-rays.com/ida-free)
 * **radare2 / r2** — фреймворк для RE: [https://github.com/radareorg/radare2](https://github.com/radareorg/radare2)
-* **Cutter** — GUI для radare2: [https://cutter.re/](https://cutter.re/)
+* **Cutter** — GUI на базе Rizin: [https://cutter.re/](https://cutter.re/)
 * **x64dbg** — open-source отладчик для Windows: [https://x64dbg.com/](https://x64dbg.com/)
 * **WinDbg / WinDbg Preview** — отладчик Microsoft для kernel/user-mode: [https://learn.microsoft.com/windows-hardware/drivers/debugger/](https://learn.microsoft.com/windows-hardware/drivers/debugger/)
 * **WDK Docs** — разработка драйверов и внутреннее устройство ядра: [https://learn.microsoft.com/windows-hardware/drivers/](https://learn.microsoft.com/windows-hardware/drivers/)
 * **Windows Internals (Book)** — подробный справочник по внутренностям ОС: [https://learn.microsoft.com/sysinternals/resources/windows-internals](https://learn.microsoft.com/sysinternals/resources/windows-internals)
 * **Sysinternals Suite** — мощные инструменты для Windows: [https://learn.microsoft.com/sysinternals/](https://learn.microsoft.com/sysinternals/)
-* **Process Hacker** — системный explorer и инструменты для работы с памятью: [https://processhacker.sourceforge.io/](https://processhacker.sourceforge.io/)
-* **Capstone / Keystone / Unicorn** — движки для disasm/asm/эмуляции: [https://www.capstone-engine.org/](https://www.capstone-engine.org/) / [https://www.keystone-engine.org/](https://www.keystone-engine.org/) / [https://www.unicorn-engine.org/](https://www.unicorn-engine.org/)
+* **System Informer** — системный explorer и инструменты для работы с памятью: [https://systeminformer.io/](https://systeminformer.io/)
+* **Capstone / Keystone / Unicorn** — движки для disasm/asm/эмуляции: [https://www.capstone-engine.org/](https://www.capstone-engine.org/) / [https://github.com/keystone-engine/keystone](https://github.com/keystone-engine/keystone) / [https://www.unicorn-engine.org/](https://www.unicorn-engine.org/)
 * **PE/COFF Spec** — официальная документация по формату файлов: [https://learn.microsoft.com/windows/win32/debug/pe-format](https://learn.microsoft.com/windows/win32/debug/pe-format)
 * **ReactOS Source** — исходники NT-подобной ОС для изучения: [https://github.com/reactos/reactos](https://github.com/reactos/reactos)
 

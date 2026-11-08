@@ -176,9 +176,9 @@ Runtime обнаруживает конкретные наследники `Scri
 Точные перегрузки и доступность пакетов проверяйте по SDK/XML своей версии.
 
 
-- `scripting/runtime.md`
-- `scripting/references-and-resources.md`
-- `scripting/project-workflow.md`
-- `core/app-runtime-contexts.md`
-- `nuget/imgui-sdk.md`
-- `nuget/frida-sdk.md`
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)
+- [scripting/references-and-resources.md](/ru/scripting/api/scripting/references-and-resources)
+- [scripting/project-workflow.md](/ru/scripting/api/scripting/project-workflow)
+- [core/app-runtime-contexts.md](/ru/scripting/api/core/app-runtime-contexts)
+- [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk)
+- [nuget/frida-sdk.md](/ru/scripting/api/nuget/frida-sdk)

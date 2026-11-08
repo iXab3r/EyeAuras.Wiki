@@ -32,7 +32,7 @@ Blazor windows, mini-apps, and pack products.
   session can be remembered across restarts; explicit password login does not
   save the password or automatically repeat that login on restart.
 - Key login is a shortcut for users who only have a license key. The client
-  calls login with the key as both username and password; the server resolves
+  calls `LoginWithLicenseKey(key)`; the server resolves
   or creates the key-bound user account.
 - Activating a key on an existing account is separate from key login. Use
   `ActivateLicenseKey(...)` only after the user is already logged in.
@@ -93,6 +93,25 @@ Blazor windows, mini-apps, and pack products.
 - `ISublicenseLease` exposes `LeaseId`, `ShareId`, `IsGranted`, `Status`,
   `Message`, `LastUpdatedAt`, and `WhenChanged()`.
 
+## Prepare the host and form inputs
+
+The `GetService` examples run inside an EyeAuras script with loader services.
+Razor uses `@inject`; ordinary classes receive constructor dependencies. A
+reference to `EyeAuras.Loader.Shared` does not register these services in an
+arbitrary host. Relevant namespaces are `EyeAuras.Loader.Shared.Services`,
+`EyeAuras.Loader.Shared.Api` and `EyeAuras.Shared.Sharing`.
+
+`username`, `password`, `licenseKey` and `extraLicenseKey` are user-supplied form
+values, not literals to save in code or logs. Await the operation, display errors
+in the form and observe `ILicenseAccessor` after success. Public hub methods have
+no `CancellationToken` parameter; closing the form does not cancel them. Marshal
+UI updates through the owning dispatcher.
+
+`PerformLogin` authenticates account credentials; `LoginWithLicenseKey` uses the
+separate key flow. `ActivateLicenseKey` requires an accepted session and refreshes
+within that same session. These paths are checked in source `c8b2304`, not by a
+live login or license activation.
+
 ## Common Flows
 
 ### Ready-made Blazor login
@@ -140,12 +159,12 @@ Log.Info($"Logged in as {licenseAccessor.Username}");
 var eyeHub = GetService<IEyeHubService>();
 
 var key = licenseKey.Trim();
-var license = await eyeHub.PerformLogin(key, key);
+var license = await eyeHub.LoginWithLicenseKey(key);
 ```
 
-Key login is expected to use the same key value for both arguments. On the
-server side, this identifies a license-key login and resolves or creates the
-key-bound user. Do not log the raw key.
+Use `LoginWithLicenseKey` for this flow. At source `c8b2304`,
+`PerformLogin(key, key)` takes the account-password path instead. The server
+resolves or creates the key-bound user; do not log the raw key.
 
 ### Activate an extra key for an existing user
 
@@ -174,6 +193,14 @@ In reactive UI, observe `ILicenseAccessor.PropertyChanged` or use
 `WhenAnyValue(...)` against `ILicenseAccessor` properties.
 
 ### Paid pack / mini-app access lease
+
+This observes status in an already running script. Replace the share ID with your
+published pack's ID. The block does not await a grant or keep Run alive: follow it
+with awaited work or [wait until Stop](/en/scripting/api/scripting/async), otherwise
+execution cleanup immediately removes the subscription. Do not start protected
+work before `IsGranted`; stop it if access is later lost. Logging status alone does
+not implement that enforcement.
+
 
 ```csharp
 var sublicenseManager = GetService<ISublicenseManager>();
@@ -212,7 +239,7 @@ state for access decisions.
   for key login.
 - Trim usernames and keys. Do not trim passwords unless your own UX explicitly
   requires it.
-- For key login, call `PerformLogin(key, key)`.
+- For key login, call `LoginWithLicenseKey(key)`.
 - Clear password/key fields after successful login.
 - Do not persist explicit passwords or browser challenges. Clear sensitive
   form fields when an attempt ends or the UI closes.
@@ -234,7 +261,7 @@ state for access decisions.
 ## Prefer
 
 - Prefer `LoginWidget` when the standard host login flow is acceptable.
-- Prefer `IEyeHubService.PerformLogin(key, key)` for custom key-login screens.
+- Prefer `IEyeHubService.LoginWithLicenseKey(key)` for custom key-login screens.
 - Prefer `IEyeHubService.ActivateLicenseKey(...)` for attaching an extra key to
   an already logged-in account.
 - Prefer `ILicenseAccessor` for current profile/license display.
@@ -294,11 +321,25 @@ state for access decisions.
 
 ## Related Maps
 
-- `core/deployment.md`
-- `core/blazor.md`
-- `core/app-runtime-contexts.md`
-- `scripting/runtime.md`
-- `scripting/reactive-lifetime.md`
-- `scripting/references-and-resources.md`
-- `../../../features/keylogin.md`
-- `../../../features/sublicenses.md`
+- [core/deployment.md](/en/scripting/api/core/deployment)
+- [core/blazor.md](/en/scripting/api/core/blazor)
+- [core/app-runtime-contexts.md](/en/scripting/api/core/app-runtime-contexts)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [scripting/reactive-lifetime.md](/en/scripting/api/scripting/reactive-lifetime)
+- [scripting/references-and-resources.md](/en/scripting/api/scripting/references-and-resources)
+- [../../../features/keylogin.md](/en/features/keylogin)
+- [../../../features/sublicenses.md](/en/features/sublicenses)
+
+## Lease ownership in the current script host
+
+The script visitor registers `SublicenseManager`; `Rent` requires active
+`ExecutionAnchors`. Every call creates a new local lease, initially `LeasePending`,
+and attaches it to the current Run. `WhenChanged` replays current state. Run
+completion disposes the lease; explicit earlier disposal removes the local intent,
+marks it released and schedules background synchronization. This is not an awaited
+server release acknowledgement. Dispose your own observer as well. Keep the lease
+for the protected operation's lifetime; do not cache it as authority for a later Run.
+
+[Hub operations](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Loader/Services/EyeHubService.cs),
+[script lease owner](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Loader/Services/SublicenseManager.cs),
+[lease registry](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Loader/Services/SublicenseLeaseRegistry.cs).

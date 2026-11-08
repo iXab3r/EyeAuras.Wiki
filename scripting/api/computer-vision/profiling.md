@@ -3,7 +3,7 @@ title: AI Computer Vision: Profiling
 description: AI-first map for profiling CV and script performance with MiniProfiler.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, computer-vision, profiling, performance
+tags: scripting, api, ai, computer-vision, profiling, performance, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -15,7 +15,7 @@ output.
 
 For broader profiler selection, startup/app-level MiniProfiler usage, and
 JetBrains dotTrace/dotMemory capture workflows, start with
-`core/profiling.md`.
+[core/profiling.md](/en/scripting/api/core/profiling).
 
 ## User Intents
 
@@ -49,6 +49,45 @@ JetBrains dotTrace/dotMemory capture workflows, start with
   profiler entry points.
 - CV internal step names usually include operation, key, and phase:
   `Renting`, `Preparations`, `Refresh`, `Resolution`, `OSD`.
+
+## Report three CV calls
+
+Run this top-level C# Script in EyeAuras with the OpenCV module and primary-screen
+capture available. Counting red pixels requires no template file, OCR engine or model:
+
+```csharp
+using System.Drawing;
+using EyeAuras.OpenCVAuras.Scripting;
+using EyeAuras.Shared.Scaffolding;
+using StackExchange.Profiling;
+
+{
+    var api = GetService<IComputerVisionExperimentalScriptingApi>();
+    using var cv = api.ForScreen().EnableProfiling();
+    for (var i = 0; i < 3; i++)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using (cv.Profiler.Step($"Pass {i}"))
+        {
+            var count = cv.CountPixels(Color.Red);
+            Log.Info($"Red pixels: {count}");
+        }
+    }
+    Log.Info(cv.Profiler.RenderPlainText());
+}
+```
+
+The report appears after the using steps close, alongside the pixel counts.
+The first pass may include capture preparation. This is one accessor's timing tree,
+not a statistically reliable comparison. Logging inside a step contributes to its time.
+`RenderPlainText()` formats the report.
+
+The token check prevents the next pass; it does not interrupt synchronous
+`CountPixels`, which accepts no token. The accessor leases the shared CV cache and
+the profiler accumulates a timing tree. Bound the run. `DisableProfiling()` stops
+new internal steps without promising to remove old ones. `Clear()` from
+`EyeAuras.Shared.Scaffolding` clears `MemoryCacheStorage`, not necessarily the
+profiler's timing tree.
 
 ## Common Flows
 
@@ -135,8 +174,8 @@ JetBrains dotTrace/dotMemory capture workflows, start with
 
 ## Related Maps
 
-- `core/profiling.md`
-- `computer-vision/images.md`
-- `ml/ai.md`
-- `osd/screen-overlay.md`
-- `scripting/runtime.md`
+- [core/profiling.md](/en/scripting/api/core/profiling)
+- [computer-vision/images.md](/en/scripting/api/computer-vision/images)
+- [ml/ai.md](/en/scripting/api/ml/ai)
+- [osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)

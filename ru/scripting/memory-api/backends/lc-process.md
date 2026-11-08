@@ -20,7 +20,33 @@ dateCreated: 2026-04-16T19:10:00.986Z
 
 Результат — данные из выбранного источника, пригодные для PE-разбора или поиска сигнатур. Свежесть данных, доступность записи, инициализация MemProcFS и время жизни builder/подключения зависят от версии backend. Владелец источника держит его открытым, пока работают reader и представления памяти, и останавливает потребителей до закрытия.
 
-**Граница версии:** режимы, фабрики и советы ниже сохранены из Wiki `c950e48d`. Реализация LCProcess/MPFS и нативный стек недоступны для сверки; точный пакет, аргументы, значения по умолчанию и совместимость с оборудованием здесь не установлены. Не рассматривайте эти фрагменты как самостоятельную настройку DMA. Для обычного локального процесса есть [LocalProcess](/ru/scripting/memory-api/backends/local-process).
+## Фабрики, параметры и владение в текущем исходном срезе
+
+Контракт managed-обёртки сверён с `c8b2304`: [LCProcess](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.MPFS/LCProcess.cs), [builder contract](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.MPFS/ILCProcessBuilder.cs), [arguments](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.MPFS/LCProcessArgumentsBuilder.cs), [memory backend](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.MPFS/Internal/LCMemoryBackend.cs).
+
+| Фабрика или операция | Поведение |
+| --- | --- |
+| `LCProcess.FPGA()` | Устанавливает device `FPGA` и ожидание инициализации |
+| `LCProcess.WinPMEM()` | Устанавливает device `pmem` и ожидание инициализации |
+| `LCProcess.HyperV()` | Устанавливает device `hvmm` и ожидание инициализации |
+| `UseVirtualMachineByIndex(index)` | Меняет device на `hvmm://id=<index>` |
+| `LCProcess.Custom(args)` | Передаёт дополнительные аргументы; сам не включает ожидание инициализации |
+| `WaitForInitialize(true)` / `WithPrinting(true)` | Добавляет `-waitinitialize` / `-printf` |
+| `GetProcesses()` | Создаёт временный VMM, возвращает снимок списка процессов и освобождает VMM |
+| `ByProcessId` / `ByProcessName` | Создаёт отдельный VMM; успешный `LCProcess` владеет им вместе с memory backend/accessor |
+
+Builder хранит аргументы и не реализует `IDisposable`. Для отдельного подключения
+создавайте новый builder: текущая сборка аргументов добавляет значения в его
+список, поэтому повторная сборка того же экземпляра может повторить параметры.
+Владелец освобождает полученный `ILCProcess`, когда его потребители закончены.
+`ListVirtualMachines()` создаёт отдельный временный VMM без передачи аргументов
+этого builder; не считайте его списком уже настроенного подключения.
+
+Это проверка исходников обёртки, не запуска MemProcFS, FPGA, Hyper-V или WinPMEM.
+Нативные библиотеки, устройство и совместимость Windows остаются требованиями
+вашего окружения. PID относится к выбранному источнику памяти. Чтение через
+backend запрашивает `NoCache`, но не обещает согласованный снимок всех областей
+процесса во времени. Примеры ниже требуют подготовленного источника.
 
 ## ELI5 - что такое DMA, FPGA и зачем здесь Hyper-V
 - `DMA` — **Direct Memory Access**, это сценарий, где память читается не через обычный `OpenProcess`, а через более низкий и более внешний путь.

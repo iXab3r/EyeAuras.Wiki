@@ -71,7 +71,14 @@ dateCreated: 2026-04-22T00:00:00.000Z
 
 ## Смежные материалы
 
-- `ml/ai-runtime.md`
-- `ml/ai-kernel-plugins.md`
-- `scripting/runtime.md`
-- `windows-subsystems/blazor-windows.md`
+- [ml/ai-runtime.md](/ru/scripting/api/ml/ai-runtime)
+- [ml/ai-kernel-plugins.md](/ru/scripting/api/ml/ai-kernel-plugins)
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows)
+## Владение в фабрике редактора
+
+В срезе `c8b2304` `IScriptAiChatSessionFactory.CreateSession(scriptRunner, context)` загружает профили и применяет зарегистрированные configurator-ы. Конфигуратор workspace получает `scriptRunner.Script`, но не читает автоматически каждое выделение UI. Возвращённый `IAiChatSessionHandle` при освобождении удаляет сессию из engine, а если она уже не зарегистрирована — освобождает напрямую.
+
+`AiChatViewModel` владеет очередью событий, timeline, подписками и источником отмены запроса. При освобождении запрашивает отмену и сбрасывает event sink сессии; саму заимствованную сессию и speech service не освобождает. У сессии должен быть один активный владелец event sink: замена sink или освобождение другой подключённой view model может отключить UI. `AiChatComponent.DisposeAsync` останавливает heartbeat и освобождает JavaScript-слушателей/модуль. View model и session handle по-прежнему принадлежат владельцу вкладки.
+
+[Source contracts](https://github.com/iXab3r/EyeAuras/tree/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.AI/UI)

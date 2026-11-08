@@ -7,11 +7,11 @@ tags: sandbox, scripting, code execution, logging, dependency injection, ai-tran
 editor: markdown
 dateCreated: 2024-02-20T19:26:43.431Z
 ---
-# What is this, exactly?
+# Script sandbox
 
-The sandbox is the environment where your scripts run. In code terms, it is the base class inherited by all user scripts, and it provides a certain amount of control over them.
+The sandbox is the environment where your scripts run. It provides host members directly to `Script.csx`. Ordinary C# classes do not inherit these members and must receive their dependencies explicitly.
 
-# Why do you need it?
+## Why do you need it?
 
 ### It keeps **state** between runs
 
@@ -19,9 +19,10 @@ When you create a property or service, draw something on the screen, or recogniz
 
 ### It cleans up after the script
 
-When a script finishes, it is generally a good idea to clean up after it: free memory, remove drawings from the screen, and so on. But nobody likes cleanup work, so it is better to let the robots handle it for us.
-
-That said, not everything created by scripts can be cleaned up automatically. This will be covered in a separate article about resource management.
+Resources attached to `ExecutionAnchors` are released when the current `Run` ends.
+The sandbox and its `Anchors` can live longer and be reused. Manage subscriptions
+and other owned resources explicitly; not every result of `GetService` is
+released automatically.
 
 ![e0219e2e257a9878d5b6b2323dcb9c37.jpg](/assets/e0219e2e257a9878d5b6b2323dcb9c37.jpg =x200)
 
@@ -31,7 +32,7 @@ To make life easier, every script comes with a small set of built-in services by
 
 The expectation is that you will use `GetService<>` to add whatever capabilities your script needs. More on that below.
 
-# What does it look like in code?
+## What does it look like in code?
 
 Let’s go over the methods and properties available in every script.
 
@@ -60,17 +61,21 @@ Log.Debug("Hello from debug level!");
 
 ```csharp
 void Sleep(TimeSpan delay);
-void Sleep(int delayMs)
+void Sleep(int delayMs);
+void Sleep(double delayMs);
+void Sleep(double minDelayMs, double maxDelayMs);
 ```
 
-This method pauses script execution for the specified amount of time. Internally, it uses [Task.Delay](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task.delay?view=net-8.0).
+This is a synchronous pause using the current `cancellationToken`. For an
+asynchronous wait, use `await Task.Delay(..., token)`.
 
-```csharp 
-Sleep(2000); //приостанавливаем скрипт на 2 секунды
-Sleep(TimeSpan.FromMilliseconds(100)); //приостанавливаем на 100 миллисекунд
+```csharp
+Sleep(2000); // Pause for two seconds.
+Sleep(TimeSpan.FromMilliseconds(100)); // Pause for 100 milliseconds.
+cancellationToken.ThrowIfCancellationRequested();
 ```
 
-> If the program asks the script to stop for some reason (for example, if the aura running the script is unloaded), `Sleep` will end early and the script will be stopped.
+> `Sleep` does not itself throw a cancellation exception. On desktop, waits longer than 30 ms can return early on cancellation; waits of 30 ms or less do not check the token. Call `cancellationToken.ThrowIfCancellationRequested()` when work must not continue after cancellation. For asynchronous code, use `await Task.Delay(delay, cancellationToken)`.
 {.is-info}
 
 ![](https://i.imgur.com/TYwJwzi.png =x300)
@@ -85,18 +90,57 @@ This is the most powerful method in the sandbox. It is your script’s connectio
 
 With `GetService`, you can request the “handles” that let you trigger one behavior or another.
 
-Instead of a thousand words:
+For example, pass the logger to an ordinary class. In `Script.csx`:
 
 ```csharp
-var sendInput = GetService<ISendInputUnstableScriptingApi>();
-sendInput.MouseMoveTo(200, 100); // передвинет мышь в Х200 Y100
-sendInput.MouseRightClick(); // тыкнет правую кнопку мыши
+var reporter = new Reporter(Log);
+reporter.Report(2 + 3);
 ```
+
+In a separate `Reporter.cs`:
 
 ```csharp
-using PoeShared.Audio.Services; // важно указать! Так вы говорите, где именно искать эту службу. Для разных служб будет разным
-var sound = GetService<IPlaySoundScriptingApi>();
-sound.PlaySound(AudioNotificationType.Minions); // проиграет звук
+using PoeShared.Logging;
+
+public sealed class Reporter
+{
+    private readonly IFluentLog log;
+    public Reporter(IFluentLog log) => this.log = log;
+    public void Report(int value) => log.Info($"Result: {value}");
+}
 ```
 
----
+`Event Log` shows `Result: 5`. Use the exact interface and namespace to resolve a
+registered service; a type's presence in the SDK does not guarantee registration.
+Add your own services through [Script Container Extensions](/en/scripting/script-container-extensions).
+
+## Work with cancellation for one run
+
+In `Script.csx`:
+
+```csharp
+using System.Threading.Tasks;
+
+var runToken = cancellationToken;
+for (var step = 1; step <= 3; step++)
+{
+    runToken.ThrowIfCancellationRequested();
+    Log.Info($"Step {step}");
+    await Task.Delay(500, runToken);
+}
+```
+
+The script writes three messages with pauses. Cancelling the run cancels the wait.
+`cancellationToken` and `ExecutionAnchors` are assigned for each `Run` and reset
+when it ends. Capture the token for the work you start; do not keep it as the
+sandbox's permanent lifetime token or leave untracked background work running.
+
+Script-object state can persist between runs of the same project version.
+A dependent project version change recreates the context; this is not durable
+storage. See [variables](/en/scripting/variables) for shared state and settings,
+and [resource lifetime](/en/scripting/api/scripting/reactive-lifetime) for cleanup.
+
+The `Sleep` contract is defined by [ScriptSandbox](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Scripting.Metadata/Api/ScriptSandbox.cs)
+and the [desktop wait provider](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Scaffolding/WaitableTimerUtils.cs).
+Numeric delays use milliseconds; actual timing depends on OS scheduling.
+The two-number overload selects a random delay within the supplied range.

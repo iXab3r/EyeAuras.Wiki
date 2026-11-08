@@ -3,7 +3,7 @@ title: AutoHotkey Migration to EyeAuras
 description: Hub for migrating AutoHotkey scripts to EyeAuras scripting, triggers, actions, and services.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ahk, autohotkey, migration
+tags: scripting, api, ahk, autohotkey, migration, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -15,19 +15,11 @@ for a single page, so detailed migration notes live in focused area files.
 Use this together with [AHK Gaps](./ahk-gaps). The gaps page tracks behavior
 that needs deeper verification before we call it equivalent.
 
-## Plan
+## Start With One Operation
 
-- Keep this page small: navigation, scope, and an at-a-glance matrix.
-- Put detailed code samples, recommendations, and verification links in domain
-  pages such as [Windows](./windows), [Hotkeys](./hotkeys), and
-  [DLL And Native Interop](./dll-native).
-- Every domain page should include a short mapping table, focused conversion
-  examples, standalone `**Recommendation:**` paragraphs, and docs/source links.
-- When a domain page becomes too large, split it further. For example,
-  `windows.md` can later become `windows/matching.md`,
-  `windows/activation.md`, and `windows/controls.md`.
-- Keep uncertain behavior in [AHK Gaps](./ahk-gaps) and link to gap IDs instead
-  of hiding caveats inside examples.
+Choose one operation from the original script: sending text, finding a window or handling a key. Open its domain page and run a small C# Action with explicit services. Check the visible result before transferring shared state and the long-running loop.
+
+The tables provide routes, not full semantic equivalence. [AHK Gaps](./ahk-gaps) keeps the differences in Send modes, AHK threads, DPI, controls and driver input explicit. Its IDs identify migration topics, not additional APIs.
 
 ## How To Read This
 
@@ -52,8 +44,8 @@ that needs deeper verification before we call it equivalent.
 | [Keyboard And Mouse](./keyboard-mouse) | `Send`, `SendText`, `SendInput`, `GetKeyState`, `KeyWait`, `MouseMove`, `Click` | Has direct send, key wait, and coordinate click conversions. Send grammar is a gap. |
 | [Windows](./windows) | `WinExist`, `WinActive`, `WinWait`, `WinActivate`, `ControlClick`, `ControlSend` | Has single-window lookup and activation. Needs full `WinTitle` token table. |
 | [CV, Pixels, And Images](./cv-pixels-images) | `CoordMode`, `PixelGetColor`, `PixelSearch`, `ImageSearch` | Has pixel-search conversion. Needs `CoordMode` and one-pixel color tables. |
-| [Runtime, Timers, And State](./runtime-state) | `Sleep`, `SetTimer`, variables, globals, shared state | Has sleep and ordinary state. Needs timer and shared-variable recipes. |
-| [Clipboard](./clipboard) | `A_Clipboard`, `ClipboardAll`, `ClipWait`, clipboard events | Scaffolded. Needs script DI/event verification. |
+| [Runtime, Timers, And State](./runtime-state) | `Sleep`, `SetTimer`, variables, globals, shared state | Has a bounded loop, timer differences and shared-state links. |
+| [Clipboard](./clipboard) | `A_Clipboard`, `ClipboardAll`, `ClipWait`, clipboard events | Text read/write and DI are covered; all-format events remain a gap. |
 | [DLL And Native Interop](./dll-native) | `DllCall`, `CallbackCreate`, `Buffer`, `NumGet`, `NumPut`, raw Win32 | Direct P/Invoke examples first; existing EyeAuras/PoeShared APIs are rewrite options. |
 | [AHK Gaps](./ahk-gaps) | Cross-domain semantic gaps and verification backlog | Tracks unresolved behavior and candidate helpers. |
 
@@ -69,7 +61,7 @@ that needs deeper verification before we call it equivalent.
 | Activate windows | `WinActivate` | [Windows](./windows) | `IWindowSelector.GetWindow(...)`, `WindowHandleExtensions.Activate(...)` | Good as direct script code after resolving a handle. |
 | Sleep or repeat later | `Sleep`, `SetTimer` | [Runtime, Timers, And State](./runtime-state) | Script `Sleep(...)`, loops, services, observables | `Sleep` is good; `SetTimer` needs redesign. |
 | Find pixels or images | `PixelGetColor`, `PixelSearch`, `ImageSearch`, `CoordMode` | [CV, Pixels, And Images](./cv-pixels-images) | `CV.ForScreen()`, `CV.ForWindow(...)`, `ICvAccessor` | More explicit than AHK, but heavier. |
-| Read or write clipboard text | `A_Clipboard`, `ClipWait`, `OnClipboardChange` | [Clipboard](./clipboard) | `IClipboardManager` | Basic text is likely fine; full clipboard behavior is weak. |
+| Read or write clipboard text | `A_Clipboard`, `ClipWait`, `OnClipboardChange` | [Clipboard](./clipboard) | `IClipboardManager` | Unicode text read/write is covered; full-format clipboard behavior needs a separate design. |
 | Store script state | Variables, built-in variables, globals | [Runtime, Timers, And State](./runtime-state) | C# locals/fields/objects; `ScriptVariable<T>` only for shared state | Better for normal state; shared state needs clear recipes. |
 | Call native DLLs | `DllCall`, `CallbackCreate`, `Buffer`, `NumGet`, `NumPut` | [DLL And Native Interop](./dll-native) | Typed C# P/Invoke wrappers; existing APIs as rewrite options | Direct equivalent exists, but C# needs explicit signatures and lifetime rules. |
 

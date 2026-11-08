@@ -128,3 +128,15 @@ payload. Сериализатор скрипта дополнительно уч
 - [entities](../auras/entities)
 - [overview](../auras/overview)
 - [runtime](../scripting/runtime)
+
+
+## Сериализатор в контейнере скрипта
+
+При одноразовой подготовке скрипта `ConfigSerializerReplacerScriptRuntimeVisitor`
+сохраняет существующий сериализатор и регистрирует singleton-обёртку в контейнере
+скрипта. Обёртка на время сериализации, десериализации и сжатия добавляет сборку
+скрипта и доступные зависимости из её `AssemblyLoadContext`, а сами операции
+передаёт сохранённому сериализатору. `RegisterConverter` и `DisablePooling`
+также делегируются ему. Это не автоматическая миграция произвольных объектов.
+
+[Visitor на c8b2304](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Scripting/Visitors/ConfigSerializerReplacerScriptRuntimeVisitor.cs).

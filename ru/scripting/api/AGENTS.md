@@ -13,6 +13,8 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 Карты навигации не дублируют полный публичный API. Каноническим источником остаются SDK-assembly, XML-документация и сгенерированные метаданные. Эти файлы дают удобную навигацию: связанные символы, подсказки по пакетам и assembly, терминологию, связи между API и типовые сценарии использования.
 
+[Полный контракт и выбор версии](/ru/scripting/api/reference)
+
 ## Поддерживайте это в актуальном состоянии
 
 Если вы меняете публичные API, сервисы для скриптов, модели aura, triggers, actions, overlays, API для window/image/input/memory/ML, опциональные SDK-пакеты или точки входа dependency injection, обновите соответствующую карту навигации.
@@ -92,7 +94,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 1. Определите контекст продукта: aura, folder, behavior tree, macro, trigger, action, overlay, script или app/plugin code.
 2. Определите поверхность выполнения: top-level script, обычный C# class, object-style script executor, Razor component или app/plugin module.
-3. Сначала прочитайте `core/eyeauras-structure.md`, затем нужную карту по домену.
+3. Сначала прочитайте [core/eyeauras-structure.md](/ru/scripting/api/core/eyeauras-structure), затем нужную карту по домену.
 4. Ищите точные символы из карты в доступных SDK reference, XML docs, сгенерированных метаданных и подключённых assembly.
 5. Проверьте, как текущий контекст предоставляет нужную возможность: через host member, dependency injection, явный parameter, script-facing accessor или только через metadata.
 6. И только после этого добавляйте собственный interop, wrappers или новую инфраструктуру.
@@ -123,48 +125,48 @@ Actions, Triggers и Overlays — это stateful runtime-объекты Aura Tr
 
 ## Карты по доменам
 
-- `core/eyeauras-structure.md` - структура продукта, Aura Tree, контексты, lifecycle, variables и места запуска скриптов.
-- `core/app-runtime-contexts.md` - контексты выполнения app vs SDK vs top-level script vs ordinary C# class.
-- `core/app-modules.md` - Prism modules, загрузка модулей, dynamic modules и module-private assets.
-- `core/configuration-persistence.md` - config providers, config serializer, metadata wrappers, migrations и replacements.
-- `core/deployment.md` - export/import, packs, portable packs, mini-apps, запуск EyePad, script protection и sublicensing.
-- `scripting/runtime.md` - script API, доступ к dependency/capability, accessors, folders, variables, macros, keybinds и правила для helper class.
-- `scripting/container-extensions.md` - script DI composition, `ScriptContainerExtension`, регистрация optional SDK и настройка service graph.
-- `scripting/logging.md` - `Log`, `IFluentLog`, log levels, передача logger в helper-class, scoped prefixes, exception logs и diagnostic breadcrumbs.
-- `scripting/references-and-resources.md` - NuGet/assembly references, embedded resources, `IScriptFileProvider`, DLL/image/font/model assets.
-- `scripting/project-workflow.md` - export/import/live-import, IDE workflow, итерация C# Overlay и границы multi-project solution.
-- `scripting/variables.md` - `ScriptVariable<T>`, иерархия variables, семантика `Value`/`HasValue`/`TryGetValue`, listeners и переменные `default.*`.
-- `scripting/web-server.md` - ASP.NET Core/Kestrel endpoints, размещённые в script host, minimal APIs, controllers и lifetime сервера, привязанный к cancellation.
-- `scripting/browser-automation.md` - browser automation через Selenium/WebDriver как альтернатива screen/CV/input automation для web pages.
-- `auras/entities.md` - `IAuraRegistrator`, entity mappings, factories, proxies, linked-aura evaluators, event log и lifecycle events.
-- `auras/actions.md` - выполнение action, регистрация action, script actions и lifecycle action lists.
-- `auras/triggers.md` - trigger event sources, регистрация trigger, script triggers и activation state.
-- `auras/overlays.md` - сущности aura overlay и их отличия от OSD, Blazor windows и ImGui windows.
-- `auras/overview.md` - общий обзор aura pack и перекрёстные ссылки.
-- `windows-subsystems/window-handles.md` - `IWindowHandle`, мосты к raw handle, enumeration, matching, selectors и trackers.
-- `windows-subsystems/blazor-windows.md` - native windows на основе Blazor, WebView2 hosts, dialog windows, Razor view resolution и automation.
-- `windows-subsystems/input-hooks-hotkeys.md` - keyboard/mouse hooks, hotkeys, send-input API, input simulators, smoothers и redirection.
-- `osd/selection.md` - `IOsdSelectionService` и интерактивный выбор window/region/point/color.
-- `osd/screen-overlay.md` - Blazor OSD screen overlay canvas, rectangles, HTML/Razor overlay objects и CV debug annotations.
-- `memory/processes.md` - базовые process readers, доступ к памяти, modules, pointer chains, pattern scanning, KD и MPFS.
-- `nuget/imgui-sdk.md` - опциональный пакет `EyeAuras.ImGuiSdk`, render loop, managed ImGui windows, image/font textures и ImGui content.
-- `nuget/frida-sdk.md` - опциональный пакет `EyeAuras.FridaSdk`, Frida sessions/scripts, Frida Gadget payloads, `IProcess` adapters на базе Frida и native named-pipe process readers через CAgent.
-- `computer-vision/images.md` - screen/window capture, image search, OCR, OpenCV, color и pixel workflows.
-- `computer-vision/profiling.md` - MiniProfiler, `EnableProfiling`, `cv.Profiler.Step`, plain-text reports, warm-up и затраты памяти на profiling.
-- `ml/ai.md` - индекс по ML model inference и интеграции AI в приложение.
-- `ml/ai-runtime.md` - `AiEngine`, chat sessions, profiles, retrieval, Blazor chat UI, MCP hosting, Responses API и desktop scripting AI.
-- `ml/ai-kernel-plugins.md` - `AiKernelPlugin`, инструменты `[KernelFunction]`, plugin host, tool approval, retrieval plugins и правила проектирования tool.
-- `ml/script-ai-clients.md` - прямые external AI client NuGet-пакеты из скриптов и их отличия от встроенного runtime `EyeAuras.AI`.
-- `reverse-engineering/reprocess.md` - `ReProcess`, RE workspace builder, RE tabs/actions/inspectors и AI RE tools.
+- [core/eyeauras-structure.md](/ru/scripting/api/core/eyeauras-structure) - структура продукта, Aura Tree, контексты, lifecycle, variables и места запуска скриптов.
+- [core/app-runtime-contexts.md](/ru/scripting/api/core/app-runtime-contexts) - контексты выполнения app vs SDK vs top-level script vs ordinary C# class.
+- [core/app-modules.md](/ru/scripting/api/core/app-modules) - Prism modules, загрузка модулей, dynamic modules и module-private assets.
+- [core/configuration-persistence.md](/ru/scripting/api/core/configuration-persistence) - config providers, config serializer, metadata wrappers, migrations и replacements.
+- [core/deployment.md](/ru/scripting/api/core/deployment) - export/import, packs, portable packs, mini-apps, запуск EyePad, script protection и sublicensing.
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime) - script API, доступ к dependency/capability, accessors, folders, variables, macros, keybinds и правила для helper class.
+- [scripting/container-extensions.md](/ru/scripting/api/scripting/container-extensions) - script DI composition, `ScriptContainerExtension`, регистрация optional SDK и настройка service graph.
+- [scripting/logging.md](/ru/scripting/api/scripting/logging) - `Log`, `IFluentLog`, log levels, передача logger в helper-class, scoped prefixes, exception logs и diagnostic breadcrumbs.
+- [scripting/references-and-resources.md](/ru/scripting/api/scripting/references-and-resources) - NuGet/assembly references, embedded resources, `IScriptFileProvider`, DLL/image/font/model assets.
+- [scripting/project-workflow.md](/ru/scripting/api/scripting/project-workflow) - export/import/live-import, IDE workflow, итерация C# Overlay и границы multi-project solution.
+- [scripting/variables.md](/ru/scripting/api/scripting/variables) - `ScriptVariable<T>`, иерархия variables, семантика `Value`/`HasValue`/`TryGetValue`, listeners и переменные `default.*`.
+- [scripting/web-server.md](/ru/scripting/api/scripting/web-server) - ASP.NET Core/Kestrel endpoints, размещённые в script host, minimal APIs, controllers и lifetime сервера, привязанный к cancellation.
+- [scripting/browser-automation.md](/ru/scripting/api/scripting/browser-automation) - browser automation через Selenium/WebDriver как альтернатива screen/CV/input automation для web pages.
+- [auras/entities.md](/ru/scripting/api/auras/entities) - `IAuraRegistrator`, entity mappings, factories, proxies, linked-aura evaluators, event log и lifecycle events.
+- [auras/actions.md](/ru/scripting/api/auras/actions) - выполнение action, регистрация action, script actions и lifecycle action lists.
+- [auras/triggers.md](/ru/scripting/api/auras/triggers) - trigger event sources, регистрация trigger, script triggers и activation state.
+- [auras/overlays.md](/ru/scripting/api/auras/overlays) - сущности aura overlay и их отличия от OSD, Blazor windows и ImGui windows.
+- [auras/overview.md](/ru/scripting/api/auras/overview) - общий обзор aura pack и перекрёстные ссылки.
+- [windows-subsystems/window-handles.md](/ru/scripting/api/windows-subsystems/window-handles) - `IWindowHandle`, мосты к raw handle, enumeration, matching, selectors и trackers.
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows) - native windows на основе Blazor, WebView2 hosts, dialog windows, Razor view resolution и automation.
+- [windows-subsystems/input-hooks-hotkeys.md](/ru/scripting/api/windows-subsystems/input-hooks-hotkeys) - keyboard/mouse hooks, hotkeys, send-input API, input simulators, smoothers и redirection.
+- [osd/selection.md](/ru/scripting/api/osd/selection) - `IOsdSelectionService` и интерактивный выбор window/region/point/color.
+- [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay) - Blazor OSD screen overlay canvas, rectangles, HTML/Razor overlay objects и CV debug annotations.
+- [memory/processes.md](/ru/scripting/api/memory/processes) - базовые process readers, доступ к памяти, modules, pointer chains, pattern scanning, KD и MPFS.
+- [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk) - опциональный пакет `EyeAuras.ImGuiSdk`, render loop, managed ImGui windows, image/font textures и ImGui content.
+- [nuget/frida-sdk.md](/ru/scripting/api/nuget/frida-sdk) - опциональный пакет `EyeAuras.FridaSdk`, Frida sessions/scripts, Frida Gadget payloads, `IProcess` adapters на базе Frida и native named-pipe process readers через CAgent.
+- [computer-vision/images.md](/ru/scripting/api/computer-vision/images) - screen/window capture, image search, OCR, OpenCV, color и pixel workflows.
+- [computer-vision/profiling.md](/ru/scripting/api/computer-vision/profiling) - MiniProfiler, `EnableProfiling`, `cv.Profiler.Step`, plain-text reports, warm-up и затраты памяти на profiling.
+- [ml/ai.md](/ru/scripting/api/ml/ai) - индекс по ML model inference и интеграции AI в приложение.
+- [ml/ai-runtime.md](/ru/scripting/api/ml/ai-runtime) - `AiEngine`, chat sessions, profiles, retrieval, Blazor chat UI, MCP hosting, Responses API и desktop scripting AI.
+- [ml/ai-kernel-plugins.md](/ru/scripting/api/ml/ai-kernel-plugins) - `AiKernelPlugin`, инструменты `[KernelFunction]`, plugin host, tool approval, retrieval plugins и правила проектирования tool.
+- [ml/script-ai-clients.md](/ru/scripting/api/ml/script-ai-clients) - прямые external AI client NuGet-пакеты из скриптов и их отличия от встроенного runtime `EyeAuras.AI`.
+- [reverse-engineering/reprocess.md](/ru/scripting/api/reverse-engineering/reprocess) - `ReProcess`, RE workspace builder, RE tabs/actions/inspectors и AI RE tools.
 
 ## Recipes
 
-- `recipes/recipe.md` - обязательная форма и правила написания recipes.
-- `recipes/bot-memory-imgui-interface.md` - recipe для бота, который читает память, с ImGui UI и опциональным scripting внутри приложения.
-- `recipes/bot-memory-behavior-tree.md` - recipe для чтения памяти и передачи данных в automation через Behavior Tree.
-- `recipes/bot-memory-entity-list-reader.md` - recipe для примитивного списка сущностей, radar или debug table на основе памяти.
-- `recipes/tool-embedded-eyeauras-host.md` - recipe по добавлению инструментов на базе EyeAuras в другой app/plugin host.
-- `recipes/script-ai-editor-assistant.md` - recipe по добавлению AI-чата в script editor или mini-app.
+- [recipes/recipe.md](/ru/scripting/api/recipes/recipe) - предлагаемая форма и правила написания recipes.
+- [recipes/bot-memory-imgui-interface.md](/ru/scripting/api/recipes/bot-memory-imgui-interface) - recipe для бота, который читает память, с ImGui UI и опциональным scripting внутри приложения.
+- [recipes/bot-memory-behavior-tree.md](/ru/scripting/api/recipes/bot-memory-behavior-tree) - recipe для чтения памяти и передачи данных в automation через Behavior Tree.
+- [recipes/bot-memory-entity-list-reader.md](/ru/scripting/api/recipes/bot-memory-entity-list-reader) - recipe для примитивного списка сущностей, radar или debug table на основе памяти.
+- [recipes/tool-embedded-eyeauras-host.md](/ru/scripting/api/recipes/tool-embedded-eyeauras-host) - recipe по добавлению инструментов на базе EyeAuras в другой app/plugin host.
+- [recipes/script-ai-editor-assistant.md](/ru/scripting/api/recipes/script-ai-editor-assistant) - recipe по добавлению AI-чата в script editor или mini-app.
 
 ## Известные стартовые точки
 

@@ -3,11 +3,15 @@ title: Printing Variables Directly on the Screen
 description: 
 published: true
 date: 2024-08-15T19:50:03.212Z
-tags: printing, variables, screen, scripting
+tags: printing, variables, screen, scripting, ai-translated
 editor: markdown
 dateCreated: 2024-08-15T19:33:14.411Z
 ---
-### Interesting Points:
+# Show aura variables on screen
+
+Run the complete code in a top-level EyeAuras C# Script with the HTML screen overlay and WebView2 available. It updates the current aura’s variables once per second and displays `test1` and `test4`. Stop ends the loop and releases the helper’s owned resources.
+
+### Dependencies and ownership
 - If you reference this aura, the `VariablesOnScreenHelper` class will be available to you anywhere.
 - Note that the `VariablesOnScreenHelper` class requires `IOnScreenCanvasScriptingApi` in the constructor, but we don't pass it. `GetService<>` will handle this for us.
 - Working with Anchors is a concept that allows linking the lifecycle of different objects. By adding oneself to the ExecutionAnchors list, we essentially say, "I only live as long as ExecutionAnchors are alive."
@@ -15,19 +19,32 @@ dateCreated: 2024-08-15T19:33:14.411Z
 
 ```csharp
 using EyeAuras.Shared.ScreenOverlay;
+using EyeAuras.Shared.Scripting;
+using EyeAuras.Shared.Model;
+using EyeAuras.Blazor.Controls.ScreenOverlay;
+using PoeShared.Scaffolding;
+using System.Drawing;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Linq;
+using System.Collections.Generic;
+using System.Net;
+using DynamicData;
 
-var onScreenHelper = 
-    GetService<VariablesOnScreenHelper>() // create our helper
-    .AddTo(ExecutionAnchors); // and bind it to the script's life, the script ends - the helper dies
+var onScreenHelper =
+    GetService<VariablesOnScreenHelper>()
+    .AddTo(ExecutionAnchors);
+
+Variables["test4"] = "Watching test1";
 
 onScreenHelper.Draw(
-    AuraTree.FindAuraByPath("."), // first argument - where to take variables from, in this case, it's ourselves
-    "test1", "test4" // second-third-fourth are the variable names to print
-    ); 
+    AuraTree.FindAuraByPath("."),
+    "test1", "test4"
+    );
 
-//onScreenHelper.Draw(AuraTree.FindAuraByPath(".")); //this way will print all variables
 
-// code that pretends to print something
+
+
 while (!cancellationToken.IsCancellationRequested)
 {
     Variables["test1"] = Environment.TickCount + 1;
@@ -50,24 +67,24 @@ public sealed class VariablesOnScreenHelper : DisposableReactiveObject
         params string[] variablesToPrint)
     {
         DrawVariables(
-            onScreenCanvas, 
-            canvasBounds, 
-            variablesSource, 
-            variablesToPrint).AddTo(Anchors); 
+            onScreenCanvas,
+            canvasBounds,
+            variablesSource,
+            variablesToPrint).AddTo(Anchors);
     }
 
      public void Draw(
         IHasVariables variablesSource,
         params string[] variablesToPrint)
     {
-          // for example, we will draw directly on the entire screen
+
         var canvasBounds = new Rectangle(Point.Empty, System.Windows.Forms.SystemInformation.PrimaryMonitorSize);
 
         DrawVariables(
-            onScreenCanvas, 
-            canvasBounds, 
-            variablesSource, 
-            variablesToPrint).AddTo(Anchors); 
+            onScreenCanvas,
+            canvasBounds,
+            variablesSource,
+            variablesToPrint).AddTo(Anchors);
     }
 
     private static IDisposable DrawVariables(
@@ -76,22 +93,30 @@ public sealed class VariablesOnScreenHelper : DisposableReactiveObject
         IHasVariables variablesSource,
         params string[] variablesToPrint)
     {
-        // here we will put all traces of activity
-        // as soon as the overlay is no longer needed - we pull the anchor and it will take everything with it
+
+
         var anchors = new CompositeDisposable();
 
-        // create an overlay to draw on
-        var canvas = onScreenCanvas.Create().AddTo(anchors);
 
-        // create an HTML object to be rendered on the overlay
+        var canvas = onScreenCanvas.Create();
+
+        var lifetime = Disposable.Create(() =>
+        {
+            anchors.Dispose();
+            canvas.Clear();
+            canvas.Dispose();
+        });
+
+
         var textOverlay = canvas
             .AddHtmlObject()
-            .WithRect(canvasBounds); // full screen
-                                     // position and size of the overlay can be changed at runtime
+            .WithRect(canvasBounds)
+            .AddTo(anchors);
 
-        // subscribe to any variable changes
-        // in terms of performance, this is not ideal, and using WatchCurrentValue would be faster
-        // but for code simplification, we'll leave it like this, and the difference will be immeasurable in real conditions
+
+
+
+
         variablesSource.Variables
              .Connect()
              .Subscribe(_ =>
@@ -105,16 +130,16 @@ public sealed class VariablesOnScreenHelper : DisposableReactiveObject
              })
              .AddTo(anchors);
 
-        return anchors;
+        return lifetime;
 
 
         void UpdateOverlay(IEnumerable<AuraVariable> variables)
         {
-            string htmlContent = $@"""
+            string htmlContent = $"""
 <div class='w-100 h-100 d-flex' style='align-items: flex-start; justify-content: center; padding-top: 20px;'>
     <div class='alert alert-light' role='alert'>
         <table class='table table-striped'>
-            {(variables.Select(x => $"<tr><td>{x.Name}</td><td>{x.Value}</td></tr>")).JoinStrings("")}
+            {(variables.Select(x => $"<tr><td>{WebUtility.HtmlEncode(x.Name)}</td><td>{WebUtility.HtmlEncode(x.Value?.ToString())}</td></tr>")).JoinStrings("")}
         </table>
     </div>
 </div>""";
@@ -123,3 +148,5 @@ public sealed class VariablesOnScreenHelper : DisposableReactiveObject
     }
 }
 ```
+
+`Connect()` observes the supplied aura’s variable collection, and the name filter selects table rows. `test4` is initialized once; `test1` changes in the loop. The helper receives dependencies through its constructor and arguments. Its disposal releases the HTML object and subscription, then clears and disposes its canvas; disposing a canvas alone is not a promise to dispose its children. Variable values remain on their owning aura. See [OSD ownership](/en/scripting/api/osd/screen-overlay) and [script lifetime](/en/scripting/api/scripting/reactive-lifetime).

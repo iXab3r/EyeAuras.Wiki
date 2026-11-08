@@ -49,7 +49,7 @@ using EyeAuras.Blazor.Controls.ScreenOverlay;
         while (!cancellationToken.IsCancellationRequested)
         {
             rectangle.Location = sendInputApi.CursorPosition;
-            Sleep(16); // ограничиваем частоту обновления и учитываем остановку
+            Sleep(16); // ограничиваем частоту; отмену проверяет условие цикла
         }
     }
     finally

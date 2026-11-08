@@ -3,7 +3,7 @@ title: AI Kernel Plugins
 description: AI-first map for creating AiKernelPlugin tools, retrieval plugins, and approval-aware AI extensions.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, semantic-kernel, tools
+tags: scripting, api, ai, semantic-kernel, tools, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -54,46 +54,56 @@ available to AI sessions as callable tools.
 - MCP hosting uses the same `AiKernelPlugin` methods, but instructions come from
   `GetMcpServerInstructions`.
 
-## Minimal Plugin Shape
+## Register and invoke a local tool
+
+This ordinary C# app/plugin example requires `EyeAuras.AI` and Semantic Kernel assemblies. It registers a tool, passes a string and returns its UTF-16 length. No model profile, key or network request is needed for this local invocation. A model-driven call additionally needs a configured session and provider; see [AI runtime](ai-runtime).
 
 ```csharp
 using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
+using EyeAuras.AI.PluginHost;
 using EyeAuras.AI.SemanticKernel;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 
-public sealed class WorkspaceSummaryPlugin : AiKernelPlugin
+public sealed class TextLengthPlugin : AiKernelPlugin
 {
-    private readonly IWorkspaceIndex workspaceIndex;
-
-    public WorkspaceSummaryPlugin(IWorkspaceIndex workspaceIndex)
-    {
-        this.workspaceIndex = workspaceIndex;
-    }
-
-    public override void InitializeChatHistory(in ChatHistory chatHistory)
-    {
-        chatHistory.AddSystemMessage(
-            "Use workspace_summary_get before making claims about workspace state.");
-    }
-
-    [KernelFunction("workspace_summary_get")]
-    [Description("Return a concise summary of the current workspace state.")]
-    public WorkspaceSummary GetSummary(
-        [Description("Maximum number of items to include.")] int maxItems = 20,
+    [KernelFunction("text_length")]
+    [Description("Return the number of UTF-16 code units in the text.")]
+    public int GetLength(
+        [Description("Text to measure.")] string text,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return workspaceIndex.GetSummary(maxItems);
+        return text.Length;
+    }
+}
+
+public static class TextLengthExample
+{
+    public static async Task<AiToolInvocationResult> RunAsync(
+        CancellationToken cancellationToken)
+    {
+        var host = new AiPluginHost();
+        host.AddOrUpdatePlugin("text", new TextLengthPlugin());
+        try
+        {
+            return await host.InvokeToolAsync(
+                "text", "text_length",
+                new KernelArguments { ["text"] = "Hello!" },
+                cancellationToken: cancellationToken);
+        }
+        finally
+        {
+            host.RemovePlugin("text");
+        }
     }
 }
 ```
 
-Register it:
+`RunAsync` returns `AiToolInvocationResult` with `Succeeded = true` and `Value = 6`. `ListTools()` exposes `text.text_length`; the runtime supplies the token outside the model argument schema. The registration is removed in `finally`. `AiKernelPlugin` is not itself `IDisposable`; your code owns its services, subscriptions and resources.
 
-```csharp
-session.AddOrUpdatePlugin("workspace", new WorkspaceSummaryPlugin(index));
-```
+For an actual chat, register the same instance with `session.AddOrUpdatePlugin("text", plugin)`. Your host creates and owns that session; it is not a script global.
 
 ## API Details
 
@@ -144,6 +154,10 @@ tools.
 - `AiDocsKnowledgeBasePlugin` is the built-in example for markdown docs:
   `IBm25KnowledgeBase`, `Bm25Document`, `Bm25SearchQuery`, and `Bm25SearchHit`.
 
+## Where the policy applies
+
+`AiToolCallFilter` enforces the policy in the Semantic Kernel route. Direct `IAiPluginHost.InvokeToolAsync`, used in the example above, does not check session policy; its caller owns the decision to permit the operation. Do not transfer this guarantee to MCP, coding-agent or custom invocation routes. It is not OS isolation.
+
 ## Tool Approval
 
 - Use `AiFunctionInvocationPolicy` when a session contains tools that can mutate
@@ -151,7 +165,7 @@ tools.
   operations.
 - Match rules accept unqualified tool names or `plugin.tool` names.
 - Whitelisted tools run without approval.
-- Blacklisted tools require approval even when default mode allows calls.
+- Blacklisted tools require approval unless they also match the whitelist; whitelist matching happens first.
 - With `AiFunctionInvocationDefaultMode.RequireApproval`, all non-whitelisted
   tools require an approval callback.
 - `AiFunctionApprovalResult.Allow` executes the tool.
@@ -254,8 +268,20 @@ tools.
 
 ## Related Maps
 
-- `ml/ai-runtime.md`
-- `ml/ai.md`
-- `scripting/runtime.md`
-- `reverse-engineering/reprocess.md`
-- `recipes/script-ai-editor-assistant.md`
+- [ml/ai-runtime.md](/en/scripting/api/ml/ai-runtime)
+- [ml/ai.md](/en/scripting/api/ml/ai)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [reverse-engineering/reprocess.md](/en/scripting/api/reverse-engineering/reprocess)
+- [recipes/script-ai-editor-assistant.md](/en/scripting/api/recipes/script-ai-editor-assistant)
+
+See [documentation search and snapshot identity](/en/scripting/api/ml/documentation-retrieval) for reading contracts, metadata, citations and refresh behavior.
+
+## Retrieval composition and MCP instructions
+
+At `c8b2304`, the factory selects a null service, one service, or `CompositeAiRetrievalService`. The composite invokes services sequentially, joins distinct messages, and keeps the first hit for each case-insensitive `ChunkId`. It does not reapply a global size limit; `InjectedCharCount` is summed. A service error aborts composition. Chat Completions and Codex report skipped retrieval and continue the request, except on cancellation. The Responses backend intentionally performs no pre-retrieval injection. Plugin registration therefore does not guarantee identical context across backends.
+
+MCP builds instructions at startup from base text and plugin sections sorted by name. The default plugin method extracts nonempty distinct system messages from a temporary history, not the live chat history. These instructions supply client context, not permission enforcement.
+
+The filter uses the callback stored in `AiFunctionInvocationPolicy`. Merely overriding `AiKernelPlugin.AiFunctionApprovalCallback` does not wire it into that policy; the host must do so. Required approval without a callback or decision blocks the call. A tool timeout requests cancellation of the current request but does not forcibly interrupt code that ignores cancellation.
+
+[Source contracts](https://github.com/iXab3r/EyeAuras/tree/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.AI)

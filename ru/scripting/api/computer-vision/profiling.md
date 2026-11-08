@@ -164,7 +164,7 @@ using StackExchange.Profiling;
 
 ## Связанные карты
 
-- `computer-vision/images.md`
-- `ml/ai.md`
-- `osd/screen-overlay.md`
-- `scripting/runtime.md`
+- [computer-vision/images.md](/ru/scripting/api/computer-vision/images)
+- [ml/ai.md](/ru/scripting/api/ml/ai)
+- [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay)
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)

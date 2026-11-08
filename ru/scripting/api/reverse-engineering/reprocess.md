@@ -51,8 +51,8 @@ dateCreated: 2026-04-21T00:00:00.000Z
 ## Что предпочтительно
 
 - Перед сборкой RE UI проверяйте `IProcess.IsValid` и ожидаемый PID.
-- Для хостинга в ImGui используйте `nuget/imgui-sdk.md`.
-- Для process reader используйте `memory/processes.md` или `nuget/frida-sdk.md`.
+- Для хостинга в ImGui используйте [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk).
+- Для process reader используйте [memory/processes.md](/ru/scripting/api/memory/processes) или [nuget/frida-sdk.md](/ru/scripting/api/nuget/frida-sdk).
 
 ## Чего избегать
 
@@ -78,7 +78,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 ## Связанные карты
 
-- `memory/processes.md`
-- `nuget/frida-sdk.md`
-- `nuget/imgui-sdk.md`
-- `osd/selection.md`
+- [memory/processes.md](/ru/scripting/api/memory/processes)
+- [nuget/frida-sdk.md](/ru/scripting/api/nuget/frida-sdk)
+- [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk)
+- [osd/selection.md](/ru/scripting/api/osd/selection)

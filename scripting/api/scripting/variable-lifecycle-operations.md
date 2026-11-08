@@ -85,6 +85,36 @@ The runner reuses the context while the project version stays unchanged. Simply 
 
 `ExecutionAnchors` is created separately for each execution and disposed when that execution ends, including when it is stopped. For a subscription that should live only for the current Run, use `using` together with an awaited cancellable operation, as shown in the [async examples](/scripting/api/scripting/async). A subscription by itself does not keep a Run alive. Do not store it in an instance property expecting to reuse it on the next run.
 
+## Editing, unloading and disposing a subscription
+
+These are separate lifetime boundaries:
+
+| Event | What changes |
+| --- | --- |
+| Next Run after the dependent project version changes | The runner creates a new sandbox and child container, disposing the previous context when it is replaced |
+| Current Run finishes | Its `ExecutionAnchors` is disposed; variables of a surviving owner are not removed |
+| Unload command | Changes the owner's `IsLoaded`; the command itself does not clear its `Variables` |
+| Tree item removal | Removes the item from the index and schedules its `Dispose()` on a background scheduler; this is not a synchronous barrier stopping all callbacks |
+
+`Listen()` builds a `WatchCurrentValue → Select → DistinctUntilChanged` chain.
+It does not attach the returned subscription to Run or the Unload command.
+The caller chooses its owner: `using` disposes it when that block exits;
+adding it to `ExecutionAnchors` disposes it when the runner exits execution.
+Token cancellation requests shutdown: if the script keeps running, end-of-Run
+cleanup has not happened yet. Calling `Dispose()` does not interrupt a callback
+that has already started.
+
+The runner first clears the sandbox's `ExecutionAnchors` and `cancellationToken`
+in `finally`, then the enclosing `using` disposes its local `CompositeDisposable`.
+Replacing a context disposes its `Globals` and `Container`. The owning
+`IEyeContext` is registered in that container as an external object: recreating
+the sandbox does not create a new aura instance or clear that aura's variables.
+
+Do not use a retained variable handle after its owner is removed, or rely on
+Unload to dispose your subscription automatically. For a subscription scoped to
+one Run, keep `using` inside the executed block and await work with
+`cancellationToken` before leaving it.
+
 ## What happens after restarting the app
 
 A normal owner variable is in-memory state, not a promise that any object will be written to disk. In the verified settings adapter, local non-empty `default.*` values are serialized, and the non-null value must be a string. This is a special mechanism for subsystem settings, not a general persistence layer for arbitrary script objects. Do not add the `default.` prefix to your own data just to make it persist.
@@ -92,6 +122,10 @@ A normal owner variable is in-memory state, not a promise that any object will b
 For long-term settings, use an appropriate [configuration persistence provider](/scripting/api/core/configuration-persistence). It requires its own registration and save rules; a typed variable descriptor does not replace it.
 
 ## Contract and verification
+
+The additional review of editing, Unload and subscriptions uses source at `c8b2304`: [runner](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Scripting/AuraScriptRunner.cs), [context](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Scripting/AuraScriptingApiContext.cs), [Unload](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/AuraTree/ViewModels/ReactiveAuraTreeItemViewModel.cs), [owner variables](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/AuraTree/ViewModels/EyeItemBase.cs), [tree removal](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Core/Services/AuraTreeService.cs).
+
+
 
 This behavior was checked against EyeAuras
 [`1fd27eb`](https://github.com/iXab3r/EyeAuras/tree/1fd27eb5308565d6ab2150c4392810ea52d0cc4f):

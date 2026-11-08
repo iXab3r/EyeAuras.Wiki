@@ -66,12 +66,25 @@ Use it when code needs derived properties, live collections, change tracking, UI
 - `SourceListEx<T>` / `SourceCacheEx<T, TKey>` - PoeShared lifetime-aware wrappers around DynamicData sources.
 - `BindableReactiveObject` / `ReactiveBinding` - property-path binding infrastructure for dynamic source/target binding cases.
 
+## Prepare the classes and their lifetime
+
+These examples are members of application/script-project classes, not globals
+in `Script.csx`. Import `PoeShared.Scaffolding`, `PropertyBinder`, `ReactiveUI`,
+`DynamicData` and `System.Reactive.Linq`. In an ordinary project, auto-properties
+need notification weaving such as `PropertyChanged.Fody`; deriving from
+`DisposableReactiveObject` alone does not weave setters.
+
+`Dispose()` releases `Anchors`. Choose the subscriber's owner before attaching
+resources. `SourceCacheEx` and `SourceListEx` own a supplied source as well, so a
+temporary wrapper must not dispose a shared cache. Their optional scheduler moves
+materialized collection notifications, not every property update in the object.
+
 ## PropertyBinder Pattern
 
 Use `Binder<T>` for stable object-level derived state. Do not create binders inside render loops, polling loops, or per-frame code.
 
 ```csharp
-private sealed class CharacterState : DisposableReactiveObject
+public sealed class CharacterState : DisposableReactiveObject
 {
     private static readonly Binder<CharacterState> Binder = new();
 
@@ -90,6 +103,11 @@ private sealed class CharacterState : DisposableReactiveObject
         Binder.Attach(this).AddTo(Anchors);
     }
 
+    public sealed class TargetInfo : DisposableReactiveObject
+    {
+        public string Name { get; set; } = "";
+    }
+
     public string Name { get; set; } = "";
     public int Level { get; set; }
     public TargetInfo? Target { get; set; }
@@ -98,9 +116,16 @@ private sealed class CharacterState : DisposableReactiveObject
 }
 ```
 
+With notification weaving configured, assigning `Name = "Mage"` and `Level = 5`
+produces `DisplayName == "Mage (5)"`; a null target gives `<no target>`.
+The binder is defined once per type and attached per instance. Dispose the
+instance to stop its binding subscriptions.
+
 ## Rx Subscription Pattern
 
 Use Rx for streams and side effects. Always dispose subscriptions with the owner.
+The following belongs in the constructor of an object with notifying `IsRunning`,
+`Log` and `Anchors`, such as a `DisposableReactiveObjectWithLogger` subclass.
 
 ```csharp
 this.WhenAnyValue(x => x.IsRunning)
@@ -123,6 +148,10 @@ Common operators:
 
 Use DynamicData when a collection changes over time. Prefer change-set pipelines over manual list diffing.
 
+The following are members of `InventoryVm : DisposableReactiveObject`. Supply
+an `ItemVm` with `string Id` and `bool IsVisible`; populating the cache displays
+items accepted by the filter.
+
 ```csharp
 private readonly SourceCache<ItemVm, string> items = new(x => x.Id);
 
@@ -141,7 +170,11 @@ public InventoryVm()
 }
 ```
 
-Use `Edit(...)` for batch changes:
+The filter reevaluates on cache changes; mutating an existing item's `IsVisible`
+alone does not emit a refresh. Add a refresh pipeline for that workflow.
+
+Use `Edit(...)` in an `InventoryVm` method for batch changes, where `newItems` is
+the incoming `ItemVm` sequence:
 
 ```csharp
 items.Edit(update =>
@@ -222,3 +255,22 @@ items.Edit(update =>
 - [Async Patterns](../scripting/async.md)
 - [Scripting Runtime](../scripting/runtime.md)
 - [Blazor Windows](../windows-subsystems/blazor-windows.md)
+
+## Binding configuration and threading
+
+Define rules before the first `Attach`; later changes require a clone.
+`DoNotRunOnAttach` suppresses the initial assignment. `WithDependency` adds an
+expression to watch; it does not poll arbitrary mutable fields. `OverrideKey`
+selects the replacement key, and `DoNotOverride` prevents the new rule from
+removing existing same-key rules. It does not protect that rule from later overrides.
+
+PoeShared `OnScheduler` at `0e02c98` requires a `DispatcherScheduler`. It assigns
+inline on that dispatcher or uses synchronous `Dispatcher.Invoke` across threads.
+Do not pass a generic worker scheduler or assume a fire-and-forget queue. Rx
+`ObserveOn` changes downstream callback scheduling; subscription side effects
+require a separate `SubscribeOn` choice.
+
+[PropertyBinder rules](https://github.com/iXab3r/PropertyBinder/blob/1aa26525c29eac854d1bd259b535601363587ae9/PropertyBinder/PropertyRuleBuilder.cs),
+[PoeShared dispatcher binding](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Wpf/Scaffolding/PropertyRuleBuilderExtensions.cs),
+[Rx 6.0.1 scheduling](https://github.com/dotnet/reactive/blob/rxnet-v6.0.1/Rx.NET/Source/src/System.Reactive/Linq/Observable.Concurrency.cs),
+[DynamicData 8.0.2 filter](https://github.com/reactivemarbles/DynamicData/blob/8.0.2/src/DynamicData/Cache/Internal/StaticFilter.cs).

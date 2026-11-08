@@ -115,7 +115,7 @@ static int ReadModuleInt32(IProcess process, string moduleName, int offset)
 
 ## Граница этой карты
 
-Основные операции выше сверены с исходным API EyeAuras `20fd3d4`.
+Основные операции выше сверены с исходным API EyeAuras `c8b2304`.
 Дальнейшие списки сохраняют навигацию по расширенным контрактам этого среза:
 они не подтверждают наличие нужного драйвера, устройства или совместимость
 пакета на вашей машине. В частности, KD/MPFS требуют своего backend и среды;
@@ -372,8 +372,27 @@ static int ReadModuleInt32(IProcess process, string moduleName, int offset)
 
 ## Связанные карты
 
-- `pattern-scanning.md`
-- `windows-subsystems/window-handles.md`
-- `osd/selection.md`
-- `reverse-engineering/reprocess.md`
-- `recipes/bot-memory-entity-list-reader.md`
+- [pattern-scanning.md](/ru/scripting/api/memory/pattern-scanning)
+- [windows-subsystems/window-handles.md](/ru/scripting/api/windows-subsystems/window-handles)
+- [osd/selection.md](/ru/scripting/api/osd/selection)
+- [reverse-engineering/reprocess.md](/ru/scripting/api/reverse-engineering/reprocess)
+- [recipes/bot-memory-entity-list-reader.md](/ru/scripting/api/recipes/bot-memory-entity-list-reader)
+
+## Границы kernel-обхода и снимков
+
+EPROCESS-хелперы выбирают таблицу layout для x64 Windows по `osBuild`;
+по умолчанию берётся сборка ОС контроллера. Для дампа или другой машины
+передайте сборку источника памяти. Reader должен читать kernel virtual memory,
+а для модулей и параметров — также адресное пространство целевого процесса.
+Хелперы сами не устанавливают драйвер и не переключают адресные пространства.
+
+TEB/PEB-хелперы поддерживают явно выбранный x86/x64 layout переданного адреса,
+включая нужное представление WOW64. Обходы не останавливают процесс:
+списки собираются последовательными чтениями и не являются атомарными снимками.
+При превышении ограничения обход завершается исключением, а не полным списком.
+
+VAD-обход возвращает отсортированные выделенные диапазоны без свободных
+промежутков и состояния отдельных страниц. Поле `MemoryBasicInformation.State`
+заполняется как `Commit`: это не результат `VirtualQueryEx` и не доказательство,
+что каждая страница committed/resident. Возможности управления процессом
+и совместимость драйвера проверяются отдельно от этих общих readers.

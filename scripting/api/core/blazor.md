@@ -1,9 +1,9 @@
 ---
-title: AI Core: Blazor Foundation
+title: AI Core — Blazor Foundation
 description: AI-first map of PoeShared.Blazor reactive components, view resolution, content repository, and JS utilities.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, blazor, razor, reactive
+tags: scripting, api, ai, blazor, razor, reactive, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -12,9 +12,9 @@ dateCreated: 2026-04-22T00:00:00.000Z
 Reference map for the shared Blazor/Razor infrastructure used by EyeAuras app
 UI, Blazor windows, C# overlays, WebView2 hosts, and reusable UI controls.
 
-Use `windows-subsystems/blazor-windows.md` for native window hosting and
-`osd/screen-overlay.md` for screen overlay rendering. Use
-`core/reactivity.md` for the shared `PropertyBinder`, Rx/ReactiveUI, and
+Use [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows) for native window hosting and
+[osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay) for screen overlay rendering. Use
+[core/reactivity.md](/en/scripting/api/core/reactivity) for the shared `PropertyBinder`, Rx/ReactiveUI, and
 DynamicData concepts behind reactive view models and collection tracking.
 
 ## User Intents
@@ -92,9 +92,48 @@ DynamicData concepts behind reactive view models and collection tracking.
 - `PoeSharedBlazorRegistrations` - Unity/DI registration module for the shared
   Blazor services.
 
+## Prepare a component and observe refresh
+
+These examples require a configured EyeAuras/PoeShared Blazor host with
+`PoeShared.Blazor`, `.Scaffolding`, `.Services` and ReactiveUI available.
+A model tracked through `ReactiveSection` must publish `PropertyChanged`;
+an ordinary property without notifications does not trigger refresh.
+A component with its own state can start without a model:
+
+```razor
+@inherits PoeShared.Blazor.BlazorReactiveComponent
+
+<button @onclick="Increment">Increment</button>
+<span>@count</span>
+
+@code {
+    private int count;
+    private async Task Increment()
+    {
+        count++;
+        await Refresh("Increment");
+    }
+}
+```
+
+Each click increments the displayed count. For external observables, use
+`ReactiveSection` below. Its default `DebounceTime` is zero; a positive value
+samples events with `Sample`, rather than waiting for silence. Add subscriptions
+to component `Anchors` for disposal with the component.
+
+For complete clipboard, UTF-8 download, focus, selection, scrolling and
+point-to-element operations, see [Blazor JS operations](blazor-js-operations).
+The injected JS service belongs to the host; dispose registrations created by
+the component, not the shared service. Wait until an element has rendered
+before using its `ElementReference`.
+
 ## Common Flows
 
 ### Reactive Razor Component
+
+Supply your `MyViewModel` through `DataContext`, with a notifying `Status`
+property and a DynamicData `Items` collection. This fragment wires your model;
+it is not a standalone component.
 
 ```razor
 @inherits BlazorReactiveComponent<MyViewModel>
@@ -112,6 +151,10 @@ replaced by reactive sections.
 
 ### Dynamic View For A Model
 
+Here `currentModel` is a component field holding your model. Register its view
+before presentation. A missing repository mapping returns `null`; registering
+later does not by itself guarantee an existing presenter refreshes.
+
 ```razor
 <BlazorContentPresenter Content="@currentModel" />
 ```
@@ -121,6 +164,9 @@ view inherits from `BlazorReactiveComponent`, the presenter passes the model as
 `DataContext`.
 
 ### Register A View Type
+
+Resolve `IBlazorViewRegistrator` during module initialization. `MyDetailsView`
+and `MyModel` below are your own component and model types.
 
 ```csharp
 registrator.RegisterViewType(typeof(MyDetailsView), typeof(MyModel), "Details");
@@ -136,6 +182,7 @@ type.
 ```razor
 @inject IJsPoeBlazorUtils JsUtils
 
+<input id="search-box" />
 <button @onclick="FocusSearch">Focus</button>
 
 @code {
@@ -200,7 +247,7 @@ inside editable elements unless options override that behavior.
   and explicit browser shortcut suppression.
 - Prefer `Anchors` for component subscriptions and other component-owned
   resources.
-- Prefer `windows-subsystems/blazor-windows.md` when the task is about opening,
+- Prefer [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows) when the task is about opening,
   sizing, moving, or controlling a native Blazor window.
 
 ## Avoid
@@ -261,10 +308,10 @@ inside editable elements unless options override that behavior.
 
 ## Related Maps
 
-- `windows-subsystems/blazor-windows.md`
-- `osd/screen-overlay.md`
-- `core/reactivity.md`
-- `core/app-runtime-contexts.md`
-- `scripting/runtime.md`
-- `scripting/reactive-lifetime.md`
-- `scripting/async.md`
+- [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows)
+- [osd/screen-overlay.md](/en/scripting/api/osd/screen-overlay)
+- [core/reactivity.md](/en/scripting/api/core/reactivity)
+- [core/app-runtime-contexts.md](/en/scripting/api/core/app-runtime-contexts)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [scripting/reactive-lifetime.md](/en/scripting/api/scripting/reactive-lifetime)
+- [scripting/async.md](/en/scripting/api/scripting/async)

@@ -3,12 +3,18 @@ title: Web Server with Controllers
 description: 
 published: true
 date: 2025-03-03T00:11:41.656Z
-tags: 
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-03-02T23:41:52.118Z
 ---
 
 # Web Server with Controllers
+
+This runs inside a top-level EyeAuras C# Script, not a standalone ASP.NET project.
+The host must resolve all listed `assemblyName` references and a compatible ASP.NET
+Core runtime. Port 52080 must be free. The example uses HTTP; choosing port 52443
+does not enable HTTPS without endpoint/certificate configuration.
+
 We've already seen how to create a [simple web-server](https://wiki.eyeauras.net/en/scripting/examples/advanced/simple-web-server), now lets step up the game a bit. 
 
 Manually creating routes and parsing arguments yourself is not very convenient. Definitely possible way of doing things, but things tend to become cluttered a bit too fast.
@@ -28,8 +34,8 @@ Set of steps is quite similar to what we saw earlier, with one important twist -
 {.is-info}
 
 1. Create an aura with a script
-2. Copy-paste, run it, there should be a line printed to console `Starting web-server` - this tells us that everything went fine
-3. Access the page via CURL or browser 
+2. Copy-paste, run it, there should be a line printed to console `Starting web-server` - this is logged before startup and does not prove the server has opened its port
+3. Request `curl http://127.0.0.1:52080/hello`; expect `Hello World!`.
 
 
 ## How it could be used?
@@ -68,41 +74,43 @@ using System;
 
 const int PortNumber = 52080;
 
-Log.Info("Creating web-app builder");
-
-var host = await Task.Run(() =>
 {
-    var builder = Host
-    .CreateDefaultBuilder()
-    .ConfigureAppConfiguration((context, config) =>
-    {
-        //Very important line! 
-        //This is required to run the server in EA infrastructure
-        config.Sources.Clear();
-    })
-    .ConfigureWebHostDefaults(webBuilder =>
-    {
-        Log.Info("Setting up web-options");
-        webBuilder
-           .ConfigureKestrel(options => ConfigureKestrel(options))
-           .Configure((ctx, app) => { ConfigureAppAndEnvironment(Log, app, ctx.HostingEnvironment); });
+    Log.Info("Creating web-app builder");
 
-        webBuilder.ConfigureServices(services => {
-            var manager = new ApplicationPartManager();
-            services.AddSingleton<ApplicationPartManager>(manager);
-            services
-                .AddControllers()
-                .AddApplicationPart(typeof(InjectController).Assembly); //that line will ensure that Controllers are properly detected
+    using var host = await Task.Run(() =>
+    {
+        var builder = Host
+        .CreateDefaultBuilder()
+        .ConfigureAppConfiguration((context, config) =>
+        {
+            //Very important line!
+            //This is required to run the server in EA infrastructure
+            config.Sources.Clear();
+        })
+        .ConfigureWebHostDefaults(webBuilder =>
+        {
+            Log.Info("Setting up web-options");
+            webBuilder
+               .ConfigureKestrel(options => ConfigureKestrel(options))
+               .Configure((ctx, app) => { ConfigureAppAndEnvironment(Log, app, ctx.HostingEnvironment); });
+
+            webBuilder.ConfigureServices(services => {
+                var manager = new ApplicationPartManager();
+                services.AddSingleton<ApplicationPartManager>(manager);
+                services
+                    .AddControllers()
+                    .AddApplicationPart(typeof(InjectController).Assembly); //that line will ensure that Controllers are properly detected
+            });
         });
-    });
 
-    Log.Info("Building web-server");
-    return builder.Build();
-}, cancellationToken);
+        Log.Info("Building web-server");
+        return builder.Build();
+    }, cancellationToken);
 
-Log.Info("Starting web-server");
-await host.RunAsync(cancellationToken);
-Log.Info("Terminated");
+    Log.Info("Starting web-server");
+    await host.RunAsync(cancellationToken);
+    Log.Info("Terminated");
+}
 
 private static void ConfigureAppAndEnvironment(
     IFluentLog log,
@@ -177,5 +185,24 @@ public sealed class InjectController : ControllerBase
     {
         return new OkObjectResult($"Base offset for module {moduleName} is XxX!");
     }
-}=
+}
 ```
+`ListenAnyIP` binds network interfaces rather than only loopback. Remote access
+depends on the network and firewall. `RunAsync(cancellationToken)` connects host
+shutdown to the script; request handlers and external operations have their own
+completion rules. The HTTP service container is separate from EyeAuras DI.
+`config.Sources.Clear()` is explicit configuration for this example, not a guarantee
+of compatibility with every ASP.NET version.
+
+Create both files in one script project: `Script.csx` and `InjectController.cs`
+in namespace `GameGrit`. `AddApplicationPart(typeof(InjectController).Assembly)`
+points MVC at that assembly. Check `/inject` for an object with `Text = "Index page"`,
+`/inject/test` for the greeting, and `/inject/getBaseOffset?moduleName=kernel32.dll`
+for the demonstration string `XxX!`. That last route does not read a module address;
+it is an application placeholder.
+
+See [script context](/en/scripting/api/core/app-runtime-contexts),
+[hosting contracts](/en/scripting/api/scripting/web-server) and
+[assembly references](/en/scripting/api/scripting/references-and-resources).
+Source review does not establish compilation or execution of this script in your
+host; check the expected HTTP responses after starting it.

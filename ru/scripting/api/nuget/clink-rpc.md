@@ -26,7 +26,7 @@ dateCreated: 2026-05-22T00:00:00.000Z
 
 Ниже сохранён справочный срез Wiki `c950e48d` с примером Calculator,
 C/JavaScript tools и деталями протокола. Реализация и XML этого опционального
-пакета не входят в доступный исходный срез EyeAuras `20fd3d4`; точные generated
+пакета не входят в доступный исходный срез EyeAuras `c8b2304`; точные generated
 сигнатуры, ownership и совместимость версий здесь **не подтверждены**.
 Перед применением примера сверяйте их с tools и SDK/XML установленного пакета.
 Это также относится к handshake, streaming и заявленным transport schemes.
@@ -195,30 +195,27 @@ protoc ^
 - Не возвращайтесь к обнаружению контрактов через reflection интерфейсов или `Reflection.Emit` для продуктового пути контрактов.
 - Избегайте слишком широких графов DTO, пока генератор proto и тесты совместимости не покрывают их намеренно.
 
-## Опорные термины для исследования
+## CLink protobuf session и generated service
 
-- `EyeAuras.CLink.Rpc`
-- `CLinkRpcSession`
-- `CLinkConnectionRpcTransport`
-- `CLinkRpcOptions`
-- generated CLink RPC client
-- generated CLink RPC server
-- protobuf request
-- protobuf response
-- descriptor fingerprint
+В установленном пакете ищите `EyeAuras.CLink.Rpc`, `CLinkRpcSession`,
+`CLinkConnectionRpcTransport` и `CLinkRpcOptions`. Это точки входа для проверки
+контракта session/transport; descriptor fingerprint относится к совместимости
+сгенерированных protobuf request/response, а не к бизнес-смыслу метода.
 
-## Синонимы для поиска
 
-- CLink RPC
-- proto-first RPC
-- protobuf CLink
-- generated service
-- generated CLink client
-- CLinkRPC session
-- IPC contract
-- CLink service
+Для proto-first RPC сначала определите сообщения и сервис в `.proto` и соберите
+их генератором установленного `EyeAuras.CLink.Rpc`. CLink RPC client и server
+должны использовать согласованный IPC contract и поддерживаемый адрес транспорта.
+Generated service не является готовым подключением: после генерации нужно
+запустить оба peer и управлять временем жизни session и результатов вызовов.
+
+Раздел Calculator выше показывает историческую форму generated API: запрос
+`Add(2, 3)` должен дать `5` только при совместимых версиях пакета и peers.
+Сигнатуры `CLinkRpcSession`, transport и streaming здесь не подтверждены текущими
+SDK/XML. Сначала сверьте их с установленным пакетом по
+[правилам выбора версии контракта](/ru/scripting/api/reference).
 
 ## Связанные карты
 
-- `nuget/frida-sdk.md`
-- `memory/processes.md`
+- [nuget/frida-sdk.md](/ru/scripting/api/nuget/frida-sdk)
+- [memory/processes.md](/ru/scripting/api/memory/processes)

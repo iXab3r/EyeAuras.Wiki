@@ -3,7 +3,7 @@ title: AI Scripting: Project Workflow
 description: AI-first map for export/import/live-import, IDE workflow, script project shape, and solution boundaries.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, ide, export, import
+tags: scripting, api, ai, ide, export, import, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -60,30 +60,63 @@ and multi-project solutions.
   runtime payload.
 - Keep project file metadata accurate; import relies on project structure.
 
-## Common Flows
+## Edit a script in an IDE and import it
 
-### Export And Edit
+Start with a working C# Script containing `Log.Info("EyeAuras version");`.
+Keep a copy before import: the project replaces the script's code.
 
-1. Export the script project.
-2. Open the generated solution in an IDE.
-3. Build the main project.
-4. Add classes, Razor components, packages, and resources.
-5. Import or live-import back into the script runtime.
+1. Choose `Export` in the script editor and select a dedicated empty folder.
+   Export clears files and subdirectories in that folder, retaining `.git`.
+   See the buttons and screenshots in [IDE integration](/en/scripting/ide-integration).
+2. Open the exported `.sln` in Rider or Visual Studio. Install the .NET SDK
+   and Windows dependencies specified by the generated project, then use
+   the normal `dotnet build` command.
+3. Change the script to `Log.Info("IDE version");` and save it.
+4. Import the solution into the same script and run it in EyeAuras. The log
+   should contain the new message.
 
-### Live UI Work
+An IDE build checks compilation; execution in EyeAuras supplies the live host
+and services. Generated host stubs do not replace the sandbox. Export recreates
+those stubs and import ignores them; put your own classes in the script project.
 
-1. Use C# Overlay or a script-owned Blazor window.
-2. Export/open the project in an IDE.
-3. Enable live import.
-4. Edit Razor/CSS/JS/C# files.
-5. Restart or refresh the script surface according to the host workflow.
+## Repeat changes with Live Import
 
-### Multi-Project Solution
+After a successful manual import, enable `Live Import` for the same solution
+using the [IDE guide](/en/scripting/ide-integration). Edit in the IDE, save,
+and check that the change appears in EyeAuras. For C# Overlay, change text in
+an existing Razor component and inspect it after refreshing/restarting the surface.
 
-1. Keep the script payload project separate from helper/test projects.
-2. Reference helper projects when useful for IDE compilation.
-3. Keep tests out of the script import payload.
-4. Import only the intended script project/files back into EyeAuras.
+File synchronization does not prove that previous windows, fields or subscriptions
+have been recreated. Verify the running script's result. Automatic restart depends
+on the surface and host version.
+
+In source revision `c8b2304`, `CsharpScriptEditor` uses `AuraScriptSynchronizer`
+for both import and live import. Import is a single load. Monitoring loads the
+solution initially and then reloads tracked changes, respecting `.gitignore`,
+`.eaignore` and generated-file exclusions. Stop ends monitoring; it does not undo
+already imported changes. Both commands reject scripts with `CompileOnce` enabled.
+See [editor implementation](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.CsScriptAuras/Actions/CsharpScript/CsharpScriptEditor.cs)
+and [synchronizer](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Scripting.Editor/Services/AuraScriptSynchronizer.cs).
+
+## Separate payload, tests and resources
+
+Import matches the script and its dependencies to projects on disk. A neighboring
+test project does not become script code merely because it belongs to the solution.
+A dependency of the main project can be imported, so project-reference direction matters.
+
+Declare a resource explicitly:
+
+```xml
+<ItemGroup>
+  <EmbeddedResource Include="docs/help.txt" />
+  <None Remove="docs/help.txt" />
+</ItemGroup>
+```
+
+Create `docs/help.txt` containing `Project help`, import it, and read it using the
+[complete example](references-and-resources). Import reads resource metadata;
+it does not promise to execute arbitrary MSBuild targets, generators or pre/post-build
+steps. Do not keep the only copy of an asset in `bin` or `obj`.
 
 ## Prefer
 
@@ -106,7 +139,7 @@ and multi-project solutions.
 
 ## Research Anchors
 
-- `ProjectSynchronizer`
+- `AuraScriptSynchronizer` — current import and monitoring; `ProjectSynchronizer` is legacy V2
 - `AuraScriptSerializerVisitor`
 - `EmbeddedResourcesScriptVisitor`
 - `RazorVisitor`
@@ -138,9 +171,16 @@ and multi-project solutions.
 
 ## Related Maps
 
-- `scripting/runtime.md`
-- `scripting/container-extensions.md`
-- `scripting/references-and-resources.md`
-- `windows-subsystems/blazor-windows.md`
-- `core/deployment.md`
-- `recipes/recipe.md`
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [scripting/container-extensions.md](/en/scripting/api/scripting/container-extensions)
+- [scripting/references-and-resources.md](/en/scripting/api/scripting/references-and-resources)
+- [windows-subsystems/blazor-windows.md](/en/scripting/api/windows-subsystems/blazor-windows)
+- [core/deployment.md](/en/scripting/api/core/deployment)
+- [recipes/recipe.md](/en/scripting/api/recipes/recipe)
+
+## Read resources after import
+
+Check that `IScriptFileProvider` can read the imported asset, not just that the file
+exists in the project. Provider paths can differ from physical project paths.
+[File provider operations](file-provider-operations) covers stream cleanup and
+provider priority; [references and resources](references-and-resources) covers packaging.

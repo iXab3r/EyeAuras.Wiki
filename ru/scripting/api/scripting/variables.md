@@ -147,36 +147,26 @@ using System.Reactive.Linq;
 - Не злоупотребляйте глобальными и общими переменными для значений, которым место в локальном состоянии.
 - Не считайте имена `default.*` безобидными — они могут влиять на вложенные системы.
 
-## Опорные точки для изучения
+## ScriptVariable Listen и время жизни shared state
 
-- `IVariablesScriptingApi`
-- `ScriptVariable<T>`
-- `IScriptVariable`
-- `IHasVariables`
-- `IBindingValueConverterRepository`
-- `Variables.Get`
-- `Variables.Item`
-- `HasValue`
-- `TryGetValue`
-- `GetOrThrow`
-- `Listen`
-- `Remove`
-- `default.WindowSelector.TargetWindow`
+`Variables.Get<T>` возвращает `ScriptVariable<T>` для выбранного `IHasVariables`.
+Для typed variable читайте `Value`, `TryGetValue` или `GetOrThrow`; `HasValue`
+проверяет присутствие, а `IBindingValueConverterRepository` участвует в приведении
+типов. Нетипизированные `IScriptVariable` и индексатор `Variables.Item` нужны
+только там, где контракт действительно использует `object`.
 
-## Что искать по похожим запросам
+`Listen()` даёт текущие и последующие отличающиеся значения reactive variable;
+подписку освобождает вызывающий код. Для lifetime одного Run используйте
+`using` в блоке выполнения или `ExecutionAnchors`. Unload сам не освобождает
+вашу подписку. [Примеры времени жизни](/ru/scripting/api/scripting/variable-lifecycle-operations)
+показывают завершение Run, редактирование, выгрузку и выбор владельца.
 
-- script variables
-- aura variables
-- folder variables
-- tree variables
-- blackboard
-- shared state
-- typed variable
-- persistent setting
-- default variable
-- inherited variable
-- variable hierarchy
-- reactive variable
+Aura variables и folder variables образуют variable hierarchy: наследуемое
+значение становится видимым после `Remove()` локального переопределения.
+Это shared state / blackboard в памяти владельца, не произвольное постоянное
+хранилище. Для persistent setting используйте провайдер конфигурации.
+Имена default variable вроде `default.WindowSelector.TargetWindow` относятся
+к настройкам подсистем; не используйте `default.*` ради сохранения своих данных.
 
 ## Связанные карты
 

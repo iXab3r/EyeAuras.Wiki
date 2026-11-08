@@ -3,7 +3,7 @@ title: AI NuGet: Xign SDK
 description: AI-first map for optional Xign driver infrastructure and XignProcess.
 published: true
 date: 2026-05-27T00:00:00.000Z
-tags: scripting, api, ai, xign, nuget, driver, memory
+tags: scripting, api, ai, xign, nuget, driver, memory, ai-translated
 editor: markdown
 dateCreated: 2026-05-03T00:00:00.000Z
 ---
@@ -14,6 +14,21 @@ loading and low-level device connection infrastructure for a packaged
 Xign kernel driver plus the currently mapped protocol operations for direct
 driver access, process memory, synchronous code execution, and driver-backed
 process-control flows.
+
+Process creation and ownership were checked against source at `c8b2304`: [XignProcess](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.XignSdk/XignProcess.cs), [builder](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.XignSdk/XignProcessBuilder.cs).
+The PID-only path resolves `_EPROCESS` lazily using a temporary handle and closes
+that handle after resolution. `WithEprocess` supplies a trusted existing address;
+name selection requires that address. Builder-created wrappers own their
+connections; a wrapper over a supplied `IXignDriverConnection` borrows it.
+`IsValid` checks wrapper/connection state, not the success of future structure
+or memory reads. Source review does not verify driver/Windows compatibility on
+your machine.
+
+## Separate attachment from reading
+
+The backend factory receives the selected PID, Xign SDK and a prepared compatible driver environment. Pass its IProcess to ordinary Memory API consumers. Attachment ownership and process identity checks remain with the host; swapping backends does not make offsets portable.
+
+Start with [LocalProcess](/en/scripting/memory-api/backends/local-process) when it can access the target. A package reference neither loads the driver nor establishes service registration. Integration is successful when the selected backend returns the intended modules/data, not merely when a wrapper object exists. Current managed contracts above come from c8b2304; historical driver observations do not guarantee a particular Windows layout or environment.
 
 ## Important Caveat
 
@@ -45,9 +60,7 @@ backend should usually be a small construction-site change.
 - Run the Xign-local process test pack to validate an `IProcess` backend or
   benchmark read/write throughput against bundled x86/x64 NetHost processes.
 - Execute an already-staged target function through `IProcessControlApi.ExecuteCode`.
-- Use `XignProcess` for allocation/protection/free, manual mapping, remote
-  thread creation, suspend/resume, and User APC flows when the host environment
-  supports them.
+- Use `XignProcess` for allocation/protection/free and x64 manual mapping when the host driver is compatible. Remote-thread creation, suspend/resume, and User APC are not implemented by this wrapper.
 - Keep the fixed xhunter1 command envelope documented without exposing
   vulnerability/demo primitives as public SDK APIs.
 
@@ -68,21 +81,15 @@ backend should usually be a small construction-site change.
 - `XignProcess` can be created by the builder/static helpers, which own the
   connection they open, or directly from a caller-owned `IXignDriverConnection`
   when a tool wants to mix raw driver commands with process abstraction APIs.
-- `XignProcess.Memory` uses the Xign driver connection for reads and a
-  driver-opened process handle for writes.
+- `XignProcess.Memory` selects the handleless core without an active lease and
+  the open-handle core under `EnterOpenProcess()`; reads and writes delegate to that core.
 - `XignProcess` process-information reads are structure-backed: it resolves the
   target `_EPROCESS` from the Xign-opened process handle through
   `SystemExtendedHandleInformation`, then reads process name, modules, threads,
   architecture, and VAD-backed regions through `_EPROCESS`, PEB, loader lists,
   thread lists, and VAD structures.
-- Structure-backed information reads use Xign command 788 for kernel addresses
-  and command 787 for target user-mode addresses. They fail fast when the
-  curated layout or required structure data is unavailable; they do not fall
-  back to PSAPI, Toolhelp, or `VirtualQueryEx`.
-- `XignProcess` opens process handles through the driver, then uses those
-  handles for several WinAPI-backed control operations such as
-  `VirtualAllocEx`, `VirtualProtectEx`, `WriteProcessMemory`,
-  `CreateRemoteThread`, and `NtSuspendProcess`.
+- Structure-backed kernel reads use Xign command 788; user-mode reads delegate to the selected memory core. Layout and required structure availability are checked separately.
+- `XignProcess` delegates allocation/free/protection and ExecuteCode to its handleless core. Implementing a process-control interface does not guarantee support for every operation.
 - `XignDriverServiceConfig` defines the default service/device/payload identity:
   `xhunter1`, `\\.\xhunter1`, and `xhunter1.sys`.
 - The driver payload is expected at `Payloads/xhunter1.sys` in the SDK project and
@@ -105,16 +112,13 @@ backend should usually be a small construction-site change.
   Xign-backed target process.
 - `XignProcess.ByProcessId(processId)` - attaches to a PID using the default
   builder without starting the driver.
-- `XignProcess.ByProcessName(processName)` - resolves a local process name with
-  or without `.exe`, then attaches by PID.
+- `XignProcess.WithEprocess(address).ByProcessName(processName)` selects a name and validates its PID against the supplied `_EPROCESS`; name-only attachment is not supported.
 - `XignProcess.WithLoadDriver(loadDriver)` - returns an `IXignProcessBuilder`
   configured to create/start the packaged driver service before opening the
   device when `loadDriver` is true.
-- `XignProcess.WithOpenProcess(openProcess)` - returns an `IXignProcessBuilder`
-  configured to keep the driver-opened process handle alive for each created
-  process lifetime.
+- `IXignProcess.EnterOpenProcess()` returns a separate open-process-handle lease; dispose it before the process. The current builder has no `WithOpenProcess`.
 - `IXignProcessBuilder` - builder for `ByProcessId`, `ByProcessName`, and
-  `WithLoadDriver` / `WithOpenProcess`.
+  `WithLoadDriver` / `WithEprocess`.
 - `XignDriverServiceConfig.Default` - default service/device/payload names.
 - `XignDriverManager.IsLoaded` - reports whether the configured driver service
   is currently running.
@@ -133,7 +137,7 @@ backend should usually be a small construction-site change.
   `Call(command, args)` and typed helpers such as `PingEcho`,
   `QueryVersionStatus`, `OpenProcess`, `ReadUserMemory`, `ReadMemory`, and
   `ExecuteCodeByProcessId`.
-- `new XignProcess(connection, processId, openProcess)` - creates an
+- `XignProcess.ByProcessId(connection, processId)` - creates an
   `IXignProcess`/`IProcess` wrapper over an already-open caller-owned
   `IXignDriverConnection`; disposing the process wrapper does not dispose the
   supplied connection.
@@ -150,15 +154,12 @@ backend should usually be a small construction-site change.
 - `IXignProcess.ExecuteCode(startAddress, parameter)` - synchronously executes
   an already-staged x64 or x86 function in the target process through Xign
   command 820 and returns the pointer-sized value reported by the driver.
-- `IXignProcess.AllocateMemory`, `FreeMemory`, and `ProtectMemory` - WinAPI
-  virtual-memory control through the driver-opened process handle.
-- `IXignProcess.CreateRemoteThread`, `SuspendProcess`, `ResumeProcess`,
-  `SuspendThread`, and `ResumeThread` - process/thread control helpers exposed
-  through the common process-control surface.
+- `IXignProcess.AllocateMemory`, `FreeMemory`, and `ProtectMemory` delegate to the command-820 handleless core; acquiring a lease does not switch these methods to WinAPI.
+- `IXignProcess.CreateRemoteThread`, `SuspendProcess`, `ResumeProcess`, `SuspendThread`, and `ResumeThread` throw `NotSupportedException` in this source snapshot. A lease does not enable them.
 - `IXignProcess.InjectDllViaManualMapping(...)` - manual mapping through the
   shared `LibraryMapper` using `XignProcess.Memory` and `ExecuteCode`.
-- `IXignProcess.QueueUserApc(...)` - User APC helper using the regular
-  `OpenThread` / `QueueUserAPC` path.
+  This path requires an x64 target.
+- Both `IXignProcess.QueueUserApc(...)` overloads throw `NotSupportedException` in the current XignProcess wrapper.
 - `IXignProcess.EnterOpenProcess()` - explicit lease that keeps the
   driver-opened process handle alive for a batch of operations.
 - `XignProcessTestPack.Validate(process)` - runs safe capability checks against
@@ -176,10 +177,8 @@ backend should usually be a small construction-site change.
 ## Current Limitations
 
 - `XignDriverConnection` requires a 64-bit host process.
-- `QueueUserApc` depends on regular thread-handle access and target-thread
-  alertable wait behavior; it is not a separate mapped Xign command.
-- Several high-level control methods use WinAPI calls on driver-opened handles,
-  not separate Xign commands for every operation.
+- User APC, remote-thread creation, and suspend/resume remain unsupported regardless of an open handle.
+- Manual mapping checks architecture and supports only x64 targets in this snapshot, separately from x86 memory read/write support.
 - Process-information methods depend on curated Windows kernel layout support.
   Unsupported builds, corrupt structure lists, missing handle-table object
   pointers, or invalid PEB/VAD data throw instead of silently using old WinAPI
@@ -197,7 +196,7 @@ backend should usually be a small construction-site change.
 
 - Open an already-running Xign device:
   1. Reference `EyeAuras.XignSdk`.
-  2. Call `XignProcess.ByProcessId(pid)` or `ByProcessName(name)`.
+  2. Call `XignProcess.ByProcessId(pid)`; name selection first requires `WithEprocess(address)`.
   3. Validate `IsValid`.
   4. Use `Memory.Read<T>`, `Memory.Write<T>`, span reads/writes,
      virtual-memory control, manual mapping, or `ExecuteCode` when the host
@@ -220,7 +219,7 @@ backend should usually be a small construction-site change.
      backend.
 
 - Manual-map a DLL:
-  1. Create a `XignProcess`, usually with `WithLoadDriver().WithOpenProcess()`
+  1. Create a `XignProcess`, usually with `WithLoadDriver().ByProcessId(pid)` and a separate `EnterOpenProcess()` lease
      for integration-style flows.
   2. Call `InjectDllViaManualMapping(pathOrBytes)`.
   3. Architecture and process-directory discovery come from the same
@@ -238,7 +237,7 @@ backend should usually be a small construction-site change.
      handle; `ReadMemory` is command 788 and copies bytes through the driver's
      `MmIsAddressValid`-gated path.
   6. If the same tool also needs `IProcess`, construct
-     `new XignProcess(connection, pid, openProcess: true)` and keep the
+     `XignProcess.ByProcessId(connection, pid)` and keep the
      connection alive for the wrapper lifetime.
   7. Call `Unload()` only when the tool owns the driver lifetime and wants to
      stop the service.
@@ -258,7 +257,7 @@ backend should usually be a small construction-site change.
 - Prefer normal SCM loading and clear diagnostics for driver setup failures.
 - Prefer high-level `IProcess.Memory` and `IProcessControlApi.ExecuteCode`
   instead of exposing command IDs publicly.
-- Prefer `WithOpenProcess()` or `EnterOpenProcess()` around batches of
+- Prefer `EnterOpenProcess()` around batches of
   memory/control operations.
 - Prefer treating `GetProcessModules`, `GetThreads`, `VirtualQuery`, and
   `GetMemoryRegions` as fail-fast structure-backed operations.
@@ -272,8 +271,7 @@ backend should usually be a small construction-site change.
   end-user machines.
 - Avoid DSE bypass behavior in XignSdk.
 - Avoid placing temporary driver files in repo project directories.
-- Avoid assuming every exposed process-control operation is a dedicated driver
-  command; some operations use WinAPI over driver-opened handles.
+- Check implementations rather than inferring capability from the interface list; some methods explicitly remain unsupported.
 - Avoid expecting migrated information methods to fall back to PSAPI, Toolhelp,
   or `VirtualQueryEx`.
 
@@ -322,5 +320,5 @@ backend should usually be a small construction-site change.
 
 ## Related Maps
 
-- `memory/processes.md`
-- `nuget/frida-sdk.md`
+- [memory/processes.md](/en/scripting/api/memory/processes)
+- [nuget/frida-sdk.md](/en/scripting/api/nuget/frida-sdk)

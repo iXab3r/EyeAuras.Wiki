@@ -3,7 +3,7 @@ title: AI Scripting Async
 description: AI-first map for async/await, background work, cancellation, and coroutine-style flows in EyeAuras scripts.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, async, coroutine
+tags: scripting, api, ai, async, coroutine, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -33,7 +33,7 @@ fire-and-forget hazards, cancellation, and coroutine-style alternatives.
 - Fire-and-forget tasks are dangerous unless they catch/log all exceptions and
   observe cancellation.
 - For loops, timers, and step-based workflows, the `Coroutine` NuGet package is
-  often a safer and simpler alternative to ad-hoc background `Task` code.
+  an alternative to ad-hoc background `Task` code; configure its lifetime separately.
 
 - In a Behavior Tree `ExecuteScriptNode` under `TimeoutNode`, the current tick's
   deadline is linked into the top-level `cancellationToken`. Await token-aware
@@ -69,49 +69,122 @@ fire-and-forget hazards, cancellation, and coroutine-style alternatives.
 - Do not block ImGui, Blazor, OSD, or hook callbacks with `.Wait()`, `.Result`,
   `Thread.Sleep`, or long synchronous work.
 
-## Common Flows
+## Keep a subscription or window alive
 
-Await a single operation:
+Registering cleanup and waiting are different operations. `.AddTo(ExecutionAnchors)`
+schedules disposal at the end of this Run; it does not keep Run open. If the script
+returns after creating a subscription, renderer or window, those anchors dispose
+it immediately, even without Stop.
+
+Own the subscription and explicitly await cancellation:
 
 ```csharp
-var window = await osdSelectionService.PickWindow();
-Log.Info($"Selected PID {window.ProcessId}");
+using System;
+using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+{
+    var runToken = cancellationToken;
+    var status = Variables.Get<string>("status");
+    using var subscription = status.Listen()
+        .Subscribe(value => Log.Info($"Status = {value}"));
+    try
+    {
+        await Task.Delay(Timeout.Infinite, runToken);
+    }
+    catch (OperationCanceledException) when (runToken.IsCancellationRequested)
+    {
+        Log.Info("Observation stopped");
+    }
+}
 ```
 
-Start background work safely:
+Changes to `status` appear in the log while the script runs. Stop ends the delay,
+then `using` releases the subscription. When an operation has its own completion
+event, await that instead: the [modeless window example](../IDialogWindowUnstableScriptingApi)
+ends on either window close or Stop. Anchoring an owner does not make arbitrary
+background Tasks awaited.
+
+## Await an operation in the current run
+
+The host supplies the token in top-level `Script.csx`:
 
 ```csharp
-_ = Task.Run(async () =>
+var runToken = cancellationToken;
+Log.Info("Waiting");
+await Task.Delay(1000, runToken);
+Log.Info("Completed");
+```
+
+Without cancellation, `Completed` appears after the delay. Cancellation raises
+`OperationCanceledException`, skipping the code after `await`. Pass the captured
+token explicitly to helpers. `await` does not automatically move synchronous work
+to another thread.
+
+## Start and await a worker
+
+Capture this run's token before creating the task. The runner clears the global
+token when the run finishes and does not automatically await unrelated Tasks:
+
+```csharp
+var runToken = cancellationToken;
+var worker = Task.Run(async () =>
+{
+    await Task.Delay(250, runToken);
+    Log.Info("Worker completed");
+}, runToken);
+await worker;
+```
+
+The script completes after its worker; cancellation and errors reach the awaiting
+code. Await a long-lived loop until Stop instead of leaving it running after the
+script returns.
+
+## Handle loop cancellation and errors
+
+If the loop owns diagnostics, handle errors at its outer boundary and still await it:
+
+```csharp
+var runToken = cancellationToken;
+var worker = Task.Run(async () =>
 {
     try
     {
-        while (!cancellationToken.IsCancellationRequested)
+        while (true)
         {
-            await Task.Delay(250, cancellationToken);
+            await Task.Delay(250, runToken);
             Log.Debug("Tick");
         }
     }
-    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+    catch (OperationCanceledException) when (runToken.IsCancellationRequested)
     {
-        // Normal script stop.
+        Log.Info("Worker stopped");
     }
     catch (Exception ex)
     {
         Log.Error("Background worker failed", ex);
     }
-}, cancellationToken);
+});
+await worker;
 ```
 
-Use Coroutines for step-based loops:
+`Tick` appears while Debug logging is enabled. Stop cancels the delay and produces
+`Worker stopped`. If a UI handler requires fire-and-forget, retain the Task in its
+owner, handle errors and await it during shutdown. `_ = Task.Run(...)` alone does
+not establish that ownership.
+
+## Add Coroutine for a step-based scenario
+
+The package is separate from EyeAuras cancellation:
 
 ```csharp
 #r "nuget: Coroutine, 2.1.5"
 ```
 
-Use coroutine-style code when the workflow is a repeating state machine, bot
-loop, retry flow, or animation/timing sequence. Prefer it over a loose pile of
-background tasks when the script needs predictable stepping, cancellation, and
-error boundaries.
+Use it for a repeating state machine, retry or timing sequence when appropriate.
+Check the API and shutdown rules of `Coroutine 2.1.5`; the directive alone creates
+no loop and does not connect it to `cancellationToken`.
 
 ## Prefer
 
@@ -154,8 +227,8 @@ error boundaries.
 
 ## Related Maps
 
-- `scripting/runtime.md`
-- `scripting/logging.md`
-- `scripting/references-and-resources.md`
-- `nuget/imgui-sdk.md`
-- `recipes/recipe.md`
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [scripting/logging.md](/en/scripting/api/scripting/logging)
+- [scripting/references-and-resources.md](/en/scripting/api/scripting/references-and-resources)
+- [nuget/imgui-sdk.md](/en/scripting/api/nuget/imgui-sdk)
+- [recipes/recipe.md](/en/scripting/api/recipes/recipe)

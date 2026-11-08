@@ -33,3 +33,5 @@ using System.Diagnostics;
 ```
 
 Вставьте код в верхнеуровневый файл действия `C# Script` в Windows. Вход — имя доступной программы либо существующий полный путь; для игры задайте путь к её исполняемому файлу и нужную рабочую папку через `ProcessStartInfo`, если она требуется игре. После запуска появится Блокнот. `using` освобождает объект `Process`, но **не завершает запущенную программу**. Остановка скрипта тоже не означает остановку дочернего процесса; отмена не передаётся в `Process.Start`.
+
+См. [контракт Process.Start](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.start?view=net-8.0) и [реализацию Close/Dispose .NET 8.0.19](https://github.com/dotnet/runtime/blob/v8.0.19/src/libraries/System.Diagnostics.Process/src/System/Diagnostics/Process.cs). Закрытие компонента освобождает его ресурсы и наблюдение; это не вызов Kill.

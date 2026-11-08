@@ -33,6 +33,20 @@ linked-aura evaluators, event logging, and lifecycle events.
 - `IEyeEntityFactory` is the persistence-to-runtime boundary.
 - `IAuraListStateEvaluator` combines linked aura/folder state.
 
+## Load a saved component
+
+A module registers the model through `IAuraRegistrator`, with separate editor and
+optional proxy registrations. `Register<TAuraModel>()` schedules the registration
+on the background scheduler; returning does not mean the registry is already updated.
+
+`IEyeEntityFactory` deserializes `PoeConfigMetadata<IAuraProperties>`, retaining
+unknown types as `ProxyAuraProperties`. It validates properties and applies the
+container's child identity strategy. `IAuraObjectFactory` resolves the registered
+runtime type through the existing host container and assigns its properties and
+description. The result is a component or a proxy retaining the unavailable data.
+A normal input script does not need these factories; a module uses the host's
+registered services instead of constructing runtime models from metadata itself.
+
 ## API Details
 
 - `IAuraRegistrator`
@@ -51,10 +65,10 @@ linked-aura evaluators, event logging, and lifecycle events.
 - `IEyeEntityFactory`
   - Deserializes `PoeConfigMetadata<IAuraProperties>`.
   - Preserves unavailable entities as proxy metadata.
-  - Sanitizes child ids when creating child runtime objects.
+  - Validates and transforms child ids according to the container strategy.
 
 - `IAuraListStateEvaluator`
-  - Owns linked aura/folder/item evaluators and combines state.
+  - Maintains linked aura/folder/item evaluators and combines state.
 
 - `IAuraListEvaluator`, `IAuraListEvaluatorForAura`,
   `IAuraListEvaluatorForFolder`
@@ -116,9 +130,28 @@ linked-aura evaluators, event logging, and lifecycle events.
 
 ## Related Maps
 
-- `auras/actions.md`
-- `auras/triggers.md`
-- `auras/overlays.md`
-- `auras/overview.md`
-- `core/configuration-persistence.md`
-- `core/app-modules.md`
+- [auras/actions.md](/en/scripting/api/auras/actions)
+- [auras/triggers.md](/en/scripting/api/auras/triggers)
+- [auras/overlays.md](/en/scripting/api/auras/overlays)
+- [auras/overview.md](/en/scripting/api/auras/overview)
+- [core/configuration-persistence.md](/en/scripting/api/core/configuration-persistence)
+- [core/app-modules.md](/en/scripting/api/core/app-modules)
+
+
+## Child identity and linked conditions
+
+With `IndependentChildren`, an existing nonempty child ID is retained. With
+`LinkedToContainer`, the parent needs an ID; a missing child ID, an ID without the
+parent prefix, or a collision with a live non-proxy child causes regeneration.
+An existing proxy or disposed child permits reusing that ID. The child creation
+path can mutate the supplied properties; it does not promise a defensive copy.
+
+The linked condition result is nullable. With no entries it is `true` unless
+`IsRequired`, which produces `null`. `All` produces `null` if any entry is unknown;
+otherwise all must be `true`. `Any` is `true` if at least one entry is `true`, and
+`false` otherwise, including when all entries are unknown. Adding the same item ID
+replaces the existing list entry. `Remove`/`Clear` change membership; do not treat
+them as a documented disposal barrier for supplied evaluator objects.
+
+[EyeEntityFactory](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Core/Models/EyeEntityFactory.cs),
+[AuraListStateEvaluator](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/AuraListEvaluator/AuraListStateEvaluator.cs).

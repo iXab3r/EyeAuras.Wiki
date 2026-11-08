@@ -31,6 +31,8 @@ EyeAuras script:
 
 ```csharp
 Sleep(250);
+cancellationToken.ThrowIfCancellationRequested();
+Log.Info("Delay finished");
 ```
 
 **Recommendation:** Good shape. EyeAuras `Sleep(...)` is cancellation-aware,
@@ -50,6 +52,7 @@ EyeAuras script:
 ```csharp
 var count = 0;
 count += 1;
+Log.Info($"Count: {count}");
 ```
 
 Use normal C# locals, fields, and objects for ordinary in-script state. Use
@@ -59,6 +62,25 @@ outside the script.
 
 **Recommendation:** Better than AHK for normal in-script state because it is
 typed and explicit. Shared/persistent variables need separate examples.
+
+## Repeat work with explicit cancellation
+
+In a top-level C# Action, this logs steps 1–3 with a pause between steps:
+
+```csharp
+for (var i = 1; i <= 3; i++)
+{
+    cancellationToken.ThrowIfCancellationRequested();
+    Log.Info($"Step {i}");
+    Sleep(250);
+}
+```
+
+This is a sequential loop, not AHK timer scheduling or reentrancy. `Sleep`, `Log`
+and `cancellationToken` come from the script host. Ordinary classes receive token
+and logger explicitly and can use `await Task.Delay(250, token)`. Local state is
+recreated when this code runs; for shared state choose an owner in the
+[Variables guide](/en/scripting/variables).
 
 ## Verification Links
 
@@ -75,8 +97,12 @@ typed and explicit. Shared/persistent variables need separate examples.
 - EyeAuras docs:
   [Scripting Runtime](../scripting/runtime),
   [IVariablesScriptingApi](../IVariablesScriptingApi).
-- EyeAuras source:
-  [AuraScriptSandbox.cs](../../../../../Sources/EyeAuras.Scripting/Api/AuraScriptSandbox.cs),
-  [AuraScriptRunner.cs](../../../../../Sources/EyeAuras.Scripting/AuraScriptRunner.cs),
-  [IVariablesScriptingApi.cs](../../../../../Sources/EyeAuras.Scripting/Api/IVariablesScriptingApi.cs),
-  [ScriptVariable.cs](../../../../../Sources/EyeAuras.Scripting.Metadata/UserSpace/ScriptVariable.cs).
+- EyeAuras contracts: [sandbox Sleep](/en/scripting/sandbox),
+  [variable lifetime](/en/scripting/api/scripting/variable-lifecycle-operations).
+
+AHK v2 `Sleep 0` yields execution and `Sleep -1` checks the message queue;
+these are not portable meanings for EyeAuras `Sleep`. AHK `SetTimer` uses positive
+periods for repetition, negative periods for one-shot execution, and zero for
+deletion; it does not interrupt a callback already executing. EyeAuras waits up
+to 30 ms ignore cancellation in the current provider; longer waits may return
+early without throwing. Check the token before continuing protected work.

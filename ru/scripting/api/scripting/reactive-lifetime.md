@@ -149,10 +149,23 @@ public sealed class ReaderState : DisposableReactiveObject
 
 ## Связанные карты
 
-- `scripting/runtime.md`
-- `scripting/logging.md`
-- `scripting/async.md`
-- `core/app-runtime-contexts.md`
-- `windows-subsystems/blazor-windows.md`
-- `nuget/imgui-sdk.md`
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)
+- [scripting/logging.md](/ru/scripting/api/scripting/logging)
+- [scripting/async.md](/ru/scripting/api/scripting/async)
+- [core/app-runtime-contexts.md](/ru/scripting/api/core/app-runtime-contexts)
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows)
+- [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk)
 Контракты — EyeAuras `20fd3d4`, PoeEye `0e02c98`; сигнатуры и настройку weaving сверяйте с SDK/XML своей версии.
+
+
+## Граница скриптового weaver
+
+`DefaultAuraScriptFactory` включает `NotifyPropertyChangedRewriterVisitor`,
+который применяет weaver к сборке после компиляции. Он ищет совместимый метод
+экземпляра `RaiseAndSetIfChanged<T>(ref T, T, string)` в типе или его базовых
+классах. Одной реализации `INotifyPropertyChanged` недостаточно.
+Распознанные setters auto-property переписываются через этот helper;
+`DoNotNotify` у свойства или setter исключает его из обработки. Это не обещание
+полной поддержки возможностей PropertyChanged.Fody для любого класса скрипта.
+
+[Weaver на c8b2304](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Repl/Weavers/AddNotifyPropertyChangedWeaver.cs).

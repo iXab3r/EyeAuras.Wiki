@@ -3,12 +3,12 @@ title: Tracking Mouse Cursor
 description: Tracking the mouse cursor and displaying an overlay near it.
 published: true
 date: 2024-02-24T00:08:49.173Z
-tags: mouse cursor, overlay, C# Script, EyeAuras
+tags: mouse cursor, overlay, C# Script, EyeAuras, ai-translated
 editor: markdown
 dateCreated: 2024-02-24T00:08:49.173Z
 ---
 
-## Displaying an Overlay Near the Cursor
+# Displaying an overlay near the cursor
 > You can import a ready-made example from here: https://eu.eyeauras.net/share/S20240224000701ZxH9BwnuQbRX
 {.is-info}
 
@@ -20,31 +20,37 @@ dateCreated: 2024-02-24T00:08:49.173Z
 
 ![](https://i.imgur.com/FSSKzJp.gif)
 
+This top-level EyeAuras script requires Roxy and OSD. With the standard Windows Input backend, `CursorPosition` is a screen point; this example sends no input. The loop checks cancellation and pauses between updates. On exit, the rectangle is disposed before the canvas is cleared and disposed. A helper class must receive the services and token explicitly. See [OSD ownership and monitor limits](/en/scripting/api/osd/screen-overlay).
+
 ```csharp
-var sendInputApi = GetService<ISendInputUnstableScriptingApi>(); // to get cursor coordinates
-var overlayApi = GetService<IOnScreenCanvasScriptingApi>(); // for overlay rendering
+using System.Drawing;
+using EyeAuras.Roxy.Api;
+using EyeAuras.Shared.Scripting;
+using EyeAuras.Blazor.Controls.ScreenOverlay;
 
-var canvas = overlayApi.Create() // create a canvas for overlay rendering
-    .AddTo(ExecutionAnchors); // specify to clear the canvas when the script finishes
+{
+    var sendInputApi = GetService<ISendInputScriptingApi>();
+    using var canvas = GetService<IOnScreenCanvasScriptingApi>().Create();
+    try
+    {
+        using var rectangle = canvas.AddRectangle();
+        rectangle.BorderColor = Color.Azure;
+        rectangle.BorderThickness = 1;
+        rectangle.Size = new Size(32, 32);
 
-var rectangle = canvas
-    .AddRectangle() // add a rectangle
-    .WithBorderColor(Color.Azure) // color
-    .WithBorderThickness(1) // border thickness
-    .WithSize(new Size(32, 32)); // size
-
-Log.Info("Starting tracking");
-
-// Important! Not while(true), but in this form
-// This code will run in a loop until the script is stopped
-// It will stop either when the EyeAuras window becomes active or by a hotkey
-while (!cancellationToken.IsCancellationRequested){
-    // get cursor coordinates and specify that the overlay should be near
-    rectangle.Location = sendInputApi.CursorPosition;
+        Log.Info("Starting tracking");
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            rectangle.Location = sendInputApi.CursorPosition;
+            Sleep(16);
+        }
+    }
+    finally
+    {
+        canvas.Clear();
+        Log.Info("Completed tracking");
+    }
 }
-
-// This is where we will end up when the script is commanded to stop
-Log.Info("Completed tracking");
 ```
 
 > Naturally, the overlay can render not only squares. It can be anything - text, image, even video.

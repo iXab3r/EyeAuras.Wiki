@@ -11,12 +11,25 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 Справочная карта по опциональному пакету `EyeAuras.ImGuiSdk`: цикл рендера ImGui, управляемые окна ImGui, переиспользуемый контент, изображения, шрифты и RE-стиль tool windows.
 
+
+## Версии пакета
+
+Сборки из [источника EyeAuras](https://packages.eyeauras.net/v3/index.json) различаются:
+
+| Пакет | Подтверждённая поверхность |
+| --- | --- |
+| `0.1.17` | Старые `DrawFrame`, `DrawBox`, `MeasureText`, `AddFontFromMemoryTTF` |
+| `0.1.42` | `AddFont`, `ReplaceFont`, `RemoveFont`, `RunOnce`, настройки FPS; без `ImGuiWindowManager` |
+| `0.1.47` | Управляемые окна и `ComboBoxEx`, `DropdownButton`, `ToggleButton`; CTO `11.5.28` |
+
+Сигнатуры проверяются по DLL/XML конкретной версии; поведение ниже описано по исходникам `c8b2304ac`. Карта включает более новые возможности, поэтому не переносите весь каталог в проект с `0.1.42`. Отдельный `TableTabState` принадлежит `EyeAuras.AI.Desktop`, а не пакету ImGui. Наличие символов не является проверкой нативного запуска.
+
 ## Показать окно на время запуска скрипта
 
 В верхнеуровневом C#-скрипте EyeAuras подключите пакет и зарегистрируйте расширение до получения API. Этот пример рисует счётчик кадров до остановки скрипта:
 
 ```csharp
-#r "nuget: EyeAuras.ImGuiSdk"
+#r "nuget: EyeAuras.ImGuiSdk, 0.1.47"
 using EyeAuras.ImGuiSdk;
 using ImGuiNET;
 using System;
@@ -368,11 +381,11 @@ static bool SearchBox(string label, ref string filter)
 - Для корневого overlay-рендера предпочитайте `AddRenderer`.
 - Для tool windows предпочитайте `ImGuiWindowManager.OpenNew`.
 - Для переиспользуемых панелей предпочитайте `ICanBeDisplayedInImGui`.
-- Для архитектуры root-window, bot-loop и ImGui-plus-Blazor используйте `recipes/bot-memory-imgui-interface.md`.
-- Для Razor UI используйте `windows-subsystems/blazor-windows.md`.
-- Для экранных аннотаций используйте `osd/screen-overlay.md`.
+- Для архитектуры root-window, bot-loop и ImGui-plus-Blazor используйте [recipes/bot-memory-imgui-interface.md](/ru/scripting/api/recipes/bot-memory-imgui-interface).
+- Для Razor UI используйте [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows).
+- Для экранных аннотаций используйте [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay).
 - Для всех stateful и повторяющихся контролов используйте стабильные ImGui ID.
-- Для правил по пакетам, ресурсам и embedded files используйте `scripting/references-and-resources.md`.
+- Для правил по пакетам, ресурсам и embedded files используйте [scripting/references-and-resources.md](/ru/scripting/api/scripting/references-and-resources).
 
 ## Чего избегать
 
@@ -401,43 +414,37 @@ static bool SearchBox(string label, ref string filter)
   `AwesomeIcon`, `TextUnformattedOutlined`, `ImGuiExtensions`,
   `ImDrawListWorldExtensions`, `ColorExtensions`.
 
-## Синонимы для поиска
+## ImGui window cleanup и выбор операции
 
-- ImGui
-- ImGui SDK
-- immediate mode UI
-- ImGui window
-- render loop
-- tool window
-- ImGui overlay
-- ImGui image
-- ImGui font
-- ImGuiContainerExtensions
-- ImGui font range
-- AddFontFromMemoryTTF
-- embedded font
-- embedded image
-- ImGuiEx
-- ImGui ID
-- PushID
-- hidden label
-- stable label
-- stateful control
-- control state
-- custom ImGui control
-- property grid
-- hotkey editor
-- markdown
-- Font Awesome
-- world to screen
-- ESP drawing
+Для immediate mode UI подключите `EyeAuras.ImGuiSdk` и зарегистрируйте
+`ImGuiContainerExtensions`, затем получите `IImGuiExperimentalApi` в скрипте.
+`AddRenderer` добавляет callback в render loop и возвращает отдельную подписку.
+Владелец tool window / ImGui overlay освобождает эту подписку **до** API;
+само получение API через `GetService` не задаёт cleanup. Дождитесь отмены Run
+вне callback, как в [полном примере окна](/ru/scripting/imgui/getting-started).
+
+| Операция | Контракт и существенное условие |
+| --- | --- |
+| Однократное чтение в ImGui context | `RunOnce` планирует callback, но не ожидает кадр; отдельно ожидайте результат с токеном |
+| ImGui image или embedded image | Используйте image helpers и `IScriptFileProvider`; сохраняйте договорённость владельца ресурса |
+| ImGui font, embedded font, font range | Используйте регистрацию шрифтов SDK; `AddFontFromMemoryTTF` напрямую требует корректного render-контекста и времени жизни памяти |
+| Stateful control и custom ImGui control | Стабильный ImGui ID, `PushID`, hidden label / stable label отделяют control state от отображаемого текста |
+| Property grid, hotkey editor, markdown, Font Awesome | Начните с готовых `ImGuiEx` и контролов SDK, описанных выше |
+| World to screen и ESP drawing | Используйте явное преобразование координат перед отрисовкой; screen и world координаты не взаимозаменяемы |
+
+Overlay `Main`, настройки и ресурсы общие для его пользователей. Изменение
+свойств одного API не создаёт независимый ImGui singleton. Совместимость
+нескольких ImGui.NET versions и native render loop нельзя вывести из одной
+успешной компиляции скрипта.
 
 ## Связанные карты
 
-- `auras/overlays.md`
-- `recipes/bot-memory-imgui-interface.md`
-- `windows-subsystems/blazor-windows.md`
-- `osd/screen-overlay.md`
-- `reverse-engineering/reprocess.md`
-- `scripting/container-extensions.md`
-- `scripting/references-and-resources.md`
+- [auras/overlays.md](/ru/scripting/api/auras/overlays)
+- [recipes/bot-memory-imgui-interface.md](/ru/scripting/api/recipes/bot-memory-imgui-interface)
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows)
+- [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay)
+- [reverse-engineering/reprocess.md](/ru/scripting/api/reverse-engineering/reprocess)
+- [scripting/container-extensions.md](/ru/scripting/api/scripting/container-extensions)
+- [scripting/references-and-resources.md](/ru/scripting/api/scripting/references-and-resources)
+
+Правила ID: [Dear ImGui FAQ](https://github.com/ocornut/imgui/blob/v1.91.6/docs/FAQ.md#q-about-the-id-stack-system).

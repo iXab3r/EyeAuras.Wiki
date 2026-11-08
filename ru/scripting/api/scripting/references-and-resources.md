@@ -199,13 +199,13 @@ using EyeAuras.Repl;
 
 ## Связанные карты
 
-- `scripting/container-extensions.md`
-- `scripting/project-workflow.md`
-- `nuget/imgui-sdk.md`
-- `nuget/frida-sdk.md`
-- `windows-subsystems/blazor-windows.md`
-- `computer-vision/images.md`
-- `ml/ai.md`
+- [scripting/container-extensions.md](/ru/scripting/api/scripting/container-extensions)
+- [scripting/project-workflow.md](/ru/scripting/api/scripting/project-workflow)
+- [nuget/imgui-sdk.md](/ru/scripting/api/nuget/imgui-sdk)
+- [nuget/frida-sdk.md](/ru/scripting/api/nuget/frida-sdk)
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows)
+- [computer-vision/images.md](/ru/scripting/api/computer-vision/images)
+- [ml/ai.md](/ru/scripting/api/ml/ai)
 Контракты — EyeAuras `20fd3d4`, PoeEye `0e02c98`. Для точных сигнатур используйте SDK/XML своей версии; пакеты имеют собственные версии.
 
 ## Приоритет и чтение источников ресурсов
@@ -213,3 +213,15 @@ using EyeAuras.Repl;
 [Операции файлового провайдера](file-provider-operations) показывают чтение подготовленного ресурса, объединение двух `IScriptFileProvider` с явным приоритетом, перечисление каталога и смысл `Watch`. В `CompositeScriptFileProvider` побеждает первый существующий файл в порядке источников; при объединении каталога остаётся первая запись с данным `Name`.
 
 Провайдер, файловая запись и открытый поток имеют разное время жизни. Вызов `CreateReadStream()` создаёт поток, которым владеет вызывающий; полученный через host `IScriptFileProvider` не нужно освобождать как этот поток.
+
+## Как разрешается assemblyPath
+
+В срезе `c8b2304` отдельный visitor ищет относительный путь среди ресурсов
+скрипта. Файловый resolver пробует абсолютный путь либо путь относительно
+`AppDomain.CurrentDomain.BaseDirectory`, затем для относительного имени —
+разрешение по имени сборки. Обработка директив перед компиляцией также имеет
+ветку с `FileInfo(path)`. Поэтому не полагайтесь на единую базовую папку для
+произвольной относительной DLL на диске: для переносимого скрипта добавьте DLL
+в ресурсы, а для локального файла используйте явный существующий путь.
+
+[Исходник файлового resolver](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Repl/Visitors/FileReferencesScriptVisitor.cs), [ресурсов](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Repl/Visitors/EmbeddedResourcesScriptVisitor.cs).

@@ -25,7 +25,7 @@ dateCreated: 2026-04-22T00:00:00.000Z
 
 ## Добавить Memory API в существующий WPF-хост
 
-Вход этой интеграции — Windows-приложение с WPF `Application`, живым UI dispatcher, Prism/Unity-композицией и собственным порядком запуска/остановки. Простого `Main` консольной программы или наличия STA недостаточно: bootstrapper опирается на инфраструктуру приложения и модулей.
+Вход этой интеграции — Windows-приложение с WPF `Application`, живым UI dispatcher, Prism/Unity-композицией и собственным порядком запуска/остановки. Одного атрибута STA недостаточно для работающего dispatcher и времени жизни host: bootstrapper опирается на инфраструктуру приложения и модулей.
 
 Подключите `EyeAuras.SDK.Runtime` и пакет возможностей памяти. В наследнике `EyeAurasRuntimeBootstrapper` переопределите `ConfigureEmbeddedModules(IEyeAurasModuleSetBuilder modules)` и вызовите `modules.UseMemory()`. `EyeAurasEmbeddedBootstrapper` из `EyeAuras.SDK.Embedded` — совместимый наследник этого runtime bootstrapper; это альтернативная упаковка, не дополнительный обязательный этап. Host-сервисы зарегистрируйте при композиции Unity до их использования модулями.
 
@@ -40,13 +40,10 @@ Readiness добавляет static web assets и ждёт инициализа�
 - Запускайте embedded SDK runtime явно из host или плагина, обычно в STA-потоке,
   который может владеть UI-работой EyeAuras.
 - Регистрируйте host-сервисы в bootstrapper/container перед запуском runtime.
-- Инициализируйте только те `IDynamicModule`, которые нужны host. Embedded
-  package не регистрирует REPL или scripting services по умолчанию; модули
-  вроде `BehaviorTreeModule` или `PlusLoaderModule` явно включают эти
-  возможности.
-- Если host использует Blazor UI assets, добавляйте package/app static web
-  assets из subclass через
-  `AddStaticWebAssetsDirectory(new DirectoryInfo(AppContext.BaseDirectory))`.
+- Объявите нужные capabilities через `ConfigureEmbeddedModules`, затем дождитесь
+  `EnsureReadyAsync`: этот путь добавляет static web assets и загружает выбранные
+  модули. REPL и scripting services доступны только после регистрации их
+  владельцем-модулем; вручную вызывать методы инициализации модулей не нужно.
 - Свяжите события host с сервисами, которые видит EyeAuras.
 - Показывайте сложные элементы управления через Blazor windows.
 - Рисуйте визуализацию через рендеринг host или API OSD.
@@ -88,8 +85,10 @@ Readiness добавляет static web assets и ждёт инициализа�
 
 ## Связанные материалы
 
-- `core/app-runtime-contexts.md`
-- `core/app-modules.md`
-- `windows-subsystems/blazor-windows.md`
-- `osd/screen-overlay.md`
-- `scripting/runtime.md`
+- [core/app-runtime-contexts.md](/ru/scripting/api/core/app-runtime-contexts)
+- [core/app-modules.md](/ru/scripting/api/core/app-modules)
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows)
+- [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay)
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)
+
+[Полный пример выбора возможностей и получения процессов](/ru/scripting/api/nuget/embedded-sdk).

@@ -13,6 +13,33 @@ A `code cave` is an unused area inside a PE module, usually filled with zeros. Y
 
 EyeAuras does not turn this into a "magic" operation. The API simply lets you find suitable regions through `EnumerateCodeCaves(...)`.
 
+## Collect module candidates
+
+This ordinary helper borrows an already-open process and exact PE module name.
+It materializes the lazy search before disposing the view:
+
+```csharp
+using System.Linq;
+using EyeAuras.Memory;
+using EyeAuras.Memory.Scaffolding;
+
+static CodeCaveEntry[] FindCandidates(IProcess process, string moduleName)
+{
+    using var memory = process.MemoryOfModule(moduleName);
+    return memory.EnumerateCodeCaves(minBytes: 64, alignment: 16).ToArray();
+}
+```
+
+`StartVA` is absolute, `StartRva` is relative to the module base, and `Size` is
+usable length after alignment. An empty array means no candidates in the scanned
+sections. The caller still owns the process.
+
+At EyeAuras `20fd3d4`, defaults scan readable executable sections and accept a
+mixture of `0x00`, `0xCC` and `0x90`. `maxScanPerSection = 1_048_576` limits each
+section separately. `alignment = 1` disables alignment; choose a power of two
+for expected rounding. Reads are synchronous without cancellation. Finding padding
+neither proves it unused nor reserves it.
+
 ## How to find them
 
 You should search for a `code cave` in the memory of a specific module:
@@ -26,7 +53,8 @@ using var process = LocalProcess.ByProcessId(Process.GetCurrentProcess().Id);
 using var moduleMemory = process.MemoryOfModule("kernel32.dll");
 ```
 
-Then you can enumerate matching candidates:
+The following fragments run while `moduleMemory` and its process remain open.
+Enumerate candidates before disposing either owner:
 
 ```csharp
 var caves = moduleMemory.EnumerateCodeCaves(
@@ -71,7 +99,9 @@ var execCave = moduleMemory.EnumerateCodeCaves(
 
 It only finds a suitable location.
 
-If you need more than just finding a cave and want to actually prepare it for patching or a payload, use explicit `ProtectMemory(...)` and `FreeMemory(...)` from `IProcessControlApi`. A short getting-started example is available in [Memory API - Getting Started](/scripting/memory-api/getting-started).
+`FreeMemory` releases allocated memory, not padding found inside a PE module.
+Search grants no ownership or write permission. Protection changes and writes
+are separate operations whose validity is not established by a scan result.
 
 ## Limitations
 

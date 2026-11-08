@@ -200,9 +200,9 @@ Log.Debug(() => $"Значения: {string.Join(", ", values)}");
 
 ## Связанные карты
 
-- `scripting/runtime.md`
-- `scripting/container-extensions.md`
-- `scripting/project-workflow.md`
-- `computer-vision/profiling.md`
-- `auras/entities.md`
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)
+- [scripting/container-extensions.md](/ru/scripting/api/scripting/container-extensions)
+- [scripting/project-workflow.md](/ru/scripting/api/scripting/project-workflow)
+- [computer-vision/profiling.md](/ru/scripting/api/computer-vision/profiling)
+- [auras/entities.md](/ru/scripting/api/auras/entities)
 Контракты этой карты — EyeAuras `20fd3d4`, PoeEye `0e02c98`; точные перегрузки смотрите в SDK/XML своей версии.

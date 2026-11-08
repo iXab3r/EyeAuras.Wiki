@@ -11,7 +11,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 Справочная карта для интерактивного выбора на экране: окно, область, точка или цвет.
 
-Постоянные аннотации и отрисовка поверх экрана описаны в `osd/screen-overlay.md`.
+Постоянные аннотации и отрисовка поверх экрана описаны в [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay).
 
 ## Что пользователь хочет сделать
 
@@ -109,8 +109,8 @@ catch (OperationCanceledException)
 
 - Для выбора пользователем используйте `IOsdSelectionService`.
 - Вместо сырых хэндлов предпочитайте `IWindowHandle`, полученный из `PickWindow()`.
-- Для преобразования и сопоставления хэндлов используйте `windows-subsystems/window-handles.md`.
-- Для постоянных overlay-элементов используйте `osd/screen-overlay.md`.
+- Для преобразования и сопоставления хэндлов используйте [windows-subsystems/window-handles.md](/ru/scripting/api/windows-subsystems/window-handles).
+- Для постоянных overlay-элементов используйте [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay).
 
 ## Чего лучше избегать
 
@@ -137,7 +137,7 @@ catch (OperationCanceledException)
 
 ## Связанные карты
 
-- `osd/screen-overlay.md`
-- `windows-subsystems/window-handles.md`
-- `computer-vision/images.md`
-- `memory/processes.md`
+- [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay)
+- [windows-subsystems/window-handles.md](/ru/scripting/api/windows-subsystems/window-handles)
+- [computer-vision/images.md](/ru/scripting/api/computer-vision/images)
+- [memory/processes.md](/ru/scripting/api/memory/processes)

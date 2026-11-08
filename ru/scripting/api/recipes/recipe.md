@@ -74,8 +74,8 @@ dateCreated: 2026-04-22T00:00:00.000Z
 
 ## Уже существующие рецепты
 
-- `recipes/bot-memory-imgui-interface.md` - bot using Memory API and ImGui UI.
-- `recipes/bot-memory-behavior-tree.md` - bot using Memory API and Behavior Tree.
-- `recipes/bot-memory-entity-list-reader.md` - primitive entity-list reader using Memory API and a small UI.
-- `recipes/tool-embedded-eyeauras-host.md` - tool/integration that adds EyeAuras capabilities to another host app.
-- `recipes/script-ai-editor-assistant.md` - AI chat assistant for script editors and mini-apps.
+- [recipes/bot-memory-imgui-interface.md](/ru/scripting/api/recipes/bot-memory-imgui-interface) - bot using Memory API and ImGui UI.
+- [recipes/bot-memory-behavior-tree.md](/ru/scripting/api/recipes/bot-memory-behavior-tree) - bot using Memory API and Behavior Tree.
+- [recipes/bot-memory-entity-list-reader.md](/ru/scripting/api/recipes/bot-memory-entity-list-reader) - primitive entity-list reader using Memory API and a small UI.
+- [recipes/tool-embedded-eyeauras-host.md](/ru/scripting/api/recipes/tool-embedded-eyeauras-host) - tool/integration that adds EyeAuras capabilities to another host app.
+- [recipes/script-ai-editor-assistant.md](/ru/scripting/api/recipes/script-ai-editor-assistant) - AI chat assistant for script editors and mini-apps.

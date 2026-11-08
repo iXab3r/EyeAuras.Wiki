@@ -137,3 +137,5 @@ PE-база нужна почти везде, где вы хотите уйти 
 - [Code Cave](/ru/scripting/memory-api/code-caves)
 - [Чтение экспортов модулей](/ru/scripting/examples/advanced/memory/read-exports)
 - [API памяти](/ru/scripting/api/memory)
+
+Расчёт секций повторно сверён по [реализации c8b2304](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.Shared/Scaffolding/MemoryExtensions.Imports.cs); различие RVA и смещения файла — по [спецификации PE](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format). Это проверка исходников и формата, без запуска чтения процесса.

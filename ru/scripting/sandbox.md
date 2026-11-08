@@ -45,16 +45,19 @@ Log.Debug("Hello from debug level!");
 ## Любителям поспать
 ```csharp
 void Sleep(TimeSpan delay);
-void Sleep(int delayMs)
+void Sleep(int delayMs);
+void Sleep(double delayMs);
+void Sleep(double minDelayMs, double maxDelayMs);
 ```
 Этот метод приостанавливает выполнение скрипта на указанное время. Он использует текущий `cancellationToken`. Это синхронная пауза; для асинхронного ожидания используйте `await Task.Delay(..., token)`.
 
 ```csharp
 Sleep(2000); //приостанавливаем скрипт на 2 секунды
 Sleep(TimeSpan.FromMilliseconds(100)); //приостанавливаем на 100 миллисекунд
+cancellationToken.ThrowIfCancellationRequested();
 ```
 
-> Если по какой-то причине программа попросит скрипт остановиться (к примеру, ауру со скриптом выгрузили), то `Sleep` прервется заранее и скрипт будет остановлен
+> `Sleep` сам не выбрасывает исключение отмены. В desktop ожидание дольше 30 мс может закончиться раньше при отмене; короткое ожидание до 30 мс включительно проходит без проверки токена. Если после паузы нельзя продолжать работу при остановке, вызовите `cancellationToken.ThrowIfCancellationRequested()`. Для асинхронного кода используйте `await Task.Delay(delay, cancellationToken)`.
 {.is-info}
 
 
@@ -109,3 +112,5 @@ for (var step = 1; step <= 3; step++)
 Скрипт пишет три сообщения с паузами. Если host отменит запуск, ожидание прервётся отменой. `cancellationToken` и `ExecutionAnchors` назначаются для каждого `Run`, а после него сбрасываются. Захватите токен и передайте его в выполняемую работу; не храните его как постоянный токен всей песочницы и не оставляйте неотслеживаемые фоновые задачи после выхода.
 
 Состояние объекта скрипта может сохраняться при повторных запусках с той же версией проекта. Изменение зависимой версии проекта пересоздаёт контекст; это не долговременное хранилище. Для обмена данными и настроек смотрите [переменные](/ru/scripting/variables), для ресурсов — [управление временем жизни](/ru/scripting/api/scripting/reactive-lifetime).
+
+Контракт `Sleep` сверяется по [ScriptSandbox](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Scripting.Metadata/Api/ScriptSandbox.cs) и [desktop-провайдеру ожидания](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Scaffolding/WaitableTimerUtils.cs). Интервал задаётся в миллисекундах; фактическая длительность зависит от планировщика ОС. Два числовых аргумента выбирают случайную длительность в заданном диапазоне.

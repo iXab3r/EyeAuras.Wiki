@@ -3,7 +3,7 @@ title: 5. Update mechanism
 description:
 published: true
 date: 2025-08-17T09:21:21.000Z
-tags:
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T14:35:20.794Z
 ---
@@ -13,8 +13,21 @@ The previous code works, but it's imperfect. Clicking the button toggles the tri
 
 For simplicity we solve it head-on: the interface will refresh **once per second**. It's not optimal, but fine for a very simple UI.
 
+## Prepare the overlay and target auras
+
+Create a **C# Overlay v3** aura and `TargetAura` in the same folder. Add `HotkeyIsActive` in toggle mode to each target and keep them loaded. The shown `./TargetAura` paths resolve relative to the overlay context; adjust them to your actual tree. If several triggers match, the first is selected.
+
+Replace `UserOverlay.cs` and `UserOverlay.razor` with the corresponding complete blocks below. They are parts of one `public partial` class in the same namespace. `[Inject]` supplies `AuraTree`; Script.csx globals are not component globals.
+
 ## UserOverlay.cs
 ```csharp
+using System;
+using System.Reactive.Linq;
+using Microsoft.AspNetCore.Components;
+using PoeShared.Blazor;
+using EyeAuras.Scripting.Api;
+using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
+
 public partial class UserOverlay : BlazorReactiveComponent {
 
     [Inject]
@@ -41,6 +54,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ## UserOverlay.razor
 ```html
+@using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
@@ -66,7 +80,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ---
 
-# Breakdown
+## Breakdown
 ## UserOverlay.cs
 ```csharp
  protected override void OnInitialized()
@@ -78,3 +92,5 @@ public partial class UserOverlay : BlazorReactiveComponent {
 EyeAuras uses a mechanism to control rendering. One of the simplest ways to use it is to add an event to `ChangeTrackers` in `OnInitialized`. Here it's just a timer—every tick forces the interface to re-render. It doesn't check whether anything changed; it simply says "re-render".
 
 Later we'll look at optimizing via `ReactiveSection` and more precise tracking. For many situations this approach is good enough—`Blazor` is fast and doing a "blank" re-render with a simple UI isn't a crime.
+
+The button writes `TriggerValue`, and the hotkey changes the same trigger. The `ChangeTrackers` timer rereads it about once per second, so external changes appear with a delay. Add the timer before `base.OnInitialized()`, which seals the tracker list and owns the subscriptions through component `Anchors`. Hiding a window is not the same as disposing its component.

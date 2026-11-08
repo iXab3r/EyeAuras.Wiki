@@ -3,7 +3,7 @@ title: AI Scripting: Container Extensions
 description: AI-first map for script DI composition, container extensions, service registration, and capability access.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, dependency-injection, container
+tags: scripting, api, ai, dependency-injection, container, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
@@ -82,6 +82,42 @@ ordinary C# classes.
 - `ScriptRestartRequest` - restart metadata passed to the controller.
 - `UnsupportedScriptRestartController` - default unsupported implementation.
 
+## Register shared project state
+
+Add `Registrations.cs` to the script project:
+
+```csharp
+using EyeAuras.Scripting.Api;
+using Unity;
+
+public sealed class Registrations : ScriptContainerExtension
+{
+    protected override void Initialize()
+    {
+        Container.RegisterSingleton<RunCounter>();
+    }
+}
+
+public sealed class RunCounter
+{
+    public int Value { get; private set; }
+    public int Increment() => ++Value;
+}
+```
+
+Run this in `Script.csx`:
+
+```csharp
+var counter = GetService<RunCounter>();
+Log.Info($"Run number {counter.Increment()}");
+```
+
+The runtime discovers concrete extension types in the compiled container assembly during context creation, before script execution. Another Run in the same context reuses the counter. Recompilation and context recreation do not persist data to disk. Concurrent increments need synchronization.
+
+`RegisterType` creates ordinary registrations instead of one shared instance. `GetService<T>()` resolves through the available containers; an interface merely appearing in an SDK does not guarantee registration. The script's `AddNewExtension<T>()` is idempotent for a configured extension type and returns the sandbox. A namespace import does not register services. See the complete [ImGui setup](/en/scripting/imgui/getting-started) and [Frida map](/en/scripting/api/nuget/frida-sdk).
+
+Script property injection runs during `OneTimeSetupScript`; Razor injection belongs to Blazor. Neither automatically fills an arbitrary object created with `new`. Pass dependencies explicitly to small helper classes and keep [Run and object resources](reactive-lifetime) under their actual owners.
+
 ## Common Flows
 
 ### Register Mini-App Services
@@ -90,7 +126,7 @@ ordinary C# classes.
 2. Add optional SDK extensions needed by the mini-app.
 3. Register shared state/managers as singletons.
 4. Register short-lived coordinators/tools as normal types.
-5. Attach the extension from the top-level script.
+5. Project `ScriptContainerExtension` types are discovered at context creation; explicitly attach other library extensions when required.
 6. Resolve or inject the registered services according to the current context.
 
 ### Enable Optional SDK Package
@@ -188,9 +224,9 @@ ordinary C# classes.
 
 ## Related Maps
 
-- `scripting/runtime.md`
-- `scripting/references-and-resources.md`
-- `scripting/project-workflow.md`
-- `core/app-runtime-contexts.md`
-- `nuget/imgui-sdk.md`
-- `nuget/frida-sdk.md`
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)
+- [scripting/references-and-resources.md](/en/scripting/api/scripting/references-and-resources)
+- [scripting/project-workflow.md](/en/scripting/api/scripting/project-workflow)
+- [core/app-runtime-contexts.md](/en/scripting/api/core/app-runtime-contexts)
+- [nuget/imgui-sdk.md](/en/scripting/api/nuget/imgui-sdk)
+- [nuget/frida-sdk.md](/en/scripting/api/nuget/frida-sdk)

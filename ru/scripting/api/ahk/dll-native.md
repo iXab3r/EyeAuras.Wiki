@@ -113,3 +113,10 @@ static class NativeMethods
   [Window Handles](../windows-subsystems/window-handles),
   [Scripting Runtime](../scripting/runtime).
 - Контракты EyeAuras: [контекст скрипта](../scripting/runtime), [ввод](../ISendInputScriptingApi), [окна](../windows-subsystems/window-handles). Точные типы и сигнатуры сверяйте с SDK/XML своей версии; базовый срез — EyeAuras `20fd3d4`, PoeEye `0e02c98`.
+
+Указатель на функцию не удерживает managed delegate от сборки мусора. Сохраняйте
+сильную ссылку, пока native callback не снят и больше не может выполняться.
+Используйте generic-перегрузку `Marshal.GetFunctionPointerForDelegate<TDelegate>`
+и сигнатуру delegate под нужный ABI; снимайте регистрацию до освобождения владельца.
+
+[Marshal callback contract](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.marshal.getfunctionpointerfordelegate).

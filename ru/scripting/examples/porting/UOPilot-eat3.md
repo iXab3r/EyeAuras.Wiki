@@ -202,6 +202,7 @@ private bool captureCursor { get; set; }
         }
         if (run) MainScript();
         Sleep(100);
+        cancellationToken.ThrowIfCancellationRequested();
     }
 
     void MainScript()
@@ -213,24 +214,29 @@ private bool captureCursor { get; set; }
         }
         window.Activate();
         Sleep(2500);
+        cancellationToken.ThrowIfCancellationRequested();
 
         SendInput.KeyPress(Key.F);
         Sleep(300);
+        cancellationToken.ThrowIfCancellationRequested();
 
         SendInput.MouseClick(1005, 1005);
         Sleep(200);
+        cancellationToken.ThrowIfCancellationRequested();
 
         int FoundX, FoundY;
 
         if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian.bmp"))
         {
             Sleep(1000);
+            cancellationToken.ThrowIfCancellationRequested();
             if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian.bmp"))
             {
                 if (!MyImageSearch(out FoundX, out FoundY, 640, 186, 1237, 939, "Vegetarian1.bmp"))
                 {
                     Log.Warn($"Объект 'Vegetarian' не найден!");
                     Sleep(2000);
+                    cancellationToken.ThrowIfCancellationRequested();
                     Log.Warn($"Скрипт выключен");
                     return;
                 }
@@ -239,14 +245,19 @@ private bool captureCursor { get; set; }
 
         SendInputWindow.MouseClick(FoundX, FoundY);
         Sleep(200);
+        cancellationToken.ThrowIfCancellationRequested();
 
         SendInputWindow.MouseClick(1499, 1004);
         Sleep(200);
+        cancellationToken.ThrowIfCancellationRequested();
 
         SendInputWindow.KeyPress(Key.Escape);
         Sleep(200);
+        cancellationToken.ThrowIfCancellationRequested();
 
         Sleep(600);
+
+        cancellationToken.ThrowIfCancellationRequested();
         SendInput.MouseRightClick(savedCursor.X, savedCursor.Y);
     }
 
@@ -266,6 +277,7 @@ private bool captureCursor { get; set; }
                 return true;
             }
             Sleep(100);
+            cancellationToken.ThrowIfCancellationRequested();
         }
         FoundX = FoundY = 0;
         return false;

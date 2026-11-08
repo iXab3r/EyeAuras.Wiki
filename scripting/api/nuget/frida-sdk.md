@@ -3,7 +3,7 @@ title: AI NuGet: Frida SDK
 description: AI-first map for optional Frida instrumentation, Frida-backed process readers, and CAgent native process readers.
 published: true
 date: 2026-05-03T00:00:00.000Z
-tags: scripting, api, ai, frida, nuget, memory, cagent
+tags: scripting, api, ai, frida, nuget, memory, cagent, ai-translated
 editor: markdown
 dateCreated: 2026-04-21T00:00:00.000Z
 ---
@@ -12,6 +12,35 @@ dateCreated: 2026-04-21T00:00:00.000Z
 Reference map for optional `EyeAuras.FridaSdk` APIs: Frida devices, sessions,
 scripts, Frida Gadget payloads, Frida-backed `IProcess` adapters, and CAgent
 native CLink endpoint process readers.
+
+Frida APIs were checked against source `c8b2304`. In this snapshot, `WHProcess`
+belongs to the separate `EyeAuras.Memory.WHSdk` project. CAgent/CLink APIs and
+`GetCAgentLibrary*` are absent from Frida SDK. CAgent sections below retain
+historical Wiki integration notes and do not describe the current package
+contract; check those APIs against the exact installed version.
+
+## Choose an attachment route
+
+For module/memory inspection, first choose an IProcess source; [LocalProcess](/en/scripting/memory-api/backends/local-process) is sufficient for ordinary local access. Use Frida when an instrumentation session is required. CAgent is a separate historical native-agent route.
+
+Supply a compatible Frida SDK, native components, a selected PID or an already running Gadget address, and a session owner. Scripts register FridaContainerExtensions before resolving the API; ordinary classes receive it from the host. Create a session, then a script and message subscriptions, then load the script. Messages are the result; an IProcess adapter such as FridaAgentProcess is a separate step. On completion the owner stops work and releases subscriptions, script and session according to the explicit unload/detach contract above.
+
+## Session ownership and shutdown
+
+`FridaContainerExtensions` registers `IFridaExperimentalApi` → `FridaExperimentalApi`.
+`FridaAgentProcess.BySession(session, rpcType)` borrows its session; disposing
+that adapter does not replace `session.Detach()`. For a regular script, its
+owner stops work, unsubscribes from messages, calls `script.Unload()`, calls
+`session.Detach()`, and disposes the wrappers. For a memory adapter, first stop
+using `process.Memory`, explicitly unload `process.Script`, dispose the adapter,
+and detach the session. Do not call `Unload` after disposing the script.
+
+`FridaAgentRpcType` contains only `Default`, `Frida`, `NamedPipeAsServer`, and
+`NamedPipeAsClient`. Native execution and published NuGet compatibility were
+not tested; managed API availability does not establish Gadget readiness.
+
+
+[FridaSession](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.FridaSdk/Internal/FridaSession.cs) · [FridaScript](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.FridaSdk/Internal/FridaScript.cs) · [FridaAgentProcess](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.FridaSdk/FridaAgentProcess.cs)
 
 ## What Frida Is
 
@@ -33,14 +62,8 @@ native CLink endpoint process readers.
   and live script reloading.
 - Embedded Frida agent script that exposes process/memory operations through RPC.
 - `FridaAgentProcess`: an `IProcess` adapter over an existing Frida session.
-- Frida Gadget and CAgent binary helpers live in the Frida binaries family.
-- CAgent native DLL bytes and managed clients live near the Frida SDK, but CAgent
-  is a separate native CLink endpoint process reader, not a Frida script/session.
-- FridaSdk uses `EyeAuras.CLink.Rpc` for the reusable managed CLinkRPC session
-  runtime; FridaSdk still owns CAgent operation ids, memory/process DTOs, and
-  process-reader behavior. It is not yet migrated to the proto-generated
-  CLink.Rpc service path.
-- `WHProcess` is an experimental x64 GUI-process `IProcess` backend that uses a
+- Frida Gadget helpers live in `FridaSdkBinaries`. CAgent/CLink integration described later is historical and absent from this source snapshot.
+- In the separate `EyeAuras.Memory.WHSdk` package, `WHProcess` is an experimental x64 GUI-process `IProcess` backend that uses a
   Windows hook transport for low-permission memory reads/writes and small remote
   control operations.
 
@@ -62,9 +85,7 @@ Do not assume `IFridaExperimentalApi` or Frida binary helpers are available from
 DI just because the package compiles. Without `FridaContainerExtensions`,
 service resolution can fail or return an incomplete host setup.
 
-`CAgentProcess.ByProcessId(...)` is a static process-reader factory from the
-same package, but any script that also resolves Frida SDK services should still
-add `FridaContainerExtensions` first.
+This registration provides Frida services. It does not provide the historical CAgent factories described below.
 
 ## Layer Split
 
@@ -73,9 +94,9 @@ add `FridaContainerExtensions` first.
 | Frida session/script | Instrumentation, hooks, custom JavaScript inside target process | `IFridaExperimentalApi`, `IFridaSession`, `IFridaScript`, `IFridaLiveScript` |
 | Frida Gadget | Attach to an injected/embedded Frida runtime by local port | `FridaSdkBinaries`, `AttachByLocalPort` |
 | Frida-backed process reader | Use Frida session as `IProcess` for memory/reverse-engineering tools | `FridaAgentProcess`, `FridaAgentRpcType`, `FridaMemoryBackend` |
-| CAgent process reader | Use native DLL + CLink RPC endpoint transports for memory/process-control operations | `CAgentProcess`, `ICAgentProcess`, `IProcessControlApi` |
-| CLink RPC runtime | Reusable managed session/transport foundation consumed by CAgent clients | `CLinkRpcSession`, `CLinkConnectionRpcTransport` from `EyeAuras.CLink.Rpc` |
-| WH process reader | Use a GUI window thread and Windows hook transport for experimental low-permission memory/process-control probes and x64 manual mapping | `WHProcess`, `WHProcess.ByWindowHandle`, `WHProcess.ExecuteCode`, `IProcessSupportsManualMapping` |
+| Historical CAgent process reader | Use native DLL + CLink RPC endpoint transports for memory/process-control operations | `CAgentProcess`, `ICAgentProcess`, `IProcessControlApi` |
+| Historical CLink RPC runtime | Reusable managed session/transport foundation consumed by CAgent clients | `CLinkRpcSession`, `CLinkConnectionRpcTransport` from `EyeAuras.CLink.Rpc` |
+| Separate WHSdk process reader | Use a GUI window thread and Windows hook transport for experimental low-permission memory/process-control probes and x64 manual mapping | `WHProcess`, `WHProcess.ByWindowHandle`, `WHProcess.ExecuteCode`, `IProcessSupportsManualMapping` |
 
 ## User Intents
 
@@ -106,7 +127,7 @@ add `FridaContainerExtensions` first.
 - `AttachByLocalPort(...)` - connect to Frida Gadget/server on local port.
 - `IFridaDevice` - Frida device abstraction.
 - `IFridaProcess` - Frida-visible process info.
-- `IFridaSession` - attached process session, owns scripts, detaches on disposal.
+- `IFridaSession` - attached process session. This wrapper does not connect `Dispose` to `Detach` or register created scripts as owned resources; the caller explicitly unloads scripts and detaches before disposing wrappers.
 - `IFridaScript` - loaded Frida JavaScript with `Load`, `Unload`, `Post`,
   `PostWithData`, `Rpc`, `Rpc<T>`, `Eternalize`, debugger controls, and message
   observables.
@@ -117,14 +138,11 @@ add `FridaContainerExtensions` first.
 
 ## Frida Gadget / Binaries
 
-- `FridaSdkBinaries` provides embedded Frida Gadget and native CAgent DLL bytes.
+- `FridaSdkBinaries` provides embedded Frida Gadget bytes. Historical CAgent helpers are absent at `c8b2304`.
 - `GetLibrary(Architecture, ...)` - full Gadget payloads by architecture.
 - `GetLibraryForX86(...)`, `GetLibraryForX64(...)` - full Gadget payloads.
 - `GetSlimLibrary(Architecture, ...)` - slim Gadget payloads by architecture.
 - `GetSlimLibraryForX86(...)`, `GetSlimLibraryForX64(...)` - slim payloads.
-- `GetCAgentLibrary(Architecture)`, `GetCAgentLibraryForX86()`, and
-  `GetCAgentLibraryForX64()` - native CAgent payloads for external injection or
-  staging.
 - Patch helpers can change the default Gadget port before loading the payload.
 - After Gadget is running, connect through `AttachByLocalPort(...)`.
 - Frida Gadget is Frida runtime payload. It is not CAgent.
@@ -141,12 +159,10 @@ add `FridaContainerExtensions` first.
   - `Default` / `Frida` - Frida built-in RPC.
   - `NamedPipeAsServer` / `NamedPipeAsClient` - managed/TypeScript named-pipe
     bridge around the Frida agent script.
-  - `NativeNamedPipeAsClient` / `NativeCompositeNamedPipeAsClient` - native-style
-    named-pipe client modes.
 - This layer is appropriate when a Frida session already exists and other APIs
   expect `IProcess`.
 
-## CAgent APIs
+## CAgent APIs — historical integration
 
 - CAgent is a native DLL/payload that runs inside the target process.
 - CAgent starts CLink RPC endpoints named from the target process id.
@@ -213,7 +229,7 @@ add `FridaContainerExtensions` first.
 5. Create script from source or file.
 6. Subscribe to log/error/message streams.
 7. Load the script.
-8. Dispose/unload when the mini-app stops.
+8. Stop work and unsubscribe; explicitly unload the script and detach the session before disposing wrappers.
 
 ### Use Frida Session As IProcess
 
@@ -229,7 +245,9 @@ add `FridaContainerExtensions` first.
 3. Connect with `AttachByLocalPort(port)`.
 4. Treat the result as a normal Frida session.
 
-### Use CAgent Process Reader
+### Historical CAgent process reader
+
+This sequence requires a matching historical CAgent package; it is not available in the checked source snapshot.
 
 1. Ensure optional Frida SDK package/reference is available.
 2. Add `FridaContainerExtensions` if the script resolves
@@ -240,7 +258,9 @@ add `FridaContainerExtensions` first.
 5. Validate that reported `ProcessId` matches the expected process.
 6. Use the resulting `IProcess`/`IProcessControlApi` surface.
 
-### Manually Map CAgent Through WHProcess
+### Historical CAgent mapping through WHProcess
+
+This sequence requires matching historical CAgent payload helpers and the separate WHSdk package.
 
 1. Attach to an x64 GUI target with `WHProcess.ByWindowHandle(...)`,
    `ByProcessId(...)`, or `ByThreadId(...)`.
@@ -348,6 +368,6 @@ add `FridaContainerExtensions` first.
 
 ## Related Maps
 
-- `memory/processes.md`
-- `reverse-engineering/reprocess.md`
-- `scripting/runtime.md`
+- [memory/processes.md](/en/scripting/api/memory/processes)
+- [reverse-engineering/reprocess.md](/en/scripting/api/reverse-engineering/reprocess)
+- [scripting/runtime.md](/en/scripting/api/scripting/runtime)

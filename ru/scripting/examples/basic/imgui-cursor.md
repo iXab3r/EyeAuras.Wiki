@@ -17,7 +17,7 @@ dateCreated: 2025-03-31T17:49:10.631Z
 
 ## Нарисовать рамку из C# Script через SDK
 
-Вставьте блок в верхнеуровневый файл действия `C# Script` живого EyeAuras. Подключите совместимую версию необязательного `EyeAuras.ImGuiSdk`, в которой есть `ImGuiContainerExtensions`, `IImGuiExperimentalApi` и `AddRenderer`. Исторический пример SDK использует `#r "nuget:EyeAuras.ImGuiSdk, 0.1.17"`; соответствие опубликованного пакета этим исходникам не проверено. Ниже показан контракт EyeAuras `20fd3d4` / PoeEye `0e02c98`, а не обещание совместимости любой версии пакета.
+Вставьте блок в верхнеуровневый файл действия `C# Script` живого EyeAuras. Подключите совместимую версию необязательного `EyeAuras.ImGuiSdk`, в которой есть `ImGuiContainerExtensions`, `IImGuiExperimentalApi` и `AddRenderer`. Для этого варианта используйте `#r "nuget:EyeAuras.ImGuiSdk, 0.1.42"`; опубликованные DLL/XML содержат используемые члены. Нативная совместимость с установленной сборкой проверяется отдельно.
 
 ```csharp
 using EyeAuras.ImGuiSdk;
@@ -153,3 +153,7 @@ internal class SampleOverlay : Overlay
 - Разные фигуры в зависимости от состояния
 - Обработку кликов или взаимодействия с overlay
 - Отображение debug-данных или игровых визуальных элементов в реальном времени
+
+## Контракт отдельного overlay
+
+В [исходниках CTO 10.2.0](https://github.com/zaafar/ClickableTransparentOverlay/blob/6a343a2af63b7af0cfa9ab41e9b7cc95b88452b9/ClickableTransparentOverlay/Overlay.cs) конструктор с шириной и высотой существует и выбирает `DPIAware = false`. `Start` ждёт готовности окна, `Run` — отмены внутреннего источника; `Close` запрашивает эту отмену. Токен скрипта передан нашему подклассу: его проверяет `Render`, а не конструктор библиотеки. При неработающем render-loop такая проверка не выполнится. Поведение DPI и графики не подтверждается одной проверкой исходников.

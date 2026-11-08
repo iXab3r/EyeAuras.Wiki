@@ -261,3 +261,21 @@ items.Edit(update =>
 - [Async Patterns](../scripting/async.md)
 - [Scripting Runtime](../scripting/runtime.md)
 - [Blazor Windows](../windows-subsystems/blazor-windows.md)
+## Настройка привязок и потоки
+
+Задайте правила до первого `Attach`; дальнейшие изменения требуют клона.
+`DoNotRunOnAttach` отключает начальное присваивание. `WithDependency` добавляет
+наблюдаемое выражение, но не опрашивает произвольные изменяемые поля.
+`OverrideKey` задаёт ключ замены, а `DoNotOverride` запрещает новому правилу
+удалять существующие правила с тем же ключом. Это не защита от последующей замены.
+
+PoeShared `OnScheduler` в `0e02c98` требует `DispatcherScheduler`: присваивание
+идёт прямо в его потоке или через синхронный `Dispatcher.Invoke` из другого потока.
+Произвольный worker scheduler не поддерживается; это не очередь без ожидания.
+Rx `ObserveOn` переносит downstream callbacks, а побочные эффекты подписки
+требуют отдельного выбора `SubscribeOn`.
+
+[PropertyBinder rules](https://github.com/iXab3r/PropertyBinder/blob/1aa26525c29eac854d1bd259b535601363587ae9/PropertyBinder/PropertyRuleBuilder.cs),
+[PoeShared dispatcher binding](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Wpf/Scaffolding/PropertyRuleBuilderExtensions.cs),
+[Rx 6.0.1 scheduling](https://github.com/dotnet/reactive/blob/rxnet-v6.0.1/Rx.NET/Source/src/System.Reactive/Linq/Observable.Concurrency.cs),
+[DynamicData 8.0.2 filter](https://github.com/reactivemarbles/DynamicData/blob/8.0.2/src/DynamicData/Cache/Internal/StaticFilter.cs).

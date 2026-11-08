@@ -134,6 +134,37 @@ Runner повторно использует контекст при неизм�
 по себе не удерживает Run открытым. Не храните её в свойстве экземпляра в
 расчёте на следующий запуск.
 
+## Редактирование, выгрузка и освобождение подписки
+
+Это три разные границы времени жизни:
+
+| Событие | Что меняется |
+| --- | --- |
+| Следующий Run после изменения зависимой версии проекта | Runner создаёт новый sandbox и дочерний контейнер; при замене освобождает прежний контекст |
+| Завершение текущего Run | Освобождается его `ExecutionAnchors`; переменные сохранившегося владельца не удаляются |
+| Команда Unload | Меняет `IsLoaded` владельца; сама по себе не очищает его `Variables` |
+| Удаление элемента дерева | Элемент удаляется из индекса, а его `Dispose()` планируется на фоновом scheduler; это не синхронный барьер остановки всех callback |
+
+`Listen()` создаёт цепочку `WatchCurrentValue → Select → DistinctUntilChanged`.
+Она не привязывает возвращённую подписку к Run или к команде Unload. Владельца
+подписки выбирает вызывающий код: `using` освобождает её при выходе из своего
+блока; добавление в `ExecutionAnchors` — при выходе runner из выполнения.
+Отмена токена лишь запрашивает остановку: если скрипт продолжает работать,
+освобождение ресурсов в конце Run ещё не произошло. Уже начавшийся callback
+не прерывается вызовом `Dispose()`.
+
+У runner порядок завершения такой: сначала `finally` сбрасывает ссылки
+`ExecutionAnchors` и `cancellationToken` в sandbox, затем `using` освобождает
+локальный `CompositeDisposable`. При замене контекста освобождаются его
+`Globals` и `Container`. Сам владелец `IEyeContext` зарегистрирован в этом
+контейнере как внешний объект: пересоздание sandbox не создаёт новый экземпляр
+ауры и не служит командой очистки её переменных.
+
+Не используйте сохранённый дескриптор после удаления владельца и не полагайтесь
+на Unload как на автоматический `Dispose()` вашей подписки. Для подписки на
+один Run оставляйте `using` внутри выполняемого блока и ожидайте работу с
+`cancellationToken`, прежде чем выйти из него.
+
 ## Что будет после перезапуска приложения
 
 Обычная переменная владельца — состояние в памяти, а не обещание записи
@@ -149,6 +180,10 @@ Runner повторно использует контекст при неизм�
 дескриптор переменной его не заменяет.
 
 ## Контракт и проверка
+
+Дополнительная проверка редактирования, Unload и подписок выполнена по исходникам `c8b2304`: [runner](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Scripting/AuraScriptRunner.cs), [context](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Scripting/AuraScriptingApiContext.cs), [Unload](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/AuraTree/ViewModels/ReactiveAuraTreeItemViewModel.cs), [owner variables](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/AuraTree/ViewModels/EyeItemBase.cs), [tree removal](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Core/Services/AuraTreeService.cs).
+
+
 
 Поведение сверено с EyeAuras
 [`1fd27eb`](https://github.com/iXab3r/EyeAuras/tree/1fd27eb5308565d6ab2150c4392810ea52d0cc4f):

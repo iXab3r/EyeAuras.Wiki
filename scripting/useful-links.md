@@ -3,12 +3,16 @@ title: List of Useful Links
 description: 
 published: true
 date: 2025-09-21T11:29:06.078Z
-tags: 
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-09-21T11:29:06.078Z
 ---
 
-# C# development
+# Development and reverse-engineering resources
+
+Use the language reference and API browser for C# syntax/types, the Blazor section for UI, and reverse-engineering references for Windows structures and binary formats. External documentation may use a different .NET version, service registration or UI host. Start EyeAuras code with [script context](/en/scripting/sandbox), [packages](/en/scripting/nuget), and [API discovery](/en/scripting/api/AGENTS).
+
+## C# development
 
 * **.NET Documentation** – Official docs for runtime, libraries, and tools: [https://learn.microsoft.com/dotnet/](https://learn.microsoft.com/dotnet/)
 * **C# Language Reference** – Full spec-level docs and examples: [https://learn.microsoft.com/dotnet/csharp/language-reference/](https://learn.microsoft.com/dotnet/csharp/language-reference/)
@@ -17,8 +21,8 @@ dateCreated: 2025-09-21T11:29:06.078Z
 * **C# Language Design Notes** – Proposals and meeting notes: [https://github.com/dotnet/csharplang](https://github.com/dotnet/csharplang)
 * **.NET Runtime Source** – JIT, GC, BCL internals: [https://github.com/dotnet/runtime](https://github.com/dotnet/runtime)
 * **.NET Performance Guide** – Patterns, pitfalls, and tuning: [https://learn.microsoft.com/dotnet/standard/garbage-collection/performance](https://learn.microsoft.com/dotnet/standard/garbage-collection/performance)
-* **Maoni’s GC Blog** – Deep dives on GC internals: [https://devblogs.microsoft.com/dotnet/tag/garbage-collection/](https://devblogs.microsoft.com/dotnet/tag/garbage-collection/)
-* **Stephen Toub on Async** – High-signal posts on async/await, tasks, and perf: [https://devblogs.microsoft.com/dotnet/author/stoub/](https://devblogs.microsoft.com/dotnet/author/stoub/)
+* **Maoni’s GC Blog** – Deep dives on GC internals: [https://devblogs.microsoft.com/dotnet/author/maoni/](https://devblogs.microsoft.com/dotnet/author/maoni/)
+* **Stephen Toub on Async** – Stephen Toub’s explanation of async/await implementation: [https://devblogs.microsoft.com/dotnet/how-async-await-really-works/](https://devblogs.microsoft.com/dotnet/how-async-await-really-works/)
 * **Source Generators** – Concepts and how-tos: [https://learn.microsoft.com/dotnet/csharp/roslyn-sdk/source-generators-overview](https://learn.microsoft.com/dotnet/csharp/roslyn-sdk/source-generators-overview)
 * **P/Invoke Reference** – Community signatures for Win32: [https://www.pinvoke.net/](https://www.pinvoke.net/)
 * **NativeAOT** – Ahead-of-time compiling .NET apps: [https://learn.microsoft.com/dotnet/core/deploying/native-aot/](https://learn.microsoft.com/dotnet/core/deploying/native-aot/)
@@ -29,7 +33,7 @@ dateCreated: 2025-09-21T11:29:06.078Z
 
 ---
 
-# Blazor development
+## Blazor development
 
 * **Blazor Docs (ASP.NET Core)** – Official docs for Server, WASM, and Hybrid: [https://learn.microsoft.com/aspnet/core/blazor/](https://learn.microsoft.com/aspnet/core/blazor/)
 * **Blazor Performance Best Practices**: [https://learn.microsoft.com/aspnet/core/blazor/performance](https://learn.microsoft.com/aspnet/core/blazor/performance)
@@ -41,32 +45,32 @@ dateCreated: 2025-09-21T11:29:06.078Z
 * **MudBlazor** – Popular UI component library: [https://mudblazor.com/](https://mudblazor.com/)
 * **Radzen Blazor** – UI controls & tools: [https://blazor.radzen.com/](https://blazor.radzen.com/)
 * **Blazorise** – Component library: [https://blazorise.com/](https://blazorise.com/)
-* **.NET WebAssembly Docs** – WASM runtime details: [https://learn.microsoft.com/aspnet/core/blazor/webassembly/](https://learn.microsoft.com/aspnet/core/blazor/webassembly/)
+* **.NET WebAssembly Docs** – WASM runtime details: [https://learn.microsoft.com/aspnet/core/blazor/webassembly-build-tools-and-aot](https://learn.microsoft.com/aspnet/core/blazor/webassembly-build-tools-and-aot)
 * **gRPC & Minimal APIs** – Backends frequently paired with Blazor: [https://learn.microsoft.com/aspnet/core/grpc/](https://learn.microsoft.com/aspnet/core/grpc/) and [https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis](https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis)
 * **NSwag/Swashbuckle** – OpenAPI for C# clients/UI: [https://github.com/RicoSuter/NSwag](https://github.com/RicoSuter/NSwag) and [https://github.com/domaindrivendev/Swashbuckle.AspNetCore](https://github.com/domaindrivendev/Swashbuckle.AspNetCore)
 
 ---
 
-# Reverse Engineering
+## Reverse Engineering
 
 * **Vergilius Project** – Windows kernel structure layouts/offsets: [https://www.vergiliusproject.com/](https://www.vergiliusproject.com/)
-* **Ghidra** – Open-source suite from NSA: [https://ghidra-sre.org/](https://ghidra-sre.org/)
-* **IDA Free** – Disassembler & debugger (free edition): [https://hex-rays.com/ida-free/](https://hex-rays.com/ida-free/)
+* **Ghidra** – Open-source suite from NSA: [https://github.com/NationalSecurityAgency/ghidra](https://github.com/NationalSecurityAgency/ghidra)
+* **IDA Free** – Disassembler and debugger with a non-commercial free license; check the vendor’s current terms: [https://hex-rays.com/ida-free](https://hex-rays.com/ida-free)
 * **radare2 / r2** – RE framework: [https://github.com/radareorg/radare2](https://github.com/radareorg/radare2)
-* **Cutter** – GUI for radare2: [https://cutter.re/](https://cutter.re/)
+* **Cutter** – GUI powered by Rizin: [https://cutter.re/](https://cutter.re/)
 * **x64dbg** – Open-source Windows debugger: [https://x64dbg.com/](https://x64dbg.com/)
 * **WinDbg / WinDbg Preview** – Microsoft’s kernel/user-mode debugger: [https://learn.microsoft.com/windows-hardware/drivers/debugger/](https://learn.microsoft.com/windows-hardware/drivers/debugger/)
 * **WDK Docs** – Driver development & kernel internals: [https://learn.microsoft.com/windows-hardware/drivers/](https://learn.microsoft.com/windows-hardware/drivers/)
 * **Windows Internals (Book)** – Deep OS internals reference: [https://learn.microsoft.com/sysinternals/resources/windows-internals](https://learn.microsoft.com/sysinternals/resources/windows-internals)
 * **Sysinternals Suite** – Power tools for Windows: [https://learn.microsoft.com/sysinternals/](https://learn.microsoft.com/sysinternals/)
-* **Process Hacker** – System explorer & memory tools: [https://processhacker.sourceforge.io/](https://processhacker.sourceforge.io/)
-* **Capstone / Keystone / Unicorn** – Disasm/asm/emulation engines: [https://www.capstone-engine.org/](https://www.capstone-engine.org/) / [https://www.keystone-engine.org/](https://www.keystone-engine.org/) / [https://www.unicorn-engine.org/](https://www.unicorn-engine.org/)
+* **System Informer** – System explorer & memory tools: [https://systeminformer.io/](https://systeminformer.io/)
+* **Capstone / Keystone / Unicorn** – Disasm/asm/emulation engines: [https://www.capstone-engine.org/](https://www.capstone-engine.org/) / [https://github.com/keystone-engine/keystone](https://github.com/keystone-engine/keystone) / [https://www.unicorn-engine.org/](https://www.unicorn-engine.org/)
 * **PE/COFF Spec** – Official file format docs: [https://learn.microsoft.com/windows/win32/debug/pe-format](https://learn.microsoft.com/windows/win32/debug/pe-format)
 * **ReactOS Source** – NT-like OS source for learning: [https://github.com/reactos/reactos](https://github.com/reactos/reactos)
 
 ---
 
-# Game Reverse Engineering
+## Game Reverse Engineering
 
 * **UnknownCheats** – Large forum on game security, reversing, and cheats: [https://unknowncheats.me/](https://unknowncheats.me/)
 * **Cheat Engine** – Memory scanner/debugger & trainer tool: [https://www.cheatengine.org/](https://www.cheatengine.org/)

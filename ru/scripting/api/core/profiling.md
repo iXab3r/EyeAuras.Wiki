@@ -174,7 +174,7 @@ Log.Info(profiler.RenderPlainText());
 
 ### Собрать JetBrains performance capture
 
-1. Откройте Settings и нажмите **Start profiling**, либо вызовите endpoint запуска profiler'а, если управляете приложением удалённо.
+1. Откройте Settings и нажмите **Start profiling**, либо используйте зарегистрированный desktop-сервис профилирования. Web endpoint профилирует процесс Web.
 2. Воспроизведите лаги, пока идёт сбор профиля. Для support capture обычно достаточно 10-30 минут.
 3. Нажмите **Stop profiling**. В поставках с этой интеграцией ожидайте архив профиля; точное имя и каталог
    проверьте по сообщению host.
@@ -183,7 +183,7 @@ Log.Info(profiler.RenderPlainText());
 ### Собрать JetBrains memory snapshot
 
 1. Дождитесь момента, когда потребление памяти уже явно стало ненормальным.
-2. Используйте действие снятия memory snapshot в profiler/report workflow или вызовите endpoint `takeSnapshot`, если управляете приложением удалённо.
+2. Используйте действие снятия memory snapshot в profiler/report workflow или desktop-сервис. Web endpoint `takeSnapshot` снимает память процесса Web.
 3. В поставках с этой интеграцией получите workspace dotMemory; каталог и имя
    проверьте по сообщению host.
 4. Учитывайте, что во время записи snapshot'а приложение может подвисать или работать медленнее.
@@ -292,3 +292,20 @@ Log.Info(profiler.RenderPlainText());
 - [MiniProfiler GitHub repository](https://github.com/MiniProfiler/dotnet)
 - [JetBrains dotTrace API reference](https://www.jetbrains.com/help/profiler/API_Reference.html)
 - [JetBrains dotMemory self-profiling API](https://www.jetbrains.com/help/dotmemory/Profiling_Guidelines__Advanced_Profiling_Using_dotTrace_API.html)
+
+## Проверенные границы host
+
+Зависимости среза — MiniProfiler 4.3.8 и JetBrains.Profiler.SelfApi 2.2.0.
+XML-контракты подтверждают: `Step` измеряет до освобождения, `Ignore` ограничен
+блоком, `SaveData` сохраняет и останавливает сбор, архив включает index-файлы.
+`EnsurePrerequisiteAsync` может скачивать инструменты, а не только проверять их наличие.
+
+Desktop-сервис `PoeShared.Profiler.IProfilerService` предоставляет задачи
+`StartProfiling()`, `StopCollecting()` и `TakeMemorySnapshot()`. Остановка
+сохраняет данные, архивирует и отключает profiler. Маршруты Web-контроллера —
+`/profiler`, `/profiler/startProfiling`, `/profiler/stopProfiling` и
+`/profiler/takeSnapshot`. Они профилируют **процесс Web**, а не произвольный
+экземпляр desktop. Командные маршруты требуют роль Admin. Доступность зависит
+от развёрнутого Web-host и компонентов profiler.
+
+[Desktop-реализация](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Wpf/Profiler/PerformanceProfiler.cs) · [Web-контроллер](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Web/Controllers/ProfilerController.cs).

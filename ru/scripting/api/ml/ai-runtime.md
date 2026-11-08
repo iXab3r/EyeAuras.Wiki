@@ -240,7 +240,7 @@ approval policy — границы описаны в [инструментах A
 - Предпочитайте `AiChatViewModel` + `AiChatComponent` для переиспользуемого Blazor chat UI.
 - Предпочитайте `ICodexChatController` + `CodexChatOptions` для переиспользуемых поверхностей Codex lifecycle/thread/workspace.
 - Предпочитайте `CodexThreadListItem` и `CodexWorkspaceAttachment` вместо дублирования app-specific DTO для тредов и workspace.
-- Предпочитайте `IEyeAurasAiGuidanceService` для сценариев export/copy guidance-pack вместо ручного копирования docs или правки пользовательского `AGENTS.md` в проекте.
+- Предпочитайте `IEyeAurasAiGuidanceService` для сценариев export/copy guidance-pack вместо ручного копирования docs или правки пользовательского [AGENTS.md](/ru/scripting/api/AGENTS) в проекте.
 - Предпочитайте `AiFunctionInvocationPolicy` для рискованных инструментов.
 - Предпочитайте события `IAiEventSink` для UI/telemetry вместо парсинга логов.
 
@@ -325,8 +325,23 @@ approval policy — границы описаны в [инструментах A
 
 ## Связанные карты
 
-- `ml/ai.md`
-- `ml/ai-kernel-plugins.md`
-- `scripting/runtime.md`
-- `windows-subsystems/blazor-windows.md`
-- `recipes/script-ai-editor-assistant.md`
+- [ml/ai.md](/ru/scripting/api/ml/ai)
+- [ml/ai-kernel-plugins.md](/ru/scripting/api/ml/ai-kernel-plugins)
+- [scripting/runtime.md](/ru/scripting/api/scripting/runtime)
+- [windows-subsystems/blazor-windows.md](/ru/scripting/api/windows-subsystems/blazor-windows)
+- [recipes/script-ai-editor-assistant.md](/ru/scripting/api/recipes/script-ai-editor-assistant)
+См. [поиск документации и версию снимка](/ru/scripting/api/ml/documentation-retrieval): чтение контракта, метаданные, ссылки и обновление базы.
+
+## Границы жизненного цикла
+
+В срезе `c8b2304` `CodexChatController.StartAsync` перехватывает ошибку запуска и выставляет `StartSessionError`; завершение Task само по себе не означает готовность. Проверьте `IsStarted` и состояние ошибки. `StopAsync` очищает свои workspaces и останавливает manager; освобождение controller очищает workspaces, но не заменяет явную остановку manager. `SessionRemoving` вызывается до удаления сессии из engine: здесь освобождают UI-адаптеры. Перед запросом `PrepareActiveSessionForRequestAsync` готовит вложения, вызывает host callback и обновляет options; у выбранного файла writable root — родительский каталог, а не один файл.
+
+MCP фиксирует каталог инструментов и инструкции при старте. Для изменения набора остановите host, измените регистрации и запустите заново. `StopAsync` останавливает и освобождает web app; `Dispose` вызывает этот маршрут синхронно. Сам host не владеет реестром сессий engine. MCP-инструкции не заменяют проверку разрешений инструмента.
+
+`RefreshAsync()` guidance по умолчанию пересобирает pack без принудительного обновления Git. Задайте `RefreshDocsRepository=true`, чтобы запросить обновление; export/copy без явного контекста делают это сами. Перегрузки с контекстом используют выбранный снимок. `ResolveExistingContextAsync` разрешает пути существующего состояния, но не доказывает актуальность контента на сервере.
+
+Core speech service сообщает `IsAvailable=false` и возвращает неуспешный результат. Desktop-адаптер сообщает `true` по факту наличия реализации, создаёт временную speech-сессию на вызов, задаёт профиль, ожидает распознавание и освобождает сессию. Это не проверка микрофона, ключа или доступности провайдера. Владение чат-компонентом, view model и session handle разобрано в [рецепте UI](/ru/scripting/api/recipes/script-ai-editor-assistant).
+
+Предварительное retrieval зависит от backend: Responses его намеренно пропускает. См. [композицию и политику инструментов](ai-kernel-plugins) и [обновление базы документации](documentation-retrieval).
+
+[Source contracts](https://github.com/iXab3r/EyeAuras/tree/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.AI)

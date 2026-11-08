@@ -3,7 +3,7 @@ title: 7. Customizing toggles
 description:
 published: true
 date: 2025-08-17T09:21:21.000Z
-tags:
+tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T15:23:20.489Z
 ---
@@ -15,8 +15,21 @@ Let's customize our group of toggles and add some color.
 
 ![Demo](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_BY6C30fWpS.gif)
 
+## Prepare the overlay and target auras
+
+Create a **C# Overlay v3** aura and `TargetAura 1`, `TargetAura 2`, `TargetAura 3`, `TargetAura 4` in the same folder. Add `HotkeyIsActive` in toggle mode to each target and keep them loaded. The shown `./TargetAura` paths resolve relative to the overlay context; adjust them to your actual tree. If several triggers match, the first is selected.
+
+Replace `UserOverlay.cs` and `UserOverlay.razor` with the corresponding complete blocks below. They are parts of one `public partial` class in the same namespace. `[Inject]` supplies `AuraTree`; Script.csx globals are not component globals.
+
 ## UserOverlay.cs
 ```csharp
+using System;
+using System.Reactive.Linq;
+using Microsoft.AspNetCore.Components;
+using PoeShared.Blazor;
+using EyeAuras.Scripting.Api;
+using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
+
 public partial class UserOverlay : BlazorReactiveComponent {
 
     [Inject]
@@ -56,6 +69,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ## UserOverlay.razor
 ```html
+@using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
@@ -100,7 +114,7 @@ public partial class UserOverlay : BlazorReactiveComponent {
 
 ---
 
-# Breakdown
+## Breakdown
 ## UserOverlay.cs
 Nothing special—just several properties accessing triggers.
 
@@ -156,3 +170,5 @@ Second variant—the most common. Typically you'll update the *content* of a com
     </span>
 ```
 Here we use conditions to render an additional button dynamically. It appears only when `Trigger 3` is active. You could build a whole hierarchy of settings like this. But remember that a "jumping" interface is bad UX—avoid it when possible.
+
+The button writes `TriggerValue`, and the hotkey changes the same trigger. The `ChangeTrackers` timer rereads it about once per second, so external changes appear with a delay. Add the timer before `base.OnInitialized()`, which seals the tracker list and owns the subscriptions through component `Anchors`. Hiding a window is not the same as disposing its component.

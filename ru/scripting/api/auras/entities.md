@@ -59,7 +59,7 @@ dateCreated: 2026-04-21T00:00:00.000Z
   - Проверяет и преобразует child ids согласно стратегии контейнера.
 
 - `IAuraListStateEvaluator`
-  - Владеет evaluators для связанных аур, папок и элементов и объединяет их состояние.
+  - Хранит evaluators для связанных аур, папок и элементов и объединяет их состояние.
 
 - `IAuraListEvaluator`, `IAuraListEvaluatorForAura`, `IAuraListEvaluatorForFolder`
   - Представляют цели в дереве связанных аур.
@@ -120,9 +120,28 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 ## Связанные карты
 
-- `auras/actions.md`
-- `auras/triggers.md`
-- `auras/overlays.md`
-- `auras/overview.md`
-- `core/configuration-persistence.md`
-- `core/app-modules.md`
+- [auras/actions.md](/ru/scripting/api/auras/actions)
+- [auras/triggers.md](/ru/scripting/api/auras/triggers)
+- [auras/overlays.md](/ru/scripting/api/auras/overlays)
+- [auras/overview.md](/ru/scripting/api/auras/overview)
+- [core/configuration-persistence.md](/ru/scripting/api/core/configuration-persistence)
+- [core/app-modules.md](/ru/scripting/api/core/app-modules)
+
+## Identity дочерних объектов и связанные условия
+
+При `IndependentChildren` существующий непустой ID сохраняется. При
+`LinkedToContainer` родителю нужен ID; пустой ID ребёнка, отсутствие префикса
+родителя или совпадение с живым дочерним объектом без proxy приводят к генерации
+нового ID. Proxy и уже освобождённый дочерний объект допускают повторное
+использование ID. Создание дочернего объекта может изменить переданные properties;
+защитная копия не гарантируется.
+
+Результат связанных условий — `bool?`. Без элементов он равен `true`, а при
+`IsRequired` — `null`. Режим `All` возвращает `null`, если хотя бы один элемент
+неизвестен; иначе нужны все `true`. В режиме `Any` достаточно одного `true`, иначе
+результат `false`, в том числе когда все элементы неизвестны. Добавление того же
+ID заменяет запись. `Remove` и `Clear` меняют состав списка; не считайте их
+гарантированным завершением освобождения переданных evaluator-объектов.
+
+[EyeEntityFactory](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Core/Models/EyeEntityFactory.cs),
+[AuraListStateEvaluator](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/AuraListEvaluator/AuraListStateEvaluator.cs).

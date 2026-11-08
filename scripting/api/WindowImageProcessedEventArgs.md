@@ -3,13 +3,65 @@ title: WindowImageProcessedEventArgs
 description: Represents the event arguments for an image processing trigger, containing the results and transformations required to map detected objects from local to screen coordinates.
 published: true
 date: 2026-04-21T00:00:00.000Z
-tags: image processing, event arguments, coordinates transformation
+tags: image processing, event arguments, coordinates transformation, ai-translated
 editor: markdown
 dateCreated: 2024-04-22T09:26:21.746Z
 ---
 
 > AI-first navigation: see [AI Computer Vision / Images](./computer-vision/images) for image-processing events, capture surfaces, and related OpenCV-style workflows.
 {.is-info}
+
+# Convert a detection result to screen coordinates
+
+`WindowImageProcessedEventArgs<TDetectionResult>` keeps detections with transforms
+from the same capture. At EyeAuras `20fd3d4`, use that result's conversion rather
+than manually adding a window corner.
+
+## Get the screen position of a detected pixel
+
+Run this in a top-level C# script with the application's OpenCV module available.
+It captures the primary screen and logs a point without clicking:
+
+```csharp
+using System.Drawing;
+using EyeAuras.OpenCVAuras.Scripting;
+
+{
+    var api = GetService<IComputerVisionExperimentalScriptingApi>();
+    using var cv = api.ForScreen();
+    var processed = cv.PixelSearchRaw(Color.Red);
+    if (processed.Detected.Bounds is { } localBounds)
+    {
+        var screenBounds = processed.ToScreen(localBounds);
+        var screenPoint = processed.ToScreenPoint(localBounds);
+        Log.Info($"Bounds: {screenBounds}, center: {screenPoint}");
+    }
+    else
+    {
+        Log.Info("No match");
+    }
+}
+```
+
+`ToScreen` applies `WorldToScreen`, accounting for image transforms, ROI offset and
+window position. `ToScreenPoint` selects the transformed rectangle's center by
+default; pass another `RegionAnchorType` explicitly. Do not apply this conversion
+to already converted simple `ImageSearch` or `PixelSearch` results.
+
+`Detected` is the detection result. `Captured` is shared mutable capture state,
+not your snapshot: another trigger or script can update it. Do not dispose its
+images or hand them to a worker as stable data. Use
+`ProcessPixels(image => image.Clone())` and dispose your clone; see the
+[ownership example](IComputerVisionExperimentalScriptingApi). Dispose your own Rx
+subscription when consuming `WhenImageProcessed`; an event object does not own
+its source's lifetime.
+
+## Reference snapshot
+
+`WinRectangle`, `WinPoint` and their `F` variants below alias `System.Drawing`
+types; `SharpRectangle` means `SharpDX.Rectangle`. Check current SDK/XML for your
+version. Individual matrix field names do not establish transform direction;
+use the result conversion methods. DPI/capture behavior depends on the target environment.
 
 ```csharp
 /// <summary>

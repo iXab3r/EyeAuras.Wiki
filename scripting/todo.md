@@ -3,35 +3,39 @@ title: What Articles Are Needed?
 description: Overview of various scripting articles required for a guide, including script descriptions, syntax, working with auras, accessing internal services, and APIs for input and on-screen canvas scripting.
 published: false
 date: 2024-02-20T22:29:52.393Z
-tags: scripting, programming, guides, syntax, auras, APIs, services, multithreading
+tags: ai-translated, scripting, programming, guides, syntax, auras, APIs, services, multithreading
 editor: markdown
 dateCreated: 2024-02-18T22:39:16.329Z
 ---
 
-# General Topics
+# Requested articles
+
+This is an editorial list of topics and requests, not a supported-feature inventory. Crossed-out entries mark articles that have appeared; they do not mean every proposed scenario is implemented. For current operations, start with [getting started](/en/scripting/getting-started) and the [API map](/en/scripting/api/AGENTS).
+
+## General topics
 All scripts are placed in the Guides/example_name/ folder...
 Ideally, a significant part of each script should also be attached directly to the guide for indexing and searching purposes.
 
-## ~~[Script Descriptions v3](/ru/scripting/getting-started)~~
+## ~~[Script Descriptions v3](/en/scripting/getting-started)~~
 How they are structured, what is supported, etc. Technical details.
 Need to mention v2 * briefly.
 
 ---
 
-## ~~[Hello, World!](/ru/scripting/examples/basic/hello-world)~~
+## ~~[Hello, World!](/en/scripting/examples/basic/hello-world)~~
 It wouldn't be complete without it, just print one line in the **Event Log**.
 
 ---
 
 ## Brief Overview of C# Syntax and How It Relates to the Program (Sandbox)
-https://wiki.eyeauras.net/ru/scripting/sandbox
+https://wiki.eyeauras.net/en/scripting/sandbox
 
 Loops, conditions, a super-compressed chatbot guide on the language.
 
 ---
 
 ## ~~Saving State Between Script Runs - Global Variables~~
-https://wiki.eyeauras.net/ru/scripting/examples/basic/variables
+https://wiki.eyeauras.net/en/scripting/examples/basic/variables
 
 Most scripts need to store intermediate data somewhere.
 Need to describe what:
@@ -44,9 +48,9 @@ Also, a human-readable overview here: https://docs.eyeauras.net/api/EyeAuras.Scr
 ---
 
 ## ~~Working with Auras - How to Find and Interact with Them~~
-https://wiki.eyeauras.net/ru/scripting/examples/basic/find-aura
-https://wiki.eyeauras.net/ru/scripting/api/IAuraAccessor
-https://wiki.eyeauras.net/ru/scripting/api/IAuraTreeScriptingApi
+https://wiki.eyeauras.net/en/scripting/examples/basic/find-aura
+https://wiki.eyeauras.net/en/scripting/api/IAuraAccessor
+https://wiki.eyeauras.net/en/scripting/api/IAuraTreeScriptingApi
 
 To access triggers and actions, you first need to find the auras they are in.
 Overview of the AuraTree service, its methods, etc. Also, describe how to read some trigger properties (state, etc.) here.

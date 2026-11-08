@@ -58,8 +58,17 @@ dateCreated: 2026-04-21T00:00:00.000Z
 плагины workspace → чат UI». Это схемы интеграции, а не готовые программы:
 первой нужны модель и захват, второй — живой редактор, профиль и сервисы хоста.
 Законченные минимальные операции находятся на страницах соответствующих API.
-Контракты здесь относятся к EyeAuras `20fd3d4`; внешние пакеты и провайдеры
+Контракты здесь относятся к EyeAuras `c8b2304`; внешние пакеты и провайдеры
 имеют отдельные ограничения.
+
+Встроенный загрузчик создаёт сессию ONNX Runtime, читает форму входа `images`
+и метаданные модели, выбирает разборщик выходных тензоров. Кадр растягивается
+до входного размера модели; разборщик переводит прямоугольники обратно в
+координаты обработанного изображения. Затем
+`result.ToScreen(prediction.Rectangle)` переводит их в экранные координаты.
+Не применяйте масштаб повторно. Формы тензоров, метаданные, разборщик и
+установленный execution provider должны соответствовать модели.
+Для классификации используйте `Classifications`: прямоугольников может не быть.
 
 ## Детали API
 
@@ -78,10 +87,10 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 - Сначала выбирайте детерминированный CV, если задача со стабильным template/color/OCR.
 - Выбирайте ML, если ключевую роль играет класс объекта или изменчивый внешний вид.
-- Для prediction boxes используйте `osd/screen-overlay.md`.
-- Для интеграции chat/session/profile/UI используйте `ml/ai-runtime.md`.
-- Если нужно добавить tools, которые сможет вызывать AI model, используйте `ml/ai-kernel-plugins.md`.
-- Для прямых вызовов внешних provider NuGet из скриптов используйте `ml/script-ai-clients.md`.
+- Для prediction boxes используйте [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay).
+- Для интеграции chat/session/profile/UI используйте [ml/ai-runtime.md](/ru/scripting/api/ml/ai-runtime).
+- Если нужно добавить tools, которые сможет вызывать AI model, используйте [ml/ai-kernel-plugins.md](/ru/scripting/api/ml/ai-kernel-plugins).
+- Для прямых вызовов внешних provider NuGet из скриптов используйте [ml/script-ai-clients.md](/ru/scripting/api/ml/script-ai-clients).
 - Если вопрос скорее про архитектуру, чем про один конкретный API, лучше искать готовый recipe.
 
 ## Чего избегать
@@ -125,10 +134,10 @@ dateCreated: 2026-04-21T00:00:00.000Z
 
 ## Связанные карты
 
-- `ml/ai-runtime.md`
-- `ml/ai-kernel-plugins.md`
-- `ml/script-ai-clients.md`
-- `computer-vision/images.md`
-- `osd/screen-overlay.md`
-- `auras/triggers.md`
-- `recipes/script-ai-editor-assistant.md`
+- [ml/ai-runtime.md](/ru/scripting/api/ml/ai-runtime)
+- [ml/ai-kernel-plugins.md](/ru/scripting/api/ml/ai-kernel-plugins)
+- [ml/script-ai-clients.md](/ru/scripting/api/ml/script-ai-clients)
+- [computer-vision/images.md](/ru/scripting/api/computer-vision/images)
+- [osd/screen-overlay.md](/ru/scripting/api/osd/screen-overlay)
+- [auras/triggers.md](/ru/scripting/api/auras/triggers)
+- [recipes/script-ai-editor-assistant.md](/ru/scripting/api/recipes/script-ai-editor-assistant)

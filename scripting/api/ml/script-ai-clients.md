@@ -3,16 +3,14 @@ title: AI ML: Script AI Clients
 description: AI-first map for choosing the built-in EyeAuras AI SDK/runtime first and using direct provider SDKs only when intentionally bypassing it.
 published: true
 date: 2026-04-22T00:00:00.000Z
-tags: scripting, api, ai, ml, openai
+tags: scripting, api, ai, ml, openai, ai-translated
 editor: markdown
 dateCreated: 2026-04-22T00:00:00.000Z
 ---
 # Script AI Clients Discovery Map
 
 Reference map for script mini-apps that need AI chat, vision, tool-calling, or
-agent workflows. Start with the built-in `EyeAuras.AISdk` / `EyeAuras.AI`
-runtime, then use direct provider NuGet clients only for explicit escape-hatch
-cases.
+agent workflows. Start with the built-in `EyeAuras.AI` runtime and add `EyeAuras.AI.Desktop` for desktop integration. Direct provider clients are an explicit alternative when you need to own the request pipeline.
 
 ## User Intents
 
@@ -27,8 +25,7 @@ cases.
 
 ## Concept Model
 
-- `EyeAuras.AISdk` packages the built-in EyeAuras AI surface for script/project
-  use. It brings in the `EyeAuras.AI` runtime and desktop AI helpers.
+- `EyeAuras.AI` is the non-desktop runtime project; `EyeAuras.AI.Desktop` adds Windows integration. `EyeAuras.AISdk` references both as a compatibility aggregate. Project names do not establish published NuGet availability.
 - Built-in EyeAuras AI runtime is the app subsystem for chat sessions, profiles,
   retrieval, Semantic Kernel plugins, tool approval, MCP/Codex surfaces, and
   reusable chat UI.
@@ -46,9 +43,36 @@ cases.
 - Captured screen/window images usually come from CV/image APIs before being
   attached to an AI session or converted to provider-specific image input.
 
+## Invoke a built-in tool locally
+
+This top-level EyeAuras script assumes compatible `EyeAuras.AI` and Semantic Kernel references have already been prepared. The host supplies `Log` and `cancellationToken`:
+
+```csharp
+using EyeAuras.AI;
+using EyeAuras.AI.PluginHost;
+using Microsoft.SemanticKernel;
+
+var host = new AiPluginHost();
+host.AddOrUpdatePlugin("hello", new AiHelloWorldPlugin());
+try
+{
+    var result = await host.InvokeToolAsync(
+        "hello", "echo_with_time",
+        new KernelArguments { ["request"] = "Hello" },
+        cancellationToken: cancellationToken);
+    Log.Info(result.Succeeded ? $"Response: {result.Value}" : result.Error);
+}
+finally
+{
+    host.RemovePlugin("hello");
+}
+```
+
+The log receives the echoed text and host time. No provider key is needed; this is not a model conversation and does not apply session approval policy. For a real assistant, follow the [session creation operation](ai-runtime), including `AddAiCoreServices`, configuration, engine injection and engine-owned disposal. Editor factories/configurators come from the editor context, not arbitrary script globals.
+
 ## Common Flow: Built-in AI SDK
 
-1. Reference or depend on `EyeAuras.AISdk` for script/project AI integrations.
+1. Prepare compatible host/project references to `EyeAuras.AI` and the desktop layer when required; verify the actual assemblies and dependencies.
 2. Resolve AI services through the script/project host surface, usually
    `AiEngine`, `IAiProfileRepository`, session configurators, or UI factories.
 3. Create an `IAiSession` / `IAiChatSession` through `AiEngine`.
@@ -141,8 +165,14 @@ cases.
 
 ## Related Maps
 
-- `ml/ai.md`
-- `ml/ai-runtime.md`
-- `ml/ai-kernel-plugins.md`
-- `computer-vision/images.md`
-- `scripting/references-and-resources.md`
+- [ml/ai.md](/en/scripting/api/ml/ai)
+- [ml/ai-runtime.md](/en/scripting/api/ml/ai-runtime)
+- [ml/ai-kernel-plugins.md](/en/scripting/api/ml/ai-kernel-plugins)
+- [computer-vision/images.md](/en/scripting/api/computer-vision/images)
+- [scripting/references-and-resources.md](/en/scripting/api/scripting/references-and-resources)
+
+## Assemblies and direct provider clients
+
+At source revision `c8b2304`, `EyeAuras.AI` targets `net8.0` and `EyeAuras.AI.Desktop` targets Windows; both set `IsPackable=false`. `EyeAuras.AISdk` references both projects. Do not assume every project name is downloadable through `#r nuget`; match actual assemblies to your installed host and exported project.
+
+The [historical vision example](/en/scripting/examples/basic/gpt/ocr) separately pins OpenAI 2.1.0 and Emgu.CV 4.9.0.5494, JPEG format and image ownership. Its package signatures were inspected; it does not claim a successful provider request. Its historical model is not a recommendation for a new project.

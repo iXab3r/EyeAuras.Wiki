@@ -31,6 +31,28 @@ Especially useful reverse engineering references:
 - [External Memory Hack](https://gamehacking.academy/pages/3/02/)
 - [Code Caves & DLL's](https://gamehacking.academy/pages/3/04/)
 
+## Read a structure at a known address
+
+An ordinary C# helper receives an open `IProcess` and the absolute address of the exact target layout. For `PlayerData` defined below:
+
+```csharp
+static PlayerData ReadPlayer(EyeAuras.Memory.IProcess process, long address)
+{
+    return process.Memory.Read<PlayerData>(address);
+}
+```
+
+The returned fields are a snapshot, not a live memory binding. `PlayerData` contains no managed references and satisfies `where T : unmanaged`. A failed read throws; the method takes no cancellation token. For the inline string in `NameEntry`, use the marshalling route:
+
+```csharp
+static NameEntry ReadName(EyeAuras.Memory.IProcess process, long address)
+{
+    return process.Memory.ReadManaged<NameEntry>(address);
+}
+```
+
+At EyeAuras `20fd3d4`, this requires `where T : struct`, reads `Marshal.SizeOf<T>()` bytes and uses `Marshal.PtrToStructure<T>`. `TryReadManaged` accepts `Span<T>`; create `new NameEntry[count]`, not `stackalloc`, because the structure contains a managed string. In `Read<T>(address, size)`, `size` counts elements, not bytes. The helper borrows the process and does not dispose it.
+
 ## The most important rule
 
 The Memory API can read structs in two different ways:
@@ -43,9 +65,9 @@ In most cases, the simpler path is the better one:
 - if the struct is plain and has no “complex” fields, do not overcomplicate it and read it as a simple struct
 - if the layout depends on `MarshalAs`, strings, or fixed managed arrays, use `ReadManaged<T>(...)`
 
-## `Sequential` and `Explicit`
+## Sequential and Explicit
 
-### `LayoutKind.Sequential`
+### LayoutKind.Sequential
 
 Use this when the fields really are laid out one after another in the same order as in the native type.
 
@@ -67,7 +89,7 @@ This is a good choice when:
 - the offsets line up automatically without surprises
 - there are no special gaps or overlapping fields
 
-### `LayoutKind.Explicit`
+### LayoutKind.Explicit
 
 Use this when the offsets are already known and you want to define them manually.
 
@@ -85,7 +107,7 @@ public struct PlayerData
 
 This style is usually the most convenient in reverse engineering, because you can copy offsets directly from an SDK, REClass, Cheat Engine, or disassembly into C#.
 
-## `Pack` and alignment
+## Pack and alignment
 
 Even if the fields are “in order”, the final layout can still break because of alignment.
 
@@ -123,8 +145,8 @@ If you are describing a 64-bit game, do not store pointers in `int`.
 [StructLayout(LayoutKind.Sequential)]
 public struct ActorNode64
 {
-    public nuint Next;
-    public nuint Prev;
+    public ulong Next;
+    public ulong Prev;
     public int Id;
 }
 ```
@@ -145,7 +167,7 @@ public struct ActorNode32
 
 There are three main options here.
 
-### `fixed`
+### fixed
 
 The most direct `unmanaged` option:
 
@@ -160,7 +182,7 @@ public unsafe struct FixedArrayStruct
 
 This is fast and works well with `Read<T>(...)`, but it requires `unsafe`.
 
-### `InlineArray`
+### InlineArray
 
 A modern and clean option for inline arrays:
 
@@ -184,7 +206,7 @@ public struct InlineArrayStruct
 
 This also works well with the fast reading path.
 
-### `[MarshalAs(UnmanagedType.ByValArray)]`
+### [MarshalAs(UnmanagedType.ByValArray)]
 
 Use this when you need a more flexible route:
 
@@ -231,7 +253,7 @@ Important:
 
 - `ByValTStr` depends on the struct’s `CharSet`
 - with `Unicode`, it will use a UTF-16 representation
-- with `Ansi`, it will use a single-byte string
+- `Ansi` uses the system ANSI code page on Windows and UTF-8 on Unix; the marshalling platform, not the target process, determines that encoding
 - this kind of struct should not be read via `Read<T>(...)`
 
 ## Offsets and helper methods
@@ -322,3 +344,10 @@ If you have the original native header:
 - [Memory API - Getting started](/scripting/memory-api/getting-started)
 - [PE basics](/scripting/memory-api/pe-basics)
 - [Code Cave](/scripting/memory-api/code-caves)
+## Check layout before reading
+
+`Pack` caps alignment rather than setting every field's size. Zero means the platform default, not no padding. Compare size and offsets with the target ABI. `nint`/`nuint` follow the host width; `ActorNode64` therefore uses `ulong`, while the 32-bit example uses `uint`.
+
+`InlineArray` needs a compatible runtime/compiler (.NET 8 / C# 12 or newer for this syntax) and a single instance field. The shown `float` element contains no managed references; the attribute does not make an arbitrary reference-containing type unmanaged. `Read<T>` reads the managed representation of an unmanaged structure. Marshalling attributes apply through the `ReadManaged<T>` route.
+
+Official contracts: [Pack](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.structlayoutattribute.pack?view=net-8.0), [InlineArray](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.inlinearrayattribute?view=net-8.0), [CharSet](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/charset). These rules do not discover an unknown external program's layout.
