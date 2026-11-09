@@ -19,7 +19,7 @@ dateCreated: 2025-09-21T11:29:06.078Z
 | Задача | Подходящий источник |
 |---|---|
 | Первый запуск и контекст | [Начало работы](/ru/scripting/getting-started), [окружение скрипта](/ru/scripting/sandbox), [пакеты NuGet](/ru/scripting/nuget). |
-| Найти область API EyeAuras | [Карты API](/ru/scripting/api/AGENTS) ведут к операциям и исходным типам; точный контракт сверяйте со справочником и SDK своей версии. Карта не является перечнем всего, зарегистрированного в вашем хосте. |
+| Найти область API EyeAuras | [Карты API](/ru/scripting/api/core/eyeauras-structure) ведут к операциям и исходным типам; точный контракт сверяйте со справочником и SDK своей версии. Карта не является перечнем всего, зарегистрированного в вашем хосте. |
 | Повторить практический опыт | [Hello, World!](/ru/scripting/examples/basic/hello-world), [переменные](/ru/scripting/examples/basic/variables), [поиск изображения](/ru/scripting/examples/basic/image-search). |
 | Создать интерфейс | Сначала [Blazor в EyeAuras](/ru/scripting/blazor-windows/getting-started), затем внешние материалы ниже. Обычный пример ASP.NET не задаёт автоматически настольное окно EyeAuras. |
 | Задать вопрос с исходными данными | [Контакты сообщества](/ru/contacts): приложите сборку, короткий пример и ожидаемый результат без секретов. |
