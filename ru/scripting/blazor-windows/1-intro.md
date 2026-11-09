@@ -7,82 +7,60 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T13:31:15.490Z
 ---
-# Интерфейс на C# в EyeAuras
+# Своя панель в EyeAuras
 
-[Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) — это мощный инструмент для создания удобных и красивых интерфейсов на C#. Изначально он предназначался для веб-разработки, но мы будем использовать его для интерфейсов в наших скриптах: панелей настроек, оверлеев и всплывающих окон. Всё это можно делать через доступный вам API.
+Панель с кнопками, счётчиком или настройками можно написать на C# и показать поверх своего рабочего окна. Для первого знакомства достаточно добавить **C# Overlay**: он уже содержит интерактивный счётчик. Отдельный веб-сайт для него не нужен.
 
-## Примеры из этой серии
+[Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) связывает разметку интерфейса с обработчиками C#. В EyeAuras компонент отображается внутри окна приложения. [Razor](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-8.0) позволяет писать разметку и обращения к C# рядом.
 
-Все примеры можно скачать [здесь](https://tinyurl.com/msfhaupc). Рекомендую скачать весь набор целиком, а не пытаться импортировать его в текущую версию.
+| Часть | За что отвечает |
+| --- | --- |
+| [HTML](https://www.w3schools.com/html/) | Текст, кнопки и расположение элементов в разметке. |
+| [CSS](https://www.w3schools.com/html/html_css.asp) | Цвет, размеры, отступы и оформление. |
+| Razor, файл `.razor` | Связывает разметку с данными и событиями компонента. |
+| C#, файл `.cs` | Хранит состояние компонента и выполняет обработчики. Его можно оставить и в блоке `@code` внутри Razor. |
+| `Script.csx` | Точка входа скрипта; это отдельный контекст, а не сам Razor-компонент. |
 
-## Создаём первый оверлей
+## Открыть готовый счётчик
 
-Это очень просто:
+1. Создайте собственную тестовую ауру через **Add new → New Aura**.
 
-- Создайте новую ауру
-![New aura](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_KBChU81nd6.png)
+![Создание ауры](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_KBChU81nd6.png)
 
-- Добавьте `C# Overlay v3`
-![New Overlay](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_xVFX70YeoA.png)
+2. В разделе **Overlays** добавьте **C# Overlay**. На старом снимке он называется `C# Overlay (v3, alpha)`.
 
-- Готово
+![Добавление C# Overlay в прежнем редакторе](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_xVFX70YeoA.png)
 
-На этом этапе у вас уже есть полностью рабочий интерактивный UI.
+3. Оставьте сгенерированные файлы без изменений. Для постоянной видимости добавьте в эту ауру **Fixed Value** со значением **Is Active** и оставьте ауру загруженной.
 
-![v3](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_UVQrNGj5te.png)
+![Редактор и стандартный счётчик](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_UVQrNGj5te.png)
 
-Если нажать кнопку `Click Me`, счётчик в программе начнёт обновляться!
+4. Нажмите **Click Me** в появившемся окне. Число на панели увеличивается после каждого нажатия.
 
-![clickme](https://s3.eyeauras.net/media/2025/05/ltZnDlxcvJ.gif)
+![Нажатия меняют счётчик](https://s3.eyeauras.net/media/2025/05/ltZnDlxcvJ.gif)
 
-## Почему именно Blazor?
+Это состояние экземпляра компонента. При его пересоздании счётчик начнётся с нуля; простое скрытие окна не обязательно пересоздаёт компонент.
 
-[Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) отлично подходит для создания интерфейсов, потому что объединяет гибкость и производительность C# с огромными возможностями HTML/CSS и JavaScript. За последние два десятилетия ни в один стек не вкладывали столько ресурсов крупнейшие компании мира. В результате у нас есть инструмент, который позволяет отрисовать практически всё, что можно представить. Загляните на https://codepen.io/ — там много вдохновляющих примеров того, на что способна эта «великолепная троица».
+## Куда двигаться дальше
 
-Теперь, когда мы разобрались с сильными сторонами HTML/CSS/JS, давайте поймём, какую роль во всём этом играют C#/Blazor. Коротко: Blazor позволяет генерировать HTML и связывает мир веб-разработки с C#. Наше приложение делится на две части: [Razor](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-8.0) и C# backend. Razor отвечает за отрисовку данных, а C# — за их подготовку.
+| Задача | Следующий шаг |
+| --- | --- |
+| Выбрать обычное окно или оверлей, настроить видимость и ввод | [Устройство окна и WebView2](/ru/scripting/blazor-windows/2-webview). |
+| Изменить текст, кнопку и обработчик | [Файлы первого компонента](/ru/scripting/blazor-windows/3-hello-world). Там есть полный пример и вариант с `@code`. |
+| Переключать свою ауру кнопкой | [Один переключатель](/ru/scripting/blazor-windows/4-toggle-hotkeyisactive). |
+| Создать диалог из действия C# Script и передать ему данные | [Окно из скрипта](/ru/scripting/blazor-windows/getting-started). |
 
-EyeAuras — а значит, и ваши скрипты — работает на стыке этих двух технологий. Давайте разберём основные части, с которыми вам предстоит работать.
+Так выглядит тот же принцип у простого компонента без оформления стандартного шаблона:
 
-## [HTML](https://www.w3schools.com/html/)
+![Простой счётчик на Razor](https://s3.eyeauras.net/media/2024/11/msedge_Wvy12LEOv1bGyAOA.gif)
 
-Это язык разметки, на котором построен весь Интернет. Он определяет, где на странице будут располагаться текст, кнопки, таблицы и другие элементы. С помощью HTML вы задаёте структуру страницы, которую затем оформляете через...
+<details>
+<summary>Учебный пакет и дополнительные материалы</summary>
 
-## [CSS](https://www.w3schools.com/html/html_css.asp)
+[Скачать примеры](https://tinyurl.com/msfhaupc) можно как отдельный учебный набор. [Tutorial — Blazor Windows, revision 3](https://eyeauras.net/share/S20250511162645vYh4n3mqSLm0/3) относится к EyeAuras **1.7.8354.0**; его файлы и снимки показывают прежний редактор. Для первого опыта в текущем редакторе удобнее начать с нового C# Overlay, как выше.
 
-**C**ascading **S**tyle **S**heets отвечают за внешний вид кнопок, текста и всех остальных элементов. Через CSS настраиваются цвета, прозрачность, анимации и множество других деталей.
+На [CodePen](https://codepen.io/) есть примеры оформления HTML/CSS. Их разметку и стили нужно адаптировать к своему компоненту; пример для браузера сам по себе не создаёт окно EyeAuras.
 
-## [Razor](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-8.0)
+[Генератор RazorComponentTemplate](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.Blazor.Shared/CodeEditor/Templates/RazorComponentTemplate.cs) создаёт две части компонента с общим namespace. При редактировании имена и namespace должны оставаться согласованными.
 
-Razor — это язык разметки от Microsoft, который позволяет смешивать HTML, CSS и C# в одном файле.
-
-В созданном C# Overlay v3 откройте `UserOverlay.razor` и замените его содержимое примером ниже. Для этого варианта весь код находится в Razor; удалите прежние поля и методы счётчика из `UserOverlay.cs`, если они совпадают по именам. Давайте разберём компонент по частям. В нём будет текст и кнопка, которая увеличивает счётчик при нажатии.
-
-```razor
-@using Microsoft.AspNetCore.Components.Web
-@using PoeShared.Blazor
-@inherits BlazorReactiveComponent
-
-<h1>Counter</h1>
-
-<p>Current count: @currentCount</p>
-
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
-
-@code {
-    private int currentCount = 0;
-
-    private void IncrementCount() => currentCount++;
-}
-```
-
-![Counter](https://s3.eyeauras.net/media/2024/11/msedge_Wvy12LEOv1bGyAOA.gif)
-
-В этом небольшом фрагменте кода HTML и C# работают вместе и дополняют друг друга. C# определяет, что произойдёт при нажатии на кнопку, а HTML/CSS отвечают за то, как всё выглядит.
-
-После клика Blazor вызывает обработчик и обновляет число. Это состояние экземпляра компонента; после его пересоздания счётчик начнётся с нуля. Продолжить можно с [устройства оверлея](/ru/scripting/blazor-windows/2-webview), затем [разделения Razor и C#](/ru/scripting/blazor-windows/3-hello-world).
-
-Ссылка на учебный пакет ведёт на [Tutorial — Blazor Windows, revision 3](https://eyeauras.net/share/S20250511162645vYh4n3mqSLm0/3), созданный для EyeAuras **1.7.8354.0**. Это исторический набор; страница загрузки сама по себе не подтверждает совместимость файлов с текущим редактором.
-
-Текущий генератор создаёт `UserOverlay.razor` с `@namespace` и `UserOverlay.cs` с тем же `namespace`. Сохраняйте эти строки при замене тела примера: имя класса и namespace обеих частей должны совпадать. Название сущности в текущем коде — `C# Overlay`; старые скриншоты используют суффикс v3.
-
-[RazorComponentTemplate](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Blazor.Shared/CodeEditor/Templates/RazorComponentTemplate.cs).
+</details>

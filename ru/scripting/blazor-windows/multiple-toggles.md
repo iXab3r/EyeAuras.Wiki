@@ -7,107 +7,93 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T14:52:06.974Z
 ---
-# Управление аурой через интерфейс
+# Три переключателя на одной панели
 
-Код уже работает, хотя и не идеально. При нажатии кнопки триггер и аура переключаются корректно. Но если активировать триггер **горячей клавишей**, интерфейс сам по себе не обновится — ему нужен сигнал. Здесь используем то же простое решение: обновлять интерфейс **раз в секунду**. Это не самый оптимальный вариант, но для нашего небольшого UI его вполне достаточно.
+Соберём кнопки для трёх собственных аур в одном месте. Каждая кнопка читает свой реальный триггер и меняет его; отдельные копии состояния и три пары одинаковых свойств не нужны.
 
-В одной папке создайте ауру с **C# Overlay v3** и ауры `TargetAura 1`, `TargetAura 2`, `TargetAura 3`. В каждую целевую ауру добавьте `HotkeyIsActive` и настройте горячую клавишу в режиме переключения. Оставьте целевые ауры загруженными. Пути `./TargetAura 1` и остальные в примере ищутся относительно контекста оверлея; при другой структуре дерева замените их. Если подходящих триггеров несколько, выбирается первый.
-
-Замените содержимое `UserOverlay.cs` и `UserOverlay.razor` в этом оверлее кодом ниже. Это две части одного `public partial` класса в одном пространстве имён. `AuraTree` получает компонент через `[Inject]`; глобальные переменные из `Script.csx` в него автоматически не передаются.
+1. В одной папке создайте `TargetAura 1`, `TargetAura 2`, `TargetAura 3`. В каждую добавьте **Hotkey Is Active** в режиме **Toggle** со своей свободной горячей клавишей. Оставьте их загруженными, без действий для этого опыта.
+2. В той же папке создайте ауру панели с **C# Overlay** и **Fixed Value → Is Active**. Её видимость не должна зависеть от трёх переключаемых триггеров.
+3. Замените `UserOverlay.cs` и `UserOverlay.razor` ниже. `Script.csx` оставьте короткой точкой входа без ожидания.
 
 ## UserOverlay.cs
+
 ```csharp
 using System;
+using System.Threading.Tasks;
 using System.Reactive.Linq;
 using Microsoft.AspNetCore.Components;
 using PoeShared.Blazor;
 using EyeAuras.Scripting.Api;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 
-public partial class UserOverlay : BlazorReactiveComponent {
+namespace BlazorDemo;
 
+public partial class UserOverlay : BlazorReactiveComponent
+{
     [Inject]
-    public IAuraTreeScriptingApi AuraTree { get; init; }
+    public IAuraTreeScriptingApi AuraTree { get; set; }
 
-    public bool Trigger1IsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 1").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 1").TriggerValue = value;
-    }
-
-    public bool Trigger2IsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 2").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 2").TriggerValue = value;
-    }
-
-    public bool Trigger3IsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 3").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 3").TriggerValue = value;
-    }
+    private ToggleItem[] items = Array.Empty<ToggleItem>();
 
     protected override void OnInitialized()
     {
+        items = new[]
+        {
+            new ToggleItem("Триггер 1", AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 1")),
+            new ToggleItem("Триггер 2", AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 2")),
+            new ToggleItem("Триггер 3", AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 3")),
+        };
         ChangeTrackers.Add(Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1)));
         base.OnInitialized();
+    }
+
+    private async Task SetActive(ToggleItem item, bool value)
+    {
+        item.Trigger.TriggerValue = value;
+        await Refresh("group toggle clicked");
+    }
+
+    private sealed record ToggleItem(string Label, IHotkeyIsActiveTrigger Trigger)
+    {
+        public bool IsActive => Trigger.TriggerValue ?? false;
     }
 }
 ```
 
 ## UserOverlay.razor
-```html
+
+```razor
+@namespace BlazorDemo
 @using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
-<h3 class="text-center shadow-1">Toggle Multiple Triggers</h3>
-
-<div class="text-center mt-4 mx-2 d-flex gap-1 alert alert-info">
-    <ToggleButton @bind-IsChecked="@Trigger1IsActive">
-        Trigger <b>1</b>
-    </ToggleButton>
-    <ToggleButton @bind-IsChecked="@Trigger2IsActive">
-        Trigger <b>2</b>
-    </ToggleButton>
-    <ToggleButton @bind-IsChecked="@Trigger3IsActive">
-        Trigger <b>3</b>
-    </ToggleButton>
-</div>
-```
-
-![Demo](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_WPu1ZGwKwS.gif)
-
----
-
-## Разбор
-
-## UserOverlay.cs
-```csharp
-    public bool Trigger1IsActive
+<h3>Мои триггеры</h3>
+<div class="d-flex gap-1 alert alert-info">
+    @foreach (var item in items)
     {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 1").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 1").TriggerValue = value;
+        <ToggleButton @key="item" IsChecked="@item.IsActive"
+                      IsCheckedChanged="value => SetActive(item, value)">
+            @item.Label: @(item.IsActive ? "включён" : "выключен")
+        </ToggleButton>
     }
-```
-
-Для удобства мы объявляем отдельные свойства для каждой ауры. Логика та же, что и раньше, но вместо того чтобы отдельно искать триггер и отдельно получать его значение, мы делаем это сразу в одном месте. `GetTriggerByPath` гарантирует, что триггер будет найден (или выбросит исключение), поэтому имя и наличие триггера нужно проверить до запуска.
-
-## UserOverlay.razor
-```html
-<div class="text-center mt-4 mx-2 d-flex gap-1 alert alert-info">
-    <ToggleButton @bind-IsChecked="@Trigger1IsActive">
-        Trigger <b>1</b>
-    </ToggleButton>
-    ...
 </div>
 ```
 
-Основные классы у родительского `<div>`:
+4. После компиляции нажмите вторую кнопку: меняется только Hotkey Is Active у `TargetAura 2`. Переключите другой триггер горячей клавишей: его кнопка отразит изменение примерно в течение секунды.
 
-- `d-flex` — выстраивает элементы в одну строку
-- `gap-1` — задаёт небольшой отступ между ними (`gap-2`, `gap-3` и т. д. тоже доступны). Эти классы предоставляет [Bootstrap](https://getbootstrap.com/)
-- `alert alert-info` — оборачивает кнопки в цветной блок, чтобы они были заметнее
+![Три кнопки для трёх аур в прежнем примере](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_WPu1ZGwKwS.gif)
 
-Сами кнопки изменились только по имени переменной и небольшим стилевым правкам. Больше вариантов оформления кнопок можно посмотреть [здесь](https://getbootstrap.com/docs/5.3/components/buttons/). Настройку стилей разберём дальше.
-Нажатие кнопки записывает `TriggerValue`; горячая клавиша меняет тот же триггер. Таймер в `ChangeTrackers` заставляет компонент перечитывать состояние примерно раз в секунду, поэтому внешнее изменение видно с задержкой. Добавляйте таймер до `base.OnInitialized()`: там список отслеживания запечатывается и подписки привязываются к `Anchors` компонента. Скрытие окна само по себе не равно уничтожению компонента.
+| Что можно изменить | Как это устроено |
+| --- | --- |
+| Подписи и пути в `items` | Одна строка связывает подпись с найденным триггером. Пути относительны контексту панели; при отсутствии ауры или нужного триггера поиск выдаёт ошибку. |
+| `ToggleItem.IsActive` | Читает актуальный `TriggerValue`, `null` показывает как выключенное. Модель хранит ссылку на триггер, а не вторую изменяемую копию его значения. |
+| `SetActive(item, value)` | Записывает значение только в выбранный триггер и обновляет компонент. |
+| `Observable.Timer(..., TimeSpan.FromSeconds(1))` | Периодически обновляет общую панель, чтобы видеть изменения от горячих клавиш. Это опрос, а не подписка на отдельное свойство. |
+| `d-flex gap-1` | Размещает кнопки в строку с промежутками; `alert alert-info` оформляет общую область. |
+
+Таймер добавлен до `base.OnInitialized()`. Базовый компонент подключает его через `ChangeTrackers` и освобождает подписку при уничтожении компонента. Пока окно просто скрыто, компонент может продолжать жить и обновляться. Не создавайте второй таймер в `Script.csx`.
+
+Для обновления по событию вместо секундного опроса используйте [наблюдение за TriggerValue](/ru/scripting/blazor-windows/reactive-toggle) для каждого элемента списка. Состояние всей ауры по-прежнему зависит от остальных условий, а не только от этой кнопки.
+
+Назначение цветов и вариантов кнопок приведено в [документации Bootstrap](https://getbootstrap.com/docs/5.3/components/buttons/); [следующий пример оформления](/ru/scripting/blazor-windows/toggle-styling) меняет цвет, содержимое и видимость кнопок.

@@ -7,147 +7,77 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T14:24:53.840Z
 ---
-# Управление аурой через UI
+# Кнопка для своей ауры
 
-Разберём типичную задачу: нужно разместить на экране кнопку, которая будет включать и выключать определённую функциональность.
+Кнопка на панели может менять тот же триггер, которым управляет горячая клавиша. Сделаем её для собственной тестовой ауры `TargetAura`: нажатие изменит состояние триггера и подпись под кнопкой.
 
-## Вариант через триггер HotkeyIsActive
+## Подготовить две ауры
 
-Стандартный способ:
-
-- создайте ауру
-- добавьте триггер `HotkeyIsActive`
-- назначьте горячую клавишу
-
-Готово: при нажатии хоткея состояние ауры будет переключаться.
-
-## Вариант через C# Overlay
-
-Можно сделать и отдельную кнопку в интерфейсе. Для этого создадим ещё один overlay и нарисуем кнопку там.
-
-В одной папке создайте ауру с **C# Overlay v3** и ауру `TargetAura`. В каждую целевую ауру добавьте `HotkeyIsActive` и настройте горячую клавишу в режиме переключения. Оставьте целевые ауры загруженными. Путь `./TargetAura` в примере ищется относительно контекста оверлея; при другой структуре дерева замените их. Если подходящих триггеров несколько, выбирается первый.
-
-Замените содержимое `UserOverlay.cs` и `UserOverlay.razor` в этом оверлее кодом ниже. Это две части одного `public partial` класса в одном пространстве имён. `AuraTree` получает компонент через `[Inject]`; глобальные переменные из `Script.csx` в него автоматически не передаются.
+1. В одной папке создайте `TargetAura` и отдельную ауру для панели. В `TargetAura` добавьте **Hotkey Is Active**, назначьте свободную горячую клавишу и выберите режим **Toggle**. Не добавляйте действий: для этого опыта достаточно наблюдать состояние.
+2. В ауру панели добавьте **C# Overlay** и **Fixed Value → Is Active**, чтобы панель оставалась видимой независимо от `TargetAura`. Обе ауры оставьте загруженными.
+3. В C# Overlay замените `UserOverlay.cs` и `UserOverlay.razor` кодом ниже. `Script.csx` оставьте коротким, без ожидания или цикла, как в [примере счётчика](/ru/scripting/blazor-windows/3-hello-world).
 
 ## UserOverlay.cs
 
 ```csharp
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using PoeShared.Blazor;
 using EyeAuras.Scripting.Api;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 
-public partial class UserOverlay : BlazorReactiveComponent {
+namespace BlazorDemo;
 
+public partial class UserOverlay : BlazorReactiveComponent
+{
     [Inject]
-    public IAuraTreeScriptingApi AuraTree { get; init; }
+    public IAuraTreeScriptingApi AuraTree { get; set; }
 
-    public IHotkeyIsActiveTrigger Trigger
+    private IHotkeyIsActiveTrigger trigger;
+    private bool IsActive => trigger.TriggerValue ?? false;
+
+    protected override void OnInitialized()
     {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
+        trigger = AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
+        base.OnInitialized();
     }
 
-    public bool TriggerIsActive
+    private async Task SetActive(bool value)
     {
-        get => Trigger.TriggerValue ?? false;
-        set => Trigger.TriggerValue = value;
+        trigger.TriggerValue = value;
+        await Refresh("toggle clicked");
     }
 }
 ```
 
 ## UserOverlay.razor
 
-```csharp
+```razor
+@namespace BlazorDemo
 @using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
-<h3 class="text-center shadow-1">Toggle Trigger</h3>
-
-<div class="text-center mt-4">
-    <ToggleButton
-              @bind-IsChecked="@TriggerIsActive"
+<h3>Управление TargetAura</h3>
+<ToggleButton IsChecked="@IsActive" IsCheckedChanged="SetActive"
               Class="btn btn-secondary">
-       Trigger is Active
-    </ToggleButton>
-</div>
-
-<p class="text-center mt-3 alert alert-info" style="font-size: 1.5rem;">
-    @if (TriggerIsActive){
-        <span class="shadow-1">Trigger is currently active</span>
-    } else {
-        <span class="text-warning shadow-1">Trigger is currently not active</span>
-    }
-</p>
-```
-
-![Demo](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_HeGx0CejHB.gif)
-
----
-
-## Разбор
-
-Теперь посмотрим, как это работает подробнее.
-
-## UserOverlay.cs
-
-```csharp
- [Inject]
- public IAuraTreeScriptingApi AuraTree { get; init; }
-```
-
-EyeAuras активно использует Dependency Injection. Подробнее об этом можно прочитать [здесь](/ru/scripting/dependency-injection). Если коротко, этот механизм даёт доступ к разным частям программы. В данном случае мы запрашиваем доступ к дереву аур. EyeAuras сама гарантирует, что при запуске скрипта оно будет доступно. Поскольку мы собираемся менять состояние ауры, нам нужен именно доступ к дереву аур.
-
-```csharp
-public IHotkeyIsActiveTrigger Trigger
-{
-   get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
-}
-```
-
-Это свойство ищет ауру с именем `TargetAura`, расположенную в той же папке (`./`), и получает из неё триггер типа `IHotkeyIsActiveTrigger`. Правила путей здесь такие же, как в файловой системе: `./` — текущая папка, `..` — родительская и т. д. Поддерживаются и прямые, и обратные слэши. Если аура или триггер не найдены, EyeAuras выбросит исключение.
-
-```csharp
-  public bool TriggerIsActive
-    {
-        get => Trigger.TriggerValue ?? false;
-        set => Trigger.TriggerValue = value;
-    }
-```
-
-Здесь мы читаем и задаём состояние триггера.
-
-- `get` находит триггер и читает его текущее значение
-- `set` записывает новое значение
-
-> Не у всех триггеров `TriggerValue` доступен для записи, но у **всех** триггеров есть `IsActive`, чтобы **читать** их состояние. Это полезно, например, для триггеров вроде ImageSearch/MLSearch, если нужно проверить, нашли ли они что-нибудь.
-
-## UserOverlay.razor
-
-```html
-@using PoeShared.Blazor.Controls
-```
-
-`ToggleButton` — это компонент, который отображает кнопку с двумя состояниями (ON/OFF). Он находится в пространстве имён `PoeShared.Blazor.Controls`, поэтому для доступа к нему мы добавляем `@using PoeShared.Blazor.Controls`.
-
-```html
-<ToggleButton
-              @bind-IsChecked="@TriggerIsActive"
-              Class="btn btn-secondary">
-   Trigger is Active
+    Переключить триггер
 </ToggleButton>
+<p>Триггер: @(IsActive ? "включён" : "выключен")</p>
 ```
 
-Здесь мы просим Blazor отрисовать `ToggleButton`. Ключевая часть — `@bind-IsChecked="@TriggerIsActive"`, она связывает состояние кнопки с нашим свойством. Во время рендера берётся значение `TriggerIsActive`, а при нажатии новое значение записывается обратно.
+После компиляции нажмите **Переключить триггер**. Кнопка и подпись должны отразить новое значение; в редакторе изменится состояние Hotkey Is Active у `TargetAura`.
 
-```html
-@if (TriggerIsActive){
-   <span class="shadow-1">Trigger is currently active</span>
-} else {
-   <span class="text-warning shadow-1">Trigger is currently not active</span>
-}
-```
+![Прежняя демонстрация кнопки и состояния целевой ауры](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_HeGx0CejHB.gif)
 
-Этот блок показывает разный текст в зависимости от того, активен триггер или нет. Обратите внимание: при нажатии на кнопку текст тоже обновляется.
+| Часть настройки | Значение в этом примере |
+| --- | --- |
+| Путь `./TargetAura` | Соседняя аура относительно контекста панели. При другой структуре дерева замените путь. Поиск требует существующую ауру и берёт первый подходящий триггер; отсутствие вызывает исключение. |
+| `[Inject] IAuraTreeScriptingApi` | Сервис дерева, предоставленный компоненту его контейнером. Это не глобальная переменная `AuraTree` из `Script.csx`. |
+| `TriggerValue` | Доступное для записи значение именно Hotkey Is Active. `null` в этой кнопке отображается как выключенное состояние. |
+| `IsChecked` / `IsCheckedChanged` | Первое передаёт текущее значение кнопке, второе получает новое значение от её нажатия. |
+| Общий namespace | `BlazorDemo` должен совпадать в обеих частях `UserOverlay`. |
 
-Кнопка и текст обновляются после события Blazor. Изменение по горячей клавише ещё не отслеживается: [добавим обновление интерфейса](/ru/scripting/blazor-windows/reactive-toggle) на следующем шаге. Запись `TriggerValue` меняет именно триггер; итоговая активность ауры зависит и от остальных её условий.
+Компонент читает начальное состояние из триггера, а не хранит вторую независимую копию. Обработчик записывает новое значение и вызывает `Refresh`. Здесь нет подписки на внешние изменения: после горячей клавиши интерфейс может оставаться прежним до следующего обновления. [Следующий шаг](/ru/scripting/blazor-windows/reactive-toggle) добавляет такое наблюдение.
+
+Запись меняет триггер, а не принудительно включает всю ауру: итоговая активность зависит и от остальных её условий. `TriggerValue` доступен для записи не у каждого вида триггера; общее `IsActive` служит для чтения состояния. Для деталей подключения сервиса см. [внедрение зависимостей](/ru/scripting/dependency-injection).

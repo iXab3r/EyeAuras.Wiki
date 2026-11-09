@@ -7,89 +7,90 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T14:35:20.794Z
 ---
-# Управление аурой через UI
+# Обновлять кнопку после горячей клавиши
 
-Предыдущий вариант кода работает, но у него есть недостаток. При нажатии на кнопку триггер и аура переключаются как нужно. Но если активировать триггер **горячей клавишей**, интерфейс не перерисуется автоматически, потому что UI не знает, что состояние изменилось. Значит, нужно явно сообщить ему об обновлении.
+Если триггер переключили горячей клавишей, панель должна показать новое состояние без дополнительного нажатия мышью. Подпишем компонент на изменение `TriggerValue`: он будет перерисовываться по событию, без постоянного опроса.
 
-Для простоты решим это в лоб: интерфейс будет обновляться **раз в секунду**. Это не самый оптимальный вариант, но для очень простого UI его вполне достаточно.
+Нужны соседние ауры `TargetAura` с **Hotkey Is Active → Toggle** и панель с **C# Overlay**, как в [первом переключателе](/ru/scripting/blazor-windows/4-toggle-hotkeyisactive). Панель держите активной через её собственный **Fixed Value → Is Active**. Обе ауры должны быть загружены.
 
-В одной папке создайте ауру с **C# Overlay v3** и ауру `TargetAura`. В каждую целевую ауру добавьте `HotkeyIsActive` и настройте горячую клавишу в режиме переключения. Оставьте целевые ауры загруженными. Путь `./TargetAura` в примере ищется относительно контекста оверлея; при другой структуре дерева замените их. Если подходящих триггеров несколько, выбирается первый.
-
-Замените содержимое `UserOverlay.cs` и `UserOverlay.razor` в этом оверлее кодом ниже. Это две части одного `public partial` класса в одном пространстве имён. `AuraTree` получает компонент через `[Inject]`; глобальные переменные из `Script.csx` в него автоматически не передаются.
+1. В C# Overlay замените два файла ниже. Короткий `Script.csx` оставьте без изменений.
+2. После компиляции сравните подпись на панели с состоянием триггера в `TargetAura`.
+3. Переключите триггер его горячей клавишей, затем кнопкой панели. Оба действия меняют один источник, и подпись обновляется в обоих случаях.
 
 ## UserOverlay.cs
+
 ```csharp
-using System;
-using System.Reactive.Linq;
+using System.Threading.Tasks;
+using ReactiveUI;
 using Microsoft.AspNetCore.Components;
 using PoeShared.Blazor;
 using EyeAuras.Scripting.Api;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 
-public partial class UserOverlay : BlazorReactiveComponent {
+namespace BlazorDemo;
 
+public partial class UserOverlay : BlazorReactiveComponent
+{
     [Inject]
-    public IAuraTreeScriptingApi AuraTree { get; init; }
+    public IAuraTreeScriptingApi AuraTree { get; set; }
 
-    public IHotkeyIsActiveTrigger Trigger
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
-    }
-
-    public bool TriggerIsActive
-    {
-        get => Trigger.TriggerValue ?? false;
-        set => Trigger.TriggerValue = value;
-    }
+    private IHotkeyIsActiveTrigger trigger;
+    private bool IsActive => trigger.TriggerValue ?? false;
 
     protected override void OnInitialized()
     {
-        ChangeTrackers.Add(Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1)));
+        trigger = AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
+        ChangeTrackers.Add(trigger.WhenAnyValue(x => x.TriggerValue));
         base.OnInitialized();
+    }
+
+    private async Task SetActive(bool value)
+    {
+        trigger.TriggerValue = value;
+        await Refresh("toggle clicked");
     }
 }
 ```
 
 ## UserOverlay.razor
-```html
+
+```razor
+@namespace BlazorDemo
 @using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
-<h3 class="text-center shadow-1">Toggle Trigger</h3>
-
-<div class="text-center mt-4">
-    <ToggleButton @bind-IsChecked="@TriggerIsActive"
-    Class="btn btn-secondary">
-                Trigger is Active
-    </ToggleButton>
-</div>
-
-<p class="text-center mt-3 alert alert-info" style="font-size: 1.5rem;">
-    @if (TriggerIsActive){
-        <span class="shadow-1">Trigger is currently active</span>
-    } else {
-        <span class="text-warning shadow-1">Trigger is currently not active</span>
-    }
-</p>
+<h3>Управление TargetAura</h3>
+<ToggleButton IsChecked="@IsActive" IsCheckedChanged="SetActive"
+              Class="btn btn-secondary">
+    Переключить триггер
+</ToggleButton>
+<p>Триггер: @(IsActive ? "включён" : "выключен")</p>
 ```
 
-![Demo](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_W7LNmgAsPK.gif)
+![Внешнее переключение и обновление панели в прежнем примере](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_W7LNmgAsPK.gif)
 
----
+| Механизм | Что он даёт |
+| --- | --- |
+| `WhenAnyValue(x => x.TriggerValue)` | Читает начальное значение и наблюдает уведомления об изменении свойства триггера. Нужен `using ReactiveUI`. |
+| `ChangeTrackers.Add(...)` | Передаёт источник обновлений базовому `BlazorReactiveComponent`. Добавляйте его **до** `base.OnInitialized()`, где список запечатывается и подключается. |
+| `IsActive` | При отображении читает тот же триггер; `null` показан как выключенное состояние. |
+| `Refresh(...)` | Обновляет компонент через его диспетчер после записи из обработчика кнопки. Базовый компонент также обрабатывает сигналы `ChangeTrackers`. |
 
-## Как это работает
+Здесь не нужен вручную написанный `Subscribe` и отдельная зеркальная переменная. Подпиской владеет базовый компонент через свои `Anchors`; при уничтожении компонента она освобождается. Скрытие окна не означает уничтожение: наблюдение может продолжаться, пока компонент жив. Не переносите эту подписку в короткий `using` в `Script.csx` — это другой срок жизни.
 
-## UserOverlay.cs
+В примере используются уведомления уже существующего триггера. Он не требует автоматического преобразования свойств произвольного Razor-класса или `.csx`. Как и раньше, изменение триггера не отменяет остальные условия активности ауры.
+
+<details>
+<summary>Когда у источника нет уведомлений</summary>
+
+Старый пример обновлял панель раз в секунду. Такой опрос можно оставить для источника, который нельзя наблюдать по событию: вместо строки `ChangeTrackers.Add(trigger.WhenAnyValue(...))` используйте этот фрагмент внутри `OnInitialized`, до вызова базового метода:
+
 ```csharp
- protected override void OnInitialized()
-    {
-        ChangeTrackers.Add(Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1)));
-        base.OnInitialized();
-    }
+ChangeTrackers.Add(System.Reactive.Linq.Observable.Timer(
+    System.DateTimeOffset.Now, System.TimeSpan.FromSeconds(1)));
 ```
 
-В EyeAuras есть механизм, который управляет рендерингом интерфейса. Один из самых простых способов использовать его — добавить событие в `ChangeTrackers` внутри `OnInitialized`. Здесь это обычный таймер: каждый его тик принудительно вызывает перерисовку интерфейса. Он не проверяет, изменилось ли что-то на самом деле, а просто говорит: «перерисуй UI».
+Это периодическая перерисовка, а не событие изменения триггера; внешнее изменение будет видно с задержкой. Не добавляйте оба механизма без необходимости. [Несколько переключателей](/ru/scripting/blazor-windows/multiple-toggles) показывают этот вариант для общей панели.
 
-Позже мы рассмотрим более оптимальный вариант через `ReactiveSection` и более точное отслеживание изменений. Но во многих случаях этого подхода вполне достаточно — `Blazor` работает быстро, и «пустая» перерисовка простого интерфейса не является проблемой.
-Нажатие кнопки записывает `TriggerValue`; горячая клавиша меняет тот же триггер. Таймер в `ChangeTrackers` заставляет компонент перечитывать состояние примерно раз в секунду, поэтому внешнее изменение видно с задержкой. Добавляйте таймер до `base.OnInitialized()`: там список отслеживания запечатывается и подписки привязываются к `Anchors` компонента. Скрытие окна само по себе не равно уничтожению компонента.
+</details>
