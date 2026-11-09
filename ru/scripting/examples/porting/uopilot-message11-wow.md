@@ -7,9 +7,55 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-03-23T15:59:09.828Z
 ---
-# Перенести бой и повторный вход из UOPilot
 
-## UO Pilot
+# Перенести цикл с таймерами и распознаванием экрана из UOPilot
+
+В исходнике повторяются серии клавиш, а отдельные сроки разрешают более редкие действия. Изображения и цвета выбирают переход к ветке повторного входа. В EyeAuras эти условия тоже берутся из захваченных пикселей: названия world, ring или ban не являются встроенными данными WoW.
+
+## Проверить источник цвета без ввода
+
+Для первого опыта нужен EyeAuras с C# Script и компьютерным зрением. Покажите в своём отдельном окне изображение с красным участком RGB 255,0,0. Подойдёт созданная вами картинка; чужие аккаунты и пароль не нужны.
+
+1. Создайте отдельную ауру с Fixed Value в состоянии Is NOT Active, добавьте в On Enter действие `C# Script` и откройте редактор.
+2. Поместите всю программу ниже в `Script.csx`, нажмите `Run` и выберите своё окно инструментом выбора.
+3. Журнал покажет количество пикселей, соответствующих заданному цвету в фактическом захвате. При наличии точного красного участка ожидается ненулевое число, при отсутствии совпадений — 0. Это количество, а не процент площади или вероятность состояния.
+
+```csharp
+using System.Drawing;
+using EyeAuras.Shared.Osd;
+using EyeAuras.OpenCVAuras.Scripting;
+
+{
+    var window = await GetService<IOsdSelectionService>().PickWindow();
+    cancellationToken.ThrowIfCancellationRequested();
+    if (window == null || !window.IsWindow) { Log.Warn("Окно не выбрано или недоступно"); return; }
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>().ForWindow(window);
+    var count = cv.CountPixels(Color.Red, 100);
+    Log.Info($"Красных пикселей: {count}");
+}
+```
+
+Если число неожиданное, проверьте окно и реальный цвет в его снимке через [Color Search](/ru/triggers/images/color-search). Полный перенос ниже требует такой же отдельной калибровки каждого признака, а не угадывания состояния по имени файла.
+
+## Сохранить структуру алгоритма
+
+| Часть исходника | Что сохраняет порт |
+| --- | --- |
+| Repeat 350 | До 350 серий основного тела, затем отдельная завершающая последовательность и новый проход |
+| Rapidfire, Buff, tDejunk, tFetch, tHeal, tPet | Независимые сроки следующего допуска. В C# сравниваются с DateTimeOffset.Now; это не точная замена внутреннего timer UOPilot |
+| Send_down / Send_up | Press с паузой между Down и Up и освобождением в finally; отдельное пятисекундное удержание Backspace использует тот же путь |
+| findcolor | CountPixels с собственным цветом, областью и порогом. Числовой цвет в используемой перегрузке читается через Color.FromArgb, параметры UOPilot не переводятся автоматически |
+| FindImage | Rectangle.Empty при отсутствии области; там, где нужен дополнительный порог сходства, ImageSearchRaw и проверка Detected.Success перед Similarity |
+| Области поиска | Rectangle.FromLTRB для противоположных углов, либо X/Y/Width/Height для CountPixels |
+| Переходы reloger / login / world | Отдельные ветки на основе подготовленных экранных признаков. Поиски последовательны и не составляют один атомарный кадр |
+| YOUR_PASSWORD | Только фиктивный текст в учебном порте. Text журналирует часть строки; пример не является средством безопасного хранения паролей |
+
+Директивы using остаются вверху Script.csx, исполняемая программа и using var CV находятся внутри явного блока. GetService, Log, Sleep и cancellationToken даёт хост верхнеуровневого скрипта; обычные классы и Razor не получают их автоматически. Для переноса в класс нужно передать зависимости и токен явно.
+
+<details>
+<summary>Полный исходник UOPilot</summary>
+
+Ниже сохранены исходные команды, пути, сроки и переходы. Это текст программы для UOPilot, не файл макроса EyeAuras и не готовый импорт конфигурации.
 
 ```js
 set #win findwindow (1Wow.exe)
@@ -250,26 +296,31 @@ if #login > 3 or #disc > 10 or #world1 > 90
 end_if
 ```
 
-## Выполнить цикл в C# Script
+</details>
 
-Код ниже целиком размещается в верхнеуровневом файле действия `C# Script` EyeAuras. Он сохраняет исходную задачу: серии нажатий, отдельные сроки для способностей и переходы к повторному входу по изображению/цвету. Откройте `1Wow.exe`, подготовьте свои `world.bmp`, `vopros.bmp`, `ring.bmp`, `ban.bmp` в `C:\Scripts\GWYN\Image`; настройте окно, раскладку, цвета и области под свой интерфейс. Здесь это входные данные примера, не универсальные координаты WoW.
+<details>
+<summary>Полный порт для C# Script</summary>
 
-Пароль задайте в локальной переменной `password` перед запуском и не публикуйте его. `Run` запускает цикл, остановка выполнения отменяет паузы. `SendInputWindow` адресует выбранное окно, но доступность игрового ввода зависит от симулятора и приложения; фоновая работа не обещается. После серии из 350 повторов выполняется завершающая последовательность из исходника. При распознавании признака блокировки скрипт возвращается. Проверяйте результат по окну игры; здесь запуск не выполнялся.
+Нужны открытое окно, соответствующее выражению `1Wow.exe`, ваши world.bmp, vopros.bmp, ring.bmp и ban.bmp в `C:\Scripts\GWYN\Image`, заново проверенные цвета/области, раскладка и доступный Windows Input. Для собственного тестового интерфейса замените выражение, изображения и координаты. Windows Input активирует выбранное окно; универсальная фоновая работа не предполагается. Текст 1Wow.exe — широкое выражение по названию, пути или имени процесса. Перед включением ввода уточните [выражение окна](/ru/features/window-matching-expressions), если ему соответствуют несколько окон.
 
-Сроки ниже сравниваются с `DateTimeOffset.Now`; это не доказательство эквивалентности таймеру UOPilot. Поиски выполняются последовательно, поэтому состояние не является одним атомарным кадром. Числа в `Rectangle.FromLTRB` — исходные противоположные углы, преобразованные в ширину/высоту. Пороги указаны явно, исходные значения допусков цвета не объявляются точной конверсией между движками.
+Этот вариант выполняет реальный ввод, в отличие от первого опыта. Ветка авторизации оставлена с фиктивным YOUR_PASSWORD: не подставляйте настоящий секрет в демонстрацию с журналируемым Text. Для первичной проверки распознавания достаточно программы выше. Автоматической конвертации старого файла и готовой совместимости с любым клиентом WoW нет.
 
+Полностью вставьте программу в Script.csx действия C# Script и запускайте Run только после подготовки своего адресата. Цикл продолжается до остановки Run либо выхода по распознанному признаку. Числа задержек выражены как базовая величина плюс Random.Next; верхняя граница Next исключается, распределение другого движка не обещается.
 
 ```csharp
+using System;
 using System.Drawing;
 using System.Windows.Input;
 using System.IO;
 using EyeAuras.Roxy.Api;
 using EyeAuras.OpenCVAuras.Scripting;
 using EyeAuras.Shared.Services;
+using EyeAuras.Shared.Scaffolding;
 using PoeShared.Scaffolding;
 
 {
     var SendInputWindow = GetService<ISendInputScriptingApi>();
+    SendInputWindow.InputSimulatorId = "Windows Input";
     var SendInput = SendInputWindow; // все клавиши этого сценария адресованы одному окну
     var rng = new Random();
     var imageDirectory = @"C:\Scripts\GWYN\Image";
@@ -285,14 +336,21 @@ using PoeShared.Scaffolding;
     void Press(Key key, int delayMs)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        SendInput.KeyDown(key);
-        try { Sleep(delayMs); }
+        try
+        {
+            SendInput.KeyDown(key);
+            Sleep(delayMs);
+            cancellationToken.ThrowIfCancellationRequested();
+        }
         finally { SendInput.KeyUp(key); }
     }
 
     //------------------------------------------------------
 
     var window = GetService<IWindowSelector>().GetWindow("1Wow.exe");
+
+    cancellationToken.ThrowIfCancellationRequested();
+    if (!window.IsWindow) { Log.Warn("Окно недоступно"); return; }
 
     using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
         .ForWindow(window) //работать будем с окном
@@ -331,23 +389,23 @@ using PoeShared.Scaffolding;
                 goto reloger;
             }
 
-            Sleep(150 + random(250));
-            Press(Key.D1, 50 + random(100));
+            Sleep(150 + random(100));
+            Press(Key.D1, 50 + random(50));
 
-            Sleep(159 + random(250));
-            Press(Key.D1, 50 + random(100));
+            Sleep(159 + random(100));
+            Press(Key.D1, 50 + random(50));
 
-            Sleep(150 + random(250));
-            Press(Key.D1, 50 + random(100));
+            Sleep(150 + random(100));
+            Press(Key.D1, 50 + random(50));
 
-            Sleep(150 + random(250));
-            Press(Key.D1, 50 + random(100));
+            Sleep(150 + random(100));
+            Press(Key.D1, 50 + random(50));
 
             //Rapifire
             if (Rapidfire < DateTimeOffset.Now)
             {
-                Sleep(175 + random(475));
-                Press(Key.D2, 50 + random(100));
+                Sleep(175 + random(300));
+                Press(Key.D2, 50 + random(50));
                 Rapidfire = DateTimeOffset.Now + TimeSpan.FromMilliseconds(500 + random(100));
             }
 
@@ -401,7 +459,7 @@ using PoeShared.Scaffolding;
         Press(Key.F6, 1 + random(10));
         Sleep(100 + random(10000));
         Press(Key.F8, 1 + random(10));
-        Sleep(3000 + random(300));
+        Sleep(3000 + random(400));
         Press(Key.D0, 1 + random(10));
         Sleep(3000 + random(400));
         Press(Key.D8, 1 + random(10));
@@ -448,9 +506,7 @@ using PoeShared.Scaffolding;
             {
                 Press(Key.End, 80 + random(150));
                 Sleep(100);
-                SendInput.KeyDown(Key.Back);
-                try { Sleep(5000); }
-                finally { SendInput.KeyUp(Key.Back); }
+                Press(Key.Back, 5000);
                 goto login;
             }
             else
@@ -488,6 +544,8 @@ using PoeShared.Scaffolding;
 }
 ```
 
-`ImageSearchRaw` возвращает оболочку с `Detected`; прежде чем использовать сходство, проверяем `Success`. Обычный `ImageSearch` возвращает `Rectangle.Empty` при отсутствии результата. Для `ForWindow` прямоугольники относятся к окну; здесь они используются как признаки состояния, без кликов по необработанным координатам кадра. Паузы `Sleep` длиннее 30 мс могут завершиться раньше при отмене; короткие паузы её не проверяют. Отдельные проверки ограничивают цикл, а синхронные CV/ввод не получают токен скрипта. Локальная функция `Press` освобождает нажатую клавишу в `finally`, даже если пауза отменена. Это не гарантия обработки ввода самой игрой.
+Сроки выставляются после соответствующего действия; работа поиска и ожидания тоже входит в реальное время между нажатиями. При остановке явные проверки токена не допускают новые итерации. Sleep может вернуться раньше; Press проверяет отмену внутри try и затем в finally пытается отправить KeyUp тем же адресату и механизмом. Сам ввод токен скрипта не принимает, поэтому окончание паузы или Stop не гарантируют мгновенной остановки уже выполняемого вызова. Ошибка отправки KeyUp также остаётся ошибкой, уже выполненные эффекты не откатываются.
 
-[Карта CV](/ru/scripting/api/computer-vision/images), [ввод](/ru/scripting/api/ISendInputScriptingApi) и [контекст скрипта](/ru/scripting/api/scripting/runtime) ведут к контрактам SDK. Совместимость с UOPilot, игрой, драйвером и фактическое поведение повторного входа требуют отдельной проверки.
+</details>
+
+Первый наблюдаемый результат здесь — реальный счётчик пикселей своего окна. Только после проверки каждого признака имеет смысл оценивать полный цикл по целевому интерфейсу. Контракты: [CV](/ru/scripting/api/computer-vision/images), [ввод](/ru/scripting/api/ISendInputScriptingApi), [Script.csx](/ru/scripting/api/scripting/runtime).
