@@ -23,7 +23,7 @@ Log.Info("Привет, мир!");
 
 `Log` здесь предоставляет хост EyeAuras — [песочница](/ru/scripting/sandbox), которая запускает скрипт. Так же предоставляются `AuraTree`, `Variables`, `GetService` и `cancellationToken`. В обычном `.cs`-классе или Razor-компоненте эти имена не становятся глобальными: нужные зависимости передают явно. Подробности — в [контекстах выполнения](/ru/scripting/api/core/app-runtime-contexts) и [карте runtime](/ru/scripting/api/scripting/runtime).
 
-Чтобы сообщение появлялось по клавише, нужен отдельный триггер [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active) и переход ауры в активное состояние. Этот законченный путь разобран в [Hello, world](/ru/scripting/examples/basic/hello-world); повторное нажатие `Run` проверяет только сам скрипт.
+Чтобы сообщение появлялось по клавише, нужен отдельный триггер [Hotkey Is Active](/ru/triggers/hotkey-is-active) и переход ауры в активное состояние. Этот законченный путь разобран в [Hello, world](/ru/scripting/examples/basic/hello-world); повторное нажатие `Run` проверяет только сам скрипт.
 
 ## Где должен выполняться код
 
