@@ -70,7 +70,7 @@ The candidate list also depends on the window provider and selector filters. Bra
 
 **Click to select Process** writes the chosen process name as an expression. The ordinary multi-field rules still apply.
 
-In scripts, `IWindowMatcher.FindMatches` handles compound `&&` / `||` expressions. Single-window `IsMatch` and `WindowMatchParams` take a simple expression. This is an API boundary, not a requirement to write a script for the UI selector. See [window contexts](/en/scripting/api/windows-subsystems/window-handles) for supplied lists and foreground queries.
+In scripts, `IWindowMatcher.FindMatches` handles compound `&&` / `||` expressions. Single-window `IsMatch` and `WindowMatchParams` take a simple expression. This is an API boundary, not a requirement to write a script for the UI selector. For script-side contracts and version selection, start with the [API reference](/en/scripting/api/reference).
 
 </details>
 
