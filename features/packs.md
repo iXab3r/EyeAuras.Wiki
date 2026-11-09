@@ -1,5 +1,5 @@
 ---
-title: 📦 Packs
+title: Packs
 description: Packaging your auras and scripts for easier distribution
 published: true
 date: 2025-09-02T10:14:01.733Z
@@ -7,82 +7,76 @@ tags: eyeauras, automation, scripts, packaging, distribution
 editor: markdown
 dateCreated: 2025-03-13T00:32:43.365Z
 ---
+# Package your set for a separate launch
 
+A portable **Pack** bundles your aura folder with EyeAuras and its configuration. The recipient extracts it and runs it separately from an installed copy. For example, you can distribute a prepared status display and its auras without asking someone to import each item.
 
-# ❓ Packs in EyeAuras
+You need your own checked set, an account to publish under your name, and access to the EyeAuras website. Disable unwanted automatic actions and remove personal secrets first. For a copy without the application, use [JSON export](/en/features/export-import).
 
-**📦 What is a Pack?**
-Packs (from the English *Pack* — package) are a feature of **EyeAuras** designed to simplify the distribution of user scripts. Whether it's a fishing bot, a set of macros, or a complex behavior tree — all of this can be packaged into one convenient archive.
+## Publish the set and download its portable bundle
 
-## ✅ What is included in a Pack?
-A pack consists of several parts:
-- 💻 **Program** — version of EyeAuras compatible with the current configuration
-- 🔧 **Program Configuration** — security settings, update channel (Alpha/Stable), etc.
-- 📝 **User Scripts/Auras/Macros/Behavior Trees**
+1. Select the set's root folder. Open **Publish/Synchronize** from its context menu, or use the export dialog. For a new publication, leave the destination address empty, check **Content** and name it in **Overview**.
+2. Start with **Configuration source = Use defaults**, **Recommended Version = Current**, and **Pack Distribution Policy = Any**. If source distribution is acceptable, use **Script Compilation Mode = Script Only** and protection **None**. Keep the main window visible until your set has a working interface of its own.
+3. Click **Publish**. The older dialog calls this **Publish folder**. After success, the folder shows its source and revision.
+4. Open the publication link and select **Download portable pack**. Wait for preparation and download the ZIP. A publication link and a prepared archive are separate results.
+5. Extract into a separate directory, not over your working installation. Run the included executable and check that it loads the intended set. Required external windows, files, drivers and services must also be available on that PC.
 
-♻️ All this is packaged into a single **ZIP archive**, which can be easily copied and distributed.
+These images show the publication entry and the older small dialog; the current export window has a different layout.
 
-## 🚀 How to create your own Pack?
-1. 🖊 Right-click on the folder you want to pack and select **`Publish`**.  
-   ![Right click -> Publish](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_bq0a7eVSQ9BKw337.png =x200)
+![Publishing the selected folder](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_bq0a7eVSQ9BKw337.png =x200)
+![Older Publish folder button](https://s3.eyeauras.net/media/2025/03/EyeAuras_jUc5dtIKmpmoZbw5.png =x150)
 
-2. 💾 In the opened window, click **`Publish folder`**.  
-   ![Press Publish button](https://s3.eyeauras.net/media/2025/03/EyeAuras_jUc5dtIKmpmoZbw5.png =x150)
+The synchronization indicator identifies the linked publication. The adjacent link opens its website page.
 
-3. 🟢 If everything went well, a green icon with the word **`sync`** will appear.  
-   ![Synced](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_gXZvzr9Bq2WDvppS.png =x200)
+![Folder linked to its publication](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_gXZvzr9Bq2WDvppS.png =x200)
+![Opening the publication page](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_cq93pPKwMCu5MUZQ.png)
+![Downloading a portable pack](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_QH1tYoEBoCemep3b.png =x200)
 
-4. 🔗 To download the pack, open the link to the right of the pack.
-   ![Navigate to pack](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_cq93pPKwMCu5MUZQ.png)
+## What the bundle contains
 
-5. 📥 On the opened page, click **`Download portable pack`** to download the ZIP archive.
-   ![Download pack](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_QH1tYoEBoCemep3b.png =x200)
+| Part | Transfer scope |
+| --- | --- |
+| Application | A prepared EyeAuras version and files for a separate launch. Portability does not remove system requirements. |
+| Configuration | Settings chosen by the author. Use defaults applies defaults with selected overrides; Copy local settings carries more local settings. |
+| Folder contents | The set's auras, macros, trees and script projects with prepared resources. Check external dependencies separately. |
+| Working data | The bundle's own data directory. It does not share the installed copy's history with the recipient. |
 
-# ❓ Standalone vs Pack
-- `Standalone` - version you download from the homepage of the website. It registers itself in Programs and is generally a regular, full-fledged program. Most development is expected to be done through Standalone.
-- `Pack` - portable version of the program that lives independently of Standalone and may contain additional changes made by the author through configuration.
+**Standalone**, downloaded from the website and registered as an installed program, and an extracted Pack can coexist independently. A Pack does not need installation registration and keeps its data nearby. This does not imply that it leaves no Windows traces or is invisible to other software.
 
-## 📦 Portability
-This is certainly the key feature - packs are by definition portable, meaning they do not require installation.
+## Choose distribution and compilation separately
 
-## Stealth
-Packs do not register themselves in the list of programs, they keep their configuration with themselves, and logs - also nearby. In general, they do not leave many traces and can be launched even from a flash drive.
+| Pack Distribution Policy | Recipient's options |
+| --- | --- |
+| Any | Content import and a portable bundle. |
+| Prefer Packed | Prefers the prepared version. This is not a source-code protection setting. |
+| Packed Only | Requires prepared content for an ordinary recipient. The policy does not itself compile scripts or remove their text. |
 
-## ⚙️ Unique Settings
-The author of the pack (not the user, but the one who controls the pack) has the advantage of specifying a set of unique settings that dictate exactly how their pack should look and operate - for example, you can even hide the **EyeAuras** user interface and leave only your own, implemented with C# scripts and [Blazor Windows](/ru/scripting/blazor-windows/getting-started). You can also configure the pack so that there are no original C# scripts in the ZIP archive at all - this will speed up launch time and enhance security, which is important if you are distributing some private or paid solution. More about script protection - [here](/ru/features/script-protection).
+![Distribution policy in the older packing editor](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_bJkfO2dFN6UYcplP.png =x200)
 
----
+The import option **Prefer packed version** requests prepared publication contents. It is not the same as downloading an application ZIP: those contents can be imported into a running EyeAuras. Ownership checks and server policy determine the available choices.
 
-## ⚙️ Setting - Pack Distribution Policy
-### Pack Distribution Policies
-- **`Any`** ➔ Import or download the pack — user's choice.
-- **`Prefer Packed`** ➔ Emphasizes downloading the packed version, hiding script import (though import remains available).
-- **`Packed Only`** ➔ Allows **only** downloading the Pack, without the import option.
+| Script Compilation Mode | Prepared contents |
+| --- | --- |
+| Script Only | Script source; compilation runs on the recipient's machine. |
+| Script w/ Binaries | Source and precompiled files. |
+| Binaries Only | Prepared assemblies instead of script source. This does not make recovering the logic impossible. |
 
-![Packing option](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_bJkfO2dFN6UYcplP.png =x200)
+**Script Protection Mode** is separate and available with **Binaries Only**: **None**, **Performance-first**, or **Security-first**. See [C# script protection](/en/features/script-protection) for preparation and limits, and the [binary-packaging announcement](/en/changelogs/7994) for its history. Without additional protection, compiled scripts receive ordinary compilation.
 
----
+<details>
+<summary>Additional settings and local packing</summary>
 
-## ⚙️ Setting - Script Compilation Mode
-Now when exporting a new version of the pack, you can specify the script compilation mode. This allows:
+| Setting | Purpose |
+| --- | --- |
+| Output Directory | Destination for a locally prepared bundle. Use a separate output directory. |
+| Application name / Icon | Application name and icon; neither changes ownership or licensing. |
+| Recommended Version: Any / Current | Any allowed version, or a recommendation of the author's current version. This does not validate the set on every version. |
+| Configuration source | Use defaults reduces personal-settings transfer. With Copy local settings, review the result. EyeAuras sign-in data is explicitly cleared; secrets in your scripts are not automatically scrubbed. |
+| Packing Mode | Embed everything includes prepared contents; Install on startup includes installation material for first launch. |
+| Security Measures / Check for Updates / Pause Everything if Active | Bundle overrides: Not set, Enable or Disable. Choose for your set's intended behaviour. |
 
-- Reducing compilation time for users
-- Protecting scripts by excluding their source code from the pack, leaving only binary files
+The folder's **Pack…** command is a separate local route requiring Alpha access and file-based configuration storage. Choose **Output Directory**, inspect **Preview**, and click **Pack**. After **Packed Successfully**, **here** opens the result and **run** launches it. This differs from downloading the server-prepared ZIP.
 
-### Binary files? Scripts?
-I explained this in detail [here](https://wiki.eyeauras.net/en/changelogs/7994).  
-Briefly:  
-- **Scripts** — this is the text version of your program.  
-- **Binary files** — this is the compiled, ready-to-work program.  
+You can provide a [Blazor window](/en/scripting/blazor-windows/getting-started) or [mini-app](/en/features/mini-app) instead of the main UI. Make that interface work before hiding the main window. Folder editing restrictions, access licenses and binary protection solve different problems.
 
-### Compilation Modes
-- **📝 Script Only** ➔ Scripts are included in text form, compilation occurs on the user side.
-- **📝 Scrith with Binaries** ➔ Scripts and compiled files are included simultaneously.
-- **📦 Binaries Only** ➔ Scripts are excluded, only binary files are included.
-
-## ⚙️ Setting - C# Script Protection
-This option regulates how much EyeAuras will attempt to protect your scripts from prying eyes. More about script protection - [here](/features/script-protection).
-
-# ❓ Frequently Asked Questions
-**💡 What happens if I forget to enable protection when packaging?**
-In that case, your scripts will be packed in standard form (simply compiled and without additional protection).
+</details>

@@ -1,70 +1,42 @@
 ---
-title: 🔑 KeyLogin
-description: login using only the Key
+title: Key Login
+description: Sign in to EyeAuras with a license key
 published: true
 date: 2025-03-31T00:31:44.217Z
 tags: 
 editor: markdown
 dateCreated: 2025-03-31T00:31:44.217Z
 ---
+# Sign in with a key you received
 
-# 🚪 What is KeyLogin?
+If a pack author gives you a key and offers key-based sign-in, you do not need to fill out a separate registration form first. EyeAuras sends the key to the sign-in service, which finds its associated account or creates one on its first permitted use. Check the resulting account and access to the intended pack.
 
-**KeyLogin** is a way to sign in using a one-time license key — no account creation required.  
-Just enter your key, and the program will automatically create a temporary account for you.  
-You can immediately start using all the features that the key unlocks.
+You need your own valid key, access to the EyeAuras server and a compatible application version. The key is a sign-in secret: keep it out of public descriptions and aura settings you distribute.
 
-> 💡 Your key becomes both the **username and password** for this new account.
+1. Open the sign-in window from the connection or user information in EyeAuras.
+2. Choose **Sign in with key**. The older UI calls this **I have a key**.
+3. Enter your key in **License key** and click **Login with key**. Do not enter it twice in the ordinary **Username** and **Password** fields: that is a different sign-in route.
+4. Wait for the result. An accepted username and profile indicate sign-in; a server connection indicator alone does not. An error means sign-in has not succeeded.
+5. Open your license information and find the intended pack, then follow its launch instructions. Sign-in does not bypass expiry, session limits or PC binding.
 
----
+The image shows the older **I have a key** link and sign-in entry point. Use the current labels in the steps above.
 
-### 🆓 Free mode — no limitations
+![Key-based sign-in in the older Login window](https://s3.eyeauras.net/media/2025/03/ShareX_829CnImJUb2PaMYZ.png)
 
-First of all, let’s clarify: you can use EyeAuras **completely free**, with no time limits — the app follows a Freemium model.  
-That means the core functionality and most features are available right away.
+## Choose the right route
 
-**However**, some advanced features require activation via a key.  
-There’s also a [sublicensing system](/en/features/sublicenses) available to **all users**, which lets you control access to your content packs using keys.  
-KeyLogin was designed to make that login flow as simple and fast as possible. Now — let’s dive into how it works.
+| Goal | Route |
+| --- | --- |
+| First sign-in with a key | Sign in with key → License key → Login with key. The service can create the account automatically. |
+| Add an unused key to an existing account | Sign into that account and use **Activate Key / Activate key** in its profile. This binds the key to the current user instead of creating another account. |
+| Register normally | [Create account](https://eyeauras.net/register), then sign in. |
+| Inspect linked keys and profile | The application's profile window or [My Account](https://eyeauras.net/my). |
+| Avoid retaining sign-in between launches | Turn off **Remember sign-in** in settings. Sign in again after restarting. |
 
----
+Activation binds the key to an account. Entering an activated key elsewhere does not make it unassigned. Automatically created names commonly look like `User-…`; such an account is not a disposable temporary session.
 
-### 🔐 How can you sign in?
+For an account first created from a key, the key supplies the initial sign-in secret. If you change the password, use the current credentials rather than expecting the old key to remain a permanent password. Account management is available in the profile.
 
-You now have **two** options:
+The product's license determines its duration and conditions. Account binding and a license session's PC binding are separate. Signing in again does not extend expired access, unfreeze it or release an occupied session. See [Sublicenses](/en/features/sublicenses) for these states.
 
-1. **Register an account** and get a username and password — [Create account](https://eyeauras.net/register).  
-   You can later attach as many keys to your account as needed.
-
-2. **Log in using just a key**, without registration, via the `I have a key` button:  
-   ![I have a key](https://s3.eyeauras.net/media/2025/03/ShareX_829CnImJUb2PaMYZ.png)
-
----
-
-### ✅ KeyLogin Benefits
-
-- ⚡ **Instant access** — no email, no passwords, no confirmations
-- 🔐 **Secure** — the key acts as your password until you choose to change it via [My Account](https://eyeauras.net/my)
-- 🔁 **Reusable login** — as long as the password hasn’t changed, you can sign in again
-- 🧩 **You can attach more keys later** — even to a \"temporary\" account
-- 📜 **View your active keys** — in your [My Account](https://eyeauras.net/my) page
-- 🔄 **Switch to a full account later** — by setting your username and password
-
----
-
-### ⚠️ Limitations and caveats
-
-- 🧾 Your account name will be auto-generated (e.g., `User-9F34`)
-- ✍️ Renaming accounts will be available in a **future update**
-- 🔑 Keys are **permanently bound** to your account — once activated, they stay linked
-- 🔐 After changing your password, login via key will no longer work — use your username/password instead
-
----
-
-### ✨ Conclusion
-
-KeyLogin is the fastest way to start using EyeAuras — with no signup, no friction.  
-It’s perfect if you just want to enter a key and start working right away.  
-Later on, you can always personalize your account and keep using it normally.
-
-> Just click **I have a key**, enter your key — and you’re in. ✅
+For a custom pack interface, use the supported sign-in flow or LoginWidget. A username alone is not an access decision; the same guide describes the technical options.

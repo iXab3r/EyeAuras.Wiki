@@ -7,23 +7,29 @@ tags: reporting, mini-apps, ai-translated
 editor: markdown
 dateCreated: 2026-10-11T00:00:00.000Z
 ---
+# Prepare a report that helps reproduce a problem
 
-# Problem reports and receiving archives
+If an action fails or a mini-app reports an error, save diagnostics from that run: your steps, logs and relevant attachments. For example, an author may need an archive for a repeatable failure while you want to review its contents first. **Save…** creates a local file. **Send** is a separate upload operation.
 
-An EyeAuras problem report is an archive containing your description, diagnostic information and selected attachments. Mini-apps built on EyeAuras use the same reporting infrastructure.
+## Save an archive for review
 
-Users can send a report to EyeAuras support or save the archive and send it directly to a share author. Authors can accept these archives today. An API for authors to retrieve reports is planned; it is not available yet.
+1. After the problem, open **Report a problem** in EyeAuras. It can also open after an exception, or from a mini-app button if its author provides one.
+2. Describe your exact steps, the actual result and what you expected. For example: “After choosing a file I clicked Execute. A log entry appeared, but the file did not open.” Use your own observations. You can edit or clear a prefilled comment.
+3. Select logs from the affected run. If you have restarted since then, include the earlier file containing the problem. Add aura configuration when it is relevant to reproduction.
+4. Review the selected attachments, especially window screenshots and configuration. Click **Save…**, choose your directory and wait for the `.7z` archive to appear in Explorer.
+5. Open the archive for reading and check `comment.txt` and the relevant logs. A file on disk has not been sent to support or the author. Share it only with your chosen recipient through an agreed channel.
 
-## Send or save a report
+Saving and sending use the same prepared diagnostic snapshot. Changing accounts or subscriptions after opening the dialog does not update it. Open a new report dialog to collect a new state.
 
-1. Open **Report a problem** in EyeAuras. A mini-app may provide its own button that opens the same dialog. The dialog may also open after an exception.
-2. Describe what you did, what happened and what you expected. A mini-app can prefill the comment; you can edit or clear it.
-3. Select relevant logs and other attachments. Include logs from the affected run, even if you have already restarted the app. Attach the aura configuration when the author needs to reproduce the problem.
-4. Send the report to the central EyeAuras service, or save an archive and send it through the author's support channel.
+| Button or state | Result |
+| --- | --- |
+| Save… | Prepares the selected archive, saves it locally and opens its location. |
+| Send | Uploads through the configured handler. Standard EyeAuras uses its server; a mini-app can supply another handler. Available only when a handler exists. |
+| Report sent / Report sent successfully | The handler returned a report ID. Keep it for support; this does not mean the author has read the report. |
+| Copy | Copies the sent report ID or current status text, not the archive. It does not send anything. |
+| Cancel | Closes the dialog. Opening or closing it is not evidence of a successful send. |
 
-Sending to EyeAuras does not automatically deliver the report to every author listed in its subscriptions. If an author asks for an archive, use the save option and send them that file.
-
-The saved and sent archives use the same prepared diagnostic snapshot. Changing the account or subscriptions after opening the dialog does not update that snapshot.
+If you choose **Send**, wait for confirmation and an ID. **Compressing report…** and **Sending report…** are progress states. Sending to EyeAuras does not automatically deliver the report to every author in its subscriptions. If an author asks for the file directly, use the saved archive.
 
 ## What is in the archive
 
@@ -39,6 +45,12 @@ The saved and sent archives use the same prepared diagnostic snapshot. Changing 
 | `Auras.zip`, configuration files | Selected aura tree/configuration attachments. Aura and configuration attachments are not selected by default. |
 
 The dialog lets you choose optional attachments. Required diagnostic files are included automatically. Review the content before sharing: command lines, startup text, logs, screenshots and selected configuration may contain local paths or data supplied by your scripts.
+
+
+Deselecting configuration does not remove account or subscription information from the required `applicationInfo.txt`.
+
+<details>
+<summary>Diagnostic format and receiving archives as an author</summary>
 
 ## Application information
 
@@ -143,7 +155,7 @@ All subscriptions and clones remain in the description and original file. Only t
 
 License information, features, tree counts and startup text appear in the description rather than separate search fields. The original archive is attached. Report identity uses the exact report ID across issue states. After mini-app activation it is checked in both EA and MAPS; POE remains separate.
 
-Ordinary EyeAuras reports go to EA. PoEBane keeps its separate importer and configured project, POE by default. When that importer is disabled, `PoEBane_` archives are skipped. An API for authors to retrieve reports is planned; saved archives can already be accepted manually.
+Ordinary EyeAuras reports go to EA. PoEBane keeps its separate importer and configured project, POE by default. When that importer is disabled, `PoEBane_` archives are skipped. Saved archives can be accepted manually; this workflow does not provide an author retrieval API.
 
 ## Mini-app reports in YouTrack
 
@@ -157,9 +169,12 @@ Access covers the whole report, including its original archive, license diagnost
 
 The processor keeps the report identity across EA and MAPS after activation. Closing an issue or restarting an unfinished import does not create another issue. A saved receipt lets the processor finish attachments on the already published issue.
 
+
+</details>
+
 ## Related pages
 
-- [Report a problem](/report-a-problem)
-- [Mini-apps](/features/mini-app)
-- [Opening the report dialog from a script](/scripting/api/core/error-reporting)
+- [Report a problem](/en/report-a-problem)
+- [Mini-apps](/en/features/mini-app)
+- [Opening the report dialog from a script](/en/scripting/api/core/error-reporting)
 - [Русская версия](/ru/features/problem-reports)

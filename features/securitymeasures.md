@@ -1,35 +1,50 @@
 ---
-title: Detection Evasion
-description: Methods and guidance for avoiding detection
+title: Security Measures
+description: Configure startup through a prepared EyeAuras copy
 published: true
 date: 2025-03-12T23:19:10.881Z
 tags: безопасность, защита, программирование, ai-translated
 editor: markdown
 dateCreated: 2022-12-20T17:27:54.469Z
 ---
-Because the program may be blocked by some anti-cheat systems (for example, Active Anticheat in Lineage 2), EyeAuras includes built-in tools to help reduce the risk of detection.
+# Launch EyeAuras through a prepared copy
 
-**IMPORTANT! EyeAuras must be started BEFORE launching your game.**
+**Security measures** changes how EyeAuras starts. It prepares a separate copy in a randomly named directory under LocalAppData, changes the executable name, prepares its executable files and launches it instead of the original process. The original process exits after handing over startup. This lets the application run from a prepared location with a different name while keeping the original installation for later launches.
 
-## No injection
+Preparation can copy program files or use a separate executable name. It does not turn your auras into a newly published pack. The mode does not guarantee invisibility or compatibility with every other program's protection system.
 
-Everything the app does, it does without modifying the game or its files. This means that any active protection system that periodically checks for installed hooks and similar changes will not find anything there.
+Use your own working configuration and make a [local export](/en/features/export-import) of important auras first. Finish current work before changing a startup setting.
 
-The only way to detect the app is to find it on the system itself, and protection against that is being continuously improved.
+1. Open EyeAuras settings and find **Security measures**.
+2. Enable it and click **Save**. When changing from disabled to enabled, the application offers a restart; confirm when ready.
+3. Wait for preparation and the new EyeAuras window. Check your profile and familiar auras. A new process following the original's exit is the startup handover, not a second independent user set. Preparation time depends on the distribution and its files.
+4. If your workflow requires EyeAuras to start before a target application, complete this restart before opening the target.
+5. To return, clear the checkbox, **Save**, and use the next normal launch. An already prepared copy and an explicit startup override take precedence over the saved checkbox. Check which copy you launch; changing the checkbox does not switch the running process in place.
 
-## Container encryption — first layer of protection
+## Choose the mechanism for the job
 
-The application is packaged as a single encrypted executable with no signatures, and all files required for its operation are embedded directly into the application itself.
+| Mechanism | What it changes |
+| --- | --- |
+| Security measures | Preparation and startup handover to a separate EyeAuras copy. |
+| Application and module packaging | Distribution contents and loading of program components, separate from the startup-mode choice. |
+| Folder Private Content | Viewing and editing through the application; see [permissions](/en/features/permission-model). |
+| Binaries Only and Script Protection Mode | Distributed source text and binary processing; see [script protection](/en/features/script-protection). |
+| Sublicense | Access to a particular author's product. |
+| Approval to run someone else's logic | Your decision to trust that action or set. It does not enable Security measures or grant a license. |
 
-## Module encryption — second layer of protection
+<details>
+<summary>Override the setting in a portable pack</summary>
 
-Every operation the app can perform is implemented as a separate “module” — computer vision, input emulation, communication, and so on. These are packed into separate libraries, each with a unique signature for every new version.
+**Pack Options → Security Measures** provides these overrides:
 
-## "Security Measures" option
+| Value | Bundle behaviour |
+| --- | --- |
+| Not set | Keeps the source configuration's setting. |
+| Enable | Enables prepared-copy startup. |
+| Disable | Disables it for the bundle. |
 
-This option is available in the application settings and enables several additional steps intended to protect the program from detection. Startup time will increase, and in some cases this may add up to 1 extra minute.
+Check a prepared bundle with its own launch before distributing it. See [Packs](/en/features/packs) for its contents and preparation; the [early packaging announcement](https://wiki.eyeauras.net/en/changelogs/6736) describes the feature's history.
 
-## Additional tips
+</details>
 
-- The safest way to use any bot is with multiple PCs and streaming. In that setup, EyeAuras never runs on the same PC as the game, which makes detection nearly impossible, especially if you also take extra steps such as choosing a hardware input emulation device (KMBox or Usb2Kbd).
-- Whenever possible, prefer the [packed](https://wiki.eyeauras.net/en/changelogs/6736) version of scripts. By packing auras and scripts, we can make detection extremely difficult.
+Capture methods, software or hardware input, splitting components across computers and adding external libraries are separate choices. Check their requirements and actual results for your workflow.

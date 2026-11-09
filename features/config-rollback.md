@@ -1,109 +1,71 @@
 ---
-title: Changelog
-description: Release notes and version history
+title: Configuration Version History
+description: Restore a profile configuration from local version history
 published: true
 date: 2025-03-12T23:00:53.963Z
 tags: version control, Git, configuration management, rollbacks, ai-translated
 editor: markdown
 dateCreated: 2024-10-30T17:29:03.641Z
 ---
-#  Configuration Version History and Rollbacks
+# Restore an earlier configuration
 
-EyeAuras uses [Git](https://git-scm.com/) to automatically save your program configuration. In practice, this means the app creates snapshots of your current settings that you can review or roll back to when needed. These snapshots are called **commits**.
+If your changes break a set, **Version history** can restore the profile's configuration to an earlier snapshot. For example, you can recover a folder's original name along with the other settings saved at that time. Restoration affects the whole configuration and restarts EyeAuras.
 
-## What is a commit?
+Practise in your own test profile, with file-based configuration saving and **File system version control** enabled. First make a [local export](/en/features/export-import) of anything you need to keep: history on the same disk is not a separate backup.
 
-A commit is a saved state of your files. Each commit records changes. For example, if you change a setting, the program creates a new commit that stores that change. Commits make it easy to return to older versions of your configuration, because you can select a specific commit and restore the files to that point in time.
+## Make a change and undo it
 
-EyeAuras creates commits automatically:
+1. Name your test folder `History — original`. Exit EyeAuras normally and reopen the same profile so the exit save records that state.
+2. Open **Version history** using the main-window button with that tooltip. Find the original snapshot and note its **Commit ID** and time. Close with **Cancel**.
+3. Rename the folder to `History — changed`. Exit normally and reopen again. Export any newer changes you also want to retain before restoring.
+4. Open **Version history**. Select **All-time** and **Refresh** if needed, then select the original snapshot, rather than the latest one with the new name.
+5. Click **Reset to Selected Commit**, check the snapshot's date in the confirmation, and confirm. EyeAuras flushes current configuration writes, restores the selected files and restarts.
+6. The folder should again be `History — original`. Later commits remain in the history, with a new restoration commit. This distinguishes this operation from **Hard Reset**.
 
-- Periodically (automatic saves are marked as `Periodic save`)
-- When you exit the program
+![Version history button in the main window](https://s3.eyeauras.net/media/2024/10/Code_6kH4xNd9ioGMtjIK.png)
+![Snapshots, dates, descriptions and period filter](https://s3.eyeauras.net/media/2024/10/EyeAuras_Y3P3cw9Pi1E0WkMc.png)
 
-All commits are kept indefinitely, so you can return to any previous version of your configuration at any time.
+## Choose the restoration scope
 
-## Where is the configuration stored?
+| Command | What it does |
+| --- | --- |
+| Reset to Selected Commit | Restores the snapshot's files, retains the existing history and creates a new restoration commit. It can remove untracked files inside the configuration directory. |
+| Hard Reset | Moves the current history head to the selected commit and resets tracked files. Later states disappear from that branch's normal list; do not rely on undoing this through the dialog. |
+| Refresh | Reloads the commit list. It does not manually save a snapshot of current edits. |
+| 1 day / 1 week / 1 month / 1 year / All-time | Filters the visible period. A commit outside the filter is not necessarily deleted. |
+| Cancel | Closes without restoring. Aura execution is paused while this dialog is open. |
 
-The program configuration is stored as a Git repository inside the `config` folder. The path depends on your EyeAuras version:
+Older descriptions call the first operation **Soft Reset**. It is not Git's `reset --soft`: EyeAuras restores files and records a new commit. [Git](https://git-scm.com/) stores the snapshots; you do not need its commands to use this dialog.
 
-- **Standalone version**: `%appdata%\EyeAuras\release\config`
-- **Portable and Packed versions**: `data\release\config`
+The older confirmation below belongs to the first operation. Follow the selected button and operation description: its confirmation title can say Hard-reset even for **Reset to Selected Commit**.
 
-This folder contains both the change history and the current configuration files used by the program.
+![Confirmation for restoring while retaining later history](https://s3.eyeauras.net/media/2024/10/EyeAuras_3fDx8YnlGoQL6K16.png)
 
-## Using "Version history"
+<details>
+<summary>When to use Hard Reset</summary>
 
-![Version history](https://s3.eyeauras.net/media/2024/10/Code_6kH4xNd9ioGMtjIK.png)
-![Version history](https://s3.eyeauras.net/media/2024/10/EyeAuras_Y3P3cw9Pi1E0WkMc.png)
+Use it when you intend to discard the later configuration branch, rather than merely return to earlier values. Export needed newer auras and settings first.
 
-"Version history" lets you:
+1. Select the commit in **Version history**.
+2. Click **Hard Reset** and check the time, description and warning about later changes.
+3. Confirm, then inspect the configuration and history after restart.
 
-1. **Browse commit history** — see all saved changes with dates and descriptions.
-2. **Choose a time range** — filter commits to only show the last day, week, month, and so on.
-3. **Roll back your configuration** — two rollback types are available: soft and hard.
+![Hard Reset confirmation](https://s3.eyeauras.net/media/2024/10/EyeAuras_2kw8xktqIXGgOkYG.png)
 
-## Two rollback types: Soft Reset and Hard Reset
+Resetting tracked files does not promise to delete every arbitrary file in the directory. It does not delete your account, website publications or external programs' files.
 
-### Soft Reset
+</details>
 
-**What it does**  
-A **Soft Reset** updates only the files in the `config` folder so they match the selected commit, **without changing commit history**. The full history stays intact, so if you later want to return to the current version, you still can.
+## What is saved automatically
 
-**How Soft Reset works**
+History belongs to the current profile's `config` directory. It covers configuration files, rather than the Windows installation or every external resource. Changes are recorded periodically, approximately every **15 minutes**, and on normal exit. A commit requires changes; moving a slider need not create its own history entry.
 
-1. The program takes the files from the selected commit and overwrites the current files in `config`.
-2. The change history is left untouched — all later commits remain in Git.
-3. Use this if you want to temporarily return to an earlier version without losing recent history.
+Restoration flushes pending configuration writes first, but does not promise a separate historical snapshot of every unsaved edit. It replaces current values. The profile and its history must still exist on disk; this is not server-side recovery.
 
-**Pros**
+| Normal release profile | Usual config location |
+| --- | --- |
+| Standalone | `%appdata%\EyeAuras\release\config`. |
+| Portable / Pack | `data\release\config` beside the application bundle. |
+| Another profile or custom data directory | Its own directory; the normal release path is not universal. |
 
-- **History is preserved**: all commits stay available and can be restored later.
-- **Flexible**: you can roll back temporarily while still keeping the option to go back to your current configuration.
-
-**Cons**
-
-- **History can become harder to read**: with many commits, it may be more difficult to understand what changed.
-- **Extra files are not removed**: if new files were added after the selected commit, they will remain in the `config` folder.
-
-### Hard Reset
-
-**What it does**  
-A **Hard Reset** rolls back the `config` folder to the exact state of the selected commit **and removes all commits made after it**. In other words, the history is rewound as if the later changes never happened.
-
-**How Hard Reset works**
-
-1. The program takes the files from the selected commit and replaces the current files in `config`.
-2. All commits made after the selected one are removed from history.
-3. Any files added after the selected commit are also deleted.
-
-**Pros**
-
-- **Clean history**: only the commits you want to keep remain.
-- **Exact restoration**: the `config` folder becomes an exact copy of the selected commit.
-
-**Cons**
-
-- **Cannot be undone**: all later commits are permanently removed and cannot be recovered.
-- **Risk of data loss**: any important changes made after the selected commit will be lost.
-
-## How to roll back
-
-### Soft Reset
-
-![Soft Reset](https://s3.eyeauras.net/media/2024/10/EyeAuras_3fDx8YnlGoQL6K16.png)
-
-1. Open "Version history"
-2. Select the commit you want from the list
-3. Click **"Reset to Selected Commit"**
-4. Confirm the action. Your configuration files will be rolled back to the selected commit, while commit history stays unchanged
-
-### Hard Reset
-
-![Hard Reset](https://s3.eyeauras.net/media/2024/10/EyeAuras_2kw8xktqIXGgOkYG.png)
-
-1. Open "Version history"
-2. Select the commit you want to roll back to
-3. Click **"Hard Reset"**
-4. Confirm the action. The program will remove all commits after the selected one and fully restore the `config` folder to that commit's state
-
-After the rollback, the program will restart to apply the changes.
+**Local History** for scripts and other tracked objects is a different tool. Its **Commit**, **Apply** and text comparison operate on the supplied objects and can include an unsaved document. These features do not describe **Version history**, which restores the profile configuration with a restart.
