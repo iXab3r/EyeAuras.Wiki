@@ -7,59 +7,71 @@ tags: eyeauras, выражения, интерфейс, окна, ai-translated
 editor: markdown
 dateCreated: 2023-06-18T11:57:49.061Z
 ---
-# Window Matching Expressions
 
-Window matching expressions let you define an expression that selects a specific window—or multiple windows—based on different criteria. These expressions are supported across EyeAuras actions and triggers, and let you control where input is sent, which window should be active, which window should be captured in a screenshot or recording, and more.
+# Window Matching Expressions — keep the right window selected
 
-![](/assets/legacy/eyeauras_zjebk8jadf.png)
+If two documents are open in the same application, choose which one an aura should use. A matching expression narrows the candidates; the window selector shows the actual result beside the field. Capture sources, activity checks and input targets can have separate selectors. Changing one does not configure the others.
 
-## Components
+## Select a report window
 
-This control includes three parts:
+1. Open your report and a second window of the same application. In a capture trigger, expand **Capture settings → Target Window**.
+2. Use **Click to select Window** to pick the report. Check the selected window and hover over it for details.
+3. To find it again after reopening, enter a distinctive title fragment, such as `October report`, without quotes. Plain text is searched across several window fields.
+4. For a complete match, quote the **whole actual title**, including the application's suffix. If it is exactly `October report — Viewer`, enter `"October report — Viewer"`.
+5. Switch to the other document. The selected-window display and capture preview should still identify the report. Close and reopen the report, then verify the expression finds it again.
 
-**Window picker dropdown**  
-Clicking the small icon opens a dropdown list of all active windows. Selecting a window from that list generates a matching expression based on the window handle or title.
+An exact title stops matching if the document name changes. A native handle selected for one window can change when that window is recreated. Choose what remains stable in your setup.
 
-**Expression input field**  
-A text field where you enter the matching expression. EyeAuras parses this expression to determine which window or windows should be selected.
+![Expression and selected-window display in the older interface](/assets/legacy/eyeauras_zjebk8jadf.png)
 
-**Selected window display**  
-This area shows the windows currently selected by the expression. Hovering over a result shows a tooltip with detailed window information, which can help you refine the expression.
+The older dropdown is shown here. Current editors offer window and process picker buttons; their placement differs. The expression and the actual selected result are still separate things to inspect.
 
-## Creating a matching expression
+## Simple expressions
 
-You can enter expressions manually in the input field. EyeAuras interprets them as matching criteria. Here are the supported formats:
+The matcher checks **process path, process name, window title and process arguments**. A match in a supported field is enough, so a broad string is not a title-only or process-only filter.
 
-- **Plain text**: Entering `test` matches all windows with `test` in the title using a case-insensitive partial match.
-- **Exact text match**: Putting text in single (`' '`) or double (`" "`) quotes makes it an exact, case-sensitive match. For example, `'test'` matches only windows with the title `test`.
-- **Regular expression match**: Text in the `/expression/` format is treated as a regular expression and used to match window titles by pattern.
-- **By handle**: You can specify a window handle directly. Hex values such as `0xA` or values with the `&H` prefix such as `&HA` match a window by its handle. Keep in mind that handles can change whenever the window or application is restarted.
-- **By index**: Adding `#number` to an expression selects a window by index. For example, `test #2` selects the second window with `test` in the title. `#2` selects the second window in the dropdown list.
+| Expression | Meaning |
+| --- | --- |
+| `notepad` | Substring in path, title or arguments; process name is compared as a whole value. |
+| `"My document"` or `'My document'` | Complete field match. |
+| `/^My document/` | Regular expression for path, title or arguments. |
+| `0x5A` or `&H5A` | Native window handle. These numbers illustrate syntax, not a handle to use on your machine. |
+| `notepad #2` | Second match after the matcher's sorting. |
+| `#1` | First window in the eligible list. |
 
-The matching windows are then shown in the selected window display.
+Plain and quoted comparisons use **OrdinalIgnoreCase**. Quoting requires a complete match; it does not make matching case-sensitive or restrict it to the title. Regex also uses IgnoreCase.
 
-Window matching expressions make it easier to fine-tune how EyeAuras interacts with your applications.
+Enter regex as `/pattern/`, without outer quotes. `"/fire/"` is exact text, not regex; `/fire/` searches a pattern. Put an index **outside** quotes: `"Firefox" #2`, not `"Firefox #2"`. The [text evaluator's Regex mode](/en/features/text-match-expressions) uses a different field syntax and does not need these outer slashes.
 
-## Examples
+Indices start at one after sorting by process creation time, Z-order, title length, title text and PID. They are not stable document identifiers, and need not match an old dropdown's visual order.
 
-| Expression | Result |
-|---|---|
-| `"Explorer"` | Matches the window with the exact title `Explorer`. |
-| `"/fire/"` | Matches all windows with `fire` in the title, ignoring case. |
-| `"Explorer" #2` | Matches the second window with the exact title `Explorer`. |
-| `"Mail" #1` | Matches the first window with the title `Mail`. |
-| `0x5A` | Matches the window with the hexadecimal handle value `5A`. |
-| `"paint"` | Matches all windows with `paint` in the title. |
-| `"/^Notepad/"` | Matches all windows whose title starts with `Notepad`. |
-| `&H2B` | Matches the window with the hexadecimal handle value `2B`. |
-| `"/chrome$/"` | Matches all windows whose title ends with `chrome`. |
-| `"Calculator" #3` | Matches the third window with the exact title `Calculator`. |
-| `"Excel" #1` | Matches the first window with the title `Excel`. |
-| `"/Microsoft/"` | Matches all windows with `Microsoft` in the title, ignoring case. |
-| `0xA1F` | Matches the window with the hexadecimal handle value `A1F`. |
-| `"/^Google Chrome/"` | Matches all windows whose title starts with `Google Chrome`. |
-| `#5` | Matches the fifth window in the dropdown list. |
-| `"Firefox #2"` | Matches the second window with the exact title `Firefox`. |
-| `&H7C` | Matches the window with the hexadecimal handle value `7C`. |
-| `#1` | Matches the first window in the dropdown list. |
-| `"/.*/"` | Matches all windows, since this regular expression matches any character. |
+## Combine criteria
+
+| Expression | Meaning |
+| --- | --- |
+| `notepad && /report/` | Narrows sequentially: first notepad candidates, then /report/ within that set. |
+| `notepad \|\| calc` | First nonempty alternative. If notepad matches, calc results are not added. |
+| `!title` or `NOT title` | No standalone negation operator is defined by this grammar. Do not use these as an exclusion filter. |
+
+Alternatives are not a union. Operators are processed sequentially; do not assume C# precedence or parentheses. Build from a simple expression and inspect the actual selected window after each change. Negation inside a regex is regex syntax, and still operates within this multi-field matching rule.
+
+<details>
+<summary>Selector filters and the script API boundary</summary>
+
+The candidate list also depends on the window provider and selector filters. Bracket properties are parsed by that selector rather than treated as ordinary text.
+
+| Setting or suffix | Scope |
+| --- | --- |
+| `[type=toplevel]` | Main windows; type=child and type=any are also supported. Results are limited to the supplied window list. |
+| `[ownedBy=external]` / `[ownedBy=any]` | Excludes EyeAuras-owned windows or removes that restriction. Defaults are external and toplevel. |
+| `[visible]` / `[focus]` | These parsed flags do not themselves enable visibility or foreground filtering. |
+| OnlyVisible | A selector property for visible-window filtering; appending `[visible]` is not equivalent. |
+| ProcessName | Use an explicit process filter in a context that supplies one for a process-only restriction. Broad text is not a direct equivalent of AutoHotkey ahk_exe. |
+
+**Click to select Process** writes the chosen process name as an expression. The ordinary multi-field rules still apply.
+
+In scripts, `IWindowMatcher.FindMatches` handles compound `&&` / `||` expressions. Single-window `IsMatch` and `WindowMatchParams` take a simple expression. This is an API boundary, not a requirement to write a script for the UI selector. See [window contexts](/en/scripting/api/windows-subsystems/window-handles) for supplied lists and foreground queries.
+
+</details>
+
+Use [Window Is Active](/en/triggers/window-is-active) to test the chosen window's foreground state. For pixel searches, configure [capture and region](/en/triggers/images/imagecapturetriggers) separately: a matching title does not prove the captured frame is correct.

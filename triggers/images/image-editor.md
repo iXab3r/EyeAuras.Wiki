@@ -8,46 +8,66 @@ editor: markdown
 dateCreated: 2026-03-26T18:00:00.000Z
 ---
 
-# Template Image Editor
-`Image Search` now has a built-in editor for quick template cleanup before the image is used for matching.
+# Template Image Editor — keep only the useful sample
 
-It is meant for small, practical edits:
-- crop the useful area
-- erase unwanted pixels
-- remove a background color
-- resize the template
-- step backward with Undo / Redo
+If an icon has a changing caption or background, leave those pixels out of its Image Search template. The built-in editor can crop the sample, erase unwanted detail and store the result back in the trigger.
 
-The editor is intentionally simple. It is not a full graphics tool, and it is not a replacement for [Image Effects](/triggers/images/effects), which are applied to the captured image in real time. This editor changes the template image itself and saves the result back into the trigger.
+It changes the **saved template**. [Image Effects](/en/triggers/images/effects) changes **each captured frame** before matching. Choose according to which image needs work.
 
-## How to open it
-In `Image Search`, load or capture a template image and press `Edit...` next to the preview.
+## Keep an icon and remove its background
 
-After saving, the updated image is stored directly inside the trigger, so you can immediately test the new template.
+Start with an **Image Search** trigger containing a sample loaded through **Load...**, the clipboard, or **Load from Preview Pane**. Use an icon on a flat background for this example; with a complex background, crop and erase without removing an entire color.
 
-## Main features
-### Remove Color
-`Remove Color` is useful when the template has a flat background or a color that should not participate in matching. Click a pixel, adjust tolerance, and EyeAuras will make similar colors transparent.
+1. Under **Template source - what to search for**, click **Edit...**.
+2. Choose **Crop**, frame the icon without its caption or neighbors, then click **Apply crop**. The mouse wheel zooms the view; you can move the image within the crop area.
 
-![Remove Color](https://s3.eyeauras.net/media/2026/03/EyeAuras_GzpbgEXA4d.png =x700)
+   In this example, the crop keeps the flamingo and removes much of the empty space:
 
-### Crop
-Use `Crop` to keep only the part that actually matters for matching. Smaller and cleaner templates are usually easier to tune and often work better.
+   ![Crop frame around the useful sample](https://s3.eyeauras.net/media/2026/03/EyeAuras_2GV7n4SiIU.png =x700)
 
-![Cropping](https://s3.eyeauras.net/media/2026/03/EyeAuras_2GV7n4SiIU.png =x700)
+3. Choose **Remove Color**, start with **Tolerance = 0%**, and click a flat-background pixel. If nearby shades remain, increase tolerance a little and select again. A large tolerance can remove part of the icon too.
 
-### Resize
-`Resize` can scale the template by preset percentages or by a custom size. This is useful when you want to shrink a template, normalize it, or quickly try a slightly different size.
+   The checkerboard below represents transparency, excluded from Image Search comparison:
 
-![Resize](https://s3.eyeauras.net/media/2026/03/EyeAuras_bkvQJXOPqM.png =x700)
+   ![Remove Color makes the background transparent](https://s3.eyeauras.net/media/2026/03/EyeAuras_GzpbgEXA4d.png =x700)
 
-### Erase
-`Erase` lets you paint transparency directly onto the template. This is especially useful for removing noisy corners, particles, glow, or other small details that keep changing in-game.
+4. Choose **Erase** and a suitable **Brush size** for isolated unwanted detail. Keep distinctive lines and enough opaque pixels in the icon.
+5. Use **Undo** or **Ctrl+Z** to revert a mistake; **Redo** or **Ctrl+Y** restores an undone edit.
+6. Click **Save** at the bottom. The trigger's template should update. Back in Image Search, use **Refresh Once** on states with and without the icon.
 
-### Undo and Redo
-Use `Ctrl + Z` and `Ctrl + Y` to move through recent changes. This makes it easy to test several cleanup variants without reloading the image from scratch.
+These screenshots show the sample editor, not an object-recognition model. Transparency excludes pixels; it does not make the remaining template work at any size or rotation.
 
-## When to use it
-Use the template editor when the template itself needs cleanup.
+## Resize the template when necessary
 
-Use [Image Effects](/triggers/images/effects) when the live captured image needs preprocessing before matching.
+Prefer capturing a sample at the same scale as the icon. If its dimensions differ, open **Resize**.
+
+| Resize control | Use |
+| --- | --- |
+| 50%, 75%, 100%, 125%, 150%, 200% | Preset template scales. |
+| Width / Height | Exact pixel dimensions. |
+| Scale | Percentage scaling. |
+| Keep aspect ratio | Preserves proportions; enabled by default. |
+| Apply | Applies the selected size to the sample. |
+| Reset | Resets resize parameters to the current image. |
+
+![Resize controls with aspect ratio preservation](https://s3.eyeauras.net/media/2026/03/EyeAuras_bkvQJXOPqM.png =x700)
+
+Shrinking only the template does not shrink the source application's icon. When capture resize effects are enabled, match the sample to their output.
+
+<details>
+<summary>Other tools and saving</summary>
+
+| Control | Meaning |
+| --- | --- |
+| Erase → Brush size | Paints transparency onto the sample. |
+| Remove Color → Tolerance | Selects similar colors throughout the image, not only adjacent background pixels. |
+| Adjust → Brightness / Contrast / Saturation | Adjusts the sample. Apply commits the change; Reset resets adjustment parameters. |
+| Fit / 1:1 | Changes the view scale, not saved pixel dimensions. |
+| Save | Applies the edited result to the trigger, including an unfinished crop. |
+| Cancel | Closes without applying the edited result. |
+
+When the icon and background share a color, Remove Color can erase both. Undo and retain the background or erase selected areas instead.
+
+</details>
+
+Save does not overwrite the original file from which the sample was loaded. For a separate copy, use **Save...** in [Image Search](/en/triggers/images/image-search).

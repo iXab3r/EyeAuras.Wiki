@@ -1,6 +1,6 @@
 ---
 title: Color Search
-description: captures, analyzes the average color of a screen area, and triggers actions based on its similarity to a pre-selected color. Ideal for game resource monitoring.
+description: Compare captured colors and test a similarity range
 published: true
 date: 2024-05-14T11:17:37.160Z
 tags: 
@@ -8,58 +8,56 @@ editor: markdown
 dateCreated: 2023-06-17T12:25:45.794Z
 ---
 
-The Color Search Trigger is an EyeAuras feature that allows users to capture a screen, window, or specific region, calculate the average color of the captured section, and then compare it to a predetermined color. The trigger activates when the measured similarity (match percentage) between the captured color and the chosen color is greater than or equal to a specified threshold. Users can opt for one of two methods to calculate color similarity - CIEDE2000 and Euclidean Distance.
+# Color Search — detect an indicator's color change
 
-### **Human Perception - CIEDE2000**
+Color Search can notice a gray indicator becoming green for “ready”. It receives pixels from the chosen window, compares them with **Target Color**, and checks whether similarity falls within the configured range. It does not read the application's internal status value.
 
-CIEDE2000 is a refined method for color comparison that mirrors human color perception. This technique, developed by the International Commission on Illumination (CIE), factors in the complex attributes of human vision and offers a highly accurate comparison of colors as perceived by the human eye.
+Choose a mostly uniform area and an application where you can switch between both states. Exclude lettering, borders and panel background from the region: they change its average color.
 
-Benefits:
+## Check a green indicator
 
--   Close approximation of human color perception.
--   Accurate results for a broad spectrum of colors.
+1. Open the application with its indicator green and add **Color Search** to an aura.
+2. Select the window in **Capture settings → Target Window**, set **Image Capture Rate = 5** and expand **Preview captured image**.
+3. Use **Crop region** to keep the solid center of the indicator. If its color is wrong in preview, fix the [capture source](/en/triggers/images/imagecapturetriggers) first.
+4. Set **Comparison Granularity — Aggregate Average Color of Entire Area** and **Comparison Method — Human Perception**.
+5. Click **Copy Captured Color to Target Color**. Check that Target Color now contains the current average color.
+6. Under **Match Threshold**, enable **Min** to display both limits. Set **Min = 95%**, **Max = 100%**. With the indicator unchanged, Similarity should be near 100% and the trigger active.
+7. Switch the indicator to gray or its other normal state. Similarity should leave the range and the trigger become inactive. Restore green and check activation again.
 
-Drawbacks:
+If both states pass, inspect the region and each state's actual similarity, then choose a boundary between them. Antialiasing, effects and hover highlighting mean one 95% setting will not suit every application.
 
--   More computationally demanding than simpler mathematical comparisons.
+## Choose the color and comparison
 
-Ideal for: Applications requiring accurate color comparisons and a close approximation of human color perception, such as design software, photo editing, and color grading in videos.
+| Setting | Meaning |
+| --- | --- |
+| Target Color | Reference color; can also be entered manually. |
+| Captured Color | Average of the whole captured area. In local modes it need not be the color of the found patch. |
+| Copy Captured Color to Target Color | Uses that whole-area average as the reference. |
+| Pick Color from Preview Pane | Selects a particular preview color instead of the whole area's average. |
+| Human Perception | CIEDE2000 comparison, accounting for human perception of color differences. |
+| Mathematical | Euclidean distance in RGB channels. |
+| Match Threshold | Inclusive similarity range, such as 95–100% for a close match. A low-similarity range can test dissimilarity. |
+| Similarity | Current comparison score; it is not generally the percentage of pixels having the target color. |
 
-### **Mathematical - Euclidean Distance**
+Comparison Method applies to the whole-area average. Individual-pixel and block modes use color-template matching instead, so a threshold tuned for CIEDE2000 does not transfer automatically. Neither method guarantees better speed or accuracy in every setup.
 
-Euclidean Distance employs a straightforward mathematical calculation to compare colors by measuring the straight-line distance in the RGB color space.
+## Whole area, pixel or block
 
-Benefits:
+| Comparison Granularity | Use |
+| --- | --- |
+| Aggregate Average Color of Entire Area | Overall state of a small fixed region; every pixel contributes to the average. |
+| Individual Pixel Color | At least one suitable pixel inside the region; a noisy pixel can also match. |
+| Average Color of 2x2 / 4x4 / 4x8 / 8x4 / 8x8 / 16x16 / 32x32 Pixel Blocks | A local patch of the selected size, which must fit in the frame. This is not the whole window's average. |
 
--   Quick and easy to compute.
--   Suitable for swift and less precise color comparisons.
+Use a small fixed region for a stationary indicator, or a local mode for a colored mark that moves within a panel. A similar color elsewhere can also activate an unrestricted search.
 
-Drawbacks:
+<details>
+<summary>Measure a visual bar's filled fraction</summary>
 
--   Less accurate representation of human color perception.
--   Doesn't consider the non-linearity of human color perception.
+The white-filled/black-empty technique is useful for a simple visual progress bar. Use [Effects...](/en/triggers/images/effects) to map the two colors to white and black, exclude borders and text, then compare the whole-area average with white using **Mathematical**. For an ideal binary bar, similarity reflects the fraction of white pixels.
 
-Ideal for: Applications where speed outweighs a perfect color match, like real-time applications, simple color matching games, and quick prototyping.
+Check known empty, half-filled and full states first. Gradients, glow, lettering and rounded corners break the ideal relationship. This measures the bar's pixels, not an internal HP, MP or progress value. Color Removal/Replacement inversion changes the prepared pixels; it is distinct from the trigger's inclusive similarity range.
 
-### **Practical Applications**
+</details>
 
-The Color Search Trigger can be highly beneficial when you need to determine percentage values of game resources like HP/MP. By using the Image Effect on the captured image, you can convert a filled MP bar's color to white and an empty MP bar's color to black. Calculating the Euclidean Distance similarity between a fully-filled MP bar and a partially-filled one, you can accurately assess the remaining MP%. This enables efficient character management by triggering specific actions when HP/MP or other resources reach a particular percentage.
-
-### **Match Threshold**
-
-The match threshold is a user-set parameter that dictates when the trigger is activated. It represents the similarity level (in percentage) between the average color of the captured area and the chosen color. The trigger activates when the calculated similarity meets or surpasses this threshold.
-
-Experimenting with different settings can help you strike the perfect balance between speed and accuracy for your application. The correct configuration can significantly boost the performance and utility of the Color Search Trigger.
-
-### Gaming applications
-
--   **Enemy Detection**: In competitive FPS games, the Color Search Trigger can be used to detect enemy health bars or specific enemy uniforms and trigger actions like alerting the player or activating defensive abilities.
--   **Resource Management**: In strategy games where resource nodes are color-coded, this trigger can detect when new resources become available or when resources are depleted.
--   **Racing Games**: The trigger can detect changes in traffic light colors and automate the acceleration process, making a perfect start.
--   **Hidden Item Finder**: For games that feature hidden items or collectibles often marked with distinct colors, the Color Search Trigger can help locate them.
--   **Puzzle Solving**: In games with color-based puzzles, the trigger can detect the presence of specific colors and automate solutions.
--   **Environment Interaction**: In open-world games, the trigger can be used to interact with color-coded objects in the environment, automating repetitive actions.
--   **Platform Games**: The trigger can detect harmful elements (like red spikes in a platformer) and trigger avoidance actions.
--   **Health/Mana Bar Monitoring**: The trigger can monitor the color changes in health or mana bars in RPG games, triggering alerts or actions when they reach critical levels.
--   **Minimap Awareness**: In games with minimaps, the trigger can be set to detect certain color-coded events, such as enemy encounters or objectives, enhancing player's map awareness.
--   **Fishing Automation**: In games with fishing mechanics where a catch is indicated by a specific color change, the Color Search Trigger can automate the process.
+After both states are distinguishable, add a reaction to **OnEnter**, such as [Play Sound](/en/actions/play-sound). Color Search changes trigger state; the action follows the combined aura's state transition.
