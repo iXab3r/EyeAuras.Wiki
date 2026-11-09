@@ -322,6 +322,47 @@ Use decimal notation only for normal human-facing counts or values where decimal
 
 ## Writing style
 
+### User articles, API documentation and recipes
+
+Classify the page by its purpose before editing. User articles explain a product
+workflow; API discovery maps, operation contracts and references follow the
+[API author role](docs/roles/api-docs-author.md) and
+[API practice](docs/practices/api-documentation.md). The user-article layout below
+must not reformat that API corpus, including contract pages outside `scripting/api`.
+Practical scripting tutorials and examples can be user articles; preserve their
+exact code, runtime context, dependencies and supported contracts.
+
+For user articles, start with a concrete human goal and explain what supplies the
+condition or data. Give prerequisites, numbered UI steps with real labels and values,
+and an observable result. Explain new terms before using them. Keep the Russian voice
+direct and concise, without decorative emoji, invented personal experience or claims
+that EyeAuras controls another application's internal events. Do not force identical
+empty sections. Preserve supported capabilities, material limits, URLs and useful media.
+Use the accepted [style snapshot](ai-writing-style-state.md) for parameter tables.
+
+For a full editorial rollout, census every locale and section, including unpublished,
+legacy and specialized material. Freeze source revisions and a purpose-based API blob
+manifest before article edits. Keep the inventory, per-page decisions and verification
+evidence in the owning issue and local `.workspace/`, never in tracked product docs.
+Preserve release archives as historical changelogs; review their facts and format
+without turning old releases into current tutorials or silently dropping them.
+
+The ordered passes are user-article rewriting, then systematic useful cross-references,
+then a separate user-facing recipes section. Follow the selected source language;
+Russian-first work leaves English translation as an explicit later stage. A recipe
+solves one complete user story, from basic UI setup through developer workflows,
+with prerequisites, exact steps or code, expected result, limits and feature links.
+The current recipes target is 30–40 distinct stories. Existing API architecture
+recipes under `scripting/api/recipes` remain part of the separate API corpus.
+Record source review, compilation, supported-host execution and live publication
+as separate evidence; none substitutes for another.
+
+For settings, parameters, properties, and comparable named options, use Markdown tables
+with the exact UI name and a short explanation. Use one consistent format across
+comparable sections of an article. Put optional or advanced groups inside a details
+block when useful; keep essential setup visible. Ordered instructions remain numbered
+steps. See [the accepted layout guidance](ai-writing-style-state.md#settings-and-parameter-layout).
+
 - Prefer the Russian wiki style as the main writing reference when a Russian version exists.
 - Use `ai-writing-style-state.md` as the evolving style snapshot derived from established reference pages; do not infer their authorship from tone alone.
 - Follow that style when creating new translated pages or syncing older ones.
@@ -345,4 +386,3 @@ Use decimal notation only for normal human-facing counts or values where decimal
 
 - There are `.html` files alongside some markdown pages. Treat them as legacy/generated artifacts unless the task explicitly asks to edit them.
 - Prefer editing `.md` sources.
-

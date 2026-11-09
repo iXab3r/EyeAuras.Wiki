@@ -45,6 +45,15 @@ The preferred EyeAuras wiki style is:
 
 ## Preferred Russian writing patterns
 
+- For user articles, open with one concrete task, explain where its condition or data
+  comes from, and carry it through prerequisites, numbered setup steps and a visible
+  result. Keep meaningful alternatives and limits after that first working path.
+- These user-article conventions do not replace the separate API author role/practice
+  for discovery, operation contracts and reference pages, wherever those pages live.
+  Practical scripting examples still need their exact context, dependencies and code.
+- Use real UI labels and supported behavior. Avoid decorative emoji, invented personal
+  experience, fake game integrations and repeated lists of hypothetical uses. Historical
+  release notes retain their changelog shape and facts rather than acquiring a tutorial.
 - Start with the plain answer first.
 - Explain difficult things in simple human language before introducing technical details.
 - Prefer short paragraphs over long dense blocks.
@@ -108,3 +117,17 @@ Accepted owner preference from the AI Assistant pilot: use Markdown tables for s
 - Numbered lists remain appropriate for ordered instructions. Ordinary lists remain appropriate for content that is not a settings or parameter reference.
 - Keep ELI5 explanations adult and direct. One useful sentence is enough for a simple field; avoid filler, repeated introductions, and decorative icons.
 - Check long names, code values, links, and wrapping on narrow screens when publishing a table.
+
+Example:
+
+```markdown
+| Setting | What it does |
+| --- | --- |
+| Name | Name shown in the profile list. |
+| Endpoint | API server address. Keep the template value for the default provider. |
+```
+
+Use the same structure in Russian pages, with localized column headings such as
+`Настройка` and `Что делает`. When revising an article, remove repeated benefits,
+obvious explanations, and redundant sections; preserve meaningful conditions and
+limitations. Existing article structure may be rewritten to improve clarity.
