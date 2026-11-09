@@ -7,103 +7,95 @@ tags:
 editor: markdown
 dateCreated: 2025-05-11T00:12:14.976Z
 ---
-# Получение списка запущенных процессов
+# Узнать PID своего процесса
 
-Локальный пример ниже выполняется в `C# Script` EyeAuras с загруженным модулем `EyeAuras.Memory`. `LocalProcess.GetProcesses()` возвращает дескрипторы `ProcessInformation`, а не открытые читатели памяти; освобождать каждую запись через `Dispose` не нужно. Для встроенного SDK-хоста модуль подключают через `UseMemory()` и ждут `EnsureReadyAsync()` — это отдельная настройка приложения, не строка обычного скрипта.
+Перед чтением памяти выберите нужный экземпляр программы. Этот скрипт выводит снимок локального списка процессов: имя и PID, по которому затем можно открыть читатель. Он ещё не читает память каждого найденного процесса.
 
-Начнём с очень простой задачи — что если мы хотим получить список запущенных процессов на локальной машине?
+Нужен настольный Windows-хост EyeAuras с загруженным модулем **EyeAuras.Memory**. Тип `LocalProcess` находится в метаданных SDK, но его реализацию регистрирует модуль; одного `using` или ссылки на сборку недостаточно.
 
-В классическом C# это решается вызовом [Process.GetProcesses()](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.getprocesses?view=net-8.0)
+## Получить список
 
-Но так как мы работаем в рамках API EyeAuras, нам придётся использовать немного другой подход, который позволит нам очень легко переключаться между различными способами чтения памяти.
+1. Оставьте открытой свою программу, PID которой хотите узнать. При нескольких одинаковых именах заранее различите экземпляры в Диспетчере задач.
+2. Создайте действие **C# Script**, вставьте в `Script.csx` весь код:
 
-### Самый простой способ — эквивалент работы через Process
 ```csharp
+using System.Linq;
 using EyeAuras.Memory;
+using PoeShared.Scaffolding;
 
 var processes = LocalProcess.GetProcesses();
-Log.Info(processes.DumpToNamedTable("Processes"));
+Log.Info(processes.OrderBy(x => x.ProcessName).DumpToNamedTable("Processes"));
 ```
 
-В результате выполнения этого скрипта вы должны увидеть нечто подобное в `EventLog` — список с очень базовой информацией о запущенных процессах, содержащей их `ProcessId` (или `PID`) и `ProcessName`.
-![Event Log](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_1k4NSsZyzm.png)
+3. Нажмите **Run** и откройте журнал событий скрипта. Найдите строку своей программы и запишите `Id` — это PID. Повторный Run получает новый список.
 
-> Следующие варианты сохранены как примеры интеграции с `LCProcess`. Нужны отдельно установленная совместимая MPFS/LeechCore-сборка, её нативные библиотеки и настроенное устройство/драйвер. Фабрики и получение списка сверены с исходниками `c8b2304`; одна замена класса не доказывает готовность нативного окружения.
-{.is-warning}
+![Прежний вывод списка процессов в журнале](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_1k4NSsZyzm.png)
 
-### Использование LeechCore PMEM-драйвера
+| Поле или операция | Как понимать результат |
+| --- | --- |
+| `ProcessInformation.Id` | PID в источнике списка; это не адрес памяти. После завершения процесса PID может быть использован снова. |
+| `ProcessName` | Имя процесса, не полный путь к исполняемому файлу. Одинаковые имена допустимы. |
+| `GetProcesses()` | Снимок записей `ProcessInformation`, а не открытые читатели. У записей нет своего `Dispose`. |
+| `LocalProcess.ByProcessId(pid)` | Следующий шаг: открыть конкретный локальный процесс. Созданный читатель нужно освободить; доступ определяется правами и состоянием процесса. |
 
-Теперь мы используем другой подход — вместо `LocalProcess` как точки входа, мы вызовем `LCProcess` ([LeechCore](https://github.com/ufrisk/LeechCore)). LeechCore — это отличная библиотека, разработанная [Ulf Frisk](https://github.com/ufrisk).
+Для [просмотра экспортов](/ru/scripting/examples/advanced/memory/read-exports) и [первого чтения значения](/ru/scripting/examples/advanced/memory/rpm-read) есть отдельные законченные примеры. Открытие по имени через `ByProcessName` выбирает первый подходящий процесс, поэтому PID точнее для нескольких экземпляров. Перечисление не обещает возможность открыть любую строку или получить её память.
 
-Внутри у неё реализованы различные методы чтения памяти целевой (не только локальной) системы, включая, конечно, информацию о процессах.
+<details>
+<summary>Другой источник: WinPMEM или Hyper-V</summary>
 
-Для конечного пользователя переключение между методами чтения памяти сводится к замене одного класса, добавлению пространства имён и указанию аргументов запуска.
+Эти варианты нужны для уже подготовленной интеграции **EyeAuras.Memory.MPFS** с совместимыми MemProcFS/LeechCore и нативными библиотеками. WinPMEM требует настроенного [драйвера WinPmem](https://github.com/Velocidex/WinPmem); Hyper-V — доступного устройства захвата памяти гостевой системы. Это не необходимые шаги обычного локального примера.
 
-В этом примере мы передадим библиотеке командную строку `-device pmem`, что заставит её загрузить и использовать драйвер [WinPMEM](https://github.com/Velocidex/WinPmem).
+[LeechCore](https://github.com/ufrisk/LeechCore), разработанный [Ulf Frisk](https://github.com/ufrisk), выбирает источник памяти аргументом устройства. Самостоятельный вариант для WinPMEM:
 
 ```csharp
 using EyeAuras.Memory;
-using EyeAuras.Memory.MPFS; // обратите внимание на новое пространство имён — LCProcess находится здесь
+using EyeAuras.Memory.MPFS;
+using PoeShared.Scaffolding;
 
 var processes = LCProcess.WinPMEM().GetProcesses();
 Log.Info(processes.DumpToNamedTable("Processes"));
 ```
 
-Источник списка и набор видимых процессов зависят от устройства и прав доступа; совпадение с локальным списком не гарантируется.
-
-### Использование LeechCore Hyper-V
-
-Сделаем кое-что интересное — попробуем получить список процессов, запущенных **ВНУТРИ** виртуальной машины Hyper-V (гостевой системы) из хостовой.
-
-Для простоты я выберу ID первой попавшейся виртуалки (id=0), в вашем случае может понадобиться другой ID.
+Для настроенной Hyper-V-среды замените программу этим вариантом, указав свой индекс VM:
 
 ```csharp
 using EyeAuras.Memory;
 using EyeAuras.Memory.MPFS;
+using PoeShared.Scaffolding;
 
 var processes = LCProcess.HyperV().UseVirtualMachineByIndex(0).GetProcesses();
 Log.Info(processes.DumpToNamedTable("Processes"));
 ```
 
-![VM Processes](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_Irub5Wxahg.png)
+Это список из выбранной гостевой системы; он не обязан совпадать с локальным списком хоста.
 
-### Настройка Hyper-V машины
+![Пример списка процессов гостевой системы](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_Irub5Wxahg.png)
 
-Здесь приведу только самый важный момент — не забудьте **отключить** `Dynamic Memory` в настройках виртуальной машины.
-![Dynamic memory](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_gOcli4xKIn.png)
+В прежней конфигурации Hyper-V использовалась отключённая **Dynamic Memory**. Снимок показывает именно эту настройку; требования зависят от установленного Hyper-V acquisition plugin, а не от `LocalProcess`.
 
-### Получение списка виртуальных машин Hyper-V
+![Dynamic Memory в настройках Hyper-V](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_gOcli4xKIn.png)
 
-Для диагностики нативного Hyper-V plugin можно запустить MemProcFS отдельно; ниже сохранён пример его исторического вывода. Это не единственный managed API перечисления виртуальных машин.
+Для диагностики подготовленного нативного модуля можно использовать его команду:
 
 ```bash
 MemProcFS.exe -device hvmm://listvm
 ```
 
-Вот как может выглядеть вывод в случае простой конфигурации с одной виртуальной машиной:
+Исторический пример вывода plugin 1.2.20240329:
 
-```bash
-   Microsoft Hyper-V Virtual Machine plugin 1.2.20240329(beta) for MemProcFS (by Ulf Frisk).
-
-   plugin parameters:
-      hvmm://id=<vm id number>
-      hvmm://id=<vm id number>,unix
-      hvmm://listvm
-      hvmm://enumguestosbuild
-      hvmm://loglevel=<log level number>
-   Example: MemProcFS.exe -device hvmm://listvm
-
-   Virtual Machines:
-    --> [id = 0] ShadowForge (PartitionId = 0x2, Full VM)
-   You selected the following virtual machine: ShadowForge
+```text
+Microsoft Hyper-V Virtual Machine plugin 1.2.20240329(beta) for MemProcFS (by Ulf Frisk).
+hvmm://id=<vm id number>
+hvmm://id=<vm id number>,unix
+hvmm://listvm
+hvmm://enumguestosbuild
+hvmm://loglevel=<log level number>
+Virtual Machines:
+ --> [id = 0] ShadowForge (PartitionId = 0x2, Full VM)
 ```
 
+Индекс 0 здесь — пример, не автоматический выбор нужной VM. Фабрики и владение сверены с [исходником LCProcess](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.Memory.MPFS/LCProcess.cs). В managed API также есть `LCProcess.HyperV().ListVirtualMachines()`. `GetProcesses()` создаёт временный VMM и освобождает его после получения списка. При открытии процесса владелец уже другой — сам читатель `LCProcess`. Параметры и требования: [LCProcess](/ru/scripting/memory-api/backends/lc-process).
 
+</details>
 
-## Дальше
-
-[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Процессы и память](/ru/scripting/api/memory/processes) · [Примитивы памяти](/ru/scripting/memory-api/memory-basics)
-
-Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.
-
-Фабрики LC и владение временным VMM при перечислении проверены по [LCProcess на c8b2304](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Memory.MPFS/LCProcess.cs). `GetProcesses()` возвращает снимок списка и освобождает временный VMM. Нативный запуск не проверялся; [контракт backend](/ru/scripting/memory-api/backends/lc-process) описывает параметры и ограничения.
+В собственном встроенном SDK-приложении подключение памяти через `UseMemory()` и ожидание `EnsureReadyAsync()` относятся к запуску хоста, а не к телу обычного `Script.csx`. `Log` — возможность верхнеуровневого скрипта; обычному C# классу передают журнал явно.

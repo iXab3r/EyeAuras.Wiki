@@ -7,19 +7,303 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-03-22T15:03:07.266Z
 ---
-# Сначала главное — что это такое
+# Узнать, какой этап CV занимает время
 
-Начните с короткого блока «Быстрый старт» в верхнеуровневом `C# Script` EyeAuras: вход — окно `Aim Trainer`, выход — размер кадра и текстовый отчёт в журнале. Ниже сохранён расширенный учебный пример с движением мыши и форматированием отчёта; это отдельный вариант, запускать оба блока подряд не требуется.
+Профилирование разделяет одну операцию на шаги: подготовку захвата, обработку кадра, поиск и отображение результата. Начнём с10 вызовов поиска цвета в своём окне. Отчёт в журнале поможет отличить первое создание ресурсов от последующих проходов, не смешивая их с движением мыши.
 
-Любую задачу обычно можно разбить на набор небольших шагов: найти изображение, передвинуть мышь, кликнуть, загрузить ML-модель и т. д. Каждый такой шаг потребляет ресурсы. Если точно измерять, сколько времени уходит на каждую операцию, становится понятно, где стоит подтянуть производительность, а где и так всё в порядке. Этот процесс называется профилированием.
+Нужен настольный EyeAuras с OpenCV и MiniProfiler. Для первого запуска достаточно своего видимого окна с цветной картинкой; модель и файл образца не нужны. Код выполняется в действии **C# Script**, а не в обычном C# классе.
 
-## Посмотрим на результат
+## Записать ограниченную серию
 
-Профилирование записывает длительность отмеченных шагов. Подсчёт вызовов и статистику в этом примере строят вспомогательные методы ниже; незавершённые шаги без DurationMilliseconds пропускаются.
+1. Подготовьте окно и создайте действие **C# Script**. Вставьте весь код в `Script.csx`:
 
-Причём формат вывода может быть любым — вы сами решаете, что именно хотите анализировать. Например, для аим-бота с циклом `while` можно измерять, сколько времени занимает каждая операция на каждой итерации.
+```csharp
+using System;
+using System.Drawing;
+using System.Linq;
+using EyeAuras.OpenCVAuras.Scripting;
+using EyeAuras.Shared.Osd;
+using PoeShared.Scaffolding;
+using StackExchange.Profiling;
 
-```bash
+{
+    var window = await GetService<IOsdSelectionService>().PickWindow();
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
+        .ForWindow(window).EnableProfiling();
+    const string operation = "color"; // color, image or ml
+    const int iterations = 10;
+    var roi = Rectangle.Empty; // whole selected window
+    Point? lastPosition = null;
+    using (cv.Profiler.Step("Warm-up")) lastPosition = FindCenter();
+    try
+    {
+        for (var i = 0; i < iterations; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            using (cv.Profiler.Step($"Loop #{i + 1}"))
+            {
+                lastPosition = FindCenter();
+            }
+        }
+        Log.Info(lastPosition.HasValue ? $"Last window position: {lastPosition}" : "No match in last frame");
+    }
+    finally
+    {
+        Log.Info(cv.Profiler.RenderPlainText());
+    }
+
+    Point? FindCenter()
+    {
+        switch (operation)
+        {
+            case "color":
+                var point = cv.PixelSearch(Color.FromArgb(255, 87, 34), 95, roi);
+                return point.IsEmpty ? null : point;
+            case "image":
+                var bounds = cv.ImageSearch(@"C:\Images\target.png", 95, roi);
+                return bounds.IsEmpty ? null : bounds.Center();
+            case "ml":
+                var result = cv.MLSearchRaw(
+                    "https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx",
+                    confidenceThreshold: 30, iouThreshold: 40, region: roi);
+                if (!result.Detected.Predictions.Any()) return null;
+                return result.ToWindow(result.Detected.Predictions.First().Rectangle).ToWinRectangle().Center();
+            default: throw new InvalidOperationException("Choose color, image or ml");
+        }
+    }
+}
+```
+
+2. Нажмите **Run**, укажите своё окно. В журнале появятся `Warm-up`,10 шагов `Loop` и внутренние этапы CV, длительность — в миллисекундах. Последняя позиция относится к выбранному окну; `No match` означает отсутствие совпадения в последнем кадре.
+3. Сначала смотрите отдельно на прогрев, затем на последующие проходы. Зафиксируйте источник, размер окна, ROI, метод поиска, пороги и окружение перед сравнением двух запусков. Каждый вызов получает новый кадр: это измерение цепочки CV, не тест двух алгоритмов на одинаковых пикселях.
+
+| Настройка | Как выбрать |
+| --- | --- |
+| `operation = "color"` | Ищет первый пиксель RGB 255,87,34 с порогом95%. Если такого цвета в окне нет, измеряется путь без совпадения. `Point.Empty` — условие отсутствия в этом API, в том числе неоднозначное для точки0,0. |
+| `operation = "image"` | Заранее сохраните свой образец в `C:\Images\target.png` и покажите его в выбранном окне. Порог95% относится к сходству изображения. |
+| `operation = "ml"` | Нужен собственный учебный [Aim Trainer](/ru/scripting/examples/advanced/aimtracker-ml-ea) и совместимая среда выполнения ONNX. Ссылка ведёт на модель с классом `Tgt`, не встроенную универсальную модель. Первый вызов включает её загрузку/создание. |
+| `roi` | `Rectangle.Empty` — весь захват окна. Для своей области используйте оконные координаты без экранного смещения. |
+| `iterations` |10 измеренных проходов после одного прогрева. Отчёт в `finally` сохраняет уже собранные шаги и при остановке внутри цикла; ошибка самого прогрева возникает до этого блока. |
+
+`EnableProfiling()` включает предусмотренные реализацией шаги только этого экземпляра CV. В `Refresh` могут входить захват, эффекты и распознавание; названия шагов не означают, что каждый из этих этапов измерен отдельно. В основном коде отключён OSD и нет ввода. Для [подсчёта на одном кадре](/ru/scripting/examples/advanced/profiling-countpixels) используется другой опыт.
+
+Синхронные поиск и захват не принимают токен; Stop проверяется перед следующим проходом. Результаты и `Captured.InputImage` заимствованы, не нужно освобождать их отдельно. CV освобождается после отчёта. Дерево таймингов растёт в памяти: TTL 60 минут у storage-кэша отчётов не ограничивает дерево живого профайлера.
+
+<details>
+<summary>Измерить отображение или собственную реакцию</summary>
+
+Для встроенной подсветки замените создание CV на `.ForWindow(window).EnableProfiling().EnableOsd(fps: 10)`. В отчёте появятся шаги **OSD**, когда accessor действительно обновляет подсветку; ограничение FPS означает, что это не каждый проход. Отображение добавляет свою нагрузку.
+
+Следующий **фрагмент** вставляется в основной `for`, сразу после `lastPosition = FindCenter()` внутри шага `Loop`: получится реакция на каждом подходящем проходе. Для одной реакции вставьте его после цикла, пока `cv` ещё жив. Он нужен только для собственного стабильного учебного окна с проверенным результатом: Windows Input активирует адресата и меняет реальный курсор. Для первого измерения поиска этот фрагмент не добавляйте.
+
+```csharp
+var input = GetService<EyeAuras.Roxy.Api.ISendInputScriptingApi>();
+var previousTarget = input.TargetWindow;
+var previousSimulator = input.InputSimulatorId;
+try
+{
+    input.TargetWindow = window;
+    input.InputSimulatorId = "Windows Input";
+    if (lastPosition.HasValue && window.IsForeground)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using (cv.Profiler.Step("Mouse Move")) input.MouseMoveTo(lastPosition.Value);
+        using (cv.Profiler.Step("Mouse Click")) input.MouseLeftClick(0);
+    }
+}
+finally
+{
+    input.TargetWindow = previousTarget;
+    input.InputSimulatorId = previousSimulator;
+}
+```
+
+Движение и клик измеряются отдельными шагами, не как часть чистого поиска. `TargetWindow` задан, поэтому передаются оконные координаты; повторный `ToScreen` был бы ошибкой. Активация может смениться между проверкой и вводом; синхронный ввод токен не прерывает. Вставьте реакцию **перед** выводом отчёта, чтобы её закрытые шаги попали в него.
+
+Для нескольких скриптов существует `IProfilerProvider.GetOrAdd(string name)` — общий явно именованный профайлер. Не смешивайте его с отдельным `cv.Profiler`, если хотите сравнивать независимые запуски. [MiniProfiler](https://miniprofiler.com/), [исходники](https://github.com/MiniProfiler/dotnet), [Step](https://miniprofiler.com/dotnet/HowTo/ProfileCode).
+
+</details>
+
+<details>
+<summary>Сводная статистика текстом и HTML</summary>
+
+Исходные функции отчёта сохранены как отдельный файл `ProfileReport.cs` в проекте этого скрипта. Для HTML нужна сборка **Mason.FluentHtml 3.0.1**; это версия зависимости текущего Blazor-хоста, а не обещание её наличия в любом SDK-приложении. При отсутствии ссылки добавьте `#r "nuget:Mason.FluentHtml, 3.0.1"` в начало `Script.csx`. MiniProfiler остаётся зависимостью хоста.
+
+После завершения циклов, пока `cv` жив, замените текстовый вывод в `finally` этим **фрагментом**:
+
+```csharp
+Log.Info(cv.Profiler.RenderPlainText());
+Log.Info(ProfileReport.RenderPerStepStatistics(cv.Profiler));
+GetService<EyeAuras.Shared.Services.IAuraEventLoggingService>().LogMessage(
+    new EyeAuras.Shared.Services.AuraEvent
+    {
+        Text = ProfileReport.RenderPerStepStatisticsHtml(cv.Profiler),
+        IsHtml = true,
+        Loglevel = PoeShared.Logging.FluentLogLevel.Info
+    });
+```
+
+Полный `ProfileReport.cs`:
+
+```csharp
+using System.Linq;
+using System.Text;
+using StackExchange.Profiling;
+using Mason.FluentHtml;
+
+public static class ProfileReport
+{
+    public static string RenderPerStepStatistics(MiniProfiler profiler)
+    {
+        if (profiler == null || profiler.Root == null)
+        {
+            return "No profiling data available.";
+        }
+
+        // Aggregate data across all loops
+        var timingsByStep = profiler.Root.Children
+            .SelectMany(loopTiming => loopTiming.Children)
+            .GroupBy(t => t.Name)
+            .ToDictionary(
+                group => group.Key,
+                group => group
+                    .Select(t => t.DurationMilliseconds)
+                    .Where(duration => duration.HasValue)
+                    .Select(duration => duration.Value)
+                    .ToList()
+            );
+
+        if (!timingsByStep.Any())
+        {
+            return "No valid step data found.";
+        }
+
+        var reportBuilder = new StringBuilder();
+        reportBuilder.AppendLine("---- PER-STEP PROFILING STATS ----");
+
+        foreach (var (stepName, durations) in timingsByStep)
+        {
+            if (!durations.Any()) continue;
+
+            // Statistics calculations
+            var totalIterations = durations.Count;
+            var totalDuration = durations.Sum();
+            var average = durations.Average();
+            var min = durations.Min();
+            var max = durations.Max();
+
+            // Percentile Calculation
+            var sortedDurations = durations.OrderBy(x => x).ToList();
+            var percentile1 = sortedDurations[(int)(totalIterations * 0.01)];
+            var percentile99 = sortedDurations[(int)(totalIterations * 0.99)];
+
+            reportBuilder.AppendLine($@"
+    [{stepName}]
+    Total Iterations: {totalIterations}
+    Total Duration: {totalDuration:F2} ms
+    Average Duration: {average:F2} ms
+    Min Duration: {min:F2} ms
+    Max Duration: {max:F2} ms
+    1% Percentile: {percentile1:F2} ms
+    99% Percentile: {percentile99:F2} ms
+    ---------------------------");
+        }
+
+        return reportBuilder.ToString();
+    }
+
+
+    public static string RenderPerStepStatisticsHtml(MiniProfiler profiler)
+    {
+        if (profiler == null || profiler.Root == null)
+        {
+            return "<p>No profiling data available.</p>";
+        }
+
+        var timingsByStep = profiler.Root.Children
+            .SelectMany(loopTiming => loopTiming.Children)
+            .GroupBy(t => t.Name)
+            .ToDictionary(
+                group => group.Key,
+                group => group
+                    .Select(t => t.DurationMilliseconds)
+                    .Where(duration => duration.HasValue)
+                    .Select(duration => duration.Value)
+                    .ToList()
+            );
+
+        if (!timingsByStep.Any())
+        {
+            return "<p>No valid step data found.</p>";
+        }
+
+        var htmlBuilder = new HtmlBuilder();
+
+        htmlBuilder.Table(new { @class = "table table-striped table-bordered" }, table =>
+        {
+            table.Thead(thead =>
+            {
+                thead.Tr(tr =>
+                {
+                    tr.Th(th => th.Content("Step Name"));
+                    tr.Th(th => th.Content("Iterations"));
+                    tr.Th(th => th.Content("Total Duration (ms)"));
+                    tr.Th(th => th.Content("Average (ms)"));
+                    tr.Th(th => th.Content("Min (ms)"));
+                    tr.Th(th => th.Content("Max (ms)"));
+                    tr.Th(th => th.Content("1% Percentile (ms)"));
+                    tr.Th(th => th.Content("99% Percentile (ms)"));
+                });
+            });
+
+            table.Tbody(tbody =>
+            {
+                foreach (var (stepName, durations) in timingsByStep)
+                {
+                    if (!durations.Any()) continue;
+
+                    var totalIterations = durations.Count;
+                    var totalDuration = durations.Sum();
+                    var average = durations.Average();
+                    var min = durations.Min();
+                    var max = durations.Max();
+
+                    var sortedDurations = durations.OrderBy(x => x).ToList();
+                    var percentile1 = sortedDurations[(int)(totalIterations * 0.01)];
+                    var percentile99 = sortedDurations[(int)(totalIterations * 0.99)];
+
+                    tbody.Tr(tr =>
+                    {
+                        tr.Td(td => td.Content(stepName));
+                        tr.Td(td => td.Content(totalIterations.ToString()));
+                        tr.Td(td => td.Content(totalDuration.ToString("F2")));
+                        tr.Td(td => td.Content(average.ToString("F2")));
+                        tr.Td(td => td.Content(min.ToString("F2")));
+                        tr.Td(td => td.Content(max.ToString("F2")));
+                        tr.Td(td => td.Content(percentile1.ToString("F2")));
+                        tr.Td(td => td.Content(percentile99.ToString("F2")));
+                    });
+                }
+            });
+        });
+
+        return htmlBuilder.ToString();
+    }
+}
+```
+
+Функции агрегируют непосредственных детей шагов корня по имени, пропускают незавершённые `DurationMilliseconds` и выбирают элементы отсортированного списка для 1-го/99-го процентиля. Это конкретный способ агрегации, не универсальная статистика всех уровней дерева. Для другой вложенности измените выборку осознанно. Обычный класс получает `MiniProfiler` параметром, глобальные `Log`/`GetService` ему не доступны.
+
+![HTML-отчёт из прежнего примера](https://s3.eyeauras.net/media/2025/03/JxiAlxDqzw9sxCOc.png)
+
+</details>
+
+<details>
+<summary>Исторический вывод от 22 марта 2025</summary>
+
+Эти числа с **DESKTOP-PK81KT3** относятся к прежнему циклу с ML, OSD, движением и кликом. В отрывке есть сокращённая строка; точный кадр, оборудование и нагрузка не зафиксированы. Это иллюстрация дерева и агрегированного формата, не результат выполнения программы выше и не ориентир скорости текущего хоста.
+
+```text
 [Script] Performance stats:
 DESKTOP-PK81KT3 at 3/22/2025 2:28:50 PM
 Test1\ImageFind CV Profiler 0ms
@@ -47,9 +331,7 @@ Test1\ImageFind CV Profiler 0ms
 >>>> Mouse Click 10.52ms
 ```
 
-А можно выводить агрегированные значения:
-
-```bash
+```text
 [Mouse Click]
 Total Iterations: 766
 Total Duration: 5672.19 ms
@@ -70,368 +352,4 @@ Max Duration: 0.46 ms
 99% Percentile: 0.08 ms
 ```
 
-Или даже отображать те же данные в виде таблицы:
-
-![Профилирование](https://s3.eyeauras.net/media/2025/03/JxiAlxDqzw9sxCOc.png)
-
-Вариантов здесь много.
-
-## Инструмент — MiniProfiler
-
-В EyeAuras используется один из лучших «внутренних» профилировщиков — https://miniprofiler.com/.  
-Его создала та же команда, что стоит за https://stackoverflow.com/, и он уже много лет проверен в реальных проектах. Подробнее можно почитать [здесь (github)](https://github.com/MiniProfiler/dotnet) или [здесь (docs)](https://miniprofiler.com/dotnet/HowTo/ProfileCode).
-
-Чтобы начать им пользоваться, достаточно подключить namespace `using StackExchange.Profiling;`. Формально этого уже хватает для доступа ко всему API, но EyeAuras, как обычно, добавляет несколько удобных хелперов. Один из них встроен в [Computer Vision API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi).
-
-## Быстрый старт
-
-Чтобы включить профилирование для [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi), вызовите `EnableProfiling`. После этого accessor записывает предусмотренные реализацией внутренние шаги CV; это не перехват любого метода приложения.
-
-```csharp
-{
-    var targetWindow = GetService<IWindowSelector>().GetWindow("Aim Trainer");
-    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-        .ForWindow(targetWindow)
-        .EnableProfiling();
-    cv.ProcessPixels(image => Log.Info($"Frame: {image.Size}"));
-    Log.Info(cv.Profiler.RenderPlainText());
-}
-```
-
-> Важно! `EnableProfiling` включает тайминги только для этого конкретного экземпляра [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi) и только в рамках текущего скрипта. Если вы хотите профилировать сразу несколько скриптов, используйте `IProfilerProvider` вместе с `MiniProfiler GetOrAdd(string name)` — выберите уникальное имя профайлера и используйте его совместно в нескольких скриптах.
-
-## Как добавить замеры для своего кода
-
-Если вы включили профилирование в [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi), EyeAuras начнёт автоматически записывать внутренние шаги каждого вызова. Но обычно, помимо внутренних этапов, хочется замерять и свои действия: движение мыши, вычисления, собственную логику и т. п.
-
-Делается это очень просто: в [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi) используйте `Step` и оборачивайте измеряемый участок в `using`, например так:
-
-Следующий фрагмент добавляет измерение в **уже работающий** код с `cv`,
-`sendInput` и `movePosition`. Он размещается внутри их области жизни;
-это не отдельный скрипт после завершения предыдущего блока.
-
-```csharp
-using(cv.Profiler.Step($"Mouse Move"))
-{
-    sendInput.MouseMoveTo(movePosition);
-}
-```
-
-## Как вывести результаты
-
-Все тайминги хранятся в памяти и организованы в виде дерева: у каждого измеренного шага может быть несколько вложенных подшагов.
-
-В какой-то момент вы наверняка захотите отрисовать и проанализировать эти данные. Для этого можно использовать:
-
-- встроенный метод `RenderPlainText`
-- или написать свой рендерер — например, я добавил два хелпера: `RenderPerStepStatisticsHtml` и `RenderPerStepStatistics`
-
-ChatGPT отлично справляется с такими задачами — оба этих метода были написаны им. Он знает MiniProfiler и умеет извлекать из него данные, поэтому вам достаточно просто описать желаемый формат вывода.
-
-## Потребление памяти
-
-Важно! Все результаты профилирования хранятся в памяти. Если ничего с этим не делать, память со временем закончится, поэтому запись обычно ограничивают либо по времени («хранить последние 10 минут»), либо по объёму («хранить до 500 MB»). В CV accessor срок 60 минут задан для storage-кэша отчётов; он не ограничивает автоматически дерево таймингов текущего живого профайлера. Не оставляйте запись бесконечной.
-
-## Пример
-
-Расширенный вариант рассчитан на учебный Aim Trainer, доступный ONNX по указанному URL и загруженные сборки `StackExchange.Profiling` и `Mason.FluentHtml` (пространство имён для `HtmlBuilder`). Последняя нужна только для HTML-таблицы; её наличие в произвольном хосте не предполагается. `MLSearchLoop` делает до 10 итераций; для альтернативы замените один вызов на `ImageSearchLoop` или `ColorSearchLoop`. Для поиска картинки заранее создайте `C:\Images\target.png`. Прямоугольники ROI в коде — входы для конкретного расположения окна, замените их своей областью.
-
-```csharp
-using System.Text;
-using StackExchange.Profiling;
-using Mason.FluentHtml;
-
-Log.Info("Hello, World!");
-
-//this is an example of a script
-//which uses image search to find and follow a specific image inside a window
-//It uses 2-times probing for optimization - if we know the previous location of the image
-//it makes sense to repeat the search in that specific region first
-
-//picking a window
-var windowSelector = GetService<IWindowSelector>();
-windowSelector.TargetWindow = "Aim Trainer";
-var targetWindow = windowSelector.ActiveWindow ?? throw new InvalidOperationException("Window not found");
-
-//this API is used to do Computer Vision stuff (image/text/color/ml search)
-var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForWindow(targetWindow)  //for a specific window
-    .EnableProfiling()
-    .EnableOsd(fps: 10)
-    .AddTo(ExecutionAnchors);
-
-//this API is used to generate mouse movements
-var sendInput = GetService<ISendInputScriptingApi>();
-sendInput.TargetWindow = targetWindow; //for a specific window
-
-//repeat until stopped
-MLSearchLoop();
-//or
-//ImageSearchLoop();
-//or
-//ColorSearchLoop();
-
-Log.Info($"Performance stats:\n{cv.Profiler.RenderPlainText()}");
-Log.Info($"Performance stats(aggregated):\n{RenderPerStepStatistics(cv.Profiler)}");
-
-GetService<IAuraEventLoggingService>()
-    .LogMessage(new AuraEvent(){
-        Text = RenderPerStepStatisticsHtml(cv.Profiler),
-        IsHtml = true,
-        Loglevel = FluentLogLevel.Info
-    });
-
-private void MLSearchLoop()
-{
-    //files could be either paths or URLs
-    var mlModelPath = @"https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
-   
-    var loopIdx = 0;
-    while (!cancellationToken.IsCancellationRequested && loopIdx < 10)
-    {
-        loopIdx++;
-     
-        using var _ = cv.Profiler.Step($"Loop #{loopIdx}");
-     
-        var result = cv.MLSearchRaw(mlModelPath, region: new Rectangle(719, 406, 988, 584));
-        if (!result.Detected.Predictions.Any())
-        {
-            //not found
-            continue;
-        }
-
-        var currentPosition = result.Detected.Predictions.First().Rectangle.Transform(result.ViewportTransforms.WorldToWindow);
-        Log.Info($"Found via ML @ {currentPosition}");
-
-        if (!currentPosition.IsEmpty)
-        {
-            //found the image - moving the mouse to the center
-           
-           var movePosition = currentPosition.ToWinRectangle().Center();
-           using (cv.Profiler.Step($"Mouse Move"))
-           {
-               sendInput.MouseMoveTo(movePosition);
-           }
-
-           using (cv.Profiler.Step($"Mouse Click"))
-           {
-               sendInput.MouseLeftClick(0);
-           }
-        }
-    }
-}
-
-private void ImageSearchLoop()
-{
-    var targetImagePath = @"C:\Images\target.png";
-
-    var loopIdx = 0;
-    while (!cancellationToken.IsCancellationRequested && loopIdx < 10)
-    {
-        loopIdx++;
-      
-        using var _ = cv.Profiler.Step($"Loop #{loopIdx}");
-       
-        var position = cv.ImageSearch(targetImagePath, region: new Rectangle(714, 397, 999, 598));
-        if (position.IsEmpty)
-        {
-            //not found
-            continue;
-        }
-
-        Log.Info($"Found via ImageSearch @ {position}");
-        //found the image - moving the mouse to the center
-        var movePosition = position.Center();
-        using (cv.Profiler.Step($"Mouse Move"))
-        {
-            sendInput.MouseMoveTo(movePosition);
-        }
-
-        using (cv.Profiler.Step($"Mouse Click"))
-        {
-            sendInput.MouseLeftClick(0);
-        }
-    }
-}
-
-
-private void ColorSearchLoop()
-{
-    var targetImagePath = @"C:\Images\target.png";
-
-    var loopIdx = 0;
-    while (!cancellationToken.IsCancellationRequested && loopIdx < 10)
-    {
-        loopIdx++;
-
-        using var _ = cv.Profiler.Step($"Loop #{loopIdx}");
-
-        var position = cv.PixelSearch(Color.FromArgb(255, 87, 34), region: new Rectangle(714, 397, 999, 598));
-        if (position.IsEmpty)
-        {
-            //not found
-            continue;
-        }
-
-        Log.Info($"Found via ColorSearch@ {position}");
-        //found the image - moving the mouse to the center
-
-        using (cv.Profiler.Step($"Mouse Move"))
-        {
-            sendInput.MouseMoveTo(position);
-        }
-
-        using (cv.Profiler.Step($"Mouse Click"))
-        {
-            sendInput.MouseLeftClick(0);
-        }
-    }
-}
-
-public string RenderPerStepStatistics(MiniProfiler profiler)
-{
-    if (profiler == null || profiler.Root == null)
-    {
-        return "No profiling data available.";
-    }
-
-    // Aggregate data across all loops
-    var timingsByStep = profiler.Root.Children
-        .SelectMany(loopTiming => loopTiming.Children)
-        .GroupBy(t => t.Name)
-        .ToDictionary(
-            group => group.Key,
-            group => group
-                .Select(t => t.DurationMilliseconds)
-                .Where(duration => duration.HasValue)
-                .Select(duration => duration.Value)
-                .ToList()
-        );
-
-    if (!timingsByStep.Any())
-    {
-        return "No valid step data found.";
-    }
-
-    var reportBuilder = new StringBuilder();
-    reportBuilder.AppendLine("---- PER-STEP PROFILING STATS ----");
-
-    foreach (var (stepName, durations) in timingsByStep)
-    {
-        if (!durations.Any()) continue;
-
-        // Statistics calculations
-        var totalIterations = durations.Count;
-        var totalDuration = durations.Sum();
-        var average = durations.Average();
-        var min = durations.Min();
-        var max = durations.Max();
-
-        // Percentile Calculation
-        var sortedDurations = durations.OrderBy(x => x).ToList();
-        var percentile1 = sortedDurations[(int)(totalIterations * 0.01)];
-        var percentile99 = sortedDurations[(int)(totalIterations * 0.99)];
-
-        reportBuilder.AppendLine($@"
-[{stepName}]
-Total Iterations: {totalIterations}
-Total Duration: {totalDuration:F2} ms
-Average Duration: {average:F2} ms
-Min Duration: {min:F2} ms
-Max Duration: {max:F2} ms
-1% Percentile: {percentile1:F2} ms
-99% Percentile: {percentile99:F2} ms
----------------------------");
-    }
-
-    return reportBuilder.ToString();
-}
-
-
-public string RenderPerStepStatisticsHtml(MiniProfiler profiler)
-{
-    if (profiler == null || profiler.Root == null)
-    {
-        return "<p>No profiling data available.</p>";
-    }
-
-    var timingsByStep = profiler.Root.Children
-        .SelectMany(loopTiming => loopTiming.Children)
-        .GroupBy(t => t.Name)
-        .ToDictionary(
-            group => group.Key,
-            group => group
-                .Select(t => t.DurationMilliseconds)
-                .Where(duration => duration.HasValue)
-                .Select(duration => duration.Value)
-                .ToList()
-        );
-
-    if (!timingsByStep.Any())
-    {
-        return "<p>No valid step data found.</p>";
-    }
-
-    var htmlBuilder = new HtmlBuilder();
-
-    htmlBuilder.Table(new { @class = "table table-striped table-bordered" }, table =>
-    {
-        table.Thead(thead =>
-        {
-            thead.Tr(tr =>
-            {
-                tr.Th(th => th.Content("Step Name"));
-                tr.Th(th => th.Content("Iterations"));
-                tr.Th(th => th.Content("Total Duration (ms)"));
-                tr.Th(th => th.Content("Average (ms)"));
-                tr.Th(th => th.Content("Min (ms)"));
-                tr.Th(th => th.Content("Max (ms)"));
-                tr.Th(th => th.Content("1% Percentile (ms)"));
-                tr.Th(th => th.Content("99% Percentile (ms)"));
-            });
-        });
-
-        table.Tbody(tbody =>
-        {
-            foreach (var (stepName, durations) in timingsByStep)
-            {
-                if (!durations.Any()) continue;
-
-                var totalIterations = durations.Count;
-                var totalDuration = durations.Sum();
-                var average = durations.Average();
-                var min = durations.Min();
-                var max = durations.Max();
-
-                var sortedDurations = durations.OrderBy(x => x).ToList();
-                var percentile1 = sortedDurations[(int)(totalIterations * 0.01)];
-                var percentile99 = sortedDurations[(int)(totalIterations * 0.99)];
-
-                tbody.Tr(tr =>
-                {
-                    tr.Td(td => td.Content(stepName));
-                    tr.Td(td => td.Content(totalIterations.ToString()));
-                    tr.Td(td => td.Content(totalDuration.ToString("F2")));
-                    tr.Td(td => td.Content(average.ToString("F2")));
-                    tr.Td(td => td.Content(min.ToString("F2")));
-                    tr.Td(td => td.Content(max.ToString("F2")));
-                    tr.Td(td => td.Content(percentile1.ToString("F2")));
-                    tr.Td(td => td.Content(percentile99.ToString("F2")));
-                });
-            }
-        });
-    });
-
-    return htmlBuilder.ToString();
-}
-```
-
-В расширенном варианте `sendInput.TargetWindow` задан, поэтому ML-прямоугольник преобразуется через `WorldToWindow`. Упрощённые `ImageSearch`/`PixelSearch` для `ForWindow` также возвращают оконные координаты. Обёртка ввода переводит их в экранные; повторный `ToScreen` здесь был бы ошибкой. Пустой результат пропускает ввод, ошибки CV могут прервать скрипт. У ML без явных порогов confidence 30%, IoU 40%; у поиска картинки/цвета — 95%. Это пороги алгоритмов, а не гарантия правильного совпадения.
-
-Остановка проверяется между проходами, не внутри синхронного распознавания или ввода. При обычном завершении 10 проходов печатается отчёт; при остановке/ошибке его вывод не гарантирован. Память дерева таймингов текущего профайлера и кэш хранения отчётов — разные вещи: TTL 60 минут у storage не обещает ограничение дерева живого профайлера. Для долгого наблюдения ограничивайте сам период сбора.
-
-## Дальше
-
-[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
-
-Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.
+</details>

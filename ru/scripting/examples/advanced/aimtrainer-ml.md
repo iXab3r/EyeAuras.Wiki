@@ -7,133 +7,100 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-06-27T21:27:31.399Z
 ---
-# Найти цель в учебном Aim Trainer
+# Показать цель тренажёра нативной рамкой ImGui
 
-Это верхнеуровневый `C# Script` внутри EyeAuras для собственного учебного сеанса Aim Trainer. Откройте страницу target-tracking, проверьте заголовок окна в `GetWindow` и доступность указанного ONNX-файла. URL модели — вход примера, а не встроенный ресурс; первая загрузка требует доступа к нему. Нужны рабочие захват окна, ML runtime и выбранный симулятор ввода. Совместимость модели и внешних пакетов отдельно не проверена.
+Этот вариант рисует рамку и круг вокруг найденной `Tgt` через нативный ImGui. Сначала проверим изображение, затем при желании подключим движение и клик в собственном [Target Tracking](https://aimtrainer.io/target-tracking). В отличие от [варианта OSD](/ru/scripting/examples/advanced/aimtracker-ml-ea), рисование выполняется заново в функции каждого кадра ImGui.
 
-В этом примере показано, **как сделать простой 2D aimbot с ESP-оверлеем** (отрисовкой поверх экрана) с помощью **ImGui** — библиотеки для создания интерфейсов в играх и приложениях.
+Нужен настольный Windows-хост EyeAuras с OpenCV/ONNX Runtime и совместимый **EyeAuras.ImGuiSdk 0.1.47** из [источника пакетов](https://packages.eyeauras.net/v3/index.json). Он зависит от EyeAuras.ClickableTransparentOverlay 11.5.28 и .NET 8 Windows. Не добавляйте рядом другую ImGui.NET/CTO. Ссылка `#r` предоставляет типы, а `ImGuiContainerExtensions` отдельно регистрирует API в контейнере скрипта.
 
----
+## От модели к рамке
 
-##  Что такое ImGui?
-
-**ImGui** (*Immediate Mode GUI*) — это лёгкая библиотека для отрисовки кнопок, текста, фигур и различных оверлеев. Её часто используют в играх, внутренних инструментах и cheat engine-подобных проектах. Она работает очень быстро и перерисовывает интерфейс заново на каждом кадре.
-
----
-
-##  Что делает этот код
-
-* Подключается к окну браузерной игры (`Aim Trainer`)
-* Использует **предобученную ML-модель** для поиска цели в реальном времени
-* Рисует рамку и круг поверх найденной цели
-* Перемещает курсор в центр цели
-* Кликает по ней — готово 
-
----
-
-##  Пример кода
+1. Откройте свой Target Tracking, нажмите **Play**. Для первого опыта оставьте браузер на основном мониторе с масштабом 100%; уточните заголовок своего окна в `GetWindow`. Нужны доступная модель по ссылке и видимые пиксели цели.
+2. Создайте действие **C# Script**, вставьте весь код в `Script.csx`, дождитесь восстановления пакета. Первый запуск оставьте с `performInput = false`:
 
 ```csharp
-
-//this is a simple 2D aimbot + ESP for https://aimtrainer.io/target-tracking
-
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
-
-using EyeAuras.ImGuiSdk;
-using ImGuiNET;
-using System.Numerics;
 using System;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
+using EyeAuras.ImGuiSdk;
 using EyeAuras.OpenCVAuras.Scripting;
 using EyeAuras.Roxy.Api;
-using EyeAuras.Scripting.Api;
 using EyeAuras.Shared.Services;
+using ImGuiNET;
 using PoeShared.Scaffolding;
 
 {
+    var window = GetService<IWindowSelector>().GetWindow("Tracking - Aim Trainer");
+    if (window == null || !window.IsWindow) { Log.Warn("Учебное окно не найдено"); return; }
     AddNewExtension<ImGuiContainerExtensions>();
-
-    var targetWindow = GetService<IWindowSelector>().GetWindow("Aim Trainer");
-
-    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-        .ForWindow(targetWindow);
-
-    var sendInput = GetService<ISendInputScriptingApi>();
-    sendInput.TargetWindow = null; // ниже передаём экранные координаты
-
-    using var osd = GetService<IImGuiExperimentalApi>();
-
-    var mlModelPath = @"https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
-
-    var renderGate = new object();
-    var renderStopped = false;
-    var renderRegistration = osd.AddRenderer(() =>
-    {
-        lock (renderGate)
-        {
-            if (renderStopped || cancellationToken.IsCancellationRequested || !targetWindow.IsForeground) return;
-
-            var windowBounds = targetWindow.DwmFrameBounds;
-            var drawList = ImGui.GetBackgroundDrawList();
-            drawList.AddRect(
-                new Vector2(windowBounds.Left, windowBounds.Top),
-                new Vector2(windowBounds.Right, windowBounds.Bottom),
-                Color.Purple.ToImGuiColor());
-
-            var result = cv.MLSearchRaw(mlModelPath);
-            if (!result.Detected.Predictions.Any()) return;
-
-            var currentPosition = result
-              .Detected
-              .Predictions
-              .First()
-              .Rectangle
-              .Transform(result.ViewportTransforms.WorldToScreen);
-
-            Log.Info($"Found via ML @ {currentPosition}");
-
-            if (!currentPosition.IsEmpty)
-            {
-                var targetCenter = currentPosition.ToWinRectangle().Center();
-
-                drawList.AddRect(
-                    new Vector2(currentPosition.Left, currentPosition.Top),
-                    new Vector2(currentPosition.Right, currentPosition.Bottom),
-                    Color.AliceBlue.ToImGuiColor());
-
-                drawList.AddCircle(targetCenter.ToVector2(), 10, Color.Red.ToImGuiColor());
-
-                sendInput.MouseMoveTo(targetCenter);
-                sendInput.MouseClick();
-            }
-        }
-    });
-
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>().ForWindow(window);
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    var input = GetService<ISendInputScriptingApi>();
+    var previousTarget = input.TargetWindow;
+    var previousSimulator = input.InputSimulatorId;
+    var previousNoActivate = imgui.NoActivate;
+    var gate = new object();
+    var stopped = false;
+    const bool performInput = false;
+    const string model = "https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
     try
     {
-        cancellationToken.WaitHandle.WaitOne();
+        input.TargetWindow = window;
+        input.InputSimulatorId = "Windows Input";
+        imgui.NoActivate = true;
+        using var rendering = imgui.AddRenderer(() =>
+        {
+            lock (gate)
+            {
+                if (stopped || cancellationToken.IsCancellationRequested || !window.IsForeground) return;
+                var draw = ImGui.GetBackgroundDrawList();
+                var bounds = window.DwmFrameBounds;
+                draw.AddRect(new Vector2(bounds.Left, bounds.Top), new Vector2(bounds.Right, bounds.Bottom), Color.Purple.ToImGuiColor());
+                var result = cv.MLSearchRaw(model, confidenceThreshold: 30, iouThreshold: 40);
+                var targets = result.Detected.Predictions.Where(x => x.Label.Name == "Tgt").ToArray();
+                if (targets.Length == 0) return;
+                var prediction = targets[0];
+                var screen = result.ToScreen(prediction.Rectangle);
+                if (screen.IsEmpty) return;
+                var center = screen.ToWinRectangle().Center();
+                draw.AddRect(new Vector2(screen.Left, screen.Top), new Vector2(screen.Right, screen.Bottom), Color.AliceBlue.ToImGuiColor());
+                draw.AddCircle(center.ToVector2(), 10, Color.Red.ToImGuiColor());
+                if (performInput && window.IsForeground && !cancellationToken.IsCancellationRequested)
+                {
+                    input.MouseMoveTo(result.ToWindow(prediction.Rectangle).ToWinRectangle().Center());
+                    input.MouseClick();
+                }
+            }
+        });
+        try { cancellationToken.WaitHandle.WaitOne(); }
+        finally { lock (gate) stopped = true; }
     }
     finally
     {
-        lock (renderGate)
-        {
-            // Wait for any current callback, then prevent all later work.
-            renderStopped = true;
-        }
-        renderRegistration.Dispose();
+        imgui.NoActivate = previousNoActivate;
+        input.TargetWindow = previousTarget;
+        input.InputSimulatorId = previousSimulator;
     }
 }
 ```
 
-`MLSearchRaw` возвращает оболочку с `Detected.Predictions` и матрицами захвата. Без явных порогов используются confidence 30% и IoU 40%; первая запись не означает гарантированно лучшую или правильную цель. Пустой список — цель не найдена, ошибка загрузки/захвата — отдельная ошибка. Прямоугольник переводится из координат захвата через `WorldToScreen` до отправки ввода. При ненулевом `TargetWindow` оконная обёртка ввода сделала бы ещё одно преобразование.
+3. Нажмите **Run**, активируйте своё учебное окно. Фиолетовый контур показывает окно, светлая рамка — предсказанную цель, красный круг — её центр. Нет подходящей `Tgt` — нет рамки цели в этом кадре.
+4. После проверки рамки остановите скрипт. Если нужен автоматический учебный клик, установите `performInput = true`, снова Run и активируйте тренажёр. Stop запрещает следующие вызовы, ожидает текущую функцию кадра, снимает регистрацию и освобождает ресурсы.
 
-Скрипт меняет реальный курсор и кликает только при активном учебном окне. Между проверкой активности и кликом окно может измениться. Остановка проверяется между итерациями/кадрами; синхронное распознавание и уже начатый ввод токен не прерывает. Регистрация отрисовки снимается в `finally`, затем блок `using` освобождает ImGui API и CV; `Captured` и изображения результата заимствованы, освобождать их отдельно нельзя.
+| Часть | Что происходит |
+| --- | --- |
+| `performInput` | В выключенном режиме рисование не двигает мышь. Во включённом добавляется Windows Input с активацией выбранного окна; это не универсальный фоновый клик. |
+| `AddRenderer` | Вызывает функцию на потоке нативного контекста после его инициализации. `GetBackgroundDrawList` нельзя вызывать до этого или из произвольного потока. |
+| `NoActivate = true` | Нативный оверлей не должен активироваться при показе. Это общее свойство окна Main; прежнее значение восстанавливается. |
+| `30` / `40` | Пороги confidence и IoU в процентах; не оценка скорости или вероятности успешного клика. |
+| `ToScreen` / `ToWindow` | Экранная рамка для ImGui и оконный центр для адресного ввода. Повторного ручного масштабирования/смещения нет. |
 
-Распознавание выполняется прямо в callback отрисовки ImGui. Медленный вызов задержит кадр; это простой учебный вариант без отдельного рабочего потока. Не переносите общий CV/ImGui-контекст в `Task.Run` без отдельного согласования владения.
+Распознавание и необязательный ввод синхронно выполняются в функции кадра: медленная модель задержит отрисовку. Это простой учебный вариант, без отдельного рабочего потока и обещаний скорости. Проверка активности не фиксирует окно навсегда; между ней и действием фокус может смениться. Держите собственное учебное окно стабильным. Stop не прерывает уже начатый поиск или ввод.
 
-## Дальше
+Модель по исходной ссылке — ONNX для обнаружения объектов, с входом `images` 1×3×640×640 и выходом `output0` 1×5×8400, единственный класс — `Tgt`. Она обучена для такого учебного изображения, не извлекает данные браузера или игры. Метаданные указывают Ultralytics 8.1.13 и AGPL-3.0; [условия модели](https://www.ultralytics.com/license) смотрите у автора. Не подменяйте её обычной COCO-моделью, ожидая тот же класс.
 
-[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
+Загрузчик растягивает кадр до входа модели; обработчик результата возвращает рамки обратно в координаты обработанного изображения. `ToScreen`/`ToWindow` затем учитывают область захвата и её преобразования — масштабировать рамку вручную ещё раз не нужно. `Score` 0…1 — оценка модели, не доля площади и не измеренная вероятность правильного клика. Ошибка загрузки или захвата отличается от пустого списка предсказаний.
 
-В примере выбран `EyeAuras.ImGuiSdk 0.1.47`; опубликованная сборка содержит используемый API отрисовки. Его зависимости ImGui должны соответствовать хосту, поэтому отдельная историческая ссылка на `ImGui.NET 1.91.6.1` убрана. Контракты CV сверены с исходниками, но это не проверка запуска модели и графики. [Различия версий SDK](/ru/scripting/api/nuget/imgui-sdk).
+`gate` не даёт освободить CV/ImGui во время текущей функции кадра; флаг запрещает позднюю работу, затем снимается регистрация. Только после неё восстанавливаются настройки и освобождаются API. Кадры/изображения результата заимствованы. Общее нативное окно Main принадлежит SDK; не закрывайте его вручную. Обычному классу передают сервисы и токен явно — глобальные возможности этого примера принадлежат `Script.csx`. [Устройство ImGui SDK](/ru/scripting/api/nuget/imgui-sdk).

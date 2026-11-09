@@ -7,57 +7,18 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-06-28T09:04:25.549Z
 ---
-# Подсветить объекты на экране через YOLO
+# Подписать объекты на своём изображении через YOLO11
 
-Запускайте код как верхнеуровневый `C# Script` EyeAuras. Он только визуализирует найденные объекты рабочего стола/учебного видео и не отправляет ввод в игру. Нужны указанные версии `EyeAuras.ImGuiSdk` и `ImGui.NET`, доступ к ONNX-файлу по URL, рабочие захват экрана и ML runtime. Файл модели не встроен в скрипт; доступность URL и совместимость нативных компонентов здесь не проверены.
+Покажем рамки и имена классов поверх собственной фотографии или учебного видео на основном экране. **F1** приостанавливает распознавание, **F2** выбирает область. Скрипт получает пиксели, а не внутренние данные приложения; он ничего не нажимает и не двигает реальную мышь.
 
-Этот пример показывает, как собрать **полноэкранный ESP-оверлей** с помощью **YOLOv11s** (модели машинного обучения для обнаружения объектов) и **ImGui** — библиотеки для UI в реальном времени. Он работает поверх рабочего стола и подсвечивает объекты, найденные в выбранной области экрана.
+Нужны настольный Windows-хост EyeAuras с OpenCV/ONNX Runtime, совместимый **EyeAuras.ImGuiSdk 0.1.47** и доступная ONNX-модель из кода. Пакет из [источника EyeAuras](https://packages.eyeauras.net/v3/index.json) зависит от EyeAuras.ClickableTransparentOverlay 11.5.28; отдельную чужую версию [ImGui.NET](https://github.com/mellinoe/ImGui.NET) рядом не добавляйте. Для первого опыта используйте основной монитор с масштабом 100%.
 
-Также в примере есть горячая клавиша `F1`, которая позволяет включать и отключать распознавание прямо во время работы.
+## Подготовить изображение и включить рамки
 
-> Посмотреть в действии: [Demo](https://onelineplayer.com/player?autoplay=true&autopause=false&muted=true&loop=true&url=https%3A%2F%2Fs3.eyeauras.net%2Fmedia%2F2025%2F06%2FEyeAuras_Ysg57Vun9q2Hmuvu.mp4&poster=&time=true&progressBar=true&overlay=true&muteButton=true&fullscreenButton=true&style=light&quality=auto&playButton=true)
-
->  Попробовать на видео: [Target Tracking - YouTube](https://www.youtube.com/watch?v=rTqg2hEjGdE)
-
----
-
-## Основные возможности
-
-- `F1` — включение и выключение захвата/обработки
-- `F2` — ручной выбор области захвата
-- Используется **YOLOv11s ONNX model** для быстрого ML-распознавания объектов
-- Отображаются **bounding boxes + labels** поверх найденных целей
-- Рисуется **счетчик FPS** (в правом верхнем углу)
-- Для производительности анализируется только **заданная область экрана**
-
----
-
-## Используемые технологии
-
-- [EyeAuras.ImGuiSdk](https://packages.eyeauras.net/v3/index.json)
-- [ImGui.NET](https://github.com/mellinoe/ImGui.NET)
-- API EyeAuras: CV (Computer Vision), ImGui, Input, Logging
-
----
-
-## Что делает скрипт
-
-Когда скрипт включен, он:
-
-- непрерывно сканирует заданную область экрана или весь экран
-- использует ML для поиска целей в этой области
-- рисует bounding boxes и подписи через **ImGui**
-- показывает FPS в реальном времени
-- позволяет приостанавливать и возобновлять распознавание клавишей `F1`
-
----
-
-## Пример кода
+1. Откройте собственную чёткую фотографию с объектом одного из классов COCO, например `person` или `bottle`. Увеличьте её так, чтобы объект был хорошо виден. Модель не обязана находить произвольную нарисованную мишень.
+2. Создайте действие **C# Script**, вставьте всю программу в верхнеуровневый `Script.csx`. Дождитесь восстановления пакета:
 
 ```csharp
-
-//this is a simple fullscreen ESP using Yolo 11s model for https://aimtrainer.io/target-tracking
-//open this YT video https://www.youtube.com/watch?v=rTqg2hEjGdE
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
 
 using EyeAuras.ImGuiSdk;
@@ -66,6 +27,7 @@ using System.Numerics;
 using System;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using EyeAuras.OpenCVAuras.Scripting;
 using EyeAuras.Roxy.Api;
 using EyeAuras.Scripting.Api;
@@ -85,6 +47,9 @@ public Rectangle CaptureRegion { get; set; }
         .ForScreen();
 
     using var osd = GetService<IImGuiExperimentalApi>();
+
+    var previousNoActivate = osd.NoActivate;
+    osd.NoActivate = true;
 
     var mlModelPath = @"https://s3.eyeauras.net/public/eyeauras-ml/yolo/yolov11s.onnx";
 
@@ -136,9 +101,8 @@ public Rectangle CaptureRegion { get; set; }
                 return;
             }
 
-            // Perform ML-search
-            //or you can use Context Menu => Pick region to insert custom region - this will drastically improve quality
-            var result = cv.MLSearchRaw(mlModelPath, region: captureRegion);
+            // Search the selected screen region.
+            var result = cv.MLSearchRaw(mlModelPath, confidenceThreshold: 30, iouThreshold: 40, region: captureRegion);
 
             var predictions = result.Detected.Predictions.Where(x => x.Score > 0.7).ToArray();
 
@@ -171,6 +135,7 @@ public Rectangle CaptureRegion { get; set; }
             renderStopped = true;
         }
         renderRegistration.Dispose();
+        osd.NoActivate = previousNoActivate;
     }
 }
 
@@ -205,12 +170,30 @@ public async Task HandleF2(EyeAuras.Shared.Osd.IOsdSelectionService osdSelection
 }
 ```
 
-`MLSearchRaw` получает ROI именованным аргументом `region`. При пустом ROI захват определяется `ForScreen`, а рамка в этом примере берётся с основного экрана; это не утверждение, что они совпадают при любой конфигурации мониторов. Порог CV по умолчанию — confidence 30%, IoU 40%, затем код дополнительно оставляет `Score > 0.7`. Пустой список означает отсутствие подходящих предсказаний, а не ошибку загрузки модели. Каждый прямоугольник проходит через `result.ToScreen` перед отрисовкой.
+3. Нажмите **Run**. Фиолетовая рамка обозначит область, подписи `class (score)` — оставшиеся предсказания. В правом верхнем углу показана частота кадров ImGui. При первом обращении загружается и создаётся модель.
+4. Нажмите **F1**, чтобы приостановить поиск, затем **F2** и выделите свою фотографию **в пределах основного экрана**. Выделение можно отменить Escape/правой кнопкой; прежняя область останется. Снова F1 возобновит обработку. Нажмите **Stop** для завершения.
 
-Состояние F1/F2 копируется под одним lock, чтобы `Rectangle` не читался одновременно с записью. Само распознавание остаётся в callback ImGui и может задерживать кадр. FPS показывает частоту ImGui, не отдельную скорость ML. `PickRegion` может быть отменён пользователем; токен проверяется после выбора, но этот вызов не объявляется отменяемым токеном скрипта. В `finally` выставляется флаг завершения под тем же lock, который охватывает callback, и снимается регистрация; затем `using` освобождает ImGui API и CV. Поэтому уже начавшийся callback завершится до освобождения ресурсов, а поздний не начнёт работу; нельзя передавать заимствованные кадры в фоновый поток или считать общий CV-контекст потокобезопасным.
+| Настройка или показание | Как понимать |
+| --- | --- |
+| `IsEnabled = true` | Распознавание включено при Run; F1 переключает его без завершения скрипта. |
+| `CaptureRegion` | Пустое значение — основной экран из `ForScreen()`. F2 записывает экранный прямоугольник. Это не автоматический захват всех мониторов. |
+| `confidenceThreshold: 30` / `iouThreshold: 40` | Первичная фильтрация оценок и перекрывающихся рамок в CV. Затем пример дополнительно оставляет только `Score > 0.7`. |
+| `prediction.Label.Name` / `Score` | Класс модели и оценка0…1. Формат `P1` только показывает её как процент; это не измеренная вероятность верного распознавания. |
+| `result.ToScreen(...)` | Перевод локальной рамки обработанного изображения на экран с учётом выбранной области. Повторно масштабировать её к640×640 не нужно. |
+| `FPS` | Частота кадров ImGui, не отдельное число ML-операций в секунду и не скорость видео. При паузе отрисовка надписей продолжается. |
+| `NoActivate` | Временно меняет общее свойство нативного окна Main, чтобы оверлей не активировался при показе; после снятия функции кадра прежнее значение восстанавливается. |
 
-## Дальше
+Здесь используется конкретный **YOLO11s detect**: метаданные файла указывают Ultralytics 8.3.8, 80 классов COCO, вход `images` 1×3×640×640 и выход `output0` 1×84×8400. Это не классификатор без рамок, не pose и не модель, обученная на конкретной игре. Название файла само по себе не гарантирует совместимость другой модели: нужны подходящие входы, выходы, метаданные, обработчик результата и установленный механизм ONNX Runtime. Метаданные указывают AGPL-3.0; [условия](https://www.ultralytics.com/license) и [описание семейства YOLO11](https://docs.ultralytics.com/models/yolo11/) опубликованы автором.
 
-[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
+Загрузчик растягивает выбранные пиксели к размеру входа; обработчик результата возвращает рамки к размеру обработанного изображения, а `ToScreen` учитывает его положение. Пустой список подходящих предсказаний просто оставляет область без рамок. Ошибка модели/захвата — отдельная ошибка; отсутствие рамки не доказывает, что файл загрузился успешно.
 
-В примере выбран `EyeAuras.ImGuiSdk 0.1.47`; опубликованная сборка содержит используемый API отрисовки. Его зависимости ImGui должны соответствовать хосту, поэтому отдельная историческая ссылка на `ImGui.NET 1.91.6.1` убрана. Контракты CV сверены с исходниками, но это не проверка запуска модели и графики. [Различия версий SDK](/ru/scripting/api/nuget/imgui-sdk).
+Вызовы ImGui и ML выполняются на потоке функции кадра после создания нативного контекста. Медленное распознавание задерживает этот кадр. F1/F2 меняют состояние под lock, функция копирует согласованную область. Stop проверяется между вызовами; синхронное распознавание не прерывается токеном. Открытый выбор области имеет свою отмену; токен проверяется после его завершения.
+
+При Stop флаг под `renderGate` запрещает позднюю работу и дожидается текущей функции; затем снимается регистрация, восстанавливается свойство и освобождаются API. `Captured`/изображения результата заимствованы, отдельно их не освобождают и не передают в фоновый поток. `Log`, `GetService` и `cancellationToken` — контекст `Script.csx`, не глобальные API обычного класса. [Подробнее об ImGui SDK](/ru/scripting/api/nuget/imgui-sdk).
+
+<details>
+<summary>Прежняя демонстрация и другой учебный источник</summary>
+
+[Демонстрационный ролик](https://onelineplayer.com/player?autoplay=true&autopause=false&muted=true&loop=true&url=https%3A%2F%2Fs3.eyeauras.net%2Fmedia%2F2025%2F06%2FEyeAuras_Ysg57Vun9q2Hmuvu.mp4&poster=&time=true&progressBar=true&overlay=true&muteButton=true&fullscreenButton=true&style=light&quality=auto&playButton=true) показывает исторический результат с прежним изображением и окружением, а не обещание числа FPS на вашем компьютере. Для другого входа можно открыть [учебное видео](https://www.youtube.com/watch?v=rTqg2hEjGdE), выбрать его область и смотреть фактические классы/рамки. Наличие видео не означает, что COCO-модель будет считать каждую мишень целевым объектом.
+
+</details>

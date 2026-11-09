@@ -7,28 +7,19 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-06-27T21:35:22.410Z
 ---
-# Найти цель в учебном Aim Trainer
+# Обвести учебную цель и подключить клик
 
-Это верхнеуровневый `C# Script` внутри EyeAuras для собственного учебного сеанса Aim Trainer. Откройте страницу target-tracking, проверьте заголовок окна в `GetWindow` и доступность указанного ONNX-файла. URL модели — вход примера, а не встроенный ресурс; первая загрузка требует доступа к нему. Нужны рабочие захват окна, ML runtime и выбранный симулятор ввода. Совместимость модели и внешних пакетов отдельно не проверена.
+Найдём цель в собственном сеансе [Target Tracking](https://aimtrainer.io/target-tracking), сначала покажем рамку, затем отдельно включим движение и клик. Источник данных — пиксели окна браузера; модель возвращает рамку класса `Tgt`. Подсветку здесь рисует **OSD EyeAuras**, без ImGui.
 
-Этот пример показывает, **как собрать простой 2D aimbot с ESP-оверлеем** (отрисовкой поверх экрана) с помощью **EyeAuras**.
+Нужны настольный EyeAuras с OpenCV/ONNX Runtime, доступная модель по ссылке в коде и работающий захват видимого браузерного окна. Для необязательного ввода нужен **Windows Input**. На первый опыт используйте основной монитор с масштабом 100%, стабильное собственное окно и одну открытую вкладку тренажёра.
 
-## Что делает этот код
+## Сначала увидеть результат поиска
 
-- Подключается к окну браузерной игры (`Aim Trainer`)
-- Использует **предобученную ML-модель** для поиска цели в реальном времени
-- Рисует прямоугольник поверх найденной цели
-- Перемещает курсор в центр цели
-- Кликает по ней — готово 
-
----
-
-## Пример кода
+1. Откройте Target Tracking, нажмите **Play**. Посмотрите заголовок своего окна: исходный заголовок страницы — **Tracking - Aim Trainer**, браузер может добавить своё имя. В коде укажите выражение, которое выбирает именно ваше учебное окно.
+2. Создайте действие **C# Script** и вставьте всю программу в `Script.csx`. Оставьте `performInput = false`:
 
 ```csharp
-
-//this is a simple 2D aimbot + ESP for https://aimtrainer.io/target-tracking
-
+using System;
 using System.Drawing;
 using System.Linq;
 using EyeAuras.Blazor.Controls.ScreenOverlay;
@@ -38,84 +29,68 @@ using EyeAuras.Shared.Scripting;
 using EyeAuras.Shared.Services;
 using PoeShared.Scaffolding;
 
-//we're going to work with a specific window, lets find it
-var targetWindow = GetService<IWindowSelector>().GetWindow("Tracking - Aim Trainer");
-
 {
-    //this API is used to do Computer Vision stuff (image/text/color/ml search)
-    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-        .ForWindow(targetWindow); // selected window
-
-    //this API is used to generate mouse movements
-    var sendInput = GetService<ISendInputScriptingApi>();
-    sendInput.TargetWindow = null; // ниже передаём экранные координаты
-
-    //pre-trained model we're going to use to find the target
-    var mlModelPath = @"https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
-
-    using var osd = GetService<IOnScreenCanvasScriptingApi>()
-        .Create();
-
+    var window = GetService<IWindowSelector>().GetWindow("Tracking - Aim Trainer");
+    if (window == null || !window.IsWindow) { Log.Warn("Учебное окно не найдено"); return; }
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>().ForWindow(window);
+    using var osd = GetService<IOnScreenCanvasScriptingApi>().Create();
+    var input = GetService<ISendInputScriptingApi>();
+    var previousTarget = input.TargetWindow;
+    var previousSimulator = input.InputSimulatorId;
+    const bool performInput = false;
+    const string model = "https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
     try
     {
-        using var windowRect = osd.AddRectangle()
-            .WithBorderColor(Color.Purple)
-            .WithBackground(Color.Transparent);
-        using var targetRect = osd.AddRectangle()
-            .WithBorderColor(Color.Red)
-            .WithBackground(Color.Transparent);
-
+        input.TargetWindow = window;
+        input.InputSimulatorId = "Windows Input";
+        using var windowRect = osd.AddRectangle().WithBorderColor(Color.Purple).WithBackground(Color.Transparent);
+        using var targetRect = osd.AddRectangle().WithBorderColor(Color.Red).WithBackground(Color.Transparent);
         while (!cancellationToken.WaitHandle.WaitOne(10))
         {
-            if (!targetWindow.IsForeground)
+            targetRect.WithRect(Rectangle.Empty);
+            windowRect.WithRect(Rectangle.Empty);
+            if (!window.IsForeground) continue;
+            windowRect.WithRect(window.DwmFrameBounds);
+            var result = cv.MLSearchRaw(model, confidenceThreshold: 30, iouThreshold: 40);
+            var targets = result.Detected.Predictions.Where(x => x.Label.Name == "Tgt").ToArray();
+            if (targets.Length == 0) continue;
+            var prediction = targets[0];
+            var screenBounds = result.ToScreen(prediction.Rectangle).ToWinRectangle();
+            if (screenBounds.IsEmpty) continue;
+            targetRect.WithRect(screenBounds);
+            Log.Info($"Tgt: score={prediction.Score:F3}; screen={screenBounds}");
+            if (performInput && window.IsForeground && !cancellationToken.IsCancellationRequested)
             {
-                //do nothing if the window is not in the foreground
-                continue;
-            }
-            //this method will be called many-many times per second, until OSD is closed
-            windowRect.WithRect(targetWindow.DwmFrameBounds);
-
-            //get predictions from the model
-            var result = cv.MLSearchRaw(mlModelPath);
-            if (!result.Detected.Predictions.Any())
-            {
-                //not found
-                continue;
-            }
-
-            var currentPosition = result //WindowImageProcessedEventArgs
-              .Detected //get detection results
-              .Predictions //get predictions
-              .First() //more specifically, first one
-              .Rectangle //get bounding box of that prediction IN LOCAL(aka World) coordinates
-              .Transform(result.ViewportTransforms.WorldToScreen); //transform World coordinates to Screen coordinates
-            Log.Info($"Found via ML @ {currentPosition}");
-
-            if (!currentPosition.IsEmpty)
-            {
-                //found the image
-                var targetCenter = currentPosition.ToWinRectangle().Center();
-
-                targetRect.WithRect(currentPosition.ToWinRectangle());
-
-                sendInput.MouseMoveTo(targetCenter);
-                sendInput.MouseClick();
+                var windowBounds = result.ToWindow(prediction.Rectangle).ToWinRectangle();
+                input.MouseMoveTo(windowBounds.Center());
+                input.MouseClick();
             }
         }
     }
     finally
     {
         osd.Clear();
+        input.TargetWindow = previousTarget;
+        input.InputSimulatorId = previousSimulator;
     }
 }
 ```
 
-`MLSearchRaw` возвращает оболочку с `Detected.Predictions` и матрицами захвата. Без явных порогов используются confidence 30% и IoU 40%; первая запись не означает гарантированно лучшую или правильную цель. Пустой список — цель не найдена, ошибка загрузки/захвата — отдельная ошибка. Прямоугольник переводится из координат захвата через `WorldToScreen` до отправки ввода. При ненулевом `TargetWindow` оконная обёртка ввода сделала бы ещё одно преобразование.
+3. Нажмите **Run** и вернитесь в своё учебное окно. Фиолетовая рамка показывает его DWM-границу, красная — найденную цель; журнал содержит `Tgt`, score и экранную рамку. Если совпадения нет, красная рамка убирается. При другом активном окне обработка пропускается.
+4. Нажмите **Stop**. После проверки правильной рамки можно заменить `performInput` на `true`, снова Run и активировать **только свой тренажёр**. Теперь курсор идёт к центру цели и выполняет левый клик на каждом подходящем проходе. Stop завершает цикл; выход из учебного окна приостанавливает обработку.
 
-Скрипт меняет реальный курсор и кликает только при активном учебном окне. Между проверкой активности и кликом окно может измениться. Остановка проверяется между итерациями/кадрами; синхронное распознавание и уже начатый ввод токен не прерывает. Прямоугольники освобождаются при выходе из `try`; затем `finally` очищает canvas, пока прокси ещё подключён, и внешняя область `using` освобождает canvas и CV; `Captured` и изображения результата заимствованы, освобождать их отдельно нельзя.
+| Настройка | Что меняет |
+| --- | --- |
+| `performInput` | `false` — поиск и рамки; `true` — дополнительно реальное движение и клик. Предпосылка второго режима — уже проверенные окно и рамка. |
+| `GetWindow(...)` | Адресат захвата и ввода. Отсутствие окна заканчивает программу с записью в журнале, а не переключает её на рабочий стол. |
+| `confidenceThreshold: 30` | Пропускает оценки выше 30%; затем остаются только предсказания класса `Tgt`. Первое берётся из отсортированного по Score результата, но правильность цели этим не гарантируется. |
+| `iouThreshold: 40` | Порог перекрытия для удаления дублирующих рамок, не порог площади цели. |
+| `WaitOne(10)` | Ожидание10ms между проходами с отменой; захват, распознавание, лог и ввод добавляют своё время. Это не обещание100 кадров/с. |
 
-## Дальше
+OSD получает экранные координаты через `ToScreen`. Ввод получает **оконные** через `ToWindow`, потому что `TargetWindow` задан; Windows Input переводит их на экран и активирует адресата. Это не фоновый ввод. Между проверкой активности и действием возможна смена окна; держите учебное окно стабильным. Stop не прерывает уже начатый синхронный поиск или ввод.
 
-[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi)
+Модель по исходной ссылке — ONNX для обнаружения объектов, с входом `images` 1×3×640×640 и выходом `output0` 1×5×8400, единственный класс — `Tgt`. Она обучена для такого учебного изображения, не извлекает данные браузера или игры. Метаданные указывают Ultralytics 8.1.13 и AGPL-3.0; [условия модели](https://www.ultralytics.com/license) смотрите у автора. Не подменяйте её обычной COCO-моделью, ожидая тот же класс.
 
-Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.
+Загрузчик растягивает кадр до входа модели; обработчик результата возвращает рамки обратно в координаты обработанного изображения. `ToScreen`/`ToWindow` затем учитывают область захвата и её преобразования — масштабировать рамку вручную ещё раз не нужно. `Score` 0…1 — оценка модели, не доля площади и не измеренная вероятность правильного клика. Ошибка загрузки или захвата отличается от пустого списка предсказаний.
+
+Прямоугольники принадлежат этому запуску: при выходе они освобождаются, затем canvas очищается, восстанавливаются настройки заимствованного API ввода и освобождаются OSD/CV. Кадры и изображения результата заимствованы — отдельно их не освобождают. `Log`, `GetService` и токен принадлежат `Script.csx`, не обычному C# классу. Для нативного варианта отрисовки есть [такой же учебный путь на ImGui](/ru/scripting/examples/advanced/aimtrainer-ml).
