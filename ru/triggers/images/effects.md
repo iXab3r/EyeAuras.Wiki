@@ -1,6 +1,6 @@
 ---
 title: Эффекты изображения
-description: Постобработка: удаление цвета, синий цвет, фильтрация
+description: 'Постобработка: удаление цвета, синий цвет, фильтрация'
 published: true
 date: 2024-10-11T16:37:03.589Z
 tags: image capture effects, ai-translated

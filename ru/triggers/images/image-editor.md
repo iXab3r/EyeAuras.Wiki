@@ -1,6 +1,6 @@
 ---
 title: Редактор шаблонов изображений
-description: Быстрый редактор шаблонов для Image Search: обрезка, стирание, удаление цвета и изменение размера
+description: 'Быстрый редактор шаблонов для Image Search: обрезка, стирание, удаление цвета и изменение размера'
 published: true
 date: 2026-03-26T18:00:00.000Z
 tags: image search editor template, ai-translated
