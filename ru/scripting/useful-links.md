@@ -7,88 +7,107 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-09-21T11:29:06.078Z
 ---
-# Полезные ресурсы для разработки и реверс-инжиниринга
 
-Эта подборка помогает выбрать, что читать: синтаксис и базовые типы — в C# Language Reference и .NET API Browser, UI — в разделе Blazor, структуры Windows и бинарные форматы — в разделе реверс-инжиниринга. Это внешние ресурсы. Выбирайте документацию под свою версию .NET и проверяйте условия выбранного инструмента перед использованием; список не гарантирует совместимость всех внешних примеров с EyeAuras.
+# Найти справочник под задачу скрипта
 
-Для запуска кода внутри EyeAuras сначала смотрите [контекст скрипта](/ru/scripting/sandbox), [подключение пакетов](/ru/scripting/nuget) и [карты API](/ru/scripting/api/AGENTS). Пример из обычного .NET-приложения может требовать другой регистрации служб, runtime или UI host.
+Для первого запуска нужен пример EyeAuras, для синтаксиса — справочник C#, а для точной сигнатуры — контракт подходящей версии. Подборка ниже помогает выбрать источник, не устанавливая все перечисленные инструменты.
 
-## Разработка на C#
+1. Определите, что сейчас непонятно: язык, возможности EyeAuras, устройство интерфейса или формат данных.
+2. Откройте соответствующий источник из первой таблицы. Для внешней документации выберите версию .NET или библиотеки своего проекта.
+3. Вернитесь к примеру и проверьте файлы, зависимости и хост. Результат поиска — нужный контракт или образец, а не автоматически работающий код внутри EyeAuras.
 
-* **.NET Documentation** — официальная документация по runtime, библиотекам и инструментам: [https://learn.microsoft.com/dotnet/](https://learn.microsoft.com/dotnet/)
-* **C# Language Reference** — полная документация по языку и примеры: [https://learn.microsoft.com/dotnet/csharp/language-reference/](https://learn.microsoft.com/dotnet/csharp/language-reference/)
-* **.NET API Browser** — просмотр всех публичных API в разных версиях: [https://learn.microsoft.com/dotnet/api/](https://learn.microsoft.com/dotnet/api/)
-* **Roslyn (C# Compiler & Analyzers)** — исходники, анализаторы и code fixes: [https://github.com/dotnet/roslyn](https://github.com/dotnet/roslyn)
-* **C# Language Design Notes** — предложения по языку и заметки со встреч: [https://github.com/dotnet/csharplang](https://github.com/dotnet/csharplang)
-* **.NET Runtime Source** — внутреннее устройство JIT, GC и BCL: [https://github.com/dotnet/runtime](https://github.com/dotnet/runtime)
-* **.NET Performance Guide** — паттерны, типичные проблемы и оптимизация: [https://learn.microsoft.com/dotnet/standard/garbage-collection/performance](https://learn.microsoft.com/dotnet/standard/garbage-collection/performance)
-* **Maoni’s GC Blog** — подробные материалы по внутренностям GC: [https://devblogs.microsoft.com/dotnet/author/maoni/](https://devblogs.microsoft.com/dotnet/author/maoni/)
-* **Stephen Toub on Async** — сильные статьи про async/await, tasks и производительность: [https://devblogs.microsoft.com/dotnet/how-async-await-really-works/](https://devblogs.microsoft.com/dotnet/how-async-await-really-works/)
-* **Source Generators** — концепции и практические руководства: [https://learn.microsoft.com/dotnet/csharp/roslyn-sdk/source-generators-overview](https://learn.microsoft.com/dotnet/csharp/roslyn-sdk/source-generators-overview)
-* **P/Invoke Reference** — community-база сигнатур для Win32: [https://www.pinvoke.net/](https://www.pinvoke.net/)
-* **NativeAOT** — AOT-компиляция приложений .NET: [https://learn.microsoft.com/dotnet/core/deploying/native-aot/](https://learn.microsoft.com/dotnet/core/deploying/native-aot/)
-* **BenchmarkDotNet** — фреймворк для микробенчмарков: [https://github.com/dotnet/BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet)
-* **ILSpy** — open-source декомпилятор для .NET: [https://github.com/icsharpcode/ILSpy](https://github.com/icsharpcode/ILSpy)
-* **dnSpyEx** — отладчик и декомпилятор для .NET (community fork): [https://github.com/dnSpyEx/dnSpy](https://github.com/dnSpyEx/dnSpy)
-* **Awesome .NET** — подборка библиотек и инструментов: [https://github.com/quozd/awesome-dotnet](https://github.com/quozd/awesome-dotnet)
+| Задача | Подходящий источник |
+|---|---|
+| Первый запуск и контекст | [Начало работы](/ru/scripting/getting-started), [окружение скрипта](/ru/scripting/sandbox), [пакеты NuGet](/ru/scripting/nuget). |
+| Найти область API EyeAuras | [Карты API](/ru/scripting/api/AGENTS) ведут к операциям и исходным типам; точный контракт сверяйте со справочником и SDK своей версии. Карта не является перечнем всего, зарегистрированного в вашем хосте. |
+| Повторить практический опыт | [Hello, World!](/ru/scripting/examples/basic/hello-world), [переменные](/ru/scripting/examples/basic/variables), [поиск изображения](/ru/scripting/examples/basic/image-search). |
+| Создать интерфейс | Сначала [Blazor в EyeAuras](/ru/scripting/blazor-windows/getting-started), затем внешние материалы ниже. Обычный пример ASP.NET не задаёт автоматически настольное окно EyeAuras. |
+| Задать вопрос с исходными данными | [Контакты сообщества](/ru/contacts): приложите сборку, короткий пример и ожидаемый результат без секретов. |
 
----
+## C# и .NET
 
-## Разработка на Blazor
+| Источник | Когда открывать |
+|---|---|
+| [.NET Documentation](https://learn.microsoft.com/dotnet/) | Общий вход в документацию .NET: библиотеки, среда выполнения и инструменты. |
+| [C# Language Reference](https://learn.microsoft.com/dotnet/csharp/language-reference/) | Синтаксис, ключевые слова и выражения C#. |
+| [.NET API Browser](https://learn.microsoft.com/dotnet/api/) | Сигнатуры и описание типов .NET; выберите нужную версию. |
+| [Roslyn (C# Compiler & Analyzers)](https://github.com/dotnet/roslyn) | Исходники компилятора и средства анализа кода. |
+| [C# Language Design Notes](https://github.com/dotnet/csharplang) | Проектирование языка и предложения. Предложение не означает поддержку в вашем компиляторе. |
+| [.NET Runtime Source](https://github.com/dotnet/runtime) | Исходники среды выполнения, сборщика мусора и базовых библиотек. |
+| [.NET Performance Guide](https://learn.microsoft.com/dotnet/standard/garbage-collection/performance) | Измерение и разбор проблем производительности сборщика мусора. |
+| [Maoni’s GC Blog](https://devblogs.microsoft.com/dotnet/author/maoni/) | Авторские материалы Microsoft о сборщике мусора. |
+| [Stephen Toub on Async](https://devblogs.microsoft.com/dotnet/how-async-await-really-works/) | Подробный разбор работы async/await. |
+| [Source Generators](https://learn.microsoft.com/dotnet/csharp/roslyn-sdk/source-generators-overview) | Документация генераторов исходного кода. |
+| [P/Invoke Reference](https://www.pinvoke.net/) | Справочник сообщества по сигнатурам Win32; проверяйте их по документации Microsoft. |
+| [NativeAOT](https://learn.microsoft.com/dotnet/core/deploying/native-aot/) | Условия и ограничения NativeAOT для отдельного проекта; это не режим запуска Script.csx. |
+| [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet) | Измерение небольших операций .NET в подготовленном проекте. |
+| [ILSpy](https://github.com/icsharpcode/ILSpy) | Просмотр декомпилированных сборок .NET. |
+| [dnSpyEx](https://github.com/dnSpyEx/dnSpy) | Отладчик и декомпилятор .NET от сообщества. |
+| [Awesome .NET](https://github.com/quozd/awesome-dotnet) | Подборка сообщества, полезная для поиска библиотек, а не подтверждения их регистрации в EyeAuras. |
 
-* **Blazor Docs (ASP.NET Core)** — официальная документация по Server, WASM и Hybrid: [https://learn.microsoft.com/aspnet/core/blazor/](https://learn.microsoft.com/aspnet/core/blazor/)
-* **Blazor Performance Best Practices**: [https://learn.microsoft.com/aspnet/core/blazor/performance](https://learn.microsoft.com/aspnet/core/blazor/performance)
-* **JS Interop** — вызов JS из .NET и наоборот: [https://learn.microsoft.com/aspnet/core/blazor/javascript-interoperability/](https://learn.microsoft.com/aspnet/core/blazor/javascript-interoperability/)
-* **Security & Identity** — аутентификация, авторизация, токены: [https://learn.microsoft.com/aspnet/core/blazor/security/](https://learn.microsoft.com/aspnet/core/blazor/security/)
-* **SignalR with Blazor** — возможности для real-time функциональности: [https://learn.microsoft.com/aspnet/core/blazor/fundamentals/signalr](https://learn.microsoft.com/aspnet/core/blazor/fundamentals/signalr)
-* **Blazor University** — подробные community-материалы: [https://blazor-university.com/](https://blazor-university.com/)
-* **Awesome Blazor** — компоненты, библиотеки и примеры: [https://github.com/AdrienTorris/awesome-blazor](https://github.com/AdrienTorris/awesome-blazor)
-* **MudBlazor** — популярная библиотека UI-компонентов: [https://mudblazor.com/](https://mudblazor.com/)
-* **Radzen Blazor** — UI-контролы и инструменты: [https://blazor.radzen.com/](https://blazor.radzen.com/)
-* **Blazorise** — библиотека компонентов: [https://blazorise.com/](https://blazorise.com/)
-* **.NET WebAssembly Docs** — детали runtime для WASM: [https://learn.microsoft.com/aspnet/core/blazor/webassembly-build-tools-and-aot](https://learn.microsoft.com/aspnet/core/blazor/webassembly-build-tools-and-aot)
-* **gRPC & Minimal APIs** — backend-подходы, которые часто используют вместе с Blazor: [https://learn.microsoft.com/aspnet/core/grpc/](https://learn.microsoft.com/aspnet/core/grpc/) и [https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis](https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis)
-* **NSwag/Swashbuckle** — OpenAPI для C# clients/UI: [https://github.com/RicoSuter/NSwag](https://github.com/RicoSuter/NSwag) и [https://github.com/domaindrivendev/Swashbuckle.AspNetCore](https://github.com/domaindrivendev/Swashbuckle.AspNetCore)
+<details>
+<summary>Blazor</summary>
 
----
+| Источник | Когда открывать |
+|---|---|
+| [Blazor Docs (ASP.NET Core)](https://learn.microsoft.com/aspnet/core/blazor/) | Общее руководство Blazor, с выбором версии и способа размещения приложения. |
+| [Blazor Performance Best Practices](https://learn.microsoft.com/aspnet/core/blazor/performance) | Рекомендации по производительности компонентов Blazor. |
+| [JS Interop](https://learn.microsoft.com/aspnet/core/blazor/javascript-interoperability/) | Обмен вызовами между .NET и JavaScript. |
+| [Security & Identity](https://learn.microsoft.com/aspnet/core/blazor/security/) | Аутентификация и авторизация веб-приложения; это отдельный слой от входа в EyeAuras. |
+| [SignalR with Blazor](https://learn.microsoft.com/aspnet/core/blazor/fundamentals/signalr) | Работа SignalR в соответствующем режиме размещения Blazor. |
+| [Blazor University](https://blazor-university.com/) | Учебные материалы сообщества по Blazor. |
+| [Awesome Blazor](https://github.com/AdrienTorris/awesome-blazor) | Подборка компонентов и примеров сообщества. |
+| [MudBlazor](https://mudblazor.com/) | Библиотека компонентов интерфейса; требует своей зависимости и настройки. |
+| [Radzen Blazor](https://blazor.radzen.com/) | Библиотека элементов интерфейса и её примеры. |
+| [Blazorise](https://blazorise.com/) | Библиотека компонентов Blazor и документация автора. |
+| [.NET WebAssembly Docs](https://learn.microsoft.com/aspnet/core/blazor/webassembly-build-tools-and-aot) | Сборка WebAssembly и AOT; не путайте с настольным WebView2. |
+| [gRPC](https://learn.microsoft.com/aspnet/core/grpc/) / [Minimal APIs](https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis) | Серверные интерфейсы и маршруты ASP.NET Core. |
+| [NSwag](https://github.com/RicoSuter/NSwag) / [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) | Создание и использование описаний OpenAPI. |
 
-## Реверс-инжиниринг
+</details>
 
-* **Vergilius Project** — layouts/offsets структур ядра Windows: [https://www.vergiliusproject.com/](https://www.vergiliusproject.com/)
-* **Ghidra** — open-source набор инструментов от NSA: [https://github.com/NationalSecurityAgency/ghidra](https://github.com/NationalSecurityAgency/ghidra)
-* **IDA Free** — дизассемблер и отладчик с бесплатной некоммерческой лицензией; актуальные условия смотрите у автора: [https://hex-rays.com/ida-free](https://hex-rays.com/ida-free)
-* **radare2 / r2** — фреймворк для RE: [https://github.com/radareorg/radare2](https://github.com/radareorg/radare2)
-* **Cutter** — GUI на базе Rizin: [https://cutter.re/](https://cutter.re/)
-* **x64dbg** — open-source отладчик для Windows: [https://x64dbg.com/](https://x64dbg.com/)
-* **WinDbg / WinDbg Preview** — отладчик Microsoft для kernel/user-mode: [https://learn.microsoft.com/windows-hardware/drivers/debugger/](https://learn.microsoft.com/windows-hardware/drivers/debugger/)
-* **WDK Docs** — разработка драйверов и внутреннее устройство ядра: [https://learn.microsoft.com/windows-hardware/drivers/](https://learn.microsoft.com/windows-hardware/drivers/)
-* **Windows Internals (Book)** — подробный справочник по внутренностям ОС: [https://learn.microsoft.com/sysinternals/resources/windows-internals](https://learn.microsoft.com/sysinternals/resources/windows-internals)
-* **Sysinternals Suite** — мощные инструменты для Windows: [https://learn.microsoft.com/sysinternals/](https://learn.microsoft.com/sysinternals/)
-* **System Informer** — системный explorer и инструменты для работы с памятью: [https://systeminformer.io/](https://systeminformer.io/)
-* **Capstone / Keystone / Unicorn** — движки для disasm/asm/эмуляции: [https://www.capstone-engine.org/](https://www.capstone-engine.org/) / [https://github.com/keystone-engine/keystone](https://github.com/keystone-engine/keystone) / [https://www.unicorn-engine.org/](https://www.unicorn-engine.org/)
-* **PE/COFF Spec** — официальная документация по формату файлов: [https://learn.microsoft.com/windows/win32/debug/pe-format](https://learn.microsoft.com/windows/win32/debug/pe-format)
-* **ReactOS Source** — исходники NT-подобной ОС для изучения: [https://github.com/reactos/reactos](https://github.com/reactos/reactos)
+<details>
+<summary>Windows и двоичные форматы</summary>
 
----
+| Источник | Когда открывать |
+|---|---|
+| [Vergilius Project](https://www.vergiliusproject.com/) | Разметка структур Windows для конкретных версий ОС. |
+| [Ghidra](https://github.com/NationalSecurityAgency/ghidra) | Инструменты анализа программ от разработчиков Ghidra. |
+| [IDA Free](https://hex-rays.com/ida-free) | Возможности IDA Free и действующие условия автора; не переносите условия другой редакции. |
+| [radare2 / r2](https://github.com/radareorg/radare2) | Средства анализа двоичных файлов и их документация. |
+| [Cutter](https://cutter.re/) | Графический интерфейс анализа на основе Rizin. |
+| [x64dbg](https://x64dbg.com/) | Отладчик Windows и материалы проекта. |
+| [WinDbg / WinDbg Preview](https://learn.microsoft.com/windows-hardware/drivers/debugger/) | Отладчик Microsoft и документация его возможностей. |
+| [WDK Docs](https://learn.microsoft.com/windows-hardware/drivers/) | Документация разработки драйверов Windows. |
+| [Windows Internals (Book)](https://learn.microsoft.com/sysinternals/resources/windows-internals) | Материалы по книгам Windows Internals. |
+| [Sysinternals Suite](https://learn.microsoft.com/sysinternals/) | Утилиты диагностики Windows и документация Microsoft. |
+| [System Informer](https://systeminformer.io/) | Средства просмотра процессов и исследования системы. |
+| [Capstone](https://www.capstone-engine.org/) / [Keystone](https://github.com/keystone-engine/keystone) / [Unicorn](https://www.unicorn-engine.org/) | Библиотеки дизассемблирования, ассемблирования и эмуляции; это разные компоненты. |
+| [PE/COFF Spec](https://learn.microsoft.com/windows/win32/debug/pe-format) | Официальное описание форматов PE и COFF. |
+| [ReactOS Source](https://github.com/reactos/reactos) | Исходники отдельной NT-подобной ОС; не спецификация поведения любой Windows. |
 
-## Реверс-инжиниринг игр
+</details>
 
-* **UnknownCheats** — крупный форум по безопасности игр, реверсу и читам: [https://unknowncheats.me/](https://unknowncheats.me/)
-* **Cheat Engine** — memory scanner, отладчик и инструмент для trainer'ов: [https://www.cheatengine.org/](https://www.cheatengine.org/)
-  * **CE Wiki** — туториалы и внутренняя кухня: [https://wiki.cheatengine.org/index.php?title=Main\_Page](https://wiki.cheatengine.org/index.php?title=Main_Page)
-* **Guided Hacking** — туториалы, форумы и полезные материалы: [https://guidedhacking.com/](https://guidedhacking.com/)
-* **GameHacking.org** — сообщество и ресурсы: [https://gamehacking.org/](https://gamehacking.org/)
-* **ReClass.NET** — анализ layout'ов классов: [https://github.com/ReClassNET/ReClass.NET](https://github.com/ReClassNET/ReClass.NET)
-* **MinHook** — лёгкая библиотека для API hooking: [https://github.com/TsudaKageyu/minhook](https://github.com/TsudaKageyu/minhook)
-* **Microsoft Detours** — библиотека для патчинга функций: [https://github.com/microsoft/Detours](https://github.com/microsoft/Detours)
-* **ScyllaHide** — anti-anti-debug плагин: [https://github.com/x64dbg/ScyllaHide](https://github.com/x64dbg/ScyllaHide)
-* **Il2CppDumper** — дамп и генерация структур для Unity IL2CPP: [https://github.com/Perfare/Il2CppDumper](https://github.com/Perfare/Il2CppDumper)
-* **Unreal Engine Docs** — reflection, система UObject и scripting для editor'а: [https://docs.unrealengine.com/](https://docs.unrealengine.com/)
-* **DirectX Graphics Docs** — материалы по рендерингу и контекстам hooking'а: [https://learn.microsoft.com/windows/win32/direct3d/](https://learn.microsoft.com/windows/win32/direct3d/)
-* **Dear ImGui** — immediate-mode GUI (часто используется в overlay и инструментах): [https://github.com/ocornut/imgui](https://github.com/ocornut/imgui)
+<details>
+<summary>Инструменты и сообщества анализа игр</summary>
 
----
+| Источник | Когда открывать |
+|---|---|
+| [UnknownCheats](https://unknowncheats.me/) | Форум сообщества об анализе игр и безопасности. |
+| [Cheat Engine](https://www.cheatengine.org/) | Средства исследования памяти и отдельная wiki проекта. |
+| [Guided Hacking](https://guidedhacking.com/) | Учебные материалы и форум сообщества; условия доступа определяет сайт. |
+| [GameHacking.org](https://gamehacking.org/) | Ресурсы и обсуждения сообщества. |
+| [ReClass.NET](https://github.com/ReClassNET/ReClass.NET) | Просмотр разметки классов и структур. |
+| [MinHook](https://github.com/TsudaKageyu/minhook) | Библиотека перехвата функций и примеры автора. |
+| [Microsoft Detours](https://github.com/microsoft/Detours) | Библиотека Microsoft для перехвата функций. |
+| [ScyllaHide](https://github.com/x64dbg/ScyllaHide) | Документация плагина ScyllaHide; наличие инструмента не гарантирует незаметность. |
+| [Il2CppDumper](https://github.com/Perfare/Il2CppDumper) | Разбор метаданных Unity IL2CPP в поддерживаемом формате. |
+| [Unreal Engine Docs](https://docs.unrealengine.com/) | Документация Unreal Engine; выбирайте нужную версию движка. |
+| [DirectX Graphics Docs](https://learn.microsoft.com/windows/win32/direct3d/) | Графические API DirectX и их контракты. |
+| [Dear ImGui](https://github.com/ocornut/imgui) | Исходники Dear ImGui. Для EyeAuras отдельно нужны подходящие обёртка и хост. |
 
-## Правовая и этическая заметка
+</details>
 
-В этом списке есть инструменты и темы, которые часто используются в исследованиях безопасности и игровом реверс-инжиниринге. Используйте их ответственно, в рамках закона и с соблюдением условий использования программ и игр, которые вы анализируете.
+[Wiki Cheat Engine](https://wiki.cheatengine.org/index.php?title=Main_Page) дополняет страницу проекта собственными руководствами. Внешние форумы и подборки отражают материалы сообщества; первичный контракт конкретной библиотеки ищите у её автора.
+
+Примеры обычного .NET, браузерного Blazor и C++ не получают `Log`, `AuraTree` и другие возможности Script.csx автоматически. Учитывайте зависимости, регистрацию служб и владельца ресурсов. Работайте с данными и программами, на исследование которых у вас есть право, и проверяйте условия выбранных инструментов у авторов.
