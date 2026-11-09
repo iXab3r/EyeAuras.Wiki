@@ -8,14 +8,29 @@ editor: markdown
 dateCreated: 2023-06-18T11:37:32.752Z
 ---
 
-The Fixed Value trigger is one of the most straightforward triggers in EyeAuras. It provides an easy way to set a trigger to a fixed state, giving you more control over your automated tasks in games or other applications.
+# Fixed Value — test an aura manually
 
-![Fixed Value Trigger](https://s3.eyeauras.net/media/2024/05/EyeAuras_dwDaZIhSanYHVRtK.png)
+To check an action without waiting for a window or text to appear, set the condition yourself with Fixed Value. For example, activate an aura manually and listen for its notification.
 
-### **Configuration Options**
+## Test one sound notification
 
-The Fixed Value Trigger offers three radio button options to determine the state of the trigger:
+1. Create an aura with only a **Fixed Value** trigger.
+2. Select **Is NOT Active**, so setup starts with an inactive aura.
+3. Add [Play Sound](/en/actions/play-sound) with Ping to **On Enter**. Check its volume with the preview button.
+4. Select **Is Active** in Fixed Value.
 
--   **Is Active**: When this option is selected, the trigger will always be in an active state. This means that any actions or sequences linked to this trigger will be executed as long as the Aura is loaded.
--   **Is NOT Active**: Selecting this option will keep the trigger in an inactive state. This can be useful when you want to prevent certain actions or sequences from running.
--   **Not Set**: Choosing this option leaves the trigger in an Unknown state. This is equivalent to the state of an unloaded Aura. While in the Unknown state, the behavior of the trigger is not specified and therefore does not affect any actions or sequences.
+The aura becomes active and runs On Enter once: you should hear Ping. To repeat, select Is NOT Active, then Is Active again. Actions in **While Active** repeat while the aura remains active; the fixed value itself does not set a repeat interval.
+
+![Fixed trigger state in the older editor](https://s3.eyeauras.net/media/2024/05/EyeAuras_dwDaZIhSanYHVRtK.png)
+
+## Choose a value
+
+| Value | Trigger state |
+|---|---|
+| Is Active | Stays Active while the trigger runs with this setting. |
+| Is NOT Active | Stays Not Active. |
+| Not set | Unknown: the condition has no assigned result. This is a distinct state, not another name for Not Active. |
+
+This example has one trigger, so the aura follows its state. With several triggers, the result depends on their combination rule. Unknown participates in that evaluation; it is not a condition that is always ignored.
+
+After testing, replace Fixed Value with a real source such as [Window Exists](/en/triggers/window-exists). If you keep a constant Is Active alongside other conditions, check the combination rule so it does not activate the aura regardless of them.

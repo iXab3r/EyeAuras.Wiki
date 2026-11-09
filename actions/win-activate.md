@@ -8,24 +8,28 @@ editor: markdown
 dateCreated: 2023-06-18T14:44:18.831Z
 ---
 
-# Win Activate
+# Win Activate — bring an existing window forward
 
-The "Win Activate Action" is an immensely useful function for automating your workflow or improving your gaming experience. It allows you to bring a specific window to the foreground based on the "Window Match Expression".
+Win Activate brings a matching window to the foreground. For example, it can return you to Notepad without cycling through windows with Alt+Tab.
 
-### Options
+Open your own Notepad window before setting this up. Leave just one instance open for an unambiguous first result.
 
-[Window Match Expression](/en/window-matching-expressions): The criteria used to determine which window to activate. The expression can match window titles, class names, or even processes.
+## Bring Notepad to the foreground
 
-**Use Cases:**
+1. Add **Win Activate** to an aura, for example in **On Enter**.
+2. Open the window list in **Target Window** and select Notepad. Check that the expression identifies the intended window.
+3. If **Timeout** is available, set it to `1000` ms for the activation attempt.
+4. Put another window over Notepad, return to the action editor in EyeAuras and click **Execute** on Win Activate.
 
-- In a gaming scenario, you might have multiple game instances running concurrently. With "Win Activate Action", you can automate the process of switching focus between these instances based on certain triggers.
-- In a multi-monitor setup, you might want to bring a particular application (like your email client or a messaging app) to the forefront when it receives a new message. With this action, you can automate this process.
-- For streamers or content creators, you can set up triggers to automatically bring up certain applications or windows during specific parts of your stream.
-- If you work with a lot of different software for your job, you can set up a system where the software you need next is always brought to the forefront based on the tasks you're performing.
-- If you have multiple browser windows open, you can automatically switch to the one containing a specific website based on certain triggers.
-- For developers, automatically switch to the IDE when a compile completes successfully.
-- For gamers, switch to a walkthrough or guide when stuck at a certain point in the game.
-- In the event of a system alert or error, the relevant troubleshooting tools or dashboards can be brought to the forefront.
-- If a long task or download completes, the window showing the completed task or downloaded file can be brought to the front.
+Notepad should come to the foreground. This manual run checks the selected target and the action. To call it with a key, add [Hotkey Is Active](/en/triggers/hotkey-is-active) to the same aura, choose an unused key and Hold mode. Pressing it then runs On Enter, including Win Activate.
 
-This action not only brings great efficiency to your workflow, but also allows for creative automation solutions based on your unique needs. With "Win Activate Action", the potential to optimize your desktop interactions is just a few configurations away.
+## Settings
+
+| Setting | Effect |
+|---|---|
+| Target Window | Chooses a window using a [window matching expression](/en/features/window-matching-expressions). Start by selecting an existing window from the list. |
+| Timeout | Time allowed for an activation attempt, in milliseconds. It does not wait for a program to launch or guarantee the operation's total duration. |
+
+Selecting from the list may store a window handle, its temporary identifier. Closing and reopening the program changes it. For a lasting setup, use an appropriate title or process expression and check the matches; a broad expression may pick another window.
+
+Windows can restrict bringing another window to the foreground. If activation has no visible result, check the target first. [Window Exists](/en/triggers/window-exists) tracks whether it is present; [Window Is Active](/en/triggers/window-is-active) checks whether it is in the foreground.

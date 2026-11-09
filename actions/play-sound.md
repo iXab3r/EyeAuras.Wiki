@@ -8,32 +8,30 @@ editor: markdown
 dateCreated: 2023-06-18T14:29:49.671Z
 ---
 
-The Play Sound Action is a feature in EyeAuras that allows the user to play a specific sound using the default output device. It's a very convenient way to get audible alerts or feedback while using the system.
-![Play Sound Action](https://s3.eyeauras.net/media/2024/05/EyeAuras_Cd0NOjfW7gmIOFqx.png)
+# Play Sound — hear when a condition becomes true
 
-Here are the options available in the Play Sound Action:
-**Notification**
+Play Sound can notify you when a program's window appears. [Window Exists](/en/triggers/window-exists) supplies the condition; Play Sound supplies the audio response.
 
-This option allows you to choose a sound to play. You can either select a sound from a predefined list of notifications embedded into EyeAuras, or load a sound from a file. If you load a sound from a file, that sound will be stored inside the action, so it's okay if the original file is renamed or deleted afterwards.
+## Play a notification when Notepad opens
 
-### **Volume**
+1. Create an aura with one Window Exists trigger. Enter `notepad` in **Target Window** and check that it finds your Notepad window. If other windows also match, make the expression more specific.
+2. Add Play Sound to **On Enter**.
+3. Select Ping in **Audio notification** and set **Volume** to `50%`. Use the preview button beside the list to check that you can hear it.
+4. Close all matching Notepad windows and wait for the aura to become inactive. Open Notepad again.
 
-This controls the volume at which the notification sound will be played. Adjusting this allows you to make sure the sound is audible without being overly disruptive.
+When the window appears and the aura becomes active, the sound plays once. On Enter does not repeat while the window stays found. For another notification, the aura must become inactive between appearances.
 
-### **Play in Background**
+![Sound selection in the older editor](https://s3.eyeauras.net/media/2024/05/EyeAuras_Cd0NOjfW7gmIOFqx.png)
 
-This option is enabled by default. If this is enabled, EyeAuras will start playing the notification sound in the background and immediately move on to any subsequent actions. This means that the action does not block or delay other actions from happening. If this option is disabled, EyeAuras will wait until the entire notification sound has been played before proceeding with other actions.
+## Settings
 
-The Play Sound Action is especially useful in scenarios where you need immediate auditory feedback, like games, monitoring systems, or any applications requiring real-time alerts or notifications.
+| Setting | Effect |
+|---|---|
+| Audio notification | Selects a built-in sound. The older editor calls this Notification. |
+| Load... | Loads your own WAV or MP3 file. The audio data is stored in the action, so renaming or deleting the original file does not remove the loaded sound. |
+| Volume | Notification volume. Playback uses the default output device; also check the system volume. |
+| Play in background | Enabled by default. Starts playback and immediately continues to the next action. Turn it off to wait until playback finishes. |
 
-### Gaming applications
+For a pause **after** the sound ends, disable Play in background and put [Delay](/en/actions/delay) next. With background playback, Delay starts counting while the sound may still be playing.
 
--   **Health Warning**: In games where players have health bars, the trigger could be set to play a sound whenever the health bar decreases significantly, warning the player they're in danger.
--   **Loot Alert**: When a rare loot drop or currency appears on the screen in games like Path of Exile, a unique sound could alert the player.
--   **Cooldown Completion**: In games with abilities that have cooldown periods, a sound could play when the cooldown period ends, indicating the ability is ready to be used again.
--   **Enemy Spotting**: In stealth-based games, a sound could play whenever an enemy is spotted on the screen, alerting the player to their presence.
--   **Game State Changes**: Sounds could be played when transitioning from different game states, such as from peaceful to combat mode in RPG games.
--   **Resource Gathering Reminder**: In games where resource gathering is crucial, a sound could be played when resources are ready to be harvested.
--   **In-Game Day/Night Cycle**: In games with day/night cycles, sounds could be played to indicate the transition from day to night and vice versa.
--   **In-Game Event Alerts**: For games that have random in-game events, a sound could be played to alert the player of the event's initiation.
--   **FPS Ammo Alert**: In first-person shooter games, a sound could be played when the player is running low on ammunition, prompting them to reload or find more.
+Use On Enter for a single notification. In While Active, the sound starts repeatedly while the aura is active.
