@@ -98,3 +98,27 @@ The preferred EyeAuras wiki style is:
 ## Notes
 
 This file should be updated gradually while translation work continues, especially when we discover better human-written Russian pages that represent the desired style more accurately.
+
+## Settings and parameter layout
+
+Accepted owner preference from the AI Assistant pilot: use Markdown tables for settings, parameters, properties, and comparable named options. Default to two columns: the exact UI name and a concise explanation. Keep examples or conditions in the same row when they help the reader choose a value.
+
+- Use the same table format for comparable sections throughout an article. Do not mix tables with definition lists, one heading per field, or name/description bullet lists for the same kind of content.
+- Use a collapsible details block around a table when the entire group is optional or advanced; essential setup information stays visible.
+- Numbered lists remain appropriate for ordered instructions. Ordinary lists remain appropriate for content that is not a settings or parameter reference.
+- Keep ELI5 explanations adult and direct. One useful sentence is enough for a simple field; avoid filler, repeated introductions, and decorative icons.
+- Check long names, code values, links, and wrapping on narrow screens when publishing a table.
+
+Example:
+
+```markdown
+| Setting | What it does |
+| --- | --- |
+| Name | Name shown in the profile list. |
+| Endpoint | API server address. Keep the template value for the default provider. |
+```
+
+Use the same structure in Russian pages, with localized column headings such as
+`Настройка` and `Что делает`. When revising an article, remove repeated benefits,
+obvious explanations, and redundant sections; preserve meaningful conditions and
+limitations. Existing article structure may be rewritten to improve clarity.
