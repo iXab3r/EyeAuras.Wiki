@@ -322,6 +322,12 @@ Use decimal notation only for normal human-facing counts or values where decimal
 
 ## Writing style
 
+For settings, parameters, properties, and comparable named options, use Markdown tables
+with the exact UI name and a short explanation. Use one consistent format across
+comparable sections of an article. Put optional or advanced groups inside a details
+block when useful; keep essential setup visible. Ordered instructions remain numbered
+steps. See [the accepted layout guidance](ai-writing-style-state.md#settings-and-parameter-layout).
+
 - Prefer the Russian wiki style as the main writing reference when a Russian version exists.
 - Use `ai-writing-style-state.md` as the evolving style snapshot derived from established reference pages; do not infer their authorship from tone alone.
 - Follow that style when creating new translated pages or syncing older ones.
