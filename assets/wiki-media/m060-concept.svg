@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="690" viewBox="0 0 1100 690" role="img" aria-labelledby="title desc">
+<title id="title">Passability and a route</title><desc id="desc">Illustrative geometry only: start and goal separated by an obstacle; a blocked direct line and one possible detour. Passability data is distinct from the path selection algorithm.</desc>
+<defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#243449" stroke-width="0.6" opacity="0.55"/></pattern>
+<marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L8 4L0 8Z" fill="#95b6d5"/></marker>
+<marker id="good" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#55e0c3"/></marker>
+<marker id="bad" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#fb8c9b"/></marker></defs>
+<rect width="1100" height="690" fill="#101824"/><rect x="12" y="12" width="1076" height="666" rx="22" fill="url(#grid)" stroke="#40526c"/>
+<style>text{font-family:DejaVu Sans Mono,monospace;fill:#eef5ff}.title{font-size:25px;font-weight:bold}.small{font-size:17px;fill:#c2d2e5}.label{font-size:18px;fill:#c2d2e5}.node{font-size:21px;font-weight:bold}.sub{font-size:17px;fill:#c2d2e5}.edge{fill:none;stroke:#95b6d5;stroke-width:2.5;stroke-linejoin:round;marker-end:url(#arrow)}</style>
+<text x="40" y="49" class="title" text-anchor="start">Passability and a route</text>
+<text x="40" y="80" class="small" text-anchor="start">Illustrative geometry — not a game map or a measured BankaBot path</text>
+<rect x="40" y="110" width="1020" height="390" rx="18" fill="#142130" stroke="#40526c"/>
+<rect id="blocked-area" x="480" y="245" width="170" height="160" rx="16" fill="#293748" stroke="#99abc4" stroke-width="2"/>
+<text x="565" y="281" class="label" text-anchor="middle">Blocked area</text>
+<path id="direct-line" d="M205 325H883" fill="none" stroke="#fb8c9b" stroke-width="3" stroke-dasharray="10 8" marker-end="url(#bad)"/>
+<path id="blocked-cross" d="M551 311L579 339M579 311L551 339" fill="none" stroke="#fb8c9b" stroke-width="4"/>
+<text x="270" y="363" class="small" text-anchor="start" style="fill:#fb8c9b">Blocked direct line</text>
+<path id="detour" d="M180 300V180H910V300" fill="none" stroke="#55e0c3" stroke-width="4" stroke-linejoin="round" marker-end="url(#good)"/>
+<text x="545" y="163" class="label" text-anchor="middle" style="fill:#55e0c3">One possible detour</text>
+<circle id="start" cx="180" cy="325" r="18" fill="#55e0c3" stroke="#c6fff2" stroke-width="2"/><circle id="goal" cx="910" cy="325" r="18" fill="#91baff" stroke="#dceaff" stroke-width="2"/>
+<text x="180" y="374" class="node" text-anchor="middle">Start</text>
+<text x="910" y="374" class="node" text-anchor="middle">Goal</text>
+<g id="data-role"><rect x="40" y="525" width="490" height="90" rx="16" fill="#17322f" stroke="#3c8b86" stroke-width="2"/><text x="285.0" y="559" class="node" text-anchor="middle">Passability data</text>
+<text x="285.0" y="586" class="sub" text-anchor="middle">Describes blocked and traversable areas</text>
+</g>
+<g id="algorithm-role"><rect x="570" y="525" width="490" height="90" rx="16" fill="#162b40" stroke="#295071" stroke-width="2"/><text x="815.0" y="559" class="node" text-anchor="middle">Path selection</text>
+<text x="815.0" y="586" class="sub" text-anchor="middle">Chooses a route through allowed space</text>
+</g>
+<text x="40" y="656" class="small" text-anchor="start">No real-world coordinates, game data or guaranteed navigation result.</text>
+</svg>

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="890" viewBox="0 0 1100 890" role="img" aria-labelledby="title desc">
+<title id="title">Decision concept</title><desc id="desc">Conceptual decision flow from historical BankaBot text, not an executable tree, screenshot, node catalogue or cancellation algorithm.</desc>
+<defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#243449" stroke-width="0.6" opacity="0.55"/></pattern>
+<marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L8 4L0 8Z" fill="#95b6d5"/></marker>
+<marker id="good" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#55e0c3"/></marker>
+<marker id="bad" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#fb8c9b"/></marker></defs>
+<rect width="1100" height="890" fill="#101824"/><rect x="12" y="12" width="1076" height="866" rx="22" fill="url(#grid)" stroke="#40526c"/>
+<style>text{font-family:DejaVu Sans Mono,monospace;fill:#eef5ff}.title{font-size:25px;font-weight:bold}.small{font-size:17px;fill:#c2d2e5}.label{font-size:18px;fill:#c2d2e5}.node{font-size:21px;font-weight:bold}.sub{font-size:17px;fill:#c2d2e5}.edge{fill:none;stroke:#95b6d5;stroke-width:2.5;stroke-linejoin:round;marker-end:url(#arrow)}</style>
+<text x="40" y="49" class="title" text-anchor="start">Decision concept</text>
+<text x="40" y="79" class="small" text-anchor="start">Historical BankaBot workflow — not an executable tree</text>
+<g id="restore-question"><rect x="360" y="110" width="300" height="80" rx="16" fill="#162b40" stroke="#295071" stroke-width="2"/><text x="510.0" y="144" class="node" text-anchor="middle">Restoration needed?</text>
+<text x="510.0" y="171" class="sub" text-anchor="middle">Check supplied state</text>
+</g>
+<g id="restore"><rect x="750" y="110" width="300" height="80" rx="16" fill="#382331" stroke="#b65c78" stroke-width="2"/><text x="900.0" y="144" class="node" text-anchor="middle">Restore if available</text>
+<text x="900.0" y="171" class="sub" text-anchor="middle">Use the supplied operation</text>
+</g>
+<g id="target"><rect x="360" y="255" width="300" height="80" rx="16" fill="#17322f" stroke="#3c8b86" stroke-width="2"/><text x="510.0" y="289" class="node" text-anchor="middle">Choose / check target</text>
+<text x="510.0" y="316" class="sub" text-anchor="middle">Use supplied target data</text>
+</g>
+<g id="suitable"><rect x="360" y="390" width="300" height="80" rx="16" fill="#162b40" stroke="#295071" stroke-width="2"/><text x="510.0" y="424" class="node" text-anchor="middle">Target suitable?</text>
+<text x="510.0" y="451" class="sub" text-anchor="middle">Check target and distance</text>
+</g>
+<g id="action"><rect x="360" y="520" width="300" height="90" rx="16" fill="#17322f" stroke="#3c8b86" stroke-width="2"/><text x="510.0" y="554" class="node" text-anchor="middle">Allowed action</text>
+<text x="510.0" y="581" class="sub" text-anchor="middle">Use its operation contract</text>
+</g>
+<g id="next"><rect x="360" y="720" width="300" height="64" rx="16" fill="#182435" stroke="#295071" stroke-width="2"/><text x="510.0" y="754" class="node" text-anchor="middle">Next decision</text>
+<text x="510.0" y="781" class="sub" text-anchor="middle"></text>
+</g>
+<path id="yes-restore" class="edge" d="M660 150H742"/>
+<text x="700" y="134" class="label" text-anchor="middle">yes</text>
+<path id="no-restore" class="edge" d="M510 190V247"/>
+<text x="528" y="226" class="label" text-anchor="start">no</text>
+<path id="check-suitable" class="edge" d="M510 335V382"/>
+<path id="unsuitable-reselect" class="edge" d="M360 430H160V295H352"/>
+<text x="175" y="414" class="small" text-anchor="start">no: choose again</text>
+<path id="admit-action" class="edge" d="M510 470V512"/>
+<text x="528" y="501" class="label" text-anchor="start">yes: allow</text>
+<path id="action-completed" class="edge" d="M510 610V712"/>
+<text x="530" y="668" class="small" text-anchor="start">after completion</text>
+<path id="restoration-completed" class="edge" d="M900 190V752H668"/>
+<text x="914" y="230" class="small" text-anchor="start">after</text>
+<text x="914" y="252" class="small" text-anchor="start">completion</text>
+<path id="return-to-decision" class="edge" d="M360 752H80V150H352"/>
+<text x="105" y="135" class="small" text-anchor="start">next decision</text>
+<text x="40" y="823" class="small" text-anchor="start">Conceptual transitions only; the component supplies state, targets and commands.</text>
+<text x="40" y="850" class="small" text-anchor="start">Running continuation and reevaluation follow the actual node contract.</text>
+</svg>
