@@ -7,87 +7,86 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T16:22:32.324Z
 ---
-# Альтернативный способ подключить CSS
+# Подключить CSS после появления компонента
 
-## LoadCss — загрузка из кода
+Иногда файл оформления нужно подключить из C#, когда компонент уже появился в браузерной части. Для этого есть `IJsPoeBlazorUtils.LoadCss`. Подключим оформление собственной кнопки после первой отрисовки.
 
-В EyeAuras есть набор инструментов `IJsPoeBlazorUtils`. Как и `IAuraTreeScriptingApi`, его можно внедрить в компонент и использовать методы для загрузки CSS во время выполнения.
+Нужны две загруженные ауры в одной папке: `TargetAura` с **Hotkey Is Active → Toggle Trigger state on Click** и отдельная панель с **C# Overlay** и **Fixed Value → Is Active**. Назначьте триггеру свободную горячую клавишу; действия для этого опыта не нужны. Путь `./TargetAura` должен указывать на вашу ауру с одним таким триггером. Подготовка самой кнопки разобрана в [предыдущем примере](/ru/scripting/blazor-windows/4-toggle-hotkeyisactive).
+
+1. В C# Overlay создайте **New file → CSS → Styles** и сохраните CSS ниже.
+2. Получите полное имя файла. В `UserOverlay.cs` замените `MyScript.Styles.css` этим именем.
+
+В полном имени ресурса участвует namespace **проекта**, а не только `@namespace` компонента. Например, `Styles.css` может получить имя `MyScript.Styles.css`, а `Theme/Styles.css` — `MyScript.Theme.Styles.css`. Не подставляйте `BlazorDemo` только потому, что так называется класс в примере.
+
+Чтобы получить фактическое имя, оставьте в `Script.csx` этот законченный короткий код и дождитесь подготовки проекта:
 
 ```csharp
-/// <summary>
-/// Loads CSS file dynamically
-/// </summary>
-Task LoadCss(string cssPath);
+foreach (var name in typeof(Script).Assembly.GetManifestResourceNames())
+{
+    Log.Info(name);
+}
 ```
 
-Главное отличие от `HeadContent` или inline-стилей в том, что момент загрузки CSS контролируете именно вы. Это может быть загрузка страницы, нажатие кнопки, переключение темы — что угодно. Полный контроль остается за вами.
+Скопируйте полное имя своего `Styles.css` из журнала в указанную ниже строку. `Script` здесь — тип верхнеуровневого скрипта; такой глобальный контекст не появляется в обычном классе или Razor. Файловый механизм окна раздаёт ресурсы проекта в WebView2. Полное имя устраняет догадки с короткими путями; общий `IScriptFileProvider` может быть составным, поэтому приводить его к `ScriptEmbeddedResourceFileProvider` не нужно.
 
-![Demo](https://s3.eyeauras.net/media/2025/05/OTFy9w6Fgm.png)
-
-В одной папке создайте ауру с **C# Overlay v3** и ауру `TargetAura`. В каждую целевую ауру добавьте `HotkeyIsActive` и настройте горячую клавишу в режиме переключения. Оставьте целевые ауры загруженными. Путь `./TargetAura` в примере ищется относительно контекста оверлея; при другой структуре дерева замените их. Если подходящих триггеров несколько, выбирается первый.
-
-Замените содержимое `UserOverlay.cs` и `UserOverlay.razor` в этом оверлее кодом ниже. Это две части одного `public partial` класса в одном пространстве имён. `AuraTree` получает компонент через `[Inject]`; глобальные переменные из `Script.csx` в него автоматически не передаются.
-
-## Подготовить ресурс
-
-Добавьте `Styles.css` в файлы этого C# Overlay v3 через `New` → `CSS` и сохраните приведённое ниже содержимое. Файл должен попасть в ресурсы скрипта. В примере входной путь — `MyScript.Styles.css`: **замените `MyScript` на пространство имён проекта**, а при вложенных папках используйте полное имя ресурса. Например, `Theme/Styles.css` в проекте `MyScript` получает имя `MyScript.Theme.Styles.css`.
-
-Имена manifest-ресурсов выводятся в отладочный журнал при подготовке скрипта; их также показывает `ScriptEmbeddedResourceFileProvider.GetManifestNames()` у конкретного провайдера. `GetService<IScriptFileProvider>()` может вернуть составной провайдер, поэтому приведение к этому классу не гарантировано. Используйте полное имя, а не предположение, что любой путь с окончанием `Styles.css` найдётся. Оконный хост подключает файловый провайдер скрипта к WebView2.
+3. Замените обе части `UserOverlay` следующими файлами. Namespace совпадает; `HeadContent` в этом варианте не нужен.
 
 ## UserOverlay.cs
 
 ```csharp
-using System;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using ReactiveUI;
 using PoeShared.Blazor;
 using EyeAuras.Scripting.Api;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 
-public partial class UserOverlay : BlazorReactiveComponent {
+namespace BlazorDemo;
+
+public partial class UserOverlay : BlazorReactiveComponent
+{
+    [Inject]
+    public IAuraTreeScriptingApi AuraTree { get; set; }
 
     [Inject]
-    public IAuraTreeScriptingApi AuraTree { get; init; }
+    public PoeShared.Blazor.Services.IJsPoeBlazorUtils BlazorUtils { get; set; }
 
-    [Inject]
-    public PoeShared.Blazor.Services.IJsPoeBlazorUtils PoeBlazorUtils { get; init; }
-
-    public bool TriggerIsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura").TriggerValue = value;
-    }
+    private IHotkeyIsActiveTrigger trigger;
+    private bool IsActive => trigger.TriggerValue ?? false;
 
     protected override void OnInitialized()
     {
-        ChangeTrackers.Add(Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1)));
+        trigger = AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
+        ChangeTrackers.Add(trigger.WhenAnyValue(x => x.TriggerValue));
         base.OnInitialized();
     }
 
     protected override async Task OnAfterFirstRenderAsync()
     {
         await base.OnAfterFirstRenderAsync();
+        await BlazorUtils.LoadCss("MyScript.Styles.css");
+    }
 
-        await PoeBlazorUtils.LoadCss("MyScript.Styles.css");
+    private async Task SetActive(bool value)
+    {
+        trigger.TriggerValue = value;
+        await Refresh("styled toggle clicked");
     }
 }
 ```
 
 ## UserOverlay.razor
 
-```html
+```razor
+@namespace BlazorDemo
 @using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
-<h3 class="text-center shadow-1">CSS via LoadCss</h3>
-
-<div class="text-center mt-4">
-    <ToggleButton
-        @bind-IsChecked="@TriggerIsActive"
-        Class="btn custom-button">
-                Trigger is Active
+<div class="demo-panel">
+    <ToggleButton IsChecked="@IsActive" IsCheckedChanged="SetActive"
+                  Class="btn custom-button">
+        Триггер: @(IsActive ? "включён" : "выключен")
     </ToggleButton>
 </div>
 ```
@@ -95,34 +94,32 @@ public partial class UserOverlay : BlazorReactiveComponent {
 ## Styles.css
 
 ```css
-.custom-button {
+.demo-panel .custom-button {
     background: lime;
     color: black;
     width: 80%;
 }
 ```
 
----
+4. После компиляции и первой отрисовки кнопка получит зелёный фон, чёрный текст и ширину 80% панели. До загрузки CSS она может кратко показываться со стандартным оформлением.
 
-## Разбор
+![Оформление после загрузки CSS в прежнем примере](https://s3.eyeauras.net/media/2025/05/OTFy9w6Fgm.png)
 
-## UserOverlay.cs
+| Механизм | Как использовать |
+| --- | --- |
+| `[Inject] IJsPoeBlazorUtils` | Получает сервис браузерных операций из контейнера окна. Компонент не владеет внедрённым сервисом и не освобождает его. |
+| `OnAfterFirstRenderAsync` | Вызов после первой отрисовки, когда доступен JS-контекст. Все асинхронные операции ожидаются. |
+| `LoadCss(string cssPath)` | Добавляет ссылку на CSS через браузерную часть. Возвращает `Task`, а не объект для последующего удаления стиля. |
+| Полное имя файла | Путь к ресурсу своего проекта, а не произвольный путь Windows. |
+| `.demo-panel .custom-button` | Правило для своей панели; подключённый CSS действует в документе окна. |
 
-```csharp
-[Inject]
-public PoeShared.Blazor.Services.IJsPoeBlazorUtils PoeBlazorUtils { get; init; }
-```
+`[Inject]` предоставляет компоненту сервис дерева; это не глобальное имя из `Script.csx`. Кнопка читает и меняет реальный `TriggerValue`, а `null` показывает как выключенное. `WhenAnyValue` обновляет её и после горячей клавиши. Источник добавлен до `base.OnInitialized()`; подписку освобождает компонент при уничтожении, а не при простом скрытии окна. Итоговая активность ауры также зависит от остальных её условий. Подробности и вариант с периодическим обновлением — в [механизме обновления](/ru/scripting/blazor-windows/reactive-toggle).
 
-Как и в случае с `IAuraTreeScriptingApi`, здесь мы внедряем еще один сервис — для загрузки CSS.
+Тот же ожидаемый вызов можно перенести в обработчик кнопки, если оформление нужно позже. Уничтожение компонента не удаляет автоматически CSS, добавленный через `LoadCss`. Для декларативного подключения вместе с разметкой подходит [HeadContent](/ru/scripting/blazor-windows/toggles-styling-cssfile). Разница между этапами компонента описана в [документации Blazor](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-9.0).
 
-```csharp
-    protected override async Task OnAfterFirstRenderAsync()
-    {
-        await base.OnAfterFirstRenderAsync();
+<details>
+<summary>Повторная загрузка и изменение файла</summary>
 
-        await PoeBlazorUtils.LoadCss("MyScript.Styles.css");
-    }
-```
+Загрузчик запоминает путь со статусом `loading`, `loaded` или `failed`. Повторный вызов для того же пути сразу завершается: он не начинает новую загрузку, не ждёт уже начатую и не подтверждает, что прежняя попытка была успешной. Поэтому не используйте повторный `LoadCss` как проверку изменения файла или восстановление после ошибки. Для чистого первого опыта используйте новое окно с правильно указанным ресурсом.
 
-Здесь CSS загружается после первого рендера, когда доступен JS-контекст компонента. После загрузки кнопка станет зелёной с чёрным текстом и займёт 80% ширины родителя. `LoadCss` возвращает `Task`, а не объект владения стилем: автоматическое удаление CSS при уничтожении компонента здесь не обещается. Подробнее о жизненном цикле компонента можно прочитать в [статье Microsoft](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-9.0).
-Нажатие кнопки записывает `TriggerValue`; горячая клавиша меняет тот же триггер. Таймер в `ChangeTrackers` заставляет компонент перечитывать состояние примерно раз в секунду, поэтому внешнее изменение видно с задержкой. Добавляйте таймер до `base.OnInitialized()`: там список отслеживания запечатывается и подписки привязываются к `Anchors` компонента. Скрытие окна само по себе не равно уничтожению компонента.
+</details>

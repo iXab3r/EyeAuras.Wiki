@@ -7,50 +7,51 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-02-06T10:06:21.149Z
 ---
-# Уведомления через C# Script
+# Показать короткое уведомление из скрипта
 
-Готовый пример можно импортировать отсюда: [https://eu.eyeauras.net/share/S20250206100355L0RMN0j2bzvb](https://eu.eyeauras.net/share/S20250206100355L0RMN0j2bzvb)
+После своего действия можно показать сообщение, не открывая полноценный диалог. Здесь **Notification.Wpf** выводит WPF-уведомление с текстом **Пробный запуск завершён**. Это окно сторонней библиотеки внутри настольного приложения, а не системное уведомление Windows.
 
-Чтобы показывать уведомления, можно использовать `C# Script` — для этого достаточно буквально нескольких строк кода. Подойдут разные библиотеки для вывода таких сообщений. В этом примере используется [Notification.Wpf](https://github.com/Platonenkov/Notification.Wpf) от [Alexander Platonenkov](https://github.com/Platonenkov).
+Нужен Windows-хост EyeAuras с работающим WPF `Application.Current` и диспетчером потока интерфейса, а также возможность восстановить NuGet-пакет **Notification.Wpf 7.0.0**. Пример закреплён на этой версии; другая версия библиотеки может иметь иной контракт.
 
-## Показать уведомление из действия
-
-Код — верхнеуровневый файл действия `C# Script` в работающем Windows-приложении EyeAuras с WPF `Application.Current` и живым UI dispatcher. Вход — строка `"test"`; после запуска библиотека должна показать всплывающее сообщение. Это WPF-окно сторонней библиотеки, а не системное уведомление Windows.
-
-Исторический пакет `Notification.Wpf, 7.0.0` сохранён. XML пакета содержит конструктор менеджера и перегрузку Show для строки. Восстановление в EyeAuras и совместимость с установленным host здесь не проверены. [Текущий upstream](https://github.com/Platonenkov/Notification.Wpf) описывает уже другие версии; это не подтверждение запуска версии 7.0.0.
-
-## Настройка
-
-1. Создайте ауру.
-2. Добавьте триггер `HotkeyIsActive` и назначьте на него удобную клавишу, например `F3` — она будет включать и выключать уведомление.
-3. У триггера смените тип активации на `Click/Hold`.
-4. Добавьте действие `C# Script` в `On Enter`.
-5. Вставьте в него код ниже.
-6. При нажатии `F3` в правом нижнем углу экрана появится уведомление.
+1. В своей тестовой ауре добавьте **C# Script** в **On Enter**. Сначала запускайте его вручную через **Run**.
+2. Вставьте весь код в верхнеуровневый `Script.csx`. Директива `#r` восстанавливает пакет, а `using` подключает namespace.
 
 ```csharp
 #r "nuget: Notification.Wpf, 7.0.0"
-using Notification.Wpf.Controls;
+using System;
 using Notification.Wpf;
 
-// Создание WPF-объекта и Show выполняются в UI dispatcher EyeAuras.
+cancellationToken.ThrowIfCancellationRequested();
 await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
 {
-    var notificationManager = new NotificationManager();
-    notificationManager.Show("test");
+    var manager = new NotificationManager();
+    manager.Show("Пробный запуск завершён", expirationTime: TimeSpan.FromSeconds(5));
 });
 ```
 
-![Notification Result](https://s3.eyeauras.net/media/2025/02/I0bceQwhw4GWyE3j.png)
-![Other Notification Styles](https://s3.eyeauras.net/media/2025/02/all_styles.gif)
-![Image Display](https://s3.eyeauras.net/media/2025/02/Image.gif)
+3. Дождитесь восстановления пакета и компиляции, нажмите **Run**. Появится короткое уведомление с указанным текстом; библиотеке задан срок показа пять секунд.
 
-`InvokeAsync` переносит создание и показ на UI-поток; завершение этого вызова означает выполнение запроса показа, а не закрытие уведомления. Токен скрипта в `Show` не передаётся, и завершение действия само по себе не привязывает уведомление к `ExecutionAnchors`. Длительность показа задаёт библиотека.
+![Пример текстового уведомления](https://s3.eyeauras.net/media/2025/02/I0bceQwhw4GWyE3j.png)
 
+| Часть | Что можно изменить |
+| --- | --- |
+| Строка в `Show` | Текст уведомления; здесь это локальный пробный результат. |
+| `expirationTime` | Запрошенная длительность показа. Она не равна времени выполнения `InvokeAsync` и не является токеном отмены. |
+| `Dispatcher.InvokeAsync` | Переносит создание менеджера и показ на UI-поток WPF. `Task.Run` для этого не нужен. |
+| `Notification.Wpf, 7.0.0` | Закреплённая зависимость этого примера, а не указание на самую новую версию. |
 
-В [исходниках v7.0.0.0](https://github.com/Platonenkov/Notification.Wpf/blob/26ab7dae1328b345e7f557d5f7f6e687e01d5d20/Notification.Wpf/Base/NotificationManager.cs)
-менеджер выбирает переданный dispatcher либо `Application.Current.Dispatcher`,
-а вызов с другого потока ставит в очередь. По умолчанию области уведомлений
-передаётся срок пять секунд. Окно и области хранятся в статическом состоянии
-библиотеки; локальная переменная менеджера не является владельцем popup с `Dispose`.
-Фактическое закрытие зависит и от UI; выполненный показ здесь не заявляется.
+Завершение `InvokeAsync` означает, что выполнен запрос показа, а не что уведомление закрыто. Менеджер не является объектом `IDisposable`, владеющим отдельным уведомлением: библиотека хранит окна и области уведомлений в своём статическом состоянии. Завершение скрипта или **Stop** после показа само по себе не закрывает уведомление; его дальнейший срок жизни задаёт библиотека.
+
+<details>
+<summary>Запуск горячей клавишей и другие варианты</summary>
+
+Для вызова без открытия редактора добавьте **Hotkey Is Active**, назначьте свободную клавишу, например `F3`, и выберите **Hold**. Переход ауры в активное состояние запускает **On Enter**; отпускание клавиши позволит активировать её снова. Это запускает новое уведомление, а не включает и выключает уже показанное. В старом описании режима встречалось имя `Click/Hold`.
+
+Библиотека также поддерживает разные оформления и содержимое. Иллюстрации из её прежних примеров показывают варианты, которые не включены автоматически в приведённый вызов со строкой:
+
+![Варианты оформления Notification.Wpf](https://s3.eyeauras.net/media/2025/02/all_styles.gif)
+![Уведомление с изображением](https://s3.eyeauras.net/media/2025/02/Image.gif)
+
+[Исходники Notification.Wpf](https://github.com/Platonenkov/Notification.Wpf) автора [Alexander Platonenkov](https://github.com/Platonenkov), [менеджер закреплённой версии](https://github.com/Platonenkov/Notification.Wpf/blob/26ab7dae1328b345e7f557d5f7f6e687e01d5d20/Notification.Wpf/Base/NotificationManager.cs). Сохранён [исторический готовый пример](https://eu.eyeauras.net/share/S20250206100355L0RMN0j2bzvb).
+
+</details>

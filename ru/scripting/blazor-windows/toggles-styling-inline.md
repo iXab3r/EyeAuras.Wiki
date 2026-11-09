@@ -7,113 +7,114 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T15:48:02.521Z
 ---
-# Что такое CSS
+# Изменить цвет своей кнопки прямо в компоненте
 
-CSS (Cascading Style Sheets) описывает **внешний вид** интерфейса: цвета, размеры и многое другое.
+Сделаем переключатель заметнее: зелёная кнопка с чёрным текстом займёт 80% ширины своей панели. CSS меняет оформление; включение триггера по-прежнему выполняет C#.
 
-Этот механизм очень мощный, и за годы вокруг него накопилось столько деталей, что полное описание заняло бы целую толстую книгу. К счастью, основы при этом довольно простые — *легко начать, сложно довести до совершенства*. Чтобы эффективно использовать CSS, не нужно глубоко разбираться во всех его внутренних тонкостях.
+Нужны две загруженные ауры в одной папке: `TargetAura` с **Hotkey Is Active → Toggle Trigger state on Click** и отдельная панель с **C# Overlay** и **Fixed Value → Is Active**. Назначьте триггеру свободную горячую клавишу; действия для этого опыта не нужны. Путь `./TargetAura` должен указывать на вашу ауру с одним таким триггером. Подготовка самой кнопки разобрана в [предыдущем примере](/ru/scripting/blazor-windows/4-toggle-hotkeyisactive).
 
-## [Bootstrap](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
-
-Bootstrap — это большая коллекция полезных CSS-классов для большинства типовых задач: цветные кнопки, редакторы и многое другое. EyeAuras автоматически загружает Bootstrap CSS/JS, поэтому в этих примерах используются его классы. Наличие конкретного класса или JS-плагина зависит от версии ресурсов хоста. Мы уже использовали их в предыдущих примерах.
-
-Но иногда стандартных стилей недостаточно, и хочется сделать что-то свое. Возьмем код, который переключает trigger, и просто перекрасим кнопку с помощью CSS.
-
-![Demo](https://s3.eyeauras.net/media/2025/05/3UAeooHWHD.png)
-
-В одной папке создайте ауру с **C# Overlay v3** и ауру `TargetAura`. В каждую целевую ауру добавьте `HotkeyIsActive` и настройте горячую клавишу в режиме переключения. Оставьте целевые ауры загруженными. Путь `./TargetAura` в примере ищется относительно контекста оверлея; при другой структуре дерева замените их. Если подходящих триггеров несколько, выбирается первый.
-
-Замените содержимое `UserOverlay.cs` и `UserOverlay.razor` в этом оверлее кодом ниже. Это две части одного `public partial` класса в одном пространстве имён. `AuraTree` получает компонент через `[Inject]`; глобальные переменные из `Script.csx` в него автоматически не передаются.
+1. В C# Overlay полностью замените `UserOverlay.cs` и `UserOverlay.razor` приведённым кодом. Namespace `BlazorDemo` должен совпадать в обоих файлах. Старые одноимённые поля и методы удалите вместе с заменой.
+2. `Script.csx` оставьте короткой точкой входа без ожидания, например `Log.Debug("Панель готова");`.
 
 ## UserOverlay.cs
 
 ```csharp
-using System;
-using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using ReactiveUI;
 using PoeShared.Blazor;
 using EyeAuras.Scripting.Api;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 
-public partial class UserOverlay : BlazorReactiveComponent {
+namespace BlazorDemo;
 
+public partial class UserOverlay : BlazorReactiveComponent
+{
     [Inject]
-    public IAuraTreeScriptingApi AuraTree { get; init; }
+    public IAuraTreeScriptingApi AuraTree { get; set; }
 
-    public bool TriggerIsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura").TriggerValue = value;
-    }
+    private IHotkeyIsActiveTrigger trigger;
+    private bool IsActive => trigger.TriggerValue ?? false;
 
     protected override void OnInitialized()
     {
-        ChangeTrackers.Add(Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1)));
+        trigger = AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
+        ChangeTrackers.Add(trigger.WhenAnyValue(x => x.TriggerValue));
         base.OnInitialized();
+    }
+
+    private async Task SetActive(bool value)
+    {
+        trigger.TriggerValue = value;
+        await Refresh("styled toggle clicked");
     }
 }
 ```
 
 ## UserOverlay.razor
 
-```html
+```razor
+@namespace BlazorDemo
 @using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
 <style>
-.custom-button {
+.demo-panel .custom-button {
     background: lime;
     color: black;
     width: 80%;
 }
 </style>
 
-<h3 class="text-center shadow-1">Toggle Trigger</h3>
-
-<div class="text-center mt-4">
-    <ToggleButton
-        @bind-IsChecked="@TriggerIsActive"
-        Class="btn custom-button">
-                Trigger is Active
+<div class="demo-panel">
+    <ToggleButton IsChecked="@IsActive" IsCheckedChanged="SetActive"
+                  Class="btn custom-button">
+        Триггер: @(IsActive ? "включён" : "выключен")
     </ToggleButton>
 </div>
-
-<p class="text-center mt-3 alert alert-info" style="font-size: 1.5rem;">
-    @if (TriggerIsActive){
-        <span class="shadow-1">Trigger is currently active</span>
-    } else {
-        <span class="text-warning shadow-1">Trigger is currently not active</span>
-    }
-</p>
 ```
 
-![Demo](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_WPu1ZGwKwS.gif)
+3. После компиляции найдите зелёную кнопку и нажмите её. Подпись и триггер меняют состояние; цвет остаётся заданным CSS. Горячая клавиша меняет тот же триггер.
 
----
+![Зелёная кнопка в прежнем примере](https://s3.eyeauras.net/media/2025/05/3UAeooHWHD.png)
 
-## Разбор
+| Приём | Где действует |
+| --- | --- |
+| `background: lime`, `color: black` | Зелёный фон и чёрный текст подходящей кнопки. |
+| `width: 80%` | Ширина относительно её родительской области, а не экрана. |
+| `.demo-panel .custom-button` | Селектор для кнопки внутри своей панели. Он не перекрашивает все кнопки окна. |
+| Элемент `style` в Razor | Правила находятся в разметке компонента, но действуют в документе WebView. Это не автоматическая изоляция CSS по компоненту. |
+| Параметр `Style` у `ToggleButton` | Отдельный способ задать значения непосредственно на его видимой кнопке. Это отличается от объявления селектора в `style`. |
+| `btn` | Базовое оформление [Bootstrap](https://getbootstrap.com/docs/5.3/getting-started/introduction/), подключённое окном. Набор доступных классов зависит от ресурсов хоста. |
 
-### UserOverlay.razor
+`[Inject]` предоставляет компоненту сервис дерева; это не глобальное имя из `Script.csx`. Кнопка читает и меняет реальный `TriggerValue`, а `null` показывает как выключенное. `WhenAnyValue` обновляет её и после горячей клавиши. Источник добавлен до `base.OnInitialized()`; подписку освобождает компонент при уничтожении, а не при простом скрытии окна. Итоговая активность ауры также зависит от остальных её условий. Подробности и вариант с периодическим обновлением — в [механизме обновления](/ru/scripting/blazor-windows/reactive-toggle).
 
-```html
-<style>
-.custom-button {
-    background: lime;
-    color: black;
-    width: 80%;
-}
-</style>
+<details>
+<summary>Задать значения без CSS-селектора</summary>
+
+В том же компоненте можно заменить только `ToggleButton` на этот фрагмент и удалить элемент `style`. Условия и обработчик остаются в `UserOverlay.cs`:
+
+```razor
+<ToggleButton IsChecked="@IsActive" IsCheckedChanged="SetActive"
+              Style="background: lime; color: black; width: 80%;">
+    Триггер: @(IsActive ? "включён" : "выключен")
+</ToggleButton>
 ```
 
-Это inline-стиль: вы определяете CSS-класс прямо внутри компонента и сразу же его используете. Для небольших проектов это просто и удобно, но у такого подхода есть свои минусы. Когда проект становится больше, лучше переходить на отдельные CSS-файлы — это стандартный подход в веб-разработке.
+Для нескольких кнопок удобнее общий класс: он позволяет изменить правило в одном месте. Разметка отдельно задаёт расположение, как в прежней панели с рядом переключателей:
 
-## Дополнительно
+![Ряд переключателей в прежнем примере](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_WPu1ZGwKwS.gif)
 
-ChatGPT и другие боты хорошо справляются с CSS и могут генерировать самые разные классы. Например, вот CSS от ChatGPT 4o, который добавляет градиент. Оптимальность сейчас не обсуждаем — это уже оставим профессионалам :)
+</details>
+
+<details>
+<summary>Градиент и подсветка при наведении</summary>
+
+Вместо простого правила внутри `style` можно поставить следующий вариант. Он сохраняет тот же селектор, добавляет градиент и движущуюся подсветку при наведении:
 
 ```css
-.custom-button {
+.demo-panel .custom-button {
     background: linear-gradient(90deg, red, darkred);
     color: white;
     border: none;
@@ -126,7 +127,7 @@ ChatGPT и другие боты хорошо справляются с CSS и �
     transition: background 0.3s ease;
 }
 
-.custom-button::before {
+.demo-panel .custom-button::before {
     content: '';
     position: absolute;
     top: 0; left: -100%;
@@ -137,15 +138,18 @@ ChatGPT и другие боты хорошо справляются с CSS и �
     z-index: 1;
 }
 
-.custom-button:hover::before {
+.demo-panel .custom-button:hover::before {
     left: 100%;
 }
 
-.custom-button > * {
+.demo-panel .custom-button > * {
     position: relative;
     z-index: 2;
 }
 ```
 
-![Demo 1](https://s3.eyeauras.net/media/2025/05/J0g2tAOpQa.gif)
-Нажатие кнопки записывает `TriggerValue`; горячая клавиша меняет тот же триггер. Таймер в `ChangeTrackers` заставляет компонент перечитывать состояние примерно раз в секунду, поэтому внешнее изменение видно с задержкой. Добавляйте таймер до `base.OnInitialized()`: там список отслеживания запечатывается и подписки привязываются к `Anchors` компонента. Скрытие окна само по себе не равно уничтожению компонента.
+![Градиентная кнопка в прежней демонстрации](https://s3.eyeauras.net/media/2025/05/J0g2tAOpQa.gif)
+
+</details>
+
+Когда правил станет больше, их можно [вынести в CSS-файл](/ru/scripting/blazor-windows/toggles-styling-cssfile).

@@ -36,14 +36,16 @@ dateCreated: 2024-11-04T00:26:45.232Z
 using BlazorDemo;
 using EyeAuras.Shared.Scripting;
 
-using var window = GetService<IDialogWindowUnstableScriptingApi>()
-    .CreateWindow<UserComponent>(new WindowModel { Title = "Моё окно" });
+{
+    using var window = GetService<IDialogWindowUnstableScriptingApi>()
+        .CreateWindow<UserComponent>(new WindowModel { Title = "Моё окно" });
 
-window.Title = "Пробный диалог";
-window.Width = 480;
-window.Height = 260;
-window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-window.ShowDialog(cancellationToken);
+    window.Title = "Пробный диалог";
+    window.Width = 480;
+    window.Height = 260;
+    window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+    window.ShowDialog(cancellationToken);
+}
 ```
 
 ### WindowModel.cs
@@ -105,7 +107,7 @@ public partial class UserComponent : BlazorReactiveComponent<WindowModel>
 | `CreateWindow<UserComponent>(model)` | Создаёт окно с указанным компонентом и передаёт объект модели как `DataContext`. |
 | `BlazorReactiveComponent<WindowModel>` | Даёт компоненту типизированный `DataContext`. Это явно переданный объект, а не доступ к локальным переменным скрипта. |
 | `ShowDialog(cancellationToken)` | Показывает окно и удерживает запуск до закрытия или отмены. |
-| `using var window` | Освобождает окно при выходе из области запуска. Сервис также привязывает созданное окно к своему сроку жизни; это не бесхозное окно после Stop. |
+| `using var window` | Освобождает окно при выходе из явного блока после закрытия диалога или отмены ожидания. Сервис также привязывает созданное окно к своему сроку жизни; это не бесхозное окно после Stop. |
 
 `WindowModel` здесь содержит только начальные данные. Изменение её обычного свойства извне не подключает автоматическую перерисовку. Для живых данных нужен механизм наблюдения, как в [примере с триггером](/ru/scripting/blazor-windows/reactive-toggle). В классе и Razor нет глобальных `GetService`, `AuraTree`, `Variables` или `cancellationToken` скрипта.
 
