@@ -43,10 +43,10 @@ dateCreated: 2024-03-25T14:49:39.889Z
 
 Первое видео показывает установку в окружении своего времени. Версии драйверов и внешний вид интерфейса сверяйте с текущей поставкой.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/bNJ4rGeqNoE?si=gOMR_COeLkkkjTzU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[EyeSquad — Установка EyeAuras шаг-за-шагом](https://www.youtube.com/watch?v=bNJ4rGeqNoE)
 
 Второе видео посвящено импорту скриптов возврата на флаги и помогает сопоставить опубликованный набор с прежним интерфейсом.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/S1lQF56-AIA?si=oeoN1wc5dCRHqe0t" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[EyeSquad — Установка набора аур из библиотеки EyeAuras Essence](https://www.youtube.com/watch?v=S1lQF56-AIA)
 
 </details>
