@@ -1,6 +1,6 @@
 ---
 title: File Contains Text
-description: monitors specified files, applying Text Match Expressions to detect changes and activate accordingly
+description: Evaluate a local text-file snapshot and display a persistent ready state
 published: true
 date: 2024-05-14T10:30:56.210Z
 tags: 
@@ -8,30 +8,38 @@ editor: markdown
 dateCreated: 2023-06-18T12:56:51.981Z
 ---
 
-**File Contains Text** is designed to monitor changes in a specific file and react based on predefined conditions. It can be particularly useful when tracking updates in configuration files, logs, or any document where changes can determine significant events or actions.
+# Show when a status file is ready
 
-![File Contains Text Trigger](https://s3.eyeauras.net/media/2024/05/EyeAuras_7j9OpEKOveRWtpG9.png)
+**File Contains Text** reads a local text file and evaluates its entire contents. Replacing `Waiting` with `Ready` in a small status file can show “Review complete” in EyeAuras. The trigger does not perform the review: the data comes from a file saved by you or another program.
 
-### **Description**
+## Configure a small status file
 
-The "File Contains Text" trigger observes a designated file and evaluates the contents using a [_Text Match Expression_](https://wiki.eyeauras.net/e/en/text-match-expressions). If the file contents meet the conditions defined in your Text Match Expression, the trigger activates. If the conditions are not met, the trigger deactivates.
+1. In a folder you can access, create **status.txt** in **UTF-8**. Enter `Waiting` and save it. Start with a small file rather than a continuously growing log.
+2. Add **File Contains Text** to an aura. Enter the full **File path** or select the file with **…**. Check that **File contents** shows `Waiting`.
+3. Choose **Regex** and enter `\AReady\s*\z`. This checks the whole file while allowing whitespace and a final newline after the word. Turn off **Test mode**.
+4. Add a [Text overlay](/en/overlays/text) containing `Review complete`, visible while the aura is active. Disable forced editor preview.
+5. Replace the file contents with `Ready` and save. File contents and the trigger state should update, showing the text. Save `Waiting` again to hide it.
 
-In situations where the monitored file is inaccessible or non-existent, the trigger status transitions to an 'Unknown' state until the file becomes available or is found again.
+The older image shows the path and expression. The current editor also displays File contents, file size and time since modification.
 
-### **Options**
+![File path and matching condition](https://s3.eyeauras.net/media/2024/05/EyeAuras_7j9OpEKOveRWtpG9.png)
 
-**File Path:** Specify the file to monitor. This can be done by manually inputting the file path or selecting the file using the OpenFileDialog button.
+| Setting or result | Meaning |
+| --- | --- |
+| File path | One local file on the EyeAuras computer, not a folder-search pattern |
+| File contents | A snapshot of the text read. Check it first when matching gives an unexpected result |
+| Text | Exact whole-text comparison; see [text-matching rules](/en/features/text-match-expressions) |
+| Regex | A regular expression over the full snapshot. The example's anchors prevent an old line in the middle of a log from satisfying the condition |
+| C# | A text-evaluator expression, not a standalone script; the same matching guide defines its context |
+| Ignore Case | Ignore letter case during matching |
+| Test mode | Substitute test text for the real input. Turn it off after checking the expression |
 
-[**Text Match Expression**](https://wiki.eyeauras.net/e/en/text-match-expressions)**:** Define the conditions that need to be met for the trigger to activate. This expression can be simple or complex, based on the requirement.
+## Updates and state
 
-### **Use Cases**
+EyeAuras reads when connecting to the file, then watches change, creation, deletion and rename events. Nearby events are collected in windows of about **250 ms**, not an exact deadline after each save.
 
-**Configuration file changes:** If you have an application with a configuration file that alters regularly, the trigger can notify you when specific changes are made.
+A match makes the trigger Active; a nonmatch makes it Inactive. It stays active while the saved contents match. This is not a one-shot “line appended” event. Add a reaction in **On Enter** for the transition into a match; saving the same matching contents does not itself create another entry transition.
 
-**Log file monitoring:** Set up a Text Match Expression to alert you when a certain error message appears in a log file, or track occurrences of specific events.
+No selected path or no file at that path gives **Unknown**. Renaming a file does not move the configured path with it. Select the new location or restore the old one. Failure to read an existing file is different from a missing file: inspect access and the displayed contents rather than relying on Unknown as a universal access-error signal.
 
-**Document updates:** Monitor changes in a document, triggering actions when specific text is added or removed.
-
-### **Note**
-
-The "File Contains Text" trigger monitors one file at a time. It is essential to ensure the monitored file is not moved, renamed, or deleted to maintain the trigger's active state. If such changes occur, the trigger status switches to 'Unknown' until the situation is resolved.
+Every update reads the full file, recognizing an encoding marker and otherwise using UTF-8. The editor does not select an arbitrary legacy code page. Large, frequently changing logs can cost substantial memory and time; this trigger has no appended-tail-only mode. A small dedicated status file is often a better source than a general log.

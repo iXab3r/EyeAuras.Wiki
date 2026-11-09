@@ -1,20 +1,33 @@
 ---
 title: Text File
-description: A file containing plain text.
+description: Continue an earlier file-trigger configuration using the current whole-file evaluator
 published: true
 date: 2022-11-02T14:59:35.793Z
 tags: ai-translated
 editor: markdown
 dateCreated: 2022-11-02T14:58:25.417Z
 ---
-# File Contains Text
 
-The name is fairly literal: this trigger scans a file for specific text. It supports regular expressions and lambdas, similar to **Text Search**.
+# Continue from the older File Contains Text guide
 
-When the file changes, the trigger automatically recalculates its state.
+This earlier address describes the same **File Contains Text** trigger. It is not a second current trigger with different capitalization. Use [the current file guide](/en/triggers/file-contains-text) for the full setup.
 
-Be careful with large files: the current version loads the **entire** file into memory every time it changes in order to analyze it. In most cases this is not a problem, but some files can be very large and update very frequently. For example, the **Path Of Exile** log can be 100+ MB and may change constantly. If you try to scan a file like that, memory usage can become unreasonably high.
+For a small text configuration where `enabled=true` represents the state you need:
 
-This trigger is mainly intended for configuration files and similar scenarios. Support for tracking and scanning only the **newly added** part of a file—for example, when a new line appears and the parser processes only that line without re-reading the rest of the file—will be added in a separate update.
+1. Save an accessible local file in **UTF-8**. Use a small file where `enabled=true` occurs only for the intended state.
+2. Open the existing **File Contains Text**, or add it to an aura. Select that file with **File path → …**, then check **File contents**.
+3. Choose **Regex** and enter `(?m)^enabled=true\r?$`. This matches a complete line with that exact value; `enabled=false` does not match. Turn off **Test mode**.
+4. Save `enabled=true` in the file: the trigger should become active. Change it to `enabled=false` and save to deactivate it. Add an overlay or an **On Enter** action separately for a visible reaction, as in the current guide.
 
-![](https://eyeauras.net/uploads/Eye_Auras_G_Dg_ZZXCF_Iq_6de4aae847.png)
+| Earlier setting or behavior | Current meaning |
+| --- | --- |
+| File path | One local file, not a folder or only the newly appended log lines |
+| Text / Regex / C# | Supported [text-matching modes](/en/features/text-match-expressions). C# runs as an evaluator expression rather than a standalone script |
+| Reevaluate on change | Reads a new whole-file snapshot after saving; activity persists while it matches, rather than pulsing for every write |
+| Large log | Still read in full. There is no appended-tail-only mode here; use a small status file for frequent changes instead of a large general log |
+
+The old screenshot shows the former editor. Use the current File path, File contents and expression controls rather than expecting that layout.
+
+![The former File Contains Text editor](https://eyeauras.net/uploads/Eye_Auras_G_Dg_ZZXCF_Iq_6de4aae847.png)
+
+A file missing at the selected path gives **Unknown**. Check access and the displayed contents separately when an existing file cannot be read.

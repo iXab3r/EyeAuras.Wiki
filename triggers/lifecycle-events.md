@@ -1,6 +1,6 @@
 ---
 title: Lifecycle Events
-description: Lifecycle Events trigger reacts on application events such as AppStarted/AppClosed
+description: React to remembered EyeAuras startup and shutdown events and understand retained state
 published: true
 date: 2025-02-27T15:07:04.010Z
 tags: 
@@ -8,51 +8,46 @@ editor: markdown
 dateCreated: 2025-02-27T15:07:04.010Z
 ---
 
-`**Lifecycle Events**` trigger is used to track app-related events such as AppStarted/Closed.
+# Show that EyeAuras has started
 
-![Lifecycle Events Trigger](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_mrej2NiRxEGWybKN.png)
+**Lifecycle Events** remembers events from EyeAuras itself. For example, **AppStarted** can show “EyeAuras ready” after its application window loads. This does not monitor every Windows program or the activity of a target window.
 
-### **Overview**
-You can subscribe to one or more events from the list. If any of them occurs - trigger becomes active.
-This could be used to execute actions linked to different states of the program, e.g. run the script when app is started.
+1. Create an aura with **Lifecycle Events**.
+2. Choose **+ AppStarted**. If EyeAuras has already reported startup in this session, the event becomes active immediately; you do not need to restart it for this check.
+3. Add a [Text overlay](/en/overlays/text) containing `EyeAuras ready`, visible while the aura is active. Turn off forced editor preview.
+4. Observe AppStarted and the text. If **Pause Everything if Active** is enabled, the reaction may wait until EyeAuras loses focus; see below. Remove the subscription with its cross: with no events selected, the trigger becomes **Unknown**. Add AppStarted again and the remembered event is considered immediately.
 
-This trigger works in three different states:
-1.  **Active**/**Inactive**: If any of events in the list have occurred - trigger will become active
-2.  **Inactive**: If none of events in the list have occurred - trigger will be inactive
-3.  **Unknown**: If you have not selected at least one event to listen to - trigger will stay in `Unknown` state
+The image shows AppStarted selected and AppClosed available to add. A selected event's tooltip shows its time or **Not triggered yet**.
 
-### **Options**
+![Selected lifecycle event and another available subscription](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_mrej2NiRxEGWybKN.png)
 
--   **Events**: There are multiple app-related events. You can subscribe to any of those. 
+## Events and state
 
-> IMPORTANT! When some event has happened, it is guaranteed that even if trigger will subscribe AFTER event has occurred, trigger will still process them correctly right at the moment of subscription
-{.is-info}
+| Event or state | Meaning |
+| --- | --- |
+| AppStarted | EyeAuras reports loading its window. Useful for a startup reaction, but not a guarantee that all user background tasks have completed |
+| AppClosed | EyeAuras reports its window closing before further shutdown. Not another application's close event, or guaranteed time for long asynchronous work |
+| Active | At least one selected event has occurred during this EyeAuras run |
+| Inactive | Events are selected but none has occurred yet |
+| Unknown | No event selected |
+| Multiple subscriptions | Any one is sufficient. Use separate auras for separate startup and shutdown reactions |
 
+The result is retained rather than pulsed. Late subscriptions receive an event already reported during the same application run. Removing and re-adding AppStarted does not erase the application's memory of it; a new application run starts a new session.
 
-# **Events**
+For a startup action rather than text, put that action in **On Enter**. AppClosed does not create another entry if the same aura is already active because AppStarted happened. Do not make mandatory long sends or saves depend on shutdown time without their own completion guarantee. A C# action still needs its normal host context, dependencies and lifetime; this trigger does not make arbitrary script globals available to helper classes.
 
-## App Started
-Triggers when application has been started **and** is fully loaded. It is guaranteed that all triggers and actions are ready-to-run at that point.
+<details>
+<summary>The event is active but its reaction is paused</summary>
 
-**Very-very important** - in EyeAuras, there is an option called `Pause Everything if Active` which **DISABLES** all auras/trees when app window becomes active(aka **foreground**/**focused**).
-This is needed to avoid a situation with wrongly configured scripts stealing control from the user - with that option set, just alt-tabbing back into the app will stop everything.
+**Pause Everything if Active** pauses auras and trees while the main EyeAuras window or its overlays are active. Startup can already have occurred while the pause prevents the reaction.
 
-![Pause Everything](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_Rfv0Ke9HBt2WiKd7.png)
+![Pause Everything if Active in application settings](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_Rfv0Ke9HBt2WiKd7.png)
 
-This concept conflicts with Triggers nature as right after the app is loaded, window will be active, which would stop Actions from being executed. 
-For normal development process, I would recommend to not touch this option as it could really save you from troubles. 
-BUT! For Packs, having Pause disabled seems like a totally valid choice - it is expected that at that point everything is already configured and tested. 
-You can disable Pause in `Packing configuration` either on Pack's page or in the app
+During normal setup, account for this pause and check the reaction after focus leaves EyeAuras. Turning the option off changes conditions for every aura; it is not a general fix for an unrelated failing action.
 
-![Packing configuration - web](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_Ki4uH7viSSvyQ07p.png)
+For a distributed Pack, **Packing configuration** controls the same behavior. Choose and check the intended policy before distribution. These older images show its web and application forms.
 
-![Packing configuration - desktop](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_VGeE1h6tXZrwM8BB.png)
+![Pause policy in the Pack web configuration](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_Ki4uH7viSSvyQ07p.png)
+![Pause policy in the Pack application configuration](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_VGeE1h6tXZrwM8BB.png)
 
-> IMPORTANT! When some event has happened, it is guaranteed that even if trigger will subscribe AFTER event has occurred, trigger will still process them correctly right at the moment of subscription
-{.is-info}
-
-### **Example Use Case**
-
-This trigger is a great way to make your workspace more dynamic and adaptive to your current focus. 
-
--   **Running application script on app startup**: This is expected to be the primary use case. You can have your script be executed right when the app gets loaded. That script can do literally anything you want, including exiting the app when user stops it/closes your script window
+</details>
