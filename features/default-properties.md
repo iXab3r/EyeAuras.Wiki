@@ -1,6 +1,6 @@
 ---
 title: Default Properties
-description: is a way to configure target window or any other common property on a folder level
+description: Share common settings through folder defaults
 published: true
 date: 2024-05-14T11:16:25.203Z
 tags: 
@@ -8,35 +8,43 @@ editor: markdown
 dateCreated: 2023-02-15T19:56:35.160Z
 ---
 
-### Configuring defaults via UI
+# Default Properties — choose one window for a folder
 
-Default properties are an answer to a problem that existed for quite a long time in EyeAuras - “How do I change bunch of properties of ALL auras in a quick and convenient way?”.   
-Previously there were multiple solutions - cloning, Bindings, scripts. None of them were user-friendly enough, especially for new users. 
+When several auras watch the same application, set its window once on their folder. Trigger and action properties bound to that default follow later changes, so you do not have to edit each target separately.
 
-Default properties were developed to change that and make simple operations (like changing Target Window of all auras), well… simple. 
+Open the folder's **Triggers/Actions/Overlays Defaults** section. Available properties depend on the installed features; start with **Target Window**.
 
-First of all, they are directly linked to Folders, thus you'll need for you auras to be in a folder to use this functionality. It makes sense as Eye Auras is pushing you to keep auras in some organized way anyways. 
+![Default properties in the older folder editor](/assets/legacy/trtr5ma%5B1%5D.png)
 
-After you've created a folder there will be a separate section called “Triggers/Actions/Overlays Defaults”:
+The checkbox lets this folder supply a value. In this older editor, Target Window is enabled while the other properties have no local override.
 
-![](/assets/legacy/trtr5ma%5B1%5D.png)
+## Share a target between two checks
 
-This section will contains all properties which could be set as Default, it is possible to put ANY property of any type of trigger/action/overlay there, but I've decided to start with 3 that were requested most often. 
+1. Open an application you want to monitor and create a folder for its auras. Add two auras inside it: one with [Window Exists](/en/triggers/window-exists), the other with [Window Is Active](/en/triggers/window-is-active).
+2. Select the folder. Under **Triggers/Actions/Overlays Defaults**, check **Target Window**, select the application's window and inspect the displayed target.
+3. For **Target Window** in each trigger, open the small binding indicator's context menu and choose **Bind to Default**. This explicitly connects both properties to the folder value.
+4. Return to the folder and choose a different open window for Target Window.
 
-Each property has a checkbox, which basically “enables” folder to propagate selected value to all Auras inside it. Having all checkboxes unchecked is exactly the same state as it was before this change. 
+Both checks now receive that target. Window Exists checks whether it exists; Window Is Active checks whether it is in the foreground. You no longer need to change their window expressions separately.
 
-If you've configured some property to have a default value, all new triggers/actions/overlays will have corresponding property set to value that was specified at folder level. Moreover, if you'll change Default value to something else, child auras will automatically update their values as well. 
+![Target Window binding indicator in the older editor](/assets/legacy/sb8y4cj%5B1%5D.png)
 
-For already existing auras though nothing will change. There are three ways of resetting some trigger's property to configured default value:
+Left-click the indicator to open the binding editor; right-click for its menu. Older interfaces used Reset to Default or Bind to Default for the default connection.
 
-1.  Right click on small black box to the right of property and click "Reset to Default" (available only if there is no active binding)
-2.  Left click on the same box and click “Default” in bindings editor
-3.  On Folder page, hover on desired property and click "Apply to All", this will reset properties of ALL child auras to default, basically same as clicking "Reset to Default" on each one individually
+## Connect existing components
 
-![](/assets/legacy/sb8y4cj%5B1%5D.png)
+New triggers, actions and overlays receive supported default bindings when created. An existing property may have a manual value or another binding: changing the folder does not silently replace it.
 
-![](/assets/legacy/51tmde2%5B1%5D.png)
+| Method | When to use it |
+| --- | --- |
+| Bind to Default on a property | Connect one trigger, action or overlay property to its corresponding default. |
+| Default / Bind to Default in the older binding editor | The older header-button route to the same connection. In the current interface, use the property indicator's context menu. |
+| Apply to All in the folder | Rebind matching properties in descendant auras and subfolders. The current editor applies every checked default; the older editor had a button for each row. |
 
-### Accessing via Scripts
+![Per-property Apply to All in the older folder editor](/assets/legacy/51tmde2%5B1%5D.png)
 
-TBA
+**Apply to All replaces existing individual bindings for the matching properties.** Leave only the defaults you intend to standardize checked. For auras that need their own targets, connect properties individually instead.
+
+A nested folder can supply its own value. Without a local value, the binding looks up the hierarchy. For a lasting setup, use a [window matching expression](/en/features/window-matching-expressions) that can survive reopening the application: a temporary window handle selected from a list may change.
+
+Use [Bindings](/en/features/bindings) for other property-to-property connections. Script values and inheritance have a separate [variables contract](/en/scripting/api/scripting/variables).

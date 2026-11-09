@@ -7,40 +7,46 @@ tags: eyeauras, привязки, динамические связи, поль�
 editor: markdown
 dateCreated: 2023-06-18T19:03:50.558Z
 ---
-# Bindings
 
-Bindings are an advanced EyeAuras feature used to create links between properties of triggers, auras, and actions.
+# Bindings — edit a shared value in one place
 
-They let EyeAuras keep properties in sync, so when one property changes, the linked property updates automatically.
+If the same reminder belongs in two places on screen, bind one Text overlay's content to the other's. Updating the source text then updates the destination. Each aura keeps its own visibility conditions.
 
-For example, you might have an [Image Search](/triggers/imagecapturetriggers/imagesearch) trigger and want to configure a click on the detected image.
+## Show the same text in two overlays
 
-![](https://s3.eyeauras.net/media/2024/05/EyeAuras_UI8lFRWwXXDhwU3C.png =x600)
+1. Create two auras named “Original reminder” and “Copy reminder”. Give each a [Fixed Value](/en/triggers/fixed-value) trigger set to Is Active and a [Text](/en/overlays/text) overlay.
+2. In the first overlay, set **Content** to “Check the microphone before recording”. Place the two overlays apart so you can see both.
+3. Click the small binding indicator beside **Content** in the second overlay. This opens **Binding editor**.
+4. In the tree on the left, select “Original reminder”. On the right, expand **Overlays → Text**, find **Content** and click **bind** on that row.
+5. Change Content in the first overlay to “Check complete”.
 
-A binding is one of the ways to tell the `Send Sequence` action exactly where it should click.
+Both overlays show the new text. The second field is now controlled by the binding, so edit the source. The connection runs from the first Content to the second; it does not create a reverse connection.
 
-![](https://s3.eyeauras.net/media/2024/05/EyeAuras_tvwf43szJFbWMDuc.png =x600)
+To give the second overlay its own text again, open its indicator's context menu, choose **Un-bind**, then enter the value manually.
 
-## How bindings appear in the UI
+## Read and change a binding
 
-Most trigger and action properties have a small black rectangle to the right of the control. This means the property is not currently bound.
+| Control | Meaning or action |
+| --- | --- |
+| Black indicator | No binding. Click to open Binding editor; in older interfaces the indicator is to the right of the field. |
+| Property row and bind | Selects the source value. The editor offers compatible types and available conversions. |
+| Variables | Selects a variable rather than a component property as the source. |
+| Bind to Default | Connects the property to its corresponding [default value](/en/features/default-properties). |
+| Un-bind | Removes the selected property's connection. |
+| Red indicator or error message | The binding cannot supply its value. Open the editor and read the cause, such as a missing source or a failed conversion. |
 
-Clicking this rectangle opens the Bindings Editor. When you select a trigger or folder, the UI shows a list of triggers, actions, and their available bindable properties.
+A source can be a trigger, action or overlay property, a variable, or a default setting. For one target window shared by a whole folder, defaults are usually the simpler starting point.
 
-## FAQ
+## Pass a found region to an action
 
-**Q: Can bindings connect properties across different EyeAuras profiles?**
+Another use is connecting [Send Sequence](/en/actions/sendinput/send-sequence) coordinates to an [Image Search](/en/triggers/images/image-search) result. First configure the search and verify that it finds the intended sample.
 
-- A: No. Different profiles in EyeAuras are effectively different running instances of the application. Bindings only work within a single instance.
+![Image Search finds the sample in the captured window](https://s3.eyeauras.net/media/2024/05/EyeAuras_UI8lFRWwXXDhwU3C.png =x600)
 
-**Q: Do bindings affect performance?**
+In the older editor below, the action's coordinate binding uses **BoundsScreen**, the found region in screen coordinates. **BoundsWindow** belongs to the window coordinate space; do not substitute one for the other without matching the action's coordinate settings.
 
-- A: No. The bindings system is highly optimized and has no noticeable impact on performance.
+![BoundsScreen selected as the coordinate source for Send Sequence](https://s3.eyeauras.net/media/2024/05/EyeAuras_tvwf43szJFbWMDuc.png =x600)
 
-**Q: What happens if an error occurs?**
+A coordinate binding does not perform a click or decide when to run it. Put the action in the appropriate group, such as the search aura's On Enter, and configure its [coordinate system](/en/features/coordinate-system) separately.
 
-- A: If a binding error occurs, the black rectangle next to the property turns red in the UI. This can happen if the binding source was deleted or if the data types are incompatible. More details are shown in the tooltip.
-
-**Q: Are bindings preserved during export/import?**
-
-- A: Yes.
+Bindings work within one EyeAuras instance, not across profiles running as separate instances. Export/import preserves them with the configuration; include their source objects when transferring it. Values update when the source changes, but the cost of the complete setup also depends on what its components do.

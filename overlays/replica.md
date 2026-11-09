@@ -8,37 +8,39 @@ editor: markdown
 dateCreated: 2023-06-18T16:54:27.099Z
 ---
 
-# Replica
+# Replica — keep a useful window region in view
 
-Replica Overlay in EyeAuras enables the display of a real-time replica of another window or a specific region of it within an overlay. This can be especially useful when you want to monitor a specific area of a window without keeping the entire window in focus.
+A long-running operation may show progress in one small part of a large window. Replica copies that region into an overlay above your working application. Its source is the window's visible image, not separate progress values or remaining-time data.
 
-You can refer to the common overlay options here: [Common Options](https://wiki.eyeauras.net/en/overlays/common-options)
+For the first check, keep the source application open and restored. Choose an area that really changes, such as its status line or progress bar.
 
-### Target Window
+## Mirror a progress region
 
-This option lets you choose which window you'd like to clone. You can specify the target window using the Window Match Expression. More information about Window Match Expression can be found [here](https://wiki.eyeauras.net/en/window-match-expressions).
+1. Create an aura with [Fixed Value](/en/triggers/fixed-value) set to **Is Active** and add **Replica** under **Overlays**.
+2. Under **Replica → Target Window**, select the source application's window. Check the displayed target; refine its [window matching expression](/en/features/window-matching-expressions) if needed.
+3. Under **Source region**, click **Select region** and select a rectangle around the indicator in that window. Leave **Source offset** at zero, **Source anchors** at their defaults and **Linked auras** empty.
+4. In the common overlay settings, disable **Locked**, move the copy into view and set its size. Enable **Aspect Ratio** to preserve proportions, then enable Locked again.
+5. Switch to your working application and wait for the source indicator to change.
 
-### Region
+The same region should update in the overlay. Source region chooses **what to copy**; the common Position controls **where and how large to display it**. Select the region again if the source application's layout changes.
 
-This option lets you choose a specific region of the target window that you want to clone. This can be useful when you only want to monitor a part of a window, like a progress bar or a chat box.
+## Source settings
 
-### Offset and Anchor
+| Setting | What it does |
+| --- | --- |
+| Target Window | The window being copied, not the application beneath the overlay. |
+| Source region / Select region | Selects a region relative to the source window's client area, in pixels. |
+| Reset | Clears source geometry, offsets, anchors and links. An empty region means the whole source window. |
+| Source offset | X, Y, Width and Height adjustments to the copied region. |
+| Source anchors | Reference points for the region and its content; see [coordinates](/en/features/coordinate-system). |
+| Linked auras | Obtains the source window and region from another aura, such as Image Search. Older label — Link Aura. |
 
-These options are used to determine the final region that gets cloned in the overlay. The Offset and Anchor options modify the Region in a specific way to give you the final area. More information on how these are calculated can be found [here](https://wiki.eyeauras.net/en/coordinate-system).
+To follow an [Image Search](/en/triggers/images/image-search) result, first verify its found rectangle, then add that aura under Linked auras. Replica follows the supplied region and window. With multiple links it uses the first available source with bounds, not a guaranteed order of activation times. Start with one link for an unambiguous setup.
 
-### Link Aura
+## Visibility and limits
 
-This option allows the Replica Overlay to link to another Aura. This is especially useful when you want to create a replica of a region detected by another Aura, such as Image Search. When linked, the Replica Overlay will use the region defined by the linked Aura. If the linked Aura has multiple active regions, the Replica will pick up the first activated one.
+Fixed Value keeps the example active, so the locked copy stays visible. Replace it with [Hotkey Is Active](/en/triggers/hotkey-is-active) for key-controlled visibility. [Common Options](/en/overlays/common-options) covers locking, click-through and normal-window mode.
 
-### Gaming Applications
+Replica displays an image; it does not create another interactive instance of the source application. Clicking the copy does not send a click to the source. Click-through targets the window **under the overlay**.
 
-1. Clone the mini-map of a strategy game to monitor troop movements without looking away from the main gameplay area.
-2. Replicate the chat window of a multiplayer game to keep an eye on team communication while focusing on the game.
-3. Clone a region of an inventory window in a role-playing game (RPG) to monitor item usage and availability.
-4. Create a replica of the enemy health bar in a boss fight for constant visibility.
-5. Mirror the live feed of a security camera in stealth-based games.
-6. Clone a speedometer or other vehicle status indicators in racing games for more convenient viewing.
-7. Monitor quest updates and objectives in a role-playing game (RPG) without opening the full quest log.
-8. Clone a teammate's status in cooperative games to keep track of their health and position.
-9. Replicate the cooldown timers for abilities in MOBAs (Multiplayer Online Battle Arena) for better ability management.
-10. Clone a section of a strategy game showing resource availability for better resource management.
+A closed window cannot be copied. A minimized or capture-protected window may not update as expected; restore it for the first check. If no copy appears, check Target Window, Source region dimensions and the overlay's message, such as **No window matched**. A temporary handle may stop matching after the window is recreated. Updating a live copy is work, so use the region and size you need; there is no fixed CPU/GPU cost promised for every window.

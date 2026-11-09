@@ -8,38 +8,51 @@ editor: markdown
 dateCreated: 2023-06-18T16:39:17.957Z
 ---
 
-# Common Options
+# Common Options — place an overlay and control visibility
 
-Overlays in EyeAuras are visual indicators displayed when an Aura is active. They provide a way to add on-screen cues or instructions to guide your automation steps. Each Overlay has a set of common attributes that determine its behavior and appearance.
+A reminder should be easy to read without blocking the application beneath it. Common overlay options control its position, size, transparency and mouse behavior.
 
-### IsLocked
+The overlay supplies the content: [Text](/en/overlays/text) shows your words, [Image](/en/overlays/image) a loaded picture, and [Replica](/en/overlays/replica) a copy of another window. The aura's state normally controls visibility.
 
-The `IsLocked` option allows you to control the mobility of the overlay. When an overlay is unlocked, it can be moved around the screen, and it's displayed regardless of whether the Aura that contains it is active or not. This feature is particularly useful when configuring the overlay's position and previewing its appearance.
+## Place a reminder and let clicks pass through
 
-### Position, Offset and Anchors
+1. In an aura with [Fixed Value](/en/triggers/fixed-value) set to Is Active, add Text and set **Content** to “Check the microphone”.
+2. Leave **Window → Mode** on **Overlay**. Under **Position**, turn **Locked** off, drag the reminder into place and resize it by its edge. You can also enter X, Y, Width and Height numerically.
+3. Under **Visual style**, set **Opacity** to `1` — displayed as **100%** — and choose a readable **Background**.
+4. Enable **Locked**, then **Click-through**. Switch to your own application and click one of its controls beneath the reminder: the click should reach that application.
+5. Set Fixed Value to Is NOT Active, select another aura in the tree, then return to your working application.
 
-The position of an overlay is determined by its X (horizontal) and Y (vertical) coordinates, as well as its width and height.
+The reminder hides. Set the aura active again and it returns to the saved position. An unlocked overlay stays visible for placement, and the selected aura can show its overlay while the EyeAuras editor is active. Check normal visibility outside the editor.
 
-The `Offset` settings (X, Y, Width, Height) are also used to define the position of an overlay. They are added to the Position values to calculate the overlay's final position. For instance, if the Position is set at (100, 100) and the Offset is (10, 20), the final position of the overlay will be (110, 120).
+## Position and appearance
 
-[More information is available here](/en/coordinate-system)
+| Setting | What it does |
+| --- | --- |
+| Locked | Prevents normal movement and resizing. Called IsLocked in older interfaces. |
+| Position / Screen bounds | Overlay X, Y, Width and Height. |
+| Offset | Adjusts position and size. With the standard anchors, position `(100, 100)` plus offset `(10, 20)` gives `(110, 120)`. |
+| Anchors | Sets the reference points for placement and content. Start with the defaults; see [coordinates](/en/features/coordinate-system) for other arrangements. |
+| Opacity | Transparency of the whole overlay. `0` is invisible; `1` is fully opaque. |
+| Background | Background color, including transparent. Older label — Background Color. |
+| Border / Border Thickness | Border color and thickness. |
+| Click-through | Passes clicks to the window underneath while locked. The active EyeAuras editor can temporarily restore mouse interaction for editing. |
+| Aspect Ratio | Keeps the content's proportions when known. Unavailable while position is linked to a source. |
 
-### Opacity
+<details>
+<summary>Show the content as a normal window</summary>
 
-The `Opacity` option determines the transparency of the overlay. A value of 0 makes the overlay fully transparent, while a value of 1 makes it fully opaque.
+Choose **Window → Mode — Window** for a title bar and a taskbar entry. The content remains owned by the aura.
 
-### Background Color
+| Setting | What it does |
+| --- | --- |
+| Mode — Overlay | Borderless overlay above other windows. |
+| Mode — Window | Normal window with a title and taskbar entry. |
+| Title | Window-mode title text. |
+| Stacking — Always on top | Keeps the normal window above other windows. |
+| Movement — Movable even if locked | Allows moving a locked window. Click-through still sends mouse input through it. |
+| Minimum Size / Maximum Size | Limits resizing. Pick current uses the current size; Reset removes that limit. |
+| Window Icon | Load from file... selects an icon; Clear removes it. |
 
-This option allows you to specify the background color of the overlay. The overlay can also be made transparent.
+</details>
 
-### Click-through
-
-The `Click-through` option makes the overlay transparent to user clicks. This means that any clicks on the overlay will be registered as clicks on whatever is beneath the overlay. Please note that this option is not functional when the overlay is unlocked.
-
-### Aspect Ratio
-
-Supported by some overlays, the `Aspect-ratio` feature ensures that the overlay maintains the aspect ratio of its content, such as an image, when resized.
-
-### Border Thickness and Color
-
-You can control the thickness of the overlay's border using the `Border thickness` option. You can also define its color with the `Border color` setting.
+To reposition an overlay, disable Locked in its editor. Placement locking, opacity and aura activation are separate: a transparent overlay can still belong to an active aura.
