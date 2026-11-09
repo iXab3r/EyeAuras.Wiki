@@ -7,181 +7,97 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-06-21T21:51:07.137Z
 ---
-# ImGui в контексте EyeAuras
+# Сделать панель управления на ImGui
 
-**ImGui** — это на удивление мощная, но при этом простая и интуитивная библиотека для отрисовки *разных вещей*. Изначально автор создавал её для разработки UI в играх, но со временем область применения стала гораздо шире — [список проектов, которые используют её](https://github.com/ocornut/imgui/wiki/Software-using-dear-imgui), действительно впечатляет.
+Покажем отдельную панель с флажком, который меняет триггер вашей ауры. ImGui заново описывает интерфейс на каждом кадре: флажок читает текущее значение, а нажатие записывает новое. Отдельная подписка для обновления текста, как в [Blazor](/ru/scripting/blazor-windows/getting-started), здесь не нужна.
 
-Но здесь мы говорим про **автоматизацию**, верно? Тогда чем ImGui полезен нам?
+Нужен настольный Windows-хост EyeAuras, совместимый с **EyeAuras.ImGuiSdk 0.1.47** и его нативными зависимостями. Пакет из [источника EyeAuras](https://packages.eyeauras.net/v3/index.json) предназначен для .NET 8 Windows и зависит от **EyeAuras.ClickableTransparentOverlay 11.5.28**. Не загружайте рядом другую версию ImGui.NET/CTO в тот же процесс. Пакет предоставляет типы, а `ImGuiContainerExtensions` регистрирует сервис в контейнере скрипта — это два разных шага.
 
-Ответ простой: ImGui — это **самый простой и интуитивный** способ собрать собственный UI. Освоить его даже проще, чем [Blazor Windows](/ru/scripting/blazor-windows/getting-started).
+## Подготовить и запустить панель
 
----
-
-## Установка
-
-EyeAuras постепенно переходит на модульную систему на базе NuGet, чтобы пользователь мог подключать **только те возможности, которые ему действительно нужны**. Текущая функциональность стала слишком большой: захват изображений, анализ, эффекты, деревья поведения, эмуляция ввода, чтение памяти, обработка аудио, Blazor UI… и почти ни одно mini-app не использует даже половину этого набора.
-
-Поэтому разные возможности выносятся в отдельные NuGet-пакеты, которые можно установить так же, как любые другие.
-
-Ниже — C# Script работающего desktop EyeAuras. Ссылка на `0.1.42` сохранена
-из исходного примера; перед запуском проверьте совместимость установленного
-пакета с API своей версии. Описание контрактов сверено с исходниками
-EyeAuras `20fd3d4`, что само по себе не подтверждает любую опубликованную
-версию NuGet. Для обычного C# класса нужны явно переданные зависимости:
-`GetService`, `AddNewExtension` и токен запуска предоставляет хост скрипта.
+1. Создайте свою ауру `TargetAura` с **Hotkey Is Active → Toggle Trigger state on Click** и свободной горячей клавишей. Оставьте её загруженной, без действий для первого опыта.
+2. В той же папке создайте вторую ауру с действием **C# Script**. Вставьте весь код в её верхнеуровневый `Script.csx`:
 
 ```csharp
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
- 
-using EyeAuras.ImGuiSdk; // required for registration methods
-using ImGuiNET;          // access to ImGui APIs
-using System.Numerics;   // for Vector2/Vector3 use with ImGui
-
-{
-    AddNewExtension<ImGuiContainerExtensions>(); // registers IImGuiExperimentalApi and others
-
-    using var osd = GetService<IImGuiExperimentalApi>();
-}
-```
-
----
-
-## Hello, World
-
-Чтобы начать работать с ImGui, нужно сделать всего 3 вещи:
-
-* Подключить namespace `ImGuiNET`
-* Получить `IImGuiExperimentalApi` через `GetService`
-* Вызвать `AddRenderer()` и передать в него ваш метод отрисовки
-
-На этом всё. EyeAuras сам создаст overlay и запустит render loop. Вам остаётся только поместить свою логику в метод, который передаётся в `AddRenderer`.
-
->  Примечание: ваш метод будет вызываться **на каждом кадре**, поэтому избегайте `sleep` и любого долгого блокирующего кода.
-
-```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
- 
-using EyeAuras.ImGuiSdk;
-using ImGuiNET;
-using System.Numerics;
-
-{
-    AddNewExtension<ImGuiContainerExtensions>();
-
-    using var osd = GetService<IImGuiExperimentalApi>();
-
-    using var rendering = osd.AddRenderer(() =>
-    {
-        ImGui.ShowDemoWindow();
-    });
-
-    cancellationToken.WaitHandle.WaitOne(); // keep running until script is stopped
-}
-```
-
-![ImGui Demo window](https://s3.eyeauras.net/media/2025/06/EyeAuras_KXCTkIyw7EU3oo3q.gif)
-
----
-
-## Создаём переключатель
-
-Теперь сделаем что-то своё. Demo window полезно для тестов, но в реальной работе от него мало пользы.
-
-Как и в [Blazor Windows](/ru/scripting/blazor-windows/getting-started), давайте [создадим toggle](/ru/scripting/blazor-windows/4-toggle-hotkeyisactive).
-
-### Что для этого нужно
-
-* Создать overlay через `IImGuiExperimentalApi`
-* Передать метод отрисовки в `AddRenderer`
-* Внутри render-метода нарисовать checkbox и текст
-
-И это всё. Никакого отдельного управления состоянием, никаких `sleep`, никакой ручной обработки кликов — всё работает в immediate mode. Поначалу синтаксис может показаться непривычным, но ChatGPT **очень хорошо** знает ImGui, так что смело задавайте вопросы.
-
-```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
-
 using EyeAuras.ImGuiSdk;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 using ImGuiNET;
 using System.Numerics;
 
-// Создайте рядом ауру TargetAura с триггером HotkeyIsActive.
-
 {
     var trigger = AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
-
     AddNewExtension<ImGuiContainerExtensions>();
-
-    using var osd = GetService<IImGuiExperimentalApi>();
-
-    using var rendering = osd.AddRenderer(() =>
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    using var rendering = imgui.AddRenderer(_ =>
     {
-        var visible = ImGui.Begin("My UI");
+        var visible = ImGui.Begin("My UI##target-control");
         try
         {
             if (!visible) return;
-            ImGui.Text("Control window flags and interaction behavior.");
-
-            var isActive = trigger.TriggerValue ?? false;
-            if (ImGui.Checkbox("Is Active", ref isActive))
-            {
-                trigger.TriggerValue = isActive;
-            }
+            var value = trigger.TriggerValue ?? false;
+            if (ImGui.Checkbox("Is Active", ref value)) trigger.TriggerValue = value;
             ImGui.SameLine();
-            ImGui.TextDisabled("(Gets/Sets whether Trigger is active or not)");
-
+            ImGui.TextDisabled("Hotkey Is Active");
             ImGui.Separator();
-            if (trigger.IsActive == true)
-            {
-                ImGui.TextColored(new Vector4(0f, 1f, 0f, 1f), "Trigger is currently ACTIVE");
-            }
-            else
-            {
-                ImGui.TextColored(new Vector4(1f, 0f, 0f, 1f), "Trigger is currently INACTIVE");
-            }
+            ImGui.TextColored(trigger.IsActive == true
+                ? new Vector4(0, 1, 0, 1) : new Vector4(1, 0, 0, 1),
+                trigger.IsActive == true ? "ACTIVE" : "INACTIVE");
         }
-        finally
-        {
-            ImGui.End();
-        }
+        finally { ImGui.End(); }
     });
-
     cancellationToken.WaitHandle.WaitOne();
 }
 ```
 
-![Toggle](https://s3.eyeauras.net/media/2025/06/EyeAuras_950pfgdzIy4pe780.gif)
+3. Дождитесь восстановления зависимости и компиляции, нажмите **Run**. В панели **My UI** измените **Is Active**: меняется `TriggerValue` у `TargetAura`. Переключите триггер горячей клавишей — следующий кадр прочитает новое значение.
 
----
+![Переключатель в прежней демонстрации](https://s3.eyeauras.net/media/2025/06/EyeAuras_950pfgdzIy4pe780.gif)
 
-## Что ещё можно делать с ImGui?
+4. Нажмите **Stop**. Ожидание завершится; сначала освобождается регистрация отрисовки, затем экземпляр API. Другие скрипты, использующие общее окно, этим не закрываются.
 
-Помимо интерактивных окон, ImGui можно использовать и для **OSD (On-Screen Display)** — отрисовки overlay прямо поверх экрана. Причём можно рисовать как **2D**, так и **3D** объекты.
+| Часть | Что она означает |
+| --- | --- |
+| `./TargetAura` | Соседняя аура в контексте скрипта. Поиск берёт первый подходящий триггер и выдаёт ошибку при отсутствии. |
+| `TriggerValue` / `IsActive` | Флажок меняет значение триггера; подпись показывает его итоговое состояние. Остальные условия ауры не отменяются. `null` во флажке показан как выключенное. |
+| `AddNewExtension` → `GetService` | Сначала регистрация SDK, затем создание API. Одного `#r` для этого недостаточно. |
+| `AddRenderer` | Возвращает регистрацию `IDisposable` для функции, вызываемой каждый кадр на потоке отрисовки. |
+| `Begin` / `End` | Открывают и завершают описание окна в текущем кадре; `End` нужен и при свёрнутом содержимом. |
+| `##target-control` | Стабильная скрытая часть идентификатора окна. Не меняйте её случайным числом каждый кадр. |
 
-Вот пример — всё, что вы видите, включая UI и экранные overlay, отрисовано с помощью ImGui:
+Инициализацию нативного окна и контекста выполняет SDK перед вызовами отрисовки. Не вызывайте `ImGui.GetIO`, `Begin` или рисование до получения такого контекста и не создавайте второй контекст вручную. Это нативный ImGui-интерфейс; ему не нужны Razor, HTML или WebView2. [OSD на Blazor](/ru/scripting/examples/basic/osd-cursor) — другой механизм.
 
- [L2 Demo](https://www.youtube.com/watch?v=y0u20InSjbg)
+Экземпляры API используют общее окно **Main**, его настройки и атлас шрифтов. Не закрывайте это окно напрямую. `GetService`, `AuraTree` и `cancellationToken` — возможности `Script.csx`; обычный класс получает нужные зависимости и токен явно. Долгую работу и ожидания выполняйте вне функции кадра.
 
----
+<details>
+<summary>Сначала посмотреть готовые элементы ImGui</summary>
 
-В примерах появится демонстрационное окно либо переключатель `TargetAura`.
-После остановки `using` сначала снимает подписку `AddRenderer`, затем
-освобождает API. Подписка не привязывается к API автоматически. Экземпляры
-используют общее окно `Main`, поэтому освобождение вашей доли не означает
-закрытия окна других скриптов. Параметры частоты кадров, общий overlay,
-шрифты и время жизни разобраны в
-[операциях IImGuiExperimentalApi](/ru/scripting/api/IImGuiExperimentalApi).
-
-
-## Два окна с отдельным состоянием
-
-Для всех примеров этой страницы выбрана `0.1.47`: метаданные опубликованной сборки подтверждают `ImGuiWindowManager` и `ImGuiWindowHost`. В `0.1.42` этих типов нет, хотя базовый `AddRenderer` в ней уже есть. Пакет `0.1.47` зависит от `EyeAuras.ClickableTransparentOverlay 11.5.28`; используйте совместимую сборку приложения.
-
-После подключения пакета из начала страницы выполните этот вариант
-`Script.csx`. Оба окна имеют свой счётчик и свой крестик. Содержимое находится
-в обычном классе `CounterPanel`; его можно вынести в `.cs` файл проекта.
+Вместо основной программы можно запустить этот самостоятельный вариант. Он показывает стандартное демонстрационное окно до Stop:
 
 ```csharp
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
+using EyeAuras.ImGuiSdk;
+using ImGuiNET;
+
+{
+    AddNewExtension<ImGuiContainerExtensions>();
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    using var rendering = imgui.AddRenderer(_ => ImGui.ShowDemoWindow());
+    cancellationToken.WaitHandle.WaitOne();
+}
+```
+
+![Стандартное демонстрационное окно](https://s3.eyeauras.net/media/2025/06/EyeAuras_KXCTkIyw7EU3oo3q.gif)
+
+</details>
+
+<details>
+<summary>Два окна с независимыми счётчиками</summary>
+
+Это альтернативная полная программа. Создание и адресный запрос закрытия выполняются в кадре; менеджер сам вызывает `CounterPanel.ToImGui` и владеет `Begin/End`. У обычного класса есть своё поле счётчика, без глобальных сервисов скрипта.
+
+```csharp
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
 using System;
 using System.Reactive.Disposables;
 using System.Threading;
@@ -192,25 +108,35 @@ using ImGuiNET;
 {
     AddNewExtension<ImGuiContainerExtensions>();
     using var imgui = GetService<IImGuiExperimentalApi>();
-    var first = ImGuiWindowManager.OpenNew(() => new CounterPanel(), "Первый");
-    var second = ImGuiWindowManager.OpenNew(() => new CounterPanel(), "Второй");
-    var firstClosed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-    var secondClosed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-    first.Anchors.Add(Disposable.Create(() => firstClosed.TrySetResult(true)));
-    second.Anchors.Add(Disposable.Create(() => secondClosed.TrySetResult(true)));
-    try
+    ImGuiWindowHost first = null, second = null;
+    var closed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+    var remaining = 2;
+    var closing = 0;
+    using var rendering = imgui.AddRenderer(_ =>
     {
-        await Task.WhenAll(firstClosed.Task, secondClosed.Task).WaitAsync(cancellationToken);
-    }
-    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-    {
-    }
+        if (first == null)
+        {
+            first = ImGuiWindowManager.OpenNew(() => new CounterPanel(), "First");
+            second = ImGuiWindowManager.OpenNew(() => new CounterPanel(), "Second");
+            void OnClosed()
+            {
+                if (Interlocked.Decrement(ref remaining) == 0) closed.TrySetResult(true);
+            }
+            first.Anchors.Add(Disposable.Create(OnClosed));
+            second.Anchors.Add(Disposable.Create(OnClosed));
+        }
+        if (Volatile.Read(ref closing) != 0)
+        {
+            ImGuiWindowManager.Close(first);
+            ImGuiWindowManager.Close(second);
+        }
+    });
+    try { await closed.Task.WaitAsync(cancellationToken); }
+    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
     finally
     {
-        ImGuiWindowManager.Close(first);
-        ImGuiWindowManager.Close(second);
-        // API ещё жив: менеджер должен обработать закрытие на кадре.
-        await Task.WhenAll(firstClosed.Task, secondClosed.Task);
+        Interlocked.Exchange(ref closing, 1);
+        await closed.Task;
     }
 }
 
@@ -219,28 +145,23 @@ public sealed class CounterPanel : ICanBeDisplayedInImGui
     private int count;
     public void ToImGui()
     {
-        if (ImGui.Button("Добавить")) count++;
-        ImGui.TextUnformatted($"Значение: {count}");
+        if (ImGui.Button("Add")) count++;
+        ImGui.TextUnformatted($"Value: {count}");
     }
 }
 ```
 
-Менеджер сам рисует окна каждый кадр; отдельный `AddRenderer` для них не
-нужен. `CounterPanel` не вызывает `Begin/End`: ими владеет `ImGuiWindowHost`.
-Закрытие одного окна не закрывает второе. Когда закрыты оба, скрипт завершится;
-Stop запрашивает закрытие оставшихся и ждёт освобождения hosts, пока API ещё
-удерживает общий overlay. Это требует работающего render-loop, а не гарантирует
-завершение при отказе нативного renderer. У контента с `IDisposable` менеджер
-тоже вызывает `Dispose`. Не заменяйте адресное закрытие на `CloseAll()`.
+Закрытие первого окна оставляет второе. После закрытия обоих скрипт заканчивается; Stop запрашивает закрытие оставшихся и ждёт освобождения, пока API удерживает отрисовку. Ожидание требует работающего нативного цикла кадров. Контент с `IDisposable` менеджер также освобождает. Не заменяйте адресное закрытие на `CloseAll`, затрагивающий чужие окна.
 
-## Выполнить работу по кнопке, не останавливая отрисовку
+</details>
 
-Ниже — другой вариант `Script.csx` с той же подготовкой пакета. Кнопка
-запускает одну последовательность; повторные нажатия во время её работы
-игнорируются. Здесь задержки изображают асинхронную работу. Реальное тяжёлое
-вычисление также выполняйте вне render callback.
+<details>
+<summary>Асинхронная работа по кнопке без остановки кадров</summary>
+
+Ещё одна альтернативная программа: кнопка запускает десять шагов по 200 мс. Повторное нажатие во время работы не запускает вторую задачу. Задержки здесь изображают вашу работу; ImGui остаётся на потоке отрисовки.
 
 ```csharp
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -259,11 +180,11 @@ using ImGuiNET;
     var progress = 0;
     var rendering = imgui.AddRenderer(_ =>
     {
-        var visible = ImGui.Begin("Работа");
+        var visible = ImGui.Begin("Work");
         try
         {
             if (!visible) return;
-            var clicked = ImGui.Button("Начать");
+            var clicked = ImGui.Button("Start");
             lock (gate)
             {
                 if (clicked && !stopping && worker.IsCompleted)
@@ -284,7 +205,7 @@ using ImGuiNET;
                     });
                 }
             }
-            ImGui.TextUnformatted($"Готово: {Volatile.Read(ref progress)}/10");
+            ImGui.TextUnformatted($"Done: {Volatile.Read(ref progress)}/10");
         }
         finally { ImGui.End(); }
     });
@@ -304,10 +225,8 @@ using ImGuiNET;
 }
 ```
 
-Состояние задачи и запрет нового старта защищены `gate`, прогресс передаётся
-через `Interlocked`/`Volatile`. Внутри callback нет ожидания worker. При Stop
-сначала запрещается новый старт, снимается отрисовка, затем отменяется и
-ожидается работа. Только после этого `using` освобождает источник токена.
-Worker **не** освобождает `stop`: иначе следующий `Cancel()` владельца мог бы
-обратиться к уже освобождённому объекту. Методы ImGui вызываются только в
-render callback; API скриптового хоста в обычном `.cs`-классе нужно передавать явно.
+При Stop сначала запрещается новый запуск, снимается отрисовка, затем отменяется и ожидается задача. Только после этого освобождается источник токена. Рабочая задача не освобождает его сама. `gate`, `Interlocked` и `Volatile` согласуют состояние между потоками; ожидания нет внутри кадра.
+
+</details>
+
+ImGui также рисует линии, фигуры, подписи и проекции подготовленных координат. [Список проектов Dear ImGui](https://github.com/ocornut/imgui/wiki/Software-using-dear-imgui) и историческое [L2 Demo](https://www.youtube.com/watch?v=y0u20InSjbg) показывают варианты интерфейсов, а не встроенный доступ к данным игры. Контракты и границы общего состояния — в [операциях IImGuiExperimentalApi](/ru/scripting/api/IImGuiExperimentalApi) и [карте SDK](/ru/scripting/api/nuget/imgui-sdk). В 0.1.42 есть базовая отрисовка, но нет используемого здесь менеджера окон; для всех программ этой страницы выбрана 0.1.47.

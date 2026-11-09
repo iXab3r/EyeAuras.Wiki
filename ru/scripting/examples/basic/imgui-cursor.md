@@ -7,70 +7,63 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-03-31T17:49:10.631Z
 ---
-# Отрисовка курсора на экране через ImGui
+# Нарисовать рамку курсора в ImGui
 
-В этом руководстве показано, как нарисовать простой визуальный оверлей — например, зелёную рамку вокруг курсора мыши — с помощью [Dear ImGui](https://github.com/ocornut/imgui) через библиотеку `ClickableTransparentOverlay`.
+Покажем зелёную рамку 10×10 вокруг положения мыши. Скрипт читает точку из ImGui и рисует в его фоновом слое; реальную мышь он не перемещает и кликов не отправляет.
 
-Мы будем использовать **ImGui.NET** — .NET-обёртку для ImGui — и рендерить всё прямо в полноэкранное прозрачное overlay-окно, которое не блокирует ввод мыши.
-
----
-
-## Нарисовать рамку из C# Script через SDK
-
-Вставьте блок в верхнеуровневый файл действия `C# Script` живого EyeAuras. Подключите совместимую версию необязательного `EyeAuras.ImGuiSdk`, в которой есть `ImGuiContainerExtensions`, `IImGuiExperimentalApi` и `AddRenderer`. Для этого варианта используйте `#r "nuget:EyeAuras.ImGuiSdk, 0.1.42"`; опубликованные DLL/XML содержат используемые члены. Нативная совместимость с установленной сборкой проверяется отдельно.
+1. Нужен настольный EyeAuras с совместимым **EyeAuras.ImGuiSdk 0.1.47**. В своей ауре создайте **C# Script**. Не запускайте одновременно самостоятельную старую CTO-библиотеку из примера в конце страницы.
+2. Вставьте весь код в верхнеуровневый `Script.csx`:
 
 ```csharp
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
 using EyeAuras.ImGuiSdk;
 using ImGuiNET;
 using System.Numerics;
-using PoeShared.Scaffolding;
 
 {
     AddNewExtension<ImGuiContainerExtensions>();
-    using var osd = GetService<IImGuiExperimentalApi>();
-    using var renderer = osd.AddRenderer(() =>
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    var previousNoActivate = imgui.NoActivate;
+    try
     {
-        if (cancellationToken.IsCancellationRequested) return;
-        var cursor = ImGui.GetMousePos();
-        ImGui.GetBackgroundDrawList().AddRect(
-            cursor - new Vector2(5, 5),
-            cursor + new Vector2(5, 5),
-            ImGui.GetColorU32(new Vector4(0f, 1f, 0f, 1f)),
-            0f, ImDrawFlags.None, 1f);
-    });
-    cancellationToken.WaitHandle.WaitOne();
+        imgui.NoActivate = true;
+        using var rendering = imgui.AddRenderer(_ =>
+        {
+            if (cancellationToken.IsCancellationRequested) return;
+            var cursor = ImGui.GetMousePos();
+            ImGui.GetBackgroundDrawList().AddRect(
+                cursor - new Vector2(5, 5), cursor + new Vector2(5, 5),
+                ImGui.GetColorU32(new Vector4(0, 1, 0, 1)),
+                0f, ImDrawFlags.None, 1f);
+        });
+        cancellationToken.WaitHandle.WaitOne();
+    }
+    finally { imgui.NoActivate = previousNoActivate; }
 }
 ```
 
-Пока скрипт работает, вокруг курсора рисуется зелёная рамка 10×10. `ImGui.GetMousePos()` возвращает точку в системе координат ImGui; здесь не подставляются нативные экранные координаты с неучтённым началом окна. Рисование выполняется только внутри обработчика кадра; нельзя блокировать его ожиданием отмены. При остановке сначала снимается подписка, затем освобождается экземпляр API. Он использует общее окно `Main`: не закрывайте его напрямую, оно может обслуживать другие скрипты. [Карта ImGui SDK](/ru/scripting/api/nuget/imgui-sdk) ведёт к контрактам и ограничениям времени жизни. Работа графики и конкретной версии пакета требует проверки в Windows.
+3. После компиляции нажмите **Run** и перемещайте мышь обычным способом. Рамка должна следовать за точкой, которую получает ImGui.
+4. Нажмите **Stop**: отрисовка снимается, прежнее `NoActivate` восстанавливается, экземпляр API освобождается.
 
-## Отдельное окно через ClickableTransparentOverlay
+| Настройка | Смысл |
+| --- | --- |
+| `ImGui.GetMousePos()` | Положение мыши в системе ImGui, совместимой с его draw list. Это не автоматически пересчитанная координата клиентской области другого окна. |
+| `cursor ± Vector2(5, 5)` | Углы рамки 10×10 вокруг центра. |
+| `Vector4(0, 1, 0, 1)` | Непрозрачный зелёный RGBA, преобразованный через `GetColorU32`. |
+| Последний `1f` | Толщина границы; `0f` перед флагами — отсутствие скругления. |
+| `NoActivate = true` | Запрос не активировать общее окно при взаимодействии. Это настройка общего Main, поэтому прежнее значение восстанавливается; опыт делайте без других скриптов, меняющих её. |
 
-Ниже сохранён самостоятельный вариант с закреплённым `ClickableTransparentOverlay, 10.2.0`. Это альтернативный скрипт: не запускайте оба блока вместе. Он создаёт собственное окно на основном мониторе; методы внешнего пакета и поведение DPI здесь не проверены запуском.
+Новый кадр заново описывает рамку: отдельный объект OSD или подписка на каждую точку не создаётся. Нельзя вызывать ImGui вне потока кадра или блокировать его ожиданием Stop. Общее окно **Main** может обслуживать другие скрипты; освобождение вашей доли не означает их закрытие. Мониторы, начало координат и DPI не следует исправлять произвольным добавлением экранного смещения; для выбора механизма см. [карту SDK](/ru/scripting/api/nuget/imgui-sdk) и [пример OSD](/ru/scripting/examples/basic/osd-cursor).
 
-## Что такое ImGui?
+<details>
+<summary>Исторический самостоятельный вариант CTO 10.2.0</summary>
 
-**ImGui** (Immediate Mode GUI) — это быстрая и минималистичная UI-библиотека, которую часто используют для отладки, dev-инструментов, оверлеев и кастомных редакторов. В отличие от классических retained-mode UI-библиотек, ImGui перерисовывает весь интерфейс каждый кадр, поэтому она особенно хорошо подходит для HUD, debug-панелей и других инструментов реального времени.
-
----
-
-## Что потребуется
-
-Убедитесь, что у вас подключён следующий NuGet-пакет:
-
-```csharp
-#r "nuget: ClickableTransparentOverlay, 10.2.0"
-```
-
-Этот пакет предоставляет базовый класс `Overlay`, который берёт на себя создание окна, настройку ImGui и рендеринг.
-
----
-
-## Полный пример: отслеживание курсора через ImGui
+Этот альтернативный проект создаёт собственное окно на основном мониторе. Он сохранён для чтения старых скриптов, а не для совместного запуска в процессе с SDK выше: разные версии нативного ImGui и независимые контексты нельзя считать взаимозаменяемыми.
 
 ```csharp
 #r "nuget: ClickableTransparentOverlay, 10.2.0"
 
+using System;
 using ClickableTransparentOverlay;
 using System.Threading.Tasks;
 using System.Threading;
@@ -136,24 +129,6 @@ internal class SampleOverlay : Overlay
 }
 ```
 
----
+В [исходниках CTO 10.2.0](https://github.com/zaafar/ClickableTransparentOverlay/blob/6a343a2af63b7af0cfa9ab41e9b7cc95b88452b9/ClickableTransparentOverlay/Overlay.cs) `Run` сам вызывает `Start` до ожидания закрытия; отдельного вызова `Init` в этом пути нет. Конструктор с размерами использует `DPIAware = false`. Токен передан нашему подклассу и проверяется в `Render`; он не отменяет инициализацию библиотеки, а при остановившемся цикле кадров проверка не выполнится. [Dear ImGui](https://github.com/ocornut/imgui) — библиотека интерфейса; ClickableTransparentOverlay создаёт нативное прозрачное окно вокруг неё. Этот старый вариант требует собственного совместимого хоста, а не загрузки второй версии рядом с текущей.
 
-## Основные моменты
-
-- `ImGui.GetBackgroundDrawList()` даёт доступ к canvas для рисования в фоновом слое.
-- `AddRect()` принимает точки в системе координат draw list ImGui.
-- Цвет передаётся как `Vector4` (RGBA) и затем преобразуется через `ImGui.GetColorU32`.
-- Базовый класс `Overlay` сам запускает frame loop и обрабатывает прозрачность окна.
-
----
-
-## Что можно добавить дальше
-
-- Подпись или tooltip рядом с курсором
-- Разные фигуры в зависимости от состояния
-- Обработку кликов или взаимодействия с overlay
-- Отображение debug-данных или игровых визуальных элементов в реальном времени
-
-## Контракт отдельного overlay
-
-В [исходниках CTO 10.2.0](https://github.com/zaafar/ClickableTransparentOverlay/blob/6a343a2af63b7af0cfa9ab41e9b7cc95b88452b9/ClickableTransparentOverlay/Overlay.cs) конструктор с шириной и высотой существует и выбирает `DPIAware = false`. `Start` ждёт готовности окна, `Run` — отмены внутреннего источника; `Close` запрашивает эту отмену. Токен скрипта передан нашему подклассу: его проверяет `Render`, а не конструктор библиотеки. При неработающем render-loop такая проверка не выполнится. Поведение DPI и графики не подтверждается одной проверкой исходников.
+</details>

@@ -7,96 +7,104 @@ tags:
 editor: markdown
 dateCreated: 2024-07-01T20:20:30.551Z
 ---
-# Добавляем сглаживание перемещений мыши
+# Провести мышь по собственной траектории
 
-Оба фрагмента выполняются в верхнеуровневом `C# Script` EyeAuras с загруженным модулем ввода. Первый выбирает готовый алгоритм, второй содержит полный класс собственного алгоритма. Нужен доступный симулятор ввода; код перемещает настоящий курсор основного монитора.
-По умолчанию, мышь "телепортируется" из точки А в точку Б, что не всегда является желаемым поведением. 
-Вот тут-то на помощь и приходят "смузеры" - инструменты, которые умеют строить план перемещения мыши по *какой-то* логике.
-Сам алгоритм может отличаться. По умолчанию в программу встроены алгоритмы от BenLand (`BenLandUserInputSmoother`) и Kalon (`KalonUserInputSmoother`). 
-В них есть некоторые параметры, которые вы можете настраивать, но даже по умолчанию в программу встроены несколько пресетов, вот самые полезные:
-- `BenLandLinearFast` - перемещает мышь из точки А в точку Б по прямой
-- `BenLandRandomizedFast` - перемещает добавляя некоторое отклонение в начальной точке траектории
+Алгоритм сглаживания получает начальную и конечную точки и возвращает план перемещения. Напишем простой линейный вариант: 20 отрезков, 21 точка вместе с началом и концом, задержка 10 мс после каждой точки. Скрипт один раз переместит настоящий курсор в центр основного монитора, без нажатий.
 
-Указав в коде `InputSmootherId` можно указать симулятору, что перемещения мыши нужно сглаживать
+Нужен настольный EyeAuras с модулем ввода и **Windows Input**. Для первого опыта оставьте собственное неподвижное тестовое окно на основном мониторе. Не запускайте другие действия, одновременно меняющие этот API или запись `MyScript.Linear20`.
+
+1. Создайте свою ауру с **C# Script**. Вставьте в `Script.csx` всю программу, включая класс после основного блока. Обычный класс реализует интерфейс и не обращается к глобальным сервисам скрипта.
 
 ```csharp
-var SendInput = GetService<ISendInputScriptingApi>(); // нужно для отправки ввода
-SendInput.InputSmootherId = "BenLandRandomizedFast"; // указываем здесь Id смузера
-```
-
-## Пример, в котором мы реализуем свое собственное сглаживание
-> Импортировать готовый пример можно отсюда https://eyeauras.net/share/S20240701201856mfdkUQbqEY1k
-{.is-info}
-
-1. Создаем ауру со скриптом
-2. Копипастим, запускаем, если все хорошо - скрипт переместит мышь в центр экрана с видимой задержкой и достаточно плавно
-
-```csharp
-using EyeAuras.Roxy.Services;
-using EyeAuras.Roxy.Shared;
+using System;
 using System.Drawing;
 using System.Collections.Generic;
+using System.Linq;
+using EyeAuras.Roxy.Api;
+using EyeAuras.Roxy.Services;
+using EyeAuras.Roxy.Shared;
 
-var SendInput = GetService<ISendInputScriptingApi>(); // нужно для отправки ввода
+{
+    var input = GetService<ISendInputScriptingApi>();
+    var registry = GetService<IUserInputSmootherRegistrator>();
+    var custom = new CustomInputSmoother();
+    var previousRegistration = GetService<IUserInputSmootherProvider>()
+        .KnownEntities.Items.FirstOrDefault(x => x.Id == custom.Id);
+    var previousSmoother = input.InputSmootherId;
+    var previousSimulator = input.InputSimulatorId;
+    var previousTarget = input.TargetWindow;
+    registry.Register(custom);
+    try
+    {
+        input.InputSimulatorId = "Windows Input";
+        input.InputSmootherId = custom.Id;
+        input.TargetWindow = null;
+        var bounds = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
+        var target = new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2);
+        cancellationToken.ThrowIfCancellationRequested();
+        Log.Info($"Начало: {input.CursorPosition}; цель: {target}");
+        input.MouseMoveTo(target);
+        Log.Info($"Курсор после перемещения: {input.CursorPosition}");
+    }
+    finally
+    {
+        input.TargetWindow = previousTarget;
+        input.InputSimulatorId = previousSimulator;
+        input.InputSmootherId = previousSmoother;
+        if (previousRegistration != null) registry.Register(previousRegistration);
+    }
+}
 
-var customSmoother = new CustomInputSmoother();
-GetService<IUserInputSmootherRegistrator>() // берем службу, которая отвечает за все наши "смузеры"
-    .Register(customSmoother); // и добавляем наш
-
-// а теперь говорим API, чтобы он использовал наш смузер
-SendInput.InputSmootherId = customSmoother.Id; // or something like "BenLandRandomizedFast";
-
-SendInput.TargetWindow = null; // координаты основного экрана
-var screenSize = System.Windows.Forms.SystemInformation.PrimaryMonitorSize; // берем размер основного экрана
-
-Log.Info($"Primary monitor size: {screenSize}");
-SendInput.MouseMoveTo(screenSize.Width / 2, screenSize.Height / 2); // переводим в центр
-Log.Info($"Movement completed, cursor is at: {SendInput.CursorPosition}");
-
-/// <summary>
-/// В этом классе сосредоточена вся суть нашего смузера.
-/// Он добавляет NumberOfPoints точек между начальной точкой перемещения и конечной.
-/// "Настоящий" смузер может использовать какие-нибудь штуки типа кривых Безье или любую другую логику 
-/// </summary>
-class CustomInputSmoother : IUserInputSmoother
+public sealed class CustomInputSmoother : IUserInputSmoother
 {
     public string Id { get; init; } = "MyScript.Linear20";
-
-    public string Name { get; init; } = "This is my new cool input smoother";
-
+    public string Name { get; init; } = "Линейный путь из 20 отрезков";
     public int NumberOfPoints { get; init; } = 20;
-
     public TimeSpan DelayBetweenPoints { get; init; } = TimeSpan.FromMilliseconds(10);
 
-    public IReadOnlyList<MouseInput> Generate(
-        Point startPosition,
-        Point targetPosition)
+    public IReadOnlyList<MouseInput> Generate(Point startPosition, Point targetPosition)
     {
         var inputs = new List<MouseInput>();
-
-        //спасибо ChatGPT за немного кода для аппроксимации точек на прямой
-        for (int i = 0; i <= NumberOfPoints; i++)
+        for (var i = 0; i <= NumberOfPoints; i++)
         {
             var t = (float)i / NumberOfPoints;
-
             var x = (int)(startPosition.X * (1 - t) + targetPosition.X * t);
             var y = (int)(startPosition.Y * (1 - t) + targetPosition.Y * t);
-
-            var input = new MouseInput(new Point(x, y), DelayBetweenPoints);
-            inputs.Add(input);
+            inputs.Add(new MouseInput(new Point(x, y), DelayBetweenPoints));
         }
-
         return inputs;
-
     }
 }
 ```
 
+2. Нажмите **Run**. Курсор пройдёт к центру основного экрана по точкам плана. Сравните цель и итоговую позицию в журнале. Изменение положения курсора — результат этого примера; восстановление настроек не возвращает мышь обратно.
 
-`Generate` строит план из 21 точки, включая начало и конец; задержка каждой точки — 10 мс. Это не обещание точного времени перемещения. `Register` возвращает `void`, заменяет запись с тем же `Id` и не даёт токен удаления: регистрация не снимается автоматически при остановке скрипта. Выберите собственный стабильный идентификатор, чтобы не заменить чужой алгоритм. Вызов ввода синхронный и не принимает токен отмены скрипта.
+| Поле или операция | Смысл |
+| --- | --- |
+| `Generate(startPosition, targetPosition)` | Возвращает план, сам ввод не отправляет. Начало предоставляет контроллер по текущему положению мыши. |
+| `NumberOfPoints = 20` | Число отрезков; цикл включает оба конца, поэтому точек 21. При изменении оставьте значение положительным. |
+| `DelayBetweenPoints = 10 мс` | Контроллер ждёт после каждой точки. Номинальная сумма задержек 210 мс не обещает точное время движения. |
+| `Id` | Стабильный собственный идентификатор записи. Совпадающий Id заменяет запись, поэтому не используйте имя чужого алгоритма или новый Id каждый кадр. |
+| `TargetWindow = null` | Точки этого опыта экранные. Для адресного ввода контроллер переводит начальную экранную позицию в координаты окна и обратно при отправке; это не клиентские координаты. |
+| `InputSmootherId` | Выбирает зарегистрированный алгоритм для API. В конце прежние настройки и прежняя запись, если она была, восстанавливаются. |
 
-## Дальше
+`Register` возвращает `void`, а публичной операции удаления записи нет. Если ранее записи не было, после опыта она останется в реестре под этим одним Id; Stop не является отменой регистрации. Классу не требуется освобождать собственные ресурсы через `Dispose`. Это ограничение механизма, а не обещание автоматической очистки или повод придумывать `Unregister`.
 
-[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Ввод и сглаживание](/ru/scripting/api/windows-subsystems/input-hooks-hotkeys) · [SendInput](/ru/scripting/api/ISendInputScriptingApi)
+Вызов `MouseMoveTo` синхронный и не передаёт токен скрипта в выполнение плана. Проверка отмены действует перед началом; Stop не обещает прервать уже начатое движение. Алгоритм интерполирует точки, а не гарантирует точную физическую траекторию устройства.
 
-Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.
+<details>
+<summary>Использовать готовый алгоритм</summary>
+
+Вместо своего класса можно выбрать один из зарегистрированных вариантов по Id, сохранив и затем восстановив прежний `InputSmootherId`, как в основной программе:
+
+| Id | Назначение |
+| --- | --- |
+| `BenLandLinearFast` | Быстрый вариант BenLand с линейной настройкой. |
+| `BenLandRandomizedFast` | Вариант BenLand с отклонением траектории; это не обещание единственного случайного смещения только в начале. |
+| `BenLandUserInputSmoother`, `KalonUserInputSmoother` | Встроенные реализации с собственными параметрами и наборами настроек. |
+
+Фрагмент выбора внутри программы: `input.InputSmootherId = "BenLandRandomizedFast";`. Он сам не перемещает мышь; движение выполняет следующий вызов ввода.
+
+[Исторический готовый пример](https://eyeauras.net/share/S20240701201856mfdkUQbqEY1k), [контекст скрипта](/ru/scripting/api/core/app-runtime-contexts), [ввод и сглаживание](/ru/scripting/api/windows-subsystems/input-hooks-hotkeys), [SendInput](/ru/scripting/api/ISendInputScriptingApi).
+
+</details>
