@@ -1,6 +1,6 @@
 ---
 title: (legacy) Send Input
-description:  lets users emulate a single input event
+description: Migrate a legacy single-input action to Send Sequence without running it twice
 published: true
 date: 2024-05-14T09:38:56.650Z
 tags: 
@@ -8,48 +8,41 @@ editor: markdown
 dateCreated: 2023-06-18T16:03:09.798Z
 ---
 
-# LEGACY - Use [Send Sequence | EyeAuras Wiki](https://wiki.eyeauras.net/en/actions/sendinput/send-sequence)
+# Move an old Send Input action to Send Sequence
 
----
+To keep an old one-key action working, recreate its events in [Send Sequence](/en/actions/sendinput/send-sequence). For example, a legacy **Ctrl+A** should select the contents of your test field once after migration.
 
-The Send Input action in EyeAuras is a powerful tool that lets users emulate a single input event. This automation can replicate a keyboard combination, a mouse movement, or a mouse click.
+**Send Input is a legacy action type.** Use Send Sequence for new input. The image shows its former WPF editor, rather than an extra mode of the current sequence editor.
 
-There are multiple types of action which are supported by Send Input.
+![The former single-event Send Input editor](/assets/legacy/eyeauras_vkyrrjgchm.png)
 
-![](/assets/legacy/eyeauras_vkyrrjgchm.png)
+## Migrate one Ctrl+A
 
-### Common options
+You need an existing aura with the old action and your own text field containing sample text. Disable automatic execution while migrating so you can run one action at a time.
 
-Keep in mind that the Send Sequence action also inherits [all common options](/en/actions/sendinput/options) for Send Input actions, such as Target Window, Key Press delay, Restore After Action, Key Press Passthrough, Block User Input, Mouse Move Smoothing Algorithm, and Input Simulator.
+1. Note its **Key**, event type and [common options](/en/actions/sendinput/options), especially **Target Window** and **Input Simulator**. A complete legacy press uses **Press (Down+Up)**, rather than Key Down alone.
+2. If the old editor opens, choose **Convert to Send Sequence**. It **inserts a new action after the original**; it does not replace it. Do not execute the whole aura with both enabled.
+3. Open the new action. Check **Ctrl+A Key down → delay → Ctrl+A Key up** and its window and input method under **Advanced input settings**.
+4. If the legacy editor is unavailable or says **This item type is not supported**, add Send Sequence manually. Add A through **Keyboard**, set **Hotkey = Ctrl+A** on both events, and retain their **Key down** and **Key up** directions. Put a delay such as **50 ms** between them.
+5. Focus the sample field and use **Execute** on only the new action. Its text should become selected.
+6. Remove the original action from that aura's list after checking the result. Another run should perform one selection.
 
-Please note that some input methods might not work as expected depending on the environment and the application you're targeting. Always test your configuration thoroughly to ensure it behaves as expected.
+## Map the old operation
 
-### **Key Press** 
+| Legacy operation | Send Sequence equivalent |
+| --- | --- |
+| Key Press | A matching Key down / Key up pair, with a delay between them |
+| Key Down | A Key down event. Add Delay and the matching Key up for a timed hold |
+| Key Up | Release the same key or combination pressed earlier |
+| Key Press with Location | Mouse Move followed by the key events |
+| Mouse Click | Down and Up for the selected button, with modifiers if required |
+| Mouse Click with Location | Mouse Move before the button pair |
+| Mouse wheel | A Wheel up or Wheel down step; wheel scrolling is not a held button |
+| Relative movement | An offset from the current cursor, rather than an absolute window point |
+| Link Aura | Linked auras in Mouse Move properties supply a result region; check anchors and the action's target separately |
 
-The Key Press action simulates a keyboard combination. It could be a simple key press, like 'A', a combination like 'Ctrl+A', or even a mouse click with or without a modifier. To select a Mouse button, double-click with it on an input field.
+The old key field captured a combination; double-clicking it with a mouse button selected that button. In the current editor, use **Keyboard**, **Numpad**, **Fn**, **Mouse** and **Hotkey** properties. Text steps do not interpret descriptions of key actions.
 
-There are three event types to select from:
+Conversion carries the movement region, relative mode and related bindings into a separate Mouse Move. Legacy Send Input could obtain a target from that linked region. In Send Sequence, check **Target Window on the action itself**: the [region's coordinates](/en/features/coordinate-system) and input recipient must describe the same window.
 
--   **KeyPress:** This simulates a complete keystroke. The key is pressed and then released. For example, if you have a scenario where you need to input the letter 'A', you can use this option.
--   **KeyDown:** This simulates the pressing down of a key, as if the key is being held down. This can be useful in games where holding down a key has a different effect compared to a simple key press. For instance, holding down the 'Shift' key in a racing game to enable nitro boost.
--   **KeyUp:** This simulates the release of a key, like a key being let go after being held down. This can be helpful in games or applications where releasing a key triggers a specific action.
-
-### **Key Press with Location**
-
-In addition to the Key Press action, you can specify the mouse to move to a particular location before the key press is executed. This can be handy when you need to interact with a specific part of the screen, such as opening a menu or selecting an option.
-
-### **Mouse Click**
-
-The Mouse Click action automates a mouse button click or a mouse wheel action. You can specify any modifier keys (Shift, Alt, Control, etc.) that should be held down during the click. It also allows you to define whether the mouse button should be pressed (held down and then released), held down, or released.
-
-#### **Mouse Click with Location**
-
-This action functions like the Mouse Click option but also moves the mouse to a specified location before the click. This is useful for automating interactions with specific on-screen elements, like closing a pop-up window or clicking on a specific button in an application.
-
--   **Relative Mouse Movement** The relative mouse movement is a useful option when the mouse's target location is dependent on its current position. When the movement is marked as "relative", the coordinates block acts as an offset to the current mouse location. For instance, if you need to click on a UI element that is always a fixed distance from the cursor's current location, you could use relative mouse movement.
-
-### **Link Aura**
-
-Link Aura functionality allows a user to link any Aura. Depending on the types of triggers present in the linked auras, EyeAuras extracts the TargetWindow and coordinates block from it. For example, if you're linking an aura that has an Image Search trigger and the linked aura is active, the program obtains the coordinates of the found image and uses it to coordinate a click. This can be especially helpful in complex automation sequences where you need to interact with dynamically appearing UI elements. 
-
-**Note:** While the Send Input action is versatile and powerful, it does come with certain limitations due to its age. For more intricate tasks that require complex sequences of inputs, the 'Send Sequence' action is highly recommended. It offers enhanced functionality and greater flexibility, enabling you to create more advanced and tailored automation sequences.
+Down without Up can leave a key held. Keep explicit release events and check **Restore after Action is completed → Key/Button State** as additional cleanup. Background delivery depends on the selected input method, not on the legacy action's name.

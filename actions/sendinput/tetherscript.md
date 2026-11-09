@@ -1,6 +1,6 @@
 ---
 title: TetherScript Simulator
-description: simulate inputs via driver
+description: Prepare the compatible virtual HID driver and select it for a short input command
 published: true
 date: 2025-07-14T13:13:42.490Z
 tags: 
@@ -8,72 +8,57 @@ editor: markdown
 dateCreated: 2025-07-14T13:12:58.586Z
 ---
 
-# Why?
-Many games protected by anti-cheat systems block synthetic (simulated) input. To bypass this, you need to go a level deeper and use either specialized drivers or physical devices (e.g., [Usb2Kbd](/actions/sendinput/usb2kbd)). The TetherScript driver falls into the first category.
+# Use TetherScript Driver for input
 
-![Flow](https://s3.eyeauras.net/media/2025/07/ChatGPT%20Image%20Jul%2014%2C%202025%2C%2003_09_58%20PM.png =x200)
+With a compatible Tetherscript virtual-keyboard driver already prepared, you can use it for a short command in your own application. For example, a Send Sequence containing **F3** can open a browser's find panel.
 
-# How to Install?
+EyeAuras sends commands to the driver's virtual keyboard and mouse HID devices. ControlMyJoystick itself does not need to run the sequence. The older diagram shows the delivery chain; its word Game does not represent a built-in game integration.
 
-1) Download the driver:
-- **(recommended)** EyeAuras mirror – https://s3.eyeauras.net/media/2024/10/HVDK%20Standard%202.1.exe
-- or from the official GitHub – https://github.com/tetherscript/hvdk
-- or download and install **ControlMyJoystick** from the official website – https://tetherscript.com/controlmyjoystick-home/
-IMPORTANT – you **do not** need to purchase **ControlMyJoystick**, we are not planning to use the actual software. We only need the driver that comes with it.
+![Input passes from EyeAuras through a driver to the target application](https://s3.eyeauras.net/media/2025/07/ChatGPT%20Image%20Jul%2014%2C%202025%2C%2003_09_58%20PM.png =x200)
 
-2) Install the driver:
-Straightforward – just click Next, Next, Next. In some cases, the installer will ask to reboot your machine.  
-That’s it — the driver is now ready to use. Next, we configure **EyeAuras**.
+## Prepare the driver
 
-# How to Use?
-Set up **EyeAuras** to use the **TetherScript Driver** for simulating input.  
-IMPORTANT – do **not mix** different approaches. Choose one method. The most convenient is folder-level configuration.
+You need an EyeAuras installation offering **TetherScript Driver**, its compatible installed driver and an application accepting keyboard input. For the first check, use your own browser page where manual F3 opens find. A detected virtual device does not establish that every mouse mode works.
 
-## Option #1 **(recommended)** Folder Properties
-- Select the folder that contains your auras, then go to `Folder Properties`
-- Check the `Input Simulator` box and choose **TetherScript Driver** from the dropdown
-- All **new** auras and input nodes will now use the driver instead of the default simulator  
-p.s. To apply changes to **existing** auras, click `Apply To All`. If you’re only using macros or behavior trees, this step is optional but harmless.
+If the driver is missing, follow the vendor's [ControlMyJoystick installation route](https://tetherscript.com/controlmyjoystick-home/). **Install...** for this simulator opens the vendor download page and rechecks devices after setup. The [HVDK author's README](https://github.com/tetherscript/hvdk) states that the trial's drivers continue working without buying ControlMyJoystick.
 
-![Folder Properties](https://s3.eyeauras.net/media/2025/07/NVIDIA_Overlay_w4H6swrVSxeI4uGV.png =x400)
+The standalone HVDK product was discontinued. The [HVDK Standard 2.1 mirror](https://s3.eyeauras.net/media/2024/10/HVDK%20Standard%202.1.exe) remains a source for older setups, not a promise of compatibility with every current Windows version. Check the requirements for your particular driver release; complete any requested restart before configuring input.
 
-## Option #2 Macro / Behavior Tree Properties
-- Select any macro or behavior tree
-- Then select the **root node** – in macros it’s the first line; in trees, the node labeled `Root`
-- In the settings on the right, check `Input Simulator` and select `TetherScript Driver`
-- All input actions in that macro/tree will now use the driver
+## Open find with F3
 
-![Macro Properties](https://s3.eyeauras.net/media/2025/07/NVIDIA_Overlay_N4kvjMqSsIqbaVhH.png =x600)
+1. Create a test aura with **Send Sequence**. Add **Fn → F3**, keeping the Down, delay and Up events.
+2. Select the browser under **Advanced input settings → Target Window**, then choose **Input Simulator = TetherScript Driver**.
+3. Check readiness. If Install... is offered, finish driver preparation first. Leave **Block User input = None** and enable **Key/Button State**.
+4. Make your page the current tab and use **Execute**. The browser's find panel should open as it does with manual F3. Otherwise check the target, focus and virtual-keyboard readiness.
+5. Close find manually and repeat the short command before assigning this input method more broadly.
 
-## Option #3 **(legacy)** Send Sequence Properties
-- Select an aura that contains a `Send Sequence` action
-- Expand `Advanced Settings`
-- In the `Input Simulator` dropdown, choose `TetherScript Driver`
-- This action will now send input using the driver
+This older image shows the action-level selector. In the current editor it is under Advanced input settings, with different styling.
 
-![SendSequence Properties](https://s3.eyeauras.net/media/2025/07/NVIDIA_Overlay_fejDExaVlczyGS5P.png =x600)
+![TetherScript Driver selected for Send Sequence](https://s3.eyeauras.net/media/2025/07/NVIDIA_Overlay_fejDExaVlczyGS5P.png =x600)
 
-# What is TetherScript?
-**TetherScript** is the company behind [ControlMyJoystick](https://tetherscript.com/controlmyjoystick-home/), a tool that emulates both gamepad and keyboard/mouse input.  
-We are **not** using the full software — only the driver component. EyeAuras will send commands directly to this driver.  
+## Choose the configuration scope
 
-From the OS perspective, input sent via this driver is almost indistinguishable from input generated by a physical keyboard or mouse.
+| Where to select Input Simulator | Scope |
+| --- | --- |
+| Send Sequence → Advanced input settings | This action; useful for a first isolated check |
+| Folder Properties → Triggers/Actions/Overlays Defaults | Components bound to that folder default. Check existing bindings before Apply to All, which applies selected properties within the folder scope |
+| Macro / Behavior Tree root properties | Input using that macro or tree's settings; this is a separate editor, not the old Send Text action |
 
-Most anti-cheat systems do **not** detect this driver’s input as synthetic. In fact, after 4 years of usage, there are only a few reports of issues from games like **Valorant** or **Fortnite**, which either block input or refuse to launch when the driver is installed. Outside of competitive FPS games, everything works fine.  
-EyeAuras was never aimed at creating aimbots — although possible — but rather for automating routine gameplay in MMOs, ARPGs, and browser games.
+Folder configuration is useful for a group. Avoid conflicting overrides at several levels; [default properties](/en/features/default-properties) explain inheritance and what Apply to All replaces.
 
-# How Safe Is It?
-**TL;DR** As of **Q2 2025**, TetherScript usage is safe for most games. No known ban waves. If you're not cheating in shooters, you’re likely fine.
+![Input Simulator enabled in the folder's defaults](https://s3.eyeauras.net/media/2025/07/NVIDIA_Overlay_w4H6swrVSxeI4uGV.png =x400)
 
-There are two sides to "safe":
+For a behavior tree select **Root**; for a macro select its root row. The following older image shows that root-level selection.
 
-1) **Functionality**
-In most cases, the driver just works. To block it, an anti-cheat would need to blacklist this specific driver and prevent the game from launching.  
-However, **ControlMyJoystick** is legitimate software, and such measures would also affect regular users — most anti-cheats prefer to ignore it.
+![Input method selected in macro root properties](https://s3.eyeauras.net/media/2025/07/NVIDIA_Overlay_N4kvjMqSsIqbaVhH.png =x600)
 
-2) **Detection**
-The fact that the driver works doesn’t mean it's invisible.  
+## Limits that affect setup
 
-From the OS view, you'll have **multiple input devices** sending events at once. Technically this is detectable. What games do with that info varies.  
-Usually, anti-cheats will just flag the presence of an unusual input device. This flag **does not mean** you're breaking rules — it’s just logged.  
-But if you accumulate **multiple flags** (AFK farming, RMT behavior, long session time, etc.), this might trigger a manual review, and at that point *how* you simulate input won’t matter much.
+| Detail | What to expect |
+| --- | --- |
+| Virtual HID devices | Keyboard and absolute/relative mouse devices deliver input, not internal application data |
+| Target Window | The foreground controller activates the target. This is not universal input to a minimized window |
+| Installed check | Can discover a keyboard or absolute mouse; check the particular operation you need separately |
+| Compatibility | Driver operation does not establish acceptance, invisibility or permission in every application |
+
+For a physical device instead of a virtual driver, [Usb2Kbd](/en/actions/sendinput/usb2kbd) has different prerequisites and a different protocol. Compare delivery methods in [common options](/en/actions/sendinput/options).
