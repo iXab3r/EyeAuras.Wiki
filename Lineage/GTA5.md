@@ -23,6 +23,8 @@ You need Windows with the relevant options and a repeatable observation, such as
 
 The result is a comparison of responsiveness in one scenario, not proof of an FPS gain or a fix for every aura delay. [Microsoft describes the option](https://support.microsoft.com/en-us/windows/hardware/display-graphics/optimizations-for-windowed-games-in-windows-11) for compatible DirectX 10/11 games in windowed and borderless modes.
 
+If only an image-based aura is slow, first inspect its [capture statistics](/en/triggers/images/imagecapturetriggers): compare capture, effects and processing time with the requested rate. Keep Windows settings unchanged during that check. It answers a narrower question than the browser-responsiveness comparison above.
+
 The 2024 illustration shows `Game Mode`; Windows may localize its labels.
 
 ![Game Mode in the earlier Windows settings](http://files.eyesquad.net/screenshots/11-09-2024/Discord_tRNKShE2GYG74pgRIecTtoNII.png)

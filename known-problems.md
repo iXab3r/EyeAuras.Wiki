@@ -49,6 +49,8 @@ EyeAuras uses Microsoft WebView2 for its interface. Having Microsoft Edge instal
 
 Automatic selection was introduced in [1.9.9339](/en/changelogs/9339), and the separate RU hub in [1.9.9164](/en/changelogs/9164). Those are feature-history facts, not evidence that every present connection failure is fixed. A useful result is either restored connectivity or the recorded version, network, endpoint and error for a report.
 
+If Eye Hub is connected but an AI session still will not start, follow the [AI Assistant profile checks](/en/features/ai-assistant) for its **Endpoint**, **Model Id** and **API Type**. Successful EyeAuras account sign-in does not establish that the selected model connection works.
+
 Earlier screenshots show only C# Script or a partial list. The list alone does not identify the cause.
 
 ![Only C# Script appears in this earlier case](https://s3.eyeauras.net/media/2026/04/19Qz4dvbG5.png =x260)

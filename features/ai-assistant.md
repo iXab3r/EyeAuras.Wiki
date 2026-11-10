@@ -22,6 +22,8 @@ You need a build with the AI tab and an available model connection. The feature 
 4. Click **Start Session**. Ask: “Which trigger and overlay show my own text only while a chosen window is active? Find the wiki articles and explain the fields. Do not change settings or files.” Include your build number for version-specific questions.
 5. Open the cited articles and compare their labels with your configuration. Expect an explanation and relevant links, not evidence that a workflow ran on your computer. For a later script question, provide a small non-secret snippet and the complete error text, then review any proposed change before applying it.
 
+For that window-state question, compare [Window Is Active](/en/triggers/window-is-active) with [Enabling Conditions](/en/features/enabling-conditions). An ordinary trigger checks the aura’s condition; an enabling condition decides whether its work may run at all. Use a [Text overlay](/en/overlays/text) for a visible result while checking the answer, before adding input.
+
 ![Earlier AI tab in EyeAuras](https://s3.eyeauras.net/media/2026/04/EyeAuras_vuJB3YPFza.png =x600)
 
 ## Choose the connection you actually have
