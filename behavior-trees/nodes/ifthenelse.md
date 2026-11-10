@@ -7,36 +7,60 @@ tags:
 editor: markdown
 dateCreated: 2025-03-30T19:07:24.627Z
 ---
+# Choose one branch after a condition
 
-The **IfThenElse** node works on the classic principle of "if-then-else". It helps decide what to do next based on whether a condition is met or not.
+The behavior-tree IfThenElse uses its first enabled child as Condition, its second as Then and its third as Else. These roles are connected nodes, not fields for arbitrary C# expressions.
 
-The left-most node is a **Condition**. If it returns `Success`, the middle node (**Then**) is executed. If the condition fails (`Failure`), the right-most node (**Else**) is executed, if it exists.
+## Test both routes without input
 
-![IfThenElse](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_CSBaIFoJJPCR9f6p.png)
+In your own loaded behavior tree, set **When Activated → Do nothing**. Add IfThenElse and three Fixed Status nodes, connected left to right:
 
-## Comparison with Selector and Sequence Nodes:
+```text
+My Tree
+└─ IfThenElse
+   ├─ Fixed Status: Success    ← If
+   ├─ Fixed Status: Failure    ← Then
+   └─ Fixed Status: Success    ← Else
+```
 
-![IfThenElse via Selector](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_ccGKJyQMUxAsLe2c.png)
+1. Set each child's **General → Status** as shown. In IfThenElse, check **General → If**, **Then**, **Else** identify those nodes rather than **not set**.
+2. Click the upper **Tick BT Once**. Condition succeeds, Then returns Failure, and Else is not called. The composite's result is the branch's Failure.
+3. Change Condition to Failure and tick again. Else now runs, returning Success.
 
-Alternatively, in more compact EyeAuras notation, this could look like this
-![](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_pcWHNBqeobgqgrd0.png)
+This exposes branch choice before replacing the test nodes with your actual conditions and work. Put a Sequence inside a branch when it needs several required steps.
 
-### Advantages:
-- Clearly separates the condition from subsequent actions (Then/Else), enhancing readability and understanding.
-- Ideal for simple conditions and reactions requiring explicit action separation.
-- Convenient for clearly expressing "if-then-else" logic without going through multiple possibilities.
+| Role or result | Behaviour |
+| --- | --- |
+| `If` / Condition | First enabled child selects the branch. |
+| `Then` | Second enabled child, after Condition Success. |
+| `Else` | Third enabled child, after Condition Failure. |
+| Condition returns Running | Return Running; neither branch starts yet. |
+| Chosen branch returns Running | Resume that branch next tick without repeating Condition. |
+| Chosen branch completes | Its Success/Failure is the result. A fresh completed pass starts at Condition. |
+| Chosen branch is absent | Failure; a false condition without Else does not become Success. |
 
-### Disadvantages:
-- Less suitable for complex situations with numerous conditions and potential actions.
-- For multiple actions and conditions, Selector or Sequence nodes might be more convenient and efficient.
+Disabling a child removes it from the enabled list and can shift later roles; it is not equivalent to setting Condition to Failure. With no Condition, execution is misconfigured rather than an ordinary false result. Check the displayed roles.
 
-In situations where you simply need to iterate through actions from left to right and stop at the first successful one, the **Selector** node is preferable. If performing several actions sequentially is essential, the **Sequence** node is suitable.
+## Compare with Selector and Sequence
 
-## Usage Examples:
+![The three IfThenElse roles in the earlier editor](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_CSBaIFoJJPCR9f6p.png)
 
-### 1. Choosing Behavior Based on Target Type:
+`Selector → Sequence(Condition, Then), Else` looks similar, but can try Else after Then fails. IfThenElse does not try another branch after choosing Then.
 
-Suppose a character encounters an enemy and must behave differently depending on whether the enemy is a boss or a regular mob.
+![A similar-looking alternative built with Selector and Sequence](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_ccGKJyQMUxAsLe2c.png)
+
+An EyeAuras condition can also execute its own single child after Success, producing the earlier compact form:
+
+![The compact alternative using a condition child](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_pcWHNBqeobgqgrd0.png)
+
+Choose IfThenElse for one explicit decision, [Sequence](/en/behavior-trees/nodes/sequence) for required steps and [Selector](/en/behavior-trees/nodes/selector) for several alternatives. This is a routing choice, not a claim that one is universally faster.
+
+The Macro template is a different node: it owns **Condition**, **If matched, then** and **Otherwise** blocks, accepting two or three blocks. Its execution contract must not be inferred from this BT node's positional children and Running cursor.
+
+<details>
+<summary>Earlier abstract examples</summary>
+
+These retained sketches illustrate choosing a strategy. Their named checks/actions are placeholders that require your own data sources and implementations, not built-in game integration or ready EyeAuras templates.
 
 ```
 IfThenElse
@@ -45,12 +69,6 @@ IfThenElse
 └── Else: "Use regular skills"
 ```
 
-This approach clearly specifies different behaviors for regular enemies and special cases.
-
-### 2. Avoiding Danger:
-
-The character must either avoid a dangerous zone if inside it or continue following the usual route.
-
 ```
 IfThenElse
 ├── Condition: "Is the character in a dangerous zone?"
@@ -58,16 +76,6 @@ IfThenElse
 └── Else: "Follow the regular route"
 ```
 
-This example clearly separates two entirely different behavioral strategies depending on the current situation.
+The same decision structure can use a configured indicator aura in your own application. The earlier images show user-named checks and input reactions; they do not establish that EyeAuras knows target type or danger automatically.
 
-## How It Works:
-
-1. The left node (**Condition**) executes.
-2. If it returns `Success`, the middle node (**Then**) executes.
-3. If it returns `Failure`, the right-most node (**Else**) executes, if specified.
-4. The **IfThenElse** node returns the status of the last executed node (Then or Else).
-5. If the right-most (**Else**) node doesn't exist and the condition fails, the entire **IfThenElse** node returns `Failure`.
-
-The **IfThenElse** node allows you to easily create various reactions for characters in game situations, making behavior flexible.
-
-> Don't confuse! **IfThenElse** separates conditions and two action variants distinctly, unlike the **Selector** node, which simply iterates actions from left to right until the first success.
+</details>

@@ -7,42 +7,65 @@ tags: behavior trees, node types, sequence, selector, skill rotation
 editor: markdown
 dateCreated: 2024-03-07T14:54:35.964Z
 ---
-The Sequence node executes its children in order, from left to right. If any of the children return `Failure`, the Sequence node stops execution and also returns `Failure`. If all children return `Success`, the Sequence node returns `Success`.
+# Run required steps in order
 
-## Example of Use:
-1. **Applying a skill to a target:**
-![Example 1](/assets/ivvc60g[1].png)
+Use Sequence when the next step should run only after the preceding step succeeds. Start with a test condition, an elapsed-time wait and a final result, without external actions.
 
-The logic is as follows - if the 1st or 2nd check returns `Failure`, the skill won't be cast. If both return `Success`, the character will attempt to apply the skill.
-Usually used in combination with the [Selector](/en/behavior-trees/nodes/selector) node.
+## Observe stopping and continuation
 
-Nodes can be arranged however you like, as long as you remember that the traversal will be from left to right.
-![Example 1-1 vertical layout](https://i.imgur.com/DPmtnfu.png)
+Use your own loaded tree with **When Activated → Do nothing**, as in [the first example](/en/behavior-trees/gettings-started). Add, connect and arrange the children left to right:
 
-2. **Skill rotation - Selector + Sequence:**
-Now let's build a full rotation.
+```text
+My Tree
+└─ Sequence
+   ├─ Fixed Status: Failure
+   ├─ Wait: 1500 ms
+   └─ Fixed Status: Success
+```
 
-![c5do0cg[1].png](/assets/c5do0cg[1].png)
+1. Set the first child's **General → Status → Failure** and the final child's **Success**. Give Wait a fixed **Delay = 1500 ms**.
+2. Click the upper **Tick BT Once**. Sequence returns Failure at the first child; Wait and the final child do not execute.
+3. Change the first child's **parameter** to Success and tick again. Execution reaches Wait and returns Running.
+4. Wait two seconds, then click the same **Tick BT Once**. Sequence resumes Wait, runs the final child and returns Success.
 
-Here's what's happening - first, we use the Sequence(1) node, which combines another Sequence(2) and a Selector(5).
-Sequence(2) handles checks like "Can we attack at all?", meaning we are alive and have a target selected. In real examples, checks for HP, being in a city, and so on can also be added here. If **any** of the checks fail, the tree moves to the next cycle without attempting an attack.
-If we are alive and have a target, the next step is to decide "How exactly will we attack the selected target?".
+You have observed different routes in the same tree. The already successful first child is not retested during continuation. After terminal completion, another tick starts from the beginning.
 
-For simplicity, there are only 2 options here:
-- if the **Aura Is Active(7)** skill is ready, we use **Execute Aura(8)**; inside, you can have the same [Send Sequence](/en/actions/sendinput/send-sequence)
-- if the skill is not ready, we use a basic attack
+| Child result or structure | Sequence result |
+| --- | --- |
+| `Success` | Continue to the next child in this tick. |
+| `Failure` | Return Failure immediately; skip later children. |
+| `Running` | Return Running and retain this child for the next tick. |
+| All enabled children succeed | Success; the next pass starts with the first child. |
+| No enabled children | Success, without performing work. |
+| Disabled child | Excluded from execution, not treated as a failed check. |
 
-In real scenarios, the rotation itself can be much more complex - resource checks (HP/MP/cooldowns), prioritizing the current target (if the target has low HP, there's no point in using a strong skill), and so on need to be considered.
+In a graph, child order follows horizontal position, left to right. Moving a child vertically alone does not change it. In a nested list, follow the displayed order and nesting.
 
-## Node Operation:
-1. The Sequence node executes its children in order.
-2. If any child returns `Failure`, the Sequence returns `Failure`.
-3. If all children return `Success`, the Sequence returns `Success`.
-4. If any child returns `Running`, the Sequence remembers it and continues execution from that point in the next update.
+An ordinary Sequence does not continuously recheck earlier successful conditions while resuming Running work. If permission can disappear during a long action, design interruption separately. Clearing displayed status does not clear the retained cursor; stopping ticks alone is not a full reset. Completing the pass or fully unloading and draining your own tree permits a fresh run. Use the same entrypoint to continue: another caller can be refused while the route is owned.
 
-Using the **Sequence** node allows for creating sequential chains of actions in behavior trees where the order of task execution is important.
+<details>
+<summary>Conditions, child order and historical examples</summary>
 
-> Note! **Sequence** stops at the first node that returns **Failure**, while **Selector** stops at the first node that returns **Success**.  
-{.is-info}
+Replace Fixed Status with **Aura Is Active** linked to your own configured aura when ready. The earlier example checks two prepared conditions before **Execute Aura**:
 
-![](https://i.imgur.com/HqHncgy.png)
+![Two configured checks before Execute Aura in the earlier editor](/assets/ivvc60g[1].png)
+
+The data must come from those auras, such as real pixel search; the nodes do not supply game state themselves.
+
+![Conceptual comparison of two Sequence layouts with identical horizontal child order](/assets/wiki-media/m051.png)
+
+Conceptual diagram: A, B and C keep the same horizontal order despite different heights. Arrows show child order, not a promise that every child executes regardless of its result. This is not an editor screenshot. [SVG source](/assets/wiki-media/m051-concept.svg).
+
+A larger route can group common permissions in one Sequence, then use [Selector](/en/behavior-trees/nodes/selector) to choose a priority action or fallback:
+
+![The historical combination of Sequence and Selector](/assets/c5do0cg[1].png)
+
+Here `Is Alive` and `Has Target` are already configured aura checks. A ready branch calls Execute Aura, which can contain [Send Sequence](/en/actions/sendinput/send-sequence); the other branch is the fallback. HP, resource, cooldown or target-priority checks likewise need actual sources. This example does not introduce a built-in rotation or HP reader.
+
+![Conceptual Sequence flow showing Success, Failure and Running continuation](/assets/wiki-media/m052.png)
+
+Conceptual diagram: after A succeeds, B is checked. B's Success admits C; Failure ends Sequence without C; Running retains B for the next tick without replaying successful A. Checks can read your own auras. The diagram specifies neither their data source nor a ready program or editor interface. [SVG source](/assets/wiki-media/m052-concept.svg).
+
+</details>
+
+[Selector](/en/behavior-trees/nodes/selector) stops at the first successful alternative; Sequence requires all admitted steps to succeed. For one explicit conditional choice, use [IfThenElse](/en/behavior-trees/nodes/ifthenelse).
