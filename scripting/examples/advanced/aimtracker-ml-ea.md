@@ -7,29 +7,19 @@ tags: scripting, ml, ai-translated
 editor: markdown
 dateCreated: 2025-06-27T21:35:22.410Z
 ---
+# Outline a training target, then add a click
 
-# What Is This?
+Find `Tgt` in your own [Target Tracking](https://aimtrainer.io/target-tracking) session. First show its box, then optionally enable movement and clicking. Data comes from browser-window pixels; this version draws through **EyeAuras OSD**, without ImGui or access to browser/game internals.
 
-Run this as a top-level EyeAuras C# script for your own Aim Trainer session. Open target-tracking, match the window title in GetWindow and provide access to the ONNX URL. Window capture, ML runtime and the selected input simulator must be available. The model is an external input, not an embedded script resource.
+Use desktop EyeAuras with OpenCV/ONNX Runtime, the available external model from the code, visible browser capture, the input module and **Windows Input**. For the first exercise, keep one training tab in a stable window on the primary monitor at 100% scale.
 
-This example shows **how to build a simple 2D aimbot with an ESP overlay** (drawing on screen) using **EyeAuras** 
+## Check the detection first
 
-## ⚙️ What This Code Does
-
-* Connects to a browser game window (`Aim Trainer`)
-* Uses a **pre-trained ML model** to detect a target in real time
-* Draws a rectangle over the detected target
-* Moves the mouse to the center of the target
-* Clicks it — boom! 🎯
-
----
-
-## 🧪 Example Code
+1. Open your Target Tracking session and click **Play**. Its base page title is **Tracking - Aim Trainer**; your browser can append its name. Set `GetWindow` to an expression matching your actual training window.
+2. Add **C# Script** and paste the full program into top-level `Script.csx`. Keep `performInput = false`:
 
 ```csharp
-
-//this is a simple 2D aimbot + ESP for https://aimtrainer.io/target-tracking
-
+using System;
 using System.Drawing;
 using System.Linq;
 using EyeAuras.Blazor.Controls.ScreenOverlay;
@@ -39,82 +29,70 @@ using EyeAuras.Shared.Scripting;
 using EyeAuras.Shared.Services;
 using PoeShared.Scaffolding;
 
-//we're going to work with a specific window, lets find it
-var targetWindow = GetService<IWindowSelector>().GetWindow("Tracking - Aim Trainer");
-
 {
-    //this API is used to do Computer Vision stuff (image/text/color/ml search)
-    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-        .ForWindow(targetWindow); // selected window
-
-    //this API is used to generate mouse movements
-    var sendInput = GetService<ISendInputScriptingApi>();
-    sendInput.TargetWindow = null; // use desktop coordinates below
-
-    //pre-trained model we're going to use to find the target
-    var mlModelPath = @"https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
-
-    using var osd = GetService<IOnScreenCanvasScriptingApi>()
-        .Create();
-
+    var window = GetService<IWindowSelector>().GetWindow("Tracking - Aim Trainer");
+    if (window == null || !window.IsWindow) { Log.Warn("Training window not found"); return; }
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>().ForWindow(window);
+    using var osd = GetService<IOnScreenCanvasScriptingApi>().Create();
+    var input = GetService<ISendInputScriptingApi>();
+    var previousTarget = input.TargetWindow;
+    var previousSimulator = input.InputSimulatorId;
+    const bool performInput = false;
+    const string model = "https://s3.eyeauras.net/media/2025/03/AimLab_20240213193604OOBfW2f00U5K.onnx";
     try
     {
-        using var windowRect = osd.AddRectangle()
-            .WithBorderColor(Color.Purple)
-            .WithBackground(Color.Transparent);
-        using var targetRect = osd.AddRectangle()
-            .WithBorderColor(Color.Red)
-            .WithBackground(Color.Transparent);
-
+        input.TargetWindow = window;
+        input.InputSimulatorId = "Windows Input";
+        using var windowRect = osd.AddRectangle().WithBorderColor(Color.Purple).WithBackground(Color.Transparent);
+        using var targetRect = osd.AddRectangle().WithBorderColor(Color.Red).WithBackground(Color.Transparent);
         while (!cancellationToken.WaitHandle.WaitOne(10))
         {
-            if (!targetWindow.IsForeground)
+            targetRect.WithRect(Rectangle.Empty);
+            windowRect.WithRect(Rectangle.Empty);
+            if (!window.IsForeground) continue;
+            windowRect.WithRect(window.DwmFrameBounds);
+            var result = cv.MLSearchRaw(model, confidenceThreshold: 30, iouThreshold: 40);
+            var targets = result.Detected.Predictions.Where(x => x.Label.Name == "Tgt").ToArray();
+            if (targets.Length == 0) continue;
+            var prediction = targets[0];
+            var screenBounds = result.ToScreen(prediction.Rectangle).ToWinRectangle();
+            if (screenBounds.IsEmpty) continue;
+            targetRect.WithRect(screenBounds);
+            Log.Info($"Tgt: score={prediction.Score:F3}; screen={screenBounds}");
+            if (performInput && window.IsForeground && !cancellationToken.IsCancellationRequested)
             {
-                //do nothing if the window is not in the foreground
-                continue;
-            }
-            //this method will be called many-many times per second, until OSD is closed
-            windowRect.WithRect(targetWindow.DwmFrameBounds);
-
-            //get predictions from the model
-            var result = cv.MLSearchRaw(mlModelPath);
-            if (!result.Detected.Predictions.Any())
-            {
-                //not found
-                continue;
-            }
-
-            var currentPosition = result //WindowImageProcessedEventArgs
-              .Detected //get detection results
-              .Predictions //get predictions
-              .First() //more specifically, first one
-              .Rectangle //get bounding box of that prediction IN LOCAL(aka World) coordinates
-              .Transform(result.ViewportTransforms.WorldToScreen); //transform World coordinates to Screen coordinates
-            Log.Info($"Found via ML @ {currentPosition}");
-
-            if (!currentPosition.IsEmpty)
-            {
-                //found the image
-                var targetCenter = currentPosition.ToWinRectangle().Center();
-
-                targetRect.WithRect(currentPosition.ToWinRectangle());
-
-                sendInput.MouseMoveTo(targetCenter);
-                sendInput.MouseClick();
+                var windowBounds = result.ToWindow(prediction.Rectangle).ToWinRectangle();
+                input.MouseMoveTo(windowBounds.Center());
+                input.MouseClick();
             }
         }
     }
     finally
     {
         osd.Clear();
+        input.TargetWindow = previousTarget;
+        input.InputSimulatorId = previousSimulator;
     }
 }
 ```
 
-`MLSearchRaw` returns `Detected.Predictions` and capture transforms. Defaults are confidence 30% and IoU 40%. The first prediction is not guaranteed to be the best or a correct target. An empty list means no detection; model/capture errors are separate. Convert capture rectangles with `WorldToScreen` before input; a non-null input `TargetWindow` would apply another conversion.
+3. Click **Run** and return to your training window. Purple outlines its DWM frame; red outlines a detected target. The log records `Tgt`, score and screen bounds. No match clears the target box; another foreground window pauses processing.
+4. Click **Stop** after checking the box. If you want the training click, set `performInput = true`, Run again and activate **only your own trainer**. Each suitable pass now moves to the target centre and left-clicks. Stop ends the loop; switching away pauses processing.
 
-The script moves the real cursor and clicks only when the training window is foreground, although focus can change between checking and clicking. Stop is observed between iterations/frames; it does not interrupt synchronous inference or input already in progress. Captured images are borrowed and must not be disposed separately.
+| Setting | Effect |
+| --- | --- |
+| `performInput` | `false`: detection and boxes. `true`: also real movement/click, after you have verified the window and box. |
+| `GetWindow(...)` | Capture/input recipient. A missing or invalid window ends the program with a log message instead of selecting the desktop. |
+| `confidenceThreshold: 30` | Filters scores above 30%, then the script keeps `Tgt`. The first matching prediction comes from score-descending results; that does not establish a correct target. |
+| `iouThreshold: 40` | Overlap threshold for duplicate-box suppression, not a target-area threshold. |
+| `WaitOne(10)` | Cancellable 10 ms pause between passes. Capture, inference, logging and input add time; this does not promise 100 FPS. |
 
-Leaving the try scope disposes the rectangles; finally clears the canvas while its proxy is attached, then the outer using scope disposes canvas and CV.
+OSD receives screen bounds through `ToScreen`. Input receives window coordinates through `ToWindow` because `TargetWindow` is set; Windows Input converts those to screen and activates the recipient. This is not background delivery. Keep the training window stable: focus can change between checking and acting. Stop does not interrupt an already running synchronous search or input call.
 
-See [runtime contexts](/en/scripting/api/core/app-runtime-contexts), [capture and result ownership](/en/scripting/api/computer-vision/images), and the [CV API](/en/scripting/api/IComputerVisionExperimentalScriptingApi).
+The original ONNX model detects objects, with input `images` 1×3×640×640 and output `output0` 1×5×8400. Its only class is `Tgt`; do not substitute an ordinary COCO model and expect that class. File metadata records Ultralytics 8.1.13 and AGPL-3.0; consult the [author's terms](https://www.ultralytics.com/license).
+
+The loader stretches captured pixels to the model input, and its parser scales boxes back to the processed image. `ToScreen`/`ToWindow` then apply capture transforms, so no second manual resize or offset is needed. `Score` 0…1 is a model score, not image-area coverage or a measured probability of a correct click. A model/capture failure is distinct from an empty prediction list.
+
+The script leaves execution-provider selection to the host: Default tries available DirectML session options, otherwise CPU. This does not promise recovery from model or inference errors.
+
+This Run owns its rectangles: they are disposed before canvas clearing, input settings are restored, then canvas/CV are released. The input service and captured/result images are borrowed; do not dispose the images separately. `Log`, `GetService` and the token are `Script.csx` capabilities, not ordinary-class globals. See [runtime](/en/scripting/api/scripting/runtime), [capture ownership](/en/scripting/api/computer-vision/images) and [CV operations](/en/scripting/api/IComputerVisionExperimentalScriptingApi). For native drawing use [the ImGui variant](/en/scripting/examples/advanced/aimtrainer-ml).

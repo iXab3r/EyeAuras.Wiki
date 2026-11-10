@@ -7,81 +7,59 @@ tags: scripting, profiling, ai-translated
 editor: markdown
 dateCreated: 2025-03-23T22:03:55.335Z
 ---
+# Compare two ways to count coloured pixels
 
-# What Are We Comparing?
+Measure the Emgu CV indexer and direct BGR-byte traversal on **the same captured frame**. Both helpers apply the same colour-distance rule. The log provides counts and timings, rather than a promised speedup.
 
-In an EyeAuras C# Script, open Aim Trainer or replace its title in GetWindow. The code warms capture, then counts pixels in two new frames and logs counts and timings. Frames can differ; use the same static image to compare algorithms alone.
-We are comparing two methods for counting pixels of a specific color. Both methods are defined directly in the script and operate on BGR (blue-green-red) images.
+Use desktop EyeAuras with OpenCV, Emgu CV and MiniProfiler, plus your own stationary window showing a coloured image. The SDK dependency versions here are **Emgu 4.9.0.5494** and **MiniProfiler 4.3.8**; do not load a different native Emgu version into that host. All code below belongs to top-level `Script.csx`.
 
-## **CountPixelsNaive**
-This method uses `Image<Bgr, byte>`'s row/column indexer `image[y, x]`, which calls `CvInvoke.cvGet2D` in Emgu 4.9.0.
+## Make comparable measurements
 
-## **CountPixelsNaiveMem**
-This method reads data directly from memory.
+1. Display your image and leave its window visible. For a nonzero count, choose an actual colour from that image; zero remains a valid result.
+2. Add **C# Script**. Paste **both blocks** into one `Script.csx`: the program first, then the helper methods and struct.
 
-Both methods use the same logic — calculating the "distance" between colors, pixel by pixel.
-
-## Historical result
-As shown, the memory-reading method (**163.31ms**) is more than **TWICE** as fast as `CvInvoke.cvGet2D` (**397.3ms**). This is one historical run, not a speedup guarantee for another image or machine. The code itself isn’t significantly more complex — the main change was introducing the additional `BgrByteColor` struct to represent color. The rest of the logic remains almost identical.
-
-```bash
-DESKTOP-PK81KT3 at 3/23/2025 4:54:39 PM
-Test1\FindColor CV Profiler 0ms
->> MLSearchRaw - RawPixelsKey { ThreadId = 81 } - Creation 23.41ms
->> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Preparations 0ms
->> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Refresh 1,616.5ms
->> MLSearchRaw - RawPixelsKey { ThreadId = 81 } - Resolution 0ms
->> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Preparations 0ms
->> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Refresh 397.3ms
->> MLSearchRaw - RawPixelsKey { ThreadId = 81 } - Resolution 0ms
->> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Preparations 0ms
->> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Refresh 163.31ms
-```
-
-## Can It Be Even Faster?
-Definitely! Modern CPUs have numerous useful instructions for efficient block operations (which is precisely our case). Another option is to move this calculation to the GPU; however, this introduces additional complexities — for example, transferring the image to the GPU also takes time, so performance testing is necessary. Furthermore, there are numerous optimization techniques available, but that's a topic for another article.
-
-## Example Code
 ```csharp
+using System;
+using System.Drawing;
 using Emgu.CV;
 using Emgu.CV.Structure;
+using EyeAuras.OpenCVAuras.Scripting;
 using EyeAuras.OpenCVAuras.Scaffolding;
+using EyeAuras.Shared.Osd;
+using PoeShared.Scaffolding;
 using StackExchange.Profiling;
 
-var targetWindow = GetService<IWindowSelector>().GetWindow("Aim Trainer");
-
-// This API is used to perform Computer Vision operations (image/text/color/ML search)
-var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-    .ForWindow(targetWindow)
-    .EnableProfiling()
-    .AddTo(ExecutionAnchors);
-
-var targetColor = Color.FromArgb(255, 88, 35);
-var bgrTargetColor = new Bgr(targetColor.B, targetColor.G, targetColor.R);
-
-// Warm up initialization before comparing subsequent calls
-cv.ProcessPixels(img =>
 {
-    Log.Info("Initialization pass");
-});
+    var window = await GetService<IOsdSelectionService>().PickWindow();
+    if (window == null || !window.IsWindow) { Log.Warn("No valid window selected"); return; }
+    cancellationToken.ThrowIfCancellationRequested();
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>().ForWindow(window);
+    using var frame = cv.ProcessPixels<Image<Bgr, byte>>(image => image.Copy());
+    var target = new Bgr(35, 88, 255); // Color.FromArgb(255, 88, 35), stored BGR
+    Percentage similarity = 100;
+    const int iterations = 10;
 
-cv.ProcessPixels(img =>
-{
-    Log.Info($"Processing image via Naive method: {img.Size}");
-    var countPixels = CountPixelsNaive(img, bgrTargetColor, 100);
-    Log.Info($"Naive pixels: {countPixels}");
-});
+    // Warm-up both algorithms outside the measured steps.
+    CountPixelsNaive(frame, target, similarity);
+    CountPixelsNaiveMem(frame, target, similarity);
+    cv.EnableProfiling();
+    int naive = 0, direct = 0;
+    for (var i = 0; i < iterations; i++)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using (cv.Profiler.Step("Indexer"))
+            naive = CountPixelsNaive(frame, target, similarity);
+        using (cv.Profiler.Step("BGR rows"))
+            direct = CountPixelsNaiveMem(frame, target, similarity);
+    }
+    Log.Info($"Frame={frame.Size}; iterations={iterations}; indexer={naive}; BGR rows={direct}");
+    Log.Info(cv.Profiler.RenderPlainText());
+}
+```
 
-cv.ProcessPixels(img =>
-{
-    Log.Info($"Processing image via Naive Mem method: {img.Size}");
-    var countPixels = CountPixelsNaiveMem(img, bgrTargetColor, 100);
-    Log.Info($"Span pixels: {countPixels}");
-});
+The helpers receive the image, colour and similarity explicitly; they do not access script globals.
 
-Log.Info($"Results:\n{cv.Profiler.RenderPlainText()}");
-
-// Naive Method
+```csharp
 static int CountPixelsNaive(Image<Bgr, byte> image, Bgr color, Percentage similarity)
 {
     var tolerance = (1 - similarity.ToDecimal()) * 255.0;
@@ -102,26 +80,22 @@ static int CountPixelsNaive(Image<Bgr, byte> image, Bgr color, Percentage simila
     return count;
 }
 
-// Memory-Based Method
+// Byte rows retain the Mat stride, including padding between BGR rows.
 static int CountPixelsNaiveMem(Image<Bgr, byte> image, Bgr color, Percentage similarity)
 {
     var tolerance = (1 - similarity.ToDecimal()) * 255.0;
-    var memory = image.Mat.AsReadOnlySpan2D<BgrByteColor>();
-    var colorAsVector = new BgrByteColor((byte)color.Blue, (byte)color.Green, (byte)color.Red);
-
+    var memory = image.Mat.AsReadOnlySpan2D<byte>();
+    var target = new BgrByteColor((byte)color.Blue, (byte)color.Green, (byte)color.Red);
     var count = 0;
-    for (var y = 0; y < memory.Height; y++)
+    for (var y = 0; y < image.Height; y++)
     {
-        for (var x = 0; x < memory.Width; x++)
+        for (var x = 0; x < image.Width; x++)
         {
-            var pixel = memory[row: y, column: x];
-            if (IsColorMatch(pixel, colorAsVector, tolerance))
-            {
-                count++;
-            }
+            var offset = x * 3;
+            var pixel = new BgrByteColor(memory[y, offset], memory[y, offset + 1], memory[y, offset + 2]);
+            if (IsColorMatch(pixel, target, tolerance)) count++;
         }
     }
-
     return count;
 }
 
@@ -162,8 +136,38 @@ private readonly record struct BgrByteColor
 }
 ```
 
+3. Click **Run** and select your window. After 10 pairs of measured passes, the log shows frame size, two counts and **Indexer**/**BGR rows** timings in milliseconds. The counts should match; different results invalidate a timing comparison.
+4. Record image/window size, colour, similarity, iterations and environment before repeating. More passes add profiler steps and memory use. Cancel the window picker or use **Stop**, checked between pass pairs.
 
+| Setting or boundary | What is measured |
+| --- | --- |
+| `frame = image.Copy()` | One owned copy of a captured BGR frame. Capture, effects, copy allocation and disposal sit outside **Indexer**/**BGR rows** timings. |
+| `similarity = 100` | Zero tolerance: all 3 BGR channels match exactly. These helpers use Euclidean distance with tolerance `(1 - similarity) × 255`, not the general Color Search contract. |
+| `iterations = 10` | Ten measured calls per helper after warming both once. Order is fixed; cache, ordering and other load affect serious comparisons. |
+| `image[y, x]` | The Emgu 4.9 indexer calls `cvGet2D` per pixel. |
+| `AsReadOnlySpan2D<byte>()` | Borrows Mat rows with their `Step`. BGR uses 3 bytes per pixel; a 3-byte struct view must not lose padding at row boundaries. |
 
-ProcessPixels lends Image<Bgr, byte> only during its callback. Do not dispose it or retain the AsReadOnlySpan2D view afterward. Zero means no pixel passed this helper’s comparison. At similarity 100, tolerance is zero and BGR must match exactly. This Euclidean-distance formula belongs to these helpers, not the general Color Search contract. Without ROI the selected window capture is processed. The synchronous loop is not token-cancellable, and logging/warm-up affect timing.
+`ProcessPixels` lends its image only for the callback. Dispose the created `Copy`, then CV, and keep the borrowed row view inside the helper. The synchronous count receives no cancellation token. Logging occurs after the measured steps. This experiment performs no ML, OCR, input or OSD rendering.
 
-[Emgu indexer implementation](https://github.com/emgucv/emgucv/blob/4.9.0/Emgu.CV/Core/Image.cs). Historical measurements above were not rerun.
+<details>
+<summary>Read the historical result</summary>
+
+The retained output below was recorded on 23 March 2025 on **DESKTOP-PK81KT3**. It used new frames inside separate `ProcessPixels` calls; **Refresh** included more than the comparison loop. Full hardware, image and load details are absent. Its 397.3 ms and 163.31 ms are not current-host measurements and are not directly comparable to the controlled-frame program above.
+
+```text
+DESKTOP-PK81KT3 at 3/23/2025 4:54:39 PM
+Test1\FindColor CV Profiler 0ms
+>> MLSearchRaw - RawPixelsKey { ThreadId = 81 } - Creation 23.41ms
+>> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Preparations 0ms
+>> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Refresh 1,616.5ms
+>> MLSearchRaw - RawPixelsKey { ThreadId = 81 } - Resolution 0ms
+>> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Preparations 0ms
+>> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Refresh 397.3ms
+>> MLSearchRaw - RawPixelsKey { ThreadId = 81 } - Resolution 0ms
+>> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Preparations 0ms
+>> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Refresh 163.31ms
+```
+
+SIMD or GPU processing would be a separate experiment, including conversion, transfer and allocation costs. This program does not perform either. See the [Emgu 4.9 indexer source](https://github.com/emgucv/emgucv/blob/4.9.0/Emgu.CV/Core/Image.cs).
+
+</details>
