@@ -8,39 +8,50 @@ editor: markdown
 dateCreated: 2025-08-17T08:30:21.182Z
 ---
 
-**CheckIsActive** is a special node used in macros and behaviour trees in EyeAuras. It checks whether the current tree or macro is active and, if necessary, stops execution early.
+# Is Active — check activation of your own tree
 
-![Params](https://s3.eyeauras.net/media/2025/08/EyeAuras_QxRuxRhJEV.png)
+Add `Is Active` to check the activation state of the root containing this tree or macro at a particular point in its flow. Use [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) to inspect another aura instead.
 
-## Why do you need it?
+## Gate a step with your own signal
 
-At the beginning of each tick the tree will not start if it is disabled (for example, if you removed the active checkmark). Sometimes you need to check the status not only at the start but at any point during the macro or tree execution. In such cases CheckIsActive lets you:
+Create a loaded aura named `BT enabled` with one [Fixed Value](/en/triggers/fixed-value), no actions, and `Is NOT Active` selected. Prepare a separate tree with `Activation → Is Loaded` and `Execution → When Activated → Do nothing`.
 
-- Check whether the current tree or macro is disabled.
-- If the tree is disabled (or enabled, depending on the parameters), finish execution immediately with the desired status (`Failure` or `Success`).
+1. At the tree entry, open `Activation → activate when Aura Activated...`. Under `Enabling Condition → Links`, select `BT enabled` with expected state Active. This configures root activation, not a link inside Is Active.
+2. Add and connect `Sequence`, `Is Active` and `Fixed Status`. Set Fixed Status to `General → Status → Success` and leave `General → Invert` off on Is Active.
 
-An example situation: you want the tree to finish early if it was deactivated during work—then insert CheckIsActive at the necessary point.
+```text
+My Tree
+└─ Sequence
+   ├─ Is Active
+   └─ Fixed Status: Success
+```
 
-## Invert
+3. Click the upper `Tick BT Once`. A loaded tree can be ticked manually while its activation condition is inactive: Is Active returns `Failure` and the last step is skipped.
+4. Set your aura's Fixed Value to `Is Active`. Wait for the linked state to update, then return to the tree. The node's `General → Status` shows Active; another tick reaches the last step with Success.
+5. Enable `Invert`. The displayed check state is inverted; while the root remains active, the next tick returns Failure.
 
-CheckIsActive has an **Invert** option: when enabled the node checks for INACTIVITY instead:
+![State and Invert in the earlier Is Active editor](https://s3.eyeauras.net/media/2025/08/EyeAuras_QxRuxRhJEV.png)
 
-- If **Invert = off** (default): the node returns `Success` when the tree or macro is active and `Failure` when it is not.
-- If **Invert = on**: it is the opposite—`Success` when the tree is **inactive**, and `Failure` when it is active.
+| Setting or root state | Check result without a child |
+| --- | --- |
+| Invert off, root active | Success |
+| Invert off, root inactive | Failure |
+| Invert on, root active | Failure |
+| Invert on, root inactive | Success |
+| Status | Current check state after inversion, not the last NodeStatus result |
 
-This is convenient if you need the opposite behaviour, reacting to deactivation rather than activation of the tree or macro.
+Loading, activation and automatic ticking are different. A root without conditions or triggers is `manual`, which is inactive for this check even though manual ticks are available. `Do nothing` prevents automatic execution; it does not make a satisfied activation condition false. Pause and loading conditions also affect the root state; see [Root](/en/behavior-trees/nodes/root).
 
-## How CheckIsActive works
-- Insert the node in the required place in the tree or macro.
-- On tick it checks the current active status.
-- You can combine it with other nodes to end the tree early (for example, in a Sequence or Selector).
+## Where this check stops a branch
 
-## Simple example
+Sequence evaluates it only when traversal reaches it. The node does not continuously watch arbitrary work or undo effects. If a later Sequence child returns Running, the next tick resumes that child without repeating Is Active. A child attached directly to Is Active is admitted after Success; retained child Running likewise resumes before another activation check.
+
+The earlier abstract schema uses `CheckIsActive` for the current `Is Active` template and `DoSomething` for your own work:
+
 ```
 Sequence
  ├── CheckIsActive (Invert = false)   ← Checks that the tree is active
  ├── DoSomething                      ← Executes if the tree is active
 ```
-In this example, if the tree is disabled while running, the sequence finishes with `Failure` and subsequent actions are skipped.
 
-**CheckIsActive** helps make scenarios more controllable when it's important to quickly react to changes in the tree or macro's active state right from inside the execution chain.
+This gates work at the check, rather than guaranteeing instant interruption on deactivation. The shared template also appears in Macro, where Failure in an ordinary Block need not skip all following siblings. Ending a whole macro requires its own control flow. If a valid root state is unavailable, this check returns Failure; Invert does not turn unknown state into confirmed inactivity.

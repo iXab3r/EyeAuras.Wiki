@@ -8,39 +8,67 @@ editor: markdown
 dateCreated: 2025-08-17T08:50:59.377Z
 ---
 
-**MouseMove Abs** moves the mouse cursor to a specified point on the screen. In EyeAuras it's often used to automate clicks, interact with the interface or move the mouse to a desired element.
+# Mouse Move — go to a specified point
 
-![MouseMove Abs](https://s3.eyeauras.net/media/2025/08/EyeAuras_DOrxeVBXrY.png)
+Use `Mouse Move` to place the pointer at a chosen point. Here, absolute means a destination point rather than a displacement from the current position. The coordinate origin depends on the target and backend. This node does not click.
 
-# Main parameters
-**Mouse Position** – coordinates where the cursor should move. You can set fixed X and Y values.
+## Move within your own window
 
-## Move to something section
-This section allows moving the mouse not only to absolute coordinates but also to a search result (icon, text, last found object), an area (Width/Height), or to results of another aura (for example, `ImageSearch`).
-- **Move to Variable:** use pre‑saved or calculated coordinates (for example, a search result on the screen).
-- **Move to Linked Aura:** move the cursor to a specially linked aura.
+Open your own separate text-editor window. Make it large enough that X=200, Y=150 from the visible frame's top-left corner lies inside it. Use a new node without search links or coordinate bindings for this first example.
 
-You can also use the [Bindings](/features/bindings) mechanism—click the black square to the right of the coordinates to open the editor.
+1. Put a separate tree in a folder. In `Triggers/Actions/Overlays Defaults`, enable `Target Window` for your editor and, through `show more...`, `Input Simulator → Windows Input`. Do not override that target in the tree's local Settings.
+2. Keep `Activation → Is Loaded`, `Execution → When Activated → Do nothing`. Add `Mouse Move` and connect it to the entry.
+3. Set `General → Mouse Position → X = 200`, `Y = 150`. Keep randomization and offset at zero. Check the displayed `Window` and `Simulator`: your own window and Windows Input.
+4. Click the upper `Tick BT Once` once. The chosen window is activated and the pointer should move to the specified point inside it, without a click. On normal call completion the node returns Success.
 
-![MouseMove Abs - Move to someting section](https://s3.eyeauras.net/media/2025/08/EyeAuras_ttF92DbAou.png)
+The earlier image shows X/Y and the optional groups, now under General:
 
-## Randomize section
-Adds random offset to X and Y so mouse movements look more natural and not always identical. Specify the scatter range for both axes and the cursor will land slightly differently around the point each run.
+![Mouse Move coordinates and optional groups](https://s3.eyeauras.net/media/2025/08/EyeAuras_DOrxeVBXrY.png)
 
-![MouseMove Abs - Randomize section](https://s3.eyeauras.net/media/2025/08/EyeAuras_fTb1fjQ6Sj.png)
+| Setting | Purpose |
+| --- | --- |
+| Mouse Position — X / Y | Destination point; Width / Height also appear for a source region |
+| Crosshair button | Pick a point using the screen tool and current window context |
+| Window / Simulator | Inherited target and backend; check them before running |
+| Input Smoother | Inherited [smoothing](/en/actions/sendinput/mouseinputsmoothing) for supported absolute movement |
 
-## Add click anchor section
-Lets you choose an "anchor" within a rectangular area—where exactly relative to the found object the cursor should move. For example:
-- Center
-- Top-left
-- Bottom-right
-This is convenient when the area is large but you need to hit a specific spot inside it (center, corner, edge, etc.).
+With Windows Input, the window's screen `DwmFrameBounds` origin is added to X/Y. This is the visible frame origin, **not the client-area origin**. Without a window the coordinates would be screen coordinates; an empty target is not selection of your own window. In this path, X=0,Y=0 is treated as an empty point and causes no move. Success alone therefore does not prove movement.
 
-![MouseMove Abs - Click Anchor section](https://s3.eyeauras.net/media/2025/08/EyeAuras_7ewg0RoYQh.png)
+Windows Message API sends client-coordinate window messages instead of moving the system pointer in the same way. Do not transfer values between backends or multiply by a guessed DPI factor; see [coordinate systems](/en/features/coordinate-system).
 
-## Add offset to mouse position section
+<details>
+<summary>Use a found region or another source</summary>
 
-Adds an additional offset to the final coordinates:
-- **Offset X, Y:** shift the cursor relative to the already calculated position—useful for more precise or sequential mouse moves.
+Choose `move to something...` to expose the X/Y/Width/Height region and sources:
 
-![MouseMove Abs - Offset section](https://s3.eyeauras.net/media/2025/08/EyeAuras_DMjOlNdH2h.png)
+| Choice | Position source |
+| --- | --- |
+| Move to — Variable → Last Found Result | Bind the last found region in this tree's context; the relevant search must run first |
+| Move to — Linked Aura → Links | Region supplied by a configured linked aura, such as Image Search |
+| Property binding indicator | A custom coordinate or region [binding](/en/features/bindings); earlier UI shows a black square beside the property |
+| Unlink / Unbind | Remove a source connection before returning to fixed coordinates |
+
+![Mouse Move region and source choices](https://s3.eyeauras.net/media/2025/08/EyeAuras_ttF92DbAou.png)
+
+The found region must belong to the intended window and coordinate system. Verify its bounds, capture region and processing scale before adding movement. A link or Last Found Result is not proof of a valid match in this pass; gate movement on the actual search result. Do not add the window origin twice to coordinates already mapped to the screen.
+
+</details>
+
+<details>
+<summary>Randomization, anchor and offset</summary>
+
+| Group | Effect |
+| --- | --- |
+| randomize... → Randomize — X ± / Y ± | Add random scatter to the final point within each axis range; zero disables it |
+| add click anchor... → Anchor | Choose a point within the region, such as center, top-left or bottom-right; despite the button name, no click is added |
+| add offset to mouse position... → Offset | Add X/Y to the calculated position; region mode also exposes size offsets |
+
+![Random scatter on both axes](https://s3.eyeauras.net/media/2025/08/EyeAuras_fTb1fjQ6Sj.png)
+
+![Choosing the center, edge or corner of a region](https://s3.eyeauras.net/media/2025/08/EyeAuras_7ewg0RoYQh.png)
+
+![Additional position offset](https://s3.eyeauras.net/media/2025/08/EyeAuras_DMjOlNdH2h.png)
+
+The source region, anchor and Offset produce a point, then Randomize is applied. This does not correct DPI or mismatched sources. A successful move can admit a connected child; retained child Running resumes without another move. For displacement from the current position, use [Mouse Move Rel.](/en/behavior-trees/nodes/MouseMoveRel).
+
+</details>
