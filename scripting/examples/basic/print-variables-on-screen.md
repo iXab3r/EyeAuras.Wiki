@@ -7,17 +7,19 @@ tags: printing, variables, screen, scripting, ai-translated
 editor: markdown
 dateCreated: 2024-08-15T19:33:14.411Z
 ---
-# Show aura variables on screen
+# Show a live counter above your desktop
 
-Run the complete code in a top-level EyeAuras C# Script with the HTML screen overlay and WebView2 available. It updates the current aura’s variables once per second and displays `test1` and `test4`. Stop ends the loop and releases the helper’s owned resources.
+Display your own aura's variables near the top of the primary screen. **test4** is set once and **test1** changes about once a second. The table observes the variable container, so this is a live view rather than a log snapshot.
 
-### Dependencies and ownership
-- If you reference this aura, the `VariablesOnScreenHelper` class will be available to you anywhere.
-- Note that the `VariablesOnScreenHelper` class requires `IOnScreenCanvasScriptingApi` in the constructor, but we don't pass it. `GetService<>` will handle this for us.
-- Working with Anchors is a concept that allows linking the lifecycle of different objects. By adding oneself to the ExecutionAnchors list, we essentially say, "I only live as long as ExecutionAnchors are alive."
-- Adding the overlay to ExecutionAnchors itself will make it disappear immediately after the script finishes. If we added it just to Anchors, the overlay would live until the script is unloaded.
+You need desktop EyeAuras with its UI/scripting modules and WebView2 HTML screen overlay available. No external HTML file, Razor component or NuGet package is required: the program builds the markup. Use a separate aura you own because it writes **test1–test4** there.
+
+1. Create your aura and add **C# Script** to **On Enter**.
+2. Put the entire program below in top-level **Script.csx**, including the helper class after the executable body.
+3. Click **Run**. A table with test1 and test4 should appear near the primary screen's top centre; test1 should update about once a second.
+4. Click **Stop**. The subscription and created table are released. Variable entries remain on the aura; closing the UI does not delete its data.
 
 ```csharp
+using System;
 using EyeAuras.Shared.ScreenOverlay;
 using EyeAuras.Shared.Scripting;
 using EyeAuras.Shared.Model;
@@ -35,21 +37,23 @@ var onScreenHelper =
     GetService<VariablesOnScreenHelper>()
     .AddTo(ExecutionAnchors);
 
-Variables["test4"] = "Watching test1";
+var source = AuraTree.GetAuraByPath(".");
+var test1 = Variables.Get<int>(source, "test1");
+var test2 = Variables.Get<int>(source, "test2");
+var test3 = Variables.Get<int>(source, "test3");
+var test4 = Variables.Get<string>(source, "test4");
+test4.Value = "Watching test1";
 
 onScreenHelper.Draw(
-    AuraTree.FindAuraByPath("."),
+    source,
     "test1", "test4"
     );
 
-
-
-
 while (!cancellationToken.IsCancellationRequested)
 {
-    Variables["test1"] = Environment.TickCount + 1;
-    Variables["test2"] = Environment.TickCount + 2;
-    Variables["test3"] = Environment.TickCount + 2;
+    test1.Value = Environment.TickCount + 1;
+    test2.Value = Environment.TickCount + 2;
+    test3.Value = Environment.TickCount + 2;
     Sleep(1000);
 }
 
@@ -94,28 +98,20 @@ public sealed class VariablesOnScreenHelper : DisposableReactiveObject
         params string[] variablesToPrint)
     {
 
-
         var anchors = new CompositeDisposable();
 
-
         var canvas = onScreenCanvas.Create();
+        var textOverlay = canvas
+            .AddHtmlObject()
+            .WithRect(canvasBounds);
 
         var lifetime = Disposable.Create(() =>
         {
             anchors.Dispose();
+            textOverlay.Dispose();
             canvas.Clear();
             canvas.Dispose();
         });
-
-
-        var textOverlay = canvas
-            .AddHtmlObject()
-            .WithRect(canvasBounds)
-            .AddTo(anchors);
-
-
-
-
 
         variablesSource.Variables
              .Connect()
@@ -131,7 +127,6 @@ public sealed class VariablesOnScreenHelper : DisposableReactiveObject
              .AddTo(anchors);
 
         return lifetime;
-
 
         void UpdateOverlay(IEnumerable<AuraVariable> variables)
         {
@@ -149,4 +144,22 @@ public sealed class VariablesOnScreenHelper : DisposableReactiveObject
 }
 ```
 
-`Connect()` observes the supplied aura’s variable collection, and the name filter selects table rows. `test4` is initialized once; `test1` changes in the loop. The helper receives dependencies through its constructor and arguments. Its disposal releases the HTML object and subscription, then clears and disposes its canvas; disposing a canvas alone is not a promise to dispose its children. Variable values remain on their owning aura. See [OSD ownership](/en/scripting/api/osd/screen-overlay) and [script lifetime](/en/scripting/api/scripting/reactive-lifetime).
+## Choose the source and displayed rows
+
+| Part | Purpose |
+| --- | --- |
+| source | The current aura accessor. The program writes into that same owner whose collection the helper observes. A host without a current aura cannot use this path as-is. |
+| Draw(source, "test1", "test4") | Displays those two names. test2 and test3 update but are filtered out. |
+| Draw(source) | Displays all variables on the supplied owner. |
+| Draw(source, canvasBounds, ...) | Uses your own screen rectangle instead of the primary-screen rectangle. |
+| Connect() | Observes container changes, not arbitrary internal property changes on every stored object. |
+
+The helper takes **IOnScreenCanvasScriptingApi** through its constructor; `GetService<VariablesOnScreenHelper>()` resolves it with that dependency. An ordinary class has no global AuraTree, Variables or Log: the top-level program selects the source and services, then passes them as arguments. Reusing the class in another script requires an explicit reference to its project/aura, not merely a matching class name.
+
+**ExecutionAnchors** owns the helper for this Run and disposes it on completion, cancellation or error. The helper's Anchors owns each drawing lifetime: first unsubscribe, then dispose the HTML object, clear the canvas and dispose it. A canvas's Dispose alone is not a substitute for disposing every child.
+
+**Sleep(1000)** cooperates with cancellation and the loop checks the token before its next iteration. If you replace the loop with a single write and return, the table is released immediately. Sandbox Anchors would instead live until that sandbox is unloaded.
+
+The provided canvas service owns its Blazor/window scheduling. This helper updates an HTML model, not a Razor component with implicit script globals. A Razor implementation needs its own dependencies and component lifecycle. Names and values are **HtmlEncode**d because **WithHtml** accepts trusted markup.
+
+Coordinates describe the desktop and primary monitor, not a window attached to the variable source. They do not guarantee all-monitor coverage or identical behaviour across DPI settings. See [script lifetime](/en/scripting/api/scripting/runtime) and the [custom UI guide](/en/overlays/custom-ui) for the separate host concerns.

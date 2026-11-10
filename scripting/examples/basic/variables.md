@@ -19,7 +19,7 @@ Use your own editable **C# Script**. These examples run in top-level **Script.cs
 ```csharp
 var myCounter = Variables.Get<int>("myCounter"); // get a typed handle to myCounter
 myCounter.Value = myCounter.Value + 1; // increment its stored value
-Log.Info($"Counter value: {myCounter.Value}"); // myCounter is now 2, 3 и т.п.
+Log.Info($"Counter value: {myCounter.Value}"); // A fresh owner produces 1, then 2, then 3.
 ```
 
 3. Click **Run**. A missing integer value reads as `0`; after the write, the log should show `Counter value: 1`.

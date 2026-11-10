@@ -7,37 +7,63 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2024-02-24T00:41:30.125Z
 ---
+# Type three lines into your own editor
 
-# Printing Text
+Open a blank local test document and leave focus in its text field. F2 will type three lines with different delays and explicit Enter presses between them. The example does not submit a form or choose an external recipient.
 
-Run this top-level C# Action with a working input simulator. Before pressing F2, focus an editor such as Notepad. TargetWindow = null sends to the active application.
-> You can import a ready-made example from here https://eu.eyeauras.net/share/S20240224004118uKKy4R0wIpLd
-{.is-info}
+You need available **Windows Input** and an editor accepting ordinary keys. **TargetWindow = null** uses the active window. Clicking Run in EyeAuras can move focus away from the document, so use the hotkey for this exercise.
 
-1. Create an aura.
-2. Add `HotkeyIsActive` to it and bind it to a convenient button (this will be our on/off switch, in the example `F2`), change the activation type to `Click/Hold`.
-3. Add a `C# Script` action to the `On Enter` event.
-4. Copy and paste the script itself.
-5. Pressing `F2` will print several lines of text.
-
-![](https://i.imgur.com/mwIxxsL.gif)
+1. Create an aura with [Hotkey Is Active](/en/triggers/hotkey-is-active): **F2**, **Hold**.
+2. Add **C# Script** to **On Enter** and put this complete program in top-level **Script.csx**:
 
 ```csharp
+using System.Windows.Input;
 using EyeAuras.Roxy.Api;
 using PoeShared.Scaffolding;
 
 var sendInputApi = GetService<ISendInputScriptingApi>();
+sendInputApi.InputSimulatorId = "Windows Input";
+sendInputApi.KeyPressDelay = new RandomInteger(1, 5);
 sendInputApi.TargetWindow = null;
 cancellationToken.ThrowIfCancellationRequested();
 sendInputApi.Text("Hello, world!");
 
 sendInputApi.KeyPressDelay = new RandomInteger(5, 15);
-sendInputApi.Text("\nthis one is a bit slower");
+cancellationToken.ThrowIfCancellationRequested();
+sendInputApi.KeyPress(Key.Enter);
+sendInputApi.Text("this one is a bit slower");
 
-sendInputApi.Text("\nand this one is very slow!", delayMs: 30);
+cancellationToken.ThrowIfCancellationRequested();
+sendInputApi.KeyPress(Key.Enter);
+sendInputApi.Text("and this one is very slow!", delayMs: 30);
 ```
 
-> In the example, the special character `\n` is specified at the beginning of the lines, which is a line break character.
-{.is-info}
+3. Focus your own blank document and release modifier keys.
+4. Press and release F2. You should get `Hello, world!`, `this one is a bit slower` and `and this one is very slow!` on separate lines. Another run adds text at the current caret position.
 
-Three lines are sent with different delays. Text synchronously waits for sending; without delayMs it uses KeyPressDelay, initially 1–5 ms. These generator delays do not guarantee application display timing. The call has no Run token; the pre-call cancellation check cannot interrupt an active send. For a single key use KeyPress(Key.Enter, keyPressDelay: 30).
+![Earlier text-entry demonstration](https://i.imgur.com/mwIxxsL.gif)
+
+The retained demonstration shows the earlier version. This program requests line breaks explicitly with **KeyPress(Key.Enter)**.
+
+| Call or setting | Meaning |
+| --- | --- |
+| Text(string, int? delayMs) | Ordinary text, not Send Sequence or AutoHotkey grammar. A string containing `{Enter}` does not replace a key call. |
+| KeyPressDelay = new RandomInteger(1, 5) | Explicit initial range for the first text, also reset on a repeated Run. |
+| new RandomInteger(5, 15) | Range for subsequent sends without a per-call delayMs. |
+| delayMs: 30 | Fixed delay for that Text call. These generator delays do not guarantee when the application displays text. |
+| KeyPress(Key.Enter) | A separate Enter between text fragments. It also accepts keyPressDelay, for example 30. |
+
+This API's **Text** uses **SendChars**: each character maps to keys with automatic layout detection and fallback to the current layout. An unsupported character can fail conversion. It is not universal Unicode entry or clipboard paste. This path neither writes nor restores the clipboard. The separate UI **Control+V / Shift+Insert** modes are not selected by delayMs; do not assume those clipboard operations preserve previous clipboard contents.
+
+<details>
+<summary>A C# newline literal is not a delivery method</summary>
+
+In a normal C# string, `"\n"` represents one LF character. In a verbatim string, `@"\n"` represents a backslash and n. The literal alone does not say how that character reaches an application. This character-to-key path uses the keyboard layout, so this example calls Enter explicitly.
+
+Verbatim strings are useful for paths; normal strings support escapes. Neither is the grammar of [Send Sequence](/en/actions/sendinput/send-sequence).
+
+</details>
+
+**Text** waits synchronously for sending, not for the target application to process every event. Cancellation checks separate these short sections; an already started Text call takes no Run token and does not instantly stop with Stop. Keep focus on the document. A non-null TargetWindow requests activation under standard input, not universal background delivery.
+
+The service belongs to the script context; pass it explicitly to ordinary classes. GetService and cancellationToken are host members, not global C# APIs. See [ISendInputScriptingApi](/en/scripting/api/ISendInputScriptingApi) for the full contract.
