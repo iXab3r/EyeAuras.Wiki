@@ -8,55 +8,62 @@ editor: markdown
 dateCreated: 2025-08-17T08:33:00.641Z
 ---
 
-# Interrupter
+# Interrupter — stop owned work when a condition succeeds
 
-**Interrupter** is a special node for behaviour trees and macros in EyeAuras that helps interrupt long‑running actions when certain conditions occur.
+Use `Interrupter` to end a branch when a separate check returns `Success`. It checks that condition before admitting the action. On interruption it waits for active work and cleanup, resets owned action state, then returns `Failure`.
 
-## How Interrupter works
+## Interrupt a wait and start it again
 
-Interrupter always has two children:
+Create a separate tree with `Activation → Is Loaded` and `Execution → When Activated → Do nothing`. [Getting Started](/en/behavior-trees/gettings-started) shows the editor route. This example uses only Fixed Status and Wait, without scripts or external input.
 
-1. **Condition** – something to check (for example, character health below 20%).
-2. **Action** – a task to perform (for example, wait a few seconds or use an ability).
+1. Add `Interrupter`, `Fixed Status` and `Wait`. Connect the entry to Interrupter, with Fixed Status as its **left** child and Wait as its **right** child.
+2. Set Fixed Status to `General → Status → Failure`. Set Wait to `General → Delay = 5000 ms`, randomization off. Check Interrupter's `General → If` and `Action` fields: they must name Fixed Status and Wait respectively.
 
-### Main principle
+```text
+My Tree
+└─ Interrupter
+   ├─ If: Fixed Status — Failure
+   └─ Action: Wait — 5000 ms
+```
 
-- Before **Action** starts, a successful **Condition** returns `Failure` without starting it; a `Running` condition waits for the next tree tick.
-- While an awaited **Action** runs, Interrupter checks **Condition** sequentially, with a 100ms delay between completed checks.
-- If a check observes **Condition** as `true` while **Action** is executing:
-  - Interrupter requests cooperative cancellation and waits for **Action** cleanup.
-  - Returns `Failure`.
-- If **Condition** does not become `true` before **Action** completes:
-  - Interrupter returns the result of that action (`Success`, `Failure`, or `Running`).
+3. Click the upper `Tick BT Once`. Failure in If admits Wait, which returns `Running`. Interrupter also returns Running.
+4. Set If to `Success` and tick again. Interrupter returns `Failure`, does not resume Wait, and resets its countdown.
+5. Set If back to `Failure` and tick. Wait starts a new full five-second interval with Running. After that interval, another tick can finish with Success.
 
-Checks should be short and observe cancellation. Reaction time includes their
-execution and scheduling; cancellation cannot forcibly stop an action that
-ignores its token or undo effects it already performed. A condition sample
-admitted before the monitor stops is fully drained. Success observed after
-it stops cannot change the action result.
+This demonstrates interruption of retained work **on the next tick**. Wait returns Running promptly; no monitor stays alive between these manual ticks.
 
-### State between ticks
+| Field or condition | Behavior |
+| --- | --- |
+| If | First enabled child, ordered by horizontal position; the interruption check |
+| Action | Second enabled child; put several steps in a child Sequence |
+| Initial If Success | Do not call Action; reset its owned state and return Failure |
+| Initial If Running | Do not call or reset Action; return Running |
+| Initial If Failure | Admit Action |
+| Action completes its tick without interruption | Return its Success, Failure or Running |
 
-On interruption, Interrupter resets its owned Action after the active tick has
-finished. This also applies when Condition succeeds on a later tick after Action
-returned Running: the retained script iterator is disposed, executing its finally,
-and owned execution cursors/timers reset. Clearing Condition permits a fresh Action
-from its first child. Ordinary Running without interruption preserves state.
-The graph, script, blackboard and session remain. Reset covers structural children,
-including disabled ones; it does not own a linked SubTree target or arbitrary
-plugin state. Cleanup errors propagate, and remaining siblings may be uncleared.
+## While an action call is still awaiting work
 
-## Simple example
+During an actively awaited Action call, Interrupter samples If serially, with a **100 ms delay between completed checks**. Success requests cooperative cancellation. Failure and Running leave the action running. Keep checks short and cancellation-aware; their side effects repeat on each sample.
+
+Interrupter waits for the action and any admitted condition sample to finish. Success latched before monitoring stops causes interruption; a late Success after it stops does not replace the action result. Cleanup precedes the final Failure. Reaction time includes checks and scheduling: this cannot instantly stop arbitrary code that ignores cancellation or undo effects already delivered.
+
+<details>
+<summary>Retained state, linked trees and errors</summary>
+
+After interruption, structural cleanup includes disabled children, composite cursors, timers and retained script iterators with Dispose/finally. Graph, script project, blackboard and session remain. Ordinary Running without interruption preserves continuation. Clearing status colors is not resource cleanup.
+
+A linked SubTree is shared work, not simply another owned structural child. Its captured invocation must be released and drained under its ownership contract before handoff; arbitrary plugin state has its own rules. Do not reset another caller's work by assumption.
+
+Action, monitor, cancellation-callback and cleanup errors remain observable; cleanup faults can leave later siblings uncleared. Caller cancellation takes precedence over an ordinary interruption result. With no Action, the If result is returned directly. Use both enabled children for this example: disabling one changes positional roles.
+
+The earlier mana example is an abstract application of the same mechanism, requiring your own actual condition source and cooperative action:
+
 ```
 Interrupter
 ├── Condition: Mana drops below 10%
 └── Action: Cast Meditate
 ```
 
-- While the character meditates, Interrupter monitors mana.
-- If mana suddenly falls below 10%, Meditate is interrupted and Interrupter returns `Failure`.
-- If mana stays above 10% and the action finishes, Interrupter returns whatever result the action produced.
+If that check succeeds, the action is cancelled and drained before Failure. If it does not, Interrupter returns the action result. The node supplies neither game statistics nor an ability integration. The same pattern can interrupt recovery when an independently configured condition changes.
 
-## When is it useful?
-- Cancel long actions if something happens.
-- React quickly to changing conditions during an action (e.g., interrupt recovery when an enemy appears or stats drop).
+</details>
