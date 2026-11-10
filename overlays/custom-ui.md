@@ -55,6 +55,8 @@ public partial class UserOverlay : BlazorReactiveComponent
 
 The value belongs to the component instance, not a persisted configuration variable. Recompilation or component recreation starts it again. Merely hiding a panel should not be used as a persistence or reset operation.
 
+To make the panel reflect changes made outside its buttons, follow the [reactive toggle example](/en/scripting/blazor-windows/reactive-toggle). It observes a trigger in your own aura through an injected tree service, with the subscription owned by the component, instead of keeping the displayed value only in a local counter.
+
 ## Know which context owns each part
 
 | Part | Responsibility |

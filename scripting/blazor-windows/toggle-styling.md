@@ -133,6 +133,8 @@ public partial class UserOverlay : BlazorReactiveComponent
 
 These two component files need no separate CSS file and change no global theme. `Class`/`class` applies styling to this markup; no JavaScript injection is involved.
 
+For your own colours and dimensions beyond the supplied classes, start with [inline CSS](/en/scripting/blazor-windows/toggles-styling-inline). When several controls share growing rules, [move them into a project CSS file](/en/scripting/blazor-windows/toggles-styling-cssfile); the trigger observation and click handlers stay responsible for state.
+
 `items` holds the resolved trigger references, using paths relative to the panel. `SetActive` writes the selected `TriggerValue`; `WhenAnyValue` observes external changes. All trackers are added before `base.OnInitialized()`. The base owns their subscriptions and releases them on component disposal, not merely when the overlay becomes hidden.
 
 <details>

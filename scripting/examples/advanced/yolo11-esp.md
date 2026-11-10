@@ -192,6 +192,8 @@ This specific **YOLO11s detect** file records Ultralytics 8.3.8, 80 COCO classes
 
 The loader stretches selected pixels to the model input; the parser scales boxes back to the processed image, then `ToScreen` applies capture position. Empty suitable predictions leave the region without boxes. A capture/model error is a separate outcome; absence of a box alone is not successful-load proof.
 
+To investigate a slow detector, use [CV pipeline profiling](/en/scripting/examples/advanced/profiling-cv) with the same model, source and region. Its measured steps distinguish first-use setup from later searches; the ImGui FPS label here cannot identify which CV stage takes time.
+
 The script leaves execution-provider selection to the host: Default tries available DirectML session options, otherwise CPU. This does not promise recovery from model or inference errors.
 
 ImGui and ML run on the native frame thread after context creation. Slow inference delays that frame. F1/F2 update state under a lock and each callback copies a consistent region. Stop is checked between calls, not during synchronous inference. Region selection has its own cancellation; the Run token is checked after selection returns. `SuppressKey = true` intercepts F1/F2 while their handlers are registered, so choose unused keys for your test.

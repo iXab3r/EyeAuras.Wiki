@@ -123,6 +123,8 @@ public partial class UserOverlay : BlazorReactiveComponent
 
 Для существующей классической библиотеки внедрите `PoeShared.Blazor.Services.IJsPoeBlazorUtils` через `[Inject]` и после первой отрисовки вызовите `await BlazorUtils.LoadScript("MyScript.Library.js")` с реальным именем её ресурса. Не используйте так `Status.js` с `export`. Загрузчик кеширует путь даже при `loading`/`failed`: повторный вызов не является ожиданием или повторной проверкой успеха. Очистка библиотеки остаётся её отдельным контрактом.
 
+Если таблица стилей относится к разметке компонента, подключите [CSS-файл через HeadContent](/ru/scripting/blazor-windows/toggles-styling-cssfile). Когда момент подключения выбирает C#, используйте [LoadCss после отрисовки](/ru/scripting/blazor-windows/toggles-styling-css-load); срок жизни ссылки на JS-модуль не управляет удалением такой таблицы стилей.
+
 В историческом [наборе серии](/ru/scripting/blazor-windows/1-intro) классический загрузчик подключал `rgba.js` с CDN, локальный `Script.js` и CSS для canvas. Анимация ниже показывает тот сторонний пример, а не измерение панели выше:
 
 ![Историческая анимация сторонней библиотеки](https://s3.eyeauras.net/media/2025/05/9dIx2khkoQ.gif)

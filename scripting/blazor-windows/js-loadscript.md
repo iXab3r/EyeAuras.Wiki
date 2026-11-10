@@ -123,6 +123,8 @@ This module adds no timers or event listeners. If you add them, export a cleanup
 
 For an existing classic library, inject `PoeShared.Blazor.Services.IJsPoeBlazorUtils` with `[Inject]`, then call `await BlazorUtils.LoadScript("MyScript.Library.js")` from `OnAfterFirstRenderAsync`, using the actual resource name. Do not load the exported `Status.js` with that API. The loader caches paths even while loading or after failure; a repeated call is not a wait or a success check. The library's shutdown remains a separate contract.
 
+For a stylesheet that belongs to the component markup, use [a CSS file through HeadContent](/en/scripting/blazor-windows/toggles-styling-cssfile). Choose [LoadCss after rendering](/en/scripting/blazor-windows/toggles-styling-css-load) when C# must decide when to connect it; this does not give the stylesheet the module reference’s cleanup lifetime.
+
 The historical [series sample](/en/scripting/blazor-windows/1-intro) used this classic loading route for CDN `rgba.js`, local `Script.js` and canvas CSS. This animation shows that third-party example, not the measurement above; its CDN and library contracts are separate prerequisites:
 
 ![Historical third-party animation](https://s3.eyeauras.net/media/2025/05/9dIx2khkoQ.gif)

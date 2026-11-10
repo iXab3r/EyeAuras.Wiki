@@ -89,6 +89,8 @@ using PoeShared.Scaffolding;
 
 OSD receives screen bounds through `ToScreen`. Input receives window coordinates through `ToWindow` because `TargetWindow` is set; Windows Input converts those to screen and activates the recipient. This is not background delivery. Keep the training window stable: focus can change between checking and acting. Stop does not interrupt an already running synchronous search or input call.
 
+If the goal is an aura condition rather than a script-owned search loop, use the [AI Search guide](/en/triggers/images/ai-search-trigger) with a compatible ONNX model containing the required class. Verify its capture, class and boxes first, then configure a separate reaction to the aura’s state; loading a model does not add the click from this script.
+
 The original ONNX model detects objects, with input `images` 1×3×640×640 and output `output0` 1×5×8400. Its only class is `Tgt`; do not substitute an ordinary COCO model and expect that class. File metadata records Ultralytics 8.1.13 and AGPL-3.0; consult the [author's terms](https://www.ultralytics.com/license).
 
 The loader stretches captured pixels to the model input, and its parser scales boxes back to the processed image. `ToScreen`/`ToWindow` then apply capture transforms, so no second manual resize or offset is needed. `Score` 0…1 is a model score, not image-area coverage or a measured probability of a correct click. A model/capture failure is distinct from an empty prediction list.

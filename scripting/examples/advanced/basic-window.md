@@ -94,6 +94,8 @@ These earlier screenshots show the same window mechanism with different names an
 
 This model is a plain class without automatic change notifications. The example changes it in a component handler and explicitly refreshes. An external thread changing that property does not automatically create a UI subscription or make the model thread-safe. Owned subscriptions, when needed, must be disposed with their owner.
 
+For a window that displays changes from your own aura, the [reactive toggle example](/en/scripting/blazor-windows/reactive-toggle) shows component-owned observation of a notifying trigger. Apply that observation inside the component while retaining this program’s caller-owned model and window lifetime; changing an external value alone does not refresh the plain counter model.
+
 <details>
 <summary>Use a two-file, component-local counter</summary>
 

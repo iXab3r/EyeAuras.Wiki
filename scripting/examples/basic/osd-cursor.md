@@ -67,6 +67,8 @@ using EyeAuras.Blazor.Controls.ScreenOverlay;
 
 `Cursor.Position` uses screen coordinates, not a selected window's client coordinates. The shared OSD uses the primary monitor; this example does not promise identical placement across monitors and DPI combinations. Check the monitor and scaling before adding an arbitrary window offset.
 
+For the same visual marker drawn through native frame callbacks, use the [ImGui cursor example](/en/scripting/examples/basic/imgui-cursor). That route describes the frame again on each callback instead of updating a retained canvas object; follow its separate SDK and native-context setup.
+
 <details>
 <summary>Inspect the OSD or use a synchronous pause</summary>
 

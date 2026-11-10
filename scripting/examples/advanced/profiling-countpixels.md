@@ -149,6 +149,8 @@ private readonly record struct BgrByteColor
 
 `ProcessPixels` lends its image only for the callback. Dispose the created `Copy`, then CV, and keep the borrowed row view inside the helper. The synchronous count receives no cancellation token. Logging occurs after the measured steps. This experiment performs no ML, OCR, input or OSD rendering.
 
+If the slow part may be capture, effects or search rather than this inner loop, use the [CV pipeline profiling example](/en/scripting/examples/advanced/profiling-cv). Keep the source and region comparable and examine warm-up separately from later passes; that experiment obtains new frames instead of reusing this owned copy.
+
 <details>
 <summary>Read the historical result</summary>
 

@@ -69,6 +69,8 @@ The SDK starts the native window/context before render callbacks. Keep `GetIO`, 
 
 API instances share **Main**, its settings and font atlas. Do not close that window directly. `GetService`, `AuraTree` and `cancellationToken` are top-level script capabilities; ordinary classes receive dependencies explicitly. Keep waits and lengthy work outside the frame callback.
 
+To use your own typeface or Cyrillic glyphs in the panel, follow [loading a TTF resource as the default font](/en/scripting/imgui/loading-font). If other renderers share Main, prefer [local font selection](/en/scripting/imgui/loading-font-static) for only your drawing; both routes require a TTF containing the requested glyphs.
+
 <details>
 <summary>Start with the standard demo window</summary>
 

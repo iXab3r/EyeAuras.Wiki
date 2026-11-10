@@ -105,6 +105,8 @@ public partial class UserComponent : BlazorReactiveComponent<WindowModel>
 
 `Show()` is non-blocking. Replacing `ShowDialog(...)` with `Show()` in this short block would immediately reach disposal. `.AddTo(ExecutionAnchors)` is another way to assign cleanup to the Run, but anchors alone do not keep a Run alive: meaningful work or a window wait must still remain in progress.
 
+When the displayed state can change outside a button handler, the [reactive toggle](/en/scripting/blazor-windows/reactive-toggle) shows how to observe an aura trigger from the component. Keep this dialog’s script-owned window lifetime; use the observation pattern inside Razor rather than copying the overlay’s short entry point into this program.
+
 <details>
 <summary>When to use C# Overlay instead</summary>
 

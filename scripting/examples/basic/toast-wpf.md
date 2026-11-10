@@ -42,6 +42,8 @@ await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
 
 Awaiting `InvokeAsync` waits for the Show request, not for popup closure. The token is checked before that request and is not passed into `Show`. The manager is not an `IDisposable` scope that owns this popup: the library stores its window and notification areas in static state. Finishing the action, or pressing **Stop** after display, does not itself close the popup. Its remaining lifetime and UI behaviour belong to the library.
 
+For a status label that should remain visible while an aura’s condition holds, use a [Text overlay](/en/overlays/text) and configure its content and visibility. Keep this popup for an individual event, such as completion; repeated notifications are not a persistent state display.
+
 <details>
 <summary>Invoke it with a hotkey and explore other styles</summary>
 
