@@ -3,7 +3,7 @@ title: "Рецепты"
 description: "Выберите законченную задачу EyeAuras с подготовкой, настройками и наблюдаемым результатом."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

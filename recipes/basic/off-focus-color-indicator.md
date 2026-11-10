@@ -3,7 +3,7 @@ title: "Show a color warning while you work in another window"
 description: "Observe a known color in your own status window and display a separate reminder without focusing it."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

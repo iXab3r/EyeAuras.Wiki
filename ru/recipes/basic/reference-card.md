@@ -3,7 +3,7 @@ title: "Держать свою справочную картинку рядом
 description: "Импортируйте локальный PNG как статичную карточку и показывайте его только при работе в редакторе заметок."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

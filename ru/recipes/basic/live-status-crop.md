@@ -3,7 +3,7 @@ title: "Наблюдать живую область своего окна со�
 description: "Повторяйте меняющуюся строку своего окна, не заменяя её статичным снимком."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

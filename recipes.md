@@ -3,7 +3,7 @@ title: "Recipes"
 description: "Choose a complete EyeAuras task with prerequisites, settings and an observable result."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

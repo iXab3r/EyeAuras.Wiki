@@ -3,7 +3,7 @@ title: "Подать один сигнал при появлении своег�
 description: "Получите образец реального значка своего приложения и уведомляйте об очередном совпадении изображения."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

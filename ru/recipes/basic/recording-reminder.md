@@ -3,7 +3,7 @@ title: "Показывать памятку записи только в окн�
 description: "Выведите постоянную памятку подготовки, пока ваше окно заметок находится на переднем плане."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

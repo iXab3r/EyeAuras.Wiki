@@ -3,7 +3,7 @@ title: "Hear different cues when your viewer opens and closes"
 description: "Use one sound for your local text viewer appearing and another for its window closing."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

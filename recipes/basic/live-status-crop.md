@@ -3,7 +3,7 @@ title: "Watch a live crop from your own status window"
 description: "Mirror a changing line from your own window without replacing it with a static screenshot."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

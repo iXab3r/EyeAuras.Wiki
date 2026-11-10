@@ -3,7 +3,7 @@ title: "Базовые рецепты без программирования"
 description: "Соберите напоминания по окнам, визуальные проверки и звуковые сигналы обычными настройками EyeAuras."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

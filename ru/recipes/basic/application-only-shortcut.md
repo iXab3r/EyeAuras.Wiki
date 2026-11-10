@@ -3,7 +3,7 @@ title: "Ограничить клавишу уведомления своим п
 description: "Используйте состояние окна как условие перехвата клавиши и подавайте один сигнал для разрешённого нажатия."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

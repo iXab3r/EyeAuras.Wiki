@@ -3,7 +3,7 @@ title: "Hear one alert when your own Ready icon appears"
 description: "Capture a real icon from your application and notify once on a new image match."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

@@ -3,7 +3,7 @@ title: "Различать звуком открытие и закрытие п�
 description: "Подайте один сигнал при появлении локального просмотрщика текста и другой при закрытии его окна."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

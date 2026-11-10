@@ -3,7 +3,7 @@ title: "Показывать предупреждение по цвету, ра�
 description: "Наблюдайте известный цвет в своём окне состояния и выводите отдельную памятку без передачи ему фокуса."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

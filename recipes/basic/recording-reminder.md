@@ -3,7 +3,7 @@ title: "Show a recording checklist only in your notes window"
 description: "Display a fixed preparation checklist while your own notes window is in the foreground."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

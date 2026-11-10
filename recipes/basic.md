@@ -3,7 +3,7 @@ title: "Basic recipes without programming"
 description: "Build window reminders, visual checks and notification cues with ordinary EyeAuras settings."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

@@ -3,7 +3,7 @@ title: "Limit a notification key to your own application"
 description: "Use a window-state aura as a hotkey interception condition and play one cue for an eligible gesture."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

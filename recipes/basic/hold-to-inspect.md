@@ -3,7 +3,7 @@ title: "Check a colored panel only while holding a key"
 description: "Use an enabling condition to inspect your own color panel on demand and show a matching label."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---

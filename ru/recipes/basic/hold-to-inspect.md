@@ -3,7 +3,7 @@ title: "Проверять цветную панель только при уд�
 description: "Разрешайте проверку собственной цветной панели по клавише и показывайте текст при совпадении."
 published: true
 date: 2026-11-10T16:05:04.371Z
-tags: recipes, basic, ai-translated
+tags: recipes, basic
 editor: markdown
 dateCreated: 2026-11-10T16:05:04.371Z
 ---
