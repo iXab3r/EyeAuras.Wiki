@@ -8,77 +8,105 @@ editor: markdown
 dateCreated: 2023-06-18T17:26:53.242Z
 ---
 
-The Custom UI Overlay is the most versatile and complex overlay offered by EyeAuras, enabling a user to create a fully custom interface using their own C# and [_Razor pages_](https://docs.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-5.0) code.
+# Display a counter with C# Overlay
 
-Under the hood, this overlay utilizes several sophisticated technologies to deliver its powerful functionality. One of these is [_Microsoft's WebView2_](https://docs.microsoft.com/en-us/microsoft-edge/webview2/), a [_Chromium_](https://www.chromium.org/Home)\-based browser control. This is coupled with [_Blazor_](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor), a framework for building interactive client-side web UI with .NET, which bridges the gap between WebView2 and the user's C# codebase.
+Add your own buttons and values above a window with **C# Overlay**. It hosts a Blazor Razor component in WebView2. Earlier material calls it Custom UI or WebUI; it is separate from ASP.NET Razor Pages and does not restyle the EyeAuras shell.
 
-### Key features:
+For this first example, use ordinary EyeAuras with C# Overlay available. The counter needs no external service or extra package.
 
--   A fully customizable interface via C# and Razor pages
--   Use of WebView2 and Blazor technology for a browser-based interface
--   The ability to interact with external data sources or APIs
--   Distributable code, making it easy to share and import/export custom interfaces
--   Full access to EyeAuras internals, allowing custom interfaces to control a wide range of application aspects
+## Create the panel
 
-The Custom UI Overlay represents a significant step towards making EyeAuras a more customizable and user-oriented platform. The flexibility it provides opens up a wide range of possibilities for users, making EyeAuras a tool that can be adapted to a multitude of tasks
+1. Create an aura **Panel** with **Fixed Value → Is Active**, then add **C# Overlay**. Its visibility does not need an image search or game event. Turn **Click-through** off for this button exercise.
+2. Open the generated **UserOverlay.razor** and **UserOverlay.cs** files. Replace them with the pair below. The `PanelExample` namespace must match. Keep just this user component for the exercise: the overlay selects the first exported component type from the assembly.
+3. Leave the generated **Script.csx** as its short entrypoint. Its default statement is `Log.Debug("This script is entry point for Overlay");`. Do not create a separate IBlazorWindow or block this entrypoint in ShowDialog: the overlay owns the result window and runs the entrypoint before hosting the component.
+4. After recompilation, click **Add** in the visible panel. The count increases. Switch Fixed Value to **Is NOT Active** to hide it under normal activity-based visibility, then enable it again. Deselect the overlay for the visibility check: editing preview or an unlocked overlay can keep it visible.
 
-## Examples
-WebUI allows you to basically write ANY user interface you can imagine, here are some examples of working auras with custom UI.
+**UserOverlay.razor**
 
-Lineage 2 Scryde autofarm Behavior Tree (https://eyeauras.net/share/S202403150219539BfeOJ0eRl1q)
-![8tr179z[1].png](/assets/8tr179z[1].png)
+```razor
+@namespace PanelExample
+@inherits PoeShared.Blazor.BlazorReactiveComponent
 
-GTA 5 RP Majestic helper [Alt:V] (https://eyeauras.net/share/S20240121210358gpJJuNtIZRSQ)
-![f9882rg[1].png](/assets/f9882rg[1].png)
+<div class="p-3">
+    <p>Clicks: @count</p>
+    <button class="btn btn-primary" @onclick="IncrementCount">Add</button>
+</div>
+```
 
-Lineage 2 Essence auto flags (https://eyeauras.net/share/S20240325120506y5CPVmuwLvC3)
-![hrux7lu[1].png](/assets/hrux7lu[1].png)
+**UserOverlay.cs**
 
-Time Alert (https://eyeauras.net/share/S20230424095833g0ccyvLqWNNo)
-![d83bcbeeac554d2e9b939[1].png](/assets/d83bcbeeac554d2e9b939[1].png)
+```csharp
+using System.Threading.Tasks;
+using PoeShared.Blazor;
 
-## Code Editor and Distribution
+namespace PanelExample;
 
-One of the major advantages of the Custom UI overlay is its inherent portability and ease of editing. All code associated with a Custom UI overlay is stored as a part of its properties, which means it can be readily edited, exported, and imported for distribution.
+public partial class UserOverlay : BlazorReactiveComponent
+{
+    private int count;
 
-For on-the-spot editing, EyeAuras features a built-in code editor powered by [_AvalonEdit_](http://avalonedit.net/). This feature-rich text editor is capable of syntax highlighting and code autocompletion, greatly enhancing the coding experience within EyeAuras.
+    private async Task IncrementCount()
+    {
+        count++;
+        await Refresh(nameof(IncrementCount));
+    }
+}
+```
 
-Given the complexity of the built-in code editor, it's recommended to use the "Load editor in a separate window" option for a smoother, more resource-optimized experience. Alternatively, users can export their code and work on it using external integrated development environments (IDEs), such as [_JetBrains Rider_](https://www.jetbrains.com/rider/), [_Visual Studio_](https://visualstudio.microsoft.com/), or [_SharpDevelop_](http://www.icsharpcode.net/OpenSource/SD/Default.aspx). This is described in sections below.
+The value belongs to the component instance, not a persisted configuration variable. Recompilation or component recreation starts it again. Merely hiding a panel should not be used as a persistence or reset operation.
 
-## Export, Import, and Monitor Functionality for Custom UI
+## Know which context owns each part
 
-The Export, Import, and Monitor features form a central part of the functionality of EyeAuras' Custom UI overlay. They provide a powerful set of tools that enable users to smoothly transition their work between the EyeAuras environment and their preferred Integrated Development Environment (IDE), and vice versa.
+| Part | Responsibility |
+| --- | --- |
+| Script.csx | Top-level project entrypoint. Its Log and GetService are not globals in ordinary classes or Razor |
+| Razor and component class | Markup, fields and event handlers. Supply dependencies through parameters or registered injected services |
+| C# Overlay | Compilation, component hosting, window, visibility and common overlay settings. Project code is saved in its properties |
+| Refresh(reason) | The supported BlazorReactiveComponent update request; this event handler awaits it |
+| A property binding | A separate [Bindings](/en/features/bindings) mechanism. A local count field does not become a bindable aura property automatically |
+| Linked auras | Explicit linked-project context when needed; not an automatic source of game data |
 
-#### Export Project
+Use [Common Options](/en/overlays/common-options) for position, size, opacity, Window/Overlay mode, locking and Click-through. If buttons do not receive clicks, check locking and mouse pass-through. The code runs in the same application; compilation is not a security sandbox.
 
-The 'Export Project' function enables users to export the entirety of their Custom UI as a standalone C# project. This includes the overlay code, as well as a reference to the special NuGet package 'EyeAuras.SDK', which encompasses all the necessary references and declarations.
+Dispose subscriptions, timers and JavaScript registrations with the component that creates them. Use its owned lifetime and Anchors rather than leaving an observer active after replacement. Hiding is not the same as disposal. An independently created [Blazor window](/en/scripting/blazor-windows/getting-started) is owned by its script; a [mini-app](/en/features/mini-app) also defines the launch and distribution flow.
 
-Exporting a Custom UI project offers several advantages. Not only does it allow users to work in an IDE of their choice, but it also opens up all the possibilities that come with a standard C# project, such as version control, unit testing, and regular code manipulation. Furthermore, it allows users to share their projects with others easily or even collaborate on joint projects.
+## Edit and transfer the project
 
-### Import Project
+| Editor command | Purpose |
+| --- | --- |
+| File Tree | Opens project files. Current editing is separate from the earlier AvalonEdit-based interface |
+| Pop-out editor in separate window | Moves the editor, not the overlay's result, to a separate window |
+| Export... / Open in IDE... | Exports a solution or opens it in an IDE such as Rider or Visual Studio. Use the generated references and packages rather than guessing an SDK version |
+| Import... | Applies a project back to EyeAuras; its dependencies must be available to that project |
+| Live... | Watches a solution and imports changes; see [IDE integration](/en/scripting/ide-integration) for its ownership and stop controls |
+| Dev Tools | Opens WebView2 tools for the overlay. F12 also depends on browser-hotkey settings and focus |
+| Clone as Action | Creates an On Enter C# Script from the overlay and disables the original overlay; this is a separate conversion |
 
-The 'Import Project' function allows users to import a previously exported EyeAuras project back into the application. This can be particularly useful in instances where users have made extensive changes to their codebase using an external IDE and want to integrate those changes back into EyeAuras.
+EyeAuras.SDK provides API references; adding it does not register the overlay host or application services in an unrelated program.
 
-In the future, EyeAuras plans to add functionality that will allow the integration of additional package references during the import process, further expanding the versatility of the Custom UI overlay.
+CSS styles your component. Use [JavaScript modules and cleanup](/en/scripting/blazor-windows/js-loadscript) for JS and [embedded resources](/en/scripting/embedded-resources) for files. Built-in Bootstrap classes suffice for the counter; CDN files remain external dependencies. Open native dialogs through the application's UI-scheduler wrappers, not Task.Run from Razor events.
 
-### Monitor Project**
+<details>
+<summary>Earlier community interfaces and references</summary>
 
-The 'Monitor Project' function builds on the import feature by adding real-time code update capabilities. When a project is being monitored, any changes made to the project from an external IDE are automatically detected and integrated into EyeAuras.
+These projects show custom panels combined with their own behavior and data. C# Overlay itself does not supply their game integrations.
 
-This offers a seamless development experience for users who prefer using an external IDE for major coding tasks but still want to benefit from the real-time updates and testing capabilities within EyeAuras. The monitoring can be stopped at any time by simply closing the editor window or clicking 'Stop monitoring'.
+[Lineage 2 Scryde autofarm tree](https://eyeauras.net/share/S202403150219539BfeOJ0eRl1q): state and behavior controls.
 
-These features collectively provide a comprehensive toolset for managing Custom UI overlays in EyeAuras. They facilitate a highly flexible and effective workflow, enabling users to leverage the strengths of external development environments while still retaining the unique advantages that EyeAuras offers.
+![Scryde panel](/assets/8tr179z[1].png)
 
-### Debugging with DevTools
+[GTA 5 RP Majestic helper, Alt:V](https://eyeauras.net/share/S20240121210358gpJJuNtIZRSQ): task buttons.
 
-Developers can make use of WebView2's built-in [_DevTools_](https://docs.microsoft.com/en-us/microsoft-edge/webview2/how-to/webview2-devtools) for debugging their code. This provides access to a powerful suite of debugging and performance profiling tools, making it easier to develop, test, and optimize your Custom UI overlays. 
+![Majestic panel](/assets/f9882rg[1].png)
 
-To access DevTools press F12 while the overlay is active and focused
+[Lineage 2 Essence auto flags](https://eyeauras.net/share/S20240325120506y5CPVmuwLvC3): target selection and scenario parameters.
 
-### Custom CSS and JS
+![Essence panel](/assets/hrux7lu[1].png)
 
-The Custom UI Overlay supports the inclusion of custom CSS and JavaScript, either embedded directly in the code or linked from CDN sources. This allows for an even greater degree of customization and control over the overlay's appearance and behavior. By default, EyeAuras includes [_Bootstrap 5_](https://getbootstrap.com/docs/5.0/getting-started/introduction/) and its associated CSS and JavaScript files, providing a solid foundation for building responsive, mobile-first projects.
+[Time Alert](https://eyeauras.net/share/S20230424095833g0ccyvLqWNNo): dates and comments.
 
-Despite its complexity, the Custom UI Overlay is treated like any other overlay in EyeAuras. It shares all the common properties with other overlays, with the difference being that the content it displays is dictated by user-defined code. As such, the Custom UI Overlay does not affect the overall appearance of EyeAuras.
+![Time Alert panel](/assets/d83bcbeeac554d2e9b939[1].png)
 
-Because the Custom UI Overlay allows user-defined code to interact deeply with EyeAuras internals, it is recommended to only use code from trusted sources. The code itself is compiled client-side, allowing for static analysis before execution.
+Framework background: [WebView2](https://docs.microsoft.com/en-us/microsoft-edge/webview2/), [Chromium](https://www.chromium.org/Home), [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor), and [Bootstrap](https://getbootstrap.com/docs/5.0/getting-started/introduction/). Follow the generated project's versions. The earlier [AvalonEdit](http://avalonedit.net/) and [SharpDevelop](http://www.icsharpcode.net/OpenSource/SD/Default.aspx) references describe older tooling; current [Rider](https://www.jetbrains.com/rider/) or [Visual Studio](https://visualstudio.microsoft.com/) workflows are covered in IDE integration. [WebView2 DevTools documentation](https://docs.microsoft.com/en-us/microsoft-edge/webview2/how-to/webview2-devtools) explains the browser tools separately.
+
+</details>

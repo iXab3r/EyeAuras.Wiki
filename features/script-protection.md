@@ -1,102 +1,81 @@
 ---
 title: C# Script Protection
-description: Prevents tampering with your scripts and protects your intellectual property
+description: Choose script storage and protection for prepared EyeAuras packs
 published: true
 date: 2025-03-12T22:11:21.972Z
 tags: c#, script protection, intellectual property, software security, code obfuscation, script compilation, ai-translated
 editor: markdown
 dateCreated: 2025-03-12T01:36:07.305Z
 ---
-#  Script Protection in EyeAuras
 
-## Important
+# Prepare a pack without editable script source
 
-Script protection is an optional feature for pack authors who want to hide their script implementation details. By default, scripts are stored as plain text and compiled only when needed.
+Choose how scripts are stored separately from how their compiled representation is protected. Precompilation alone does not prevent decompilation. Script protection also does not replace run permissions, licensing or validation of data handled by your own services.
 
-> Alpha testing is still in progress, so access is currently limited. To get access to this functionality, **[contact me](/en/contacts)**.
-{.is-info}
+You need your own source project, author access to the publication and permission to use protection. The server checks the signed-in user and alpha-tester entitlement; seeing a control in the editor does not grant access. Ask through [Contacts](/en/contacts) about availability for your account.
 
-EyeAuras lets users write custom C# scripts. By default, those scripts are stored as plain text as part of the user config and compiled only when necessary. That is convenient during development, but it also creates risks: someone may inspect your code or even modify it without your knowledge.
+## Compare an ordinary and protected copy
 
-##  Packing and precompilation
+1. Prepare your own small folder containing an aura **Test**, **Fixed Value → Is Active**, and an **On Enter → C# Script** action. This top-level `Script.csx` line is enough for the comparison:
 
-When using Packing, you can enable script precompilation. This compiles your scripts into binary format ahead of time and includes them in the finished pack together with the app. In that form, the script text is no longer present — only executable modules remain. This improves performance, so it is worth enabling even if protection is not your main concern.
+```csharp
+Log.Info("Protection test");
+```
 
-**For an experienced programmer, compilation is not a real barrier to understanding code.**  
-There are plenty of tools that can reverse the process (decompilation) and recover source code in an almost identical form. That is why EyeAuras also provides protection mechanisms for already compiled code.
+2. Use **Run** and find the message in the aura's log. Keep your editable source separately: Binaries Only cannot reconstruct it through an unlock button.
+3. Open **Share/Export → Pack Options**. Choose **Script Compilation Mode → Binaries Only** and **Script Protection Mode → Performance-first**. Prepare your own publication with **Publish** or **Update** as described in [Export and Import](/en/features/export-import).
+4. Obtain a new **Download pack** and open it in a separate directory. Check the same aura and log message. Changing a setting does not transform copies downloaded before the new revision was prepared.
+5. If behavior differs, compare the same build with **None**, then the protected profiles. Preserve the version, mode and a small reproducer for [support](/en/report-a-problem).
 
-> Important! After changing Packing settings, do not forget to click `Upload` — your changes only affect the **NEXT** pack revision.
-{.is-info}
+The reader's comparison checks that one small program still behaves as intended after preparation. It does not establish compatibility of every reflection path, large project or external module.
 
-![Packaging options](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_jfOmqT7V4x4xqgqS.png =x400)
+![Earlier compilation and protection settings](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_jfOmqT7V4x4xqgqS.png =x400)
 
-##  Script protection modes
+| Script Compilation Mode | Prepared contents |
+| --- | --- |
+| Script Only | Project text, compiled on demand on the receiving machine |
+| Script w/ Binaries | Source files and the prepared assembly. Protecting the assembly does not hide source delivered alongside it |
+| Binaries Only | The prepared assembly without C#/Razor source files in the delivered project. Other resource files can remain |
 
-EyeAuras offers three levels of protection for your code:
+| Script Protection Mode | Meaning |
+| --- | --- |
+| None | No additional protection transform. With Binaries Only, this still distributes compiled code |
+| Performance-first | A protected profile; begin with a small behavior comparison |
+| Security-first | The supplied builder configures the same transformations as Performance-first. Its name does not establish extra encryption of every method |
 
-- **⬜ None** — No protection. Scripts are stored and compiled as-is, without modification.
-- ** Performance First** — Prioritizes performance. The code is protected and still not easy to understand without specific skills, but the focus is on stability and speed. This mode applies obfuscation and data encryption.
-- ** Security First** — Prioritizes security. This mode applies maximum protection: obfuscation, data encryption, code encryption, partial virtualization, and an integrity-check mechanism.
+Protection selection is enabled for Binaries Only. Builder rules determine the transformations, including name/control-flow changes and string or numeric transformations. Do not infer whole-module encryption, virtualization of every method or integrity checks from a profile name. There is no absolute reverse-engineering, invisibility or security guarantee, and no universal performance estimate.
 
-##  Protection methods
+## Keep source, resources and permissions separate
 
-EyeAuras uses several powerful techniques to protect scripts:
+Processing applies to prepared script projects in the pack. It does not make ordinary triggers, actions and nodes secret. This form has no general switch for protecting only one arbitrary source file. Compiled archives and remaining assets are representations to distribute, not a secure store for credentials or every value the program exposes.
 
-- ** Obfuscation** — the code is transformed to make it much harder to understand. Clear, readable names become unreadable, the structure of the code is reshaped to make analysis harder (without changing functionality), and string and numeric values are encrypted, making data extraction much more difficult.
-- ** Virtualization** — parts of the code are converted into a special bytecode executed inside a virtual machine. This makes reverse engineering significantly harder.
-- ** Encryption** — the final module is additionally encrypted, making it even more difficult to inspect.
+Keep the author's editable copy. **Unlock the script for editing**, where available, is not reverse obfuscation and does not restore removed source. Make changes in your original project and prepare a new revision.
 
-##  Why this matters
+[Permissions](/en/features/permission-model) govern viewing, editing and redistribution. A [sublicense](/en/features/sublicenses) and its lease have their own lifetime; protecting code does not grant either. Your own input/output handling, service authorization and confidential data still need appropriate design.
 
-1. ** Protecting your code** — protection makes it much harder for attackers to steal your unique logic or algorithms.
-2. ** Protecting commercial solutions** — if your script is part of a paid feature or product, protection helps prevent unauthorized redistribution.
-3. ** Licensing** — if you use the [Sublicenses](/features/sublicenses) mechanism, which allows **you** (the user) to issue licenses for packs, code protection becomes especially important because part of the license validation logic lives in code.
+<details>
+<summary>Check a larger project</summary>
 
-Choose the protection level based on your priorities: if maximum speed matters most, use ** Performance First**; if security matters more, use ** Security First**. This may still be adjusted further as early feedback comes in.
+| Area | What to check |
+| --- | --- |
+| Reflection, serialization and string-based names | A hardcoded name can stop matching after transformation; concatenated strings or external rules are not automatically repaired |
+| Public and internal types | Visibility participates in transformation rules. Do not change every type to internal without checking Razor, serialization and external consumers; visibility alone is not a universal contract-preservation promise |
+| ObfuscationAttribute | `System.Reflection.ObfuscationAttribute` supplies instructions such as Exclude. Supported features depend on the tool; the attribute is not named Obfuscate |
+| Performance-sensitive work | Compare behavior and timing on the same inputs rather than extrapolating from one example |
+| Failure only after protection | Compare None and protected settings, check names and provide a small reproducible example to support |
 
-## Tips
+See Microsoft's [ObfuscationAttribute reference](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.obfuscationattribute?view=net-9.0). This setting has no built-in measure of resistance to reverse engineering. A decompiler such as dnSpy or dotPeek can show a representation of your assembly, but its appearance does not prove that analysis is impossible.
 
-- The obfuscator never breaks the public contract. If you declare a `public` class, then all `public` methods, properties, and fields in that class will keep their names. If you want the highest possible level of protection, declare classes as `internal` whenever you can — that tells the obfuscator it is free to transform them aggressively.
-- If part of your code is especially performance-sensitive, you can use the [Obfuscate](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.obfuscationattribute?view=net-9.0) attribute to tell the obfuscator not to touch that code.
+</details>
 
-## FAQ
+<details>
+<summary>Historical source and decompiler comparison</summary>
 
-**Q: What happens if I forget to enable protection during packing?**  
-- A: In that case, your scripts will be packed in the standard form: compiled, but without additional protection. They will still be harder to inspect than plain-text versions, but this will not provide a high level of protection.
+The following four listings come from the [Path of Exile 2 Helper example](https://eyeauras.net/share/S20241213181401RaWLZLE430e6). They illustrate historical source and transformed representations, not output from a current build or a complete program to paste into Script.csx.
 
-**Q: If my pack has no scripts, will protection help?**  
-- A: No. This feature only works with scripts and does not affect regular actions, triggers, or nodes.
+The method needs its original class's Window and Log members, types and extensions. It is not a universal multi-monitor positioning recipe. Decompiled listings can contain syntax that is not compilable C#.
 
-**Q: Does protection affect performance?**  
-- A: Yes, but in the overwhelming majority of cases it will be barely noticeable, if noticeable at all.
-
-**Q: Does protection guarantee complete security?**  
-- A: No. Nothing in the real world is absolute. However, it increases the amount of effort required to break it by a large margin. We are talking about the difference between “getting the source code in half an hour” and “never getting the source code at all, and maybe someday recovering something only vaguely similar.” Even for very experienced programmers, this is usually not something they can solve directly — it requires a very specific skill set just to begin working on it.
-
-**Q: Do I need to think about security myself, or will EyeAuras handle everything for me?**  
-- A: You still need to think about it. The protection system is applied on top of **your** source code and tries to turn it into a black box that _does something_, but is very hard to understand internally. However, if you do not handle input and output data carefully, you can still be compromised. For example, you should not send extremely sensitive data over HTTP in plain text if that data is stored on your server — it can still be intercepted and read.
-
-**Q: What should I do if my protected pack suddenly stops working?**  
-- A: If the problem started after enabling protection:
-  - Make sure you are not using hardcoded class, method, or property names — they may change during obfuscation. In most situations, the obfuscator can understand the usage context and update strings too, but in some cases static analysis is not enough (for example, string concatenation).
-  - If you are using **Security First**, try **Performance First** and see how the behavior changes. In any case, [contact me](/en/contacts) and we will investigate.
-
-**Q: Can I test how well my pack is protected?**  
-- A: EyeAuras does not currently include a direct protection testing tool, but you can try popular decompilers such as dnSpy or dotPeek to evaluate for yourself how difficult it is to reconstruct your code.
-
-**Q: Can I enable protection only for some scripts?**  
-- A: No, protection is applied to all scripts in the pack. This may be added in the future.
-
-**Q: Can I specify which methods or classes should be protected?**  
-- A: You can use the [Obfuscate](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.obfuscationattribute?view=net-9.0) attribute to specify methods, classes, and properties that should **NOT** be protected.
-
-## Example: Path of Exile 2 Helper - Auto HP/MP pack
-
-https://eyeauras.net/share/S20241213181401RaWLZLE430e6
-
-Let’s take the same method, `EnsureWindowIsInsideScreenBounds`. It is fairly simple: if the bot window ends up outside the screen for some reason, the method moves it back to the center.
-
-Here is the original plain-text version:
+Original source fragment:
 
 ```csharp
 private void EnsureWindowIsInsideScreenBounds()
@@ -134,9 +113,9 @@ private void EnsureWindowIsInsideScreenBounds()
 }
 ```
 
-Here is the decompiled version (`Script Protection` = `None`) — slightly less readable, but not by much:
+Historical decompilation with no additional protection:
 
-```csharp
+```text
 // Token: 0x06000084 RID: 132 RVA: 0x00005C68 File Offset: 0x00003E68
 private void EnsureWindowIsInsideScreenBounds()
 {
@@ -182,9 +161,9 @@ private void EnsureWindowIsInsideScreenBounds()
 }
 ```
 
-Now let’s apply obfuscation (`Performance First`):
+Historical Performance First example:
 
-```csharp
+```text
 // Token: 0x06000086 RID: 134 RVA: 0x00008424 File Offset: 0x00006624
 private void \uF71C\uE8CB\uF729\uF528\uF733\uECFF\uED61\uE8DD\uE3B9\uEBEC\uEF0D\uEF13()
 {
@@ -370,12 +349,16 @@ private void \uF71C\uE8CB\uF729\uF528\uF733\uECFF\uED61\uE8DD\uE3B9\uEBEC\uEF0D\
 }
 ```
 
-And here is the same method (presumably...) in `Security First` mode. In this case, the code is not only obfuscated as in the previous example, but also encrypted.
+Historical Security First example:
 
-```csharp
+```text
 // Token: 0x06000086 RID: 134 RVA: 0x000049C4 File Offset: 0x00002BC4
 private void \uF5D1\uF8EB\uF0A0\uF126\uE1AD\uE6ED\uE599\uE94C\uE27D\uF25B\uE418\uECFF()
 {
 	\uE536\uEA7D\uE611\uEE66\uF5F5\uEDF9\uF549\uE4FC\uF1E9\uEEBD\uEC8C\uF5EE.\uF3ED\uE329\uF180\uF009\uF045\uEFE8\uF38D\uF0F9\uF700\uE210\uE95F\uE40E(1833101, null, this, null);
 }
 ```
+
+These listings preserve one old comparison. They do not specify every later builder's transforms or promise recoverability of source.
+
+</details>
