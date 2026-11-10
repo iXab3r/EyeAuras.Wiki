@@ -7,133 +7,76 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T14:24:53.840Z
 ---
+# Toggle your own aura from a panel
 
-# Controlling an aura through the UI
-Let's solve a common task—we want a button somewhere on screen that enables or disables certain functionality.
+Give a panel button and a hotkey the same source of truth: the writable `TriggerValue` of **Hotkey Is Active**. The button controls that trigger; the aura's other conditions still apply.
 
-## Solution using HotkeyIsActive Trigger
-The standard approach:
-- create an aura
-- add a HotkeyIsActive trigger
-- bind a hotkey
-
-That's it: pressing the hotkey toggles the aura state.
-
-## Solution using C# Overlay
-Create another overlay. We'll draw the button there.
-
-## Prepare the overlay and target auras
-
-Create a **C# Overlay v3** aura and `TargetAura` in the same folder. Add `HotkeyIsActive` in toggle mode to each target and keep them loaded. The shown `./TargetAura` paths resolve relative to the overlay context; adjust them to your actual tree. If several triggers match, the first is selected.
-
-Replace `UserOverlay.cs` and `UserOverlay.razor` with the corresponding complete blocks below. They are parts of one `public partial` class in the same namespace. `[Inject]` supplies `AuraTree`; Script.csx globals are not component globals.
+1. In one folder, create `TargetAura`. Add **Hotkey Is Active**, choose **Toggle**, assign a free hotkey and leave the aura loaded. Add no actions for this exercise.
+2. In the same folder, create a panel aura with **C# Overlay** and its own **Fixed Value → Is Active**. Its visibility must not depend on `TargetAura`.
+3. Replace the two component files below. Leave the generated `Script.csx` as a short entry point without a loop or wait.
 
 ## UserOverlay.cs
+
 ```csharp
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using PoeShared.Blazor;
 using EyeAuras.Scripting.Api;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 
-public partial class UserOverlay : BlazorReactiveComponent {
+namespace BlazorDemo;
 
+public partial class UserOverlay : BlazorReactiveComponent
+{
     [Inject]
-    public IAuraTreeScriptingApi AuraTree { get; init; }
+    public IAuraTreeScriptingApi AuraTree { get; set; }
 
-    public IHotkeyIsActiveTrigger Trigger
+    private IHotkeyIsActiveTrigger trigger;
+    private bool IsActive => trigger.TriggerValue ?? false;
+
+    protected override void OnInitialized()
     {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
+        trigger = AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
+        base.OnInitialized();
     }
 
-    public bool TriggerIsActive
+    private async Task SetActive(bool value)
     {
-        get => Trigger.TriggerValue ?? false;
-        set => Trigger.TriggerValue = value;
+        trigger.TriggerValue = value;
+        await Refresh("toggle clicked");
     }
 }
 ```
 
 ## UserOverlay.razor
-```csharp
+
+```razor
+@namespace BlazorDemo
 @using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
-<h3 class="text-center shadow-1">Toggle Trigger</h3>
-
-<div class="text-center mt-4">
-    <ToggleButton
-              @bind-IsChecked="@TriggerIsActive"
+<h3>Control TargetAura</h3>
+<ToggleButton IsChecked="@IsActive" IsCheckedChanged="SetActive"
               Class="btn btn-secondary">
-       Trigger is Active
-    </ToggleButton>
-</div>
-
-<p class="text-center mt-3 alert alert-info" style="font-size: 1.5rem;">
-    @if (TriggerIsActive){
-        <span class="shadow-1">Trigger is currently active</span>
-    } else {
-        <span class="text-warning shadow-1">Trigger is currently not active</span>
-    }
-</p>
-```
-
-![Demo](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_HeGx0CejHB.gif)
-
----
-
-## Breakdown
-Let's go through it in detail.
-
-## UserOverlay.cs
-```csharp
- [Inject]
- public IAuraTreeScriptingApi AuraTree { get; init; }
-```
-EyeAuras heavily uses Dependency Injection. Read more about it [here](/scripting/dependency-injection). In short, it lets us access various parts of the program. Here we ask for access to the aura tree. EyeAuras ensures it's available when the script runs. Since we'll change the state of an aura, we need the aura tree.
-
-```csharp
-public IHotkeyIsActiveTrigger Trigger
-{
-   get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
-}
-```
-This property looks up an aura named `TargetAura` located in the same folder (`./`) and extracts the trigger of type `IHotkeyIsActiveTrigger`. Path rules are the same as file systems—`./` current folder, `..` parent, etc. Both forward and backslashes are supported. If the aura or trigger isn't found, EyeAuras throws an exception.
-
-```csharp
-  public bool TriggerIsActive
-    {
-        get => Trigger.TriggerValue ?? false;
-        set => Trigger.TriggerValue = value;
-    }
-```
-Here we read and set the trigger state.
-- `get` finds the trigger and reads its current value
-- `set` writes a new value
-> Not all triggers have a writable `TriggerValue`, but **all** triggers have `IsActive` to **read** their state. Useful for triggers like ImageSearch/MLSearch to check whether they found anything.
-
-## UserOverlay.razor
-```html
-@using PoeShared.Blazor.Controls
-```
-`ToggleButton` is a component that renders a button with two states (ON/OFF). It's located in the `PoeShared.Blazor.Controls` namespace, so we add `@using PoeShared.Blazor.Controls` to access it.
-
-```html
-<ToggleButton
-              @bind-IsChecked="@TriggerIsActive"
-              Class="btn btn-secondary">
-   Trigger is Active
+    Toggle trigger
 </ToggleButton>
+<p>Trigger: @(IsActive ? "on" : "off")</p>
 ```
-We tell Blazor to render a `ToggleButton`. The key part is `@bind-IsChecked="@TriggerIsActive"` which binds the button state to our property. When rendering, it reads `TriggerIsActive`, and on click it writes back.
 
-```html
-@if (TriggerIsActive){
-   <span class="shadow-1">Trigger is currently active</span>
-} else {
-   <span class="text-warning shadow-1">Trigger is currently not active</span>
-}
-```
-This block shows different text depending on whether the trigger is active. Note that clicking the button updates the text as well.
+4. After compilation, compare the displayed state with the trigger in `TargetAura`. Click **Toggle trigger**: its `TriggerValue` changes and the panel displays the new state.
 
-Blazor updates the button and text after its click event. External hotkey changes are not yet observed; add [UI refresh](/en/scripting/blazor-windows/reactive-toggle) next. Writing `TriggerValue` changes this trigger; other conditions still affect the aura’s final activity.
+![Button and trigger in the earlier example](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_HeGx0CejHB.gif)
+
+| Part | Meaning |
+| --- | --- |
+| `[Inject] IAuraTreeScriptingApi` | Obtains the tree API from this component's host. `AuraTree` is not an implicit Razor global; see [dependency injection](/en/scripting/dependency-injection). |
+| `"./TargetAura"` | Resolves within the panel's aura-tree context. Use your actual neighbouring aura path, not a filesystem path or another workspace's name. |
+| `GetTriggerByPath<IHotkeyIsActiveTrigger>` | Requires a matching aura and trigger; it throws when they are absent and selects the first matching trigger if several exist. |
+| `TriggerValue ?? false` | Reads the initial and current trigger value. This button deliberately displays `null` as off. |
+| `IsChecked` / `IsCheckedChanged` | Read the displayed value and handle a user change separately. `@bind-IsChecked` is the shorthand when a suitable read/write property supplies both. |
+| `SetActive` and `Refresh` | Write to the selected trigger, then refresh the component through its dispatcher. |
+
+There is no separate mutable copy of the trigger state. This first example refreshes after panel clicks; an external hotkey change needs a notification or polling source to update an already displayed panel. Add that in [reactive updates](/en/scripting/blazor-windows/reactive-toggle).
+
+The general aura `IsActive` state is not interchangeable with this trigger's writable `TriggerValue`. Keep the target and panel loaded; unloading or replacing a target requires resolving the intended trigger again.

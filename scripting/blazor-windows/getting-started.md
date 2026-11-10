@@ -7,82 +7,114 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2024-11-04T00:26:45.232Z
 ---
+# Open a dialog from a C# Script action
 
-# Blazor in the context of EyeAuras
-Start with a C# Overlay v3 controlled by its aura, or a window created from a C# Script action.
+Show a small window with a title supplied by your script and a counter owned by its component. Closing the dialog finishes the waiting script; starting it again creates a fresh counter.
 
-## C# Overlay
-Until recently (Oct 2024) this was the only option. It's simple: create an aura, add a C# Overlay and… that's it. EA takes care of drawing a window on the screen with your code inside. Otherwise it's a regular overlay: you can specify display conditions via triggers, adjust color, background, etc.
+Use the desktop EyeAuras host with its Blazor window services and WebView2 Runtime. This example runs in a **C# Script action**, not an EyePad-only project or a browser page. Adding an SDK reference alone does not register a native window service.
 
-Here are a couple of overlay examples:
-![D](https://i.imgur.com/iaKm2Br.png) ![TL](http://files.eyesquad.net/screenshots/31-10-2024/1YWZKXCaFhEh7SNnSx8YMWjAf.png)
+## Create the project files
 
-### Example
-Let's make a tiny overlay with a button and counter.
-- Create an aura
-- Add C# Overlay
-![Add C# Overlay](https://s3.eyeauras.net/media/2024/11/msedge_zVrveCuFgBbtBB68.png)
-- That's it—the overlay with a clickable button is rendered
-![C# Overlay Example](https://s3.eyeauras.net/media/2024/11/Code_MJvkplH0Iiqmm9SV.png)
+1. Create your own test aura. Add a **C# Script** action under **On Enter**, and use its manual **Run** control for this exercise so repeated trigger events do not open more windows.
 
-For new examples choose C# Overlay v3; its files are explained in the [overlay series](/en/scripting/blazor-windows/1-intro).
+![C# Script action editor](https://s3.eyeauras.net/media/2024/11/EyeAuras_xCVTs8bdg1Y7ZU8T.png)
 
-## C# Script Action
-Now the main course. You can create not just one or two overlays controlled by triggers, but an entire window system driven by scripts. They appear wherever and whenever you want, look however you like. EA relieves you from much of the headache typical of WPF or WinForms, especially around multithreading.
+2. In the script editor, use **New file → Component (with code-behind)** and name it `UserComponent`. Older editors call this a Razor component. Add an ordinary C# file named `WindowModel.cs`.
 
-### Example
-Let's see how scripts can work with windows.
-- Create an aura
-- Add **OnEnter** **C# Script** action
-![OnEnter C#](https://s3.eyeauras.net/media/2024/11/EyeAuras_xCVTs8bdg1Y7ZU8T.png)
-- Create a new Razor Component, keep the default name **UserComponent**
-![New Razor Component](https://s3.eyeauras.net/media/2024/11/EyeAuras_I6MYDieptaZe5a8u.png)
-- In **Script.csx** add:
+![Component template in the earlier editor](https://s3.eyeauras.net/media/2024/11/EyeAuras_I6MYDieptaZe5a8u.png)
+
+3. Replace the four files with the contents below. All component and model files use `BlazorDemo`; `Script.csx` imports it.
+
+### Script.csx
+
 ```csharp
+using BlazorDemo;
 using EyeAuras.Shared.Scripting;
-using PoeShared.Scaffolding;
 
-var window = GetService<IDialogWindowUnstableScriptingApi>() // get DialogWindow API
-    .CreateWindow<UserComponent>() //create new window with UserComponent inside
-    .AddTo(ExecutionAnchors); //destroy when script is stopped
+{
+    using var window = GetService<IDialogWindowUnstableScriptingApi>()
+        .CreateWindow<UserComponent>(new WindowModel { Title = "My window" });
 
-window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-window.ShowDialog(cancellationToken);
-```
-- Put this counter in `UserComponent.razor`; remove duplicate members from `UserComponent.cs` if present:
-
-```razor
-@using Microsoft.AspNetCore.Components.Web
-@using PoeShared.Blazor
-@inherits BlazorReactiveComponent
-
-<button class="btn btn-primary" @onclick="Increment">Click Me</button>
-<p>Clicks: @count</p>
-
-@code {
-    private int count;
-    private void Increment() => count++;
+    window.Title = "Test dialog";
+    window.Width = 480;
+    window.Height = 260;
+    window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+    window.ShowDialog(cancellationToken);
 }
 ```
 
-- Press **Run**—here's your first dialog window using the Blazor Windows API! Note that the script keeps running while the window is open, but stopping the script closes the window.
-![Blazor window](https://s3.eyeauras.net/media/2024/11/EyeAuras_fmFnsjgMCW8P6Z4b.png)
-
-### What is IDialogWindowUnstableScriptingApi?
-This is the main interface intended for interacting with dialog windows. There are alternatives, but currently it's the highest-level and safest option—it takes care of unloading windows when an aura unloads, cleaning up resources, etc. It's called **Unstable** not because it's bad but because, being new, it may have breaking changes. The name does not guarantee future compatibility.
-
-
-## Pass data from the script into the component
-
-Add an ordinary `WindowModel.cs` to the same project:
+### WindowModel.cs
 
 ```csharp
+namespace BlazorDemo;
+
 public sealed class WindowModel
 {
     public string Title { get; set; } = "Settings";
 }
 ```
 
-In `Script.csx`, pass `new WindowModel { Title = "My window" }` to `CreateWindow<UserComponent>(...)`. In Razor use `@inherits BlazorReactiveComponent<WindowModel>` and render `@DataContext.Title`. The host passes that object; Script.csx variables and its cancellation token do not become component members. Changing a plain model property externally does not create an automatic UI subscription; add an appropriate refresh mechanism.
+### UserComponent.cs
 
-See [window operations](/en/scripting/api/IDialogWindowUnstableScriptingApi) and the [Blazor map](/en/scripting/api/core/blazor).
+```csharp
+using System.Threading.Tasks;
+using PoeShared.Blazor;
+
+namespace BlazorDemo;
+
+public partial class UserComponent : BlazorReactiveComponent<WindowModel>
+{
+    private int count;
+
+    private async Task Increment()
+    {
+        count++;
+        await Refresh("dialog counter clicked");
+    }
+}
+```
+
+### UserComponent.razor
+
+```razor
+@namespace BlazorDemo
+@using Microsoft.AspNetCore.Components.Web
+@using PoeShared.Blazor
+@inherits BlazorReactiveComponent<WindowModel>
+
+<h2>@DataContext.Title</h2>
+<button class="btn btn-primary" @onclick="Increment">Increment</button>
+<p>Clicks: @count</p>
+```
+
+4. Once compilation finishes, click **Run**. The `480 × 260` window opens in the centre with native title **Test dialog** and component heading **My window**. Click the counter button, then close the window. The script finishes; a new Run starts at zero.
+
+![Dialog created from the earlier script example](https://s3.eyeauras.net/media/2024/11/EyeAuras_fmFnsjgMCW8P6Z4b.png)
+
+| Part | Purpose and lifetime |
+| --- | --- |
+| `CreateWindow<UserComponent>(model)` | Creates a native Blazor window and passes the model as the component's `DataContext`. |
+| `window.Title`, `Width`, `Height`, `WindowStartupLocation` | Configure the native window before showing it. The model's `Title` is separate content inside the component. |
+| `ShowDialog(cancellationToken)` | Blocks this script call until the dialog closes or cancellation ends the wait. It keeps the Run alive while the window is in use. |
+| Explicit `{ ... }` with `using var window` | Keeps creation, configuration and the blocking call inside the owned scope. Leaving the block disposes the window. Namespace imports stay above it. |
+| **Stop** | Cancels the current Run token. The window API handles the cancellation and the script leaves its owning scope. |
+| `WindowModel` | Initial data passed to the component. This plain property does not promise automatic notifications for later external changes. |
+| `BlazorReactiveComponent<WindowModel>` | Supplies a typed `DataContext`; the counter handler awaits `Refresh` on the component dispatcher. |
+
+`GetService` and `cancellationToken` belong to top-level `Script.csx`. Razor and ordinary helper classes need their dependencies explicitly. The component base has its own logger; it does not inherit the script's globals. The window API is named `IDialogWindowUnstableScriptingApi`; do not treat that name as a promise of compatibility across versions. See its [contract](/en/scripting/api/IDialogWindowUnstableScriptingApi) for the supported service surface.
+
+`Show()` is non-blocking. Replacing `ShowDialog(...)` with `Show()` in this short block would immediately reach disposal. `.AddTo(ExecutionAnchors)` is another way to assign cleanup to the Run, but anchors alone do not keep a Run alive: meaningful work or a window wait must still remain in progress.
+
+<details>
+<summary>When to use C# Overlay instead</summary>
+
+Use **C# Overlay** when aura activity should control a persistent panel. Its generated entry point must finish setup before the overlay displays; do not place the blocking dialog code above into that entry point. Start with [the overlay counter](/en/scripting/blazor-windows/1-intro).
+
+![Earlier counter example](https://i.imgur.com/iaKm2Br.png)
+![Earlier Blazor window example](http://files.eyesquad.net/screenshots/31-10-2024/1YWZKXCaFhEh7SNnSx8YMWjAf.png)
+![Adding an overlay in the earlier editor](https://s3.eyeauras.net/media/2024/11/msedge_zVrveCuFgBbtBB68.png)
+![Editing the overlay component](https://s3.eyeauras.net/media/2024/11/Code_MJvkplH0Iiqmm9SV.png)
+
+The [reactive component contract](/en/scripting/api/core/blazor) describes the shared base. The same HTML/CSS/Razor principles apply, but the overlay settings own its window. You can put a handler in a Razor `@code` block or its matching partial C# class; [the counter files](/en/scripting/blazor-windows/3-hello-world) show both arrangements.
+
+</details>

@@ -7,168 +7,141 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T15:23:20.489Z
 ---
+# Show toggle state with colour, text and visibility
 
-# Adding variety
-One of the main advantages of Blazor/HTML/CSS is incredible flexibility—almost any idea can be implemented and usually it's not too hard, especially compared to many other UI frameworks.
+Make four controls easier to read: the first changes colour, the second changes its icon and text, and the third reveals a fourth button. They use the same real triggers as their hotkeys.
 
-Let's customize our group of toggles and add some color.
-
-![Demo](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_BY6C30fWpS.gif)
-
-## Prepare the overlay and target auras
-
-Create a **C# Overlay v3** aura and `TargetAura 1`, `TargetAura 2`, `TargetAura 3`, `TargetAura 4` in the same folder. Add `HotkeyIsActive` in toggle mode to each target and keep them loaded. The shown `./TargetAura` paths resolve relative to the overlay context; adjust them to your actual tree. If several triggers match, the first is selected.
-
-Replace `UserOverlay.cs` and `UserOverlay.razor` with the corresponding complete blocks below. They are parts of one `public partial` class in the same namespace. `[Inject]` supplies `AuraTree`; Script.csx globals are not component globals.
+1. Create neighbouring `TargetAura 1` through `TargetAura 4`, each with **Hotkey Is Active → Toggle** and a different free key. Keep them loaded and leave their action lists empty for this exercise.
+2. Create a separate panel aura with **C# Overlay** and **Fixed Value → Is Active**.
+3. Replace the two component files below. Keep the generated `Script.csx` short, without a loop or wait.
 
 ## UserOverlay.cs
+
 ```csharp
 using System;
-using System.Reactive.Linq;
+using System.Threading.Tasks;
+using ReactiveUI;
+using AntDesign;
 using Microsoft.AspNetCore.Components;
 using PoeShared.Blazor;
 using EyeAuras.Scripting.Api;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 
-public partial class UserOverlay : BlazorReactiveComponent {
+namespace BlazorDemo;
 
+public partial class UserOverlay : BlazorReactiveComponent
+{
     [Inject]
-    public IAuraTreeScriptingApi AuraTree { get; init; }
+    public IAuraTreeScriptingApi AuraTree { get; set; }
 
-    public bool Trigger1IsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 1").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 1").TriggerValue = value;
-    }
+    private ToggleItem[] items = Array.Empty<ToggleItem>();
 
-    public bool Trigger2IsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 2").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 2").TriggerValue = value;
-    }
-
-    public bool Trigger3IsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 3").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 3").TriggerValue = value;
-    }
-
-    public bool Trigger4IsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 4").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 4").TriggerValue = value;
-    }
+    private readonly ClassMapper firstButtonClass = new ClassMapper();
 
     protected override void OnInitialized()
     {
-        ChangeTrackers.Add(Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1)));
+        items = new[]
+        {
+            new ToggleItem("Trigger 1", AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 1")),
+            new ToggleItem("Trigger 2", AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 2")),
+            new ToggleItem("Trigger 3", AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 3")),
+            new ToggleItem("Trigger 4", AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 4")),
+        };
+        firstButtonClass.Add("btn")
+            .If("btn-success", () => items[0].IsActive)
+            .If("btn-outline-danger", () => !items[0].IsActive);
+        foreach (var item in items)
+        {
+            ChangeTrackers.Add(item.Trigger.WhenAnyValue(x => x.TriggerValue));
+        }
         base.OnInitialized();
+    }
+
+    private async Task SetActive(ToggleItem item, bool value)
+    {
+        item.Trigger.TriggerValue = value;
+        await Refresh("group toggle clicked");
+    }
+
+    private sealed record ToggleItem(string Label, IHotkeyIsActiveTrigger Trigger)
+    {
+        public bool IsActive => Trigger.TriggerValue ?? false;
     }
 }
 ```
 
 ## UserOverlay.razor
-```html
+
+```razor
+@namespace BlazorDemo
 @using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
-<h3 class="text-center shadow-1">Custom Toggles</h3>
+<h3>Panel settings</h3>
+<div class="d-flex gap-1 flex-column alert alert-info">
+    <ToggleButton IsChecked="@items[0].IsActive"
+                  IsCheckedChanged="value => SetActive(items[0], value)"
+                  Class="@firstButtonClass.ToString()">
+        Trigger 1: @(items[0].IsActive ? "on" : "off")
+    </ToggleButton>
 
-<div class="text-center mt-4 mx-2 d-flex gap-1 flex-column alert alert-info">
-    @if (Trigger1IsActive){
-         <ToggleButton @bind-IsChecked="@Trigger1IsActive"
-            Class="btn btn-success">
-            Trigger <b>1</b> is active
-        </ToggleButton>
-    } else {
-         <ToggleButton @bind-IsChecked="@Trigger1IsActive"
-            Class="btn btn-outline-danger">
-            Trigger <b>1</b> is inactive
-        </ToggleButton>
-    }
-    <ToggleButton @bind-IsChecked="@Trigger2IsActive">
-        @if (Trigger2IsActive){
+    <ToggleButton IsChecked="@items[1].IsActive"
+                  IsCheckedChanged="value => SetActive(items[1], value)">
+        @if (items[1].IsActive)
+        {
             <i class="fa-solid fa-toggle-on"></i>
-            <strong>Trigger 2 is active</strong>
-        } else {
+            <strong>Trigger 2 on</strong>
+        }
+        else
+        {
             <i class="fa-solid fa-toggle-off"></i>
-            <span>Trigger 2 is not active</span>
+            <span>Trigger 2 off</span>
         }
     </ToggleButton>
-    <span class="d-flex gap-1 align-self-center">
 
-        <ToggleButton @bind-IsChecked="@Trigger3IsActive">
-            Trigger <b>3</b>
+    <div class="d-flex gap-1 align-self-center">
+        <ToggleButton IsChecked="@items[2].IsActive"
+                      IsCheckedChanged="value => SetActive(items[2], value)">
+            Show trigger 4
         </ToggleButton>
-        @if (Trigger3IsActive){
+        @if (items[2].IsActive)
+        {
             <span class="vr"></span>
-
-            <ToggleButton @bind-IsChecked="@Trigger4IsActive">
-                Trigger <b>4</b>
+            <ToggleButton IsChecked="@items[3].IsActive"
+                          IsCheckedChanged="value => SetActive(items[3], value)">
+                Trigger 4
             </ToggleButton>
         }
-    </span>
+    </div>
 </div>
 ```
 
----
+4. After compilation, turn the first trigger on: its red outline becomes a green fill. The second button changes its icon and text. The third shows the fourth button; clicking it again hides that button.
+5. Toggle the first or second trigger with its hotkey. The styling also updates because the component observes `TriggerValue`.
 
-## Breakdown
-## UserOverlay.cs
-Nothing special—just several properties accessing triggers.
+![Styling approaches in the earlier example](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_BY6C30fWpS.gif)
 
-## UserOverlay.razor
-This file contains several customization approaches. In real projects try not to mix too many techniques—such code is harder to maintain!
+| Technique | What changes |
+| --- | --- |
+| First button's `Class` | A single `ClassMapper` holds stable predicates. Rendering selects `btn-success` or `btn-outline-danger` from the actual trigger state. |
+| Second button's `ChildContent` | Razor `@if` changes the icon and text inside one `ToggleButton`. |
+| `@if (items[2].IsActive)` | Includes or removes the fourth button. Hiding it does not reset its trigger value. |
+| `d-flex gap-1 flex-column` | Stacks the controls vertically with spacing; the inner `align-self-center` group holds the third and fourth buttons. |
+| `btn`, `btn-success`, `btn-outline-danger`, `alert` | Built-in Bootstrap styles. See the [button documentation](https://getbootstrap.com/docs/5.3/components/buttons/) for variants. |
+| `fa-solid fa-toggle-on` / `fa-toggle-off` | Icons from the host's styling. Adjacent text keeps the meaning clear without relying only on colour or icons. |
 
-```html
-<div class="text-center mt-4 mx-2 d-flex gap-1 flex-column alert alert-info">
-```
-The class list changed:
-- `flex-column` – combined with `d-flex` it renders elements stacked vertically instead of in a row
+These two component files need no separate CSS file and change no global theme. `Class`/`class` applies styling to this markup; no JavaScript injection is involved.
 
-```html
-@if (Trigger1IsActive){
-         <ToggleButton @bind-IsChecked="@Trigger1IsActive"
-            Class="btn btn-success">
-            Trigger <b>1</b> is active
-        </ToggleButton>
-    } else {
-         <ToggleButton @bind-IsChecked="@Trigger1IsActive"
-            Class="btn btn-outline-danger">
-            Trigger <b>1</b> is inactive
-        </ToggleButton>
-    }
-```
-First variant: on each render we choose the button style beforehand and render a completely new component. We don't change properties of the same component—we create a new one. Use this when too many properties change; otherwise it's a bit "dirty".
+`items` holds the resolved trigger references, using paths relative to the panel. `SetActive` writes the selected `TriggerValue`; `WhenAnyValue` observes external changes. All trackers are added before `base.OnInitialized()`. The base owns their subscriptions and releases them on component disposal, not merely when the overlay becomes hidden.
 
-```html
-<ToggleButton @bind-IsChecked="@Trigger2IsActive">
-        @if (Trigger2IsActive){
-            <i class="fa-solid fa-toggle-on"></i>
-            <strong>Trigger 2 is active</strong>
-        } else {
-            <i class="fa-solid fa-toggle-off"></i>
-            <span>Trigger 2 is not active</span>
-        }
-</ToggleButton>
-```
-Second variant—the most common. Typically you'll update the *content* of a component rather than the component itself.
+<details>
+<summary>Choose a different markup branch</summary>
 
-```html
- <span class="d-flex gap-1 align-self-center">
-        <ToggleButton @bind-IsChecked="@Trigger3IsActive">
-            Trigger <b>3</b>
-        </ToggleButton>
-        @if (Trigger3IsActive){
-            <span class="vr"></span>
+When two states need substantially different markup, use `@if` branches as the second button does. Branches can also contain different complete button markup, but duplicating an entire button just to change one colour is unnecessary. A changed branch does not guarantee that Blazor destroys and recreates a component; its rendering rules determine that lifetime.
 
-            <ToggleButton @bind-IsChecked="@Trigger4IsActive">
-                Trigger <b>4</b>
-            </ToggleButton>
-        }
-    </span>
-```
-Here we use conditions to render an additional button dynamically. It appears only when `Trigger 3` is active. You could build a whole hierarchy of settings like this. But remember that a "jumping" interface is bad UX—avoid it when possible.
+Conditional controls can build a hierarchy of settings, but moving neighbouring controls can make the panel harder to use. Here the hidden fourth button still has its own trigger state.
 
-The button writes `TriggerValue`, and the hotkey changes the same trigger. The `ChangeTrackers` timer rereads it about once per second, so external changes appear with a delay. Add the timer before `base.OnInitialized()`, which seals the tracker list and owns the subscriptions through component `Anchors`. Hiding a window is not the same as disposing its component.
+For a source without notifications, the [timer-based panel](/en/scripting/blazor-windows/multiple-toggles) remains an alternative. Do not combine it with property observation merely to update these four buttons.
+
+</details>
