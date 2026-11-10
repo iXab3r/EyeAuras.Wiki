@@ -31,6 +31,8 @@ Saving and sending use the same prepared diagnostic snapshot. Changing accounts 
 
 If you choose **Send**, wait for confirmation and an ID. **Compressing report…** and **Sending report…** are progress states. Sending to EyeAuras does not automatically deliver the report to every author in its subscriptions. If an author asks for the file directly, use the saved archive.
 
+If a failure followed configuration changes, save the affected run’s report before using [configuration history](/en/features/config-rollback). A restore replaces the working configuration and restarts the application; keeping the archive first lets you investigate the failed state while separately recovering a usable one.
+
 ## What is in the archive
 
 | File | Contents and inclusion |

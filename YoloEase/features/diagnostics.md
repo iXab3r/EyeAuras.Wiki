@@ -72,4 +72,6 @@ That installation error is different from running out of video memory during tra
 | Wrong click position | Keep input off while checking boxes/OSD. Configure the selected object's coordinates and input target before adding movement and a click. |
 | Tiny false detections in a tree | Use **Width**, **Height** or **Area** in **ML Find Class** after checking the model. These filters do not repair training labels. |
 
+If detection is correct but slow in EyeAuras, check **Processing time** in the FPS tooltip and the available **Provider** in [AI Search](/en/triggers/images/ai-search-trigger). For your own script loop, use [CV pipeline profiling](/en/scripting/examples/advanced/profiling-cv) to compare warm-up and later capture/search work; those measurements concern the receiving application, not Python training.
+
 For a new real failure case, record your own prepared input, add it to the project and correct its annotation before the next [Trainer](/en/YoloEase/features/trainer) cycle. [Integration](/en/YoloEase/features/eyeauras-integration) explains the capture-to-result comparison.

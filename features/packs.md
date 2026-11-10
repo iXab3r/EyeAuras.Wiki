@@ -63,6 +63,8 @@ The import option **Prefer packed version** requests prepared publication conten
 
 **Script Protection Mode** is separate and available with **Binaries Only**: **None**, **Performance-first**, or **Security-first**. See [C# script protection](/en/features/script-protection) for preparation and limits, and the [binary-packaging announcement](/en/changelogs/7994) for its history. Without additional protection, compiled scripts receive ordinary compilation.
 
+If recipients should configure only selected values, set [folder permissions](/en/features/permission-model) before distributing the pack. If access requires a key, follow [sublicenses](/en/features/sublicenses) for the product’s current lease and loss-of-access handling. Preparing binaries or selecting Packed Only does not implement that access logic.
+
 <details>
 <summary>Additional settings and local packing</summary>
 

@@ -67,6 +67,8 @@ An ordinary import can ask **Ignore / Replace / Copy** for each conflict, with *
 
 The source form also accepts a prepared installation file or JSON from the clipboard. Choose by the file's contents; an arbitrary file is not a full application configuration.
 
+Before publishing, choose what recipients may view or change through [folder permissions](/en/features/permission-model). For example, **Configurable** lets them adjust exposed properties while keeping actions and triggers read-only. Make that choice alongside the content preview; a share link or library listing serves a different purpose.
+
 <details>
 <summary>Publish a new set or update your publication</summary>
 

@@ -39,4 +39,6 @@ For an account first created from a key, the key supplies the initial sign-in se
 
 The product's license determines its duration and conditions. Account binding and a license session's PC binding are separate. Signing in again does not extend expired access, unfreeze it or release an occupied session. See [Sublicenses](/en/features/sublicenses) for these states.
 
+To place sign-in inside your own panel, follow the complete [LoginWidget window example](/en/scripting/examples/advanced/window-login-widget). Its two files show the account button and keep the script-owned window alive until close or Stop; observing that button is a useful first check before connecting your pack’s separate access logic.
+
 For a custom pack interface, use the supported sign-in flow or LoginWidget. A username alone is not an access decision; the same guide describes the technical options.

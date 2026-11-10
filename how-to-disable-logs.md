@@ -40,6 +40,8 @@ The screenshot uses an earlier arrangement. Use the current labels above.
 
 This differs from filtering [Event Viewer](/en/features/event-viewer). A display filter hides rows; it cannot restore messages that were never recorded. The ordinary release profile stores logs under `%appdata%\EyeAuras\release\logs`; other profiles and portable data locations differ.
 
+When you need help with a reproducible failure, restore **Default**, reproduce it, then follow [Report a problem](/en/report-a-problem) to select that run’s logs and save an archive for review. Lowering the level again afterwards cannot add details to an earlier report.
+
 <details>
 <summary>Edit log4net.config for a particular installation</summary>
 
