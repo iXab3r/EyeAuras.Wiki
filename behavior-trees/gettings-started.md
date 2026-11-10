@@ -59,13 +59,17 @@ Once the route is clear, replace the first Fixed Status with **Aura Is Active** 
 
 The earlier tutorial assumed an already configured aura named `HP is low`:
 
-![Linking an existing aura in the earlier node editor](https://i.imgur.com/ewcmXlS.png =x600)
+The current picker below uses a separate benign aura, `BT signal`, with **Fixed Value → Is NOT Active**. Open **Aura Is Active → General → Links → Edit**, then select that aura. It appears highlighted in the picker and in its linked-items list. This test setup does not reproduce the historical HP or F1 workflow.
+
+![Current Links → Edit picker with the benign BT signal aura selected](/assets/wiki-media/m045.png =x600)
 
 It then added **Key Press** for `F1`. This is a separate input action requiring the intended target window and delivery backend; it is not part of reading the condition.
 
 The example used a 250 ms automatic period and an activation condition. Current groups are **Activation** and **Execution**; activation can link your own [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active) aura.
 
-![The earlier placement of activation and tick settings](https://i.imgur.com/4NO0PdJ.png =x600)
+The current settings view below uses the same benign test setup. **Is Loaded** is checked and **When Activated → Do nothing** is selected. The capture shows the **Activation** and **Execution** groups and the upper **Tick BT Once** button; execution was not run for this capture.
+
+![Current root settings and manual Tick placement in the benign test setup](/assets/wiki-media/m047.png =x600)
 
 A successful condition admitted the action; failure stopped that branch:
 
