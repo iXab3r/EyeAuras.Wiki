@@ -16,6 +16,8 @@ Start with [Basic recipes](/en/recipes/basic) for tasks that do not require prog
 
 For shared configuration, OCR filtering and deliberately driven tree execution, choose [Intermediate recipes](/en/recipes/intermediate). They state the required capture, language or node prerequisites before connecting the parts.
 
+For complete C# projects, choose [Developer recipes](/en/recipes/developer): typed observations, packaged resources, IDE helpers, reactive panels, project JS modules and a bounded native list. Each states its host and ownership requirements.
+
 | What you want to accomplish | Recipe |
 | --- | --- |
 | Keep preparation reminders beside your notes, without treating them as recording status | [Foreground recording checklist](/en/recipes/basic/recording-reminder) |
@@ -42,5 +44,11 @@ For shared configuration, OCR filtering and deliberately driven tree execution, 
 | Keep failure evidence before restoring a profile | [Report before rollback](/en/recipes/intermediate/report-before-rollback) |
 | Compare half-filled bars of different sizes | [Color coverage across sizes](/en/recipes/intermediate/color-coverage-across-sizes) |
 | Decide whether a pack has understood prerequisites | [Review before import/enable](/en/recipes/intermediate/review-import-before-enable) |
+| Observe one owned aura variable, increment it once per second and release the subscription when the script stops. | [Observe a typed counter until Stop](/en/recipes/developer/typed-counter-observation) |
+| Package text and a supplied PNG with a script project, read the text through its file provider and display both in an owned window. | [Bundle help text and your own reference image](/en/recipes/developer/bundle-own-reference-resources) |
+| Move counter formatting into an ordinary C# class, edit the exported solution and run the imported result in EyeAuras. | [Edit an exported project with an explicit helper](/en/recipes/developer/ide-project-with-helper) |
+| Observe one loaded Hotkey Is Active trigger, switch it from Razor and style its current value through a project CSS file. | [Build a styled panel for your own trigger](/en/recipes/developer/reactive-aura-control-panel) |
+| Import an ES module after rendering, pass one ElementReference and release the component-owned module on close. | [Highlight your own element through a project module](/en/recipes/developer/project-module-highlight) |
+| Render a bounded owned list with ImGuiSdk 0.1.47, a supplied TTF and local font selection until Stop. | [Show 50 known telemetry rows with your own font](/en/recipes/developer/native-font-telemetry-panel) |
 
 Use the checklist or static card when you already know what you want to display. Choose a visual check when the captured image itself must supply the condition, or Replica when you only need a live copy. The recipes explain which state changes should produce a result and which settings affect that result; choosing a source window does not by itself authorize or send input.
