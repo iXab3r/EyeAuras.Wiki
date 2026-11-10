@@ -25,6 +25,8 @@ Each condition needs a data source. Image search uses captured pixels, a file co
 
 Your first result is a clear connection between a changed condition and one chosen reaction. Expand that working part gradually.
 
+For a complete task without programming, choose a [Recipe](/en/recipes): keep a checklist beside your notes, distinguish a viewer opening from closing, or observe a small visual source. Each recipe includes its own preparation, settings and expected result.
+
 The following screenshots show an earlier interface: a tree on the left and the selected item's editor on the right. Current labels and placement can differ.
 
 ![Earlier main window with the tree and editor](https://eyeauras.net/assets/img/appimages/EyeAuras_OzDyUnmzFH.webp =x400)
