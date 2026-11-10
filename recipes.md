@@ -34,5 +34,13 @@ For shared configuration, OCR filtering and deliberately driven tree execution, 
 | Read a visible status phrase before displaying its result | [Own document status text](/en/recipes/intermediate/own-document-status-text) |
 | Stop a notification route when your own check fails | [Check before notify](/en/recipes/intermediate/check-before-notify) |
 | Retry your own condition until one deliberate pass completes | [Retry readiness](/en/recipes/intermediate/retry-readiness-check) |
+| Apply an observed warning delay before its cue | [Delay an observed warning](/en/recipes/intermediate/stable-warning-state) |
+| Stop and restart a retained wait on your next tick | [Interrupt an owned wait](/en/recipes/intermediate/cancel-owned-wait) |
+| Choose a preferred cue or a fallback | [Choose a fallback cue](/en/recipes/intermediate/choose-a-fallback-cue) |
+| Find which layer hides a linked reminder | [Trace a dependent reminder](/en/recipes/intermediate/trace-dependent-reminder) |
+| Compare a pulse with its recorded transitions | [Inspect Timer transitions](/en/recipes/intermediate/inspect-timer-transitions) |
+| Keep failure evidence before restoring a profile | [Report before rollback](/en/recipes/intermediate/report-before-rollback) |
+| Compare half-filled bars of different sizes | [Color coverage across sizes](/en/recipes/intermediate/color-coverage-across-sizes) |
+| Decide whether a pack has understood prerequisites | [Review before import/enable](/en/recipes/intermediate/review-import-before-enable) |
 
 Use the checklist or static card when you already know what you want to display. Choose a visual check when the captured image itself must supply the condition, or Replica when you only need a live copy. The recipes explain which state changes should produce a result and which settings affect that result; choosing a source window does not by itself authorize or send input.
