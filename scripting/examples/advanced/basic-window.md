@@ -7,30 +7,100 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-02-27T19:39:18.852Z
 ---
+# Open a window with a script-owned model
 
-# Blazor Window
-Create both `Script.csx` and `MainWindow.razor` in one C# Script project. The
-`PhantomPixel` namespace must match the script import and Razor declaration.
-The EyeAuras host supplies `GetService`, `IBlazorWindow` and the component base;
-this is not a standalone WPF application or an ordinary helper class.
+Create a counter model in your script, display it in a window and log its final value after the window closes. The caller owns the data; Razor displays it and handles the button.
 
-Window operations use the UI host infrastructure. This does not make arbitrary
-component state thread-safe.
-Syntax highlighting in Razor files is still rough on edges, so for anything more serious than `Hello, world`, I would recommend to use Component with code-behind. Then in `.cs` you will have a proper highlighting.
+Use a **C# Script action** in desktop EyeAuras with its Blazor/WebView2 window host. This project is not a standalone WPF application. `GetService`, `Log` and `cancellationToken` below belong to `Script.csx`, not the ordinary model class.
 
-And of course you can still export/import project and use Rider/Visual Studio with proper syntax highlighting even in Razor files.
- 
-![Blazor Window](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_XRahnHfM6ayTo7lA.png)
-![Working](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_n2fqzy1i8MZi1OqM.png)
+1. Create a test aura, add **C# Script** under **On Enter** and open its editor. Use manual **Run** for the first test.
+2. Choose **New file → C# Class** for `CounterViewModel.cs` and **New file → Component** for `MainWindow.razor`. This is a single-file component; if you chose code-behind, remove its duplicate generated counter members.
+3. Enter the three complete files below. `WindowDemo` matches the model namespace, Razor namespace and script import.
 
-## Example 
-> You can import the ready-made example from here: https://eu.eyeauras.net/share/S20250227193905C9v8tD3LlBPa
-{.is-info}
+## Script.csx
 
-1. Create an aura with a script
-2. Copy-paste, run it, new window should appear with a clickable button
+```csharp
+using WindowDemo;
+using PoeShared.Blazor.Wpf;
+
+{
+    var model = new CounterViewModel { Title = "My counter" };
+    using var window = GetService<IBlazorWindow>();
+    window.ViewType = typeof(MainWindow);
+    window.DataContext = model;
+    window.Title = "EyeAuras model window";
+    window.Width = 480;
+    window.Height = 260;
+    window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+    window.ShowDialog(cancellationToken);
+    Log.Info($"Clicks after closing: {model.Count}");
+}
+```
+
+## CounterViewModel.cs
+
+```csharp
+namespace WindowDemo;
+
+public sealed class CounterViewModel
+{
+    public string Title { get; set; }
+    public int Count { get; set; }
+}
+```
+
+## MainWindow.razor
+
+```razor
+@namespace WindowDemo
+@using System.Threading.Tasks
+@using Microsoft.AspNetCore.Components.Web
+@using PoeShared.Blazor
+@inherits BlazorReactiveComponent<CounterViewModel>
+
+<h3 class="text-center">@DataContext.Title</h3>
+<div class="text-center mt-4">
+    <button class="btn btn-primary btn-lg" @onclick="Increment">Click Me</button>
+</div>
+<p class="text-center mt-3" style="font-size: 1.5rem;">
+    You clicked <strong>@DataContext.Count</strong> times!
+</p>
+
+@code {
+    private async Task Increment()
+    {
+        DataContext.Count++;
+        await Refresh("model count changed");
+    }
+}
+```
+
+4. Click **Run**. **EyeAuras model window** opens with heading **My counter**. Click **Click Me** a few times, then close it: the script log reports the final count.
+5. Run it again to create a new model and window, starting at zero. **Stop** cancels the dialog wait; leaving the explicit block disposes the window.
+
+These earlier screenshots show the same window mechanism with different names and labels:
+
+![Window project and Razor component](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_XRahnHfM6ayTo7lA.png)
+![Window with its counter](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_n2fqzy1i8MZi1OqM.png)
+
+| Part | Ownership and purpose |
+| --- | --- |
+| `CounterViewModel` | Created by the caller and passed as `DataContext`. Its count remains readable after close, but is not persisted between Runs. |
+| `IBlazorWindow` | Resolved in the script container and disposed by `using` inside the explicit block. The host configurator attaches the container and project files. |
+| `ViewType` | Selects the compiled public Razor component type. |
+| `ShowDialog(cancellationToken)` | Shows the window and blocks until close or cancellation, keeping the owned scope alive. |
+| `Width` / `Height` | Native WPF window dimensions, distinct from browser DOM geometry or another process's client area. |
+| `Refresh("model count changed")` | Refreshes this reactive component after the handler changes its model. |
+
+This model is a plain class without automatic change notifications. The example changes it in a component handler and explicitly refreshes. An external thread changing that property does not automatically create a UI subscription or make the model thread-safe. Owned subscriptions, when needed, must be disposed with their owner.
+
+<details>
+<summary>Use a two-file, component-local counter</summary>
+
+If the script does not need the final value, use these two files as a separate alternative instead of the model-driven project. Here `PhantomPixel` matches between the script import and Razor; the counter belongs to the component.
 
 **Script.csx**
+
 ```csharp
 using PhantomPixel;
 using PoeShared.Blazor.Wpf;
@@ -44,8 +114,11 @@ using PoeShared.Blazor.Wpf;
 ```
 
 **MainWindow.razor**
+
 ```razor
 @namespace PhantomPixel
+@using System.Threading.Tasks
+@using Microsoft.AspNetCore.Components.Web
 @using PoeShared.Blazor
 @inherits BlazorReactiveComponent
 
@@ -64,21 +137,25 @@ using PoeShared.Blazor.Wpf;
 @code {
     private int count = 0;
 
-    private void IncrementCount()
+    private async Task IncrementCount()
     {
         count++;
-        Refresh(nameof(IncrementCount));
+        await Refresh(nameof(IncrementCount));
     }
 }
 ```
 
-Click Me increments the counter and requests `Refresh(nameof(IncrementCount))`.
-`ShowDialog(cancellationToken)` waits for close or Stop; `using` releases the window
-afterward. WPF handles cancellation inside ShowDialog, so an outer cancellation
-exception is not required. Component events do not permit arbitrary WPF access
-from worker threads.
+The click handler awaits `Refresh`; the blocking window call and explicit scope retain the same lifetime. Do not mix this component-local count with the main example's model logging.
 
-See [runtime contexts](/en/scripting/api/core/app-runtime-contexts),
-[Blazor windows](/en/scripting/api/windows-subsystems/blazor-windows) and
-[IBlazorWindow](/en/scripting/api/IBlazorWindow). These are source-backed contracts
-for EyeAuras `20fd3d4` / PoeEye `0e02c98`, not a claim this example was run in your host.
+</details>
+
+<details>
+<summary>Other presentation modes and IDE editing</summary>
+
+For a higher-level dialog route, see [CreateWindow with a model](/en/scripting/blazor-windows/getting-started). Direct `IBlazorWindow` resolution here lets you set `ViewType` and `DataContext` yourself.
+
+`Show()` returns immediately. Replacing `ShowDialog` with it in this short block would immediately dispose the window. For non-modal display, establish a token-aware `WhenClosed` wait before showing, then await it before cleanup; see [IBlazorWindow](/en/scripting/api/IBlazorWindow) and the [window map](/en/scripting/api/windows-subsystems/blazor-windows).
+
+For larger components, choose **Component (with code-behind)** for matching Razor/C# parts, or [export the project for an IDE](/en/scripting/ide-integration). Highlighting varies by editor/version; an IDE build does not replace the EyeAuras host. The [historical ready-made example](https://eu.eyeauras.net/share/S20250227193905C9v8tD3LlBPa) remains available as a separate sample. [Script runtime](/en/scripting/api/scripting/runtime) explains host context and ownership.
+
+</details>

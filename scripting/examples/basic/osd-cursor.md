@@ -7,27 +7,19 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-03-31T18:02:42.036Z
 ---
+# Draw a marker around the cursor
 
-# Drawing the cursor through EyeAuras OSD
+Show a small green frame at the current pointer position. The script reads screen cursor coordinates and moves only the OSD rectangle; it does not move the mouse or send input.
 
-This script demonstrates how to draw a small, live-updating rectangle around the mouse cursor using **EyeAuras’ On-Screen Display (OSD) API**. It uses the `IOnScreenCanvas` API to dynamically render an overlay element that tracks the cursor in real time.
+Use desktop EyeAuras with its screen-overlay module and Blazor/WebView2. Keep the cursor on the primary monitor for this first test: the current shared OSD window is placed there.
 
----
-
-### 📦 API Overview
-
-EyeAuras exposes a scripting API for creating lightweight on-screen visuals:
-
-These APIs allow you to create, manipulate, and remove lightweight on-screen overlays, which are perfect for scripting HUDs, tracking UI elements, debug helpers, or cursor markers.
-
----
-
-### ✅ Example: Draw a Green Rectangle Around the Cursor
-
-Run this as a desktop EyeAuras C# Script with the OSD/Blazor/WebView module. The 10×10 frame follows the screen cursor until Stop. An ordinary helper needs the canvas factory and token passed explicitly.
+1. Create your own test aura and add a **C# Script** action.
+2. Put this complete code in top-level `Script.csx`:
 
 ```csharp
+using System;
 using System.Drawing;
+using System.Threading.Tasks;
 using EyeAuras.Shared.Scripting;
 using EyeAuras.Blazor.Controls.ScreenOverlay;
 
@@ -46,35 +38,42 @@ using EyeAuras.Blazor.Controls.ScreenOverlay;
         {
             var cursor = System.Windows.Forms.Cursor.Position;
             cursorBox.Location = new Point(cursor.X - 5, cursor.Y - 5);
-            Sleep(16);
+            await Task.Delay(16, cancellationToken);
         }
+    }
+    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+    {
     }
     finally
     {
         canvas.Clear();
-        Log.Info("OSD routine has stopped");
+        Log.Info("Cursor marker removed");
     }
 }
 ```
 
----
+3. Click **Run**, then move the mouse normally on the primary monitor. The frame follows the pointer, centred on the read position.
+4. Click **Stop**. The loop ends, the marker is removed and the script logs **Cursor marker removed**.
 
-### 📌 What’s Happening
+| Setting | Result |
+| --- | --- |
+| `Size(10, 10)` | Marker dimensions in the screen-overlay coordinate system. |
+| `cursor.X - 5`, `cursor.Y - 5` | Converts the centre point to the top-left corner of the 10 × 10 frame. |
+| `Background = Color.Transparent` | Leaves the middle clear. Assign a colour or use `WithBackground(Color.FromArgb(...))` for a filled marker. |
+| `BorderThickness = 2`, `BorderColor = Color.Green` | Frame thickness and colour. |
+| `Task.Delay(16, cancellationToken)` | A cancellable pause between updates, not a guarantee of exactly 60 rendered frames per second. |
 
-- `canvas.AddRectangle()` creates a new rectangle overlay object.
-- The rectangle is styled with:
-  - Transparent background
-  - Green border (`2px`)
-  - Fixed size (`10x10`)
-- The location is updated on every loop iteration to match the cursor position (centered by subtracting five pixels on each axis).
-- The rectangle is disposed first; `finally` clears the canvas before the canvas is disposed. `Clear` removes registrations and does not replace object disposal. The shared window may remain for other users. See [OSD ownership and primary-monitor limits](/en/scripting/api/osd/screen-overlay).
+`Create()` returns an owned proxy canvas over the shared screen window. `AddRectangle()` creates and registers this example's object. Leaving `try` disposes the rectangle first; `Clear()` then removes remaining registrations while the canvas is alive, and leaving the outer block disposes that canvas. `Remove`/`Clear` do not replace object disposal. The service owns overlay-window scheduling and its internal update subscriptions; no manual Razor refresh or extra UI thread is required here.
 
----
+`Cursor.Position` uses screen coordinates, not a selected window's client coordinates. The shared OSD uses the primary monitor; this example does not promise identical placement across monitors and DPI combinations. Check the monitor and scaling before adding an arbitrary window offset.
 
-### 🛠 Tips & Ideas
+<details>
+<summary>Inspect the OSD or use a synchronous pause</summary>
 
-- 🔁 `Sleep(16)` limits the loop rate; actual rendering cadence depends on the host. Cancellation is checked by the loop condition.
-- 🔲 Use `.WithBackground(Color.FromArgb(...))` if you want a filled marker.
-- 🧪 Use `canvas.ShowDevTools()` for live UI inspection (great for debugging overlay layout).
+After creating the canvas, `canvas.ShowDevTools()` opens its browser content for inspection. The shared window may remain alive for other OSD users after this marker is removed.
 
----
+In this top-level script, `Sleep(16)` is an alternative to `await Task.Delay(...)`: the host method uses the Run token. An ordinary C# helper does not get `Sleep`, `Log`, `GetService` or that token as globals; pass the canvas factory, logger and token explicitly. The async pause above keeps the work awaited without a separate worker runner.
+
+See [the versioned API reference](/en/scripting/api/reference) for OSD contract selection.
+
+</details>
