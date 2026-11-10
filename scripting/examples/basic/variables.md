@@ -7,113 +7,105 @@ tags: eyeauras, scripting, variables, data storage, C#, ai-translated
 editor: markdown
 dateCreated: 2024-02-20T22:05:21.584Z
 ---
-# Storing data in EyeAuras scripts
+# Keep a counter between script runs
 
-Most scripts are not meant to run forever. They are not full applications with a multi-hour lifecycle. Usually, a script starts, does its job, and exits.
+Suppose every **Run** should increase a counter, and editing the script should not reset it. Store the value with **Variables** on its owner, instead of a local C# variable.
 
-EyeAuras gives you several ways to store data. Below, they are ordered from the shortest-lived to the longest-lived.
+Use your own editable **C# Script**. These examples run in top-level **Script.csx**, where EyeAuras supplies **Variables**, **AuraTree** and **Log**. Ordinary helper classes receive the services explicitly.
 
-The examples below run inside an EyeAuras C# Script. `Variables`, `AuraTree`, and `Log` are provided by the host. In a regular C# class, you need to pass the corresponding services explicitly.
+1. Create a new C# Script action whose context and ancestors have no `myCounter` variable yet.
+2. Replace its code with this typed counter:
 
-## Local variables
+```csharp
+var myCounter = Variables.Get<int>("myCounter"); // get a typed handle to myCounter
+myCounter.Value = myCounter.Value + 1; // increment its stored value
+Log.Info($"Counter value: {myCounter.Value}"); // myCounter is now 2, 3 и т.п.
+```
 
-Nothing special here. These variables live only until the current method or code block finishes.
+3. Click **Run**. A missing integer value reads as `0`; after the write, the log should show `Counter value: 1`.
+4. Run again to get `Counter value: 2`. Add a comment, wait for compilation and run once more. It should keep increasing while the variable owner stays the same.
+5. Open **Variables** for the selected owner to find the entry and value. Do not delete someone else's configuration variables to try this example.
+
+![Variables view in an earlier editor](https://i.imgur.com/J9n7GkS.png)
+
+The older image shows inspection. The current editor also provides **Add variable...**, value editing with **Save**, and deletion with **Remove**. This example writes through the script; a manual edit can change the stored type.
+
+## Choose the data lifetime
+
+| Storage | Lifetime and scope |
+| --- | --- |
+| Local C# variable | Until its block or method finishes. |
+| [Sandbox](/en/scripting/sandbox) field or property | Between runs of that instance. Recompilation or recreating the instance resets fields. |
+| Variables in the current script context | An owner entry that survives recompilation. Another action using the same name need not use the same owner. |
+| Aura or folder variable | Data on a selected tree item, with inheritance for descendants. Several scripts can explicitly select a common owner. |
+
+Supported simple values participate in saved configuration. A typed handle does not make every arbitrary .NET object persistable. Writing a variable also does not automatically run every aura: consumers must actually read or bind to it.
+
+<details>
+<summary>Local values, sandbox properties and the indexer</summary>
+
+A local value does not keep a counter across runs:
 
 ```csharp
 var test = 123;
 ```
 
-## Sandbox properties
-
-Your script is a C# class, so you can declare properties and assign values to them.
-
-These values persist between runs of the same [sandbox](/scripting/sandbox) instance. After a code change and recompilation, or after the sandbox is recreated for any other reason, the values are lost. This is useful for things that should be initialized once and then reused for the lifetime of that sandbox. No disk write happens here.
+A sandbox property lasts longer, but only within that instance. This separate example assigns 16 every time rather than incrementing:
 
 ```csharp
 
 int MyCounter { get; set; }
 
-// здесь много-много вашего кода
+// other code can go here
 
 MyCounter = 16;
 
-// здесь еще больше кода
+// more code can go here
 
 Log.Info($"Counter: {MyCounter}");
 
 ```
 
-## Script, aura, and folder variables
-
-This is where EyeAuras-specific behavior begins.
-
-If you need to keep data beyond a single script run, you can store it in scripts, auras, folders, and trees. To inspect current variable values, select an aura or folder and open the `Variables` tab. There you can see the type, current value, last update time, and more. Editing is not available yet, but you can delete variables.
-
-The main use cases for this kind of storage are passing data from one script to another, keeping user configuration, and similar tasks.
-
-![](https://i.imgur.com/J9n7GkS.png)
-
-## Script variables and the Variables API
-
-A script can read and write variables that belong to its owner, and those variables survive script code changes. **Other scripts** can access them too, but only if they explicitly use the same owner. `Variables` without a path uses the current context, so the same variable name in two different scripts does not automatically mean shared storage.
-
-For example, one script can manage configuration while another script uses that configuration to do the actual work.
-
-Scripts running in the [sandbox](/scripting/sandbox) have access to the [Variables](/scripting/api/IVariablesScriptingApi) property by default:
+Count visible entries in the current context with:
 
 ```csharp
 Log.Info($"Variables count: {Variables.Count}");
 ```
 
-There are many methods there, but the two main approaches are the most important. At its core, this is a key-value store, so you can read and write values using string keys.
-
-For example:
+The indexer returns **object**. This independent fragment overwrites the value with 1 each time:
 
 ```csharp
-Variables["myCounter"] = 1; // записываем 1 в переменную с именем myCounter
-Log.Info($"Counter value: {Variables["myCounter"]}"); // считываем значение переменной myCounter, будет 1
+Variables["myCounter"] = 1; // write 1 to myCounter
+Log.Info($"Counter value: {Variables["myCounter"]}"); // read myCounter; this is 1
 ```
 
-The downside of this approach is that if you care about the data type, you need to cast it yourself. The indexer returns `object`, even if the stored value is actually an `int`.
+Arithmetic therefore needs a cast. This separate fragment writes 1, then produces 2:
 
 ```csharp
-Variables["myCounter"] = 1; // записываем 1 в переменную с именем myCounter
-// Variables["myCounter"] = Variables["myCounter"] + 1; // не сработает и выдаст ошибку!
+Variables["myCounter"] = 1; // write 1 to myCounter
+// Variables["myCounter"] = Variables["myCounter"] + 1; // object arithmetic does not compile
 
-Variables["myCounter"] = (int)Variables["myCounter"] + 1; // а вот это уже сработает
-Log.Info($"Counter value: {Variables["myCounter"]}"); // в myCounter будет 2
+Variables["myCounter"] = (int)Variables["myCounter"] + 1; // explicitly cast the stored value
+Log.Info($"Counter value: {Variables["myCounter"]}"); // myCounter is now 2
 ```
 
-**C#** is not **Python**. It needs to know what data types it is working with. Repeating casts all the time is inconvenient, so EyeAuras provides the helper class `ScriptVariable<T>`. It lets you define the **name** and **type** once, then work with the variable directly.
+The main example's `Variables.Get<int>` establishes the name and type once. Its **Value** reads and writes the store; the handle itself needs no Dispose.
+
+</details>
+
+## Share a value with another aura
+
+Create your own aura **Something** beside the script. These **alternative fragments** write 16 to its `myCounter`; they do not continue incrementing the current script's counter.
+
+By relative path:
 
 ```csharp
-var myCounter = Variables.Get<int>("myCounter"); // инициализируем переменную типа int с именем myCounter
-myCounter.Value = myCounter.Value + 1; // увеличиваем значение на 1
-Log.Info($"Counter value: {myCounter.Value}"); // в myCounter будет 2, 3 и т.п.
-```
-
-With this approach, you declare the variable once, almost like a local variable, and then keep using it without worrying as much about mixing up names or types later.
-
-## Aura and folder variables
-
-Just like a script, every aura and every folder can also store variables. If you know the path to an aura or folder, you can access its variables. [Variables](/scripting/api/IVariablesScriptingApi) provides two methods for this:
-
-- `ScriptVariable<T> Get<T>(string auraPath, string variableName);`
-- `ScriptVariable<T> Get<T>(IHasVariables source, string variableName);`
-
-Using them, you can read and write variables from any supported source.
-
-### Option 1
-
-```csharp
-// Создайте рядом со скриптом ауру Something.
+// Create an aura named Something beside the script.
 var auraVariable = Variables.Get<int>(@".\Something", "myCounter");
 auraVariable.Value = 16;
 ```
 
-Specify where to find the aura, folder, or tree, and EyeAuras does the rest.
-
-### Option 2 — through a resolved aura
+Or through a resolved item:
 
 ```csharp
 var aura = AuraTree.GetAuraByPath(@".\Something");
@@ -121,21 +113,14 @@ var auraVariable = Variables.Get<int>(aura, "myCounter");
 auraVariable.Value = 16;
 ```
 
-First find the aura or folder, then tell `Variables` to work with that source.
+The path is relative to the current tree context, not global across EyePad tabs. The variable name alone does not select a shared owner. See [Variables API](/en/scripting/api/IVariablesScriptingApi) for exact overloads.
 
-## Hierarchy
+## Inherit a folder value
 
-Aura and folder variables follow a hierarchy. If you set a variable at the folder level, all child folders and auras can read that value. At the same time, any child can override it with its own value. The closest analogy is [CSS](https://en.wikipedia.org/wiki/CSS) in HTML.
+A folder's value is visible to descendants. A local entry with the same name overrides it; removing that local entry exposes the ancestor's value again. Like [CSS inheritance](https://en.wikipedia.org/wiki/CSS), the nearer setting takes precedence.
 
-This makes it easy to pass settings down through the tree. EyeAuras uses this for default values such as the target window to attach to, the simulator to use for input, and similar settings.
+Defaults use this mechanism too: **default.WindowSelector.TargetWindow** affects nested auras' default window selection. Do not change these service names to test a counter.
 
-p.s. If you override `default.WindowSelector.TargetWindow`, you also change which default window will be used by all nested auras.
+See [typed operations](/en/scripting/api/scripting/variables) to distinguish a missing entry, null, a type fallback and change subscriptions. [Owner and lifetime examples](/en/scripting/api/scripting/variable-lifecycle-operations) cover shared owners, **Remove()** and repeated Run. Subscriptions need their own cleanup and do not select a UI thread; none is needed for this counter.
 
-## Blackboard aka tree variables
-
-> TBA
-{.is-warning}
-
-If you need to distinguish between a missing entry, `null`, and a default value, or if you want to subscribe to changes, see [typed variable operations](/scripting/api/scripting/variables). The descriptor itself does not guarantee that an arbitrary object can be saved to disk.
-
-For a complete example of inheritance, reverting to the folder value after `Remove()`, and comparing state across repeated `Run` calls, see the [owner and lifetime guide](/scripting/api/scripting/variable-lifecycle-operations).
+Behaviour-tree Blackboard variables have their own context. This example does not create or configure them.

@@ -7,74 +7,41 @@ tags: c#, .net, roslyn, blazor, webui, dependency injection, nuget, scripts, ai-
 editor: markdown
 dateCreated: 2024-02-28T12:56:22.746Z
 ---
+# Run your first C# Script
 
-# Hello, world!
-Who wants to jump straight into action - live example [here](/scripting/examples/basic/hello-world), you may find it useful if you're new to C# world.
-And [this one](/scripting/examples/basic/image-search) is a bit more complex and closer to EyeAuras internals.
+Use a script when a built-in action is not enough: for example, to calculate a value and log it. EyeAuras compiles C# inside the application. The first log message needs no IDE, SDK package or external library.
 
-## First run — a log message
-
-Add a **C# Script** action to an aura and enter:
+1. Create your own aura and open its **On Enter** action list.
+2. Add **C# Script**, open **Script.csx**, and replace the initial code with the program below.
+3. Click **Run** in the action editor. This manual run needs no trigger.
+4. Open that script's log and find `Hello, world!`. If compilation reports an error instead, fix it before arranging automatic execution.
 
 ```csharp
 Log.Info("Hello, world!");
 ```
 
-Click `Run` in the script editor. The script log should contain `Hello, world!`. The host supplies `Log`; no additional logger or package is required. For automatic aura execution, configure a trigger and action list as described below.
+The EyeAuras [sandbox](/en/scripting/sandbox) supplies **Log** to this top-level script. It also provides context capabilities such as **AuraTree**, **Variables**, **GetService**, **Sleep** and **cancellationToken**. These names are not globals in an ordinary `.cs` helper or Razor component. Pass or inject the dependencies required by that component; see [script runtime and host context](/en/scripting/api/scripting/runtime).
 
-An ordinary `.cs` helper must receive its logger explicitly. Sandbox members are not C# globals; see the [runtime operation](/en/scripting/api/scripting/runtime).
+To log on a key press, add a separate [Hotkey Is Active](/en/triggers/hotkey-is-active) trigger and use the aura's state transition. [Hello, world](/en/scripting/examples/basic/hello-world) covers that complete path. Another manual Run only checks the script itself.
 
-## What are scripts?
+## Choose where the code belongs
 
-EyeAuras supports custom **C#** code, external IDE workflows and a [custom interface](/en/overlays/custom-ui) built with Blazor. Earlier scripting generations differ from the current runtime.
+| Surface | Purpose |
+| --- | --- |
+| C# Script action | Work invoked as an action: manually, on an aura entering or leaving a state, or in a macro. Automatic execution follows the action list's rules. |
+| C# Script trigger | Periodically evaluates a condition. Boolean results determine the state; a result that cannot convert to Boolean gives an unknown state. Check its polling interval and [enabling conditions](/en/features/enabling-conditions). |
+| C# Overlay / WebUI | A Blazor interface with buttons, fields and displayed data, whose lifetime belongs to the overlay. |
+| [EyePad](/en/features/eyepad) | Opens a standalone file or solution in the dedicated EyeAuras shell. |
 
-The third scripting generation supports external NuGet packages and APIs supplied by the running application. The runtime assists with cancellation and diagnostics; it does not protect arbitrary code against every failure.
+Long-running work must cooperate with `cancellationToken` and release owned resources. Subscribing to an event does not by itself keep a script running. Incorrect code can still consume memory or control input, so begin with a short log-only result.
 
-## Under the Hood
+## Add dependencies after the first run
 
-The program is built on the [**.NET**](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview) platform. It is a rapidly evolving platform that is highly flexible and efficient. Available language features depend on the host Roslyn version and project settings. An exported project shows the dependencies of your installed version.
+EyeAuras uses [.NET](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview) and [Roslyn](https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/). The linked .NET overview is background reading; the installed host and project settings determine your language version and assemblies.
 
-Every script you write will be compiled using [Roslyn](https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/). Most of the headaches related to how to include files, what can be done, and what cannot, have already been solved within the program itself. This leaves you to focus solely on working with the script.
+![C sharp](https://upload.wikimedia.org/wikipedia/commons/d/d2/C_Sharp_Logo_2023.svg =x100) ![Blazor](https://devblogs.microsoft.com/aspnet/wp-content/uploads/sites/16/2019/04/BrandBlazor_nohalo_1000x.png =x100) ![Roslyn](https://upload.wikimedia.org/wikipedia/commons/2/2a/Roslyn.png =x100)
 
-![](https://upload.wikimedia.org/wikipedia/commons/d/d2/C_Sharp_Logo_2023.svg =x100) ![](https://devblogs.microsoft.com/aspnet/wp-content/uploads/sites/16/2019/04/BrandBlazor_nohalo_1000x.png =x100) ![](https://upload.wikimedia.org/wikipedia/commons/2/2a/Roslyn.png =x100)
-
-## Getting Started with Scripting
-
-There are three ways in the program to run your code, all of which will be executed within a [sandbox](/en/scripting/sandbox).
-
-### 1. C# Action
-
-The simplest option. You just need to add a "**C# Script**" action. It follows the same rules as any other action, so to run it, you need to add a trigger. For example, you can add [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active), assign it to a button, and activate the script on press/hold.
-
-### 2. C# Trigger
-
-A more complex option - your script will be executed at specific time intervals. It is expected that somewhere in the code, you will return true/false or null, which will activate or deactivate the trigger. Then you can attach actions to the trigger, including script actions. The increased complexity lies in the fact that your script runs continuously and is controlled only by [Enabling Conditions](/en/features/enabling-conditions). Therefore, you need to write code more carefully; otherwise, you may find yourself in a situation where a script error constantly takes control of the mouse/keyboard or consumes all available memory on the computer.
-
-### 3. C# Overlay and WebUI
-
-The most advanced scripting option. In addition to everything available in actions/triggers, WebUI allows you to create a custom user interface with buttons, switches, and input fields. The UI technology used for rendering is called [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor), a component UI model for **.NET**. While the technology itself has some issues since perfection doesn't exist, EyeAuras provides solutions that smooth out these problems, ultimately limiting your possibilities only by your imagination. Below are some examples of different forms assembled on **WebUI**.
-
-![](https://i.imgur.com/iaKm2Br.png =x500) ![](https://cdn.discordapp.com/attachments/1170312651621023755/1197134740906577981/image.png?ex=65ba299b&is=65a7b49b&hm=40f31b17035b500a9973b6bbc5e6e25a882a9a7fd76961cd26e730481bd0c28a& =x300) ![](https://telegra.ph/file/d83bcbeeac554d2e9b939.png =x300)
-
-![](https://cdn.discordapp.com/attachments/846848467795836969/1168590651798069379/image.png?ex=655251da&is=653fdcda&hm=260bde6f1673493c9ec42573c205716289afdd032c2cc710ba8146fbec1e2793 =x200) ![](https://i.imgur.com/D7Nxmv7.png =x200)
-
-
-
-## Services
-
-Both the program and API are built on something called [Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection). In simple terms, the program is divided into small pieces, each responsible for its own task. Just like in a big house where someone cooks porridge, someone sews socks, and someone doesn't know how to do anything but still exists.
-
----
-Each entity in this house has a name. For example, if you want to move the mouse, you need to refer to [ISendInputScriptingApi](/en/scripting/api/ISendInputScriptingApi) and call `MouseMoveTo`. If you want to play a sound, you would go to [IPlaySoundScriptingApi](/en/scripting/dependency-injection). Responsibilities vary, and just like in life, knowing the correct names is crucial for success. This documentation will list the main and most useful services, but there is no point in listing the full spectrum - **EyeAuras.SDK** helps inspect contracts. Live service availability depends on the host and loaded modules; optional SDKs may require separate packages and registration.
-
-## External Dependencies
-
-[![](https://learn.microsoft.com/de-de/dotnet/standard/library-guidance/media/nuget/nuget-logo.png =x100)](https://www.nuget.org/)
-
-If every programmer started from scratch, we would still collectively reinvent the wheel. Therefore, scripts fully support external packages. In the **.NET** infrastructure, almost everything is stored in [NuGet](https://www.nuget.org/), including official and unofficial libraries. There are dozens of lists of useful packages; you can start with [this one](https://github.com/quozd/awesome-dotnet). You can connect almost any of them in scripts. There are currently some exceptions, but I am working on resolving them.
-
-
-Pin package versions. For example, at the start of `Script.csx`:
+Libraries can add JSON handling, image processing and other capabilities. This separate **Script.csx** requests a pinned Newtonsoft.Json version and logs JSON after successful restore and compilation:
 
 ```csharp
 #r "nuget: Newtonsoft.Json, 13.0.3"
@@ -83,6 +50,27 @@ using Newtonsoft.Json;
 Log.Info(JsonConvert.SerializeObject(new { Hello = "World" }));
 ```
 
-With the package available and compatible, the log receives JSON. A reference supplies types; it does not register host services. See [references and resources](/en/scripting/api/scripting/references-and-resources).
+[![NuGet](https://learn.microsoft.com/de-de/dotnet/standard/library-guidance/media/nuget/nuget-logo.png =x100)](https://www.nuget.org/)
 
-The core contracts were checked at EyeAuras `20fd3d4` and PoeEye `0e02c98`. Use your version's SDK/XML for exact signatures; live services come from the host.
+See [NuGet](/en/scripting/nuget) for the Properties workflow and [embedded resources](/en/scripting/embedded-resources) for files that travel with the project. The [.NET library collection](https://github.com/quozd/awesome-dotnet) can help locate a package; compatibility with EyeAuras must be checked separately.
+
+Application services are accessed through [Dependency Injection](/en/scripting/dependency-injection). For example, [ISendInputScriptingApi](/en/scripting/api/ISendInputScriptingApi) handles input, and IPlaySoundScriptingApi handles sound. **EyeAuras.SDK** describes contracts; it does not create live services or automatically load optional modules.
+
+<details>
+<summary>Custom interfaces and the next examples</summary>
+
+[Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) builds interfaces from components. Use the [custom UI route](/en/overlays/custom-ui) to host one, rather than pasting component markup into an action. These examples from earlier versions show possible forms; they are not part of the first program:
+
+![Earlier custom form example](https://i.imgur.com/iaKm2Br.png =x500)
+
+![Earlier custom interface example](https://cdn.discordapp.com/attachments/1170312651621023755/1197134740906577981/image.png?ex=65ba299b&is=65a7b49b&hm=40f31b17035b500a9973b6bbc5e6e25a882a9a7fd76961cd26e730481bd0c28a& =x300)
+
+![Earlier form layout](https://telegra.ph/file/d83bcbeeac554d2e9b939.png =x300)
+
+![Earlier application interface](https://cdn.discordapp.com/attachments/846848467795836969/1168590651798069379/image.png?ex=655251da&is=653fdcda&hm=260bde6f1673493c9ec42573c205716289afdd032c2cc710ba8146fbec1e2793 =x200)
+
+![Earlier custom controls](https://i.imgur.com/D7Nxmv7.png =x200)
+
+After logging, try [image search](/en/scripting/examples/basic/image-search). Earlier scripting generations differ from the current runtime; carry an example's dependencies and context with its code. Runtime diagnostics and cancellation support do not protect arbitrary code against every failure.
+
+</details>
