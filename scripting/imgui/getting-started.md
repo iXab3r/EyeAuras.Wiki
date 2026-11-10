@@ -7,169 +7,97 @@ tags: imgui, scripting, ai-translated
 editor: markdown
 dateCreated: 2025-06-21T22:04:21.031Z
 ---
+# Build an ImGui control panel
 
-# ImGui in the Context of EyeAuras
+Show a checkbox that changes a trigger in your own aura. ImGui describes the UI again on every frame: the checkbox reads the current value and writes a new one when clicked. It does not need the text-update subscription used by [Blazor Windows](/en/scripting/blazor-windows/getting-started).
 
-**ImGui** is a remarkably powerful yet simple and intuitive library for drawing *stuff*. The author originally intended it for UI development in games, but it quickly found use far beyond that — the [list of adopters](https://github.com/ocornut/imgui/wiki/Software-using-dear-imgui) is quite impressive.
+Use a desktop Windows EyeAuras host compatible with **EyeAuras.ImGuiSdk 0.1.47** and its native dependencies. This package from the [EyeAuras feed](https://packages.eyeauras.net/v3/index.json) targets .NET 8 Windows and depends on **EyeAuras.ClickableTransparentOverlay 11.5.28**. Do not load a second ImGui.NET/CTO version into the same process. The package supplies types; `ImGuiContainerExtensions` registers the script service. These are separate setup steps.
 
-But here we’re dealing with **automation**, right? So how does ImGui help us?
+## Create the panel
 
-The answer: ImGui is the **simplest and most intuitive** way to build custom UI. It’s even easier than [Blazor Windows](/scripting/blazor-windows/getting-started).
-
----
-
-## How to Install
-
-EyeAuras is gradually transitioning to a modular NuGet-based system so that users can include **only the features they need**. The current functionality has grown too large — image capture, analysis, effects, behavior trees, input simulation, memory reading, audio processing, Blazor UIs… almost no mini-app uses even half of it.
-
-So we're moving various features into NuGet packages that you can install just like any other.
+1. Create your own `TargetAura` with **Hotkey Is Active → Toggle Trigger state on Click** and a free hotkey. Keep it loaded, with no actions for this first exercise.
+2. In the same folder, create another aura with a **C# Script** action. Paste this complete program into top-level `Script.csx`:
 
 ```csharp
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
- 
-using EyeAuras.ImGuiSdk; // required for registration methods
-using ImGuiNET;          // access to ImGui APIs
-using System.Numerics;   // for Vector2/Vector3 use with ImGui
-
-{
-    AddNewExtension<ImGuiContainerExtensions>(); // registers IImGuiExperimentalApi and others
-
-    using var osd = GetService<IImGuiExperimentalApi>();
-}
-```
-
----
-
-## Hello, World
-
-There are 3 things you need to do to start using ImGui:
-
-* Import the `ImGuiNET` namespace
-* Create `IImGuiExperimentalApi` via `GetService`
-* Call `AddRenderer()` with your rendering method
-
-That's it. EyeAuras will handle overlay creation and the render loop. You only need to put your logic in the method passed to `AddRenderer`.
-
-> 💡 Note: Your method will be called **on every frame**, so avoid sleeping or long blocking code.
-
-```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
- 
-using EyeAuras.ImGuiSdk;
-using ImGuiNET;
-using System.Numerics;
-
-{
-    AddNewExtension<ImGuiContainerExtensions>();
-
-    using var osd = GetService<IImGuiExperimentalApi>();
-
-    using var rendering = osd.AddRenderer(() =>
-    {
-        ImGui.ShowDemoWindow();
-    });
-
-    cancellationToken.WaitHandle.WaitOne(); // keep running until script is stopped
-}
-```
-
-![ImGui Demo window](https://s3.eyeauras.net/media/2025/06/EyeAuras_KXCTkIyw7EU3oo3q.gif)
-
----
-
-## Creating a Toggle
-
-Let’s create something of our own. The demo window is useful for testing, but not very practical.
-
-Just like in [Blazor Windows](/scripting/blazor-windows/getting-started), let’s [create a toggle](/scripting/blazor-windows/4-toggle-hotkeyisactive).
-
-### What needs to be done?
-
-* Create the `IImGuiExperimentalApi` overlay
-* Pass a rendering method to `AddRenderer`
-* Draw a checkbox and some text inside the render method
-
-And that’s it! No state management, no sleep calls, no click processing — it’s all immediate mode. The syntax might seem odd at first, but ChatGPT knows ImGui **very well**, so don’t hesitate to ask questions.
-
-```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
-
 using EyeAuras.ImGuiSdk;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 using ImGuiNET;
 using System.Numerics;
 
-// Create a sibling TargetAura with a HotkeyIsActive trigger.
-
 {
     var trigger = AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
-
     AddNewExtension<ImGuiContainerExtensions>();
-
-    using var osd = GetService<IImGuiExperimentalApi>();
-
-    using var rendering = osd.AddRenderer(() =>
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    using var rendering = imgui.AddRenderer(_ =>
     {
-        var visible = ImGui.Begin("My UI");
+        var visible = ImGui.Begin("My UI##target-control");
         try
         {
             if (!visible) return;
-            ImGui.Text("Control window flags and interaction behavior.");
-
-            var isActive = trigger.TriggerValue ?? false;
-            if (ImGui.Checkbox("Is Active", ref isActive))
-            {
-                trigger.TriggerValue = isActive;
-            }
+            var value = trigger.TriggerValue ?? false;
+            if (ImGui.Checkbox("Is Active", ref value)) trigger.TriggerValue = value;
             ImGui.SameLine();
-            ImGui.TextDisabled("(Gets/Sets whether Trigger is active or not)");
-
+            ImGui.TextDisabled("Hotkey Is Active");
             ImGui.Separator();
-            if (trigger.IsActive == true)
-            {
-                ImGui.TextColored(new Vector4(0f, 1f, 0f, 1f), "Trigger is currently ACTIVE");
-            }
-            else
-            {
-                ImGui.TextColored(new Vector4(1f, 0f, 0f, 1f), "Trigger is currently INACTIVE");
-            }
+            ImGui.TextColored(trigger.IsActive == true
+                ? new Vector4(0, 1, 0, 1) : new Vector4(1, 0, 0, 1),
+                trigger.IsActive == true ? "ACTIVE" : "INACTIVE");
         }
-        finally
-        {
-            ImGui.End();
-        }
+        finally { ImGui.End(); }
     });
-
     cancellationToken.WaitHandle.WaitOne();
 }
 ```
 
-![Toggle](https://s3.eyeauras.net/media/2025/06/EyeAuras_950pfgdzIy4pe780.gif)
+3. After dependency restore and compilation, click **Run**. Change **Is Active** in **My UI**: it writes `TargetAura`'s `TriggerValue`. Toggle the hotkey and the next frame reads its new value.
 
----
+![Toggle in the earlier demonstration](https://s3.eyeauras.net/media/2025/06/EyeAuras_950pfgdzIy4pe780.gif)
 
-## What Else Can You Do With ImGui?
+4. Click **Stop**. The outer wait ends; reverse `using` order removes the render subscription before releasing the API instance. Other scripts holding the shared overlay are not closed by releasing your share.
 
-Besides drawing interactive windows, ImGui can also be used for **OSD (On-Screen Display)** — drawing overlays directly onto the screen. You can render both **2D** and **3D** objects.
+| Part | Meaning |
+| --- | --- |
+| `./TargetAura` | A neighbouring aura in this script's tree context. Lookup requires the target and selects the first matching trigger. |
+| `TriggerValue` / `IsActive` | The checkbox changes the trigger's value; the coloured text reads its evaluated state. Other aura conditions still apply. The checkbox displays `null` as off. |
+| `AddNewExtension` then `GetService` | Register the SDK service before resolving it; `#r` alone does not do this. |
+| `AddRenderer` | Returns an owned disposable registration for a callback invoked on the render thread each frame. |
+| `Begin` / `End` | Describe a window in the current frame. `End` is required even when `Begin` reports collapsed content. |
+| `##target-control` | A stable hidden part of the window ID. Do not replace it with a random ID each frame. |
 
-Here's an example — everything you see is rendered using ImGui, including both UI and screen overlays:
+The SDK starts the native window/context before render callbacks. Keep `GetIO`, `Begin` and drawing inside that context; do not manually create a second context. This native UI does not require Razor, HTML or WebView2. [Blazor OSD](/en/scripting/examples/basic/osd-cursor) is a different renderer.
 
-📺 [L2 Demo](https://www.youtube.com/watch?v=y0u20InSjbg)
+API instances share **Main**, its settings and font atlas. Do not close that window directly. `GetService`, `AuraTree` and `cancellationToken` are top-level script capabilities; ordinary classes receive dependencies explicitly. Keep waits and lengthy work outside the frame callback.
 
----
+<details>
+<summary>Start with the standard demo window</summary>
 
-Let me know if you'd like this converted into a docs page or integrated into EyeAuras script templates.
-
-
-The examples show the demo window or a toggle for a sibling `TargetAura`. On Stop, dispose the `AddRenderer` subscription before the API instance; the subscription is not automatically owned by that instance. Instances share `Main`, so releasing your share does not close another script's overlay. See [API operations](/en/scripting/api/IImGuiExperimentalApi) for shared settings, fonts and ownership.
-
-## Two windows with separate state
-
-These examples use `0.1.47`: its published assembly contains `ImGuiWindowManager` and `ImGuiWindowHost`. Those types are absent from `0.1.42`, although basic `AddRenderer` is available there. Package `0.1.47` depends on `EyeAuras.ClickableTransparentOverlay 11.5.28`; use a compatible host build.
-
-With the package reference above, run this alternative `Script.csx`. Each window has its own counter and close button. `CounterPanel` is an ordinary class and may live in a separate `.cs` file:
+This complete alternative displays ImGui's built-in demo until Stop:
 
 ```csharp
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
+using EyeAuras.ImGuiSdk;
+using ImGuiNET;
+
+{
+    AddNewExtension<ImGuiContainerExtensions>();
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    using var rendering = imgui.AddRenderer(_ => ImGui.ShowDemoWindow());
+    cancellationToken.WaitHandle.WaitOne();
+}
+```
+
+![Standard ImGui demo](https://s3.eyeauras.net/media/2025/06/EyeAuras_KXCTkIyw7EU3oo3q.gif)
+
+</details>
+
+<details>
+<summary>Two windows with independent counters</summary>
+
+This alternative creates and requests closure of its managed windows inside the frame callback. The manager calls `CounterPanel.ToImGui` and owns each window's `Begin/End`; the ordinary content class has only its own counter field.
+
+```csharp
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
 using System;
 using System.Reactive.Disposables;
 using System.Threading;
@@ -180,25 +108,35 @@ using ImGuiNET;
 {
     AddNewExtension<ImGuiContainerExtensions>();
     using var imgui = GetService<IImGuiExperimentalApi>();
-    var first = ImGuiWindowManager.OpenNew(() => new CounterPanel(), "First");
-    var second = ImGuiWindowManager.OpenNew(() => new CounterPanel(), "Second");
-    var firstClosed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-    var secondClosed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-    first.Anchors.Add(Disposable.Create(() => firstClosed.TrySetResult(true)));
-    second.Anchors.Add(Disposable.Create(() => secondClosed.TrySetResult(true)));
-    try
+    ImGuiWindowHost first = null, second = null;
+    var closed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+    var remaining = 2;
+    var closing = 0;
+    using var rendering = imgui.AddRenderer(_ =>
     {
-        await Task.WhenAll(firstClosed.Task, secondClosed.Task).WaitAsync(cancellationToken);
-    }
-    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-    {
-    }
+        if (first == null)
+        {
+            first = ImGuiWindowManager.OpenNew(() => new CounterPanel(), "First");
+            second = ImGuiWindowManager.OpenNew(() => new CounterPanel(), "Second");
+            void OnClosed()
+            {
+                if (Interlocked.Decrement(ref remaining) == 0) closed.TrySetResult(true);
+            }
+            first.Anchors.Add(Disposable.Create(OnClosed));
+            second.Anchors.Add(Disposable.Create(OnClosed));
+        }
+        if (Volatile.Read(ref closing) != 0)
+        {
+            ImGuiWindowManager.Close(first);
+            ImGuiWindowManager.Close(second);
+        }
+    });
+    try { await closed.Task.WaitAsync(cancellationToken); }
+    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
     finally
     {
-        ImGuiWindowManager.Close(first);
-        ImGuiWindowManager.Close(second);
-        // Keep the API alive while the manager handles closure on a frame.
-        await Task.WhenAll(firstClosed.Task, secondClosed.Task);
+        Interlocked.Exchange(ref closing, 1);
+        await closed.Task;
     }
 }
 
@@ -213,13 +151,17 @@ public sealed class CounterPanel : ICanBeDisplayedInImGui
 }
 ```
 
-The manager draws these windows; no separate `AddRenderer` is needed. `ImGuiWindowHost` owns Begin/End, so the content must not call them. Closing one window leaves the other open. The script completes after both hosts are disposed. Stop requests closure and waits while the API still holds the overlay; this requires a working render loop and does not guarantee shutdown after a native renderer failure. The manager also disposes disposable content. Use targeted `Close`, not `CloseAll()`.
+Closing one window leaves the other open. The script completes after both hosts are disposed. Stop requests targeted closure and waits while the API still holds the render loop. That acknowledgement requires working native frames; it does not guarantee shutdown after a renderer failure. The manager also disposes disposable content. Do not replace these targeted calls with `CloseAll`, which can affect other owners.
 
-## Start work from a button without blocking rendering
+</details>
 
-This alternative `Script.csx` uses the same package setup. A click starts one sequence; further clicks during it are ignored. Delays represent asynchronous work. Keep expensive computation outside the render callback too:
+<details>
+<summary>Start asynchronous work without blocking frames</summary>
+
+This complete alternative starts ten 200 ms steps from a button. Clicks while work is active do not start another task. The delays stand for your asynchronous work; ImGui calls stay on the render thread.
 
 ```csharp
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -263,7 +205,7 @@ using ImGuiNET;
                     });
                 }
             }
-            ImGui.TextUnformatted($"Progress: {Volatile.Read(ref progress)}/10");
+            ImGui.TextUnformatted($"Done: {Volatile.Read(ref progress)}/10");
         }
         finally { ImGui.End(); }
     });
@@ -283,4 +225,8 @@ using ImGuiNET;
 }
 ```
 
-The gate protects task ownership and prevents new work during shutdown; Interlocked/Volatile transfer progress. The frame callback never waits for the worker. Stop first prevents new starts, removes rendering, then cancels and awaits the active worker before disposing its token source. The worker must not dispose the source, because the owner's later Cancel would access a disposed object. ImGui calls stay on the render thread; ordinary helper classes receive script dependencies explicitly.
+The gate prevents new work during shutdown and protects task ownership; Interlocked/Volatile transfer progress between threads. Stop disables new starts, removes rendering, then cancels and awaits the worker before disposing its token source. The worker must not dispose that shared source itself. Keep expensive computation outside the render callback too.
+
+</details>
+
+ImGui can also draw lines, shapes, labels and projections of coordinates supplied by your program. The [Dear ImGui adopters](https://github.com/ocornut/imgui/wiki/Software-using-dear-imgui) and historical [L2 Demo](https://www.youtube.com/watch?v=y0u20InSjbg) illustrate uses; they do not provide built-in game data. See [IImGuiExperimentalApi operations](/en/scripting/api/IImGuiExperimentalApi) for ownership and shared-state contracts. Basic rendering exists in 0.1.42, but its package lacks the managed-window types used here; these programs consistently select 0.1.47.

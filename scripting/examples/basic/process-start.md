@@ -7,29 +7,64 @@ tags: running programs, C# Script, process automation, ai-translated
 editor: markdown
 dateCreated: 2024-07-02T14:36:35.228Z
 ---
-# Running an Arbitrary Program/Game
-> You can import a ready-made example from here: [https://eyeauras.net/share/S20240702143616Nj8fr0gCxktL](https://eyeauras.net/share/S20240702143616Nj8fr0gCxktL)
-{.is-info}
+# Open a local program from an action
 
-1. Create an aura.
-2. Add `HotkeyIsActive` to it and bind it to a convenient button (this will be our on/off switch, in the example it's `F3`), change the activation type to `Click/Hold`.
-3. Add a `C# Script` action to `On Enter`.
-4. Copy and paste the script itself.
-5. Pressing `F3` will launch `Notepad`.
+Launch your own Notepad and log the returned process ID. A PID confirms a process resource, not that its editor window is ready for input.
+
+1. Create a test aura and add **C# Script** under **On Enter**. Start with manual **Run**.
+2. Put this complete program in top-level `Script.csx`. It requires Windows with `notepad.exe` available:
+
+```csharp
+using System;
+using System.Diagnostics;
+using System.IO;
+
+{
+    var systemFolder = Environment.GetFolderPath(Environment.SpecialFolder.System);
+    var start = new ProcessStartInfo
+    {
+        FileName = Path.Combine(systemFolder, "notepad.exe"),
+        Arguments = "",
+        WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+        UseShellExecute = false
+    };
+    cancellationToken.ThrowIfCancellationRequested();
+    using var process = Process.Start(start);
+    if (process == null) { Log.Warn("No new process was created"); return; }
+    Log.Info($"Started PID: {process.Id}");
+}
+```
+
+3. Click **Run**. Notepad should open and the log reports its PID. Running again sends another launch request; it is not an activate-existing-window command.
+4. Close only your own test window normally when finished. This script does not terminate it automatically.
+
+| Field or result | Meaning |
+| --- | --- |
+| `FileName` | An existing executable. The example obtains the Windows system folder rather than assuming drive `C:`. |
+| `Arguments` | The program's argument string, empty here. Its syntax belongs to that program. |
+| `WorkingDirectory` | Initial child working folder. With `UseShellExecute = false`, it is not the executable search path. |
+| `UseShellExecute = false` | Starts the executable directly. Opening a document through its file association uses a different shell-based route with `true`. |
+| `Process.Id` | ID of the returned process. It can hand work to an existing instance and exit quickly; PID is not ready-UI proof. |
+
+`using` releases the `Process` component and observation resources; it does not call `Kill`. **Stop** also does not terminate the child: `Process.Start` takes no cancellation token. To wait for exit, place `await process.WaitForExitAsync(cancellationToken)` **inside the block before disposal**. Cancelling that wait still does not terminate the process.
+
+<details>
+<summary>Short name, another program or a hotkey</summary>
+
+The shortest independent `Script.csx` variant is:
 
 ```csharp
 using System.Diagnostics;
 
 {
     using var process = Process.Start("notepad");
-    // Or supply an existing full path to the executable.
 }
 ```
 
-Run this in a top-level C# Script Action on Windows. Supply an available program
-name or an existing executable path. A game may also need a working directory
-configured through `ProcessStartInfo`. The expected visible result is Notepad.
-`using` releases the `Process` component; it does not terminate the launched program.
-Stopping the script does not stop the child process, and `Process.Start` accepts
-no cancellation token. See [Process.Start](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.start?view=net-8.0)
-and the [.NET 8.0.19 Close/Dispose implementation](https://github.com/dotnet/runtime/blob/v8.0.19/src/libraries/System.Diagnostics.Process/src/System/Diagnostics/Process.cs).
+An existing full path also works, for example `C:/Windows/system32/notepad.exe` if that file exists on your machine. For your own program or game, supply its real executable, required arguments and working folder; there are no universal arguments for every application.
+
+For a hotkey, add **Hotkey Is Active → Hold**, assign a free `F3` and leave the action under **On Enter**. Each new activation requests a launch; releasing the key does not close the child. The earlier name `Click/Hold` does not make this a program-lifetime toggle.
+
+See the [historical example](https://eyeauras.net/share/S20240702143616Nj8fr0gCxktL), [Process.Start](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.start?view=net-8.0) and [.NET Close/Dispose source](https://github.com/dotnet/runtime/blob/v8.0.19/src/libraries/System.Diagnostics.Process/src/System/Diagnostics/Process.cs).
+
+</details>

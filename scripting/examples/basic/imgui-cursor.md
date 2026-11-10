@@ -7,71 +7,63 @@ tags: imgui, scripting, ai-translated
 editor: markdown
 dateCreated: 2025-03-31T17:49:10.631Z
 ---
+# Draw a cursor frame with ImGui
 
-# Drawing the Cursor on Screen Using ImGui
+Draw a green `10 × 10` frame around the mouse position. The script reads ImGui's mouse point and draws in its background layer; it does not move the pointer or send clicks.
 
-This guide demonstrates how to draw a simple visual overlay (e.g., a green rectangle around your mouse cursor) using [Dear ImGui](https://github.com/ocornut/imgui) via the `ClickableTransparentOverlay` library.
-
-We’ll use **ImGui.NET**, .NET bindings for ImGui, and render directly to a fullscreen transparent overlay window that doesn't block mouse input.
-
----
-
-## Draw a frame through the EyeAuras SDK
-
-Run this in a top-level EyeAuras C# Action with `#r "nuget:EyeAuras.ImGuiSdk, 0.1.42"`. The published package contains the API used here; native rendering still depends on a compatible host.
+1. Use desktop EyeAuras compatible with **EyeAuras.ImGuiSdk 0.1.47**. Create a **C# Script** action in your own aura. Do not load the independent older CTO library below into the same process alongside this SDK.
+2. Put this complete program in top-level `Script.csx`:
 
 ```csharp
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
 using EyeAuras.ImGuiSdk;
 using ImGuiNET;
 using System.Numerics;
-using PoeShared.Scaffolding;
 
 {
     AddNewExtension<ImGuiContainerExtensions>();
-    using var osd = GetService<IImGuiExperimentalApi>();
-    using var renderer = osd.AddRenderer(() =>
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    var previousNoActivate = imgui.NoActivate;
+    try
     {
-        if (cancellationToken.IsCancellationRequested) return;
-        var cursor = ImGui.GetMousePos();
-        ImGui.GetBackgroundDrawList().AddRect(
-            cursor - new Vector2(5, 5),
-            cursor + new Vector2(5, 5),
-            ImGui.GetColorU32(new Vector4(0f, 1f, 0f, 1f)),
-            0f, ImDrawFlags.None, 1f);
-    });
-    cancellationToken.WaitHandle.WaitOne();
+        imgui.NoActivate = true;
+        using var rendering = imgui.AddRenderer(_ =>
+        {
+            if (cancellationToken.IsCancellationRequested) return;
+            var cursor = ImGui.GetMousePos();
+            ImGui.GetBackgroundDrawList().AddRect(
+                cursor - new Vector2(5, 5), cursor + new Vector2(5, 5),
+                ImGui.GetColorU32(new Vector4(0, 1, 0, 1)),
+                0f, ImDrawFlags.None, 1f);
+        });
+        cancellationToken.WaitHandle.WaitOne();
+    }
+    finally { imgui.NoActivate = previousNoActivate; }
 }
 ```
 
-While Run is active, a green 10×10 frame follows the cursor. `ImGui.GetMousePos()` uses the draw list's coordinate system, avoiding an unconverted native desktop position. Draw only in the frame callback and wait outside it. Stop disposes the subscription before the API. Its shared `Main` overlay may serve other scripts, so do not close it directly. See the [SDK map](/en/scripting/api/nuget/imgui-sdk).
+3. After compilation, click **Run** and move the mouse normally. The frame follows the point reported by ImGui.
+4. Click **Stop**: the render registration is removed, the previous `NoActivate` value is restored, then the API share is released.
 
-## A standalone ClickableTransparentOverlay window
+| Setting | Meaning |
+| --- | --- |
+| `ImGui.GetMousePos()` | Mouse position in ImGui's draw-list coordinate domain, not another window's client coordinates. |
+| `cursor ± Vector2(5, 5)` | Corners of the 10 × 10 frame around its centre. |
+| `Vector4(0, 1, 0, 1)` | Opaque green RGBA, converted through `GetColorU32`. |
+| Final `1f` | Border thickness; `0f` before the flags means no corner rounding. |
+| `NoActivate = true` | Requests non-activating interaction with shared Main. Run without other scripts changing this setting; the example restores its previous value. |
 
-The following is an alternative script using `ClickableTransparentOverlay 10.2.0`; do not run both versions together. It owns a separate primary-monitor window and render loop.
+Each frame describes the rectangle again; it creates no retained OSD object or per-point event subscription. Keep ImGui calls on the frame thread and wait for Stop outside it. Removing a subscription does not interrupt a callback already running. Main may serve other scripts; releasing your share does not close theirs. Monitor origins, clipping and DPI are not fixed by adding an arbitrary desktop offset. See [ImGui operations](/en/scripting/api/IImGuiExperimentalApi) or the different [Blazor OSD example](/en/scripting/examples/basic/osd-cursor).
 
-### 💡 What is ImGui?
+<details>
+<summary>Historical standalone CTO 10.2.0 alternative</summary>
 
-**ImGui** (Immediate Mode GUI) is a fast, minimal UI library used for debugging, dev tools, overlays, and custom editors. Unlike traditional retained-mode UI libraries, ImGui redraws everything each frame — making it great for real-time tools like HUDs and debug panels.
-
----
-
-### 📦 Requirements
-
-Make sure you have this NuGet package:
-
-```csharp
-#r "nuget: ClickableTransparentOverlay, 10.2.0"
-```
-
-This package provides a base `Overlay` class that handles window creation, ImGui setup, and rendering.
-
----
-
-### ✅ Complete Example: Cursor Tracker with ImGui
+This separate project creates its own primary-monitor window and render loop. It is retained for reading older scripts, not for loading another native ImGui version alongside the SDK. It requires its own compatible host.
 
 ```csharp
 #r "nuget: ClickableTransparentOverlay, 10.2.0"
 
+using System;
 using ClickableTransparentOverlay;
 using System.Threading.Tasks;
 using System.Threading;
@@ -121,7 +113,7 @@ internal class SampleOverlay : Overlay
         // Get the current ImGui draw list
         var drawList = ImGui.GetBackgroundDrawList();
 
-        // Use the draw list coordinate system
+        // Use the same coordinate system as the draw list
         var cursorPosition = ImGui.GetMousePos();
 
         // Draw a green 10x10 rectangle centered on the cursor
@@ -137,24 +129,8 @@ internal class SampleOverlay : Overlay
 }
 ```
 
----
+[CTO 10.2.0 source](https://github.com/zaafar/ClickableTransparentOverlay/blob/6a343a2af63b7af0cfa9ab41e9b7cc95b88452b9/ClickableTransparentOverlay/Overlay.cs) shows `Run` calling `Start` before waiting for closure; this path needs no separate `Init` call from the script. The width/height constructor uses `DPIAware = false`. The script token is passed explicitly to the ordinary subclass and checked in `Render`; it does not cancel library initialisation and cannot run that check after the frame loop fails.
 
-### 📌 Key Concepts:
+[Dear ImGui](https://github.com/ocornut/imgui) provides the immediate-mode UI; [ClickableTransparentOverlay](https://github.com/zaafar/ClickableTransparentOverlay) supplies the native transparent window. `GetBackgroundDrawList` draws behind ImGui windows; `AddRect` uses its coordinate system and the converted RGBA colour. Labels and other shapes can use that same frame context. Interaction and application data need their own contracts; drawing does not provide game data.
 
-- `ImGui.GetBackgroundDrawList()` gives you access to a canvas for drawing in the background layer.
-- `AddRect()` accepts points in ImGui draw-list coordinates.
-- The color is passed as a `Vector4` (RGBA) and converted via `ImGui.GetColorU32`.
-- The `Overlay` base class runs a frame loop for you and handles transparency.
-
----
-
-### 🎯 Want More?
-
-- Add a label or tooltip at the cursor
-- Draw different shapes depending on state
-- Detect clicks or interaction with the overlay
-- Show debug data or game-related visuals in real-time
-
-## Standalone overlay contract
-
-[CTO 10.2.0 source](https://github.com/zaafar/ClickableTransparentOverlay/blob/6a343a2af63b7af0cfa9ab41e9b7cc95b88452b9/ClickableTransparentOverlay/Overlay.cs) provides the width/height constructor with `DPIAware = false`. `Start` waits for window readiness; `Run` waits for internal cancellation; `Close` requests that cancellation. The script token belongs to our subclass and is checked by `Render`, not by the library constructor. That check requires a working render loop. Source inspection does not establish live DPI or graphics behavior.
+</details>

@@ -7,98 +7,111 @@ tags: mouse movement, smoothing, algorithms, custom input smoother, ai-translate
 editor: markdown
 dateCreated: 2024-07-01T20:20:30.551Z
 ---
-# Adding Mouse Movement Smoothing
-Both snippets run in a top-level EyeAuras C# Script with the input module loaded
-and an available input simulator. The second moves the real primary-screen cursor.
+# Plan a mouse movement with your own smoother
 
+A smoother receives start and target points and returns a movement plan. Implement a straight-line plan with 20 segments, 21 points including both endpoints, and a requested 10 ms delay after each point. The script moves the real cursor once to the primary monitor's centre, without clicking.
 
-By default, the mouse "teleports" from point A to point B, which is not always the desired behavior. This is where "smoothers" come to the rescue - tools that can plan mouse movement based on some logic.
-The algorithm itself can vary. By default, the program includes algorithms from BenLand (`BenLandUserInputSmoother`) and Kalon (`KalonUserInputSmoother`).
-These algorithms have some parameters that you can adjust, but even by default, the program includes several presets, here are the most useful ones:
-- `BenLandLinearFast` - moves the mouse from point A to point B in a straight line
-- `BenLandRandomizedFast` - adds some deviation at the starting point of the trajectory
-- `MlHumanMouseV1` - ML Human Move smoother. Predicts compact movement
-  parameters from a local model pack and runs at the default 2x ML timing.
-- `MlHumanMouseFastV1` - ML Human Move Fast smoother. Uses the same model-backed
-  route planner with 4x ML timing.
+Use desktop EyeAuras with its input module and **Windows Input**. Keep your own stationary test window on the primary monitor. Do not run other actions that change this API or the `MyScript.Linear20` registry entry at the same time.
 
-By specifying `InputSmootherId` in the code, you can instruct the simulator to smooth out mouse movements
+1. Add **C# Script** to your own aura. Put the whole program into `Script.csx`, including the ordinary class after the executable block. The class implements an interface without accessing script globals.
 
 ```csharp
-var SendInput = GetService<ISendInputScriptingApi>(); // needed for input sending
-SendInput.InputSmootherId = "MlHumanMouseV1"; // or "MlHumanMouseFastV1"
-```
-
-## Example where we implement our own smoothing
-> You can import the ready-made example from here: https://eyeauras.net/share/S20240701201856mfdkUQbqEY1k
-{.is-info}
-
-1. Create an aura with a script
-2. Copy-paste, run it, if everything is fine - the script will move the mouse to the center of the screen with a visible delay and smoothly enough
-
-```csharp
-using EyeAuras.Roxy.Services;
-using EyeAuras.Roxy.Shared;
+using System;
 using System.Drawing;
 using System.Collections.Generic;
+using System.Linq;
+using EyeAuras.Roxy.Api;
+using EyeAuras.Roxy.Services;
+using EyeAuras.Roxy.Shared;
 
-var SendInput = GetService<ISendInputScriptingApi>(); // needed for input sending
+{
+    var input = GetService<ISendInputScriptingApi>();
+    var registry = GetService<IUserInputSmootherRegistrator>();
+    var custom = new CustomInputSmoother();
+    var previousRegistration = GetService<IUserInputSmootherProvider>()
+        .KnownEntities.Items.FirstOrDefault(x => x.Id == custom.Id);
+    var previousSmoother = input.InputSmootherId;
+    var previousSimulator = input.InputSimulatorId;
+    var previousTarget = input.TargetWindow;
+    registry.Register(custom);
+    try
+    {
+        input.InputSimulatorId = "Windows Input";
+        input.InputSmootherId = custom.Id;
+        input.TargetWindow = null;
+        var bounds = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
+        var target = new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2);
+        cancellationToken.ThrowIfCancellationRequested();
+        Log.Info($"Start: {input.CursorPosition}; target: {target}");
+        input.MouseMoveTo(target);
+        Log.Info($"Cursor after movement: {input.CursorPosition}");
+    }
+    finally
+    {
+        input.TargetWindow = previousTarget;
+        input.InputSimulatorId = previousSimulator;
+        input.InputSmootherId = previousSmoother;
+        if (previousRegistration != null) registry.Register(previousRegistration);
+    }
+}
 
-var customSmoother = new CustomInputSmoother();
-GetService<IUserInputSmootherRegistrator>() // get the service responsible for our "smoothers"
-    .Register(customSmoother); // and add ours
-
-// now tell the API to use our smoother
-SendInput.InputSmootherId = customSmoother.Id; // or something like "MlHumanMouseV1";
-
-SendInput.TargetWindow = null; // primary-screen coordinates
-var screenSize = System.Windows.Forms.SystemInformation.PrimaryMonitorSize; // get the size of the primary screen
-
-Log.Info($"Primary monitor size: {screenSize}");
-SendInput.MouseMoveTo(screenSize.Width / 2, screenSize.Height / 2); // move to the center
-Log.Info($"Movement completed, cursor is at: {SendInput.CursorPosition}");
-
-/// <summary>
-/// This class contains the essence of our smoother.
-/// It adds NumberOfPoints points between the starting and ending points of movement.
-/// A "real" smoother can use things like Bezier curves or any other logic
-/// </summary>
-class CustomInputSmoother : IUserInputSmoother
+public sealed class CustomInputSmoother : IUserInputSmoother
 {
     public string Id { get; init; } = "MyScript.Linear20";
-
-    public string Name { get; init; } = "This is my new cool input smoother";
-
+    public string Name { get; init; } = "Linear path with 20 segments";
     public int NumberOfPoints { get; init; } = 20;
-
     public TimeSpan DelayBetweenPoints { get; init; } = TimeSpan.FromMilliseconds(10);
 
-    public IReadOnlyList<MouseInput> Generate(
-        Point startPosition,
-        Point targetPosition)
+    public IReadOnlyList<MouseInput> Generate(Point startPosition, Point targetPosition)
     {
         var inputs = new List<MouseInput>();
-
-        // thanks to ChatGPT for some code for approximating points on a line
-        for (int i = 0; i <= NumberOfPoints; i++)
+        for (var i = 0; i <= NumberOfPoints; i++)
         {
             var t = (float)i / NumberOfPoints;
-
             var x = (int)(startPosition.X * (1 - t) + targetPosition.X * t);
             var y = (int)(startPosition.Y * (1 - t) + targetPosition.Y * t);
-
-            var input = new MouseInput(new Point(x, y), DelayBetweenPoints);
-            inputs.Add(input);
+            inputs.Add(new MouseInput(new Point(x, y), DelayBetweenPoints));
         }
-
         return inputs;
-
     }
 }
 ```
 
-`Generate` returns 21 points including both endpoints, each requesting a 10 ms
-delay. This does not promise exact wall-clock movement time. `Register` returns
-`void`, replaces an existing entry with the same ID and supplies no removal token;
-stopping the script does not unregister the smoother. Choose a stable private ID.
-The input call is synchronous and accepts no script cancellation token.
+2. Click **Run**. The cursor moves through the planned points towards the primary-screen centre. Compare the target and final cursor position in the log. Restoring settings does not move the cursor back.
+
+| Field or operation | Meaning |
+| --- | --- |
+| `Generate(startPosition, targetPosition)` | Returns a plan; it does not itself send input. The controller supplies the current cursor position as the start. |
+| `NumberOfPoints = 20` | Segment count; the inclusive loop yields 21 points. Keep this value positive if you change it. |
+| `DelayBetweenPoints = 10 ms` | Delay after each point. The nominal 210 ms sum is not an exact wall-clock promise. |
+| `Id` | Stable private registry key. Registering the same ID replaces its entry; do not use another algorithm's ID or generate a new ID each frame. |
+| `TargetWindow = null` | This example's plan uses screen coordinates. For targeted movement, the controller converts the screen start to window coordinates, then back to screen on delivery; those are not client coordinates. |
+| `InputSmootherId` | Selects a registered smoother. Previous API settings and any previous same-ID registration are restored in `finally`. |
+
+`Register` returns `void` and exposes no public unregister operation. If there was no previous entry, this one remains under its stable ID after Run; Stop does not unregister it. The class owns no disposable native resources. Do not invent an `Unregister` call or promise complete registry rollback.
+
+`MouseMoveTo` is synchronous and does not pass the script token into the plan. The check acts before movement, not as an instant interruption of an in-progress route. The plan interpolates points; delivery depends on the selected backend and is not a guarantee of an exact physical device trajectory.
+
+<details>
+<summary>Select a built-in smoother instead</summary>
+
+The current input module registers BenLand presets and model-backed variants. The source also contains a Kalon implementation, but it is not registered as a built-in preset. Choose an available registered ID, while preserving and restoring `InputSmootherId` as in the main program:
+
+| ID | Purpose |
+| --- | --- |
+| `BenLandLinearFast` | Fast BenLand preset with low wind and a linear configuration. Use the custom algorithm above when you need explicit straight-line interpolation. |
+| `BenLandRandomizedFast` | BenLand preset with trajectory deviations, not a promise of only one initial offset. |
+| `MlHumanMouseV1` | **ML Human Move**: predicts compact movement parameters from a model pack and plans a bounded route with the default `2×` timing multiplier. |
+| `MlHumanMouseFastV1` | **ML Human Move Fast**: the same model-backed planner with a `4×` timing multiplier. These are planner settings, not measured speed guarantees. |
+
+For example, this selection fragment belongs where your existing program already has `input` and owns restoration:
+
+```csharp
+input.InputSmootherId = "MlHumanMouseV1"; // or "MlHumanMouseFastV1"
+```
+
+Selection alone sends no movement. If using only a built-in preset, omit custom creation/registration and its class, and keep the target, movement and setting-restoration code. The ML presets need their model pack to load successfully; registration or an SDK reference alone does not prove the model is available. The example above does not use ML or require model training. Neither planner offers an invisibility or detection-avoidance guarantee.
+
+See the [historical ready-made example](https://eyeauras.net/share/S20240701201856mfdkUQbqEY1k), [script runtime](/en/scripting/api/scripting/runtime) and [SendInput contract](/en/scripting/api/ISendInputScriptingApi) for the host and delivery boundaries.
+
+</details>

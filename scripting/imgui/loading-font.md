@@ -7,33 +7,27 @@ tags: imgui, scripting, ai-translated
 editor: markdown
 dateCreated: 2025-10-17T14:56:23.969Z
 ---
-# Make a TTF the default ImGui font
+# Make your TTF the default ImGui font
 
-Load an embedded TTF and make it the default font through `IImGuiExperimentalApi`. The demo window then uses the selected font.
+Read a font from script resources and select it as the default. The demo window shows the new text shape and size. Run this exercise without other scripts changing the shared **Main** default font.
 
-## Prepare the font and SDK
+Use desktop EyeAuras compatible with **EyeAuras.ImGuiSdk 0.1.47**. [Getting started](/en/scripting/imgui/getting-started) explains package reference and service registration; do not mix ImGui versions in one process.
 
-Add your `Roboto-Regular.ttf` as an embedded resource in the C# script project. Use a real TTF containing the required glyphs; its filename does not establish Cyrillic coverage. Set `fontPath` to the full manifest name: `MyScript.Roboto-Regular.ttf` for a root file or `MyScript.Fonts.Roboto-Regular.ttf` for the Fonts folder. Script preparation lists actual names in the debug log. Do not assume a short filename matches any resource.
-
-The [historical import](https://eyeauras.net/share/S20251017150828zhuomztM9lbi) used:
-
-```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.1.17"
-```
-
-Package `0.1.17` exposes the old `AddFontFromMemoryTTF` and does not support the code below. Use `0.1.42` for `AddFont`, `ReplaceFont(ImGuiFontSpec)` and `RemoveFont`; these members are present in its published XML from the [EyeAuras feed](https://packages.eyeauras.net/v3/index.json). Replace the historical project reference:
+1. Add a real `Roboto-Regular.ttf` to your **C# Script** project as an [embedded resource](/en/scripting/embedded-resources). For Cyrillic text, the TTF itself must contain those glyphs; its filename does not establish coverage.
+2. Find its full manifest name in preparation diagnostics, or temporarily use this `Script.csx` entry point:
 
 ```csharp
-#r "nuget:EyeAuras.ImGuiSdk, 0.1.42"
+foreach (var name in typeof(Script).Assembly.GetManifestResourceNames()) Log.Info(name);
 ```
 
-The lifetime explanation follows source `c8b2304ac`. Package members alone do not establish native renderer compatibility with every application build. See the [SDK map](/en/scripting/api/nuget/imgui-sdk) for version boundaries.
+3. Substitute the actual name for `MyScript.Roboto-Regular.ttf` below. A `Fonts` folder can produce `MyScript.Fonts.Roboto-Regular.ttf`. This is a project resource name, not an arbitrary disk path or the helper class's namespace.
 
 ## Script.csx
 
-Keep one selected `EyeAuras.ImGuiSdk` reference in the project. Run this in the EyeAuras script host, where `AddNewExtension`, `GetService` and `cancellationToken` are available:
-
 ```csharp
+#r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
+using System;
+using System.Threading.Tasks;
 using EyeAuras.ImGuiSdk;
 using EyeAuras.Repl;
 using ImGuiNET;
@@ -41,42 +35,73 @@ using PoeShared.Scaffolding;
 
 {
     AddNewExtension<ImGuiContainerExtensions>();
-
     var files = GetService<IScriptFileProvider>();
-    var fontPath = "MyScript.Roboto-Regular.ttf"; // full manifest name of your resource
-    var fontData = files.ReadAllBytes(fontPath);
-    using var osd = GetService<IImGuiExperimentalApi>();
+    var fontData = files.ReadAllBytes("MyScript.Roboto-Regular.ttf");
+    using var imgui = GetService<IImGuiExperimentalApi>();
+    var gate = new object();
+    var stopping = false;
     ImGuiFontSpec font = default;
-
-    using var rendering = osd.AddRenderer(() =>
+    var removed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+    using var rendering = imgui.AddRenderer(_ =>
     {
-        // Register and use the font on the render thread.
-        if (!font.IsInitialized)
+        lock (gate)
         {
-            font = osd.AddFont(fontData, 20, "Roboto", ImGuiFontRangeType.Cyrillic);
-            osd.ReplaceFont(font);
+            if (stopping)
+            {
+                if (font.IsInitialized) imgui.RemoveFont(font);
+                font = default;
+                removed.TrySetResult(true);
+                return;
+            }
+            if (!font.IsInitialized)
+            {
+                font = imgui.AddFont(fontData, 20, "Roboto", ImGuiFontRangeType.Cyrillic);
+                imgui.ReplaceFont(font);
+            }
+            ImGui.ShowDemoWindow();
         }
-
-        ImGui.ShowDemoWindow();
     });
-
-    // Keep the script alive until Stop.
-    cancellationToken.WaitHandle.WaitOne();
+    try { await Task.Delay(System.Threading.Timeout.Infinite, cancellationToken); }
+    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
+    finally
+    {
+        lock (gate) stopping = true;
+        await removed.Task;
+    }
 }
 ```
 
-## Font readiness and ownership
+4. After compilation, click **Run**. The demo text should change to your selected font at size `20`. Stop removes its registration; if it is still the default, the SDK resets that selection to its standard font rather than restoring an unknown previous choice from another script.
 
-`AddFont` copies the bytes and returns an `ImGuiFontSpec`, not a ready native `ImFontPtr`. It marks the atlas dirty; rebuilding happens after frame callbacks, so the first frame may still use the old font. `IsInitialized` means a specification was registered, not that the native atlas is ready.
+The earlier screenshots show the resource and result. Their `AddFontFromMemoryTTF` code belongs to 0.1.17; the program above uses AddFont/ReplaceFont:
 
-`ReplaceFont(font)` changes the default in the shared `Main` atlas and can affect other scripts. Use [paired PushFont/PopFont](/en/scripting/imgui/loading-font-static) for local selection without also making that specification the default.
+![TTF embedded in the earlier project](https://s3.eyeauras.net/media/2025/10/EyeAuras_nMZAqZ6YHR.png)
+![Demo using a selected font](https://s3.eyeauras.net/media/2025/10/EyeAuras_yzz7IrmjnJ.png)
 
-`AddFont` defaults to size `16` and `ImGuiFontRangeType.Default`. This example explicitly requests `Cyrillic`; a glyph range cannot add characters absent from the TTF. Exact glyph ranges and parsing depend on the native library.
+| Parameter or operation | Meaning |
+| --- | --- |
+| `MyScript.Roboto-Regular.ttf` | Full name of your embedded TTF. For a physical file, first read its bytes with `File.ReadAllBytes` and its real path. |
+| `20` | Font size; AddFont defaults to `16`. |
+| `"Roboto"` | Diagnostic name, not a request to download or locate a font. |
+| `Cyrillic` | Requested glyph range. It cannot create glyphs missing from the TTF. |
+| `ReplaceFont(font)` | Selects the shared atlas default. For local selection use [PushFont/PopFont](/en/scripting/imgui/loading-font-static) instead. |
 
-The Run owns its frame subscription and API instance. Stop removes the subscription before releasing this share of the overlay. It does not close other owners' windows or automatically remove your font registration. `RemoveFont` removes the specification and resets the default if necessary, but the source implementation intentionally retains the original native buffer. Do not register a font every frame or treat repeated loading as an unlimited font-switching loop.
+`AddFont` copies the TTF bytes and returns an `ImGuiFontSpec`, not a ready native `ImFontPtr`. `IsInitialized` means the specification was registered. The dirty atlas is rebuilt after frame handlers, so the first frame can still use the previous font.
 
-Font-loading methods have no cancellation-token parameter. Here the token keeps the script alive until Stop; it does not cancel native font loading. Check TTF, SDK and renderer compatibility in your installed version.
+On Stop, the program requests removal of **its own** specification on the render thread and waits for that callback's acknowledgement. It then removes rendering and releases the API. This requires a working frame loop. `RemoveFont` removes the specification, but this implementation intentionally retains the native byte copy. Do not register a font every frame or turn this into an unlimited font-switching loop. API disposal alone does not remove a registration.
 
-![Example of embedded resource](https://s3.eyeauras.net/media/2025/10/EyeAuras_nMZAqZ6YHR.png)
+`ReadAllBytes` finishes reading and closes its stream before rendering. Do not dispose the borrowed file service or retain `ImFontPtr` across atlas rebuilds. `AddFont` has no cancellation-token argument: this token stops the script's wait, not native font loading.
 
-![Imgui with updated font](https://s3.eyeauras.net/media/2025/10/EyeAuras_yzz7IrmjnJ.png)
+<details>
+<summary>Other ranges and the historical import</summary>
+
+| ImGuiFontRangeType | Character range |
+| --- | --- |
+| `Default` | The native ImGui default range. |
+| `Cyrillic`, `Greek` | Cyrillic or Greek glyphs. |
+| `Japanese`, `Korean`, `Thai`, `Vietnamese` | Corresponding character sets when present in the TTF. |
+| `ChineseFull`, `ChineseSimplifiedCommon` | Full or common simplified Chinese sets. |
+
+The [historical import](https://eyeauras.net/share/S20251017150828zhuomztM9lbi) referenced `EyeAuras.ImGuiSdk, 0.1.17` and its different `AddFontFromMemoryTTF` API. Do not keep that reference beside this program. AddFont/ReplaceFont/RemoveFont are already present in 0.1.42; this page consistently chooses 0.1.47 from the [EyeAuras feed](https://packages.eyeauras.net/v3/index.json). See [the operation contract](/en/scripting/api/IImGuiExperimentalApi) for version boundaries. Package availability does not establish native renderer compatibility in every installed host.
+
+</details>
