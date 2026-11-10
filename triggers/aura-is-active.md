@@ -22,6 +22,8 @@ Suppose a notification should play only when Notepad is open **and** you have en
 
 Both conditions now match: “Notification allowed” becomes active and plays the sound. Turn off the manual switch or close all matching windows, and the combined aura becomes inactive. The next time both conditions match, the sound plays again.
 
+To keep the combined result visible, add a [Text overlay](/en/overlays/text) to “Notification allowed” and enter your own message in **Content**. It shows while that aura is active; [Common Options](/en/overlays/common-options) covers locking and normal visibility checks outside the editor. The linked auras still only supply the conditions.
+
 ![Aura Is Active links in the older editor](https://s3.eyeauras.net/media/2024/05/EyeAuras_83uLM0FmkdR4pgvJ.png)
 
 ## Link settings

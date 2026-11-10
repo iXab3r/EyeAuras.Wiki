@@ -25,6 +25,8 @@ The reminder appears while F8 is held and disappears when released. Its words co
 
 You can now place a configured [Text Search](/en/triggers/images/text-search) in the same folder. First make sure the search works with the correct source window and region on its own.
 
+When the whole group is only useful in your chosen foreground window, use [Window Is Active](/en/triggers/window-is-active) in its Enabling conditions instead of the key in this example. If that window check is already configured in another aura, [Aura Is Active](/en/triggers/aura-is-active) lets you reuse its state rather than duplicate the check.
+
 ## Choose the scope
 
 | Location | Effect |

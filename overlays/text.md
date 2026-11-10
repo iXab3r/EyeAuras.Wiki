@@ -22,6 +22,8 @@ Keep a short reminder such as “Check the microphone before recording” availa
 
 The first toggle activates the aura and shows the text; the second deactivates it. The selected aura's overlay may remain visible for editing, so test the toggle in another application.
 
+For a visibility check without the key, replace Hotkey Is Active with [Fixed Value](/en/triggers/fixed-value). If the condition already lives in another aura, reuse its state through [Aura Is Active](/en/triggers/aura-is-active); keep the words you want to show in **Content**.
+
 ## Text settings
 
 | Setting | What it does |

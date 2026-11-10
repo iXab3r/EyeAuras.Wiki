@@ -22,6 +22,8 @@ If two documents are open in the same application, choose which one an aura shou
 
 An exact title stops matching if the document name changes. A native handle selected for one window can change when that window is recreated. Choose what remains stable in your setup.
 
+If several checks need this same target, set the expression once in the folder’s [Default Properties](/en/features/default-properties) and bind their Target Window fields to that default. This avoids maintaining separate copies when the chosen window changes.
+
 ![Expression and selected-window display in the older interface](/assets/legacy/eyeauras_zjebk8jadf.png)
 
 The older dropdown is shown here. Current editors offer window and process picker buttons; their placement differs. The expression and the actual selected result are still separate things to inspect.

@@ -21,6 +21,8 @@ To check an action without waiting for a window or text to appear, set the condi
 
 The aura becomes active and runs On Enter once: you should hear Ping. To repeat, select Is NOT Active, then Is Active again. Actions in **While Active** repeat while the aura remains active; the fixed value itself does not set a repeat interval.
 
+For a visual alternative to the sound, use a [Text overlay](/en/overlays/text) with your own **Content**; [Common Options](/en/overlays/common-options) explains placement and locking. If several auras should follow the same manual switch, keep Fixed Value in one source aura and use [Aura Is Active](/en/triggers/aura-is-active) in the others.
+
 ![Fixed trigger state in the older editor](https://s3.eyeauras.net/media/2024/05/EyeAuras_dwDaZIhSanYHVRtK.png)
 
 ## Choose a value
