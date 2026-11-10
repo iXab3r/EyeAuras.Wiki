@@ -40,6 +40,8 @@ Elapsed time alone does not run the next step in this manual example; another ti
 
 Wait compares its deadline with the application's monotonic elapsed clock, without sleeping synchronously for the whole interval. Before expiry it returns Running; after expiry it clears its start and returns Success. Actual continuation depends on the next tick, not an exact wall-clock scheduling guarantee.
 
+When the next step depends on your indicator’s state, use [Until Success](/en/behavior-trees/nodes/until-success) with [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) linked to its aura. Choose the expected state there; a longer timed pause does not check it.
+
 ## Know what is waiting
 
 Later Sequence children wait for this route. Other auras, trees and independent work keep running. Earlier successful conditions need not be replayed when the parent resumes.

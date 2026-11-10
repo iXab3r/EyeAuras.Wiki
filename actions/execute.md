@@ -22,6 +22,8 @@ If several auras need the same two sounds and a pause, build that chain once and
 
 You should hear Ping, a pause, then Bell. “Two sounds” stays inactive: Execute Actions calls its actions directly without changing its trigger. You can now link the same chain from another aura.
 
+To call this prepared chain from a behavior tree, use [Run Aura](/en/behavior-trees/nodes/execute-aura). If the call should depend on the source aura’s state, check it separately with [Aura Is Active](/en/behavior-trees/nodes/aura-is-active); invoking its actions does not test that state.
+
 ## Settings
 
 | Setting | Effect |

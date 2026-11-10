@@ -44,6 +44,8 @@ Force Success
     └── Child Node (Failure)
 ```
 
+If failed work should be retried instead of accepted, use [Until Success](/en/behavior-trees/nodes/until-success); it makes another attempt on a later tick. Use [Selector](/en/behavior-trees/nodes/selector) when you want to try a different branch after Failure.
+
 With no connected children, Force Success returns `Success`. A connected but disabled child is different: there is no enabled child to execute, and the decorator reports a configuration error. Exceptions and cancellation are not converted into success.
 
 Use this for an optional step whose failure you deliberately accept. It cannot guarantee that an action succeeded in another application, and should not hide a failure that must stop the sequence.

@@ -23,6 +23,8 @@ When the window appears and the aura becomes active, the sound plays once. On En
 
 ![Sound selection in the older editor](https://s3.eyeauras.net/media/2024/05/EyeAuras_Cd0NOjfW7gmIOFqx.png)
 
+For a reminder you can still see after Ping, add [Text](/en/overlays/text) to the same aura and enter your message in **Content**. Its normal visibility follows the aura’s activity; [Common Options](/en/overlays/common-options) covers placement and locking.
+
 ## Settings
 
 | Setting | Effect |

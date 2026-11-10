@@ -34,6 +34,8 @@ The earlier screenshot calls the group `Blocking Behavior`; its current label is
 | Random Min / Max | Sample an interval when that direction starts, not on every tick |
 | Child | One enabled check |
 
+To filter an already configured indicator, use [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) as the child and link its aura. Choose [Wait](/en/behavior-trees/nodes/wait) for a fixed pause before continuing, or [Cooldown](/en/behavior-trees/nodes/cooldown) for an interval after successful work; those solve different timing tasks.
+
 ## Return immediately is not the last confirmed state
 
 | Child observation | Result in Return immediately |

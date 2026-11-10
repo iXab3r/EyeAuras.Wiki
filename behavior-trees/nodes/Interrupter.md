@@ -41,6 +41,8 @@ This demonstrates interruption of retained work **on the next tick**. Wait retur
 | Initial If Failure | Admit Action |
 | Action completes its tick without interruption | Return its Success, Failure or Running |
 
+For a real stop signal, put [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) in **If** and link your stop-condition aura with expected state Active. To use an existing configured action chain as **Action**, select [Run Aura](/en/behavior-trees/nodes/execute-aura). Keep the repeatedly sampled check free of action children.
+
 ## While an action call is still awaiting work
 
 During an actively awaited Action call, Interrupter samples If serially, with a **100 ms delay between completed checks**. Success requests cooperative cancellation. Failure and Running leave the action running. Keep checks short and cancellation-aware; their side effects repeat on each sample.

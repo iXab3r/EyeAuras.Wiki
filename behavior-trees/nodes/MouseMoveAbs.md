@@ -50,6 +50,8 @@ Choose `move to something...` to expose the X/Y/Width/Height region and sources:
 
 ![Mouse Move region and source choices](https://s3.eyeauras.net/media/2025/08/EyeAuras_ttF92DbAou.png)
 
+For a **Linked Aura** source, first configure and inspect your own [Image Search](/en/triggers/images/image-search) aura. Put [Aura Is Active](/en/behavior-trees/nodes/aura-is-active), linked to that same aura with expected state Active, before Mouse Move in a [Sequence](/en/behavior-trees/nodes/sequence) to require the search condition before moving.
+
 The found region must belong to the intended window and coordinate system. Verify its bounds, capture region and processing scale before adding movement. A link or Last Found Result is not proof of a valid match in this pass; gate movement on the actual search result. Do not add the window origin twice to coordinates already mapped to the screen.
 
 </details>
