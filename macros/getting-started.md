@@ -8,55 +8,96 @@ editor: markdown
 dateCreated: 2024-10-17T21:49:33.129Z
 ---
 
-# What are Macros?
-This is one of the four ways to customize automation logic and make decisions on when, what, and where to click.
+# Build your first macro
 
-With them, you can build both linear sequences of actions, for example, a keyboard macro
-![Send sequence](https://s3.eyeauras.net/media/2024/09/EyeAuras_BFkTE1sqgpZIrxU0.png)
+A macro runs ordered steps with waits, conditions and loops without requiring a whole program. Its Block waits for each step to finish before continuing. Start with two delays and an observable result, without input to another window.
 
-and create logic of any complexity level with nested loops, conditions, calls to other macros, and C# scripts
-![Rebuff](https://s3.eyeauras.net/media/2024/09/EyeAuras_3PAVQO9Zk7JLqDjz.png)
+## Run two waits in one command
 
-# Why Choose This Option?
-The program offers you a choice of 4 ways to model logic:
+1. In the aura tree's creation menu, choose `New Macro` and open it. `My Macro` already contains a `Drag'n'drop instructions here` block. A new macro opens as a nested list.
+2. Select the top root-settings row. Keep `Activation → Is Loaded` enabled and set `Execution → When Activated → Do nothing`. Add no activation conditions yet.
+3. Through `Add new Node`, add two `Wait` nodes and one `Fixed Status` as siblings in that block, in the order below. Choose the macro Wait template.
+4. Set the first Wait to `General → Delay = 1000 ms`, the second to `500 ms`, randomization off. Set Fixed Status to `General → Status → Success`.
 
-## 1) [Auras](https://wiki.eyeauras.net/en/home)
-Auras appeared at the very beginning when the program was just emerging. The idea is simple - we configure Triggers that react to something, for example, the appearance of an image on the screen, a character's HP drop, or receiving a network message. Once the trigger is activated, the Aura triggers a sequence of commands.
+```text
+My Macro
+└─ Block
+   ├─ Wait: 1000 ms
+   ├─ Wait: 500 ms
+   └─ Fixed Status: Success
+```
 
-This scheme worked well when the program needed to react specifically to external influences, but it was not suitable for building bots since events tend to occur simultaneously, and it was necessary to solve this with workarounds; otherwise, the bot would be torn between two fires.
+5. Click the upper `Run Macro Once`. The macro waits for both delays, then executes the last step. Expect Success after roughly 1.5 seconds plus execution overhead. These Wait nodes do not need a second external tick to finish.
+6. Set Fixed Status to `Failure` and add another Fixed Status with Success **after it**. Run again: the last step still executes, but the Block's aggregate result is Failure.
 
-![Main window](https://eyeauras.net/assets/img/appimages/EyeAuras_OzDyUnmzFH.webp =x400)
+That differs from a [BT Sequence](/en/behavior-trees/nodes/sequence). Use macro IfThenElse for conditional routing and [Break](/en/behavior-trees/nodes/Break) or [Return](/en/behavior-trees/nodes/Return) for early exit; normal Failure alone does not end the sibling list.
 
-## 2) [C# scripts](https://wiki.eyeauras.net/en/scripting/getting-started)
-As a universal solution, support for C# scripts was added. This removed any restrictions and, in general, allowed writing any logic as the user desired. The only drawback was that this option required programming skills, and in some cases, it was easier to do nothing than to deal with scripts.
-Moreover, the logic of building bots does not always fit well into code; for example, describing rotations is quite challenging - cooldowns need to be tracked, a priority system needs to be built, and so on. Yes, this can be solved with code, but it complicates life. It was desired to have a tool that would address these shortcomings.
+| Element | Execution |
+| --- | --- |
+| Block | Run enabled children in order; collect normal Failure while still running later siblings |
+| Macro Wait | Await Delay inside this invocation; distinct from BT Wait returning Running for a later tick |
+| Macro IfThenElse | Check Condition and execute only If matched, then or Otherwise; return the chosen branch result |
+| Macro Repeat | Check Condition before each admitted iteration, then execute Loop body |
+| Break | Exit its enclosing loop or block according to its placement |
+| Return | Finish the currently invoked macro with the selected Success or Failure |
 
-![](https://upload.wikimedia.org/wikipedia/commons/d/d2/C_Sharp_Logo_2023.svg =x100) ![](https://devblogs.microsoft.com/aspnet/wp-content/uploads/sites/16/2019/04/BrandBlazor_nohalo_1000x.png =x100) ![](https://upload.wikimedia.org/wikipedia/commons/2/2a/Roslyn.png =x100)
+Running means unfinished work; Success and Failure are node results, not aura Active/Inactive states. Errors and cancellation need not become a normal Failure. `Stop` requests cancellation of the issued manual run; it cannot forcibly stop arbitrary code or roll back effects already performed.
 
-## 3) [Behavior Trees](https://wiki.eyeauras.net/en/behavior-trees/gettings-started)
-This is how behavior trees emerged. This mechanism has proven its viability in games and is actively used in game engines like Unity and Unreal for building NPC logic. They are simply ideal for some situations - for example, setting up skill rotations. For others, scripts are still better. And there has always been a problem with trees - they are very powerful but quite complex to understand; it takes some time before the "click" idea comes. If you multiply this by the fact that the program itself is also not simple, we get a multiplication of complexities, which deters a huge part of users and essentially makes the tool inaccessible.
-Something simultaneously simpler yet with similar capabilities was needed.
+## Add automatic activation after the manual example
 
-![bt_l2.spoil.old.png](/assets/bt_l2.spoil.old.png)
+Create your own aura with a configured trigger such as [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active). Link it through `Activation → activate when Aura Activated... → Enabling Condition → Links`. [Enabling Conditions](https://wiki.eyeauras.net/en/features/enabling-conditions) control admission; the macro still contains the commands.
 
-## 4) Macros (you are reading about them right now)
-And this brings us to the current option. Macros differ from auras, behavior trees, and scripts. However, they allow combining ALL existing methods in one place.
-Essentially, they are just a sequence of command blocks that you can run using triggers - via a hotkey or when finding an image. In this sense, macros are somewhat similar to auras - they also need to be activated somehow.
-The key difference is that macros are not required to execute quickly; they can last as long as needed and can combine any number of commands, transitions, loops, and conditions.
-That is, you can write a macro that simply sends a chain of key presses, or you can dive deep and describe the entire bot logic in one macro.
+![Macro activation links in the earlier editor](https://s3.eyeauras.net/media/2024/09/EyeAuras_cTJ0Uf3NQzi7gF1u.png)
 
-![](https://s3.eyeauras.net/media/2024/09/EyeAuras_T3Uzq8Dvahwa1sTq.png)
+| When Activated | Behavior |
+| --- | --- |
+| Do nothing | Manual execution only; satisfying the condition does not start the macro |
+| Run once | One invocation on an activation transition from false to true |
+| Run periodically | Repeat while activation is allowed; Tick every is a pause after a completed pass, not a fixed period independent of work duration |
 
-# How are Macros Activated?
-Like auras and behavior trees, macros are activated using [Enabling Conditions](https://wiki.eyeauras.net/en/features/enabling-conditions) - you create an aura, add a trigger to it, for example, [HotkeyIsActive](https://wiki.eyeauras.net/en/triggers/hotkey-is-active). Then you link this aura as a condition to trigger the macro. Once the condition is met, for example, you press a button, the macro will run.
+![Automatic execution choices in the earlier macro editor](https://s3.eyeauras.net/media/2024/09/EyeAuras_A48Sp2u234hI9o3F.png)
 
-![Enabling conditions](https://s3.eyeauras.net/media/2024/09/EyeAuras_cTJ0Uf3NQzi7gF1u.png)
+Without conditions or triggers, activation is `manual`; a loaded macro can still run manually. Loading, activation and execution mode are separate, as described under [Root](/en/behavior-trees/nodes/root).
 
-There are several options for what will happen when the macro is triggered. This is configured in the **When Activated** block.
-![When activated](https://s3.eyeauras.net/media/2024/09/EyeAuras_A48Sp2u234hI9o3F.png)
+<details>
+<summary>From key sequences to nested logic</summary>
 
-## Execute Once
-The option speaks for itself. Upon meeting the condition, the macro will run once and then end.
+Replace the practice Fixed Status with [Key Press](/en/behavior-trees/nodes/KeyPress), [Mouse Move](/en/behavior-trees/nodes/MouseMoveAbs) or [Send Text](/en/behavior-trees/nodes/SendText) when needed. First configure your own window/backend through defaults and check the resolved target. A held key needs its own Release; leaving a block does not release it automatically.
 
-## Execute Repeatedly
-This option allows you to set up a mode where your macro will run periodically, with some delay between cycles. This will happen only as long as the activation condition is met.
+The earlier key-sequence example combines a key, Wait and separate Ctrl Down/Up steps:
+
+![Keys and a wait in a macro](https://s3.eyeauras.net/media/2024/09/EyeAuras_BFkTE1sqgpZIrxU0.png)
+
+The nested example uses Repeat, Condition and IfThenElse. Rebuff and Can do anything must already be configured auras supplying real conditions; macros do not supply internal game state.
+
+![Nested conditions and repetition in an earlier example](https://s3.eyeauras.net/media/2024/09/EyeAuras_3PAVQO9Zk7JLqDjz.png)
+
+Use Run Macro to invoke another macro, [Run Aura](/en/behavior-trees/nodes/execute-aura) for existing aura actions, and [C# scripts](https://wiki.eyeauras.net/en/scripting/getting-started) for custom steps. Calls do not automatically merge the target window or variable context of the invoked work.
+
+![Earlier macro combining conditions, calls and C#](https://s3.eyeauras.net/media/2024/09/EyeAuras_T3Uzq8Dvahwa1sTq.png)
+
+</details>
+
+<details>
+<summary>Choose among the four ways to organize logic</summary>
+
+| Approach | Useful for |
+| --- | --- |
+| [Auras](https://wiki.eyeauras.net/en/home) | Pixel, window or event conditions with On Enter / While Active / On Exit reactions |
+| [C# scripts](https://wiki.eyeauras.net/en/scripting/getting-started) | Custom algorithms, data and programmatic interfaces in the appropriate runtime context |
+| [Behavior Trees](https://wiki.eyeauras.net/en/behavior-trees/gettings-started) | Branch selection by Success/Failure and retained Running work between ticks, such as a priority flow with configured cooldowns |
+| Macros | Ordered steps with waits, blocks, conditions, loops and calls in one flow |
+
+Auras can react to image matches or received events. Coordinate simultaneous reactions deliberately rather than assuming that independent auras form a single ordered program:
+
+![Aura interface example](https://eyeauras.net/assets/img/appimages/EyeAuras_OzDyUnmzFH.webp =x400)
+
+C# and related technologies extend built-in steps. Ordinary classes and Blazor components still need explicit dependencies; they do not inherit every top-level script capability.
+
+![C Sharp](https://upload.wikimedia.org/wikipedia/commons/d/d2/C_Sharp_Logo_2023.svg =x100) ![Blazor](https://devblogs.microsoft.com/aspnet/wp-content/uploads/sites/16/2019/04/BrandBlazor_nohalo_1000x.png =x100) ![Roslyn](https://upload.wikimedia.org/wikipedia/commons/2/2a/Roslyn.png =x100)
+
+The historical larger tree illustrates branches and priorities, not a ready integration with application internals:
+
+![Historical behavior tree with several branches](/assets/bt_l2.spoil.old.png)
+
+</details>
