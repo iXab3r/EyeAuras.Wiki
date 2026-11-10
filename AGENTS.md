@@ -114,7 +114,7 @@ Not every page has a translation yet. Before creating a translated file, check w
 - `/scripting` and `/ru/scripting`
   Scripting docs, API usage, IDE integration, examples, ImGui, Blazor Windows, embedded resources, and related developer workflows.
 
-- Root-level files such as `/home.md`, `/faq.md`, `/contacts.md`, `/permission-model.md`
+- Root-level files such as `/home.md`, `/faq.md`, `/contacts.md`, `/aura-library.md`
   General-purpose landing pages and site-wide informational documents.
 
 - `/assets`
@@ -161,7 +161,7 @@ dateCreated: 2026-03-31T00:00:00.000Z
 Rules:
 
 - Keep frontmatter present on normal wiki pages and changelogs.
-- In frontmatter/header values, do **not** use `:` inside the value text because it breaks parsing. Rephrase the value instead.
+- In YAML frontmatter, quote scalar values containing `: ` (colon followed by a space), and validate the resulting YAML. Colons inside correctly quoted values are allowed; do not remove meaningful text just to avoid them.
 - Do not omit the `tags:` field.
 - For new files, prefer adding meaningful tags when the expected format is clear from nearby files.
 - Preserve existing metadata unless there is a good reason to update it.
