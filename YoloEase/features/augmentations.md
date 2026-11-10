@@ -7,79 +7,63 @@ tags: yoloease, machine-learning, ai-translated
 editor: markdown
 dateCreated: 2026-05-08T12:30:00.000Z
 ---
-# Augmentations
+# Add a controlled variation of annotated images
 
-Augmentations create additional variations of images you have already annotated. This helps the model learn to recognize an object under small visual changes instead of memorizing one ideal version of it.
+The **Augmentations** tab creates variants of your annotated frames while building a dataset. Rotation and reflection also transform the rectangles; blur and noise retain their geometry. Choose variations that your real source can produce. A rotated text button is not a substitute for an ordinary button.
 
-In YoloEase, augmentations are configured on the `Augmentations` tab and applied when the dataset is built before training.
+You need your own YoloEase 2 project, completed rectangle-annotation tasks, [prepared prerequisites](/en/YoloEase/prerequisites) and a baseline without effects.
 
-![No augmentations configured](https://s3.eyeauras.net/media/2026/05/7XUJ1VcSyO.png)
+**Saved-image limitation:** the implementation shared by v2.0.90 and source revision `946be263` draws the original boxes in red and transformed boxes in cyan **into the saved PNG pixels**. These are not just preview outlines. They can become misleading training cues. For ordinary clean-frame training, leave augmentations disabled unless you have inspected the generated images and established that they fit your intended input.
 
-## When to use them
+## Configure one variant
 
-Augmentations are useful when:
+1. Open **Augmentations**. With an empty list it shows **No augmentations configured**.
 
-- you have only a small number of annotated frames;
-- the object may look slightly different because of noise, motion, scale, or compression;
-- you want to improve model robustness without manually annotating hundreds of similar frames;
-- validation shows that the model learned the training frames too well but performs poorly on new ones.
+![The empty augmentations list in the earlier YoloEase 2.0.80 interface](https://s3.eyeauras.net/media/2026/05/7XUJ1VcSyO.png)
 
-Do not enable effects just because they are available. If the object never appears flipped or rotated in your real scenario, `Flip` and `Rotate` will only confuse the model.
+2. Click **Add**. In **Add new Augmentation**, select **Box Blur → Radius: 1px**. This creates a row; an identical setting cannot be added twice.
 
-## How to add an augmentation
+![Selecting an augmentation and its parameter](https://s3.eyeauras.net/media/2026/05/p0ezutBSKi.png)
 
-1. Open the `Augmentations` tab.
-2. Click `Add`.
-3. Choose an effect and configure its parameters.
-4. Make sure the checkbox for that effect is enabled.
-5. Start the next training run through [Trainer](/YoloEase/features/trainer).
+3. Check the row's checkbox and **Properties**. To change the parameter, use **Remove**, confirm, then add the desired variant. Clear the checkbox for temporary exclusion.
 
-![Add augmentation](https://s3.eyeauras.net/media/2026/05/p0ezutBSKi.png)
+![An enabled Noise 5 percent row in the earlier interface](https://s3.eyeauras.net/media/2026/05/4KpzkNcDVB.png)
 
-The list shows the effect name, its parameters, and a `Remove` button. The checkbox lets you disable an effect temporarily without deleting it.
+The illustrations are from YoloEase 2.0.80. The row, parameter choices and **Add** route remain relevant; they are not a clean-image preview.
 
-![Enabled augmentation](https://s3.eyeauras.net/media/2026/05/4KpzkNcDVB.png)
+4. If you intend to examine generated data, select **Trainer → Local Training**, **Run once**, then **Start automatic training**. Dataset preparation reports **Applying … augmentation…** and dataset counts. This continues the whole training cycle; adding an effect is not a separate preview-only command.
+5. In project storage, inspect `augmentations/<id>/`, `assets/training_with_effects/` and the XML ending `_augmented.xml`. Open a generated PNG and compare its object, coloured contours and saved rectangle. Disable the row for the next ordinary run if those pixels or the transformation do not match your source.
 
-## How it works
+The observable outputs are the setting row, then separate image and annotation files after preparation. Their existence does not establish improved detection. Keep new real frames for a separate comparison.
 
-YoloEase does not modify the original images or the original annotations. During the training cycle, it takes the annotation files, creates modified copies, and adds them to the dataset before splitting it into `train` and `valid`.
+| Effect or control | Parameters and behaviour |
+| --- | --- |
+| `Rotate` | Clockwise **90°**, **180°**, **270°**. At 90°/270°, image and rectangle width/height exchange roles. Use only orientations that actually occur. |
+| `Flip` | **Horizontal** reflects left/right; **Vertical** reflects top/bottom. Class names stay the same. A mirrored interface may be an unrealistic training example. |
+| `Box Blur` | **Radius: 1px**, **3px**, **5px**, **10px**. Geometry is unchanged; a large radius can hide a small object. |
+| `Noise` | **5**, **10**, **20**, **50%** are per-pixel selection probabilities, not percentages of frames or exact selected-pixel counts. Selected RGB channels receive small random changes; alpha and rectangles are retained. |
+| Row checkbox | Include this variant in the next build. There is no general per-frame application-probability setting. |
+| `Remove` | Delete the setting after confirmation; the checkbox is sufficient for temporary exclusion. |
 
-For `Rotate` and `Flip`, YoloEase recalculates the bounding boxes so they stay aligned with the correct objects. For `Box Blur` and `Noise`, geometry does not change, so the boxes stay in the same place.
+## Understand counts, order and cache
 
-If several effects are enabled, each enabled effect creates its own image variant. This is not a combinatorial mix of all effects at once: `Noise` and `Blur` will produce two extra copies, not a third `Noise+Blur` copy.
+Each enabled effect starts independently from the source image. With `N` available annotated frames and `K` enabled effects, expect `N × K` extra variants plus the originals. **Noise** and **Box Blur** create two variants, not a chained **Noise + Blur** image. Reordering rows does not create sequential processing.
 
-Because augmentations are added before the split, metrics may look better than reality. The original image and a very similar augmented copy can end up on opposite sides of `train` and `valid`. Always test the model on real captured images, not only on the training graph.
+Original images and XML are not overwritten. Generated PNGs are cached under `assets/training_with_effects/`; intermediate links and XML are under `augmentations/`. Windows symbolic-link permission is required. Reusing the same settings can reuse cached noise, so another cycle does not necessarily create a new random pattern.
 
-## Rotate
+<details>
+<summary>Boxes, classes and validation</summary>
 
-`Rotate` turns the image clockwise by `90`, `180`, or `270` degrees.
+| Preparation stage | What happens |
+| --- | --- |
+| Rotate / Flip | Rectangles move into the transformed image's geometry; their classes are retained. |
+| Blur / Noise | Rectangle coordinates stay unchanged. |
+| YOLO conversion | Coordinates are clipped to image bounds and normalised; boxes with zero area after clipping are skipped. |
+| Class names | Export writes names into `data.yaml`; indices are assigned during conversion, not copied from internal project label IDs. |
+| `Train/Validation % split` | Runs after variants are added. Augmentation is not restricted to training: an original and a close copy can enter opposite splits. |
 
-Use it only if the object can actually appear in those orientations. For UI buttons and text elements, rotation is almost always harmful: a real interface button will not suddenly appear rotated by 90 degrees.
+A validation set containing near-copies of training frames is not independent evidence of useful accuracy. Check new real captures as well. This route handles rectangle annotation; it does not turn arbitrary rotated shapes into a supported OBB export.
 
-## Flip
+</details>
 
-`Flip` mirrors the image either `Horizontal` or `Vertical`.
-
-Horizontal flip is useful when the left and right sides of the screen are interchangeable. Vertical flip is needed less often, because in most interfaces the top and bottom of the screen mean different things.
-
-## Box Blur
-
-`Box Blur` adds blur with a radius of `1`, `3`, `5`, or `10px`.
-
-Start with `1px` or `3px`. Larger values can destroy small objects, especially if the target occupies only a few pixels.
-
-## Noise
-
-`Noise` adds noise to `5`, `10`, `20`, or `50%` of pixels.
-
-Start with `5%`. Strong noise is useful only if your real image capture is actually noisy. Otherwise, the model will learn from images it will never see in practice.
-
-## Practical rule of thumb
-
-For your first training run, it is usually better to skip augmentations and see what the model can already do. Once you have initial predictions, add one mild effect such as `Noise 5%` or `Box Blur 1px` and compare the next training graph.
-
-If the model fails on specific real frames, add those frames and annotate them first. Augmentations strengthen a dataset, but they do not replace real examples.
-
-If you use EyeAuras effects while recording the training video, enable the same effects before recognition in EyeAuras. Otherwise, the model is trained on one visual world and used in another.
-
-See also: [annotation and training](/YoloEase/annotate-and-train), [Trainer](/YoloEase/features/trainer), [YOLO ONNX and model weights](/YoloEase/features/yolo-onnx), [diagnostics](/YoloEase/features/diagnostics).
+Start without effects, then investigate a mild blur/noise variant only for a real variation, after accounting for the saved contours. For missing states, [add real data](/en/YoloEase/features/data-sources) first. Continue with [annotation and training](/en/YoloEase/annotate-and-train), [Trainer](/en/YoloEase/features/trainer), [YOLO ONNX](/en/YoloEase/features/yolo-onnx), [EyeAuras integration](/en/YoloEase/features/eyeauras-integration) or [diagnostics](/en/YoloEase/features/diagnostics).

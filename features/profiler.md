@@ -7,41 +7,75 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2022-11-02T14:55:28.895Z
 ---
-## What problem does this solve?
+# Record a performance profile or memory snapshot
 
-Sometimes the program uses more memory or system resources than expected. In some cases this is caused by bugs, and sending a report helps identify and fix them.
+When EyeAuras is slow during a workload you own, collect a profile of that interval to inspect what its process was doing. For steadily growing memory, collect a memory snapshot instead. Timing and retained objects answer different questions.
 
-## How does it work?
+| Tool | Use it for |
+| --- | --- |
+| `Settings → Profiler` | Whole-process CPU/performance recording through JetBrains dotTrace. |
+| Memory snapshot | Object-memory investigation through dotMemory, if your settings editor exposes the action. |
+| Lower `Profiler` panel | MiniProfiler timings from explicitly instrumented code. This panel is registered with alpha access. |
+| CV preview FPS tooltip | Capture/effects/analysis timings for one trigger. |
 
-If the program is using too much CPU, we are most likely interested in the **Performance profiler**. If it is using too much memory, use the **Memory profiler**.
+The JetBrains tools can download prerequisites on first use, add load and create large files. Memory snapshots can contain process data; review what you intend to share.
 
-Below is a quick explanation of how to use these tools. They can be used independently. After you take memory snapshots or record profiling results, click **Report a problem.** In the list of files to upload, you will see new entries:
+## Record your own image-search workload
 
-- **Memory-** if you used the **Memory Profiler**
-- **Performance-** if you used the **Performance profiler**
+Use an existing aura that captures your own [test window](/en/triggers/images/imagecapturetriggers) and searches without input actions. Keep the same region, frequency and effects that reproduce the slowdown.
 
-In some cases, the report file can be **very large**, especially when sending memory snapshots. Because of that, uploading may fail. If you cannot upload the file to the server with the **Send** button in the upload window, you can use **Google Drive** or any other cloud storage instead. You can send me the link in **Discord (Xab3r#3780) / Telegram (ixab3r)**.
+1. Open **Settings → Profiler** and click **Start profiling**. Wait for **Collecting**: prerequisite preparation and attachment can precede actual collection.
+2. Let that same workload run and note when a delay occurs. Start with a short reproducible interval; a gradually developing problem may need 10–30 minutes.
+3. Click **Stop profiling**. Wait while EyeAuras saves an archive and detaches, then check **Idle**. **Running** means attached and does not by itself mean data is still being collected.
+4. Find the created **Performance-PID…** archive in `traces` under this EyeAuras instance's application-data folder. Saving logs the actual path.
+5. If preparing a support request, open **Report a problem** and inspect its files. Creating a capture or opening this dialog does not submit it; **Send** is a separate action in [problem reports](/en/features/problem-reports).
 
-![](https://i.imgur.com/GVmE825.png)
+Your result is a local archive for the recorded interval, not an automatic diagnosis or a separate GPU profile. An interval without the slowdown does not establish that the problem cannot occur.
 
-## Performance profiler
+| State or control | Meaning |
+| --- | --- |
+| `Start profiling` | Prepare, attach dotTrace and begin collecting. |
+| `Collecting` | Collection is active; keep the intended workload. |
+| `Stop profiling` | Save data, create its archive and detach. |
+| `Running` | Profiler attached; distinct from collecting. |
+| `Idle` | Recording stopped. Check the file before treating the capture as saved. |
 
-If the app is lagging, this is the tool you need.
+## If memory keeps growing
 
-In **Settings**, click **Start profiling** to begin the profiling process. This starts recording what the program is doing into a special file. In most cases, recording for **10–30 minutes** is enough, then you can click **Stop profiling.** That amount of data is usually sufficient to find the issue.
+The earlier WPF settings editor exposed **Take memory snapshot** beside profiling controls. It creates a **Memory-PID…** `.dmw` under `traces`. The current Blazor **Settings → Profiler** row exposes performance start/stop, without that memory button.
 
-**IMPORTANT! During the recorded period, the program should be doing exactly the same thing it normally does.** For example, if your character was farming, put it back on farm before recording and enable the same set of auras you usually use.
+If your version provides the snapshot action:
 
-![](https://i.imgur.com/W97u6Ku.png)
+1. Wait until abnormal growth is visible under the same workload.
+2. Take one snapshot and wait for completion. The application can slow or pause for a substantial time; duration depends on the capture.
+3. Check the `.dmw` in `traces` and the corresponding prepared report item.
 
-## Memory Profiler
+A snapshot does not terminate the application or automatically free retained objects.
 
-Sometimes the program has a **memory leak**, meaning it keeps consuming more and more memory even though it is doing the same work as usual. That is exactly what **memory snapshots** are for.
+<details>
+<summary>Earlier recording and reporting interface</summary>
 
-To take a snapshot, go to **Settings** and click **Take snapshot.** This copies the entire contents of the program’s memory into a special file.
+These images show the earlier WPF controls and the relationship between captures and report files, rather than the current settings layout.
 
-**IMPORTANT! Take the snapshot only when the problem is already clearly visible** — for example, when the program is already using several times more memory than normal.
+![Profiling files offered in the earlier problem-report dialog](https://i.imgur.com/GVmE825.png)
+![Starting and stopping a performance capture in earlier settings](https://i.imgur.com/W97u6Ku.png)
+![The memory-snapshot action in the earlier editor](https://i.imgur.com/OrOAW7G.png)
 
-The snapshot process can be **very slow**. In some cases it may take **minutes or even tens of minutes**. During that time, the program will not work normally, but eventually the snapshot will finish and everything will return to normal.
+If a capture is too large for **Send**, agree on a transfer method through [support contacts](/en/contacts) before sharing a selected file. Google Drive or another storage service is an alternative only when you choose to upload it. Earlier instructions named Discord `Xab3r#3780` and Telegram `ixab3r`; use the contacts page for the current route. Preparing a capture does not require publishing it to cloud storage.
 
-![](https://i.imgur.com/OrOAW7G.png)
+</details>
+
+## Inspect individual instrumented timings
+
+When the lower **Profiler** panel is available, select **Tree** or **Text**. Opening it does not start sampling arbitrary methods.
+
+| View or operation | What it shows |
+| --- | --- |
+| `Tree` | The **Startup** timing tree: step name, duration in **ms**, and percentage relative to the root. Parent durations include child time; the percentage is not CPU load. |
+| `Text` | A snapshot of all registered named profiles at refresh time. The circular-arrow button refreshes the text. |
+| Instrumentation | Application or script code creates the timing steps. Repeated names are not automatically averaged across runs. |
+| Reset/history | There is no working clear-history control in this component. Refreshing neither resets previous steps nor defines a fresh measured interval. |
+
+For a bounded measurement, use the [CV profiling example](/en/scripting/examples/advanced/profiling-cv). For a quick trigger check, inspect its preview FPS tooltip. Neither view is a continuously updated inventory of every CPU/GPU operation.
+
+Files in `traces` are temporary and subject to cleanup. Keep a separate copy before waiting for support. Report preparation can offer recent captures with the newest selected; inspect the selection instead of assuming every old capture is attached or sent.
