@@ -7,150 +7,40 @@ tags: yoloease, machine-learning, ai-translated
 editor: markdown
 dateCreated: 2026-05-08T12:30:00.000Z
 ---
-# Trainer
+# Run one training cycle and find its ONNX export
 
-`Trainer` manages the training loop: it updates project files, creates jobs, builds the dataset, runs training, converts the model to ONNX, and generates predictions for the next step.
+Trainer builds a dataset from completed annotation tasks, runs YOLO and exports a model. Start with one local cycle so you can inspect each stage and its output before enabling repetition.
 
-![Trainer before model](https://s3.eyeauras.net/media/2026/05/YoloEase_e7nteB308n.png)
+You need YoloEase 2, [passing prerequisites](/en/YoloEase/prerequisites), readable source frames and at least one task saved with **Finish Job**. The resulting dataset needs at least one training and one validation image, with actual examples of the intended classes. Label names or unaccepted suggestions alone do not provide that data.
 
-## Recommended workflow
+![Trainer and the controls for selecting an annotation batch](https://s3.eyeauras.net/media/2026/05/YoloEase_e7nteB308n.png)
 
-Do not wait until you have a large manually labeled dataset. Start with a small first job, get the first model, and then gradually increase the size of the next jobs.
+## Run locally
 
-1. Label the first `5-10` frames by hand.
-2. Run `Start automatic training`.
-3. While `Trainer` is training the first model, add a bit more manual labeling if it does not slow you down.
-4. When the first model is ready, use it to auto-label the next job.
-5. Once the model suggestions become useful, increase jobs to dozens and then hundreds of frames.
-6. Fix mistakes and keep repeating the cycle.
+1. Open **Settings → Training settings** and check the inputs. These are new-project defaults; an existing project may store different values.
 
-In this workflow, every cycle gives you a new model, and your manual work gradually shifts from full labeling to reviewing and correcting auto-labels.
-
-## First run
-
-For the first pass, keep the default settings:
-
-| Setting | Default value | What it means |
-| --- | --- | --- |
-| `Yolo8/10+ base model` | `yolo11s.pt` | The base weights used to start training. |
-| `Epochs` | `50` | How many epochs to train the model. |
-| `Model Size` | `640` | `imgsz`, the YOLO input image size. |
-| `Train/Validation % split` | `80%` | How many images go into training, with the rest used for validation. |
-| `Batch size` | `5%` | How many unlabeled files to include in the next job. |
-| Auto-label confidence | `25%` | Confidence threshold for auto-label suggestions. |
-| Prediction IoU | `70%` | IoU threshold for merging similar predictions. |
-
-In practice: create the first job, label it, click `Finish Job`, then click `Start automatic training`. While the first training run is in progress, you can manually prepare a few more frames. Once the first model appears, move on to larger jobs and review the auto-labeling.
-
-## Main buttons
-
-`Start automatic training` starts the training loop.
-
-`Stop automatic training` stops the current loop.
-
-`Run once` performs one training cycle and stops.
-
-`Run until stopped` keeps running until you stop `Trainer` manually.
-
-`Create Task` creates a new labeling task from the available frames.
-
-`Annotate Task` opens the first unfinished task in the [annotation editor](/YoloEase/features/annotation-editor).
-
-`Refresh` recalculates the state of project files, labels, tasks, and predictions.
-
-## Training modes
-
-`Local Training` runs training on your own computer. This requires the ready [prerequisites](/YoloEase/prerequisites).
-
-`Google Colab` prepares a ZIP archive with the dataset so you can upload it into a Colab notebook. This is useful if your local machine is weak or no GPU is available.
-
-For the first run, use `Local Training`: YoloEase will train the model, convert it to ONNX, and run predictions automatically. In `Google Colab` mode, YoloEase only prepares the data and shows a notebook link; you need to bring the cloud-trained model back into the project manually.
-
-## Batch size
-
-`Batch size` in the right panel controls the size of the labeling job. The value is stored as a percentage of the still-unlabeled files, and YoloEase shows the actual file count next to it.
-
-For the first manual pass, keep it smaller. Once the model appears, increase the batch size: first to dozens of frames, then to hundreds if auto-labeling is already saving time.
-
-## Train and validation split
-
-`Train/Validation % split` divides the dataset into training and validation parts. Training images are used to train the model, and validation images are used to evaluate quality.
-
-If the validation part is too small, the charts will be noisy. If the training part is too small, the model will learn worse. For the first pass, the default value is usually enough.
-
-Right now, YoloEase creates `train` and `valid` without a separate `test`. YOLO needs at least one frame in `train` and one in `valid`, otherwise training cannot start. For rare labels such as `btn`, make sure they do not appear in only one or two frames.
-
-## File selection strategy
-
-`Annotated-first` first takes unlabeled files that already have model predictions, and then fills the rest with random frames. This works well for iterative improvement: the next job is more likely to contain frames the model has already tried to detect.
-
-`Random` is more purely random. This is useful when the dataset is already large and you want to avoid getting too many similar frames.
-
-## Prediction strategy
-
-`Unannotated` runs predictions only for files that are still unlabeled.
-
-`All files` runs prediction on every file in the project.
-
-`Disabled` skips the prediction step and uses the results that already exist.
-
-Prediction results are used for statistics and for the next round of auto-labeling.
-
-`All files` can be expensive on a large project. For the normal workflow, keep `Unannotated` enabled and switch to `All files` when you want to re-evaluate the whole project with a new model.
-
-![Prediction preview](https://s3.eyeauras.net/media/2026/05/YoloEase_eUeVre8Bbg.png)
-
-## Auto-label thresholds
-
-After prediction, `Trainer` shows the detected labels and their confidence. You can use one shared `Global` threshold or separate `Per Label` thresholds.
-
-If you get many false positives, raise the confidence threshold. If the model misses real objects, temporarily lower the threshold and review the suggestions manually. These thresholds affect selection and auto-labeling inside YoloEase; they do not replace runtime filters in EyeAuras.
-
-## Progress
-
-The progress feed shows exactly what `Trainer` is doing:
-
-- updating project files;
-- skipping predictions if there is no model yet;
-- applying [augmentations](/YoloEase/features/augmentations), if enabled;
-- building the dataset;
-- running local training or preparing a cloud run;
-- exporting to ONNX;
-- running predictions with the new model.
-
-![Training running](https://s3.eyeauras.net/media/2026/05/YoloEase_pNV4AW3F2r.png)
-
-## Metrics
-
-After training, look at the chart. The overall trend matters more than any single value: losses should go down, while precision, recall, and mAP should go up.
-
-| Metric | How to read it |
+| Setting | Value and purpose |
 | --- | --- |
-| `precision` | How rarely the model produces extra false detections. |
-| `recall` | How rarely the model misses real objects. |
-| `mAP50` | Overall quality at a more forgiving bounding-box match threshold. |
-| `mAP50-95` | A stricter measure of bounding-box quality. |
-| `train/val loss` | Training and validation error; the trend matters more than one spike. |
+| `Yolo8/10+ base model` | `yolo11s.pt`, resolved through the model cache and downloaded if missing. Select your own compatible `.pt` to train from those weights. |
+| `Epochs` | `50`, requested epochs. |
+| `Model Size` | `640`, passed as `imgsz`. |
+| `Additional arguments` | Empty by default. For example, `device=cpu` explicitly selects CPU. |
+| `Max CPU Cores` | Sets `NUM_THREADS` for the child process; `0` means **Any**, not a machine-wide workload cap. |
 
-![Training metrics](https://s3.eyeauras.net/media/2026/05/YoloEase_UQNGLfMszk.png)
+2. In **Trainer**, select **Local Training**, **Run once**, **Train/Validation % split = 80%**, then **Start automatic training**. This runs the local YOLO CLI, without uploading the dataset to Colab.
+3. Inspect the timeline and expanded stage output. It refreshes data and available predictions, applies enabled augmentations, prepares the dataset, trains and exports. With no first model, prediction work is skipped.
 
-With only the first few dozen frames, the chart may look noisy or strange. After the second or third iteration, it usually becomes more stable because the dataset already contains more corrected examples.
+![Epoch progress and command output from an earlier local run](https://s3.eyeauras.net/media/2026/05/YoloEase_pNV4AW3F2r.png)
 
-![Second generation metrics](https://s3.eyeauras.net/media/2026/05/YoloEase_IQStvCNnhh.png)
+4. Wait for a successful training/export result. **open...** selects the model in its output folder. A **Cycle completed** entry is also produced after an error or cancellation; it does not establish success.
 
-## Output files
+![Opening the model file from a successful result](https://s3.eyeauras.net/media/2026/05/YoloEase_AKduA4R9xH.png)
 
-After training starts, YoloEase converts the model to ONNX. You can use `Open` to open the output folder.
+5. Inspect the actual `.onnx`, `.pt` weights and `results.csv`/`results.png`. Keep `.pt` for training, and use the compatible ONNX for [EyeAuras](/en/YoloEase/use-in-eyeauras). YoloEase may rename the ONNX using the project, base model and run name.
 
-![Open model folder](https://s3.eyeauras.net/media/2026/05/YoloEase_AKduA4R9xH.png)
+![Weights and export from one demonstration run](https://s3.eyeauras.net/media/2026/05/1gcs8iFm66.png)
 
-You will usually find:
-
-- `best.pt` — the best PyTorch weights;
-- `last.pt` — the weights from the last epoch;
-- `.onnx` — the model used by EyeAuras and for predictions.
-
-Typical output structure:
+A typical result inside the working folder is:
 
 ```text
 datasets/<run-id>/
@@ -158,27 +48,94 @@ datasets/<run-id>/
   cvataat.json
   train/images, train/labels
   valid/images, valid/labels
+  test/images, test/labels
   runs/train/weights/best.pt
   runs/train/weights/last.pt
   runs/train/results.png
   runs/train/results.csv
-  runs/train/weights/best.onnx
+  runs/train/weights/<project-base-model-run>.onnx
 ```
 
-To continue training, you need the `.pt` file. For EyeAuras and most runtime scenarios, use `.onnx`.
+The current converter assigns **0** to the test split, while still creating its folders and YAML entry. These are not a separately evaluated test set. Dataset images can be symbolic links into working storage; copying `data.yaml` alone does not make a portable dataset. `best.pt` and `last.pt` are different checkpoints, not two ready ONNX files.
 
-![Model output files](https://s3.eyeauras.net/media/2026/05/1gcs8iFm66.png)
+## Control the next cycle and task
 
-## YOLO commands
+| Control | Effect |
+| --- | --- |
+| `Start automatic training` / `Stop automatic training` | Start a cycle / request cancellation. Wait until active work finishes before restarting; synchronous work need not stop immediately. |
+| `Run once` | Stop after one cycle, including a failed one. |
+| `Run until stopped` | Repeat until stopped. An unchanged project can skip training rather than create another model each pass. |
+| `Create Task` | Select a new annotation batch and open it. |
+| `Annotate Task` / task list | Open an unfinished task or select a particular task. **All tasks** includes completed tasks. |
+| `Refresh` | Update project files, tasks, models and related state. |
+| `Clear` | Clear the timeline, without deleting weights or annotation. |
+| `Batch size` | Percentage of files not yet assigned to tasks, initially **5%**, with a rounded count beside it. It is not YOLO's training `batch`. For a small pool, increase it until the intended count is nonzero. |
+| `Train/Validation % split` | Initially **80%** training, with the remainder for validation. Small datasets require rounding. |
 
-Local training runs Ultralytics YOLO with arguments roughly like these:
+For 10 unassigned images, **50%** selects a task of 5. Start with a manually reviewed seed of 5–10 frames, then use larger tasks only after checking whether suggestions help. [Complete workflow](/en/YoloEase/annotate-and-train).
+
+<details>
+<summary>File selection, predictions and active learning</summary>
+
+| Setting | Behaviour |
+| --- | --- |
+| `File pick strategy → Annotated-first` | Prefer unassigned files with available predictions, then fill randomly. This is not verified error-based selection. |
+| `File pick strategy → Random` | Random selection from remaining files. |
+| `Prediction strategy → Unannotated` | Predict on files not yet assigned to any task; it does not mean every frame without boxes. |
+| `All files` | Predict across all project files, potentially doing more work. |
+| `Disabled` | Skip new predictions; existing results can still be used. |
+| `Annotated files → Include/Exclude` | Include/exclude files already assigned to tasks from the displayed prediction statistics. |
+| `Threshold → Global/Per Label` | One confidence threshold or separate class thresholds for selecting predictions. Initial confidence is **25%**, prediction IoU **70%**. |
+
+![Predictions available before selecting another annotation task](https://s3.eyeauras.net/media/2026/05/YoloEase_eUeVre8Bbg.png)
+
+These settings help select frames and produce annotation suggestions. They are separate from the loaded model's thresholds in EyeAuras. A model score is not a measured probability of a correct action. Review predictions before **Finish Job**. Each training run starts from the selected base model; another cycle does not automatically resume the preceding checkpoint. Choose that compatible `.pt` explicitly when that is your intention.
+
+</details>
+
+<details>
+<summary>Splits, class names and metrics</summary>
+
+The converter divides images sequentially in the received order, without its own shuffle or class stratification. It reserves at least one image for each nonzero split before distributing the remainder. Check actual counts and keep separate scenes for validation; near-identical frames can make a result misleading.
+
+Class names and indices in `data.yaml` come from encountered annotation names, not project `LabelId` values. A reviewed empty frame in a completed task has an empty label file. Keep names consistent and do not transfer class indices between models without checking their `names` metadata.
+
+| Metric | Meaning |
+| --- | --- |
+| `precision` | Share of predicted detections judged correct on validation data. |
+| `recall` | Share of labelled objects found. |
+| `mAP50` | Detection evaluation at IoU 0.5. |
+| `mAP50-95` | Evaluation across a stricter range of IoU thresholds. |
+| `train/val loss` | Training/validation loss, not a percentage of failed clicks. |
+
+![Metrics from an earlier training run](https://s3.eyeauras.net/media/2026/05/YoloEase_UQNGLfMszk.png)
+![Metrics from another demonstration generation](https://s3.eyeauras.net/media/2026/05/YoloEase_IQStvCNnhh.png)
+
+These historical images do not specify expected accuracy, duration or improvement after two or three cycles. Compare your models on held-out images and inspect false positives and missed objects, beyond the summary plots.
+
+</details>
+
+<details>
+<summary>Commands, devices and cloud preparation</summary>
+
+YoloEase constructs a local command of this form, substituting paths itself. This is an explanation of the run, not a command you need to launch separately:
 
 ```text
-task=detect mode=train plots=true model=<base-model> data=<data.yaml> imgsz=<Model Size> epochs=<Epochs>
+yolo task=detect mode=train plots=true project="<run-folder>/runs" model="<base-weights>" data="<data.yaml>" imgsz=640 epochs=50
 ```
 
-If CUDA is available and you did not set `device` manually, YoloEase adds `device=0`. If `workers` is not specified, YoloEase adds `workers=0` to avoid memory growth from multiprocessing on Windows. In `Additional arguments`, you can add values such as `batch=8`, `patience=20`, `device=cpu`, `workers=2`, `cache=false`, `amp=false`.
+| Additional argument | Meaning |
+| --- | --- |
+| `device=cpu` | Explicit CPU. Without a device override, YoloEase probes PyTorch CUDA and adds `device=0` when available. |
+| `workers=0` | Added when no `workers` is supplied. An explicit value such as `workers=2` takes precedence. |
+| `batch=8`, `patience=20` | Ultralytics training batch and early stopping, separate from annotation **Batch size**. |
+| `cache=false`, `amp=false` | Ultralytics cache and mixed-precision choices. |
+| `seed=0` | An explicit training seed; it does not add shuffling to YoloEase's dataset converter. |
 
-Do not add conflicting arguments unless you really need them: they may override the UI settings or break the run.
+Arguments can conflict with UI settings or differ between installed Ultralytics versions. Read the actual command and error output. After training, a separate `yolo export` uses `format=onnx` and `opset=17`; changing a `.pt` extension cannot perform that conversion. Check the [ONNX compatibility requirements](/en/YoloEase/features/yolo-onnx).
 
-See also: [YOLO ONNX and model weights](/YoloEase/features/yolo-onnx), [EyeAuras integration](/YoloEase/features/eyeauras-integration), [diagnostics](/YoloEase/features/diagnostics).
+**Google Colab** prepares a dataset ZIP and a notebook link. Upload, notebook execution and returning the model are separate user steps; selecting this mode alone does not run cloud training. Check that the ZIP contains real images and labels, not merely local links. Archive preparation changed after **v2.0.90**: the later source revision `946be263` writes file contents into the archive. With the released v2.0.90 build, inspect the produced ZIP before transferring it rather than assuming that later implementation is installed.
+
+[Integration](/en/YoloEase/features/eyeauras-integration) · [Diagnostics](/en/YoloEase/features/diagnostics)
+
+</details>

@@ -7,7 +7,25 @@ tags: yoloease, machine-learning, ai-translated
 editor: markdown
 dateCreated: 2023-10-29T19:14:56.548Z
 ---
-# YoloEase
+# Build your first detector with your own images
+
+YoloEase keeps images, annotation tasks and training runs in one project. Start with a small manually reviewed task, train a first model, then use its suggestions to annotate more images. The model learns from saved boxes and their classes, not from class names alone.
+
+Use Windows x64, YoloEase 2 from the [author's releases](https://github.com/iXab3r/YoloEase/releases/) and the [prepared environment](/en/YoloEase/prerequisites). For this example, collect **10 of your own PNG frames** showing targets and a button in different positions. Create the class names `tgt` and `btn` yourself; neither is built in. Include actual examples of both classes in the first task.
+
+![YoloEase project creation screen](https://s3.eyeauras.net/media/2026/05/YoloEase_egOi46KQfu.png)
+
+## Complete the first cycle
+
+1. Click **New...** and save `MyTargets.yeproj` in your own local folder. Keep its neighbouring `MyTargets` working folder with it when moving the project.
+2. On **Project**, use **Add label** to add `tgt`, then `btn`. Drop your PNG files onto **Drop folders, images, or videos here**. Individual images are copied into the project; [folder sources](/en/YoloEase/features/data-sources) have different ownership.
+3. In **Trainer**, set **Batch size** to **50%** for these 10 unassigned images. Check that the displayed count is **5**, then click **Create Task**. The editor opens that task.
+4. Select a label, press **N** and click opposite corners of each object. Review every frame and all relevant objects, then click **Finish Job**. Simply closing the editor saves work but does not complete a new task.
+5. In **Settings → Training settings**, use `yolo11s.pt`, **Epochs = 50** and **Model Size = 640**. In Trainer, select **Local Training**, **Run once**, **Train/Validation % split = 80%**, then **Start automatic training**. Completed tasks supply the dataset; unaccepted suggestions do not.
+6. Read the training and export steps. After a successful result, **open...** selects the created model in its output folder. Find the actual `.onnx`; `.pt` weights are for training and are not an EyeAuras model input.
+7. Create the next task. In **Models**, add **Latest**, click **Load**, check its class mapping, enable **Create suggestions** and click **Run current**. Accept correct boxes, fix mistakes and **Finish Job** before training again.
+
+The first concrete outputs are saved annotations, an exported ONNX file after successful training, and actual boxes after explicitly running that model on another frame. Test on separate images: a generation count or a larger dataset alone does not establish useful accuracy.
 
 ```text
 start: label 5-10 frames by hand -> first model
@@ -22,112 +40,39 @@ tens/hundreds of frames -> auto-annotation -> review and fixes
                   .pt/.onnx -> EyeAuras or another app
 ```
 
-YoloEase is designed to help you train a YOLO model that finds the objects you need in your frames. The result is standard `.pt` weights for further training and an `.onnx` file you can run without Python.
-
-In this guide, EyeAuras is just an example of where a finished model can be used. In the AimTrainer.io example, the model detects targets `tgt` and the button `btn`, then EyeAuras loads the ONNX model into `ML Search` and clicks the detected targets through Behavior Tree.
-
-![Start screen](https://s3.eyeauras.net/media/2026/05/YoloEase_egOi46KQfu.png)
-
-## Practical quick start
-
-Do not begin with a huge perfect dataset. The fastest path is a small manual seed set, then your first model, then larger tasks with auto-annotation.
-
-1. Take the first `5-10` frames.
-2. Label them by hand.
-3. Start training.
-4. While the first model is training, add a bit more manual annotation if you have time.
-5. When the first model is ready, use it to auto-annotate the next task.
-6. If auto-annotation is already helping, increase the task size: first tens of frames, then hundreds.
-7. Review the model suggestions, fix mistakes, and send the task back into training.
-
-Each cycle gives you a new model version. At first it will be weak, then it will help more and more. After a few generations, you stop drawing every box from scratch and mostly review and correct auto-annotation.
-
-Read more about this workflow here: [annotation and training](/YoloEase/annotate-and-train), [Trainer](/YoloEase/features/trainer), [annotation editor](/YoloEase/features/annotation-editor).
-
-## What gets created along the way
-
-| Step | What you get |
+| Object in the workflow | What it means |
 | --- | --- |
-| Video or folder | Source frames that will become your dataset. |
-| `Extract frames` | Copies of frames inside the YoloEase project. |
-| `Create Task` | An annotation task: small at first, later tens or hundreds of frames. |
-| Annotation editor | Object boxes and labels such as `tgt` or `btn`. |
-| `Finish Job` | A completed task that can be used for training. |
-| `Trainer` | YOLO dataset, training runs, predictions, and model files. |
-| `Open` on a model | Folder with `.pt`, `.onnx`, charts, and training results. |
-| EyeAuras or another app | Real automation that uses the finished `.onnx`. |
+| Project | `.yeproj` settings plus its working folder: tasks, annotations, models and run history. External source folders remain separate dependencies. |
+| Frame / task | One image / a selected batch of images to review. A task becomes training input after **Finish Job**. |
+| Label / box | A class name / one object's annotated extent in an image. A new label does not create examples. |
+| Prediction / suggestion | Model output / a temporary proposed box. Accept and save suggestions before they become annotation. |
+| False positive / missed object | An extra detection / a required object the model did not find. Both need review, not automatic acceptance. |
+| `.pt` / `.onnx` | PyTorch weights for further training / an export for a compatible inference application. |
 
-## Short glossary
+## Use the result
 
-| Term | Meaning |
+In [EyeAuras](/en/YoloEase/use-in-eyeauras), first load ONNX in **Machine Learning(AI) Search**, select your own window and inspect boxes without input actions. Recognition and the decision to react are separate stages.
+
+The earlier AimTrainer.io demonstration below uses `tgt` and `btn`; its behavior tree decides when to act. The detector sees captured pixels, not the trainer's internal game state. A compatible application can run the ONNX export without the training Python environment, but still needs its own parser and inference runtime.
+
+![Earlier model and behavior-tree demonstration in EyeAuras](https://s3.eyeauras.net/media/2026/05/NM2dnxhLf6.png)
+
+<details>
+<summary>Choose your next step or inspect the author's example</summary>
+
+| Your next task | Guide |
 | --- | --- |
-| Frame | A single image from a video or folder. |
-| Label or class | The name of an object type: `tgt`, `btn`, `enemy`, `loot`. |
-| Task | A batch of frames that is convenient to process in one pass. |
-| `.pt` | PyTorch weights for training and fine-tuning through YOLO/Ultralytics. |
-| `.onnx` | A file for running the model in EyeAuras or another compatible engine. |
-| Prediction | Objects found by the model: box, class, and confidence. |
-| Auto-annotation | Using an already trained model to label new frames faster. |
-| False positive | The model detected an object where there is none. |
-| Miss | The model failed to detect an object it should have found. |
+| Configure the project and labels | [Data preparation](/en/YoloEase/prepare-data) |
+| Extract video frames | [Video splitter](/en/YoloEase/features/video-splitter) |
+| Understand imports and external paths | [Data sources](/en/YoloEase/features/data-sources) |
+| Draw, save and review boxes | [Annotation editor](/en/YoloEase/features/annotation-editor) |
+| Repeat annotation and training | [Annotation and training](/en/YoloEase/annotate-and-train) |
+| Control a run and locate its output | [Trainer](/en/YoloEase/features/trainer) |
+| Add image variation | [Augmentations](/en/YoloEase/features/augmentations) |
+| Check weights, export and compatibility | [YOLO ONNX](/en/YoloEase/features/yolo-onnx) |
+| Configure a reaction after recognition | [EyeAuras integration](/en/YoloEase/features/eyeauras-integration) |
+| Investigate a failure | [Diagnostics](/en/YoloEase/features/diagnostics) |
 
-## What you will end up with
+The author's example includes a [recorded session](https://youtu.be/MdLETBZPeec), an [EyeAuras pack](https://eyeauras.net/share/S20260507232328uRAOxLRumL6o), [ONNX](https://s3.eyeauras.net/media/2026/05/Qwe_yolo11s_202605072245262GXYDdJshE3b.onnx), [PyTorch weights](https://s3.eyeauras.net/media/2026/05/Qwe_yolo11s_202605072245262GXYDdJshE3b.pt) and a [YoloEase project with run history](https://s3.eyeauras.net/media/2026/05/AimTrainerDemo.zip). They belong to that demonstration, not to your new training run. Inspecting the files does not require executing imported input actions.
 
-By the end, you will have:
-
-- a YoloEase project with source frames, tasks, annotations, and training history;
-- `.pt` weights for further training in YOLO/Ultralytics;
-- an `.onnx` model that runs without a Python environment;
-- optionally, finished EyeAuras logic that uses `ML Search` and Behavior Tree.
-
-![Final result](https://s3.eyeauras.net/media/2026/05/NM2dnxhLf6.png)
-
-## Main workflow
-
-1. Download the latest build from [GitHub releases](https://github.com/iXab3r/YoloEase/releases/) and start YoloEase.
-2. Create a project through `New...`. YoloEase will show the standard save dialog for `.yeproj` and create a project folder next to it. Read more: [prepare data](/YoloEase/prepare-data).
-3. Open `Prerequisites`, click `Check all`, then `Install missing`. Read more: [prerequisites](/YoloEase/prerequisites).
-4. Add labels such as `btn` and `tgt`. Read more: [data sources](/YoloEase/features/data-sources).
-5. Add a video or a folder with images. Read more: [data sources](/YoloEase/features/data-sources).
-6. If the source is a video, extract frames through `Extract frames`. Read more: [extracting frames from video](/YoloEase/features/video-splitter).
-7. In `Trainer`, create your first task. Read more: [Trainer](/YoloEase/features/trainer).
-8. Annotate the first frames manually and make sure to click `Finish Job`. Read more: [annotation editor](/YoloEase/features/annotation-editor).
-9. Start `Start automatic training` and review the metrics. Read more: [annotation and training](/YoloEase/annotate-and-train).
-10. Use predictions and auto-annotation for the next tasks. Read more: [annotation editor](/YoloEase/features/annotation-editor) and [Trainer](/YoloEase/features/trainer).
-11. Enable augmentations if needed. Read more: [augmentations](/YoloEase/features/augmentations).
-12. Review the files produced after training. Read more: [YOLO ONNX and model weights](/YoloEase/features/yolo-onnx).
-13. Plug the final `.onnx` into EyeAuras or another compatible recognition engine. Read more: [EyeAuras integration](/YoloEase/features/eyeauras-integration).
-
-## Pages in this section
-
-Main guides:
-
-- [Prerequisites](/YoloEase/prerequisites)
-- [Prepare data](/YoloEase/prepare-data)
-- [Annotation and training](/YoloEase/annotate-and-train)
-- [Using it in EyeAuras](/YoloEase/use-in-eyeauras)
-
-Detailed feature pages:
-
-- [Data sources](/YoloEase/features/data-sources)
-- [Extracting frames from video](/YoloEase/features/video-splitter)
-- [Annotation editor](/YoloEase/features/annotation-editor)
-- [Trainer](/YoloEase/features/trainer)
-- [Augmentations](/YoloEase/features/augmentations)
-- [YOLO ONNX and model weights](/YoloEase/features/yolo-onnx)
-- [EyeAuras integration](/YoloEase/features/eyeauras-integration)
-- [Diagnostics](/YoloEase/features/diagnostics)
-
-## Ready-made materials
-
-If you want to see the finished result or repeat the example without building everything from scratch:
-
-- [Recorded session](https://youtu.be/MdLETBZPeec)
-- [EyeAuras pack with Behavior Tree and model](https://eyeauras.net/share/S20260507232328uRAOxLRumL6o) — you can open the finished example and compare your setup with the final one.
-- [ONNX weights](https://s3.eyeauras.net/media/2026/05/Qwe_yolo11s_202605072245262GXYDdJshE3b.onnx)
-- [PyTorch weights](https://s3.eyeauras.net/media/2026/05/Qwe_yolo11s_202605072245262GXYDdJshE3b.pt)
-- [Full YoloEase project with training history](https://s3.eyeauras.net/media/2026/05/AimTrainerDemo.zip)
-
-## See also
-
-If this is your first time running YoloEase, start with [prerequisites](/YoloEase/prerequisites). If your environment is already ready, go straight to [prepare data](/YoloEase/prepare-data).
+</details>
