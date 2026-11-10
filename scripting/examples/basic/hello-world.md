@@ -15,8 +15,6 @@ You can [import the prepared example](https://eu.eyeauras.net/share/S20240223231
 
 1. Create an aura and add **C# Script** to **On Enter**.
 
-![Adding the script action in the older editor](https://i.imgur.com/mz7CUzL.png)
-
 2. Put this complete program in top-level **Script.csx**:
 
 ```csharp
@@ -25,13 +23,9 @@ Log.Info("Hello, world!");
 
 3. Click **Run** in the editor.
 
-![Manual Run control in the older editor](https://i.imgur.com/VP8JnWk.png)
-
 4. Find `Hello, world!` in that action's **Event Log**. Running again adds another line. The program finishes after logging, so it needs no manual Stop.
 
-![Hello world in the action log](https://i.imgur.com/JeZXXU8.png)
-
-These images show an earlier editor. The result to check is the text in the selected action's log. In an ordinary C# class, pass a logger explicitly; copying this statement into an unrelated project does not create one. A fresh script's default template can differ between versions.
+The hotkey illustrations below show an earlier editor. The result to check is the text in the selected action's log. In an ordinary C# class, pass a logger explicitly; copying this statement into an unrelated project does not create one. A fresh script's default template can differ between versions.
 
 For a next step with changing data, use the [typed counter example](/en/scripting/examples/basic/variables). It stores a value on its owner, so repeated runs can increase the counter instead of logging the same constant message.
 
