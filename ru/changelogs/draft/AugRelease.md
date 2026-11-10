@@ -30,7 +30,7 @@ dateCreated: 2024-08-11T17:15:30.899Z
 - обновлена [главная страница](https://eyeauras.net/)
 - переработаны страницы с информацией о конкретных аурах, например: [GTA5 fishing bot](https://eyeauras.net/share/S20240710235018df4VPCkM0Wan), [Blum clicker](https://eyeauras.net/share/S20240606142306qxWxc7fy40p6), [Lineage 2 bot](https://eyeauras.net/share/S20240628015518RjpkU2Sdkh5I)
 - обновлены скриншоты, видео и список возможностей — теперь они ссылаются на конкретные страницы [Wiki](https://wiki.eyeauras.net/)
-- раздел загрузки больше не спрятан прямо на главной, и теперь видно дату релиза
+- в разделе загрузки теперь видно дату релиза
 - информация о ценах тоже доступна сразу
 
 ![](https://i.imgur.com/aEcqbXL.jpeg)

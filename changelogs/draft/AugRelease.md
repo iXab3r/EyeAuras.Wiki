@@ -30,7 +30,7 @@ The most noticeable changes:
 - the [homepage](https://eyeauras.net/) has been updated
 - pages for specific auras were redesigned, for example: [GTA5 fishing bot](https://eyeauras.net/share/S20240710235018df4VPCkM0Wan), [Blum clicker](https://eyeauras.net/share/S20240606142306qxWxc7fy40p6), [Lineage 2 bot](https://eyeauras.net/share/S20240628015518RjpkU2Sdkh5I)
 - screenshots, videos, and the feature list were updated — they now link to specific [Wiki](https://wiki.eyeauras.net/) pages
-- the download section is no longer hidden away on the homepage, and the release date is now visible
+- the download section now shows the release date
 - pricing information is also available right away
 
 ![](https://i.imgur.com/aEcqbXL.jpeg)
