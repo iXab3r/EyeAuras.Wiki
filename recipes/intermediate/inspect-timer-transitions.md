@@ -2,10 +2,10 @@
 title: "Inspect a one-second pulse and its recorded state changes"
 description: "Combine an equal 1000/1000 ms Timer, locked Text and Event Viewer to follow the same aura through a restart."
 published: true
-date: 2026-11-10 T 17:01:45.000 Z
+date: 2026-11-10T17:01:45.000Z
 tags: recipes, intermediate
 editor: markdown
-dateCreated: 2026-11-10 T 17:01:45.000 Z
+dateCreated: 2026-11-10T17:01:45.000Z
 ---
 
 # Follow a pulse in the overlay and event messages

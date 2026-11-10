@@ -2,10 +2,10 @@
 title: "Keep failure evidence before restoring your configuration"
 description: "Save and review a local report and your affected set, then deliberately restore a known profile snapshot."
 published: true
-date: 2026-11-10 T 17:01:45.000 Z
+date: 2026-11-10T17:01:45.000Z
 tags: recipes, intermediate
 editor: markdown
-dateCreated: 2026-11-10 T 17:01:45.000 Z
+dateCreated: 2026-11-10T17:01:45.000Z
 ---
 
 # Preserve the failed state before returning to a usable one
@@ -18,7 +18,7 @@ Use your own test profile without unrelated unsaved work. You need file-based co
 
 1. Note the failure time, EyeAuras version/profile and affected folder. Record the steps, actual result and expected result in your own words. Do not invent a cause or repeat harmful actions just to obtain a report.
 2. In the title bar click **Report a problem**. In **Error Report**, enter that description. Select logs from the affected run; include an earlier log if you have restarted since the failure. Review screenshots and add aura configuration only when relevant.
-3. Click **Save...**, choose your backup directory and wait for the `.7 z` archive. Open it for reading and check **comment.txt**, selected logs and attachments. Required system/application context may also be included, even without aura configuration; review private paths, images and settings before sharing. Close the dialog without **Send**.
+3. Click **Save...**, choose your backup directory and wait for the `.7z` archive. Open it for reading and check **comment.txt**, selected logs and attachments. Required system/application context may also be included, even without aura configuration; review private paths, images and settings before sharing. Close the dialog without **Send**.
 4. Select your own affected folder and open **Share/Export**. In **Content**, check its contents and any **Missing linked objects detected**; review **Add linked objects** before adding dependencies. Use **Destination → Local export → Save to file...** to save its JSON beside the report. This is a selected-set export, not a backup of all profile history or external files.
 5. Record both filenames. Check they are outside config: restoring can remove untracked files there. Preserve any other newer settings you need before proceeding. Export does not scrub secrets.
 

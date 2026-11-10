@@ -2,10 +2,10 @@
 title: "Compare a bar’s filled fraction at two sizes"
 description: "Calibrate an ideal white/black mask and whole-area Mathematical color similarity before showing a half-full reminder."
 published: true
-date: 2026-11-10 T 17:01:45.000 Z
+date: 2026-11-10T17:01:45.000Z
 tags: recipes, intermediate
 editor: markdown
-dateCreated: 2026-11-10 T 17:01:45.000 Z
+dateCreated: 2026-11-10T17:01:45.000Z
 ---
 
 # Keep a half-full indication meaningful at two sizes

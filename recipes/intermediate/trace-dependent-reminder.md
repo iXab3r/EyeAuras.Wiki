@@ -2,10 +2,10 @@
 title: "Find which layer hides your linked reminder"
 description: "Separate condition links, property bindings, enabling permission and overlay visibility in one owned display-only set."
 published: true
-date: 2026-11-10 T 17:01:45.000 Z
+date: 2026-11-10T17:01:45.000Z
 tags: recipes, intermediate
 editor: markdown
-dateCreated: 2026-11-10 T 17:01:45.000 Z
+dateCreated: 2026-11-10T17:01:45.000Z
 ---
 
 # Find why a linked reminder is missing

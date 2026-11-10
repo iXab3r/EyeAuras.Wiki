@@ -2,10 +2,10 @@
 title: "Review a pack before allowing its reactions"
 description: "Inspect a prepared pack’s version, permissions, visible logic and dependencies, then decide whether to configure it or defer import."
 published: true
-date: 2026-11-10 T 17:01:45.000 Z
+date: 2026-11-10T17:01:45.000Z
 tags: recipes, intermediate
 editor: markdown
-dateCreated: 2026-11-10 T 17:01:45.000 Z
+dateCreated: 2026-11-10T17:01:45.000Z
 ---
 
 # Decide whether a pack is ready for your own setup

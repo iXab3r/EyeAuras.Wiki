@@ -2,10 +2,10 @@
 title: "Stop and restart your own pending tree wait"
 description: "Check an explicit stop aura on manual ticks, interrupt a retained 2000 ms Wait and begin a fresh interval."
 published: true
-date: 2026-11-10 T 17:01:45.000 Z
+date: 2026-11-10T17:01:45.000Z
 tags: recipes, intermediate
 editor: markdown
-dateCreated: 2026-11-10 T 17:01:45.000 Z
+dateCreated: 2026-11-10T17:01:45.000Z
 ---
 
 # Stop a pending wait on your next check
