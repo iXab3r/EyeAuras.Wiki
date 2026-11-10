@@ -8,69 +8,61 @@ editor: markdown
 dateCreated: 2023-10-15T20:42:29.377Z
 ---
 
-# Report a problem
+# Save diagnostic data and choose how to share it
 
-**EyeAuras** is a very complex program that continually evolves. Unfortunately, its evolution isn't without setbacks. It has had, currently has, and will likely have errors in the future—some minor and others critical.
+When a trigger or action behaves differently from expected, preserve the description and logs from that run through **Report a problem**. You can save and inspect an archive locally before sending anything.
 
-This reality is why I've built an entire system allowing users to effortlessly send logs, configurations, screenshots, and any other pertinent data that could aid in diagnosing and rectifying a problem.
+## If EyeAuras is still running
 
-Errors fall into 3 main categories:
+1. Click **Report a problem** in the EyeAuras title bar to open **Error Report**. A mini-app may provide its own reporting button.
+2. Describe your steps, actual result and expected result. Include the feature or pack and version. For example: “I selected my window, but Preview stayed empty; I expected its image.” Report observations rather than a guessed cause.
+3. Review the attachments and select logs from the affected run. Include earlier logs if the failure happened before a restart, and configuration when it is needed to reproduce the problem.
+4. Click **Save...**, choose your own directory and wait for the `.7z` archive. Open it for reading and check the comment and selected files. Saving alone does not send it.
+5. To submit to normal EyeAuras support, use **Send** and wait for the confirmation ID. If a pack author requested a file directly, share the saved archive through an agreed [contact](/en/contacts).
 
-### **1\. Defect**
+![Error Report in the earlier interface](/assets/legacy/1efpgwe%5B1%5D.png)
 
-**What's happening?**
+| Control or status | Result |
+| --- | --- |
+| Save... | Packs selected data into a local archive and opens its location |
+| Send | Passes the archive to the configured handler: the EyeAuras server in the normal client. A mini-app can supply a different handler; without one, sending is unavailable |
+| Compressing report... / Sending report... | Work is still in progress; delivery is not confirmed |
+| Report sent / Report sent successfully | The handler returned an ID. Keep it for support; it does not mean someone has read the report |
+| Copy | Copies the sent report ID or current status text, not the archive |
+| Closing the dialog | Does not itself submit a report |
 
-Something isn't functioning as anticipated; perhaps you've noticed unusual behavior, a trigger that's not working, or an action not executing its intended task. While the app remains operational, it's not running at full capacity.
+You can edit or clear a prefilled comment; an empty comment is omitted. Data is prepared for that report dialog. Open a new dialog if you need a fresh snapshot after changing the application state.
 
-**What should you do?**
+## Review what is included
 
-Click the “Report a problem” button found in the window title. An “Error Report” dialog will pop up, allowing you to share details and send logs.
+| Data | Inclusion |
+| --- | --- |
+| systemInfo.txt | Automatically collected system, process, path and command-line information |
+| applicationInfo.txt | Current clients automatically include app/sender/license/startup context, tree statistics and subscriptions. Older archives may not contain it |
+| stacktrace.txt | Available exception details; a manually opened report need not contain an exception |
+| Logs and application-window screenshots | Recent logs and available app-window captures are normally selected; review the list |
+| Desktop screenshots and aura configuration | Not selected by default; add when needed |
 
-### **2\. Application Crash**
+Logs, images, paths and settings can contain private information. Deselecting aura configuration does not remove required account or subscription context. There is no automatic guarantee that secrets are redacted. [Problem reports and receiving archives](/en/features/problem-reports) explains the payload, format, example and author-side route. Submitting to EyeAuras does not separately forward the archive to every subscribed pack author.
 
-**What's happening?**
+## If the application has closed
 
-The application abruptly ceases to function. This is typically due to a critical error within the app or its configuration.
+| Situation | What to preserve |
+| --- | --- |
+| Error Report appeared | The last steps and that failure's attachments. Whether the process exits afterwards depends on the error; not every report means shutdown |
+| The process disappeared without a dialog | Failure time, version and logs from that run. Select those earlier logs after a successful restart |
+| It fails before the interface opens | A copy of the data directory and logs for the agreed diagnosis below |
 
-**What should you do?**
+A disappearing process does not establish the cause. Native failure or external termination needs Windows diagnostics and context. Historical anti-cheat compatibility lists are not present guarantees, and antivirus exclusions are not a universal repair.
 
-An “Error Report” dialog will automatically display, offering you the chance to send or save logs. After closing the Error Report dialog, the application will terminate since it can't function normally.
+<details>
+<summary>When the interface never opens</summary>
 
-### **3\. Native Application Crash - worst case scenario**
+1. Close any remaining EyeAuras instance and identify its data directory. The ordinary release profile uses `%appdata%\EyeAuras\release`; a different profile or portable installation uses its own path.
+2. Copy the **whole directory** to a safe location. It can include `config.cfg`, `backups`, separate aura storage and history. A copy of `config.cfg` alone is not a complete backup of those stores.
+3. Preserve the failure time and `logs` folder, then use [Contacts](/en/contacts) to agree which files are needed. A whole-profile archive can contain confidential settings; do not immediately post it in a public chat.
+4. If the application offers a backup or reset, keep your copy first. Restoring changes the working state; see [Configuration history](/en/features/config-rollback).
 
-**What's happening?**
+Deleting `config.cfg` is not a complete reset when auras use separate storage. For a clean-data comparison, agree a separate profile with support and preserve the original directory. Restore only the agreed backup after diagnosis rather than replacing unrelated current data.
 
-The application stops instantly without any alerts or warnings, and without the “Error Report” dialog—it just shuts down.
-
-Several factors could be responsible:
-
--   **Anti-viruses**: EyeAuras employs certain tactics to ensure compatibility with numerous games and programs. Occasionally, these measures might set off anti-virus alerts. Often, it's a machine-learning algorithm flagging a potential threat—not necessarily identifying a virus but merely signaling the user to inspect further. A quick solution is adding the EyeAuras folder to your antivirus exclusions. While I may develop a solution in the future, as of 2023, I haven't solidified any plans.
--   **Anti-cheats**: Given its automated nature, some anti-cheat systems might detect EyeAuras. For instance, in the past, EasyAntiCheat would shut down EyeAuras upon detection. However, as of October 2023, systems like EasyAntiCheat, ActiveAntiCheat, and Vanguard haven't detected or disrupted the program.
--   **Critical app errors**: Although I strive to avert such situations, they can occur. Should this happen, please contact me directly, and we'll work on a solution.
-
-**What should you do?**
-
-If restarting the app resolves the issue, click “Report a problem” to provide diagnostic data that could help identify the problem—previous logs can still be sent or saved.
-
-If the app consistently crashes upon restart—a rare event—please do the following.
-
-1.  Navigate to “**%appdata%\\EyeAuras\\release**” in Explorer (just copy & paste this into address bar). The folder that will be opened is a main EyeAuras storage, it contains configuration, logs, everything
-2.  Backup “**config.cfg**” and folder “backups” somewhere. This is main configuration file (and backups) which contains all your settings, auras, etc.
-3.  Remove “**config.cfg**” and try to start the app. **This will reset application configuration to default settings and will remove everything. That is why you've made backup at the previous step**
-4.  If app has started successfully - please click on “Report a problem” and send me the logs. In some cases this will be enough for me to diagnose the issue.
-5.  If app has not started - compress the whole folder and send it to me directly in Discord or in Telegram. Fortunately, this is a very rare occurrence and in most cases you won't have to do that.
-6.  After the issue has been resolved (via application update, for example), you can restore your configuration (from backup file) and try again.
-
-## Error Report
-
-Open the dialog with **Report a problem** in the window title, or from the reporting button provided by a mini-app. It may also open automatically after an exception.
-
-Describe the problem, select the relevant attachments, then send the report to EyeAuras or save the archive to share with support or a share author. The comment is editable, including when an app prefills it. An empty comment is omitted.
-
-- `systemInfo.txt` and, in current EyeAuras clients, `applicationInfo.txt` are collected automatically. Application information includes the sender, license features, startup data, tree counts and subscriptions.
-- `stacktrace.txt` contains exception details when available. Recent application logs and application-window screenshots are selected by default.
-- Desktop screenshots, aura configuration and other optional files can be selected in the dialog. Desktop screenshots and aura configuration are not selected by default.
-
-Read [Problem reports and receiving archives](/features/problem-reports) for the file format, collected data, an example and instructions for accepting reports as a share author. Older archives without `applicationInfo.txt` remain usable.
-
-![](/assets/legacy/1efpgwe%5B1%5D.png)
+</details>

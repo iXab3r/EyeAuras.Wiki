@@ -1,5 +1,5 @@
 ---
-title: Peformance - Logs
+title: Performance - Logs
 description: 
 published: true
 date: 2024-05-14T11:15:26.646Z
@@ -8,36 +8,53 @@ editor: markdown
 dateCreated: 2023-01-17T20:54:14.310Z
 ---
 
-Changing log level may positively affect application performance but will drastically reduce chances of finding/fixing potential issues via logs. 
+# Reduce log detail
 
-Log level usually defines how important corresponding message is. Examples:
+Choose **Warnings/Errors** when you only need warnings and errors in ordinary application logging. This reduces diagnostic detail; it does not guarantee faster execution. Existing files remain, and messages skipped now cannot be recovered later.
 
--   TRACE Lowest possible level, disabled by default because amount of logs will be simply unmanageable. Stuff like memory allocation is logged with this level.
--   DEBUG Stuff like application behaviour is logged here. Usually it's useful only for app developer
--   INFO Messages which could potentially be understood and interpreted by end-user
--   WARN This level is used when something unexpected/unusual has happened and it may potentially affect app behaviour, but it is not critical. For example, if application update server is not available it's unpleasant, but not life-threatening
--   ERROR Something really bad has happened. In many cases it may lead to bugs and in worst cases it may crash application
+## Change the application setting
 
-By default, EyeAuras uses **DEBUG** log level. 
+1. Open **Settings** and find **Log File Level** in the main EyeAuras settings.
+2. Select **Warnings/Errors**. **Disabled** restricts ordinary logging further, but retaining warnings is more useful for diagnosis.
+3. Click **Save**. The change applies to the running application without restarting.
+4. Reopen settings to check the selection. Subsequent ordinary logs should contain fewer detailed messages. Before reproducing a problem for support, restore **Default** and save again.
 
-#### How to change log level manually via UI
+| Log File Level | Effect |
+| --- | --- |
+| Everything | Removes the shared restriction for detailed logging; Trace still requires the individual logger to allow it |
+| Default | Uses the normal logger configuration. The supplied root level is DEBUG; named loggers can differ |
+| Warnings/Errors | Sets the shared Warn threshold for ordinary messages, filtering Debug and Info where that threshold applies |
+| Disabled | Restricts ordinary messages through the shared threshold; it does not stop arbitrary third-party output or a script writing its own file |
 
-1.  Open Settings
-2.  Switch to “Only warnings and errors”
-3.  Click Save
-4.  That's it. You do not need to restart the app or do anything else - from now on, app will log only warnings and errors.
+The screenshot uses an earlier arrangement. Use the current labels above.
 
-![](/assets/legacy/4w4qwwx%5B1%5D.png)
+![Earlier log-level settings](/assets/legacy/4w4qwwx%5B1%5D.png)
 
-#### How to change log level manually via log4net.config
+| Level | Typical purpose |
+| --- | --- |
+| TRACE | Very detailed diagnostic events |
+| DEBUG | Component behavior useful for finding a cause |
+| INFO | Main execution events |
+| WARN | An unexpected situation that may allow work to continue |
+| ERROR | An operation or component failed; the entry alone does not mean the whole process exited |
 
-1.  Open the following directory(copy&paste into Explorer): **%localappdata%\\EyeAuras**
-2.  There will be multiple versions of EyeAuras (usually there are 2 versions, latest and backup). When you start EyeAuras latest version is used in all cases.
-3.  Go to folder with latest version, e.g. for **EyeAuras v1.2.4177** folder will have name “**app-1.2.4177**”
-4.  Open file “**log4net.config**” in your favourite text editor
-5.  Find the following line “**<level value="DEBUG" />**”, usually it's at the very bottom
-6.  Change **“DEBUG” to “WARN”**
-7.  Save file
-8.  From now on, only messages of **WARN** and **ERROR** level will be saved to log files thus drastically reducing any requirements for disk I/O
+This differs from filtering [Event Viewer](/en/features/event-viewer). A display filter hides rows; it cannot restore messages that were never recorded. The ordinary release profile stores logs under `%appdata%\EyeAuras\release\logs`; other profiles and portable data locations differ.
 
-That's it. There is no need to restart EyeAuras as it will automatically apply your changes. **This will work only until application will update to the next version. You will have to repeat all steps after update.** There is no built-in mechanism (yet) for changing log-level.
+<details>
+<summary>Edit log4net.config for a particular installation</summary>
+
+Use the UI for a persistent choice of ordinary log detail. Editing `log4net.config` changes the installation's logger configuration itself.
+
+1. Find the directory of the **running instance**, rather than assuming the highest version folder is active. An installed version may use `%localappdata%\EyeAuras\app-<version>`; a portable copy has its own directory. Back up `log4net.config` first. The old `app-1.2.4177` example names one historical version, not today's required path.
+2. In the existing `root` section, find this level element. This is a **fragment inside root**, not a complete configuration file:
+
+```xml
+<level value="DEBUG" />
+```
+
+3. Change only `DEBUG` to `WARN` and save, preserving the rest of the root section, appenders and file. The application watches this configuration file, so a restart is normally unnecessary.
+4. Account for individual logger levels and overrides as well as the shared UI threshold. A root edit does not impose one level on every output source. To undo the edit, restore your saved value or file.
+
+An application update or replacement can replace this file. **Settings → Save** stores the ordinary mode in application configuration and avoids editing each installed version.
+
+</details>
