@@ -34,4 +34,15 @@ The first task only needs a notes window. For the card, supply your own readable
 
 For a visual check, first confirm that the selected source supplies current pixels in the window state you intend to use. An image match, an average-color comparison and a live copy answer different questions. None of these tasks requires sending keys or clicking a detected region.
 
+## Manage your own state and local set
+
+| Task | What you combine |
+| --- | --- |
+| [Show a warning while a saved checklist contains TODO](/en/recipes/basic/checklist-file-warning) | UTF-8 file snapshot, text matching and a visible reminder |
+| [Switch reminders into maintenance mode](/en/recipes/basic/maintenance-status-board) | One manual source aura, expected-state links and folder permission |
+| [Play start and finish cues for a short routine](/en/recipes/basic/two-stage-audible-cue) | Prepared sound actions, a finite macro and a 1500 ms wait |
+| [Copy your reminder set without replacing it](/en/recipes/basic/copy-own-reminder-set) | Local JSON export, Import Preview, Copy and link verification |
+
+The file and copy tasks need a writable local directory. Maintenance uses only your own state and Text; the short routine also needs the Macro templates and audible output. These recipes do not require scripts. For shared capture, OCR or controlled tree routes, continue to [Intermediate recipes](/en/recipes/intermediate).
+
 Return to [Recipes](/en/recipes) to choose by outcome, or [Home](/en/home) for the feature overview.
