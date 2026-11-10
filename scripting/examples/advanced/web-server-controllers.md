@@ -8,42 +8,47 @@ editor: markdown
 dateCreated: 2025-03-02T23:41:52.118Z
 ---
 
-# Web Server with Controllers
+# Put related HTTP routes in a controller
 
-This runs inside a top-level EyeAuras C# Script, not a standalone ASP.NET project.
-The host must resolve all listed `assemblyName` references and a compatible ASP.NET
-Core runtime. Port 52080 must be free. The example uses HTTP; choosing port 52443
-does not enable HTTPS without endpoint/certificate configuration.
+Use a controller when several endpoints belong together. ASP.NET selects the method from its route and HTTP verb, and binds the query argument. This example returns prepared strings, so you can inspect the routing without connecting it to another application.
 
-We've already seen how to create a [simple web-server](https://wiki.eyeauras.net/en/scripting/examples/advanced/simple-web-server), now lets step up the game a bit. 
+Start with the prerequisites in the [local web-server example](/en/scripting/examples/advanced/simple-web-server). Both files below belong to **one EyePad C# Script project** with the listed ASP.NET Core assemblies available. The controller must be a public, top-level class in a separate C# file, rather than a class nested inside the generated script type.
 
-Manually creating routes and parsing arguments yourself is not very convenient. Definitely possible way of doing things, but things tend to become cluttered a bit too fast.
+## Read three responses
 
-That is why people have introduced [MVC](https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/adding-controller?view=aspnetcore-9.0&tabs=visual-studio), which is one of the ways of structuring your app and making it more readable/supportable
+1. Add `InjectController.cs` to the script project and paste the first listing into it.
+2. Put the second listing in `Script.csx`. Port `52080` must be free. Click `Run`.
+3. Open `http://127.0.0.1:52080/inject`. Expect an object containing `text` with the value `Index page`.
+4. Open `/inject/test` on that same address for `Hello!`, then `/inject/getBaseOffset?moduleName=demo` for `Base offset for module demo is XxX!`.
+5. Click `Stop` to shut down the host. The `XxX!` response is a demonstration string, not a module address or a memory read.
 
-Idea is simple - you `describe` where and how exactly you expect the data to be sent to you, AspNet parses everything into readable form and invokes your method, with everything prepared and ready-to-be-used. So instead of manually extracting arguments from query string, you just add a method with normal C# types in it.
+**InjectController.cs**
 
-## Steps
-Set of steps is quite similar to what we saw earlier, with one important twist - instead of manually building `Routes`, you create Controller, add Attributes to it and make AspNet create everything for you. All you have to do afterwards is add new methods, if needed.
-- Important! You have to point AspNet where your Controllers reside - this is already done in the code
-- Controllers MUST be defined in separate files. That is requirement - defining them in `Script.csx` **won't work**
-- You can have multiple Controllers with different Routes, Methods and Arguments - AspNet will take care of routing and picking the best method **for you**
+```csharp
+using Microsoft.AspNetCore.Mvc;
 
-## Example 
-> You can import the ready-made example from here: https://eyeauras.net/share/S20250302232729tsMgRqVRO6Gr
-{.is-info}
+namespace GameGrit;
 
-1. Create an aura with a script
-2. Copy-paste, run it, there should be a line printed to console `Starting web-server` - this is logged before startup and does not prove the server has opened its port
-3. Request `curl http://127.0.0.1:52080/hello`; expect `Hello World!`.
+[ApiController]
+[Route("inject")]
+public sealed class InjectController : ControllerBase
+{
+    [HttpGet]
+    public ActionResult Index() => Ok(new { Text = "Index page" });
 
+    [HttpGet("test")]
+    [HttpPost("test")]
+    public ActionResult Test() => Ok("Hello!");
 
-## How it could be used?
-Same way as it has been used in Simple version. It is just that in structuring things that way you get much more powerful tools in your toolbox - you can have multiple Controllers with their own responsibilities, use Dependency Injection and other high-level things.
-
-![Example](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_Z2i6oRKb8cb4rJ3t.png)
+    [HttpGet("getBaseOffset")]
+    [HttpPost("getBaseOffset")]
+    public ActionResult GetBaseOffset([FromQuery] string moduleName) =>
+        Ok($"Base offset for module {moduleName} is XxX!");
+}
+```
 
 **Script.csx**
+
 ```csharp
 #r "assemblyName: Microsoft.AspNetCore"
 #r "assemblyName: Microsoft.AspNetCore.Hosting"
@@ -60,149 +65,75 @@ Same way as it has been used in Simple version. It is just that in structuring t
 
 using GameGrit;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.AspNetCore.Routing;
-
-using System;
-
-const int PortNumber = 52080;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 {
-    Log.Info("Creating web-app builder");
+    cancellationToken.ThrowIfCancellationRequested();
+    var builder = Host.CreateDefaultBuilder()
+        .ConfigureAppConfiguration((context, config) => config.Sources.Clear())
+        .ConfigureWebHostDefaults(web => web
+            .ConfigureKestrel(server => server.ListenLocalhost(52080))
+            .ConfigureServices(services =>
+            {
+                services.AddSingleton(new ApplicationPartManager());
+                services.AddControllers()
+                    .AddApplicationPart(typeof(InjectController).Assembly);
+            })
+            .Configure(app =>
+            {
+                app.UseRouting();
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                    endpoints.MapGet("/hello", () => "Hello World!");
+                });
+            }));
 
-    using var host = await Task.Run(() =>
-    {
-        var builder = Host
-        .CreateDefaultBuilder()
-        .ConfigureAppConfiguration((context, config) =>
-        {
-            //Very important line!
-            //This is required to run the server in EA infrastructure
-            config.Sources.Clear();
-        })
-        .ConfigureWebHostDefaults(webBuilder =>
-        {
-            Log.Info("Setting up web-options");
-            webBuilder
-               .ConfigureKestrel(options => ConfigureKestrel(options))
-               .Configure((ctx, app) => { ConfigureAppAndEnvironment(Log, app, ctx.HostingEnvironment); });
-
-            webBuilder.ConfigureServices(services => {
-                var manager = new ApplicationPartManager();
-                services.AddSingleton<ApplicationPartManager>(manager);
-                services
-                    .AddControllers()
-                    .AddApplicationPart(typeof(InjectController).Assembly); //that line will ensure that Controllers are properly detected
-            });
-        });
-
-        Log.Info("Building web-server");
-        return builder.Build();
-    }, cancellationToken);
-
-    Log.Info("Starting web-server");
-    await host.RunAsync(cancellationToken);
-    Log.Info("Terminated");
-}
-
-private static void ConfigureAppAndEnvironment(
-    IFluentLog log,
-    IApplicationBuilder app,
-    IWebHostEnvironment env)
-{
-    app.UseRouting();
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapControllers(); //will build up routes and make your Controllers available for invocation
-        endpoints.MapGet("/hello", () => "Hello World!");
-    });
-
-    EnumerateEndpoints(log, app);
-}
-
-private static void ConfigureKestrel(KestrelServerOptions serverOptions)
-{
-    serverOptions.ConfigureEndpointDefaults(endpointOptions => { endpointOptions.Protocols = HttpProtocols.Http1; });
-    serverOptions.ListenAnyIP(PortNumber, listenOptions => { listenOptions.Protocols = HttpProtocols.Http1AndHttp2; });
-}
-
-
-private static void EnumerateEndpoints(IFluentLog log, IApplicationBuilder app)
-{
-    var endpointDataSource = app.ApplicationServices.GetRequiredService<EndpointDataSource>();
-
-    var endpoints = endpointDataSource.Endpoints
-        .Select(x => x is RouteEndpoint routeEndpoint ? $"Endpoint: {routeEndpoint.DisplayName}, Path: {routeEndpoint.RoutePattern.RawText}, Order: {routeEndpoint.Order}" : "Unknown endpoint: {x}")
-        .ToArray();
-    log.Info(endpoints.DumpToNamedTable("Endpoints"));
+    await builder.Build().RunAsync(cancellationToken);
 }
 ```
 
-**InjectController.cs**
+![Earlier controller example with a command-line request](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_Z2i6oRKb8cb4rJ3t.png)
+
+| Setting | Purpose |
+| --- | --- |
+| `ListenLocalhost(52080)` | Makes this HTTP example local to the computer. A port number alone does not enable HTTPS. |
+| `AddControllers()` | Registers MVC controller services in the HTTP host. |
+| `AddApplicationPart(typeof(InjectController).Assembly)` | Adds the assembly containing the script project's controller to discovery. |
+| `MapControllers()` | Maps the controller's attributed routes. |
+| `[FromQuery] string moduleName` | Reads the named query argument; it does not parse an arbitrary request body. |
+
+The `/inject/test` and `/inject/getBaseOffset` methods accept both GET and POST. For example, `curl -X POST http://127.0.0.1:52080/inject/test` returns the same greeting. `/hello` remains a separate `MapGet` route.
+
+## Give classes their own dependencies
+
+`InjectController` is an ordinary C# class. It does not inherit the script's `Log`, `GetService`, `AuraTree` or `cancellationToken`. Register the dependency you intend to expose in `ConfigureServices`, then receive it through the controller constructor. Registering MVC does not copy the EyeAuras root container into the HTTP host. For request-specific asynchronous work, use the request's `HttpContext.RequestAborted` token.
+
+`RunAsync(cancellationToken)` keeps the script alive, shuts down the host and disposes it on exit. A handler's own work must cooperate with cancellation. There is no need to start a second script or introduce a static bridge for controller discovery.
+
+<details>
+<summary>Inspect routes and extend the example</summary>
+
+To list endpoints, add `using Microsoft.AspNetCore.Routing;` above the executable block. Put this fragment inside the existing `Configure` lambda, after `UseEndpoints`. Its `Log` is captured from the enclosing script, not supplied as a global to controller classes.
+
 ```csharp
-namespace GameGrit;
-
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.AspNetCore.Routing;
-
-[ApiController]
-[Route("inject")]
-public sealed class InjectController : ControllerBase
+var source = app.ApplicationServices.GetRequiredService<EndpointDataSource>();
+foreach (var endpoint in source.Endpoints)
 {
-    [HttpGet]
-    public ActionResult Index()
+    if (endpoint is RouteEndpoint route)
     {
-        return new OkObjectResult(new { Text = "Index page" });
+        Log.Info($"Endpoint: {route.DisplayName}, Path: {route.RoutePattern.RawText}, Order: {route.Order}");
     }
-
-    [HttpGet]
-    [HttpPost]
-    [Route("test")]
-    public async Task<ActionResult> Test()
+    else
     {
-        return new OkObjectResult($"Hello!");
-    }
-
-    [HttpGet]
-    [HttpPost]
-    [Route("getBaseOffset")]
-    public async Task<ActionResult> GetBaseOffset(string moduleName)
-    {
-        return new OkObjectResult($"Base offset for module {moduleName} is XxX!");
+        Log.Info($"Endpoint: {endpoint.DisplayName}");
     }
 }
 ```
-`ListenAnyIP` binds network interfaces rather than only loopback. Remote access
-depends on the network and firewall. `RunAsync(cancellationToken)` connects host
-shutdown to the script; request handlers and external operations have their own
-completion rules. The HTTP service container is separate from EyeAuras DI.
-`config.Sources.Clear()` is explicit configuration for this example, not a guarantee
-of compatibility with every ASP.NET version.
 
-Create both files in one script project: `Script.csx` and `InjectController.cs`
-in namespace `GameGrit`. `AddApplicationPart(typeof(InjectController).Assembly)`
-points MVC at that assembly. Check `/inject` for an object with `Text = "Index page"`,
-`/inject/test` for the greeting, and `/inject/getBaseOffset?moduleName=kernel32.dll`
-for the demonstration string `XxX!`. That last route does not read a module address;
-it is an application placeholder.
+You can add controllers with different responsibilities, routes and typed arguments. The [original shared project](https://eyeauras.net/share/S20250302232729tsMgRqVRO6Gr) uses an earlier network-binding preset. Keep the loopback binding for this exercise. See [MVC controllers](https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/adding-controller?view=aspnetcore-9.0&tabs=visual-studio) for the general organization; that tutorial's framework version is not an instruction to replace your script host's dependencies.
 
-See [script context](/en/scripting/api/core/app-runtime-contexts),
-[hosting contracts](/en/scripting/api/scripting/web-server) and
-[assembly references](/en/scripting/api/scripting/references-and-resources).
-Source review does not establish compilation or execution of this script in your
-host; check the expected HTTP responses after starting it.
+</details>

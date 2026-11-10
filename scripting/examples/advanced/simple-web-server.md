@@ -8,41 +8,19 @@ editor: markdown
 dateCreated: 2025-03-02T23:25:27.998Z
 ---
 
-# Simple Web Server
+# Serve a local HTTP response from EyePad
 
-This runs inside a top-level EyeAuras C# Script, not a standalone ASP.NET project.
-The host must resolve all listed `assemblyName` references and a compatible ASP.NET
-Core runtime. Port 52080 must be free. The example uses HTTP; choosing port 52443
-does not enable HTTPS without endpoint/certificate configuration.
+Run a small HTTP endpoint from your own script and read `Hello, world!` in a browser. The response comes from a handler in the script; it does not read another application's data.
 
-You can spin-up and host your own local web-server which will be accessible by anyone and which could allow you to either peek into something that happens inside EA instance atm or control some options remotely. 
+You need a **C# Script** in [EyePad](/en/features/eyepad), a free local port `52080`, and a host that can load the listed ASP.NET Core assemblies and their compatible runtime dependencies. `assemblyName` references select available assemblies; they do not install ASP.NET Core. See [assembly and package references](/en/scripting/nuget) if a reference cannot be resolved.
 
-Code for creating and booting up the server is quite large, but could be just copy-pasted around if needed. 
+## Make one local request
 
-## Steps
-There are multiple steps to make everything work
-- you have to reference needed assemblies containing the actual web-server. This is done by using `assemblyName` type of references
-- add namespaces containing classes that you will use to boot up the server
-- setup the server itself and, most importantly, `routes` which control what exactly your server will be returning when some page is accessed
-- pick some free port, 52080 for HTTP and 52443 for HTTPS could be a good choice, but you can change them to whatever you want
+1. Create a C# Script project and put the complete program below in `Script.csx`.
+2. Click `Run`. Keep the script running while making the request. A startup log line alone does not mean the port is listening.
+3. Open `http://127.0.0.1:52080/hello` on the same computer, or use the command below. The response should be `Hello, world!`.
+4. Click `Stop` in EyePad. The token starts host shutdown; after shutdown and disposal, the server releases its listener.
 
-## Example 
-> You can import the ready-made example from here: https://eu.eyeauras.net/share/S20250302232655ULHlLljgYANa
-{.is-info}
-
-1. Create an aura with a script
-2. Copy-paste, run it, there should be a line printed to console `Starting web-server` - this is logged before startup and does not prove the server has opened its port
-3. Request `curl http://127.0.0.1:52080/hello`; expect `Hello, world!`.
-
-
-## How it could be used?
-The most obvious examply is controlling what happens in EA remotely OR feeding some informationg gathered by EA, such us results of image searchers, text searcher, etc somewhere, maybe to another instance of EA polling that data... Or some other script.
-
-Another example could be controlling your injection-based bot that way - considering this is a full-blown web-server, you can build any kind of transport on top of it.
-
-![Example](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_gYj4E9YMIQxNRqNe.png)
-
-**Script.csx**
 ```csharp
 #r "assemblyName: Microsoft.AspNetCore"
 #r "assemblyName: Microsoft.AspNetCore.Hosting"
@@ -52,77 +30,55 @@ Another example could be controlling your injection-based bot that way - conside
 #r "assemblyName: Microsoft.AspNetCore.Http.Abstractions"
 #r "assemblyName: Microsoft.AspNetCore.Hosting.Abstractions"
 #r "assemblyName: Microsoft.AspNetCore.Server.Kestrel"
-#r "assemblyName: Microsoft.AspNetCore.Mvc.Core"
-#r "assemblyName: Microsoft.AspNetCore.Mvc"
 #r "assemblyName: Microsoft.Extensions.Configuration.Abstractions"
 #r "assemblyName: Microsoft.AspNetCore.Routing.Abstractions"
 
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.AspNetCore.Routing;
-
-using System;
-
-const int PortNumber = 52080;
+using Microsoft.Extensions.Hosting;
 
 {
-    Log.Info("Creating web-app builder");
+    cancellationToken.ThrowIfCancellationRequested();
+    var builder = Host.CreateDefaultBuilder()
+        .ConfigureAppConfiguration((context, config) => config.Sources.Clear())
+        .ConfigureWebHostDefaults(web => web
+            .ConfigureKestrel(server => server.ListenLocalhost(52080))
+            .Configure(app =>
+            {
+                app.UseRouting();
+                app.UseEndpoints(endpoints =>
+                    endpoints.MapGet("/hello", () => "Hello, world!"));
+            }));
 
-    var builder = Host
-       .CreateDefaultBuilder()
-       .ConfigureAppConfiguration((context, config) =>
-       {
-           //Very important line!
-           //This is required to run the server in EA infrastructure
-           config.Sources.Clear();
-       })
-       .ConfigureWebHostDefaults(webBuilder =>
-       {
-           Log.Info("Setting up web-options");
-           webBuilder
-              .ConfigureKestrel(serverOptions =>
-              {
-                  serverOptions.ConfigureEndpointDefaults(endpointOptions => { endpointOptions.Protocols = HttpProtocols.Http1; });
-                  serverOptions.ListenAnyIP(PortNumber, listenOptions => { listenOptions.Protocols = HttpProtocols.Http1AndHttp2; });
-              })
-              .Configure((ctx, app) =>
-              {
-                  app.UseRouting();
-                  app.UseEndpoints(endpoints =>
-                   {
-                       endpoints.MapGet("/hello", () =>
-                       {
-                           //that could be any kind of code
-                           return "Hello, world!";
-                       });
-                   });
-              });
-       });
-
-    Log.Info("Building web-server");
-    using var host = builder.Build();
-
-    Log.Info("Starting web-server");
-    await host.RunAsync(cancellationToken);
-    Log.Info("Terminated");
+    Log.Info("Starting local server: http://127.0.0.1:52080/hello");
+    await builder.Build().RunAsync(cancellationToken);
 }
 ```
-`ListenAnyIP` binds network interfaces rather than only loopback. Remote access
-depends on the network and firewall. `RunAsync(cancellationToken)` connects host
-shutdown to the script; request handlers and external operations have their own
-completion rules. The HTTP service container is separate from EyeAuras DI.
-`config.Sources.Clear()` is explicit configuration for this example, not a guarantee
-of compatibility with every ASP.NET version.
 
-See [script context](/en/scripting/api/core/app-runtime-contexts),
-[hosting contracts](/en/scripting/api/scripting/web-server) and
-[assembly references](/en/scripting/api/scripting/references-and-resources).
-Source review does not establish compilation or execution of this script in your
-host; check the expected HTTP responses after starting it.
+```text
+curl http://127.0.0.1:52080/hello
+```
+
+The explicit block owns this run. `RunAsync(cancellationToken)` keeps it alive and disposes the host on exit, using asynchronous disposal when supported, including after a startup failure. Cancellation is cooperative: a long-running request handler must also support cancellation; it is not forcibly interrupted by stopping the listener.
+
+The earlier illustration shows a command-line request. Read the response in the client and startup messages in the EyePad log.
+
+![A request to a web server hosted by an EyePad script](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_gYj4E9YMIQxNRqNe.png)
+
+| Setting | What it changes |
+| --- | --- |
+| `52080` | Local port. If you change it, update the request address too. |
+| `/hello` | Route registered by `MapGet`. Other paths need their own handlers. |
+| `ListenLocalhost` | Binds loopback on this computer, rather than publishing to other devices. |
+| `config.Sources.Clear()` | Removes the host's default configuration sources for this embedded example. |
+
+<details>
+<summary>Add routes or make dependencies explicit</summary>
+
+Add more handlers for your own data, or move related routes into [controllers](/en/scripting/examples/advanced/web-server-controllers). `Log` and `cancellationToken` belong to the top-level script. Pass dependencies to ordinary classes explicitly; the HTTP service container is separate from the EyeAuras container.
+
+`ListenAnyIP` changes the listening scope to network interfaces. The example supplies no authentication. Remote commands require a separate access design; changing the port to `52443` does not configure HTTPS, TLS or a certificate.
+
+The [original shared example](https://eu.eyeauras.net/share/S20250302232655ULHlLljgYANa) uses the earlier network binding. The local version above is the first exercise. Host shutdown and disposal follow the [.NET Hosting 8.0.19 implementation](https://github.com/dotnet/runtime/blob/v8.0.19/src/libraries/Microsoft.Extensions.Hosting.Abstractions/src/HostingAbstractionsHostExtensions.cs); having a reference to that library does not establish that every ASP.NET dependency is deployed in your host.
+
+</details>

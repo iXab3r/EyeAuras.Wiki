@@ -8,49 +8,53 @@ editor: markdown
 dateCreated: 2026-09-02T00:00:00.000Z
 ---
 
-# Sign in with Google, Twitch, and Discord
+# Use another service to sign into EyeAuras
 
-Google, Twitch, and Discord let you sign in to EyeAuras without a separate EyeAuras password. Link a service to your account from [Profile](https://eyeauras.net/my). If you’re already signed in to the service in your browser, you may not need to enter your details again. The service may still ask you to sign in or confirm access.
+You can sign into EyeAuras through an available service such as Google, Twitch or Discord. Enter that service's password on its own site; the desktop app receives an EyeAuras session, rather than your provider password. These are **account sign-in methods**, not AI model providers. The site's configuration determines which buttons are available.
 
-If you do not have an EyeAuras account yet, your first service sign-in creates one automatically — no separate registration is needed.
+If your EyeAuras account already holds licenses or history, link the service to that account first. Signing in through an unlinked identity can create a different account.
 
-Sign-in happens in your regular browser. If the service asks for a password, you enter it only on the Google, Twitch, or Discord website; EyeAuras never sees it. After approval, you’ll be signed in to EyeAuras, but the app won’t receive the service’s password or access tokens.
+## Link your existing account first
 
-![EyeAuras sign-in window with Google, Twitch, and Discord](https://s3.eyeauras.net/media/2026/09/NVIDIA_Overlay_xSXrW6oAuy.png =x600)
+1. Sign into [EyeAuras](https://eyeauras.net/my) using your existing method and open `Profile`.
+2. In its sign-in methods, choose an available service and its linking action. Confirm your own account on that service's site.
+3. Back in the profile, check that the service is linked to the intended EyeAuras account.
+4. Open `Login` in the app and choose that service. Complete browser sign-in and confirm the application's request.
+5. Return to EyeAuras and check the account name and existing licenses. If they differ, check the profile link before making further account changes.
 
-## How to sign in
+The illustration shows Google, Discord and Twitch below the username and password fields. A differently configured site may offer a different selection.
 
-1. Open the sign-in window in EyeAuras.
-2. Choose Google, Twitch, or Discord. The regular browser option uses your active EyeAuras website session, if you have one.
-3. Finish signing in on the EyeAuras website and approve the app’s request.
-4. Return to the app. EyeAuras stores your sign-in using Windows protection, so you usually won’t need to sign in again next time.
+![EyeAuras login with Google, Discord and Twitch](https://s3.eyeauras.net/media/2026/09/NVIDIA_Overlay_xSXrW6oAuy.png =x600)
 
-The sign-in window may close when the browser opens. Reopen it to continue or cancel the request. If the request expired or the app restarted before approval, start again.
+For a new user, provider sign-in can create an EyeAuras account without a separate registration. Automatic email linking requires the site option to be enabled, a verified address and one matching account. Ambiguous matches are not merged. If an address is occupied and safe linking is unavailable, sign into the existing account and link the service in `Profile`.
 
-## Keep your existing account
+| Sign-in method | What it uses |
+| --- | --- |
+| An available provider button | The selected external identity and its link to your EyeAuras account. |
+| `Sign in with browser` | An EyeAuras website session, if present, followed by confirmation of the app's request. |
+| EyeAuras username and password | EyeAuras credentials, rather than the external service's password. |
+| `Sign in with key` | The separate [license-key login](/en/features/keylogin) route. |
 
-If you already have an EyeAuras account with licenses and history, sign in to it on the website first. Then link your chosen service from [Profile](https://eyeauras.net/my). Google, Twitch, or Discord sign-ins will now return you to the same account.
+A new sign-in needs network access to EyeAuras and the selected service. Saved application login data uses Windows protection. If `Login` closes while the browser opens, reopen it to continue or cancel the pending request. Start a new request after expiry or an app restart.
 
-EyeAuras can link a service automatically when this option is enabled and the verified email matches exactly one EyeAuras account. If several accounts match, EyeAuras won’t merge them.
+## Sign out or change accounts
 
-If the email already belongs to an account but EyeAuras can’t link the service safely, you won’t be able to sign in through it. Sign in to the correct EyeAuras account and link the service from [Profile](https://eyeauras.net/my). A new account is created only when the service isn’t linked and there is no verified email, or that email doesn’t belong to an existing EyeAuras account.
+`Logout` ends the **app** session. Browser sessions for the EyeAuras website and the external provider are separate. To change users, select the intended website account and, if necessary, provider account before starting app sign-in again.
 
-## Sign out or switch accounts
+The profile has a separate confirmed unlink action when permitted for the current session. Keep another available way to sign in before unlinking. Removing the link does not change the external service's password.
 
-`Logout` ends only the EyeAuras session in the app. It doesn’t end your EyeAuras website session or the chosen service’s browser session.
+<details>
+<summary>Create, change or recover an EyeAuras password</summary>
 
-To switch accounts, first switch or sign out on the EyeAuras website and, if needed, on Google, Twitch, or Discord. Then start sign-in again from the app.
+If you know your current EyeAuras password, change it in `Profile` using the current and new values. Sign in again afterwards.
 
-## Other ways to sign in
+If you have no password or have forgotten it:
 
-You can still sign in with your EyeAuras username and password or a [license key](/features/keylogin). These options are useful if your chosen service is temporarily unavailable.
+1. Open `Password` in `Profile`; for an existing password, choose `Forgot this password?`.
+2. Use `Confirm your linked … account` with a service that is already linked and currently available.
+3. After returning, separately click `Create password` or `Reset password`. Provider confirmation alone does not create a password; `Cancel` abandons the preparation.
+4. Save the displayed `Username` and generated password, then select `I've saved it`. It is shown only in that response, but remains a reusable login password, not a one-time code. Do not substitute a guessed provider email for the displayed username.
 
-The available buttons depend on the website settings. A new sign-in requires a connection to the EyeAuras server and the chosen service’s website.
+Reset replaces the old EyeAuras password and requires sign-in again; provider links remain. Restart an expired confirmation from the profile. If no linked service is available, use an existing sign-in method. This section does not rename your username.
 
-## Password and username
-
-Know your current EyeAuras password? Open [Profile](https://eyeauras.net/my) and enter your current and new passwords. Google, Twitch, or Discord confirmation is not required. You’ll need to sign in again afterward.
-
-If you don’t have a password yet or have forgotten it, sign in again through one of the currently available services already linked to your account. Then select `Create` or `Reset`. EyeAuras will show your username and new password after creating or resetting it. You won’t be able to view the password again later, so save both immediately.
-
-You can’t change your username yet. We plan to revisit this after sign-in and password recovery are stable. There is no timeline yet.
+</details>

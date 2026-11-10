@@ -7,31 +7,38 @@ tags: discord, bot, ai, support, ai-translated
 editor: markdown
 dateCreated: 2026-04-04T00:00:00.000Z
 ---
-> Public alpha. You can already use it, but the quality of replies, memory, and the bot’s behavior rules are still being improved.
-{.is-warning}
 
-# What it is
+# Ask the EyeAuras assistant in Discord
 
-`EyeAuras Bot` is a public Discord bot you can message for help with `EyeAuras`.
+Ask the public **EyeAuras** bot in the [community server](/en/contacts) when you need an explanation or a script example. It searches EyeAuras documentation and replies in Discord. This is a support assistant, not an aura action for sending arbitrary Discord messages or a recipe for installing your own bot. You do not need to create a bot token.
 
-It is trained to navigate the app, knows the wiki, can help with scripts, settings, and changelogs, and is already useful as a “first helper” when you want a quick answer directly in Discord.
+You need Discord access, permission to message the bot or a channel it can read, and an available bot service. Replies depend on service availability, permissions and limits; installing EyeAuras on your computer does not start the public bot.
 
-If the bot gets confused or replies too vaguely, it’s best to report that right away. It is still in an early stage and will continue to improve actively.
+## Ask for a relevant article
 
-![EyeAuras Bot In Channel](https://s3.eyeauras.net/media/2026/04/Discord_jjGZGKtG1r.png)
+1. Find **EyeAuras** with Discord's bot indicator in the community server. Open a DM or an appropriate support channel.
+2. In a DM, ask directly. In a channel or thread, explicitly mention the bot by typing `@EyeAuras` and selecting the actual account in Discord's list.
+3. For example, ask which trigger and overlay will show your own text while a selected window is active, and request documentation links. Include your build number when the answer may depend on the version.
+4. Read the reply and its sources. For follow-up replies in a channel, keep the explicit mention so the question is addressed to the bot.
+5. If you no longer need an in-progress response, its requester can use the stop button. This requests cancellation; it does not remove text already posted. A server administrator with the appropriate access can also stop it.
 
-# Quick start
+![Identifying the EyeAuras bot in a channel](https://s3.eyeauras.net/media/2026/04/Discord_jjGZGKtG1r.png)
 
-If you want the most useful answers from the bot, it’s best to:
+Expect a text answer with links or an example relevant to the question. Asking for code does not give the bot access to your desktop or make it execute that code on your computer.
 
-- ask one specific question at a time
-- say right away what exactly you want to do in EyeAuras
-- include the build, feature name, aura, trigger, or window name when possible
-- in a public channel, tag the bot and ask the question in the same message
-- if the question is about a previous conversation, reply to the relevant message
-- if you need an article, explicitly ask `give me a wiki link`
+| Where you ask | Context used |
+| --- | --- |
+| DM | No mention required. Conversation memory is scoped to your user. |
+| Shared channel | Explicit mention required. Available channel messages can supply context. |
+| Discord thread | Separate conversation scope; a mention is still required. |
+| Reply to a message | The quoted message and recent conversation can help; a channel reply without a mention may not invoke the bot. |
+| Mention without a question | It may use recent context, but a complete question is clearer. |
 
-Good examples:
+## Supply the task and relevant evidence
+
+Describe what should happen, where the condition or data comes from, and what happened instead. For a script error, provide a short snippet and the error text. For a configuration question, name the trigger, action, window and build. You can ask the bot to find a wiki article before proposing API names.
+
+These earlier prompt examples illustrate the subject matter; select the actual bot mention rather than relying on a literal display name:
 
 ```text
 @EyeAuras Bot how do I get the coordinates of a found image?
@@ -39,109 +46,19 @@ Good examples:
 @EyeAuras Bot here is a piece of Script.csx, why doesn't Log work here?
 ```
 
-The more specific your question is, the more likely the bot is to jump into the right context immediately instead of falling back to generic “C# advice”.
+The assistant can help locate settings, scripting and changelog information, including image or text search, coordinates, input, packs and mini-apps. Documentation lookup and conversation memory do not mean it has been trained on all your auras or can validate a build on your computer.
 
-# Where and how to talk to it
+The earlier DM illustration shows a suggested toggle interface. Treat such an answer as a starting point and compare its files and contracts with [Blazor windows](/en/scripting/blazor-windows/getting-started) and [C# Overlay](/en/overlays/custom-ui).
 
-## Direct messages
+![Earlier conversation with the EyeAuras bot in a DM](https://s3.eyeauras.net/media/2026/04/Discord_lefcNxnwcM.png)
 
-In DMs, you can talk to the bot like a normal personal assistant. No tag is needed.
+<details>
+<summary>Memory, access and limits</summary>
 
-This is the most convenient mode if you want to:
+DM history is not mixed into other users' conversations as shared history. Channel and thread memories belong to their respective scopes. The bot can process available context on the server and retain information for follow-up; a DM does not mean no server processing. Do not send passwords, keys or someone else's private data.
 
-- ask a series of follow-up questions
-- send code snippets, screenshots, and errors
-- avoid cluttering a public channel
-- discuss something only between you and the bot
+Discord posting permission does not grant unlimited AI use. Service roles and global, per-user and per-channel limits also apply. Follow the service's response when access is denied or a limit is reached; repeatedly sending the same request does not change permissions.
 
-![EyeAuras Bot DM](https://s3.eyeauras.net/media/2026/04/Discord_lefcNxnwcM.png)
+This assistant is an evolving public service. An answer may be incomplete or use an example unsuitable for your build. Ask for the source and review dependencies and code. For work on an open local project, use [AI Assistant](/en/features/ai-assistant) or [Codex in EyePad](/en/features/ai-codex-coding-assistant), where project context is connected separately. [Scripting practices](/en/scripting/best-practices) and the [scripting introduction](/en/scripting/getting-started) help check the proposed example.
 
-## Public channels
-
-In public channels, the bot replies only if you **explicitly tag it**.
-
-The best working pattern is:
-
-- write a message
-- mention `EyeAuras Bot`
-- ask the question in that same message
-
-If your question refers to a previous message in chat, you can:
-
-- reply to the relevant message
-- tag the bot
-- briefly clarify what exactly you want from it
-
-Sometimes even a simple tag without text can work as a follow-up, because the bot can look at the recent context in the same channel. But in active channels it’s better not to rely on that and to write the question explicitly.
-
-# What it can already do
-
-Right now, the bot is especially useful for tasks like:
-
-- explaining where a specific setting is located in EyeAuras
-- pointing you to the right wiki article for your case
-- helping with basic scripting questions
-- reminding you what changed in a specific build
-- giving a more EyeAuras-specific answer instead of generic “.NET in general” advice
-
-If your question is related to scripting, the bot is especially useful when you ask about:
-
-- EyeAuras API
-- `Script.csx`
-- `AuraTree`
-- searching for images, text, and coordinates
-- sending input
-- packs, mini-app, and related scenarios
-
-But it’s important to keep one limitation in mind:
-
-- the bot can explain things, suggest an example, and point you to the documentation
-- the bot cannot actually run your code, build a project, or verify the result directly from Discord
-
-# Access and privacy
-
-This is one of the most important topics.
-
-## What happens in DMs
-
-Your direct messages with the bot are **not shared** with other users. If you message the bot in DM:
-
-- you have a separate private context
-- that context is not mixed with anyone else’s DMs
-- the bot knows only your conversation with it
-
-In simple terms: in DMs, the bot knows **about you and your chat with it**, not other people’s private conversations.
-
-## What happens in public channels
-
-In public channels, the bot does not know “all of Discord”. It only knows what belongs to the **specific channel or thread** where you contacted it.
-
-That means:
-
-- the bot can use recent context from the same channel to understand a tag or a short follow-up
-- other people’s DMs are not part of that context
-- private channels the bot cannot see simply do not exist for it
-
-So the basic model is very simple:
-
-- in DMs, the bot knows your personal conversation with it
-- in a public channel, the bot knows what was written in that channel
-
-# What to keep in mind while it’s in alpha
-
-- replies still depend heavily on the quality of the wiki
-- sometimes the bot may be too general or miss the context you need
-- it works best on specific questions with details
-- if the bot is wrong, it is very helpful to tell it exactly what is incorrect, or immediately ask for a wiki link or an example
-
-In short, the best way to talk to it is like this:
-
-- not `help me with everything`
-- but `here is the task, here is the build, here is what I already tried, and here is exactly where I got stuck`
-
-# What to read next
-
-- [AI Assistant inside EyeAuras](/features/ai-assistant)
-- [FAQ and best practices for EyeAuras scripts](/scripting/best-practices)
-- [Getting started with scripting](/scripting/getting-started)
-- [Contacts](/contacts)
+</details>
