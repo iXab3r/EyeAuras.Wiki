@@ -72,7 +72,7 @@ Where the data loads successfully, entries can include `Tesseract (eng)`, `Tesse
 <details>
 <summary>Text regions, scores and coordinates</summary>
 
-The text expression is tested against the whole recognized string. A successful trigger's match bounds cover the supplied capture image; they are not automatically a tight box around just the regex phrase. With **Include text segments**, these wrappers expose word regions, despite historical per-character wording in some descriptions. Windows supplies a score of 1 for each word here; Tesseract exposes its own normalized confidence. These are not interchangeable calibrated probabilities.
+The text expression is tested against the whole recognized string. A successful trigger's match bounds cover the supplied capture image; they are not automatically a tight box around just the regex phrase. With **Include text segments**, the current engines expose word regions. Windows supplies a score of 1 for each word here; Tesseract exposes its own normalized confidence. These are not interchangeable calibrated probabilities.
 
 Segment regions belong to the processed OCR image. Scaling changes that coordinate space; do not treat the coordinates as desktop pixels or apply a capture-to-screen conversion twice. Start at Scale factor 1, then use the actual result/capture coordinate contracts for scripts. Preview region boxes and the **On-screen-display** `Window` / `Region` controls help inspect the source; they do not by themselves send input.
 
