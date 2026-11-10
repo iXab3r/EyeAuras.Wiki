@@ -13,6 +13,8 @@ A smoother receives start and target points and returns a movement plan. Impleme
 
 Use desktop EyeAuras with its input module and **Windows Input**. Keep your own stationary test window on the primary monitor. Do not run other actions that change this API or the `MyScript.Linear20` registry entry at the same time.
 
+If a preset meets your needs, compare the [built-in smoothing algorithms](/en/actions/sendinput/mouseinputsmoothing) before writing a planner. If the cursor reaches the wrong endpoint, check the [coordinate system](/en/features/coordinate-system) before changing interpolation.
+
 1. Add **C# Script** to your own aura. Put the whole program into `Script.csx`, including the ordinary class after the executable block. The class implements an interface without accessing script globals.
 
 ```csharp

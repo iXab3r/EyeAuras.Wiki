@@ -41,6 +41,8 @@ This exposes branch choice before replacing the test nodes with your actual cond
 
 Disabling a child removes it from the enabled list and can shift later roles; it is not equivalent to setting Condition to Failure. With no Condition, execution is misconfigured rather than an ordinary false result. Check the displayed roles.
 
+When a condition is already checked by an aura, use [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) as **If** and link that aura. To reuse actions already configured in an aura, put [Run Aura](/en/behavior-trees/nodes/execute-aura) in **Then** or **Else** and choose their source aura under **Auras → Links**.
+
 ## Compare with Selector and Sequence
 
 ![The three IfThenElse roles in the earlier editor](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_CSBaIFoJJPCR9f6p.png)

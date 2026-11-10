@@ -76,4 +76,6 @@ Check how to stop playback in your version before using a long sequence. A recor
 
 </details>
 
+To start the checked sequence from a key, add [Hotkey Is Active](/en/triggers/hotkey-is-active) to its aura and place this action in **On Enter**. Follow that guide’s window-specific setup if the shortcut should apply only in your document window.
+
 For a move to a found object, first configure [coordinates and the linked region](/en/features/coordinate-system), then add the reaction separately. [Common options](/en/actions/sendinput/options) explain focus, target, restoration and delivery. A recorded sequence supplies events; an aura trigger supplies any condition for starting it.
