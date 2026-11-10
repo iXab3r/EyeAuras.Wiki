@@ -48,6 +48,8 @@ using System.IO;
 
 `using` releases the `Process` component and observation resources; it does not call `Kill`. **Stop** also does not terminate the child: `Process.Start` takes no cancellation token. To wait for exit, place `await process.WaitForExitAsync(cancellationToken)` **inside the block before disposal**. Cancelling that wait still does not terminate the process.
 
+If a later step depends on a matching window, use [Window Exists](/en/triggers/window-exists) as a separately configured condition. To bring an already open window forward instead of requesting another launch, use [Win Activate](/en/actions/win-activate); window existence and foreground activation are separate decisions.
+
 <details>
 <summary>Short name, another program or a hotkey</summary>
 

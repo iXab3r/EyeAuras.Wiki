@@ -57,6 +57,8 @@ using System.Windows.Input;
 
 Keys are not precomposed text: layout, modifiers and the focused control affect the result. The normal `KeyPress` path sends down, waits, then sends up. This synchronous call receives no Run token and an already started press is not interrupted by the pre-call cancellation check. The `finally` block restores the borrowed API's settings; it is not a general held-key recovery routine after every backend error.
 
+For a word or sentence rather than a key event, use the [text-entry example](/en/scripting/examples/basic/send-text). It sends characters with explicit Enter presses between lines; prepare its focused test document as described there.
+
 <details>
 <summary>Hotkey invocation and the earlier foreground target</summary>
 

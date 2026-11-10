@@ -115,6 +115,8 @@ auraVariable.Value = 16;
 
 The path is relative to the current tree context, not global across EyePad tabs. The variable name alone does not select a shared owner. See [Variables API](/en/scripting/api/IVariablesScriptingApi) for exact overloads.
 
+To watch a shared value without rerunning the log inspection, use the [on-screen variables table](/en/scripting/examples/basic/print-variables-on-screen). Set the table’s source to the same aura owner as the writer and include the variable’s name in its rows; that table explicitly observes the selected container.
+
 ## Inherit a folder value
 
 A folder's value is visible to descendants. A local entry with the same name overrides it; removing that local entry exposes the ancestor's value again. Like [CSS inheritance](https://en.wikipedia.org/wiki/CSS), the nearer setting takes precedence.

@@ -33,6 +33,8 @@ Log.Info("Hello, world!");
 
 These images show an earlier editor. The result to check is the text in the selected action's log. In an ordinary C# class, pass a logger explicitly; copying this statement into an unrelated project does not create one. A fresh script's default template can differ between versions.
 
+For a next step with changing data, use the [typed counter example](/en/scripting/examples/basic/variables). It stores a value on its owner, so repeated runs can increase the counter instead of logging the same constant message.
+
 ## Run it on a key press
 
 1. In the same aura, add **Hotkey Is Active**.

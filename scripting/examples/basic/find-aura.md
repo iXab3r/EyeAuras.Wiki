@@ -72,4 +72,6 @@ Log.Info(aura == null ? "No aura with this ID" : $"Found: {aura.FullPath}");
 
 **IsActive** is a **bool?** snapshot at read time. Null means unknown, not false; continuous observation would need a separately owned subscription. The borrowed [aura accessor](/en/scripting/api/IAuraAccessor) needs no Dispose and exposes its triggers, actions and variables.
 
+If another aura only needs to follow Switch, configure [Aura Is Active](/en/triggers/aura-is-active) with a link to it and the required state. This reuses the configured condition instead of keeping a script polling IsActive.
+
 The top-level C# Script host supplies **AuraTree** and **Log**. Pass the [tree service](/en/scripting/api/IAuraTreeScriptingApi) explicitly to ordinary classes; see [script-host context](/en/scripting/api/scripting/runtime).

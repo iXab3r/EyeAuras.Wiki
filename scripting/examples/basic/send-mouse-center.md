@@ -69,6 +69,8 @@ sendInputApi.MouseMoveTo(screenSize.Width / 2, screenSize.Height / 2);
 | PrimaryMonitorSize | Only the primary monitor, whose origin is (0, 0). Its centre is not the whole virtual desktop's centre. |
 | MouseMoveTo | Absolute destination; MouseMoveBy would be a displacement from the current position. |
 
+For a destination supplied by visual search, start with the [Image Search example](/en/scripting/examples/basic/image-search), which distinguishes a window-relative result from raw bounds converted to screen coordinates. Choose the corresponding [coordinate domain](/en/features/coordinate-system) before sending the point; the monitor-centre formula is not a conversion of a found rectangle.
+
 Do not substitute window dimensions into the screen formula without changing its coordinate context. Use the API's frame/monitor values directly; do not add another guessed DPI factor. Hold produces a new On Enter on each press/release cycle. With Toggle, the second cycle turns the aura off instead.
 
 Both programs use the top-level host's **GetService**, **Log** and token; ordinary helpers receive dependencies explicitly. The service is borrowed. Token checks happen before movement, but the synchronous move takes no Run token and gives no target-application acknowledgement. See [input contracts](/en/scripting/api/ISendInputScriptingApi) and [coordinate systems](/en/features/coordinate-system).

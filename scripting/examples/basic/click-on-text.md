@@ -63,6 +63,8 @@ finally { input.TargetWindow = previousTarget; }
 4. With **click = false**, check the logged window, text and screen box against your visible word. If OCR splits it into several segments, adjust the language or region first.
 5. Keep the window in place, set **click = true**, and run again, selecting that same window. The cursor should move to the detected box's centre and make one left click. Return the flag to false afterwards.
 
+To resolve recognition setup before enabling the click, use the [Text Search guide](/en/triggers/images/text-search) and the [log-only text example](/en/scripting/examples/basic/text-search). First confirm the recognized string, then enable the segment boxes required by this example.
+
 The conversion is explicit at each stage: local **Region → ToScreen → subtract DwmFrameBounds origin** for targeted input. The standard controller activates the selected window and adds that origin back. These are not client coordinates or a background click. Keep the window, zoom and display scale stable. OCR ScaleFactor other than 1 requires an additional segment-box conversion before ToScreen.
 
 The trigger and services are borrowed. The previous input target is restored in **finally**. The token reaches the OCR request and is checked before input; an already started synchronous click is not instantly cancelled. Escape or right-click cancels window selection. The top-level host supplies AuraTree/GetService/Log/token; helpers need explicit dependencies.

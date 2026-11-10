@@ -154,6 +154,8 @@ public sealed class VariablesOnScreenHelper : DisposableReactiveObject
 | Draw(source, canvasBounds, ...) | Uses your own screen rectangle instead of the primary-screen rectangle. |
 | Connect() | Observes container changes, not arbitrary internal property changes on every stored object. |
 
+To display values written by another script, [find the intended aura](/en/scripting/examples/basic/find-aura) and use that same owner as the table’s source. The [Variables example](/en/scripting/examples/basic/variables) explains selecting a shared owner and type; agree the variable names with the writer and include them in the displayed rows.
+
 The helper takes **IOnScreenCanvasScriptingApi** through its constructor; `GetService<VariablesOnScreenHelper>()` resolves it with that dependency. An ordinary class has no global AuraTree, Variables or Log: the top-level program selects the source and services, then passes them as arguments. Reusing the class in another script requires an explicit reference to its project/aura, not merely a matching class name.
 
 **ExecutionAnchors** owns the helper for this Run and disposes it on completion, cancellation or error. The helper's Anchors owns each drawing lifetime: first unsubscribe, then dispose the HTML object, clear the canvas and dispose it. A canvas's Dispose alone is not a substitute for disposing every child.
