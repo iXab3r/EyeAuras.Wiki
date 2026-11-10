@@ -7,89 +7,49 @@ tags: BankaBot, Lineage 2, правила, радар, OSD, подсветка, 
 editor: markdown
 dateCreated: 2026-03-08T15:40:00.000Z
 ---
-# What Rules Are
 
-In `BankaBot`, rules control how the bot displays objects around you.
+# Highlight objects with BankaBot rules
 
-You can use them to:
-- show the targets you actually care about
-- hide unnecessary clutter
-- highlight players, `NPC`s, clan members, and allies separately
-- change colors, backgrounds, and visual emphasis for important objects
+Make an object display easier to read by giving one group of players a neutral style and a more specific group a visible accent.
 
-In short, rules are the system for filtering and highlighting objects.
+These are the display rules described for the historical BankaBot edition, not licensing rules. They require object attributes supplied by the matching component. A rule name does not make ordinary EyeAuras read a game's player, clan or health data.
 
-# What OSD Is
+## Start with two rules
 
-`OSD` is everything the bot draws on top of the game: markers, lines, highlights, and service information.
+1. In the edition's rule editor, define a general rule for players and give it a neutral appearance.
+2. Add a specific exception for players who are neither in your clan nor in an allied clan. Use the supplied clan and alliance attributes rather than assuming that an object named “enemy” exists.
+3. Place the exception above the general rule and give it a distinct color or emphasis. The documented priority is top to bottom, with more specific rules above general ones.
+4. Compare an object from each group. Check its supplied attributes and the winning rule before adding more conditions.
 
-Rules and `OSD` work together:
-- a rule decides what should be considered important
-- `OSD` makes that importance visible on screen
+The expected display distinguishes the selected groups. Highlighting an object does not choose it as a target or issue an attack command.
 
-For example, you can make dangerous targets stand out more clearly, while keeping secondary objects from cluttering the interface.
+## Choose conditions and appearance
 
-> Placeholder image: example of radar and OSD where dangerous targets are highlighted more brightly than the others
+| Documented condition | What to establish first |
+| --- | --- |
+| Name or clan | Which supplied object fields the rule compares |
+| Distance | The edition's distance units and reference point; a condition such as “players within 1000” is not a universal distance in metres |
+| Player or NPC | The supplied object category |
+| In combat, alive or dead | The component's actual state values |
+| HP, MP or CP | The availability and meaning of the supplied values |
+| Own or allied clan | The edition's clan and alliance information |
 
-# What You Can Filter By
+| Display choice | Purpose |
+| --- | --- |
+| Show or hide | Reduce clutter or keep a category visible |
+| Color, background or border | Distinguish the matching group |
+| Font emphasis | Draw attention to an important label |
+| OSD markers, lines, highlights and service information | Apply visual emphasis where the edition supports those displays |
 
-Rules can be built using straightforward conditions:
-- name
-- clan
-- distance
-- whether the object is a player or an `NPC`
-- whether the target is in combat
-- whether the target is alive or dead
-- `HP`, `MP`, and `CP` values
-- whether the clan is your own or allied
+The historical description included base categories for players, NPCs, clan members and allies, as well as help identifying the winning rule. Use that information to explain an unexpected appearance; do not infer an undocumented rule-merging algorithm from the result.
 
-That is already enough for most common use cases.
+<details>
+<summary>Build a more complex rule gradually</summary>
 
-# What a Rule Can Change
+Rules can combine several condition blocks and exceptions. First make two or three simple rules understandable, then add one condition at a time. For example, add distance to the non-clan, non-allied player group only after the basic classification is correct.
 
-When a rule matches, it can:
-- show an object
-- hide an object
-- change text color
-- add a background
-- add a border
-- add font emphasis
+The order of display rules determines visual priority. It is separate from the order of actions in a [behavior tree](/en/BankaBot/behavior-trees) or [script](/en/BankaBot/scripting/getting-started). An OSD or radar can display supplied object information without controlling those objects.
 
-So a rule does more than filter — it also defines the visual style.
+</details>
 
-# Rule Priority
-
-The order of rules matters. Rules higher in the list have higher priority than rules below them.
-
-In practice, a good setup looks like this:
-- keep broad, general rules lower in the list
-- place more specific and important exceptions above them
-
-For example, you can first show all players, then place a higher rule above that to recolor enemy characters with a more noticeable color.
-
-# Simple and Advanced Rules
-
-There are two convenient ways to work with rules.
-
-1. **Simple rule**  
-   Useful when you need one clear condition, such as “all players within 1000” or “all `NPC`s of this type.”
-
-2. **More advanced rule**  
-   Useful when you want to combine multiple condition blocks and define exceptions separately.
-
-This is helpful when you do not just want to “show everyone,” but instead want to show all players except clan members and allies.
-
-> Placeholder image: rule editor with one simple rule and one more advanced exception rule
-
-# Other Useful Notes
-
-`BankaBot` includes built-in basic categories for players, `NPC`s, clan, and alliance. That makes a good starting point, even if you do not want to dive into fine-tuning yet.
-
-Another useful detail: if highlighting or hiding does not work the way you expected, the editor helps you understand which rule actually won. That makes setup much easier.
-
-# Where to Start
-
-- Start with 2–3 simple rules, not ten at once
-- Begin by hiding clutter and highlighting what really matters
-- Do not try to color everything, or the interface will become noisy
-- Add complex exceptions only after the simple setup already works
+Return to [Getting started](/en/BankaBot/getting-started) if the required object data is unavailable in your edition.

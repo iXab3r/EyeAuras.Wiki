@@ -7,66 +7,36 @@ tags: BankaBot, Lineage 2, геодата, навигация, маршруты,
 editor: markdown
 dateCreated: 2026-03-08T15:40:00.000Z
 ---
-# What Is Geodata
 
-Geodata is data about the game world that helps the bot understand where it can move and where it cannot.
+# Prepare BankaBot geodata
 
-Put simply, it is the foundation of proper navigation. Without it, the bot may still see its target, but it will have a much harder time figuring out how to actually reach it.
+Prepare data that describes traversable space before asking a BankaBot behavior to move around an obstacle. A target position alone does not explain which side of a wall is passable.
 
-## Why It Matters
+Geodata was documented as a separate input to BankaBot navigation. Use a dataset intended for the client, chronicles and world supported by your matching distribution. The edition's instructions must specify its accepted formats, directory structure and selection controls.
 
-Geodata becomes important anywhere that “just run in a straight line” stops working:
+## Select a matching dataset
 
-- walls
-- height differences
-- complex map layouts
-- obstacle avoidance
+1. Identify the client and world for which the dataset was prepared. Resolve a mismatch before changing behavior logic.
+2. Choose one of the historically documented sources: a prepared source offered by the program, an existing geodata folder, or an archive for import.
+3. Open the matching edition's geodata settings and follow its download or import procedure. Large datasets can be stored and updated separately; do not guess a path or archive format from the feature name.
+4. Confirm which source the edition has selected before using it for a route, point movement or a work area.
+5. If a route crosses an obstacle, check the dataset's world/version match and passability information before changing target-selection or combat conditions.
 
-This is what enables more reliable movement, route building, and navigation in general.
+The preparation result is an identified, selected dataset. Successful import alone does not prove that a route can be followed in the current environment.
 
-## Why It Is Downloaded Separately
+## Passability and route selection
 
-Geodata is a separate data set, not part of the main program itself.
+![Conceptual start and goal separated by a wall, with a blocked direct line and a possible detour](/assets/wiki-media/m060.png)
 
-That is why it is distributed separately:
+The red dashed line crosses a blocked area; the turquoise line shows one possible detour. Geodata describes passable and blocked space. A path-selection algorithm uses that data to choose a route. These are illustrative positions, not a game minimap, measured BankaBot coordinates or a guarantee of an optimal or executable route. [SVG source](/assets/wiki-media/m060-concept.svg).
 
-- the program does not have to include extra large files
-- the geodata set can be updated independently
-- if needed, you can import your own version from a folder or an archive
+| Task or symptom | What geodata contributes |
+| --- | --- |
+| Movement around walls and other obstacles | Information about blocked and traversable space |
+| Navigation across heights or complex layouts | The dataset's representation of the matching world |
+| A strange route or movement through an obstacle | A reason to check the selected dataset and its version |
+| A character's HP, MP, nearby players or target state | Those require separate BankaBot data sources; geodata does not supply them |
 
-In `BankaBot`, you already have ready-made options for this:
+The historical use cases included routes, movement to points, farming areas and minimap display. Their concrete controls and behavior belong to the matching distribution. Importing a folder does not itself create a route or a behavior.
 
-- download a prepared set directly from the program
-- import geodata from a folder
-- import geodata from an archive
-
-> Placeholder image: Geodata Management section in BankaBot settings
-
-## What It Enables in Practice
-
-Once geodata is connected, the bot gets a much more useful foundation for:
-
-- route building
-- movement between points
-- limiting the farming area
-- minimap and navigation features
-
-So geodata is not just “another strange file” — it is a core part of routes and movement.
-
-## Getting Started
-
-The process is simple:
-
-1. Open the bot settings.
-2. Find the geodata section.
-3. Download a prepared set or import your own.
-4. Make sure the source is selected.
-5. Then move on to routes, the minimap, and movement setup.
-
-## Things to Keep in Mind
-
-- If geodata is missing, some navigation features will be noticeably weaker.
-- If the geodata does not match a specific server or chronicles version, pathing may behave strangely.
-- If a route behaves illogically, check the geodata first before troubleshooting the bot logic itself.
-
-> Placeholder image: minimap or route with a clear example of geodata helping the bot avoid an obstacle
+Continue with [behavior trees](/en/BankaBot/behavior-trees) once the navigation input is understood, or return to [Getting started](/en/BankaBot/getting-started) to check the edition and environment.

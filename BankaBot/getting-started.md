@@ -7,75 +7,43 @@ tags: BankaBot, Lineage 2, бот, скрипты, AI, деревья повед
 editor: markdown
 dateCreated: 2026-03-07T23:36:32.846Z
 ---
-# What Is BankaBot
 
-`BankaBot` is a bot for `Lineage 2`. It’s built for players who want to automate everyday gameplay tasks, not just loop a single button.
+# Getting started with BankaBot
 
-# Key Features
+Prepare one known BankaBot edition for one supported Lineage 2 client and window before choosing a behavior profile.
 
-- IMPORTANT: it is **not** supported on every server. Some servers are blacklisted. For the current status, see the [BankaBot page](https://banka.gg/product/tprwcjh69vjh2kh/)
-- Fully `usermod`. No drivers, no need to disable Windows security, and no “turn off half your system protection before launch” nonsense
-- The bot works with `Active Anticheat` and `Smart Guard`. As testing continues, we’ll add other supported protections here
-- The bot includes [behavior trees](behavior-trees), so you can configure logic without immediately diving into code
-- It has a powerful `C#` scripting system. You’re not limited to tiny scripts here — you can build full mini-applications with `NuGet` package support and a proper project structure
-- Scripts are deeply integrated with `AI`: you can use it to edit scripts and ask questions about the documentation, API, and features
+This guide describes the edition documented in March 2026. Obtain its version-specific instructions, supported client/server information and access requirements together with the distribution. General EyeAuras installation instructions do not establish BankaBot compatibility.
 
-One important thing that shows how capable the scripting system really is: `BankaBot` itself is *also* just a script running inside `EyeAuras`. The scripting side is not an afterthought — it’s one of the core features of the whole project.
+## Prepare the edition and window
 
-# What the Bot Can Do in Practice
+1. Identify the BankaBot build and the client/server it supports. The [original publisher page](https://banka.gg/product/tprwcjh69vjh2kh/) is a historical reference, not a substitute for your distribution's download and compatibility instructions.
+2. Prepare the access method supplied for that edition. The documented options were a key without an account, or an EyeAuras account; [account registration](https://eyeauras.net/register) is separate from obtaining a compatible BankaBot build.
+3. Open the edition's settings and its **Prerequisites** section. Follow the checks described for that build. Do not replace them with settings from an unrelated EyeAuras installation.
+4. Select the intended game window using that edition's instructions. Start with one small task, such as displaying supplied object data or inspecting a prepared behavior branch.
+5. If the task involves movement, prepare [matching geodata](/en/BankaBot/geodata) before selecting a route or work area. Then choose the profile or behavior documented for the distribution.
 
-Without going too deep into implementation details, `BankaBot` can help you:
+At this point, you should be able to identify the selected window, required data and intended behavior. That preparation alone does not demonstrate successful movement, combat or support for a different server.
 
-- build your own character logic: move, select targets, cast skills
-- control actions through profiles, behavior trees, and scripts
-- use built-in OSD (On-Screen Display) tools to draw directly on the screen, highlight targets, and display routes
+## What the documented edition provided
 
-# What the Bot Cannot Do
+| Capability | What it required |
+| --- | --- |
+| Movement, target selection and skill use | BankaBot's supplied game data, commands and compatible client |
+| Visual behavior logic | Prepared profiles or [behavior trees](/en/BankaBot/behavior-trees) with the edition's operations |
+| Custom C# logic | The matching script context; multi-file projects and NuGet could organize larger programs |
+| Object and route display | Supplied object/navigation data and OSD or radar settings; [rules](/en/BankaBot/rules) control visual emphasis |
+| AI-assisted development | Actual project types, examples and documentation to ground code or explanations |
+| User-mode operation | The historical description did not require a driver or disabling Windows security; this is not an invisibility or safety guarantee |
 
-## Send input to an inactive window
+BankaBot itself was described as a script running within EyeAuras. This does not make its game-specific services available to an arbitrary EyeAuras script or C# class.
 
-We have always treated safety as a top priority, and we still do. Performing actions while the program runs in the background is currently only possible by sending packets. The combination of “the character is sending action packets” and “the game window is minimized” is extremely obvious from an analytics perspective.
+<details>
+<summary>Compatibility and window limits</summary>
 
-We’ll continue monitoring anti-cheat and detection trends. If things remain quiet, we may consider supporting background action sending in the future — but for now, no.
+The historical description named ActiveAnticheat and SmartGuard and excluded some servers. Treat those names as the scope of that description, not a current support matrix or a guarantee against detection or account penalties.
 
-## Work with multiple windows at the same time
+The documented edition did not support input to an inactive game window or simultaneous operation in multiple windows. Planned support is not a selectable feature. Check the requirements of your exact build rather than assuming background delivery from an input backend's name.
 
-The main reason is simple: sending actions requires the game window to be active, so this feature is not especially high on the priority list right now.
+</details>
 
-We still expect to get to it in the foreseeable future (`tbd`, end of Q1 to mid Q2 2026).
-
-# Where to Get It
-
-The current bot page is here — you can download the bot and buy a key there. You can log in using _only_ a key; an account is not required:
-
-- [BankaBot on banka.gg](https://banka.gg/product/tprwcjh69vjh2kh/)
-
-Register an EyeAuras account if you want to use that authentication option instead:
-
-- [eyeauras.net/register](https://eyeauras.net/register)
-
-# Getting Started
-
-The startup flow is straightforward:
-
-1. Download the program from the official website.
-2. Buy a key on the bot page if you do not already have one.
-3. Log in either with the key or with your EyeAuras account username and password.
-4. Open Settings right after logging in.
-5. Start with the `Prerequisites` section: the program will tell you what it needs to work correctly.
-6. Then select the game window and move on to profiles and behavior setup.
-
-# What to Read Next
-
-- [Behavior Trees](behavior-trees)
-- [Scripting](scripting/getting-started)
-- [Rules and OSD](rules)
-- [Geodata](geodata)
-- [Section Topics](documentation-topics)
-
-# Things to Keep in Mind
-
-- Do not try to build the “perfect all-in-one bot” on day one. Start with a simple farming setup for one spot, then expand from there
-- The easiest way to begin is with a ready-made profile or one small task
-- If you want more control, look into behavior trees and scripts
-- For the latest status on server support, anti-cheat compatibility, and bot availability, use the [BankaBot page](https://banka.gg/product/tprwcjh69vjh2kh/) as the source of truth
+Choose the next step by task: [behavior](/en/BankaBot/behavior-trees), [display rules](/en/BankaBot/rules), [geodata](/en/BankaBot/geodata), or [C# scripting](/en/BankaBot/scripting/getting-started). The [topic index](/en/BankaBot/documentation-topics) also lists information your edition's manual needs to supply.
