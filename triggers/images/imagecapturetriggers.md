@@ -72,4 +72,6 @@ The preview minimum is not the old Min FPS result lifetime. Request/processing t
 
 </details>
 
+For searches needed only in one mode, use [Enabling Conditions](/en/features/enabling-conditions) on the aura or its folder. An ordinary false trigger does not by itself stop the other capture/search triggers; check normal behavior after leaving the editor preview.
+
 Continue with [Image Search](/en/triggers/images/image-search), [Color Search](/en/triggers/images/color-search), [Text Search](/en/triggers/images/text-search) or [AI Search](/en/triggers/images/ai-search-trigger). Use [Effects](/en/triggers/images/effects) when the pixels themselves need preprocessing.

@@ -36,6 +36,8 @@ The result is retained rather than pulsed. Late subscriptions receive an event a
 
 For a startup action rather than text, put that action in **On Enter**. AppClosed does not create another entry if the same aura is already active because AppStarted happened. Do not make mandatory long sends or saves depend on shutdown time without their own completion guarantee. A C# action still needs its normal host context, dependencies and lifetime; this trigger does not make arbitrary script globals available to helper classes.
 
+To watch another application’s window appearing, use [Window Exists](/en/triggers/window-exists); AppStarted belongs to EyeAuras itself. If you choose a startup action instead of text, use [Event Viewer](/en/features/event-viewer) to inspect its reported messages or errors before assuming the intended work finished.
+
 <details>
 <summary>The event is active but its reaction is paused</summary>
 

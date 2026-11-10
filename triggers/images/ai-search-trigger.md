@@ -63,4 +63,6 @@ Check **Processing time** in the FPS tooltip. Keep result coordinates tied to th
 
 Prepare your own model outside this editor. The [Ultralytics documentation](https://docs.ultralytics.com/) and [detector training guide](https://docs.ultralytics.com/tasks/detect/#train) explain that process; their current models do not imply support in this installed EyeAuras parser. The [IoU explanation](https://www.pyimagesearch.com/2016/11/07/intersection-over-union-iou-for-object-detection/) describes box overlap, while this trigger uses it for result suppression.
 
+For a class missing from the preset, follow [YoloEase’s data-to-model workflow](/en/YoloEase/getting-started). It has its own version and tool prerequisites; return here with a compatible ONNX model and verify its task and classes before adding a reaction.
+
 After the photographs are reliably distinguished, add an **OnEnter** reaction such as [Play Sound](/en/actions/play-sound). It responds to the aura's state transition and does not correct a mistaken prediction.

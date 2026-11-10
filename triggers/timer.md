@@ -40,4 +40,6 @@ For unequal intervals, first watch **Active/Inactive in your installed build** a
 
 The diagram shows the repeating part: the arrows and clocks connect Active to Inactive and then to the next Active. The initial inactive wait before the first Active is described above and is not drawn separately. [Original SVG diagram](/assets/wiki-media/m076-original.svg).
 
+If you only need a pause between two actions, use [Delay](/en/actions/delay) rather than a repeating trigger. For a delay inside a behavior tree, use [Wait](/en/behavior-trees/nodes/wait); those pauses are separate from Timer’s repeated aura-state transitions.
+
 Timer changes an aura condition. The response is configured separately: here it is Text visibility; another setup can use actions on a state transition. A timed skill, shop-visit or gathering sequence also needs its own configured actions, target and real conditions. Timer alone does not read an ability's cooldown, locate an NPC or know another application's state.

@@ -55,4 +55,6 @@ For “at least one icon is present”, start with the normal single-result sear
 
 A result rectangle belongs to the captured/processed image and its coordinate mapping. Cropping and scaling affect that mapping; do not treat a preview pixel as a desktop click position. Configure the [coordinate system](/en/features/coordinate-system) and any input target separately.
 
+To keep the found area visible while working elsewhere, use [Replica](/en/overlays/replica) and link this search aura as its source. First check the found rectangle; Replica displays that region rather than sending input to the source window.
+
 Once both states are reliable, add a reaction to the aura's **OnEnter**, such as [Play Sound](/en/actions/play-sound). With this as the only trigger, the sound follows the transition to a match rather than every frame. Other triggers and enabling conditions also affect the aura's combined state.

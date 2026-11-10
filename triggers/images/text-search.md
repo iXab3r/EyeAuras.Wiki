@@ -39,6 +39,8 @@ This existing real example shows a normal window containing the phrase: the capt
 
 To add a notification, put **Play Sound** in **On Enter**. It runs when the aura becomes active; [Send To Telegram](/en/actions/send-telegram-message) is another configured reaction. Other aura triggers also affect the final activity state. Recognition or a state change alone does not execute a click.
 
+For a persistent visible indicator instead of a one-shot sound, add [Text](/en/overlays/text) with your own message to this aura. It follows the aura’s activity; [Common Options](/en/overlays/common-options) explains locking and normal visibility checks outside the editor. Content remains the words you enter, rather than an automatic binding to Recognized text.
+
 ## Separate a mismatch from unavailable recognition
 
 | State or observation | Meaning |

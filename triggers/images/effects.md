@@ -36,6 +36,8 @@ Effects run in order. Cropping before resizing and cropping afterwards operate o
 | Copy / Paste effects | Transfers chain settings through the clipboard. |
 | Effect region, where supported | Limits processing to part of the frame. Availability and geometry depend on the effect. |
 
+After an OCR-oriented effect change, check the actual [Text Search](/en/triggers/images/text-search) result, not just how the preview looks. For a bar’s filled fraction, follow [Color Search](/en/triggers/images/color-search)’s binary-bar example; the effect chain alone does not calculate that fraction.
+
 ## Choose a transformation
 
 | Effect | Purpose and limit |

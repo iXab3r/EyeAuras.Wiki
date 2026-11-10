@@ -55,4 +55,6 @@ In this older screenshot, 1 marks key-delivery messages, 2 their context, and 3 
 
 The panel keeps the latest 250 accepted entries. Disabling a category prevents new entries in that category from entering its history; enabling it later cannot recover them. A collapsed panel also stops collecting. Open the panel, set its filters, then repeat the action you want to diagnose.
 
+If a visual check never activates, first inspect its [source frame and region](/en/triggers/images/imagecapturetriggers) and [enabling conditions](/en/features/enabling-conditions). Event Viewer helps follow reported action execution or errors; a log entry alone does not show that an external recipient processed a command.
+
 Display filters are not settings for application log files. To send diagnostic information to the developer, use a [problem report](/en/features/problem-reports); Event Viewer is not a complete archive.
