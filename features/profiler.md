@@ -53,12 +53,10 @@ If your version provides the snapshot action:
 A snapshot does not terminate the application or automatically free retained objects.
 
 <details>
-<summary>Earlier recording and reporting interface</summary>
+<summary>Earlier memory-snapshot interface</summary>
 
-These images show the earlier WPF controls and the relationship between captures and report files, rather than the current settings layout.
+This image shows the earlier WPF memory-snapshot control, rather than the current settings layout.
 
-![Profiling files offered in the earlier problem-report dialog](https://i.imgur.com/GVmE825.png)
-![Starting and stopping a performance capture in earlier settings](https://i.imgur.com/W97u6Ku.png)
 ![The memory-snapshot action in the earlier editor](https://i.imgur.com/OrOAW7G.png)
 
 If a capture is too large for **Send**, agree on a transfer method through [support contacts](/en/contacts) before sharing a selected file. Google Drive or another storage service is an alternative only when you choose to upload it. Earlier instructions named Discord `Xab3r#3780` and Telegram `ixab3r`; use the contacts page for the current route. Preparing a capture does not require publishing it to cloud storage.

@@ -30,9 +30,7 @@ To see whether a condition from an old aura accepts `review`, start without send
 | Token | Now **Telegram Bot Token**, the secret controlling your own bot |
 | Chat | **Chat Id (optional)**. Empty means all chats available to that bot, not only yours |
 
-The screenshot shows the old expression editor and test string. Current expression testing is beside Activate; connection and chat fields are in the Telegram source settings.
-
-![The former Telegram Message expression editor](https://eyeauras.net/uploads/ODK_Fb_Oy_76969f0b38.png)
+Current expression testing is beside Activate; connection and chat fields are in the Telegram source settings.
 
 The receiver uses new ordinary-message text. Old updates at connection, edits and channel posts do not substitute for that path. Group visibility depends on the bot's permissions and privacy settings; establish a history entry before diagnosing a reaction. Do not use the outgoing Send To Telegram notification as an incoming test.
 

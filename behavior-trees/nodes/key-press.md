@@ -22,9 +22,7 @@ Prepare your own separate local text-editor window with a line of nonsecret draf
 4. Verify `Window` names the exact draft and `Simulator` is Windows Input. These show resolved inheritance, not an independent manual choice inside the node.
 5. Use `Tick BT Once` once. Windows Input activates the editor; expect the caret at the start of the line and Success after normal call completion. When migrating an existing flow, first reproduce only this one step in your own copy.
 
-The image belongs to the earlier Key Press editor. Use this mapping for current labels:
-
-![Key Press in the earlier editor](https://i.imgur.com/UhRn3hZ.png)
+Use this mapping for current labels:
 
 | Earlier setting or task | Current path |
 | --- | --- |

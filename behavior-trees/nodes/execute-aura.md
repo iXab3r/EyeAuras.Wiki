@@ -23,9 +23,7 @@ Create your own loaded aura named `Reusable pause`. Give it a [Fixed Value](/en/
 
 Run Aura calls the On Enter Delay, then the On Exit Delay. Expect roughly three seconds plus execution overhead, visible in the editor's last-tick duration, followed by `Success`. The aura can remain inactive throughout: invoking collections does not simulate aura activation and deactivation.
 
-The earlier screenshot shows the aura-selection purpose. Look for `Run Aura` in current templates and `Auras → Links` in its editor:
-
-![Selecting linked aura actions in the earlier Execute Aura editor](https://i.imgur.com/i98jFM0.png)
+Look for `Run Aura` in current templates and `Auras → Links` in its editor:
 
 | Setting or source | Effect |
 | --- | --- |

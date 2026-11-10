@@ -121,7 +121,6 @@ public partial class UserComponent : BlazorReactiveComponent<WindowModel>
 
 На таком механизме строятся и более плотные панели состояния:
 
-![Пример панели с несколькими элементами](https://i.imgur.com/iaKm2Br.png)
 ![Пример панели переключателей](http://files.eyesquad.net/screenshots/31-10-2024/1YWZKXCaFhEh7SNnSx8YMWjAf.png)
 
 В отличие от приведённого выше диалога, для оверлея не нужно вызывать `ShowDialog` в его `Script.csx`: окном управляет сам C# Overlay.

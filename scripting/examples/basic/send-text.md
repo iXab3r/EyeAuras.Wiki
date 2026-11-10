@@ -41,9 +41,7 @@ sendInputApi.Text("and this one is very slow!", delayMs: 30);
 3. Focus your own blank document and release modifier keys.
 4. Press and release F2. You should get `Hello, world!`, `this one is a bit slower` and `and this one is very slow!` on separate lines. Another run adds text at the current caret position.
 
-![Earlier text-entry demonstration](https://i.imgur.com/mwIxxsL.gif)
-
-The retained demonstration shows the earlier version. This program requests line breaks explicitly with **KeyPress(Key.Enter)**.
+This program requests line breaks explicitly with **KeyPress(Key.Enter)**.
 
 | Call or setting | Meaning |
 | --- | --- |

@@ -17,8 +17,6 @@ You can [import the original example](https://eu.eyeauras.net/share/S20240223231
 2. Create **Switch** in FindAura, add **Fixed Value**, select **Is Active (true)** and ensure the aura is enabled.
 3. Beside Switch, create **Script** and add **C# Script** to its **On Enter** list.
 
-![Sibling auras in the earlier tree editor](https://i.imgur.com/8nk8IOG.png =x150)
-
 4. Put the complete program below in **Script.csx** and click **Run**:
 
 ```csharp
@@ -31,9 +29,7 @@ Log.Info($"Aura ID: {aura.Id}");
 
 5. The log should report `Examples\FindAura\Switch`, `True` and a separate ID. Set Fixed Value to **Is NOT Active (false)**, wait for the aura to update, and run again to get `False`.
 
-![Aura state in the earlier log view](https://i.imgur.com/deQdFyB.png)
-
-The older images illustrate the arrangement and log. Check current values on your own Switch.
+Check current values on your own Switch.
 
 ## Select the intended item
 

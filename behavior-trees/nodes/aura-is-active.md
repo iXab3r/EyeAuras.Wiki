@@ -22,9 +22,7 @@ Create a loaded aura named `BT signal` with one [Fixed Value](/en/triggers/fixed
 4. In the aura, change Fixed Value to `Is Active`. Wait until the aura shows Active, then return to the tree. `General → Status` shows Active; another manual tick returns `Success`.
 5. To check the opposite state, clear the expected-state checkbox in the link row so it says `must be Not Active`. Success now requires a known inactive state.
 
-The earlier editor image shows the linked aura and expected-state choice. In the current editor, begin at `Links → Edit`:
-
-![Linked aura and expected state in the earlier Aura Is Active editor](https://i.imgur.com/67jYSwV.png)
+In the current editor, begin at `Links → Edit`:
 
 | Setting | Effect |
 | --- | --- |

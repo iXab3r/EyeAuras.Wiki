@@ -63,8 +63,6 @@ The earlier tutorial assumed an already configured aura named `HP is low`:
 
 It then added **Key Press** for `F1`. This is a separate input action requiring the intended target window and delivery backend; it is not part of reading the condition.
 
-![The F1 input action in the earlier example](https://i.imgur.com/D07EBxw.png =x600)
-
 The example used a 250 ms automatic period and an activation condition. Current groups are **Activation** and **Execution**; activation can link your own [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active) aura.
 
 ![The earlier placement of activation and tick settings](https://i.imgur.com/4NO0PdJ.png =x600)

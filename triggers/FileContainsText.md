@@ -26,8 +26,6 @@ For a small text configuration where `enabled=true` represents the state you nee
 | Reevaluate on change | Reads a new whole-file snapshot after saving; activity persists while it matches, rather than pulsing for every write |
 | Large log | Still read in full. There is no appended-tail-only mode here; use a small status file for frequent changes instead of a large general log |
 
-The old screenshot shows the former editor. Use the current File path, File contents and expression controls rather than expecting that layout.
-
-![The former File Contains Text editor](https://eyeauras.net/uploads/Eye_Auras_G_Dg_ZZXCF_Iq_6de4aae847.png)
+Use the current File path, File contents and expression controls.
 
 A file missing at the selected path gives **Unknown**. Check access and the displayed contents separately when an existing file cannot be read.

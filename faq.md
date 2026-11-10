@@ -95,11 +95,8 @@ An action sequence in the earlier editor:
 
 ![Earlier sequence editor](/assets/legacy/eyeauras_7qwn3ee1ud.png =x100)
 
-A pack can have its own buttons, settings and state display. These community designs use the platform's UI capabilities; they are not the mandatory appearance of an aura:
+A pack can have its own buttons, settings and state display. This community design uses the platform's UI capabilities; it is not the mandatory appearance of an aura:
 
-![Community interface example 1](https://i.imgur.com/iaKm2Br.png)
-![Community interface example 2](https://i.imgur.com/HRux7Lu.png)
-![Community interface example 3](https://i.imgur.com/f9882rg.png)
 ![Community interface example 4](https://telegra.ph/file/d83bcbeeac554d2e9b939.png)
 
 | Author and material | Historical project shown |

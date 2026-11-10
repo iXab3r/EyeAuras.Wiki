@@ -26,9 +26,7 @@ Log.Info($"Counter value: {myCounter.Value}"); // A fresh owner produces 1, then
 4. Run again to get `Counter value: 2`. Add a comment, wait for compilation and run once more. It should keep increasing while the variable owner stays the same.
 5. Open **Variables** for the selected owner to find the entry and value. Do not delete someone else's configuration variables to try this example.
 
-![Variables view in an earlier editor](https://i.imgur.com/J9n7GkS.png)
-
-The older image shows inspection. The current editor also provides **Add variable...**, value editing with **Save**, and deletion with **Remove**. This example writes through the script; a manual edit can change the stored type.
+The current editor also provides **Add variable...**, value editing with **Save**, and deletion with **Remove**. This example writes through the script; a manual edit can change the stored type.
 
 ## Choose the data lifetime
 

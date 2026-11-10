@@ -54,8 +54,6 @@ using EyeAuras.Blazor.Controls.ScreenOverlay;
 
 3. Activate the aura with `F1`. Moving the mouse normally makes the square follow it. Press `F1` again to deactivate and cancel the action; for manual **Run**, use **Stop**.
 
-![Historical cursor-marker demonstration](https://i.imgur.com/FSSKzJp.gif)
-
 | Setting | Meaning |
 | --- | --- |
 | `CursorPosition` | Reads screen coordinates from Windows Input. Assigning this property would move the mouse; this example never assigns it. |

@@ -25,7 +25,7 @@ Log.Info("Hello, world!");
 
 4. Find `Hello, world!` in that action's **Event Log**. Running again adds another line. The program finishes after logging, so it needs no manual Stop.
 
-The hotkey illustrations below show an earlier editor. The result to check is the text in the selected action's log. In an ordinary C# class, pass a logger explicitly; copying this statement into an unrelated project does not create one. A fresh script's default template can differ between versions.
+The result to check is the text in the selected action's log. In an ordinary C# class, pass a logger explicitly; copying this statement into an unrelated project does not create one. A fresh script's default template can differ between versions.
 
 For a next step with changing data, use the [typed counter example](/en/scripting/examples/basic/variables). It stores a value on its owner, so repeated runs can increase the counter instead of logging the same constant message.
 
@@ -33,11 +33,7 @@ For a next step with changing data, use the [typed counter example](/en/scriptin
 
 1. In the same aura, add **Hotkey Is Active**.
 
-![Adding the hotkey trigger](https://i.imgur.com/j7ma0e1.png)
-
 2. Set **F1** and **Hold**, leaving the script in **On Enter**.
-
-![Hotkey and mode settings in the older editor](https://i.imgur.com/s3eKrnp.png)
 
 3. Press and release F1. The aura enters its active state and runs the action. Press and release again to get another entry.
 
