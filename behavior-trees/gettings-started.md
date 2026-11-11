@@ -73,12 +73,19 @@ The current settings view below uses the same benign test setup. **Is Loaded** i
 
 A successful condition admitted the action; failure stopped that branch:
 
-![The successful-condition route in the earlier example](https://i.imgur.com/DcH6wRD.png =x600)
-![The branch stopped by a failed condition in the earlier example](https://i.imgur.com/iBcjZWJ.png =x600)
+The current captures below use a separate benign manual example. **Sequence** has **Aura Is Active** linked to `BT signal` (must be Active), followed by **Fixed Status: Success**. With **Fixed Value → Is Active** observed on the signal, one upper **Tick BT Once** returned Success and reached the final child. No HP check or input action was reproduced.
+
+![Successful manual pass through the current benign sequence](/assets/wiki-media/m048.png =x600)
+
+For the second capture, a fresh equivalent tree had no previous results. `BT signal` was set to **Is NOT Active** and observed inactive before one **Tick BT Once**. The tree, Sequence and condition returned Failure; the selected final child still shows **not run yet**. Its **General → Status → Success** radio is configuration, not a result of execution.
+
+![Current failed condition leaves the fresh final child not run yet](/assets/wiki-media/m049.png =x600)
 
 [Cooldown](/en/behavior-trees/nodes/cooldown) before the reaction can limit its frequency, such as one execution per 10 seconds. It is a different requirement from waiting before the next step.
 
-![Cooldown before the reaction in the earlier editor](https://i.imgur.com/wOfn1jU.png =x600)
+The separate current example below places **Fixed Status child** under **Cooldown**. Selecting the decorator shows **General → Cooldown = 10000 ms** and **Child = Fixed Status child**. This capture records placement and the interval setting only; timing and rate guarantees were not tested.
+
+![Current Cooldown decorator with its child and 10000 ms interval](/assets/wiki-media/m050.png =x600)
 
 These alternatives need their own data source and input configuration. The first no-input example above needs neither. [Root](/en/behavior-trees/nodes/root) explains automatic MainTree execution and shared settings.
 
