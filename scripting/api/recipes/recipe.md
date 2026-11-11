@@ -57,7 +57,7 @@ Omit sections that do not apply.
 - Prefer concrete EyeAuras concepts over generic engineering advice.
 - Do not explain ordinary code hygiene.
 - Include an `Example` row when a real-world mini-app or product makes the
-  recipe easier to understand. Prefer public names such as `BankaBot` or a short
+  recipe easier to understand. Prefer public names or a short
   generic description.
 - Use `Example Illustration` when a public pack page has screenshots that make
   the end result obvious.
