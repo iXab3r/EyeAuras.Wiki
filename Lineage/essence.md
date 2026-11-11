@@ -22,10 +22,6 @@ The [publication](https://eu.eyeauras.net/share/S20240325120506y5CPVmuwLvC3) ide
 4. Check the pack's recipient window and input settings. Before enabling it, check that **Insert** does not conflict with another menu and **Shift+Alt+Z** with another automation.
 5. In the matching environment, **Insert** opens the pack menu and **Shift+Alt+Z** toggles its work. First compare the menu with that revision's settings. Any return action should follow your key assignments, rather than assumptions copied from a different configuration.
 
-The earlier screenshot belongs to this pack guide. Compare bindings and controls with the description of your revision.
-
-![Essence pack in the earlier guide](/assets/wiki-media/m068.png)
-
 | Setting or prerequisite | What to check |
 | --- | --- |
 | `Insert` | Opens the published pack's menu, not a universal EyeAuras menu. |
@@ -35,6 +31,10 @@ The earlier screenshot belongs to this pack guide. Compare bindings and controls
 | Input mechanism | Acceptance depends on the client, focus, recipient and environment. |
 
 [Normal input limits](/en/actions/sendinput/options) still apply. The historical [HVDK Standard 2.1](https://s3.eyeauras.net/media/2024/10/HVDK%20Standard%202.1.exe) route requires compatibility checks; an install button is not a universal one-click game setup. See [TetherScript Driver](/en/actions/sendinput/tetherscript) for the relevant preparation.
+
+The legacy **Settings** panel below shows **Install Tether Script Driver**. The arrows point to that button and the settings gear in the earlier guide.
+
+![Legacy Settings panel with Install Tether Script Driver](/assets/wiki-media/m068.png)
 
 For older clients with unwanted camera rotation, the guide suggested turning off `Enable Controller` under `Settings → Configuration`. The old `C:\Program Files (x86)\ControlMyJoystick 5.5.78.50\Driver\Joystick` path belongs to one installation; it is not an instruction to uninstall devices on any computer. Input mechanisms should not be selected on the assumption that an anti-cheat name guarantees compatibility or server permission.
 
