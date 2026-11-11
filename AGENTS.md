@@ -123,8 +123,15 @@ Not every page has a translation yet. Before creating a translated file, check w
 - `/changelogs/draft`
   Draft or staging changelog material.
 
-- `/YoloEase`, `/ru/YoloEase`, `/Lineage`, `/ru/BankaBot`, `/ru/dma`, `/ru/docs`
+- `/YoloEase`, `/ru/YoloEase`, `/Lineage`, `/ru/dma`, `/ru/docs`
   Product-specific or niche documentation areas. Treat them as specialized sections and follow the local naming/style patterns already present there.
+
+## Retired features
+
+BankaBot is retired. Do not recreate its removed English/Russian sections or promote it
+in current guides, navigation or recipes. Treat the 14 removed pages as retired scope,
+not pending editorial work. Preserve historical release facts and the separate API corpus;
+legacy API examples are not current feature guidance.
 
 ## Markdown document rules
 

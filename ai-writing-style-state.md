@@ -23,15 +23,18 @@ Primary Russian style references used for this snapshot:
 - `ru/features/keylogin.md`
 - `ru/scripting/getting-started.md`
 - `ru/features/packs.md`
-- `ru/BankaBot/getting-started.md`
-- `ru/BankaBot/behavior-trees.md`
-- `ru/BankaBot/rules.md`
 
 Useful secondary references:
 
 - `ru/features/eyepad.md`
 - `ru/features/mini-app.md`
 - `ru/features/sublicenses.md`
+
+## Retired scope
+
+BankaBot is retired and its 14 English/Russian user pages are outside the current editorial
+backlog. Do not recreate or promote that section. Keep historical release facts and
+protected API examples separate from current feature guidance.
 
 ## Style summary
 
@@ -74,7 +77,7 @@ The preferred EyeAuras wiki style is:
   - warning block near the top for alpha features when relevant
 - Prefer concrete examples early, especially links, buttons, commands, and screenshots.
 - Write as if you are helping a capable user get something working, not defending a design document.
-- If the page documents a concrete product or subsystem, it is fine to use a slightly more direct, grounded tone, as in the `BankaBot` pages.
+- If the page documents a concrete product or subsystem, use a direct, grounded tone.
 
 ## Tone rules
 
