@@ -10,17 +10,19 @@ dateCreated: 2022-11-15T15:02:45.417Z
 
 # Get started with EyeAuras
 
-EyeAuras helps automate tasks in applications: run ordered steps, watch conditions and build branching logic. [Download EyeAuras](https://eyeauras.net/#downloads) and start with the **Macro** that opens in an empty configuration.
+EyeAuras helps automate tasks in applications: run ordered steps, watch conditions and build branching logic. [Download EyeAuras](https://eyeauras.net/#downloads) and start with the **Macro** that EyeAuras creates in an empty configuration.
+
+![EyeAuras with the automatically created Macro selected in the editor](/assets/home/first-start.png)
 
 ## Three tools
 
-Choose a **macro** for ordered steps with waits, an **aura** to watch a condition and react, or a **behavior tree** for branches and work driven by ticks. The macro editor is the starting view. [C# scripts](/en/scripting/getting-started) add custom logic and interfaces when built-in steps are not enough.
+Choose a **macro** for ordered steps with waits, an **aura** to watch a condition and react, or a **behavior tree** for branches and work driven by ticks. Select **Macro** in the left-hand tree to open its editor. [C# scripts](/en/scripting/getting-started) add custom logic and interfaces when built-in steps are not enough.
 
 ![When to use a macro, aura or behavior tree](/assets/home/three-tools-en.svg)
 
 ## Your first macro
 
-Use the already open **Macro** for a small sequence without keyboard or mouse actions:
+Select **Macro** in the left-hand tree, then build a small sequence without keyboard or mouse actions:
 
 1. Select the top root-settings row in the editor. Keep **Activation → Is Loaded** enabled and set **Execution → When Activated → Do nothing** for a manual run.
 2. Through **Add new Node**, add two macro **Wait** nodes and one **Fixed Status** as siblings inside **Drag'n'drop instructions here**, in that order.
