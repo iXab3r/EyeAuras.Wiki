@@ -38,9 +38,7 @@ The owner header and another user's header represent different effective access:
 | Private Content | Hides contents from viewing, editing, copying and ordinary recipient export. Named Private in the model. |
 | Exclude From Export | Marks local contents as LocalOnly; synchronization snapshots exclude them. It is not a universal secret scrubber for every serialization route. |
 
-The first image below is a current unrestricted local sample. The next three retain the earlier recipient views for configuration, viewing and hidden contents.
-
-In this isolated sample, no account is signed in and no owner is assigned. With no restriction or folder password, the existing **Fixed Value** settings and add controls are available. A setting was changed through the UI and returned to **Is NOT Active** before this capture; this is an editing baseline, not a recipient restriction test.
+The current local sample below has no signed-in account, assigned owner, restrictions or folder password. Its **Fixed Value** settings and add controls are available. The next three images show the earlier recipient views.
 
 ![Current unrestricted local sample with editable Fixed Value settings](/assets/wiki-media/m023.png)
 
@@ -58,15 +56,15 @@ A folder password can grant access without sharing the owner's account. It is se
 2. The recipient chooses **unlock…**, enters **Folder Password**, and clicks **Unlock**. A successful unlock gives full access locally without changing ownership.
 3. After editing, choose **Lock folder**. To remove the password, use **remove password… → Confirm** with sufficient access.
 
-The current panels below use that same local sample without a signed-in account or an assigned owner. Its unrestricted header exposes **add password… → Folder Password / Set**. The field is empty; this is password entry, not owner-only permission assignment.
+In the same local sample, **add password…** opens **Folder Password / Set**.
 
 ![Current empty Folder Password and Set panel in the local sample](/assets/wiki-media/m020.png)
 
-A fictional folder password was then set through the real UI. The session remained a non-owner and effective access became Private. **unlock…** opens the empty **Folder Password / Unlock** panel below. This demonstrates the non-owner password path, not a different owner’s signed-in account.
+The password-protected sample has effective **Private** access. **unlock…** opens **Folder Password / Unlock**.
 
 ![Current non-owner Folder Password and Unlock panel](/assets/wiki-media/m021.png)
 
-After a real UI unlock, the same non-owner session regained full local access. The capture shows **Lock folder** alongside **Remove password? → Confirm**. It records available controls and an unconfirmed removal prompt; it does not show a completed removal.
+After unlocking, **Lock folder** locks it again. With sufficient access, **remove password…** opens **Remove password? → Confirm**; removing the password requires that separate confirmation.
 
 ![Current Lock folder and unconfirmed Remove password controls after unlocking](/assets/wiki-media/m022.png)
 

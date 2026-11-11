@@ -24,7 +24,7 @@ The [publication](https://eu.eyeauras.net/share/S20240325120506y5CPVmuwLvC3) ide
 
 The earlier screenshot belongs to this pack guide. Compare bindings and controls with the description of your revision.
 
-![Essence pack in the earlier guide](https://i.imgur.com/S2ba3Hn.png)
+![Essence pack in the earlier guide](/assets/wiki-media/m068.png)
 
 | Setting or prerequisite | What to check |
 | --- | --- |
@@ -45,12 +45,8 @@ The first EyeSquad recording, “Установка EyeAuras шаг-за-шаг�
 
 [Watch the installation recording](https://www.youtube.com/watch?v=bNJ4rGeqNoE)
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/bNJ4rGeqNoE?si=gOMR_COeLkkkjTzU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
 The second EyeSquad recording, “Установка набора аур из библиотеки EyeAuras Essence” (installing the Essence aura set from the library), covers importing the auto-return pack and its earlier interface.
 
 [Watch the Essence pack import recording](https://www.youtube.com/watch?v=S1lQF56-AIA)
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/S1lQF56-AIA?si=oeoN1wc5dCRHqe0t" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 </details>

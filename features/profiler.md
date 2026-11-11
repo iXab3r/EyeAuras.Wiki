@@ -57,7 +57,7 @@ A snapshot does not terminate the application or automatically free retained obj
 
 This image shows the earlier WPF memory-snapshot control, rather than the current settings layout.
 
-![The memory-snapshot action in the earlier editor](https://i.imgur.com/OrOAW7G.png)
+![The memory-snapshot action in the earlier editor](/assets/wiki-media/m044.png)
 
 If a capture is too large for **Send**, agree on a transfer method through [support contacts](/en/contacts) before sharing a selected file. Google Drive or another storage service is an alternative only when you choose to upload it. Earlier instructions named Discord `Xab3r#3780` and Telegram `ixab3r`; use the contacts page for the current route. Preparing a capture does not require publishing it to cloud storage.
 
