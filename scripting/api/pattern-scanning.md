@@ -3,7 +3,7 @@ title: Pattern Scanning
 description: 
 published: true
 date: 2026-04-21T00:00:00.000Z
-tags: , ai-translated
+tags: ai-translated
 editor: markdown
 dateCreated: 2024-12-15T10:55:40.847Z
 ---
