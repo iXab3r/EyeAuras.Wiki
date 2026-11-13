@@ -34,5 +34,3 @@ You can also test how your expression will behave when a specific message is rec
 - **Text or expression** — enter the text, regular expression, or C# function that will be applied to the received message
 - **Input test text** — a test input string that simulates an incoming message
 - **Matching text** — for a regular expression, this is the first successfully matched group; for plain text and C#, this is the full input string if the comparison succeeds
-
-![](https://eyeauras.net/uploads/ODK_Fb_Oy_76969f0b38.png)
