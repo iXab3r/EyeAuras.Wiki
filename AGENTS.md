@@ -123,7 +123,7 @@ Not every page has a translation yet. Before creating a translated file, check w
 - `/changelogs/draft`
   Draft or staging changelog material.
 
-- `/YoloEase`, `/ru/YoloEase`, `/Lineage`, `/ru/BankaBot`, `/ru/dma`, `/ru/docs`
+- `/YoloEase`, `/ru/YoloEase`, `/Lineage`, `/ru/dma`, `/ru/docs`
   Product-specific or niche documentation areas. Treat them as specialized sections and follow the local naming/style patterns already present there.
 
 ## Markdown document rules

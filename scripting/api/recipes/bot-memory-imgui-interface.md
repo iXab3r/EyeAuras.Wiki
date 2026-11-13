@@ -12,7 +12,7 @@ dateCreated: 2026-04-22T00:00:00.000Z
 | Field | Value |
 | --- | --- |
 | Complexity | High |
-| Example | `BankaBot`-style game bot with a live ImGui control panel. |
+| Example | Game bot with a live ImGui control panel. |
 | End Goal | Build a bot that reads another process, shows status and controls in ImGui, and optionally lets users add scripts. |
 | Key Technologies | Memory API, ImGui SDK, in-app scripts, window/process selection |
 
