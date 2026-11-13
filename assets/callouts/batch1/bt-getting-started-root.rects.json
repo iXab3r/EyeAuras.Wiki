@@ -1,0 +1,86 @@
+{
+ "image": {
+  "file": "raw-bt-getting-started-root.png",
+  "width": 783,
+  "height": 332
+ },
+ "frame": "bt-getting-started-root",
+ "purpose": "ru/behavior-trees/gettings-started.md step 2 and \"automatic run\" (root: Activation → Is Loaded, Execution → When Activated / Tick every); properties panel expanded",
+ "mapping": {
+  "devicePixelRatio": 1,
+  "cdpViewport": [
+   1428,
+   856
+  ],
+  "windowSize": [
+   1440,
+   900
+  ],
+  "clientToWindowCapture": [
+   6,
+   38
+  ],
+  "captureCrop": {
+   "x": 273,
+   "y": 306,
+   "width": 783,
+   "height": 332
+  },
+  "clientCrop": {
+   "x": 267,
+   "y": 268,
+   "width": 783,
+   "height": 332
+  },
+  "clientToRaw": [
+   -267,
+   -268
+  ],
+  "app": "1.10.10127.0 (Sources/bin launcher, --appVersion)",
+  "source": "raw-b6root.png"
+ },
+ "rects": {
+  "isLoaded": {
+   "label": "Дерево загружено",
+   "x": 40,
+   "y": 25,
+   "width": 94,
+   "height": 18,
+   "client": {
+    "x": 306.6,
+    "y": 293.4,
+    "width": 94,
+    "height": 18
+   },
+   "source": "Activation → Is Loaded label + checkbox (tree ticks only when loaded)"
+  },
+  "whenActivated": {
+   "label": "Как запускать",
+   "x": 40,
+   "y": 166,
+   "width": 203,
+   "height": 75,
+   "client": {
+    "x": 306.6,
+    "y": 434.4,
+    "width": 203.2,
+    "height": 74.1
+   },
+   "source": "Execution → When Activated: Do nothing / Run once / Run periodically"
+  },
+  "tickEvery": {
+   "label": "Период тика",
+   "x": 40,
+   "y": 259,
+   "width": 731,
+   "height": 29,
+   "client": {
+    "x": 306.6,
+    "y": 526.5,
+    "width": 731.6,
+    "height": 29
+   },
+   "source": "Execution → Tick every (visible for Run periodically)"
+  }
+ }
+}

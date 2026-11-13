@@ -1,0 +1,72 @@
+{
+ "image": {
+  "file": "raw-image-capture-region.png",
+  "width": 1161,
+  "height": 382
+ },
+ "frame": "image-capture-region",
+ "purpose": "ru/triggers/images (capture region and actual FPS in Preview captured image)",
+ "mapping": {
+  "devicePixelRatio": 1,
+  "cdpViewport": [
+   1428,
+   856
+  ],
+  "windowSize": [
+   1440,
+   900
+  ],
+  "clientToWindowCapture": [
+   6,
+   38
+  ],
+  "captureCrop": {
+   "x": 273,
+   "y": 458,
+   "width": 1161,
+   "height": 382
+  },
+  "clientCrop": {
+   "x": 267,
+   "y": 420,
+   "width": 1161,
+   "height": 382
+  },
+  "clientToRaw": [
+   -267,
+   -420
+  ],
+  "app": "1.10.10127.0 (Sources/bin launcher, --appVersion)",
+  "source": "raw-b4.png"
+ },
+ "rects": {
+  "region": {
+   "label": "Область захвата",
+   "x": 36,
+   "y": 64,
+   "width": 632,
+   "height": 24,
+   "client": {
+    "x": 303,
+    "y": 483.7,
+    "width": 631.7,
+    "height": 23.80000000000001
+   },
+   "source": "Crop region button .. Height input (WindowRegion.SourceBounds)"
+  },
+  "actualFps": {
+   "label": "Фактический FPS",
+   "x": 1115,
+   "y": 38,
+   "width": 40,
+   "height": 14,
+   "client": {
+    "x": 1381.9,
+    "y": 458.2,
+    "width": 40.1,
+    "height": 14
+   },
+   "source": "Preview captured image tail: measured FPS"
+  }
+ }
+}

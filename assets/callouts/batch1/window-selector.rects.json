@@ -1,0 +1,86 @@
+{
+ "image": {
+  "file": "raw-window-selector.png",
+  "width": 760,
+  "height": 125
+ },
+ "frame": "window-selector",
+ "purpose": "ru/features/window-matching-expressions.md (Target Window selector: expression, pick button, matched window)",
+ "mapping": {
+  "devicePixelRatio": 1,
+  "cdpViewport": [
+   1428,
+   856
+  ],
+  "windowSize": [
+   1440,
+   900
+  ],
+  "clientToWindowCapture": [
+   6,
+   38
+  ],
+  "captureCrop": {
+   "x": 273,
+   "y": 165,
+   "width": 760,
+   "height": 125
+  },
+  "clientCrop": {
+   "x": 267,
+   "y": 127,
+   "width": 760,
+   "height": 125
+  },
+  "clientToRaw": [
+   -267,
+   -127
+  ],
+  "app": "1.10.10127.0 (Sources/bin launcher, --appVersion)",
+  "source": "raw-b4.png"
+ },
+ "rects": {
+  "expression": {
+   "label": "Выражение для поиска окна",
+   "x": 142,
+   "y": 32,
+   "width": 169,
+   "height": 26,
+   "client": {
+    "x": 409,
+    "y": 158.7,
+    "width": 169,
+    "height": 26
+   },
+   "source": "WindowSelectorEditorComponent InputTextEx (Source.WindowTitle) + wiki info button"
+  },
+  "pickWindow": {
+   "label": "Выбрать окно",
+   "x": 67,
+   "y": 61,
+   "width": 42,
+   "height": 26,
+   "client": {
+    "x": 334,
+    "y": 188.2,
+    "width": 42,
+    "height": 26
+   },
+   "source": "button with tooltip \"Click to select Window\" (fa-window-maximize + fa-crosshairs)"
+  },
+  "matchedWindow": {
+   "label": "Найденное окно",
+   "x": 142,
+   "y": 65,
+   "width": 175,
+   "height": 52,
+   "client": {
+    "x": 409,
+    "y": 192.2,
+    "width": 175,
+    "height": 51.5
+   },
+   "source": "RenderProcessName (PID + process) + ActiveWindow title"
+  }
+ }
+}

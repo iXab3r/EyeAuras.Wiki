@@ -1,0 +1,65 @@
+{
+ "src": "raw-binding-editor.png",
+ "imageWidth": 792,
+ "imageHeight": 442,
+ "padding": {
+  "left": 72,
+  "top": 72,
+  "right": 72,
+  "bottom": 96
+ },
+ "radius": 10,
+ "color": "#f5a623",
+ "labelColor": "#1c1c1c",
+ "dim": 0.3,
+ "inflate": 4,
+ "stroke": 2,
+ "highlights": [
+  {
+   "x": 10,
+   "y": 7,
+   "width": 229,
+   "height": 18,
+   "label": "Свойство-получатель",
+   "side": "right"
+  },
+  {
+   "x": 19,
+   "y": 39,
+   "width": 272,
+   "height": 168,
+   "label": "Объект-источник",
+   "side": "below",
+   "align": "start"
+  },
+  {
+   "x": 317,
+   "y": 69,
+   "width": 397,
+   "height": 160,
+   "label": "Свойства источника",
+   "side": "below",
+   "pad": [
+    4,
+    0,
+    4,
+    4
+   ],
+   "align": "start"
+  },
+  {
+   "x": 716,
+   "y": 75,
+   "width": 49,
+   "height": 148,
+   "label": "Создать связь",
+   "side": "below",
+   "pad": [
+    4,
+    4,
+    4,
+    0
+   ]
+  }
+ ]
+}

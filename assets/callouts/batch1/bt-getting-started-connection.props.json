@@ -1,0 +1,49 @@
+{
+ "src": "raw-bt-getting-started-connection.png",
+ "imageWidth": 680,
+ "imageHeight": 370,
+ "padding": {
+  "left": 72,
+  "top": 72,
+  "right": 72,
+  "bottom": 96
+ },
+ "radius": 10,
+ "color": "#f5a623",
+ "labelColor": "#1c1c1c",
+ "dim": 0.3,
+ "inflate": 4,
+ "stroke": 2,
+ "highlights": [
+  {
+   "x": 323,
+   "y": 75,
+   "width": 12,
+   "height": 13,
+   "label": "Выход: тяните отсюда",
+   "side": "right",
+   "pad": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "gap": 90
+  },
+  {
+   "x": 323,
+   "y": 138,
+   "width": 12,
+   "height": 13,
+   "label": "Вход: отпустите здесь",
+   "side": "right",
+   "pad": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "gap": 90
+  }
+ ]
+}

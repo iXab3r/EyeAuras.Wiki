@@ -1,0 +1,43 @@
+{
+ "src": "raw-image-capture-settings.png",
+ "imageWidth": 1161,
+ "imageHeight": 251,
+ "padding": {
+  "left": 72,
+  "top": 72,
+  "right": 72,
+  "bottom": 96
+ },
+ "radius": 10,
+ "color": "#f5a623",
+ "labelColor": "#1c1c1c",
+ "dim": 0.3,
+ "inflate": 4,
+ "stroke": 2,
+ "highlights": [
+  {
+   "x": 37,
+   "y": 59,
+   "width": 280,
+   "height": 85,
+   "label": "Окно для захвата",
+   "side": "right"
+  },
+  {
+   "x": 37,
+   "y": 157,
+   "width": 547,
+   "height": 22,
+   "label": "Частота захвата",
+   "side": "right"
+  },
+  {
+   "x": 36,
+   "y": 191,
+   "width": 602,
+   "height": 53,
+   "label": "Способ захвата",
+   "side": "right"
+  }
+ ]
+}

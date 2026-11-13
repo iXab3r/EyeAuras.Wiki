@@ -1,0 +1,72 @@
+{
+ "image": {
+  "file": "raw-binding-square.png",
+  "width": 880,
+  "height": 162
+ },
+ "frame": "binding-square",
+ "purpose": "ru/bindings.md, ru/features/bindings.md (binding indicator: black = no binding, red = broken binding)",
+ "mapping": {
+  "devicePixelRatio": 1,
+  "cdpViewport": [
+   1428,
+   856
+  ],
+  "windowSize": [
+   1440,
+   900
+  ],
+  "clientToWindowCapture": [
+   6,
+   38
+  ],
+  "captureCrop": {
+   "x": 273,
+   "y": 165,
+   "width": 880,
+   "height": 162
+  },
+  "clientCrop": {
+   "x": 267,
+   "y": 127,
+   "width": 880,
+   "height": 162
+  },
+  "clientToRaw": [
+   -267,
+   -127
+  ],
+  "app": "1.10.10127.0 (Sources/bin launcher, --appVersion)",
+  "source": "raw-b1sq.png"
+ },
+ "rects": {
+  "unboundSquare": {
+   "label": "Нет привязки",
+   "x": 321,
+   "y": 69,
+   "width": 10,
+   "height": 10,
+   "client": {
+    "x": 588,
+    "y": 196.2,
+    "width": 10,
+    "height": 10
+   },
+   "source": "Target Window binding-editor__indicator bg-black (visible on row hover)"
+  },
+  "brokenBinding": {
+   "label": "Привязка с ошибкой",
+   "x": 36,
+   "y": 130,
+   "width": 665,
+   "height": 22,
+   "client": {
+    "x": 303,
+    "y": 256.7,
+    "width": 664.8,
+    "height": 22
+   },
+   "source": "Image Capture Rate row (bound: dimmed, dashed red border) + indicator bg-danger (source ARemovedSource missing)"
+  }
+ }
+}

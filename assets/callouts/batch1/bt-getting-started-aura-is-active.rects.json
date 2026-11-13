@@ -1,0 +1,72 @@
+{
+ "image": {
+  "file": "raw-bt-getting-started-aura-is-active.png",
+  "width": 988,
+  "height": 640
+ },
+ "frame": "bt-getting-started-aura-is-active",
+ "purpose": "ru/behavior-trees/gettings-started.md \"Как подключить реальное условие\" (Aura Is Active → General → Links → Edit, linked aura)",
+ "mapping": {
+  "devicePixelRatio": 1,
+  "cdpViewport": [
+   1428,
+   856
+  ],
+  "windowSize": [
+   1440,
+   900
+  ],
+  "clientToWindowCapture": [
+   6,
+   38
+  ],
+  "captureCrop": {
+   "x": 446,
+   "y": 82,
+   "width": 988,
+   "height": 640
+  },
+  "clientCrop": {
+   "x": 440,
+   "y": 44,
+   "width": 988,
+   "height": 640
+  },
+  "clientToRaw": [
+   -440,
+   -44
+  ],
+  "app": "1.10.10127.0 (Sources/bin launcher, --appVersion)",
+  "source": "raw-b6aura.png"
+ },
+ "rects": {
+  "linksEdit": {
+   "label": "Выбор ауры",
+   "x": 671,
+   "y": 127,
+   "width": 118,
+   "height": 27,
+   "client": {
+    "x": 1111,
+    "y": 171.3,
+    "width": 118,
+    "height": 27
+   },
+   "source": "General → Links label + Edit button"
+  },
+  "linkedAura": {
+   "label": "Аура и нужное состояние",
+   "x": 671,
+   "y": 199,
+   "width": 304,
+   "height": 57,
+   "client": {
+    "x": 1111,
+    "y": 243,
+    "width": 304,
+    "height": 57
+   },
+   "source": "linked aura card: path ПримерыСигнал готовности + \"must be Active\" checkbox (pixel bounds from capture)"
+  }
+ }
+}

@@ -1,0 +1,47 @@
+{
+ "src": "raw-binding-square.png",
+ "imageWidth": 880,
+ "imageHeight": 162,
+ "padding": {
+  "left": 72,
+  "top": 72,
+  "right": 72,
+  "bottom": 96
+ },
+ "radius": 10,
+ "color": "#f5a623",
+ "labelColor": "#1c1c1c",
+ "dim": 0.3,
+ "inflate": 4,
+ "stroke": 2,
+ "highlights": [
+  {
+   "x": 321,
+   "y": 69,
+   "width": 10,
+   "height": 10,
+   "label": "Нет привязки",
+   "side": "right",
+   "pad": [
+    3,
+    3,
+    3,
+    3
+   ]
+  },
+  {
+   "x": 36,
+   "y": 130,
+   "width": 665,
+   "height": 22,
+   "label": "Привязка с ошибкой",
+   "side": "right",
+   "pad": [
+    3,
+    4,
+    3,
+    4
+   ]
+  }
+ ]
+}

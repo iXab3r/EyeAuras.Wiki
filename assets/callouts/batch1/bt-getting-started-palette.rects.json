@@ -1,0 +1,58 @@
+{
+ "image": {
+  "file": "raw-bt-getting-started-palette.png",
+  "width": 593,
+  "height": 800
+ },
+ "frame": "bt-getting-started-palette",
+ "purpose": "ru/behavior-trees/gettings-started.md step 3 (add nodes by dragging from the Nodes toolbar)",
+ "mapping": {
+  "devicePixelRatio": 1,
+  "cdpViewport": [
+   1428,
+   856
+  ],
+  "windowSize": [
+   1440,
+   900
+  ],
+  "clientToWindowCapture": [
+   6,
+   38
+  ],
+  "captureCrop": {
+   "x": 273,
+   "y": 40,
+   "width": 593,
+   "height": 800
+  },
+  "clientCrop": {
+   "x": 267,
+   "y": 2,
+   "width": 593,
+   "height": 800
+  },
+  "clientToRaw": [
+   -267,
+   -2
+  ],
+  "app": "1.10.10127.0 (Sources/bin launcher, --appVersion)",
+  "source": "raw-b6.png"
+ },
+ "rects": {
+  "palette": {
+   "label": "Перетащите узел в граф",
+   "x": 0,
+   "y": 42,
+   "width": 117,
+   "height": 758,
+   "client": {
+    "x": 267,
+    "y": 44,
+    "width": 116.6,
+    "height": 758
+   },
+   "source": "BTNodesToolbar (draggable node list, toggled by fa-list \"Toggle Nodes toolbar visibility\")"
+  }
+ }
+}

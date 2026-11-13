@@ -1,0 +1,55 @@
+{
+ "src": "raw-window-selector.png",
+ "imageWidth": 760,
+ "imageHeight": 125,
+ "padding": {
+  "left": 72,
+  "top": 72,
+  "right": 72,
+  "bottom": 96
+ },
+ "radius": 10,
+ "color": "#f5a623",
+ "labelColor": "#1c1c1c",
+ "dim": 0.3,
+ "inflate": 4,
+ "stroke": 2,
+ "highlights": [
+  {
+   "x": 142,
+   "y": 32,
+   "width": 169,
+   "height": 26,
+   "label": "Выражение для поиска окна",
+   "side": "right"
+  },
+  {
+   "x": 67,
+   "y": 61,
+   "width": 42,
+   "height": 26,
+   "label": "Выбрать окно",
+   "side": "below",
+   "pad": [
+    2,
+    3,
+    4,
+    3
+   ]
+  },
+  {
+   "x": 142,
+   "y": 65,
+   "width": 175,
+   "height": 52,
+   "label": "Найденное окно",
+   "side": "right",
+   "pad": [
+    2,
+    4,
+    4,
+    4
+   ]
+  }
+ ]
+}

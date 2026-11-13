@@ -1,0 +1,55 @@
+{
+ "src": "raw-bt-getting-started-root.png",
+ "imageWidth": 783,
+ "imageHeight": 332,
+ "padding": {
+  "left": 72,
+  "top": 72,
+  "right": 72,
+  "bottom": 96
+ },
+ "radius": 10,
+ "color": "#f5a623",
+ "labelColor": "#1c1c1c",
+ "dim": 0.3,
+ "inflate": 4,
+ "stroke": 2,
+ "highlights": [
+  {
+   "x": 40,
+   "y": 25,
+   "width": 94,
+   "height": 18,
+   "label": "Дерево загружено",
+   "side": "right",
+   "pad": [
+    3,
+    6,
+    3,
+    4
+   ]
+  },
+  {
+   "x": 40,
+   "y": 166,
+   "width": 203,
+   "height": 75,
+   "label": "Как запускать",
+   "side": "right"
+  },
+  {
+   "x": 40,
+   "y": 259,
+   "width": 731,
+   "height": 29,
+   "label": "Период тика",
+   "side": "below",
+   "pad": [
+    3,
+    4,
+    3,
+    4
+   ]
+  }
+ ]
+}
