@@ -26,7 +26,7 @@ dateCreated: 2024-02-20T20:35:06.280Z
 - Теперь создадим рядом еще одну ауру `Script` (можете подключить фантазию, имя этой ауры нам не важно)
 - В ауре `Script` создадим `OnEnter` действие `C# Script`
 - Выглядеть должно примерно так
-![](https://i.imgur.com/8nk8IOG.png =x150)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/find-aura/8nk8IOG.png =x150)
 
 ## А теперь
 ```csharp
@@ -36,7 +36,7 @@ var aura = AuraTree.GetAuraByPath(@".\Switch"); // or by absolute path AuraTree.
 Log.Info($"Aura {aura.FullPath} IsActive: {aura.IsActive}");
 ```
 
-![](https://i.imgur.com/deQdFyB.png)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/find-aura/deQdFyB.png)
 
 ## Разберем
 Чтобы получить доступ к дереву аур (штука слева, где ваши ауры и папки), мы обращаемся к [AuraTree](/ru/scripting/api/IAuraTreeScriptingApi). 

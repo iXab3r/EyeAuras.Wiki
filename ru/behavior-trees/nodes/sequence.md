@@ -19,7 +19,7 @@ dateCreated: 2024-03-07T14:54:35.964Z
 Обычно нужно применять вместе в комбинации с нодой [Selector](/ru/behavior-trees/nodes/selector). 
 
 При этом располагать ноды можно так, как вашей душе угодно, главное помнить, что обход будет слева направо.
-![Example 1-1 vertical layout](https://i.imgur.com/DPmtnfu.png)
+![Example 1-1 vertical layout](https://s3.eyeauras.net/media/wiki/behavior-trees/nodes/sequence/DPmtnfu.png)
 
 2. **Ротация скиллов - Selector + Sequence:**
 А теперь давайте построим уже полноценную ротацию
@@ -48,4 +48,4 @@ Sequence(2) отвечает за проверки "А можем ли мы во
 {.is-info}
 
 
-![](https://i.imgur.com/HqHncgy.png)
+![](https://s3.eyeauras.net/media/wiki/behavior-trees/nodes/sequence/HqHncgy.png)

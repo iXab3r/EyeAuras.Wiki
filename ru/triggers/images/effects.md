@@ -30,7 +30,7 @@ dateCreated: 2024-05-03T09:24:24.272Z
 
 Ниже — примеры того, что умеют эффекты. Вот исходное изображение:
 
-![](https://i.imgur.com/F3FpciG.jpeg =x300)
+![](https://s3.eyeauras.net/media/wiki/triggers/images/effects/F3FpciG.jpg =x300)
 
 ### Color Removal
 
@@ -38,7 +38,7 @@ dateCreated: 2024-05-03T09:24:24.272Z
 
 Например, можно легко убрать землю и оставить только персонажей и монстров — это сильно упрощает обучение ML-модели для выбора цели.
 
-![](https://i.imgur.com/rwHBBQJ.png =x300)
+![](https://s3.eyeauras.net/media/wiki/triggers/images/effects/rwHBBQJ.png =x300)
 
 ### Color Replacement
 
@@ -49,47 +49,47 @@ dateCreated: 2024-05-03T09:24:24.272Z
 
 P.S. Обратите внимание: любой эффект можно применять не ко всему изображению, а только к его части.
 
-![](https://i.imgur.com/UiaAQQN.jpeg =x300)
+![](https://s3.eyeauras.net/media/wiki/triggers/images/effects/UiaAQQN.jpg =x300)
 
 ### Crop
 
 Простой эффект, который позволяет обрезать изображение до нужной области.
 
-![](https://i.imgur.com/DF8ZF04.png =x200)
+![](https://s3.eyeauras.net/media/wiki/triggers/images/effects/DF8ZF04.png =x200)
 
 ### Denoise
 
 До:
 
-![](https://i.imgur.com/pEBYVXm.png =x200)
+![](https://s3.eyeauras.net/media/wiki/triggers/images/effects/pEBYVXm.png =x200)
 
 После:
 
-![](https://i.imgur.com/mTXX1Ru.png =x200)
+![](https://s3.eyeauras.net/media/wiki/triggers/images/effects/mTXX1Ru.png =x200)
 
 ### Dilate
 
 Dilate увеличивает размер объектов переднего плана и особенно полезен, когда нужно соединить разорванные части изображения.
 
-![](https://i.imgur.com/VC0uzRv.png =x300)
+![](https://s3.eyeauras.net/media/wiki/triggers/images/effects/VC0uzRv.png =x300)
 
 ### Erode
 
 Подобно тому как вода размывает берег реки, erosion «размывает» объект переднего плана на изображении и уменьшает его. Проще говоря, пиксели рядом с границей объекта отбрасываются, из-за чего объект как бы «съедается» по краям.
 
-![](https://i.imgur.com/9PD7Caj.png =x300)
+![](https://s3.eyeauras.net/media/wiki/triggers/images/effects/9PD7Caj.png =x300)
 
 ### Gaussian Blur
 
 Размывает часть изображения. Это может быть полезно, например, чтобы убрать мелкие элементы вроде текста и сделать дальнейшую постобработку и/или анализ более эффективными.
 
-![](https://i.imgur.com/cw8h21J.png =x300)
+![](https://s3.eyeauras.net/media/wiki/triggers/images/effects/cw8h21J.png =x300)
 
 ### Grayscale
 
 Преобразует изображение в черно-белое. В некоторых случаях это эффективнее, чем вручную удалять нежелательные элементы по цвету.
 
-![](https://i.imgur.com/WJYt9Ak.jpeg =x300)
+![](https://s3.eyeauras.net/media/wiki/triggers/images/effects/WJYt9Ak.jpg =x300)
 
 ### Negate
 
@@ -97,7 +97,7 @@ Dilate увеличивает размер объектов переднего �
 
 Самое полезное применение — превращать белый текст или текст любого другого цвета в черный, потому что распознавание текста работает лучше всего, когда на белом фоне находятся черные буквы.
 
-![](https://i.imgur.com/2HhXCNE.png =x400)
+![](https://s3.eyeauras.net/media/wiki/triggers/images/effects/2HhXCNE.png =x400)
 
 ### Rescale, %
 
@@ -111,7 +111,7 @@ Dilate увеличивает размер объектов переднего �
 
 Позволяет изменить размер изображения до указанных значений в пикселях. Это особенно полезно при работе с ML-моделями, обученными на изображениях определенного размера. С помощью letterboxing можно сохранить пропорции и добиться более стабильной работы моделей.
 
-![](https://i.imgur.com/O0ffYCH.png =x400)
+![](https://s3.eyeauras.net/media/wiki/triggers/images/effects/O0ffYCH.png =x400)
 
 ### Binary Threshold
 

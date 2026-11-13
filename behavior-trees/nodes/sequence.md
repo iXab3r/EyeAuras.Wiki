@@ -17,7 +17,7 @@ The logic is as follows - if the 1st or 2nd check returns `Failure`, the skill w
 Usually used in combination with the [Selector](/en/behavior-trees/nodes/selector) node.
 
 Nodes can be arranged however you like, as long as you remember that the traversal will be from left to right.
-![Example 1-1 vertical layout](https://i.imgur.com/DPmtnfu.png)
+![Example 1-1 vertical layout](https://s3.eyeauras.net/media/wiki/behavior-trees/nodes/sequence/DPmtnfu.png)
 
 2. **Skill rotation - Selector + Sequence:**
 Now let's build a full rotation.
@@ -45,4 +45,4 @@ Using the **Sequence** node allows for creating sequential chains of actions in 
 > Note! **Sequence** stops at the first node that returns **Failure**, while **Selector** stops at the first node that returns **Success**.  
 {.is-info}
 
-![](https://i.imgur.com/HqHncgy.png)
+![](https://s3.eyeauras.net/media/wiki/behavior-trees/nodes/sequence/HqHncgy.png)

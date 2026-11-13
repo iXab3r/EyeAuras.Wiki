@@ -38,7 +38,7 @@ If you run into a bug where the camera starts spinning endlessly, open the game 
 - Just copy the link and import it into EyeAuras.
 - If step 3 is unclear, you can install TetherScript in one click.
 
-![image](https://i.imgur.com/S2ba3Hn.png)
+![image](https://s3.eyeauras.net/media/wiki/Lineage/essence/S2ba3Hn.png)
 
 ## 6. Video guides
 

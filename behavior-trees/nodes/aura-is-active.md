@@ -9,7 +9,7 @@ dateCreated: 2024-03-07T23:54:26.541Z
 ---
 The **Aura Is Active** node allows you to link auras and behavior tree nodes - depending on whether the aura is active or not, the node will return `Success` (if the aura is active) or `Failure` (if it is not active).
 
-![](https://i.imgur.com/67jYSwV.png)
+![](https://s3.eyeauras.net/media/wiki/behavior-trees/nodes/aura-is-active/67jYSwV.png)
 
 **How it works:**
 - You can link 1 or more auras to this node, specifying the expected state of the aura (active/inactive).

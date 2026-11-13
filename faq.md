@@ -49,13 +49,13 @@ Here are some of the most common use cases, from simpler to more advanced:
   In practice, this means you can build what is called a MiniApp—a small, compact app inside EyeAuras. https://wiki.eyeauras.net/ru/scripting/getting-started  
   This feature appeared about a year ago. Below are examples of interfaces created by community members, all built directly inside EyeAuras.
 
-![](https://i.imgur.com/iaKm2Br.png)
+![](https://s3.eyeauras.net/media/wiki/changelogs/7639/iaKm2Br.png)
 
-![](https://i.imgur.com/HRux7Lu.png)
+![](https://s3.eyeauras.net/media/wiki/faq/HRux7Lu.png)
 
-![](https://i.imgur.com/f9882rg.png)
+![](https://s3.eyeauras.net/media/wiki/faq/f9882rg.png)
 
-![](https://telegra.ph/file/d83bcbeeac554d2e9b939.png)
+![](https://s3.eyeauras.net/media/wiki/faq/d83bcbeeac554d2e9b939.png)
 
 - **Adding whole functional modules to games with C# scripts**  
   For example, you can fit a script set into roughly 10 lines that mutes the game when it is minimized. Tutorial video: https://www.youtube.com/watch?v=r4oHqHBpj-c  

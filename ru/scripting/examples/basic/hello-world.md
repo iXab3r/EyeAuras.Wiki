@@ -16,7 +16,7 @@ dateCreated: 2024-02-20T19:56:21.080Z
 Ну тут уж без скриншота, сорян.
 
 ## Создаем действие C# Script
-![](https://i.imgur.com/mz7CUzL.png)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/hello-world/mz7CUzL.png)
 
 ## Печатаем сообщение из C# Script
 
@@ -27,10 +27,10 @@ dateCreated: 2024-02-20T19:56:21.080Z
 Log.Info("Hello, world!");
 ```
 ##  Нажимаем Run
-![](https://i.imgur.com/VP8JnWk.png)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/hello-world/VP8JnWk.png)
 
 ## Voila!
-![](https://i.imgur.com/JeZXXU8.png)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/hello-world/JeZXXU8.png)
 
 Поздравляю, официально это был первый шаг к могучим скриптам будущего.
 
@@ -38,10 +38,10 @@ Log.Info("Hello, world!");
 Чтобы было ну не настолько просто, давайте сделаем так, что наш скрипт будет вызываться только когда нажата какая-то кнопка, к примеру, пусть будет `F1`
 
 ## Докидываем в ауру триггер HotkeyIsActive
-![](https://i.imgur.com/j7ma0e1.png)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/hello-world/j7ma0e1.png)
 
 ## Переводим его в режим Click/Hold и указываем F1
-![](https://i.imgur.com/s3eKrnp.png)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/hello-world/s3eKrnp.png)
 
 В текущем `HotkeyTracker` режим Hold устанавливает активность по KeyDown
 и снимает по KeyUp. Click (режим Toggle в UI) переключает состояние на KeyUp.

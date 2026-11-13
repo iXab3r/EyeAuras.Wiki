@@ -18,7 +18,7 @@ dateCreated: 2024-02-24T00:08:49.173Z
 4. Copy and paste the script itself.
 5. Now, when our aura is activated, a small colored square will be rendered near the cursor.
 
-![](https://i.imgur.com/FSSKzJp.gif)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/mouse-track-with-overlay/FSSKzJp.gif)
 
 This top-level EyeAuras script requires Roxy and OSD. With the standard Windows Input backend, `CursorPosition` is a screen point; this example sends no input. The loop checks cancellation and pauses between updates. On exit, the rectangle is disposed before the canvas is cleared and disposed. A helper class must receive the services and token explicitly. See [OSD ownership and monitor limits](/en/scripting/api/osd/screen-overlay).
 

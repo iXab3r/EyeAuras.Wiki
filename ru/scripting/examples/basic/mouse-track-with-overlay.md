@@ -18,7 +18,7 @@ dateCreated: 2024-02-24T00:08:49.173Z
 4. Копипастим сам скрипт
 5. Теперь когда наша аура включена, рядом с курсором будет отрисовываться небольшой цветной квадрат
 
-![](https://i.imgur.com/FSSKzJp.gif)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/mouse-track-with-overlay/FSSKzJp.gif)
 
 Это верхнеуровневый скрипт EyeAuras с зарегистрированными Roxy и OSD.
 В стандартном `Windows Input` чтение `CursorPosition` даёт экранную точку;

@@ -34,39 +34,39 @@ In the context menu of each folder, there is a Permissions section where you can
 > This feature is only available to authorized users.
 {.is-info}
 
-![](https://i.imgur.com/Z9qXakW.png)
+![](https://s3.eyeauras.net/media/wiki/changelogs/6788/Z9qXakW.png)
 
 After setting the level of restrictions, the folder's header will indicate the selected level and by whom.
 
 This is how the header looks when you own the folder.
-![](https://i.imgur.com/WhQhQou.png)
+![](https://s3.eyeauras.net/media/wiki/features/permission-model/WhQhQou.png)
 And this is how it looks when someone else owns it.
-![](https://i.imgur.com/oAiE2Ws.png)
+![](https://s3.eyeauras.net/media/wiki/features/permission-model/oAiE2Ws.png)
 
 ## How to set a password
 If you have sufficient rights, there will be an `Add password` button in the folder's header.
-![add password](https://i.imgur.com/SoOHI6y.png)
+![add password](https://s3.eyeauras.net/media/wiki/features/permission-model/SoOHI6y.png)
 
 After setting the password, the "Unlock" functionality will be available, which unlocks the folder with the password.
-![unlock](https://i.imgur.com/hfnrqwb.png)
+![unlock](https://s3.eyeauras.net/media/wiki/features/permission-model/hfnrqwb.png)
 
 If the folder is unlocked, you can lock it again or remove the password altogether.
-![lock/remove password](https://i.imgur.com/7F3Rm7l.png)
+![lock/remove password](https://s3.eyeauras.net/media/wiki/features/permission-model/7F3Rm7l.png)
 
 ## More details on settings
 
 # Default
 By default, no restrictions are imposed on the folder - you can delete and add elements such as auras and behavior trees.
-![](https://i.imgur.com/cqH4pvI.png)
+![](https://s3.eyeauras.net/media/wiki/features/permission-model/cqH4pvI.png)
 
 # Configurable
 At this restriction level, you cannot delete or add elements, but you can modify the settings of existing ones, for example, change the capture zone or window name.
-![](https://i.imgur.com/49AsqnH.png)
+![](https://s3.eyeauras.net/media/wiki/features/permission-model/49AsqnH.png)
 
 # Read-Only
 In this mode, the folder's contents cannot be modified - neither adding/deleting anything nor editing the settings of existing auras.
-![](https://i.imgur.com/a8mrtb4.png)
+![](https://s3.eyeauras.net/media/wiki/features/permission-model/a8mrtb4.png)
 
 # Private
 The private mode hides auras' contents from view - they cannot be changed or exported.
-![](https://i.imgur.com/Yjnrr82.png)
+![](https://s3.eyeauras.net/media/wiki/changelogs/6788/Yjnrr82.png)

@@ -12,7 +12,7 @@ dateCreated: 2022-11-02T14:50:20.232Z
 
 [EyeAuras](https://eyeauras.net/) — это [кликер](/ru/actions/sendinput/send-sequence) на базе [компьютерного зрения](/ru/triggers/images/imagecapturetriggers) и [машинного обучения](/ru/triggers/images/ai-search-trigger). Он умеет анализировать всё, что происходит на экране, и выполнять за вас действия вроде [движения мыши](/ru/actions/sendinput/send-sequence) и [нажатий клавиш](/ru/actions/sendinput/send-sequence). Также EyeAuras может воспроизводить звуки, [отправлять сообщения в Telegram](/ru/actions/send-telegram-message) и [по сети через Интернет](/ru/actions/send-network-message), а ещё [выполнять C#-скрипты](/ru/scripting/getting-started)!
 
-![Главное окно](https://eyeauras.net/assets/img/appimages/EyeAuras_OzDyUnmzFH.webp =x400)
+![Главное окно](https://s3.eyeauras.net/media/wiki/home/EyeAuras_OzDyUnmzFH.webp =x400)
 
 ## Основные понятия
 
@@ -29,7 +29,7 @@ dateCreated: 2022-11-02T14:50:20.232Z
 - **Оверлеи** — это элементы поверх всех окон, которые могут показывать текст, изображения, собственный UI и другое. Оверлеи являются частью Ауры и отображаются только пока она активна.
 - [**Условия включения**](/ru/features/enabling-conditions) — это триггеры, с помощью которых можно включать и отключать Ауры и Behavior Trees. Например, отключать бота, если окно игры не существует.
 
-![Деревья поведения](https://eyeauras.net/assets/img/appimages/EyeAuras_4GhOU01VKp.webp =x400)
+![Деревья поведения](https://s3.eyeauras.net/media/wiki/home/EyeAuras_4GhOU01VKp.webp =x400)
 
 ---
 

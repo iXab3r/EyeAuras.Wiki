@@ -29,7 +29,7 @@ dateCreated: 2024-09-11T13:25:48.468Z
 
 Этот подход хорошо работал там, где программе нужно было реагировать именно на внешние события. Но для построения ботов он подходил хуже: события часто происходят одновременно, и это приходилось решать обходными путями, иначе бот начинал метаться между несколькими задачами.
 
-![Main window](https://eyeauras.net/assets/img/appimages/EyeAuras_OzDyUnmzFH.webp =x400)
+![Main window](https://s3.eyeauras.net/media/wiki/home/EyeAuras_OzDyUnmzFH.webp =x400)
 
 ### 2. [C#-скрипты](https://wiki.eyeauras.net/ru/scripting/getting-started)
 

@@ -20,7 +20,7 @@ dateCreated: 2024-02-24T00:41:30.125Z
 4. Копипастим сам скрипт
 5. При нажатии на `F2` напечатается несколько строк текста
 
-![](https://i.imgur.com/mwIxxsL.gif)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/send-text/mwIxxsL.gif)
 
 ```csharp
 using EyeAuras.Roxy.Api;

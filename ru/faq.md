@@ -46,13 +46,13 @@ EyeAuras это кликер, использующий компьютерное 
 По сути вы можете написать то, что называется MiniApp - маленькое компактное приложение внутри EyeAuras. https://wiki.eyeauras.net/ru/scripting/getting-started
 Этот функционал появился около года назад, ниже - примеры интерфейсов, реализованных членами сообщества. Все это создано прямо в EyeAuras. 
 
-![](https://i.imgur.com/iaKm2Br.png)
+![](https://s3.eyeauras.net/media/wiki/changelogs/7639/iaKm2Br.png)
 
-![](https://i.imgur.com/HRux7Lu.png)
+![](https://s3.eyeauras.net/media/wiki/faq/HRux7Lu.png)
 
-![](https://i.imgur.com/f9882rg.png)
+![](https://s3.eyeauras.net/media/wiki/faq/f9882rg.png)
 
-![](https://telegra.ph/file/d83bcbeeac554d2e9b939.png)
+![](https://s3.eyeauras.net/media/wiki/faq/d83bcbeeac554d2e9b939.png)
 
 - За счет C# скриптов можно добавлять целые блоки функционала в игры
 К примеру, буквально в 10 строчек укладывается набор скриптов, который будет выключать звук в игре, когда она свернута. Обучающее видео - https://www.youtube.com/watch?v=r4oHqHBpj-c

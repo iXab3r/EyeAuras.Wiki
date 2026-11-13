@@ -22,7 +22,7 @@ Below is a quick explanation of how to use these tools. They can be used indepen
 
 In some cases, the report file can be **very large**, especially when sending memory snapshots. Because of that, uploading may fail. If you cannot upload the file to the server with the **Send** button in the upload window, you can use **Google Drive** or any other cloud storage instead. You can send me the link in **Discord (Xab3r#3780) / Telegram (ixab3r)**.
 
-![](https://i.imgur.com/GVmE825.png)
+![](https://s3.eyeauras.net/media/wiki/changelogs/3780/GVmE825.png)
 
 ## Performance profiler
 
@@ -32,7 +32,7 @@ In **Settings**, click **Start profiling** to begin the profiling process. This 
 
 **IMPORTANT! During the recorded period, the program should be doing exactly the same thing it normally does.** For example, if your character was farming, put it back on farm before recording and enable the same set of auras you usually use.
 
-![](https://i.imgur.com/W97u6Ku.png)
+![](https://s3.eyeauras.net/media/wiki/changelogs/3780/W97u6Ku.png)
 
 ## Memory Profiler
 
@@ -44,4 +44,4 @@ To take a snapshot, go to **Settings** and click **Take snapshot.** This copies 
 
 The snapshot process can be **very slow**. In some cases it may take **minutes or even tens of minutes**. During that time, the program will not work normally, but eventually the snapshot will finish and everything will return to normal.
 
-![](https://i.imgur.com/OrOAW7G.png)
+![](https://s3.eyeauras.net/media/wiki/changelogs/3780/OrOAW7G.png)

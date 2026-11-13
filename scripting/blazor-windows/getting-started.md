@@ -15,7 +15,7 @@ Start with a C# Overlay v3 controlled by its aura, or a window created from a C#
 Until recently (Oct 2024) this was the only option. It's simple: create an aura, add a C# Overlay and… that's it. EA takes care of drawing a window on the screen with your code inside. Otherwise it's a regular overlay: you can specify display conditions via triggers, adjust color, background, etc.
 
 Here are a couple of overlay examples:
-![D](https://i.imgur.com/iaKm2Br.png) ![TL](http://files.eyesquad.net/screenshots/31-10-2024/1YWZKXCaFhEh7SNnSx8YMWjAf.png)
+![D](https://s3.eyeauras.net/media/wiki/changelogs/7639/iaKm2Br.png) ![TL](https://s3.eyeauras.net/media/wiki/scripting/blazor-windows/getting-started/1YWZKXCaFhEh7SNnSx8YMWjAf.png)
 
 ### Example
 Let's make a tiny overlay with a button and counter.

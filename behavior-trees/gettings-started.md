@@ -34,7 +34,7 @@ Trees always start from the root and consist of nodes. Each node can be (more de
 
 Traversal always starts from the root, top-down, left-right. Depending on the nodes used, you can control how the final state is calculated and what decision is made.
 
-![behavior tree visualization](https://habrastorage.org/files/5f3/cdb/96b/5f3cdb96beee450ca78697a67010b8e9.gif)
+![behavior tree visualization](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/5f3cdb96beee450ca78697a67010b8e9.gif)
 (image source [here](https://habr.com/ru/companies/cloud_mts/articles/306214/), article in Russian)
 
 # Let's Get Closer to Practice
@@ -49,24 +49,24 @@ Suppose we want the character to press the "eat food" button (F1) when their HP 
 
 ## What Needs to Be Done:
 - from the node panel, drag `Aura Is Active` and link the created node to the root, then establish a connection between the trigger and the node within the node itself
-![](https://i.imgur.com/ewcmXlS.png =x600)
+![](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/ewcmXlS.png =x600)
 
 - from the panel, drag another node - `Key Press` and specify that `F1` should be pressed in this node
-![](https://i.imgur.com/D07EBxw.png =x600)
+![](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/D07EBxw.png =x600)
 
 - Overall, our tree is almost ready. Although it's not a tree yet :) All that's left is to indicate how often to recalculate it ("tick"). By default, the tree is recalculated every **250ms**, but it can be much faster. Besides the recalculation frequency, additional conditions for the tree can be specified - if they are not met, the tree won't do anything at all. This is controlled by `Is Active` in the settings of the root node. The simplest example is to link the tree to an aura with [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active), and then it will be activated/deactivated by pressing a button.
-![](https://i.imgur.com/4NO0PdJ.png =x600)
+![](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/4NO0PdJ.png =x600)
 
 ## What's Achieved?
 Now, every **250ms**, the program will traverse the tree from the root top-down. If the `HP is low` aura is active, then the `F1` button will be pressed.
-![HP is low](https://i.imgur.com/DcH6wRD.png =x600)
+![HP is low](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/DcH6wRD.png =x600)
 
 However, if the aura is NOT active, the tree recalculation will stop at this point without reaching the `Key Press` action.
-![HP is NOW low](https://i.imgur.com/iBcjZWJ.png =x600)
+![HP is NOW low](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/iBcjZWJ.png =x600)
 
 ## How is This Better Than the Old Way?
 It's more flexible. Let me illustrate by adding a condition "press F1 no more than once every 10 seconds." All you need to do is add a `Cooldown` node before `Key Press` and specify how much time must pass before the character can press `F1` again.
-![With cooldown](https://i.imgur.com/wOfn1jU.png =x600)
+![With cooldown](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/wOfn1jU.png =x600)
 
 Using a similar approach, you can add any other node from the entire available arsenal. For example, here is how the tree (in two variants) looks for a character in `Lineage 2` that autonomously selects targets, gathers resources, and fights mobs. By using nodes that control how the tree is traversed, very complex logic can be added.
 ![bt_l2.spoil.old.png](/assets/bt_l2.spoil.old.png)

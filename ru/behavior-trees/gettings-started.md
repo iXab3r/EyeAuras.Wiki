@@ -30,7 +30,7 @@ dateCreated: 2024-03-07T14:06:44.950Z
 
 Обход всегда начинается с корня, сверху-вниз и слева-направо, при этом в зависимости от того, какие ноды использовались, вы можете контролировать, как же именно будет вычисляться финальное состояние и какое будет решение.
 
-![behavior tree visualization](https://habrastorage.org/files/5f3/cdb/96b/5f3cdb96beee450ca78697a67010b8e9.gif)
+![behavior tree visualization](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/5f3cdb96beee450ca78697a67010b8e9.gif)
 (изображение взято [отсюда](https://habr.com/ru/companies/cloud_mts/articles/306214/), статья на русском языке)
 
 # Давайте ближе к практике
@@ -43,24 +43,24 @@ dateCreated: 2024-03-07T14:06:44.950Z
 
 ## Что нужно сделать:
 - с панели нод перетаскиваем `Aura Is Active` и связываем созданную ноду с корнем и в самой ноде создаем связь между триггером и нодой 
-![](https://i.imgur.com/ewcmXlS.png =x600)
+![](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/ewcmXlS.png =x600)
 
 - с панели перетаскиваем еще одну ноду - `Key Press` и указываем в ней, что нужно нажимать `F1`
-![](https://i.imgur.com/D07EBxw.png =x600)
+![](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/D07EBxw.png =x600)
 
 - В целом, наше дерево почти готово. Хоть это пока и не дерево :) Осталось указать насколько часто пересчитывать его ("тИкать"). По умолчанию дерево пересчитывается 1 раз в **250мс**, но можно и гораздо меньше. Помимо того, насколько часто пересчитывать, можно еще указать дополнительные условия для самого дерева - если они не выполняются, то дерево вообще не будет ничего делать. За это отвечает `Is Active` в настройках корневой ноды. Самый простой пример - можно привязать дерево к ауре с [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active) и тогда оно будет включаться/выключаться по нажатия на кнопку
-![](https://i.imgur.com/4NO0PdJ.png =x600)
+![](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/4NO0PdJ.png =x600)
 
 ## Что получилось?
 Теперь каждые **250мс** программа будет проходить от корня дерева сверху-вниз. При этом, если аура `HP is low` активна, то будет нажата и кнопка `F1`
-![HP is low](https://i.imgur.com/DcH6wRD.png =x600)
+![HP is low](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/DcH6wRD.png =x600)
 
 А вот если аура НЕ активна, то в этом месте пересчет дерева остановится, так и не дойдя до действия `Key Press`
-![HP is NOW low](https://i.imgur.com/iBcjZWJ.png =x600)
+![HP is NOW low](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/iBcjZWJ.png =x600)
 
 ## А чем это лучше старого варианта?
 Гибкостью. Проиллюстрирую на примере добавления условия "жать F1 не чаще, чем раз в 10 секунд". Все, что нужно сделать это добавить ноду `Cooldown` перед `Key Press` и указать, сколько времени должно пройти перед тем, как персонажу можно будет нажать `F1` снова. 
-![With cooldown](https://i.imgur.com/wOfn1jU.png =x600)
+![With cooldown](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/wOfn1jU.png =x600)
 
 По аналогичной схеме можно добавлять и любую другую ноду из всего доступного арсенала, к примеру, вот так выглядит дерево(в двух вариантах) на персонажа в `Lineage 2`, который сам выбирает цели, собирает ресурсы и дерется с мобами. За счет использования нод, которые контролируют как обходится дерево, можно добавить очень сложной логики
 ![bt_l2.spoil.old.png](/assets/bt_l2.spoil.old.png)

@@ -41,4 +41,4 @@ In real scenarios, the rotation itself can be much more complex - resource check
 > Don't confuse! **Sequence** stops at the first node that returns **Failure**, while **Selector** stops at the first node that returns **Success**.  
 {.is-info}
 
-![](https://i.imgur.com/pgaOalh.png)
+![](https://s3.eyeauras.net/media/wiki/behavior-trees/nodes/selector/pgaOalh.png)

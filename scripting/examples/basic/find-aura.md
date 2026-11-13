@@ -25,7 +25,7 @@ Let's set up what we will work with in the script:
 - Now, create another aura named `Script` next to it (you can be creative with the name of this aura; it's not important).
 - In the `Script` aura, create an `OnEnter` action of type `C# Script`.
 - It should look something like this:
-![](https://i.imgur.com/8nk8IOG.png =x150)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/find-aura/8nk8IOG.png =x150)
 
 ## Now
 ```csharp
@@ -35,7 +35,7 @@ var aura = AuraTree.GetAuraByPath(@".\Switch"); // or by absolute path AuraTree.
 Log.Info($"Aura {aura.FullPath} IsActive: {aura.IsActive}");
 ```
 
-![](https://i.imgur.com/deQdFyB.png)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/find-aura/deQdFyB.png)
 
 ## Let's Break It Down
 To access the aura tree (the left panel displaying your auras and folders), we use [AuraTree](/en/scripting/api/IAuraTreeScriptingApi).

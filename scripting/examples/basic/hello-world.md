@@ -16,7 +16,7 @@ dateCreated: 2024-02-20T19:56:21.080Z
 Well, a screenshot is a must here, sorry.
 
 ## Creating a C# Script Action
-![](https://i.imgur.com/mz7CUzL.png)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/hello-world/mz7CUzL.png)
 
 ## Typing in the Code (in some fresh versions, the newly created script may already contain this code)
 ```csharp
@@ -24,10 +24,10 @@ Log.Info("Hello, world!");
 ```
 
 ## Pressing Run
-![](https://i.imgur.com/VP8JnWk.png)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/hello-world/VP8JnWk.png)
 
 ## Voila!
-![](https://i.imgur.com/JeZXXU8.png)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/hello-world/JeZXXU8.png)
 
 Congratulations, this was officially the first step towards mighty scripts of the future.
 
@@ -36,11 +36,11 @@ Congratulations, this was officially the first step towards mighty scripts of th
 To make it a bit more interesting, let's set up our script to run only when a specific key, for example, `F1`, is pressed.
 
 ## Adding the HotkeyIsActive Trigger to the Aura
-![](https://i.imgur.com/j7ma0e1.png)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/hello-world/j7ma0e1.png)
 
 ## Select Click/Hold mode and F1
 
-![](https://i.imgur.com/s3eKrnp.png)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/hello-world/s3eKrnp.png)
 
 
 ## That's It!

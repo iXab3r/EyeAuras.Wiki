@@ -13,7 +13,7 @@ dateCreated: 2022-11-15T15:02:45.417Z
 
 [EyeAuras](https://eyeauras.net/) is a [clicker](/actions/sendinput/send-sequence) powered by [computer vision](/triggers/images/imagecapturetriggers) and [machine learning](/triggers/images/ai-search-trigger). It can analyze everything happening on your screen and perform actions for you, such as [moving the mouse](/actions/sendinput/send-sequence) and [pressing keys](/actions/sendinput/send-sequence). EyeAuras can also play sounds, [send messages to Telegram](/actions/send-telegram-message) and [over the Internet](/actions/send-network-message), and even [run C# scripts](/scripting/getting-started)!
 
-![Main window](https://eyeauras.net/assets/img/appimages/EyeAuras_OzDyUnmzFH.webp =x400)
+![Main window](https://s3.eyeauras.net/media/wiki/home/EyeAuras_OzDyUnmzFH.webp =x400)
 
 ## Core concepts
 
@@ -30,7 +30,7 @@ dateCreated: 2022-11-15T15:02:45.417Z
 - **Overlays** — elements displayed on top of all windows that can show text, images, custom UI, and more. Overlays are part of an Aura and are shown only while it is active.
 - [**Enabling Conditions**](/features/enabling-conditions) — triggers that can enable or disable Auras and Behavior Trees. For example, you can disable a bot if the game window does not exist.
 
-![Behavior Trees](https://eyeauras.net/assets/img/appimages/EyeAuras_4GhOU01VKp.webp =x400)
+![Behavior Trees](https://s3.eyeauras.net/media/wiki/home/EyeAuras_4GhOU01VKp.webp =x400)
 
 ---
 

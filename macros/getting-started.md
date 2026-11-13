@@ -25,7 +25,7 @@ Auras appeared at the very beginning when the program was just emerging. The ide
 
 This scheme worked well when the program needed to react specifically to external influences, but it was not suitable for building bots since events tend to occur simultaneously, and it was necessary to solve this with workarounds; otherwise, the bot would be torn between two fires.
 
-![Main window](https://eyeauras.net/assets/img/appimages/EyeAuras_OzDyUnmzFH.webp =x400)
+![Main window](https://s3.eyeauras.net/media/wiki/home/EyeAuras_OzDyUnmzFH.webp =x400)
 
 ## 2) [C# scripts](https://wiki.eyeauras.net/en/scripting/getting-started)
 As a universal solution, support for C# scripts was added. This removed any restrictions and, in general, allowed writing any logic as the user desired. The only drawback was that this option required programming skills, and in some cases, it was easier to do nothing than to deal with scripts.

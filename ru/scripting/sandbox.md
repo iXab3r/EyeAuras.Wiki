@@ -40,7 +40,7 @@ Log.Info("Hello!");
 Log.Debug("Hello from debug level!");
 ```
 
-![](https://i.imgur.com/vWkUbVS.png =x300)
+![](https://s3.eyeauras.net/media/wiki/scripting/sandbox/vWkUbVS.png =x300)
 
 ## Любителям поспать
 ```csharp
@@ -61,7 +61,7 @@ cancellationToken.ThrowIfCancellationRequested();
 {.is-info}
 
 
-![](https://i.imgur.com/TYwJwzi.png =x300)
+![](https://s3.eyeauras.net/media/wiki/scripting/sandbox/TYwJwzi.png =x300)
 
 ## [Dependency Injection](/ru/scripting/dependency-injection)
 ```csharp

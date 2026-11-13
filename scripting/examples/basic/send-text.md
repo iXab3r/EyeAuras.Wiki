@@ -20,7 +20,7 @@ Run this top-level C# Action with a working input simulator. Before pressing F2,
 4. Copy and paste the script itself.
 5. Pressing `F2` will print several lines of text.
 
-![](https://i.imgur.com/mwIxxsL.gif)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/send-text/mwIxxsL.gif)
 
 ```csharp
 using EyeAuras.Roxy.Api;

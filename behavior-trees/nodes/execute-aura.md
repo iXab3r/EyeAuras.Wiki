@@ -9,7 +9,7 @@ dateCreated: 2024-03-07T23:58:44.862Z
 ---
 The **Execute Aura** node is primarily designed to perform actions in Eye Auras - you can link any aura, and if it contains actions (any supported - Send Sequence, Play Sound, etc.), when the node is executed, it will perform those actions.
 
-![](https://i.imgur.com/i98jFM0.png)
+![](https://s3.eyeauras.net/media/wiki/behavior-trees/nodes/execute-aura/i98jFM0.png)
 
 **How it works:**
 - You can link 1 or more auras to this node.

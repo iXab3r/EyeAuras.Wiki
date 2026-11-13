@@ -17,4 +17,4 @@ dateCreated: 2023-03-21T23:23:51.953Z
 
 Интерфейс ещё может измениться. Альфа-версия выглядит так:
 
-![](https://i.imgur.com/EIBI5kg.png)
+![](https://s3.eyeauras.net/media/wiki/triggers/volume-level/EIBI5kg.png)

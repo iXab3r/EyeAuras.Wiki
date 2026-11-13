@@ -9,7 +9,7 @@ dateCreated: 2024-03-07T23:27:21.079Z
 ---
 The **Comment** node is designed to add comments and descriptions directly into the behavior tree. This node does not affect the logic of the tree execution and does not return any results. It is used solely for documenting and explaining the structure of the behavior tree.
 
-![](https://i.imgur.com/oXOamNx.png)
+![](https://s3.eyeauras.net/media/wiki/behavior-trees/nodes/comment/oXOamNx.png)
 
 **How it works:**
 - **Comment** has no input or output data.

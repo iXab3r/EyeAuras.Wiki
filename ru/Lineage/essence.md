@@ -38,7 +38,7 @@ dateCreated: 2024-03-25T14:49:39.889Z
 - Просто скопируйте ссылку и импортируйте её в EyeAuras.
 - Если шаг 3 вам непонятен, можно установить TetherScript в один клик.
 
-![image](https://i.imgur.com/S2ba3Hn.png)
+![image](https://s3.eyeauras.net/media/wiki/Lineage/essence/S2ba3Hn.png)
 
 ## 6. Видеоинструкции
 

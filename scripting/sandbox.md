@@ -55,7 +55,7 @@ Log.Info("Hello!");
 Log.Debug("Hello from debug level!");
 ```
 
-![](https://i.imgur.com/vWkUbVS.png =x300)
+![](https://s3.eyeauras.net/media/wiki/scripting/sandbox/vWkUbVS.png =x300)
 
 ## For those who like to sleep
 
@@ -78,7 +78,7 @@ cancellationToken.ThrowIfCancellationRequested();
 > `Sleep` does not itself throw a cancellation exception. On desktop, waits longer than 30 ms can return early on cancellation; waits of 30 ms or less do not check the token. Call `cancellationToken.ThrowIfCancellationRequested()` when work must not continue after cancellation. For asynchronous code, use `await Task.Delay(delay, cancellationToken)`.
 {.is-info}
 
-![](https://i.imgur.com/TYwJwzi.png =x300)
+![](https://s3.eyeauras.net/media/wiki/scripting/sandbox/TYwJwzi.png =x300)
 
 ## [Dependency Injection](/scripting/dependency-injection)
 

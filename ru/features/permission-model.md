@@ -40,29 +40,29 @@ dateCreated: 2024-04-20T10:52:21.002Z
 > Эта функция доступна только авторизованным пользователям.
 {.is-info}
 
-![](https://i.imgur.com/Z9qXakW.png)
+![](https://s3.eyeauras.net/media/wiki/changelogs/6788/Z9qXakW.png)
 
 После выбора уровня ограничений в заголовке папки будет показано, какой уровень установлен и кем именно.
 
 Вот так выглядит заголовок, если папка принадлежит вам.  
-![](https://i.imgur.com/WhQhQou.png)
+![](https://s3.eyeauras.net/media/wiki/features/permission-model/WhQhQou.png)
 
 А так — если папка принадлежит другому пользователю.  
-![](https://i.imgur.com/oAiE2Ws.png)
+![](https://s3.eyeauras.net/media/wiki/features/permission-model/oAiE2Ws.png)
 
 ## Как задать пароль
 
 Если у вас достаточно прав, в заголовке папки появится кнопка `Add password`.
 
-![добавить пароль](https://i.imgur.com/SoOHI6y.png)
+![добавить пароль](https://s3.eyeauras.net/media/wiki/features/permission-model/SoOHI6y.png)
 
 После установки пароля станет доступна функция `Unlock`, которая разблокирует папку по паролю.
 
-![разблокировать](https://i.imgur.com/hfnrqwb.png)
+![разблокировать](https://s3.eyeauras.net/media/wiki/features/permission-model/hfnrqwb.png)
 
 Если папка уже разблокирована, её можно снова заблокировать или полностью удалить пароль.
 
-![заблокировать или удалить пароль](https://i.imgur.com/7F3Rm7l.png)
+![заблокировать или удалить пароль](https://s3.eyeauras.net/media/wiki/features/permission-model/7F3Rm7l.png)
 
 ## Подробнее об уровнях ограничений
 
@@ -70,22 +70,22 @@ dateCreated: 2024-04-20T10:52:21.002Z
 
 Уровень `Default`. По умолчанию на папку не накладывается никаких ограничений — можно удалять и добавлять элементы, например ауры и behavior tree.
 
-![](https://i.imgur.com/cqH4pvI.png)
+![](https://s3.eyeauras.net/media/wiki/features/permission-model/cqH4pvI.png)
 
 ### Настраиваемая
 
 Уровень `Configurable`. На этом уровне нельзя удалять или добавлять элементы, но можно менять настройки уже существующих. Например, изменить зону захвата или имя окна.
 
-![](https://i.imgur.com/49AsqnH.png)
+![](https://s3.eyeauras.net/media/wiki/features/permission-model/49AsqnH.png)
 
 ### Только чтение
 
 Уровень `Read-Only`. В этом режиме содержимое папки нельзя изменять: нельзя ни добавлять и удалять элементы, ни редактировать настройки существующих аур.
 
-![](https://i.imgur.com/a8mrtb4.png)
+![](https://s3.eyeauras.net/media/wiki/features/permission-model/a8mrtb4.png)
 
 ### Приватная
 
 Уровень `Private`. Приватный режим скрывает содержимое аур — его нельзя просматривать, изменять или экспортировать.
 
-![](https://i.imgur.com/Yjnrr82.png)
+![](https://s3.eyeauras.net/media/wiki/changelogs/6788/Yjnrr82.png)

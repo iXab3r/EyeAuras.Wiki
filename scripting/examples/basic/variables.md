@@ -51,7 +51,7 @@ If you need to keep data beyond a single script run, you can store it in scripts
 
 The main use cases for this kind of storage are passing data from one script to another, keeping user configuration, and similar tasks.
 
-![](https://i.imgur.com/J9n7GkS.png)
+![](https://s3.eyeauras.net/media/wiki/scripting/examples/basic/variables/J9n7GkS.png)
 
 ## Script variables and the Variables API
 

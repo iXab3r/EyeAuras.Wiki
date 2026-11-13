@@ -33,13 +33,13 @@ dateCreated: 2024-08-11T17:15:30.899Z
 - раздел загрузки больше не спрятан прямо на главной, и теперь видно дату релиза
 - информация о ценах тоже доступна сразу
 
-![](https://i.imgur.com/aEcqbXL.jpeg)
+![](https://s3.eyeauras.net/media/wiki/changelogs/6862/aEcqbXL.jpg)
 
 ### Превью ссылок
 
 Если вы вставляете ссылки на сайт EyeAuras (https://eyeauras.net/) или даже на конкретные ауры (https://eyeauras.net/share/S20240426185158EYI4GEqRm2vh), будет показываться небольшое превью. Это работает в большинстве современных мессенджеров: Twitter, Discord, Telegram и т. д.
 
-![Telegram](https://i.imgur.com/6BHr4q3.png)
+![Telegram](https://s3.eyeauras.net/media/wiki/changelogs/6884/6BHr4q3.png)
 
 ### Ревизии Aura Pack
 
@@ -271,7 +271,7 @@ HotkeyIsActive получил заметную переработку как п�
 
 Это особенно заметят пользователи, подключённые к `EU Eye Hub`. Со временем я также добавлю отдельный file hub и для RU-региона.
 
-![Settings](https://i.imgur.com/pmmsLCG.png)
+![Settings](https://s3.eyeauras.net/media/wiki/changelogs/6884/pmmsLCG.png)
 
 ## Улучшения Aura Tree — поддержка copy/paste
 

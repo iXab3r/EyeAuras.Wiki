@@ -16,7 +16,7 @@ dateCreated: 2024-11-04T00:26:45.232Z
 До недавнего времени (октябрь 2024) это был единственный вариант. Всё просто: создаёте ауру, добавляете **C# Overlay** — и готово. EA сама рисует окно на экране и размещает внутри ваш код. В остальном это обычный оверлей: можно задавать условия отображения через триггеры, настраивать цвет, фон и другие параметры.
 
 Вот пара примеров оверлеев:  
-![D](https://i.imgur.com/iaKm2Br.png) ![TL](http://files.eyesquad.net/screenshots/31-10-2024/1YWZKXCaFhEh7SNnSx8YMWjAf.png)
+![D](https://s3.eyeauras.net/media/wiki/changelogs/7639/iaKm2Br.png) ![TL](https://s3.eyeauras.net/media/wiki/scripting/blazor-windows/getting-started/1YWZKXCaFhEh7SNnSx8YMWjAf.png)
 
 ### Пример
 

@@ -42,4 +42,4 @@ Sequence(2) отвечает за проверки "А можем ли мы во
 > Не путайте! **Sequence** останавливается на первой же ноде, которая вернула **Failure**, а **Selector** останавливается на первой ноде, которая вернула **Success**.  
 {.is-info}
 
-![](https://i.imgur.com/pgaOalh.png)
+![](https://s3.eyeauras.net/media/wiki/behavior-trees/nodes/selector/pgaOalh.png)

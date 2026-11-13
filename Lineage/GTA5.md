@@ -15,9 +15,9 @@ dateCreated: 2024-09-11T15:06:23.936Z
 Решение этого вопроса стало следующим
 
 # Отключение Game Mode в Windows
-![](http://files.eyesquad.net/screenshots/11-09-2024/Discord_tRNKShE2GYG74pgRIecTtoNII.png)
+![](https://s3.eyeauras.net/media/wiki/Lineage/GTA5/Discord_tRNKShE2GYG74pgRIecTtoNII.png)
 
 
 # Отключение Optimization for Windowed Games
 
-![](http://files.eyesquad.net/screenshots/11-09-2024/Discord_kvqBHaMReyO1ATkhWLoispdYu.png)
+![](https://s3.eyeauras.net/media/wiki/Lineage/GTA5/Discord_kvqBHaMReyO1ATkhWLoispdYu.png)
