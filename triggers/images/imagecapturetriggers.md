@@ -19,7 +19,7 @@ Image Search, Color Search, Text Search and AI Search share these capture settin
 Open an application with a visible status indicator. The aim here is a preview containing that indicator, without the rest of its panel.
 
 1. Leave the indicator visible and add **Color Search** to an aura.
-2. Under **Capture settings → Target Window**, select the application. Check the selected window beside the field; use a [matching expression](/en/features/window-matching-expressions) if several windows are eligible.
+2. Under **Capture settings → Target Window**, select the application. Check the selected window below the expression; use a [matching expression](/en/features/window-matching-expressions) if several windows are eligible.
 3. Set **Image Capture Rate = 5 Frames Per Second** as a starting point for a mostly static indicator.
 4. Expand **Preview captured image**. If the frame is empty or wrong, click **Show more...** and inspect **Capture Source**. Start with **Windows Graphics** when available, or compare the alternatives below.
 5. Set **Crop region → X, Y, Width, Height** to keep the indicator. These values belong to the selected source image, not automatically to desktop coordinates. Follow the preview; **Reset** removes the crop.

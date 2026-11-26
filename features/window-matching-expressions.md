@@ -10,7 +10,7 @@ dateCreated: 2023-06-18T11:57:49.061Z
 
 # Window Matching Expressions — keep the right window selected
 
-If two documents are open in the same application, choose which one an aura should use. A matching expression narrows the candidates; the window selector shows the actual result beside the field. Capture sources, activity checks and input targets can have separate selectors. Changing one does not configure the others.
+If two documents are open in the same application, choose which one an aura should use. A matching expression narrows the candidates; the window selector shows the matching window below the expression. Capture sources, activity checks and input targets can have separate selectors. Changing one does not configure the others.
 
 ## Select a report window
 

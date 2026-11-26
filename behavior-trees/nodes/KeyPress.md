@@ -45,7 +45,7 @@ A timed hold needs separate steps with the same Keys, window and backend: `Press
 
 The controller may skip Down for a physically held key, but still sends Up. It does not restore every prior modifier state; avoid manually holding unrelated keys during the draft example. Plan explicit release for input your own flow holds.
 
-For a longer sequence, connect several Key Press nodes in a [Sequence](/en/behavior-trees/nodes/sequence), or use [Run Aura](/en/behavior-trees/nodes/execute-aura) with a configured [Send Sequence](/en/actions/sendinput/send-sequence) action. A paste gesture requires your own prepared clipboard. This original compact example uses the earlier field labels shown above:
+For a longer sequence, connect several Key Press nodes in a [Sequence](/en/behavior-trees/nodes/sequence), or use [Run Aura](/en/behavior-trees/nodes/execute-aura) with a configured [Send Sequence](/en/actions/sendinput/send-sequence) action. A paste gesture requires your own prepared clipboard. In the older example below, `Key Press Delay` corresponds to `Delay` and `Input Type` to `Input`.
 
 ```
 KeyPress

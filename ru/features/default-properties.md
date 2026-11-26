@@ -23,11 +23,14 @@ dateCreated: 2023-02-15T19:56:35.160Z
 1. Откройте приложение, за которым хотите следить, и создайте для его аур отдельную папку. Добавьте внутрь две ауры: одну с [Window Exists](/ru/triggers/window-exists), другую с [Window Is Active](/ru/triggers/window-is-active).
 2. Выберите папку. В **Triggers/Actions/Overlays Defaults** включите флажок **Target Window** и выберите окно приложения из списка. Проверьте отображаемую цель.
 3. В каждом из двух триггеров откройте контекстное меню маленького индикатора привязки у Target Window и выберите **Bind to Default**. Так вы явно подключите оба свойства к значению папки.
+
+   До привязки индикатор у Target Window чёрный.
+
+   ![Свободный индикатор у Target Window и ошибка привязки у Image Capture Rate](/assets/callouts/batch1/ru/binding-square.png)
+
 4. Вернитесь к папке и выберите другое открытое окно в Target Window.
 
 Обе проверки должны получить новую цель: Window Exists проверяет её наличие, а Window Is Active — положение на переднем плане. Менять выражение в каждом триггере отдельно больше не нужно.
-
-![Свободный индикатор у Target Window и ошибка привязки у Image Capture Rate](/assets/callouts/batch1/ru/binding-square.png)
 
 Левый щелчок по индикатору открывает редактор привязок, правый — меню. В старом интерфейсе привязка по умолчанию могла называться Reset to Default или Bind to Default.
 

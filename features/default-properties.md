@@ -23,11 +23,14 @@ The checkbox lets this folder supply a value. In this older editor, Target Windo
 1. Open an application you want to monitor and create a folder for its auras. Add two auras inside it: one with [Window Exists](/en/triggers/window-exists), the other with [Window Is Active](/en/triggers/window-is-active).
 2. Select the folder. Under **Triggers/Actions/Overlays Defaults**, check **Target Window**, select the application's window and inspect the displayed target.
 3. For **Target Window** in each trigger, open the small binding indicator's context menu and choose **Bind to Default**. This explicitly connects both properties to the folder value.
+
+   Before binding, the indicator beside Target Window is black.
+
+   ![Unbound Target Window and a failed Image Capture Rate binding](/assets/callouts/batch1/en/binding-square.png)
+
 4. Return to the folder and choose a different open window for Target Window.
 
 Both checks now receive that target. Window Exists checks whether it exists; Window Is Active checks whether it is in the foreground. You no longer need to change their window expressions separately.
-
-![Unbound Target Window and a failed Image Capture Rate binding](/assets/callouts/batch1/en/binding-square.png)
 
 Left-click the indicator to open the binding editor; right-click for its menu. Older interfaces used Reset to Default or Bind to Default for the default connection.
 

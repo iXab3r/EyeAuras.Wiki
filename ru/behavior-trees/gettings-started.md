@@ -65,7 +65,7 @@ My Tree
 
 Когда порядок понятен, вместо первого `Fixed Status` можно использовать `Aura Is Active` со ссылкой на свою проверенную ауру, а вместо последнего — нужную реакцию. Например, собственная аура может искать цвет индикатора через [Color Search](/ru/triggers/images/color-search) или объект через [AI Search](/ru/triggers/images/ai-search-trigger). Само дерево не получает значение HP из приложения.
 
-В прежнем примере условием служила готовая аура `HP is low`. В свойствах **Aura Is Active** видны выбранная аура и её требуемое состояние.
+В прежнем примере условием служила готовая аура `HP is low`. На снимке другое условие: **Aura Is Active** проверяет, активна ли связанная аура `Примеры\Сигнал готовности`.
 
 ![Свойства Aura Is Active со связанной аурой и требуемым состоянием](/assets/callouts/batch1/ru/bt-getting-started-aura-is-active.png)
 
@@ -78,6 +78,8 @@ My Tree
 ![В Key Press выбрана F1 с задержкой 30 мс, окно ещё не задано](/assets/callouts/batch1/ru/bt-getting-started-key-press.png)
 
 Для автоматического запуска использовали активацию дерева и период 250 ms; текущие группы называются `Activation` и `Execution`. Можно связать активацию с аурой [Hotkey Is Active](/ru/triggers/hotkey-is-active).
+
+На снимке задан период 250 мс. Флажок **Is Loaded** снят, поэтому дерево простаивает.
 
 ![В настройках корня выбран Run periodically с периодом 250 мс](/assets/callouts/batch1/ru/bt-getting-started-root.png)
 

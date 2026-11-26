@@ -64,7 +64,7 @@ Aura triggers supply conditions; actions perform work. A tree gives that work an
 
 Once the route is clear, replace the first Fixed Status with **Aura Is Active** linked to your own tested aura, and the final node with the intended reaction. That aura could inspect your indicator through [Color Search](https://wiki.eyeauras.net/en/triggers/images/color-search) or an object through [AI Search](https://wiki.eyeauras.net/en/triggers/images/ai-search-trigger). A tree does not automatically obtain another application's HP.
 
-The earlier example checked an existing aura named `HP is low`. In **Aura Is Active**, the properties show the linked aura and the state it must reach.
+The earlier example checked an existing aura named `HP is low`. The screenshot shows a different condition: **Aura Is Active** requires the linked aura `Примеры\Сигнал готовности` to be active.
 
 ![Aura Is Active properties with the linked aura and required state](/assets/callouts/batch1/en/bt-getting-started-aura-is-active.png)
 
@@ -77,6 +77,8 @@ The earlier example used **Key Press** for F1. Set the intended window and input
 ![Key Press configured for F1 with a 30 ms delay and no target window set](/assets/callouts/batch1/en/bt-getting-started-key-press.png)
 
 The example used a 250 ms automatic period and an activation condition. Current groups are **Activation** and **Execution**; activation can link your own [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active) aura.
+
+The interval is set to 250 ms here. **Is Loaded** is unchecked, so the tree is idle.
 
 ![Run periodically selected with a 250 ms tick interval](/assets/callouts/batch1/en/bt-getting-started-root.png)
 
