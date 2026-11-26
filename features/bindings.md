@@ -26,6 +26,8 @@ To give the second overlay its own text again, open its indicator's context menu
 
 ## Read and change a binding
 
+![Unbound Target Window and a failed Image Capture Rate binding](/assets/callouts/batch1/en/binding-square.png)
+
 | Control | Meaning or action |
 | --- | --- |
 | Black indicator | No binding. Click to open Binding editor; in older interfaces the indicator is to the right of the field. |
@@ -34,6 +36,8 @@ To give the second overlay its own text again, open its indicator's context menu
 | Bind to Default | Connects the property to its corresponding [default value](/en/features/default-properties). |
 | Un-bind | Removes the selected property's connection. |
 | Red indicator or error message | The binding cannot supply its value. Open the editor and read the cause, such as a missing source or a failed conversion. |
+
+![Binding Editor with the target property, source tree, source properties and bind buttons](/assets/callouts/batch1/en/binding-editor.png)
 
 A source can be a trigger, action or overlay property, a variable, or a default setting. For one target window shared by a whole folder, defaults are usually the simpler starting point.
 

@@ -27,7 +27,7 @@ The checkbox lets this folder supply a value. In this older editor, Target Windo
 
 Both checks now receive that target. Window Exists checks whether it exists; Window Is Active checks whether it is in the foreground. You no longer need to change their window expressions separately.
 
-![Target Window binding indicator in the older editor](/assets/legacy/sb8y4cj%5B1%5D.png)
+![Unbound Target Window and a failed Image Capture Rate binding](/assets/callouts/batch1/en/binding-square.png)
 
 Left-click the indicator to open the binding editor; right-click for its menu. Older interfaces used Reset to Default or Bind to Default for the default connection.
 

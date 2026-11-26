@@ -29,6 +29,8 @@ That correct frame is the result of this setup. A visible image alone is not a s
 
 ## Capture settings
 
+![Target Window, Image Capture Rate and Capture Source in the capture settings](/assets/callouts/batch1/en/image-capture-settings.png)
+
 | Setting | Why change it |
 | --- | --- |
 | Target Window | Source of pixels. Narrow multiple matches to the intended window. |
@@ -41,6 +43,8 @@ That correct frame is the result of this setup. A visible image alone is not a s
 | Effects... | Changes captured pixels before analysis, such as resizing or grayscaling. |
 
 The FPS tooltip separates capture, effects and processing time, and shows frame age and output dimensions. A 100 ms operation does not become 33 ms merely because you request 30 FPS. Reduce the region, unnecessary effects or rate first. Preview zoom changes how you view the image; Crop and resize effects change the actual pixels and their coordinates.
+
+![Crop region fields and measured FPS above the captured image](/assets/callouts/batch1/en/image-capture-region.png)
 
 ## Choose a capture source
 

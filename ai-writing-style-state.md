@@ -76,6 +76,7 @@ The preferred EyeAuras wiki style is:
   - `Важно:`
   - warning block near the top for alpha features when relevant
 - Prefer concrete examples early, especially links, buttons, commands, and screenshots.
+- For annotated UI screenshots, use short, rounded amber corner marks and dark rounded labels. Align the marks to the visible control: give text even top and left clearance, center on the painted socket, and leave a gap where its connection passes through. Check the crop at native size. The Position panel and My Tree ports in `assets/callouts/batch1/en/` are the references.
 - Write as if you are helping a capable user get something working, not defending a design document.
 - If the page documents a concrete product or subsystem, use a direct, grounded tone.
 

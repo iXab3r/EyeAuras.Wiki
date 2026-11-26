@@ -22,9 +22,9 @@ Open your own text-editor window with two nonsecret lines. Click in its text so 
 4. Check the read-only `Window` and `Simulator` fields in the same group. They must show the draft and Windows Input. Do not run with `not set`, `not found` or another target.
 5. Click the upper `Tick BT Once` once. Windows Input activates the selected window and sends the gesture. Expect the text to become selected and the node to return Success. Recheck the target before repeating.
 
-The earlier screenshot labels the fields `Key Press Delay` and `Input Type`; current labels are `Delay` and `Input`:
+The example below shows F1 with the target window still unset. For the draft exercise, select Ctrl+A and verify the recipient before ticking the tree.
 
-![Keys, delay and input event in the earlier Key Press editor](https://s3.eyeauras.net/media/2025/08/EyeAuras_vIJngJ7rpT.png)
+![Key Press configured for F1 with a 30 ms delay and no target window set](/assets/callouts/batch1/en/bt-getting-started-key-press.png)
 
 | Setting | Effect |
 | --- | --- |

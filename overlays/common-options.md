@@ -26,6 +26,8 @@ The reminder hides. Set the aura active again and it returns to the saved positi
 
 ## Position and appearance
 
+![Overlay position, size, offset and the two anchor settings](/assets/callouts/batch1/en/coordinates-overlay.png)
+
 | Setting | What it does |
 | --- | --- |
 | Locked | Prevents normal movement and resizing. Called IsLocked in older interfaces. |

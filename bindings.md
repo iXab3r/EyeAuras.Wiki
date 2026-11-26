@@ -21,6 +21,8 @@ When an imported field no longer accepts a manual value, check whether it receiv
 
 Earlier UI showed a black rectangle beside the field. Identify the property and indicator rather than relying on the rectangle's old position.
 
+![Unbound Target Window and a failed Image Capture Rate binding](/assets/callouts/batch1/en/binding-square.png)
+
 | Check | Meaning |
 | --- | --- |
 | Source | The object/property path, variable or default supplying the value; it must exist |

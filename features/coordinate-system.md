@@ -14,7 +14,7 @@ If a capture region shifts or a move lands beside an icon, first ask **where X a
 
 The coordinate block defines **X**, **Y**, **Width** and **Height**. Capture uses a rectangle; Mouse Move uses its resulting position. Overlays also use coordinate blocks, with their own placement context.
 
-![Position and Offset in the former editor](/assets/legacy/eyeauras_wkvvsyrr7v.png)
+![Overlay position, size, offset and the two anchor settings](/assets/callouts/batch1/en/coordinates-overlay.png)
 
 ## Shift a capture region by 10 and 20 pixels
 

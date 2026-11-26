@@ -25,6 +25,8 @@ Windows Input and keyboard-like hardware or virtual devices normally activate th
 
 ## Main settings
 
+![Target Window and Key Press delay in Advanced input settings](/assets/callouts/batch1/en/sendinput-options-target.png)
+
 | Setting | Meaning and limits |
 | --- | --- |
 | Target Window | Input recipient. A specified expression with no matching window causes an error; an empty expression does not pin a recipient and leaves it to the current context |
@@ -58,6 +60,8 @@ Keep **None** while preparing a short sequence. Blocking can exclude concurrent 
 </details>
 
 ## Choose a delivery method
+
+![Restore after action, Block User input and Input Simulator](/assets/callouts/batch1/en/sendinput-options-simulator.png)
 
 | Input Simulator | How it delivers input |
 | --- | --- |

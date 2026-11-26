@@ -17,7 +17,14 @@ You need EyeAuras with the behavior-tree editor available. Create a separate tes
 
 1. In the aura tree's creation menu, select **New Behavior Tree** and open the new item. Its graph contains an entry named **My Tree**.
 2. Select that entry. Enable **Activation → Is Loaded**, then set **Execution → When Activated → Do nothing**. Automatic execution is disabled; the loaded tree can still be ticked manually.
-3. Use **Add new Node** to add **Sequence**, two **Fixed Status** nodes and **Wait**. Connect the entry to Sequence and Sequence to its three children. A card placed near a line is not yet connected. Arrange the children left to right as below.
+3. Use **Add new Node** to add **Sequence**, two **Fixed Status** nodes and **Wait**. You can also drag them from the node palette onto the graph.
+
+   ![Node palette beside the behavior tree graph](/assets/callouts/batch1/en/bt-getting-started-palette.png =x600)
+
+   Connect the entry to Sequence and Sequence to its three children. A card placed near a line is not yet connected. Arrange the children left to right as below.
+
+   ![Output port on My Tree connected to the input port on Sequence](/assets/callouts/batch1/en/bt-getting-started-connection.png)
+
 4. Set both Fixed Status nodes to **General → Status → Success**. Set **Wait → General → Delay = 1500 ms**; turn randomisation off with the shuffle button if Min/Max are shown.
 
 ```text
@@ -57,15 +64,21 @@ Aura triggers supply conditions; actions perform work. A tree gives that work an
 
 Once the route is clear, replace the first Fixed Status with **Aura Is Active** linked to your own tested aura, and the final node with the intended reaction. That aura could inspect your indicator through [Color Search](https://wiki.eyeauras.net/en/triggers/images/color-search) or an object through [AI Search](https://wiki.eyeauras.net/en/triggers/images/ai-search-trigger). A tree does not automatically obtain another application's HP.
 
-The earlier tutorial assumed an already configured aura named `HP is low`:
+The earlier example checked an existing aura named `HP is low`. In **Aura Is Active**, the properties show the linked aura and the state it must reach.
+
+![Aura Is Active properties with the linked aura and required state](/assets/callouts/batch1/en/bt-getting-started-aura-is-active.png)
 
 The current picker below uses a separate benign aura, `BT signal`, with **Fixed Value → Is NOT Active**. Open **Aura Is Active → General → Links → Edit**, then select that aura. It appears highlighted in the picker and in its linked-items list. This test setup does not reproduce the historical HP or F1 workflow.
 
 ![Current Links → Edit picker with the benign BT signal aura selected](/assets/wiki-media/m045.png =x600)
 
-It then added **Key Press** for `F1`. This is a separate input action requiring the intended target window and delivery backend; it is not part of reading the condition.
+The earlier example used **Key Press** for F1. Set the intended window and input simulator in the folder before running the node.
+
+![Key Press configured for F1 with a 30 ms delay and no target window set](/assets/callouts/batch1/en/bt-getting-started-key-press.png)
 
 The example used a 250 ms automatic period and an activation condition. Current groups are **Activation** and **Execution**; activation can link your own [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active) aura.
+
+![Run periodically selected with a 250 ms tick interval](/assets/callouts/batch1/en/bt-getting-started-root.png)
 
 The current settings view below uses the same benign test setup. **Is Loaded** is checked and **When Activated → Do nothing** is selected. The capture shows the **Activation** and **Execution** groups and the upper **Tick BT Once** button; execution was not run for this capture.
 

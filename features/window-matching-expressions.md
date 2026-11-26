@@ -24,9 +24,9 @@ An exact title stops matching if the document name changes. A native handle sele
 
 If several checks need this same target, set the expression once in the folder’s [Default Properties](/en/features/default-properties) and bind their Target Window fields to that default. This avoids maintaining separate copies when the chosen window changes.
 
-![Expression and selected-window display in the older interface](/assets/legacy/eyeauras_zjebk8jadf.png)
+![Target Window expression, window picker and matching window](/assets/callouts/batch1/en/window-selector.png)
 
-The older dropdown is shown here. Current editors offer window and process picker buttons; their placement differs. The expression and the actual selected result are still separate things to inspect.
+After picking a window, compare its title and process below the expression with your intended target.
 
 ## Simple expressions
 
