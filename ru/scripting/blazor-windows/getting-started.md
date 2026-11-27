@@ -28,8 +28,6 @@ dateCreated: 2024-11-04T00:26:45.232Z
 
 ![Шаблон Razor Component среди типов файлов прежнего редактора](/assets/callouts/batch3/ru/blazor-component-template.png)
 
-[Полный снимок меню](https://s3.eyeauras.net/media/2024/11/EyeAuras_I6MYDieptaZe5a8u.png)
-
 3. Создайте обычный C#-файл `WindowModel.cs`. Замените содержимое всех четырёх файлов кодом ниже. Namespace `BlazorDemo` должен совпадать в модели и в обеих частях компонента, а `Script.csx` подключает его через `using`.
 
 ### Script.csx
@@ -97,8 +95,6 @@ public partial class UserComponent : BlazorReactiveComponent<WindowModel>
 4. Дождитесь компиляции и нажмите **Run**. В центре экрана должно открыться окно **Пробный диалог**, в нём — заголовок **Моё окно** и кнопка счётчика.
 5. Нажмите кнопку, затем закройте диалог — запуск завершится. При следующем Run счёт снова начнётся с нуля. **Stop** отменяет ожидание окна через `cancellationToken` и освобождает окно.
 
-На старом снимке окно создано так же, но текст и оформление — из прежнего примера:
-
 ![Окно, созданное действием C# Script](https://s3.eyeauras.net/media/2024/11/EyeAuras_fmFnsjgMCW8P6Z4b.png)
 
 ## Что связывает файлы
@@ -109,14 +105,14 @@ public partial class UserComponent : BlazorReactiveComponent<WindowModel>
 | `CreateWindow<UserComponent>(model)` | Создаёт окно с указанным компонентом и передаёт ему модель как `DataContext`. |
 | `BlazorReactiveComponent<WindowModel>` | Даёт компоненту типизированный `DataContext`. Это объект, который передали явно, а не доступ к локальным переменным скрипта. |
 | `ShowDialog(cancellationToken)` | Показывает окно и держит запуск, пока окно не закроют или запуск не отменят. |
-| `using var window` | Освобождает окно при выходе из блока — после закрытия диалога или отмены ожидания. Сервис также привязывает окно к своему сроку жизни, поэтому после Stop оно не остаётся бесхозным. |
+| `using var window` | Освобождает окно при выходе из блока — после закрытия диалога или отмены ожидания. |
 
 `WindowModel` здесь хранит только начальные данные. Если изменить её обычное свойство извне, окно само не перерисуется. Для живых данных нужно наблюдение, как в [примере с триггером](/ru/scripting/blazor-windows/reactive-toggle). В классе и в Razor нет глобальных `GetService`, `AuraTree`, `Variables` и `cancellationToken` из скрипта.
 
 <details>
 <summary>Если нужна постоянно видимая панель</summary>
 
-Добавьте C# Overlay вместо действия, оставьте его ауру активной и редактируйте `UserOverlay`, как в [начале серии](/ru/scripting/blazor-windows/1-intro). На старых снимках видно, где добавляется оверлей и как выглядит стандартный шаблон:
+Добавьте C# Overlay вместо действия, оставьте его ауру активной и редактируйте `UserOverlay`, как в [начале серии](/ru/scripting/blazor-windows/1-intro).
 
 ![Пункт C# Overlay в меню добавления оверлеев прежнего редактора](/assets/callouts/batch3/ru/blazor-start-overlay.png)
 ![Стандартный компонент в прежнем оверлее](https://s3.eyeauras.net/media/2024/11/Code_MJvkplH0Iiqmm9SV.png)

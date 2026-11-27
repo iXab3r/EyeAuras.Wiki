@@ -39,7 +39,7 @@ dateCreated: 2025-05-11T13:31:15.490Z
 
 ![Нажатия меняют счётчик](https://s3.eyeauras.net/media/2025/05/ltZnDlxcvJ.gif)
 
-Число хранится в самом компоненте. Если компонент создаётся заново, счёт начнётся с нуля. Когда окно просто скрыто, компонент не обязательно пересоздаётся.
+Число хранится в самом компоненте. Если компонент создаётся заново, счёт начнётся с нуля.
 
 ## Куда двигаться дальше
 
@@ -57,9 +57,9 @@ dateCreated: 2025-05-11T13:31:15.490Z
 <details>
 <summary>Учебный пакет и дополнительные материалы</summary>
 
-[Скачать примеры](https://tinyurl.com/msfhaupc) — отдельный учебный набор. [Tutorial — Blazor Windows, revision 3](https://eyeauras.net/share/S20250511162645vYh4n3mqSLm0/3) сделан для EyeAuras **1.7.8354.0**, его файлы и снимки показывают прежний редактор. В текущем редакторе проще начать с нового C# Overlay, как выше.
+[Скачать примеры](https://tinyurl.com/msfhaupc) — отдельный учебный набор. [Tutorial — Blazor Windows, revision 3](https://eyeauras.net/share/S20250511162645vYh4n3mqSLm0/3) сделан для EyeAuras **1.7.8354.0**.
 
-На [CodePen](https://codepen.io/) есть примеры оформления на HTML/CSS. Разметку и стили оттуда придётся подогнать под свой компонент: пример для браузера сам окно EyeAuras не создаёт.
+На [CodePen](https://codepen.io/) есть примеры оформления на HTML/CSS. Разметку и стили оттуда придётся подогнать под свой компонент.
 
 [Генератор RazorComponentTemplate](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.Blazor.Shared/CodeEditor/Templates/RazorComponentTemplate.cs) создаёт две части компонента с общим namespace. Когда редактируете их, следите, чтобы имена и namespace совпадали.
 

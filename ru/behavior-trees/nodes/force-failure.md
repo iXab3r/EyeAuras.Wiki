@@ -37,4 +37,4 @@ My Tree
 | Ребёнок вернул Failure | Force Failure возвращает Failure |
 | Ребёнок вернул Running | Force Failure возвращает Running и не заставляет ребёнка закончиться |
 
-Без детей узел возвращает `Failure`. Что будет дальше, решает родитель: Sequence на Failure останавливается, а [Selector](/ru/behavior-trees/nodes/selector) пробует следующий вариант. Узел меняет маршрут, а не отменяет уже сделанное. Исключения и отмена — отдельные события, не считайте их обычным результатом Force Failure.
+Без детей узел возвращает `Failure`. Что будет дальше, решает родитель: Sequence на Failure останавливается, а [Selector](/ru/behavior-trees/nodes/selector) пробует следующий вариант.

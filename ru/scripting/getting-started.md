@@ -38,7 +38,7 @@ Log.Info("Привет, мир!");
 
 ## Что добавить после первого запуска
 
-EyeAuras работает на [.NET](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview) и компилирует код через [Roslyn](https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/). Версия языка и доступные сборки зависят от вашей версии программы и настроек проекта.
+EyeAuras работает на [.NET](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview) и компилирует код через [Roslyn](https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/).
 
 ![](https://upload.wikimedia.org/wikipedia/commons/d/d2/C_Sharp_Logo_2023.svg =x100) ![](https://devblogs.microsoft.com/aspnet/wp-content/uploads/sites/16/2019/04/BrandBlazor_nohalo_1000x.png =x100) ![](https://upload.wikimedia.org/wikipedia/commons/2/2a/Roslyn.png =x100)
 
@@ -55,15 +55,15 @@ Log.Info(JsonConvert.SerializeObject(new { Hello = "World" }));
 
 Как ставить пакеты через `Properties` и какие есть ограничения — в статьях [NuGet](/ru/scripting/nuget) и [ресурсы и ссылки](/ru/scripting/api/scripting/references-and-resources). Искать библиотеки удобно в [подборке для .NET](https://github.com/quozd/awesome-dotnet), но совместимость с EyeAuras у каждого пакета нужно проверять отдельно.
 
-Чтобы управлять программой из скрипта, запрашивайте её службы через [Dependency Injection](/ru/scripting/dependency-injection) — [внедрение зависимостей](https://en.wikipedia.org/wiki/Dependency_injection). Например, [ISendInputScriptingApi](/ru/scripting/api/ISendInputScriptingApi) отвечает за ввод, а `IPlaySoundScriptingApi` — за звук. `EyeAuras.SDK` только описывает контракты. Ссылка на SDK не создаёт работающую службу и не подключает необязательный модуль.
+Чтобы управлять программой из скрипта, запрашивайте её службы через [Dependency Injection](/ru/scripting/dependency-injection) — [внедрение зависимостей](https://en.wikipedia.org/wiki/Dependency_injection). Например, [ISendInputScriptingApi](/ru/scripting/api/ISendInputScriptingApi) отвечает за ввод, а `IPlaySoundScriptingApi` — за звук. `EyeAuras.SDK` только описывает контракты.
 
 <details>
 <summary>Свой интерфейс и следующие примеры</summary>
 
-На [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) формы собирают из компонентов. Для окна одного кода действия мало: нужен [пользовательский интерфейс](/ru/overlays/custom-ui). Ниже пример такой формы. К первому скрипту из этой статьи он не относится.
+На [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) формы собирают из компонентов. Для окна одного кода действия мало: нужен [пользовательский интерфейс](/ru/overlays/custom-ui). Ниже пример такой формы.
 
 ![](https://s3.eyeauras.net/media/wiki/faq/d83bcbeeac554d2e9b939.png =x300)
 
-После журнала можно перейти к [поиску изображения](/ru/scripting/examples/basic/image-search). Старые поколения скриптинга умели не то же самое, что текущее. Старый пример переносите вместе с его зависимостями и контекстом.
+После журнала можно перейти к [поиску изображения](/ru/scripting/examples/basic/image-search). Старый пример переносите вместе с его зависимостями и контекстом.
 
 </details>

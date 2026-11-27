@@ -13,7 +13,7 @@ dateCreated: 2025-10-17T14:56:23.969Z
 
 Нужен настольный EyeAuras, совместимый с **EyeAuras.ImGuiSdk 0.1.47**. Как подключить пакет и зарегистрировать сервис, показано в [начале раздела](/ru/scripting/imgui/getting-started). Не смешивайте версии ImGui в одном процессе.
 
-1. Добавьте в свой проект **C# Script** настоящий `Roboto-Regular.ttf` как [встроенный ресурс](/ru/scripting/embedded-resources). Для русского текста в файле должна быть кириллица. Название Roboto этого не гарантирует.
+1. Добавьте в свой проект **C# Script** настоящий `Roboto-Regular.ttf` как [встроенный ресурс](/ru/scripting/embedded-resources). Для русского текста в файле должна быть кириллица.
 2. Узнайте полное имя ресурса. Оно есть в журнале подготовки проекта. Или временно выполните в `Script.csx`:
 
 ```csharp
@@ -73,8 +73,6 @@ using PoeShared.Scaffolding;
 
 4. Дождитесь компиляции и нажмите **Run**. Текст в демонстрационном окне должен смениться на выбранный шрифт размером 20. После **Stop** описание удаляется. Если оно ещё было основным, SDK возвращает стандартный шрифт, а не прежний выбор другого скрипта, который ему неизвестен.
 
-На старых снимках показаны ресурс проекта и результат. В старом коде виден `AddFontFromMemoryTTF` — он относится к 0.1.17. Выше вместо него AddFont/ReplaceFont:
-
 ![TTF в ресурсах проекта](https://s3.eyeauras.net/media/2025/10/EyeAuras_nMZAqZ6YHR.png)
 ![Демонстрационное окно с выбранным шрифтом](https://s3.eyeauras.net/media/2025/10/EyeAuras_yzz7IrmjnJ.png)
 
@@ -102,6 +100,6 @@ using PoeShared.Scaffolding;
 | `Japanese`, `Korean`, `Thai`, `Vietnamese` | Соответствующие наборы символов, если они есть в TTF. |
 | `ChineseFull`, `ChineseSimplifiedCommon` | Полный или распространённый упрощённый китайский набор. |
 
-[Старый импорт](https://eyeauras.net/share/S20251017150828zhuomztM9lbi) сохранён. Он ссылается на 0.1.17 со старым `AddFontFromMemoryTTF`, поэтому рядом с программой выше эту ссылку оставлять нельзя. В 0.1.42 уже есть AddFont/ReplaceFont/RemoveFont, но здесь везде выбрана 0.1.47 из [источника пакетов](https://packages.eyeauras.net/v3/index.json). Различия версий перечислены в [карте SDK](/ru/scripting/api/nuget/imgui-sdk). То, что пакет есть, ещё не значит, что графика проверена в вашей сборке.
+[Старый импорт](https://eyeauras.net/share/S20251017150828zhuomztM9lbi) сохранён. Он ссылается на 0.1.17 со старым `AddFontFromMemoryTTF`, поэтому рядом с программой выше эту ссылку оставлять нельзя. В 0.1.42 уже есть AddFont/ReplaceFont/RemoveFont, но здесь везде выбрана 0.1.47 из [источника пакетов](https://packages.eyeauras.net/v3/index.json). Различия версий перечислены в [карте SDK](/ru/scripting/api/nuget/imgui-sdk).
 
 </details>

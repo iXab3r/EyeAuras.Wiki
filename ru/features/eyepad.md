@@ -28,8 +28,6 @@ EyeAuras.exe --pad
 
 ![Script.csx открыт в EyePad: справа вверху кнопка Run, внизу пустой журнал](/assets/callouts/batch3/ru/eyepad-run-log.png)
 
-На старых снимках журнал подписан `Event Viewer`, а панели могут стоять иначе. Смотрите на выбранную вкладку и её журнал, а не только на статус запуска всей программы.
-
 ## Какой файл открыть
 
 | Формат | Что получает EyePad |
@@ -69,12 +67,12 @@ EyeAuras.exe --pad "D:\Projects\MyTool\Script.csx"
 
 ![Imported Pack](https://s3.eyeauras.net/media/2026/03/EyeAuras_4kQGkesUgd.png)
 
-У каждой вкладки своё виртуальное дерево аур и своё состояние. Открытый файл связан со своим путём на диске. Импортированный или новый пак нужно сохранить явно. Временная рабочая область — не отдельная постоянная конфигурация основного EyeAuras.
+У каждой вкладки своё виртуальное дерево аур и своё состояние. Импортированный или новый пак нужно сохранить явно.
 
 <details>
 <summary>Что доступно для больших проектов</summary>
 
-EyePad работает на C# и Roslyn и поддерживает [NuGet](/ru/scripting/nuget), [встроенные ресурсы](/ru/scripting/embedded-resources), [Blazor Windows](/ru/scripting/blazor-windows/1-intro) и [ImGui](/ru/scripting/imgui/getting-started). Доступен ли конкретный сервис, зависит от загруженных модулей и зависимостей проекта.
+EyePad работает на C# и Roslyn и поддерживает [NuGet](/ru/scripting/nuget), [встроенные ресурсы](/ru/scripting/embedded-resources), [Blazor Windows](/ru/scripting/blazor-windows/1-intro) и [ImGui](/ru/scripting/imgui/getting-started).
 
 Триггеры, действия, макросы и деревья поведения удобнее настраивать в основном интерфейсе EyeAuras. Если хотите запускать своё приложение поверх скриптового движка, смотрите [mini-app](/ru/features/mini-app).
 

@@ -14,9 +14,9 @@ dateCreated: 2025-08-17T08:30:21.182Z
 
 ## Пропустить шаг по своему переключателю
 
-Создайте загруженную ауру `BT enabled` с одним [Fixed Value](/ru/triggers/fixed-value), без действий. Поставьте `Is NOT Active`. В отдельном дереве оставьте `Activation → Is Loaded`, `Execution → When Activated → Do nothing`. Так дерево не будет запускаться само и ничего не нажмёт.
+Создайте загруженную ауру `BT enabled` с одним [Fixed Value](/ru/triggers/fixed-value), без действий. Поставьте `Is NOT Active`. В отдельном дереве оставьте `Activation → Is Loaded`, `Execution → When Activated → Do nothing`.
 
-1. У входа дерева в `Activation` нажмите `activate when Aura Activated...`, затем в `Enabling Condition → Links` выберите `BT enabled`. Ожидаемое состояние связи — Active. Это настройка активации корня, а не ссылка внутри Is Active.
+1. У входа дерева в `Activation` нажмите `activate when Aura Activated...`, затем в `Enabling Condition → Links` выберите `BT enabled`. Ожидаемое состояние связи — Active.
 2. Добавьте `Sequence`, `Is Active` и `Fixed Status`, соедините по схеме. У Fixed Status задайте `General → Status → Success`, у Is Active оставьте `General → Invert` выключенным.
 
 ```text
@@ -44,7 +44,7 @@ My Tree
 
 ## Где проверка действительно останавливает работу
 
-В Sequence проверка срабатывает, только когда выполнение **дошло до неё**. Она не следит за действием постоянно и не отменяет уже сделанное. Если более поздний ребёнок Sequence вернул Running, следующий тик продолжит с него, а Is Active заново не выполнится.
+В Sequence проверка срабатывает, только когда выполнение **дошло до неё**. Если более поздний ребёнок Sequence вернул Running, следующий тик продолжит с него, а Is Active заново не выполнится.
 
 У самой Is Active тоже может быть ребёнок. Он выполняется, если проверка успешна. Пока он возвращает Running, активность заново не сравнивается. Так что мгновенного прерывания при деактивации не будет.
 

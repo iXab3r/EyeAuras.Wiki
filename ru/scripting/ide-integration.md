@@ -27,8 +27,6 @@ dateCreated: 2025-10-19T16:35:51.518Z
 
 ![Кнопка Export в старом редакторе скрипта, между Open In IDE и Import](/assets/callouts/batch3/ru/ide-project-export.png)
 
-[Вся панель редактора](https://s3.eyeauras.net/media/2025/10/EyeAuras_gzfCRUFI9X.png)
-
 2. Откройте полученный `.sln` в IDE. Рядом лежат проекты и настройки NuGet для SDK EyeAuras. Восстановите зависимости и проверьте, нет ли ошибок.
 
 ![Папка с экспортированным проектом](https://s3.eyeauras.net/media/2025/10/explorer_BOZVwOvceo.png)
@@ -40,11 +38,11 @@ dateCreated: 2025-10-19T16:35:51.518Z
 
 ![Кнопка Import в старом редакторе скрипта, между Export и Live](/assets/callouts/batch3/ru/ide-project-import.png)
 
-5. Нажмите `Run` в EyeAuras и найдите `Hello from IDE` в `Event Log`. Значит, ваша правка вернулась.
+5. Нажмите `Run` в EyeAuras и найдите `Hello from IDE` в `Event Log`.
 
 ![Результат запуска в Event Log](https://s3.eyeauras.net/media/2025/10/EyeAuras_eO23JLfMTK.png)
 
-На снимках старый редактор. В нынешнем EyePad файлы открытого решения помечены `Read-only`: правьте их в IDE, а результат проверяйте здесь. В режиме `CompileOnce` импорт и наблюдение за файлами недоступны. Чтобы редактировать свою копию, сначала выключите этот режим.
+В нынешнем EyePad файлы открытого решения помечены `Read-only`: правьте их в IDE, а результат проверяйте здесь. В режиме `CompileOnce` импорт и наблюдение за файлами недоступны. Чтобы редактировать свою копию, сначала выключите этот режим.
 
 ## Выбрать способ обновления
 
@@ -69,8 +67,6 @@ dateCreated: 2025-10-19T16:35:51.518Z
 
 ![C# Overlay со счётчиком](https://s3.eyeauras.net/media/2025/10/EyeAuras_FXgRIKk17o.png =x300)
 
-На записях ниже счётчик меняют во встроенном редакторе и в Rider. Состояние окна при обновлении может не сохраниться:
-
 ![Правка C# Overlay во встроенном редакторе](https://s3.eyeauras.net/media/2025/10/EyeAuras_4geb5IBg7R.gif =x300)
 
 ![Правка C# Overlay в Rider](https://s3.eyeauras.net/media/2025/10/Discord_uec9o89iub.gif =x400)
@@ -80,11 +76,11 @@ dateCreated: 2025-10-19T16:35:51.518Z
 
 В IDE есть автодополнение, навигация, документация, работа с обычными классами, папками, NuGet и Razor. Чистую логику можно вынести в классы и тестировать отдельным проектом. Только не подключайте тестовый проект как зависимость скрипта: импорт берёт проект скрипта и связанные с ним проекты, а не всё решение.
 
-В экспорте есть служебные заглушки окружения. Они нужны, чтобы проект компилировался. `Log`, `Variables`, `Sleep` и `cancellationToken` от этого не становятся доступны в обычных классах, и EyeAuras внутри IDE не запускается. Передавайте зависимости явно. Выбрать контекст поможет [карта контекстов и API](/ru/scripting/api/core/app-runtime-contexts).
+В экспорте есть служебные заглушки окружения. Они нужны, чтобы проект компилировался. `Log`, `Variables`, `Sleep` и `cancellationToken` от этого не становятся доступны в обычных классах. Передавайте зависимости явно. Выбрать контекст поможет [карта контекстов и API](/ru/scripting/api/core/app-runtime-contexts).
 
-Pre-/post-build действия при импорте в EyeAuras не выполняются. Если IDE генерирует JavaScript из TypeScript, импортируйте уже готовые файлы. Про библиотеки читайте во [встроенных ресурсах](/ru/scripting/embedded-resources) и NuGet. Отладка и расширения зависят от вашей IDE.
+Pre-/post-build действия при импорте в EyeAuras не выполняются. Если IDE генерирует JavaScript из TypeScript, импортируйте уже готовые файлы. Про библиотеки читайте во [встроенных ресурсах](/ru/scripting/embedded-resources) и NuGet.
 
-Так же работают с [макросами](/ru/macros/getting-started) и [деревьями поведения](/ru/behavior-trees/scripting), с [поиском изображений](/ru/scripting/examples/basic/image-search), [вводом](/ru/scripting/examples/basic/send-text), [памятью](/ru/scripting/api/memory) и [ImGui](/ru/scripting/imgui/getting-started). Как экспорт выглядел вначале, описано в [истории версии](/ru/changelogs/7930). Ниже — старый пример проекта из нескольких компонентов и его окна:
+Так же работают с [макросами](/ru/macros/getting-started) и [деревьями поведения](/ru/behavior-trees/scripting), с [поиском изображений](/ru/scripting/examples/basic/image-search), [вводом](/ru/scripting/examples/basic/send-text), [памятью](/ru/scripting/api/memory) и [ImGui](/ru/scripting/imgui/getting-started). Как экспорт выглядел вначале, описано в [истории версии](/ru/changelogs/7930).
 
 ![Пример проекта бота в Rider](https://s3.eyeauras.net/media/2025/10/rider64_NlTMZAX9e4.png =x500)
 
@@ -112,4 +108,4 @@ http://127.0.0.1:48080/mcp
 
 В VS Code адрес задают в настройках MCP или в `mcp.json`, в Visual Studio — в настройках AI-инструмента с поддержкой MCP. Интерфейс зависит от версии клиента, см. инструкции [JetBrains](https://www.jetbrains.com/help/ai-assistant/mcp.html) и [VS Code](https://code.visualstudio.com/docs/copilot/chat/mcp-servers).
 
-Подключение не запускает скрипт и не открывает доступ ко всем файлам. Проверяйте список доступных инструментов и выбранный проект. Как именно выбирается проект, видно в [исходном коде](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/AI/Mcp/EyeAurasMcpOnDiskScriptingPlugin.cs).
+Как именно выбирается проект, видно в [исходном коде](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/AI/Mcp/EyeAurasMcpOnDiskScriptingPlugin.cs).

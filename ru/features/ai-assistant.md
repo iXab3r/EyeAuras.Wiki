@@ -21,18 +21,16 @@ AI Assistant — это чат во вкладке AI. Его можно спр�
 3. Нажмите Start Session.
 4. Задайте конкретный вопрос, например: «Как запускать ауру только при активном окне игры?» Если разбираете ошибку, приложите её текст и укажите версию EyeAuras.
 
-Если вопрос про активное окно, сравните [Window Is Active](/ru/triggers/window-is-active) и [условия включения](/ru/features/enabling-conditions). Обычный триггер проверяет условие ауры, а условие включения решает, должна ли она вообще работать. Проверяя ответ, сначала выведите на экран оверлей [Text](/ru/overlays/text), а ввод добавляйте потом.
+Если вопрос про активное окно, сравните [Window Is Active](/ru/triggers/window-is-active) и [условия включения](/ru/features/enabling-conditions). Проверяя ответ, сначала выведите на экран оверлей [Text](/ru/overlays/text), а ввод добавляйте потом.
 
 ![Вкладка AI: выбран профиль EyeAuras AiGateway, в центре кнопка Start Session](/assets/callouts/batch2/ru/assistant-start-session.png)
-
-На снимке интерфейс за апрель 2026 года. Выбранный профиль виден справа вверху, чат открывается кнопкой Start Session.
 
 ## Какой профиль выбрать
 
 | Профиль | Подключение |
 | --- | --- |
 | OpenAI | Свой API-ключ. Берите профиль из шаблона. Расходы зависят от вашего аккаунта у провайдера. |
-| EyeAuras Gateway | Сервер EyeAuras. API Key — `%EYEAURAS_TOKEN%`, Endpoint — `https://eu.openai.eyeauras.net`. Доступность и лимиты зависят от условий сервиса. |
+| EyeAuras Gateway | Сервер EyeAuras. API Key — `%EYEAURAS_TOKEN%`, Endpoint — `https://eu.openai.eyeauras.net`. |
 | Ollama | Модель на вашем компьютере. Запустите Ollama, укажите Endpoint `http://localhost:11434/v1` и имя установленной модели в Model Id. |
 
 Для другого совместимого сервера нужны его адрес, имя модели и ключ доступа, если сервер его требует.
@@ -54,15 +52,13 @@ AI Assistant — это чат во вкладке AI. Его можно спр�
 
 ![Профиль Gateway: gpt-5.4-mini в Model Id и Responses в API Type](/assets/callouts/batch3/ru/assistant-profile-fields.png)
 
-На снимке пример Gateway за апрель 2026 года: gpt-5.4-mini и Responses. Выберите модель, которая доступна для вашего подключения.
-
 ## Если чат не запускается
 
 **Unavailable / ключ недоступен:** проверьте API Key и значение переменной окружения, если указали её. Для Gateway нужен доступный токен EyeAuras.
 
 **Нет соединения:** проверьте Endpoint. Для Ollama убедитесь, что локальный сервер запущен.
 
-**Ошибка модели или API:** сверьте Model Id и API Type с настройками вашего провайдера. Полный текст ошибки полезнее, чем «не работает».
+**Ошибка модели или API:** сверьте Model Id и API Type с настройками вашего провайдера.
 
 <details>
 <summary>Дополнительные настройки — Show Settings</summary>

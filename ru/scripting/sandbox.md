@@ -49,7 +49,7 @@ void Sleep(int delayMs);
 void Sleep(double delayMs);
 void Sleep(double minDelayMs, double maxDelayMs);
 ```
-Этот метод приостанавливает скрипт на указанное время. Он использует текущий `cancellationToken`. Пауза синхронная. Для асинхронного ожидания пишите `await Task.Delay(..., token)`.
+Этот метод приостанавливает скрипт на указанное время. Он использует текущий `cancellationToken`. Пауза синхронная.
 
 ```csharp
 Sleep(2000); //приостанавливаем скрипт на 2 секунды
@@ -89,7 +89,7 @@ public sealed class Reporter
 }
 ```
 
-В `Event Log` появится `Result: 5`. Чтобы получить зарегистрированную службу, укажите её точный интерфейс и namespace. Если тип есть в SDK, это ещё не значит, что служба зарегистрирована. Свои службы можно добавить через [Script Container Extensions](/ru/scripting/script-container-extensions).
+В `Event Log` появится `Result: 5`. Чтобы получить зарегистрированную службу, укажите её точный интерфейс и namespace. Свои службы можно добавить через [Script Container Extensions](/ru/scripting/script-container-extensions).
 
 ## Выполнить работу с отменой одного запуска
 
@@ -111,4 +111,4 @@ for (var step = 1; step <= 3; step++)
 
 Состояние объекта скрипта может сохраняться между запусками, пока версия проекта та же. Изменение зависимой версии проекта пересоздаёт контекст. Долговременным хранилищем это не считайте. Для обмена данными и настроек есть [переменные](/ru/scripting/variables), для ресурсов — [управление временем жизни](/ru/scripting/api/scripting/reactive-lifetime).
 
-Точное поведение `Sleep` видно в исходниках: [ScriptSandbox](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Scripting.Metadata/Api/ScriptSandbox.cs) и [desktop-провайдер ожидания](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Scaffolding/WaitableTimerUtils.cs). Интервал задаётся в миллисекундах. Реальная длительность зависит от планировщика ОС. Вариант с двумя числами выбирает случайную длительность в заданном диапазоне.
+Точное поведение `Sleep` видно в исходниках: [ScriptSandbox](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Scripting.Metadata/Api/ScriptSandbox.cs) и [desktop-провайдер ожидания](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Scaffolding/WaitableTimerUtils.cs). Реальная длительность зависит от планировщика ОС. Вариант с двумя числами выбирает случайную длительность в заданном диапазоне.

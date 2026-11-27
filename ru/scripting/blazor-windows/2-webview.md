@@ -63,15 +63,11 @@ dateCreated: 2025-05-11T00:47:25.172Z
 <details>
 <summary>Как читать старые примеры v2 и v3</summary>
 
-На снимке v3 — проект со своим Razor-компонентом и возможностями текущего движка скриптов, включая подключение пакетов и сервисов:
-
 ![Редактор C# Overlay v3](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_TqJxUFKYNe.png)
 
-`C# Overlay v2 (legacy)` — для старых проектов. Для нового примера берите текущий C# Overlay. Настраивать v2 дополнительно не нужно.
+`C# Overlay v2 (legacy)` — для старых проектов. Для нового примера берите текущий C# Overlay.
 
 ![Прежний редактор v2](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_DKdQydbTcq.png)
-
-В старых версиях Window и Overlay тоже различались оформлением окна:
 
 ![Window в прежнем v2](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_AvrTCKw3p6.png)
 ![Overlay в прежнем v2](https://s3.eyeauras.net/media/2025/05/n02buCY4RI.png)

@@ -111,7 +111,7 @@ public partial class UserOverlay : BlazorReactiveComponent
 | `getWidth` | Читает DOM через [getBoundingClientRect](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) и возвращает число. Результат показывает Razor, модуль его разметку не меняет. |
 | `DisposeAsync` | При уничтожении компонента дожидается начатого импорта и освобождает ссылку на модуль, затем выполняет очистку базового класса. |
 
-JS-таймеров и подписок на события здесь нет. Если они появятся, добавьте экспортируемую функцию очистки и вызывайте её перед освобождением ссылки: `IJSObjectReference.DisposeAsync()` сам их не отменяет. Скрыть окно — не значит уничтожить компонент.
+JS-таймеров и подписок на события здесь нет. Если они появятся, добавьте экспортируемую функцию очистки и вызывайте её перед освобождением ссылки: `IJSObjectReference.DisposeAsync()` сам их не отменяет.
 
 ## Чем отличается LoadScript
 
@@ -123,9 +123,9 @@ JS-таймеров и подписок на события здесь нет. �
 
 Чтобы подключить готовую классическую библиотеку, внедрите `PoeShared.Blazor.Services.IJsPoeBlazorUtils` через `[Inject]` и после первой отрисовки вызовите `await BlazorUtils.LoadScript("MyScript.Library.js")` с настоящим именем её ресурса. `Status.js` с `export` так подключать нельзя. Загрузчик запоминает путь даже при `loading`/`failed`, поэтому повторный вызов ничего не ждёт и не проверяет успех заново. Как очищать библиотеку, определяет она сама.
 
-Если таблица стилей относится к разметке компонента, подключите [CSS-файл через HeadContent](/ru/scripting/blazor-windows/toggles-styling-cssfile). Если момент подключения выбирает C#, используйте [LoadCss после отрисовки](/ru/scripting/blazor-windows/toggles-styling-css-load). Освобождение ссылки на JS-модуль такую таблицу стилей не удаляет.
+Если таблица стилей относится к разметке компонента, подключите [CSS-файл через HeadContent](/ru/scripting/blazor-windows/toggles-styling-cssfile). Если момент подключения выбирает C#, используйте [LoadCss после отрисовки](/ru/scripting/blazor-windows/toggles-styling-css-load).
 
-В старом [наборе серии](/ru/scripting/blazor-windows/1-intro) классический загрузчик подключал `rgba.js` с CDN, локальный `Script.js` и CSS для canvas. На анимации ниже — тот сторонний пример, а не измерение панели:
+В старом [наборе серии](/ru/scripting/blazor-windows/1-intro) классический загрузчик подключал `rgba.js` с CDN, локальный `Script.js` и CSS для canvas:
 
 ![Анимация сторонней библиотеки из старого примера](https://s3.eyeauras.net/media/2025/05/9dIx2khkoQ.gif)
 

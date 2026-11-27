@@ -16,7 +16,7 @@ dateCreated: 2026-11-11T00:00:00.000Z
 | --- | --- |
 | Условие по окну | [Window Exists](/ru/triggers/window-exists), [Window Is Active](/ru/triggers/window-is-active), [выбор окна](/ru/features/window-matching-expressions) |
 | Условие по тому, что видно на экране | [Захват изображения](/ru/triggers/images/imagecapturetriggers), затем [Image Search](/ru/triggers/images/image-search), [Color Search](/ru/triggers/images/color-search) или [Text Search](/ru/triggers/images/text-search) |
-| Поиск своей моделью | [AI Search](/ru/triggers/images/ai-search-trigger). Нужна совместимая ONNX-модель, её задача ([детекция](https://docs.ultralytics.com/tasks/detect/), [классификация](https://docs.ultralytics.com/tasks/classify/) или [сегментация](https://docs.ultralytics.com/tasks/segment/)), классы и порог. Готового распознавания любых объектов нет |
+| Поиск своей моделью | [AI Search](/ru/triggers/images/ai-search-trigger). Нужна совместимая ONNX-модель, её задача ([детекция](https://docs.ultralytics.com/tasks/detect/), [классификация](https://docs.ultralytics.com/tasks/classify/) или [сегментация](https://docs.ultralytics.com/tasks/segment/)), классы и порог. |
 | Ручное управление или время | [Fixed Value](/ru/triggers/fixed-value), [Hotkey Is Active](/ru/triggers/hotkey-is-active), [Timer](/ru/triggers/timer) |
 | Связь с другой аурой | [Aura Is Active](/ru/triggers/aura-is-active) |
 | Данные из файла или сообщения | [File Contains Text](/ru/triggers/file-contains-text), [Network Message](/ru/triggers/network-message), [Telegram Message](/ru/triggers/telegram-message) |
@@ -31,4 +31,4 @@ dateCreated: 2026-11-11T00:00:00.000Z
 | Уровень звука | [Volume Level](/ru/triggers/volume-level) — справка о старом альфа-компоненте. Для первого знакомства не подходит |
 | Перенести свой набор или найти готовый | [Экспорт и импорт](/ru/features/export-import), [библиотека аур](/ru/aura-library) |
 
-Когда EyeAuras ищет что-то на экране, он смотрит на картинку, а не на внутренние данные игры. Получится ли захватить окно и отправить в него ввод, зависит от окна и выбранного механизма. Про совместимость, несколько окон и лицензию читайте в [FAQ](/ru/faq). Если что-то работает не так — в [известных проблемах](/ru/known-problems).
+Про совместимость, несколько окон и лицензию читайте в [FAQ](/ru/faq). Если что-то работает не так — в [известных проблемах](/ru/known-problems).
