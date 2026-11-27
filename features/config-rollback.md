@@ -23,7 +23,9 @@ Practise in your own test profile, with file-based configuration saving and **Fi
 6. The folder should again be `History — original`. Later commits remain in the history, with a new restoration commit. This distinguishes this operation from **Hard Reset**.
 
 ![Version history button in the main window](https://s3.eyeauras.net/media/2024/10/Code_6kH4xNd9ioGMtjIK.png)
-![Snapshots, dates, descriptions and period filter](https://s3.eyeauras.net/media/2024/10/EyeAuras_Y3P3cw9Pi1E0WkMc.png)
+![The history window shows the period filter above a list of snapshots and highlights one snapshot’s time.](/assets/callouts/batch2/en/history-find-snapshot.png)
+
+In this October 2024 example, the filter is set to one day. Choose All-time to look further back, then compare snapshot times.
 
 ## Choose the restoration scope
 
@@ -34,6 +36,10 @@ Practise in your own test profile, with file-based configuration saving and **Fi
 | Refresh | Reloads the commit list. It does not manually save a snapshot of current edits. |
 | 1 day / 1 week / 1 month / 1 year / All-time | Filters the visible period. A commit outside the filter is not necessarily deleted. |
 | Cancel | Closes without restoring. Aura execution is paused while this dialog is open. |
+
+![Reset to Selected Commit and Hard Reset in the October 2024 history window.](/assets/callouts/batch2/en/history-restore-scope.png)
+
+Reset to Selected Commit keeps later history. Hard Reset moves the branch back to the selected snapshot.
 
 Older descriptions call the first operation **Soft Reset**. It is not Git's `reset --soft`: EyeAuras restores files and records a new commit. [Git](https://git-scm.com/) stores the snapshots; you do not need its commands to use this dialog.
 

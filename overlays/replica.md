@@ -24,6 +24,8 @@ For the first check, keep the source application open and restored. Choose an ar
 
 The same region should update in the overlay. Source region chooses **what to copy**; the common Position controls **where and how large to display it**. Select the region again if the source application's layout changes.
 
+![Position and size of the displayed overlay, offset and anchor controls](/assets/callouts/batch1/en/coordinates-overlay.png)
+
 ## Source settings
 
 | Setting | What it does |

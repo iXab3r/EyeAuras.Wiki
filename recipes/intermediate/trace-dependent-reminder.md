@@ -19,6 +19,11 @@ You need Text, Fixed Value, the Aura Is Active trigger, Dependencies Viewer and 
 1. Create a root **New Aura → Message source** with **Fixed Value → Is Active** and a **Text** overlay. Set **Content** to `Review notes`, **Font 24**, **Size to fit** off. Unlock and place a readable rectangle, then enable **Locked**. Leave actions empty.
 2. Create a root **New folder → Reminder group**. In its **Enabling Conditions**, add only **Fixed Value → Is Active**. Inside it create **Linked reminder** with ordinary **Triggers → Aura Is Active**. In **Links**, select only Message source, require **Active**, and choose **Logical operator → All must match (AND)**.
 3. Add Text to Linked reminder with Font 24/Size to fit off. Click its **Content** binding indicator. In **Binding editor**, select Message source on the left; on the right expand **Overlays → Text → Content** and click **bind**. This connects a string source to a string destination, not the reverse direction. Place this overlay away from the source and lock it.
+
+   The editor shown is open for a capture-rate property. For this step open it from **Content**, then use the same source tree and **bind** column.
+
+   ![Source tree, properties and bind buttons in the Binding Editor](/assets/callouts/batch1/en/binding-editor.png)
+
 4. Outside Reminder group, create **Graph** with **Fixed Value → Is Active** and **Dependencies Viewer**. In the overlay's **Graph → Auras → Links**, select Linked reminder. Enable **Show dependencies** and **Show connections**; place the graph away from the text. Its connection identifies the aura-state dependency, not the Content binding.
 5. Open **Show event log → Event Viewer** before making changes. Show filters, enable **Auras**, set **Level → Info**, clear the text filter and unpause the panel.
 

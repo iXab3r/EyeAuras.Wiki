@@ -48,7 +48,7 @@ My Tree
 
 На прежнем снимке условие и обе реакции выделены явно:
 
-![Три роли IfThenElse в старом редакторе](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_CSBaIFoJJPCR9f6p.png)
+![В прежнем редакторе у IfThenElse три роли слева направо: условие, ветка при Success и ветка при Failure.](/assets/callouts/batch2/ru/ifthenelse.png)
 
 Связка `Selector → Sequence(условие, Then), Else` похожа, но ведёт себя иначе, если Then вернёт Failure: Selector может перейти к Else. IfThenElse после уже выбранной Then другую ветку не пробует.
 

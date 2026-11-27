@@ -21,6 +21,10 @@ The current element registrations do not expose this trigger with a current edit
 3. Find **Min Level** and the level display. Compare the readings before, during and after a short sound on that source. Choose the threshold from that version's readings, not the Windows volume percentage.
 4. Check whether activity follows the sound and becomes inactive when the measured level falls. Only then attach a separate indicator or other reaction. These steps depend on the older editor and functioning capture; they do not replace current trigger creation.
 
+![Output device, Min Level and the audio waveform in the earlier editor.](/assets/callouts/batch2/en/volume-level.png)
+
+In alpha version 1.2.4415, the default output device is selected. Min Level sets the threshold, and the graph below shows the captured samples.
+
 ## What the values mean
 
 | Setting or measurement | Meaning and limits |

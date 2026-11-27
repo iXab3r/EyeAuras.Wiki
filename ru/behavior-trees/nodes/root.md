@@ -26,6 +26,11 @@ dateCreated: 2024-03-07T14:51:42.386Z
 2. В `General → Is Main` проверьте надпись `This Tree is the Main one`. Если её нет, нажмите `Make this Tree the Main one`. Звёздочка в переключателе обозначает автоматический вход.
 3. В `Activation` включите `Is Loaded`. Нажмите `activate when Aura Activated...`, затем в `Enabling Condition → Links` выберите свою ауру `BT enabled`.
 4. В `Execution → When Activated` выберите `Run periodically`, в `Tick Every` задайте `250 ms`.
+
+   Здесь интервал уже задан, но **Is Loaded** ещё выключен, и в строке **Ticking** видно **Idle**.
+
+   ![Настройки корня с периодом 250 мс и снятым флажком Is Loaded](/assets/callouts/batch1/ru/bt-getting-started-root.png)
+
 5. Переведите свою ауру в `Is Active`. Когда активация и общая пауза разрешают работу, строка `Ticking` покажет `Ticking...`; схема будет получать тики и продолжать ожидание. Верните ауру в `Is NOT Active`, чтобы прекратить автоматические тики.
 
 Результат — выполнение MainTree при активном условии и `Idle` при запрете. Если выбран `Pause Everything if Active` в настройках окна EyeAuras, автоматическая работа при активном главном окне приостанавливается. Уберите фокус с EyeAuras и проверяйте поведение по своей схеме; настройки других работающих конфигураций для этого менять не требуется.

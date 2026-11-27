@@ -26,6 +26,10 @@ My Tree
    └─ Action: Wait — 5000 ms
 ```
 
+The earlier editor shows the empty If and Then Interrupt fields. Connect the condition and action as in the diagram above.
+
+![The earlier editor shows the interruption condition on the left child and the action on the right. Both fields are still empty.](/assets/callouts/batch2/en/interrupter.png)
+
 3. Click the upper `Tick BT Once`. Failure in If admits Wait, which returns `Running`. Interrupter also returns Running.
 4. Set If to `Success` and tick again. Interrupter returns `Failure`, does not resume Wait, and resets its countdown.
 5. Set If back to `Failure` and tick. Wait starts a new full five-second interval with Running. After that interval, another tick can finish with Success.

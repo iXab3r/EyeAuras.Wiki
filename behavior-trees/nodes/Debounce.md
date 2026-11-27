@@ -23,7 +23,7 @@ Create a separate tree with `Activation → Is Loaded` and `Execution → When A
 
 The earlier screenshot calls the group `Blocking Behavior`; its current label is `Behavior`. The two mode names and timeout fields remain useful:
 
-![Earlier Debounce editor showing the two modes and timeout fields](https://s3.eyeauras.net/media/2025/08/EyeAuras_u25y8UknQG.png)
+![In the earlier Debounce editor, the wait mode sits above separate Success and Failure timeouts. Both are set to 0 ms here.](/assets/callouts/batch2/en/debounce.png)
 
 | Setting | Effect |
 | --- | --- |

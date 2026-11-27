@@ -19,6 +19,9 @@ Choose an application you own or are allowed to inspect, with a known **icon-pre
 1. Right-click an empty area of the tree, choose **New Aura**, and name it **Ready icon**. In **Triggers**, click **+** and add **Image Search**.
 2. Choose your application in **Target Window**, check the selected window information, and set **Image Capture Rate** to **5 FPS**. Open **Preview** and select the view **w/o debug data** so diagnostic drawings do not become part of your sample. Confirm that the preview changes with the real application.
 3. With the icon visible, use **Crop region** to bound the area where it can appear. Leave a little space around it, but exclude other similar icons. Keep the effects list empty for this first setup.
+
+   ![Crop region coordinates above a live preview and its measured frame rate](/assets/callouts/batch1/en/image-capture-region.png)
+
 4. In **Template source - what to search for**, click **Load from Preview Pane**, then **Edit...**. In the Image Editor, use **Crop** to select just the distinctive icon, click **Apply crop**, then **Save**. Exclude changing filenames, timers and progress numbers. The sample must fit inside the search region and have the same pixel size as the displayed icon.
 5. In **Trigger activation conditions**, set **Match Threshold** to **95%**, leave **Include All Matches** off, and click **Refresh Once**. Check both the match result and found rectangle: it must cover the intended icon. Show the icon-absent state and refresh again; a valid current frame should give no match. Restore the icon and verify the match returns before adding a reaction.
 

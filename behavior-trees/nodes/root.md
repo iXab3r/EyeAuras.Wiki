@@ -25,6 +25,11 @@ First complete the [no-input example](/en/behavior-trees/gettings-started) manua
 2. In **General → Is Main**, check **This Tree is the Main one**. Otherwise click **Make this Tree the Main one**. The selector's star identifies automatic entry.
 3. Enable **Activation → Is Loaded**. Click **activate when Aura Activated...**, then select `BT enabled` in **Enabling Condition → Links**.
 4. Set **Execution → When Activated → Run periodically**, with **Tick every = 250 ms**.
+
+   Here the interval is configured, but **Is Loaded** is still off and **Ticking** reads **Idle**.
+
+   ![The root set to a 250 ms periodic tick with Is Loaded unchecked](/assets/callouts/batch1/en/bt-getting-started-root.png)
+
 5. Change your aura to **Is Active**. When activation and global pause permit work, **Ticking...** appears and MainTree receives ticks. Return the aura to **Is NOT Active** to stop automatic ticks.
 
 The observable result is MainTree execution when allowed, and **Idle** when disallowed. **Pause Everything if Active** in EyeAuras window settings can pause automatic work while its main window is active. Account for that setting when observing your own tree; do not change unrelated configurations to make this example run.

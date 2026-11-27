@@ -24,7 +24,9 @@ You need a build with the AI tab and an available model connection. The feature 
 
 For that window-state question, compare [Window Is Active](/en/triggers/window-is-active) with [Enabling Conditions](/en/features/enabling-conditions). An ordinary trigger checks the aura’s condition; an enabling condition decides whether its work may run at all. Use a [Text overlay](/en/overlays/text) for a visible result while checking the answer, before adding input.
 
-![Earlier AI tab in EyeAuras](https://s3.eyeauras.net/media/2026/04/EyeAuras_vuJB3YPFza.png =x600)
+![The earlier AI tab with EyeAuras AiGateway selected and a Start Session button in the middle of the panel.](/assets/callouts/batch2/en/assistant-start-session.png)
+
+The April 2026 interface shows the selected connection profile in the upper right. Click Start Session to open the chat.
 
 ## Choose the connection you actually have
 

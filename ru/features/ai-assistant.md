@@ -23,7 +23,9 @@ AI Assistant — чат во вкладке AI. Здесь можно спрос
 
 Для вопроса об активном окне сопоставьте [Window Is Active](/ru/triggers/window-is-active) с [условиями включения](/ru/features/enabling-conditions). Обычный триггер проверяет условие ауры, а условие включения определяет, должна ли она вообще работать. Для видимого результата при проверке ответа используйте [Text](/ru/overlays/text), прежде чем добавлять ввод.
 
-![Вкладка AI в EyeAuras](https://s3.eyeauras.net/media/2026/04/EyeAuras_vuJB3YPFza.png)
+![В прежней вкладке AI выбран профиль EyeAuras AiGateway, в центре панели видна кнопка Start Session.](/assets/callouts/batch2/ru/assistant-start-session.png)
+
+В интерфейсе за апрель 2026 года выбранный профиль подключения виден справа вверху. Нажмите Start Session, чтобы открыть чат.
 
 ## Какой профиль выбрать
 

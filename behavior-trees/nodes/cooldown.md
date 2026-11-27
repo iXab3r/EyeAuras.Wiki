@@ -39,6 +39,10 @@ My Tree
 | Child Running | Return Running without starting a new interval |
 | Call during the countdown | Return Failure without calling the child |
 
+![This Cooldown is configured for 10,000 ms. The Child field identifies Fixed Status as the node being limited.](/assets/callouts/batch2/en/cooldown.png)
+
+The screenshot shows a 10,000 ms interval. Enter 5000 ms in the same field for the exercise above.
+
 After expiry, Cooldown returns the child's new result; expiry does not guarantee Success. It measures elapsed time rather than a wall-clock appointment. Editing the configured duration clears the countdown. Structural reset clears its history and children; clearing displayed statuses does not.
 
 <details>

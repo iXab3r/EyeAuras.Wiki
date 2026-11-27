@@ -34,6 +34,10 @@ In this older screenshot, 1 marks key-delivery messages, 2 their context, and 3 
 
 ## Filters and controls
 
+![The Level filter shows Info and the Scripts box is checked.](/assets/callouts/batch2/en/event-viewer-filters.png)
+
+In Event Viewer 1.4.6834.0, the minimum level is Info and the Scripts category is enabled. These two filters let the example’s Log.Info message through.
+
 | Control | What it does |
 | --- | --- |
 | Text filter | Matches a substring of the message, ignoring case. A context name alone is not message text. |

@@ -30,6 +30,9 @@ Open one Notepad window, put the line near the top of your own document, and kee
 | Window → Mode | Overlay |
 
 5. Under common **Position** options, turn **Locked** off and move the replica beside your second working window. Enable **Visual style → Aspect Ratio** and resize the copy until the line is readable without stretching it. Display size changes the copy you see, not the selected source region; its numeric dimensions need not equal source physical pixels at a different DPI. Then turn **Locked** and **Clickthrough** on.
+
+   ![Position and size of the displayed overlay, offset and anchor controls](/assets/callouts/batch1/en/coordinates-overlay.png)
+
 6. Keep the aura enabled and EyeAuras unpaused, select another aura, and return to your working window. The replica should show **Status: 10**. Edit the source line to **Status: 20**, then return to work: the copy should update. Avoid scrolling the line out of the chosen region.
 7. Close the matching Notepad window: **Window Exists** should become **Not Active** and the locked replica should disappear outside editing preview. If you reopen or recreate the source, check its match and region again.
 

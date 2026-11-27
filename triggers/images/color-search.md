@@ -39,6 +39,10 @@ If both states pass, inspect the region and each state's actual similarity, then
 | Match Threshold | Inclusive similarity range, such as 95–100% for a close match. A low-similarity range can test dissimilarity. |
 | Similarity | Current comparison score; it is not generally the percentage of pixels having the target color. |
 
+![Allowed similarity range and measured similarity in Color Search.](/assets/callouts/batch2/en/color-search-range.png)
+
+In this earlier example, 64.67% is above the configured 55.95–62.94% range, so the condition is false.
+
 Comparison Method applies to the whole-area average. Individual-pixel and block modes use color-template matching instead, so a threshold tuned for CIEDE2000 does not transfer automatically. Neither method guarantees better speed or accuracy in every setup.
 
 ## Whole area, pixel or block

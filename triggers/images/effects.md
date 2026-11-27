@@ -59,6 +59,10 @@ After an OCR-oriented effect change, check the actual [Text Search](/en/triggers
 
 After resizing, an Image Search template must match the **processed** frame. AI model preprocessing already handles its input dimensions; an extra resize can discard small objects rather than improve recognition.
 
+![Width and Height fields with Letterbox - black edges selected.](/assets/callouts/batch2/en/image-effects-resize.png)
+
+In the earlier Image Effects editor, Resize has a width and height of 640 pixels. Letterbox - black edges keeps the proportions and fills the unused space with black.
+
 <details>
 <summary>Worked pixel examples</summary>
 

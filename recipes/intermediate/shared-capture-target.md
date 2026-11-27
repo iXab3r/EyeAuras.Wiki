@@ -21,6 +21,10 @@ Prepare two separate windows of your own text editor. Display **SOURCE A** in la
 3. Inside the folder, create **New Aura → Icon check** and add **Triggers → + → Image Search**. Create another child aura **Color check**, with **Color Search**. Keep their action lists empty.
 4. In **Capture settings → Target Window** of Icon check, right-click the small binding indicator beside the field and choose **Bind to Default**. Do the same for Color check. This explicitly connects each capture selector to the corresponding folder default, even if a new component already had that binding.
 
+   The black square beside **Target Window** is the indicator to right-click. The red indicator below belongs to **Image Capture Rate**.
+
+   ![Unbound Target Window indicator above a separate failed rate binding](/assets/callouts/batch1/en/binding-square.png)
+
 | Connection | Direction |
 | --- | --- |
 | Folder default Target Window | Supplies the window-matching expression |

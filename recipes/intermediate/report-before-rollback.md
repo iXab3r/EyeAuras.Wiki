@@ -27,6 +27,8 @@ Use your own test profile without unrelated unsaved work. You need file-based co
 1. Click the main-window **Version history** button. Use **All-time → Refresh** if the known snapshot is outside the current filter. Select its **Commit ID**, time and description, not simply the newest row.
 2. If the date or scope is wrong, choose **Cancel**. The report/export remain saved and the current configuration is not restored. Refresh only reloads the list; it does not save a new snapshot of your edits.
 3. For the intended snapshot, click **Reset to Selected Commit**, check its date in the confirmation, and confirm. Follow the selected command even if the confirmation title says Hard-reset. This route flushes writes, restores the snapshot files, retains history and creates a restoration commit; **Hard Reset** is a different operation that discards later branch states from its normal list.
+
+   ![The earlier history window shows Reset to Selected Commit on the left and Hard Reset beside it.](/assets/callouts/batch2/en/history-restore-scope.png)
 4. After the application restarts, inspect the known setting that identifies the usable snapshot, such as your folder's earlier name. Check the intended local behavior separately. Keep the report/export: restoration does not establish the failure's cause and does not automatically merge newer saved changes back.
 
 | Kept item | Purpose |

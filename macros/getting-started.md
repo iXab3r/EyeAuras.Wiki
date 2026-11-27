@@ -27,6 +27,8 @@ My Macro
    └─ Fixed Status: Success
 ```
 
+![Two Wait steps of one second and half a second followed by Fixed Status. Run Macro Once is at the top right.](/assets/callouts/batch2/en/macro-two-waits.png)
+
 5. Click the upper `Run Macro Once`. The macro waits for both delays, then executes the last step. Expect Success after roughly 1.5 seconds plus execution overhead. These Wait nodes do not need a second external tick to finish.
 6. Set Fixed Status to `Failure` and add another Fixed Status with Success **after it**. Run again: the last step still executes, but the Block's aggregate result is Failure.
 
@@ -68,9 +70,9 @@ The earlier key-sequence example combines a key, Wait and separate Ctrl Down/Up 
 
 ![Keys and a wait in a macro](https://s3.eyeauras.net/media/2024/09/EyeAuras_BFkTE1sqgpZIrxU0.png)
 
-The nested example uses Repeat, Condition and IfThenElse. Rebuff and Can do anything must already be configured auras supplying real conditions; macros do not supply internal game state.
+In Daily routine, IfThenElse checks the Workspace ready aura. The matching branch contains Repeat 2 times, with Repeat 3 times inside its Loop body. Configure the aura that supplies the condition first.
 
-![Nested conditions and repetition in an earlier example](https://s3.eyeauras.net/media/2024/09/EyeAuras_3PAVQO9Zk7JLqDjz.png)
+![Workspace ready condition and two nested Repeat nodes in Daily routine.](/assets/callouts/batch2/en/macro-nested-condition.png)
 
 Use Run Macro to invoke another macro, [Run Aura](/en/behavior-trees/nodes/execute-aura) for existing aura actions, and [C# scripts](https://wiki.eyeauras.net/en/scripting/getting-started) for custom steps. Calls do not automatically merge the target window or variable context of the invoked work.
 

@@ -22,7 +22,9 @@ Create a loaded aura named `BT signal` with one [Fixed Value](/en/triggers/fixed
 4. In the aura, change Fixed Value to `Is Active`. Wait until the aura shows Active, then return to the tree. `General → Status` shows Active; another manual tick returns `Success`.
 5. To check the opposite state, clear the expected-state checkbox in the link row so it says `must be Not Active`. Success now requires a known inactive state.
 
-In the current editor, begin at `Links → Edit`:
+The linked aura in this example is `Сигнал готовности`. Select your own `BT signal` in that row.
+
+![Edit opens the aura picker; the checked row requires the linked aura to be active](/assets/callouts/batch1/en/bt-getting-started-aura-is-active.png)
 
 | Setting | Effect |
 | --- | --- |

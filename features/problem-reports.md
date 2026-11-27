@@ -17,6 +17,8 @@ If an action fails or a mini-app reports an error, save diagnostics from that ru
 2. Describe your exact steps, the actual result and what you expected. For example: “After choosing a file I clicked Execute. A log entry appeared, but the file did not open.” Use your own observations. You can edit or clear a prefilled comment.
 3. Select logs from the affected run. If you have restarted since then, include the earlier file containing the problem. Add aura configuration when it is relevant to reproduction.
 4. Review the selected attachments, especially window screenshots and configuration. Click **Save…**, choose your directory and wait for the `.7z` archive to appear in Explorer.
+
+   ![Choose Save in the earlier report window to create a local archive.](/assets/callouts/batch2/en/report-save-send.png)
 5. Open the archive for reading and check `comment.txt` and the relevant logs. A file on disk has not been sent to support or the author. Share it only with your chosen recipient through an agreed channel.
 
 Saving and sending use the same prepared diagnostic snapshot. Changing accounts or subscriptions after opening the dialog does not update it. Open a new report dialog to collect a new state.

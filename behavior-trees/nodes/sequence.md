@@ -41,6 +41,10 @@ You have observed different routes in the same tree. The already successful firs
 
 In a graph, child order follows horizontal position, left to right. Moving a child vertically alone does not change it. In a nested list, follow the displayed order and nesting.
 
+![In this separate Sequence example, Aura Is Active comes first and Fixed Status follows. The tree result at the top shows Success.](/assets/callouts/batch2/en/sequence.png)
+
+In this separate Sequence example, Aura Is Active comes first and Fixed Status follows. The tree result at the top shows Success.
+
 An ordinary Sequence does not continuously recheck earlier successful conditions while resuming Running work. If permission can disappear during a long action, design interruption separately. Clearing displayed status does not clear the retained cursor; stopping ticks alone is not a full reset. Completing the pass or fully unloading and draining your own tree permits a fresh run. Use the same entrypoint to continue: another caller can be refused while the route is owned.
 
 <details>

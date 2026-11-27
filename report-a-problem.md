@@ -20,7 +20,9 @@ When a trigger or action behaves differently from expected, preserve the descrip
 4. Click **Save...**, choose your own directory and wait for the `.7z` archive. Open it for reading and check the comment and selected files. Saving alone does not send it.
 5. To submit to normal EyeAuras support, use **Send** and wait for the confirmation ID. If a pack author requested a file directly, share the saved archive through an agreed [contact](/en/contacts).
 
-![Error Report in the earlier interface](/assets/legacy/1efpgwe%5B1%5D.png)
+![Save, Send and Close in the action row of an earlier Error Report window.](/assets/callouts/batch2/en/report-save-send.png)
+
+In this earlier report window, Save writes a local archive. Send submits the report.
 
 | Control or status | Result |
 | --- | --- |

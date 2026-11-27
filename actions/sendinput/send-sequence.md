@@ -26,7 +26,9 @@ Open your own multiline draft with two lines, such as “Draft” and “Check t
 
 The older screenshot illustrates the event-list principle. Current toolbar entries include **Record**, **Delay**, **Text**, **Keyboard**, **Numpad**, **Fn** and **Mouse**; items can be added and reordered by dragging.
 
-![An event sequence in the former interface](/assets/legacy/eyeauras_7qwn3ee1ud.png)
+![The Keyboard toolbar button and a Q down/up pair with a 50 ms delay in the earlier Send Sequence editor.](/assets/callouts/batch2/en/sequence-key-events.png)
+
+The first two Q events in this earlier sequence press and release the same key, with a 50 ms delay between them.
 
 ## Build events, not a command string
 
@@ -53,7 +55,9 @@ At completion, including cancellation, **Key/Button State** attempts to release 
 2. Click **Record** inside that panel, perform a short operation in your own application, then finish with **Stop** or the configured **Start/stop hotkey**.
 3. Review before replaying: remove stray clicks, check Down/Up pairs, timing and coordinates.
 
-![Recording options in the former editor](https://s3.eyeauras.net/media/2024/05/iJx6RWqBJo5OwLLx.png)
+![Recording options for keys, clicks and pointer movement, plus the start/stop shortcut in the earlier recording panel.](/assets/callouts/batch2/en/sequence-recording.png)
+
+In this earlier panel, keys and clicks are selected for recording. Mouse movement is off and no recording shortcut is assigned.
 
 | Recording option | What to choose |
 | --- | --- |

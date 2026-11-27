@@ -27,6 +27,8 @@ My Macro
    └─ Fixed Status: Success
 ```
 
+![Две паузы на секунду и полсекунды перед Fixed Status. Справа вверху кнопка Run Macro Once.](/assets/callouts/batch2/ru/macro-two-waits.png)
+
 5. Нажмите верхнюю `Run Macro Once`. Макрос дождётся обеих пауз и выполнит последний шаг. После примерно полутора секунд работы, плюс затраты интерфейса, итог будет Success. Второй ручной тик для завершения этих Wait не нужен.
 6. Поменяйте у Fixed Status параметр на `Failure` и добавьте **после него** ещё один Fixed Status со значением Success. Запустите снова. Последний шаг тоже выполнится, но итог всего Block будет Failure: обычный неуспех соседа не обрывает список.
 
@@ -68,9 +70,9 @@ My Macro
 
 ![Клавиши и пауза в макросе](https://s3.eyeauras.net/media/2024/09/EyeAuras_BFkTE1sqgpZIrxU0.png)
 
-Вложенный пример использует Repeat, Condition и IfThenElse. Ауры Rebuff и Can do anything здесь уже должны предоставлять готовые условия; встроенного знания состояния игры у макроса нет.
+В макросе Daily routine узел IfThenElse проверяет ауру Workspace ready. В ветке If matched, then расположен цикл Repeat 2 times, а внутри его Loop body — Repeat 3 times. Сначала настройте ауру, которая будет предоставлять условие.
 
-![Вложенные условия и цикл в прежнем примере](https://s3.eyeauras.net/media/2024/09/EyeAuras_3PAVQO9Zk7JLqDjz.png)
+![Условие Workspace ready и два вложенных цикла Repeat в макросе Daily routine.](/assets/callouts/batch2/ru/macro-nested-condition.png)
 
 Можно вызывать другой макрос через Run Macro, готовые действия ауры через [Run Aura](/ru/behavior-trees/nodes/execute-aura) и писать отдельные шаги на [C# Script](/ru/scripting/getting-started). Окно и переменные вызываемой работы не становятся общими автоматически только из-за вызова.
 

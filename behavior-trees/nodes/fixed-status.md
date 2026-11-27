@@ -22,6 +22,10 @@ Use your own loaded tree with **When Activated → Do nothing**. Connect its ent
 
 Changing **Status** configures a future answer. It does not execute the tree or rewrite the previous displayed result by itself.
 
+![The first check failed in this tree. The next Fixed Status node is configured for Success, and its “not run yet” indicator shows that Sequence has not reached it.](/assets/callouts/batch2/en/fixed-status.png)
+
+The first check failed in this tree. The next Fixed Status node is configured for Success, and its “not run yet” indicator shows that Sequence has not reached it.
+
 | Status with no child | Fixed Status returns |
 | --- | --- |
 | `Success` | Success, permitting Sequence to continue. |

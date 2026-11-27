@@ -26,7 +26,9 @@ The first press enables the trigger and plays Ping. The second disables it silen
 
 In Toggle mode, input in EyeAuras's own windows is ignored by default. Test in Notepad, or enable handling of EyeAuras windows under Advanced to test there. Hold continues to handle input despite this restriction.
 
-![Hotkey settings in the older editor](https://s3.eyeauras.net/media/2024/06/EyeAuras_tamGDBtZFzTqqvoW.png)
+![F3, Toggle and the checked Suppress Key option in the earlier Hotkey Is Active editor.](/assets/callouts/batch2/en/hotkey-toggle.png)
+
+This earlier setup uses F3 with Suppress Key on. For the F6 exercise above, leave Suppress Key off.
 
 ## Main settings
 

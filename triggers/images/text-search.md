@@ -23,7 +23,7 @@ You need working [capture](/en/triggers/images/imagecapturetriggers), an availab
 5. Under **Trigger activation conditions**, select **Regex**, enter `Connection\s+lost`, and enable case-insensitive comparison. `\s+` permits spaces or a line break between the words.
 6. Show and remove the phrase in your own window, refreshing as needed. When recognition supplies the phrase, the expression matches and the trigger becomes Active. When the evaluated string no longer matches, it becomes Not Active.
 
-![Earlier real Text Search example recognizing Connection lost and matching its condition](/assets/illustrations/text-search-ocr.png)
+![Windows OCR reads Connection lost and the Regex condition matches.](/assets/callouts/batch2/en/text-search-ocr.png)
 
 This existing real example shows a normal window containing the phrase: the captured image is below and **Recognized text** contains the read string. Its expression matches. It illustrates that configured case, not recognition of every font, language or application. Repeat the check at the actual size and display scale you intend to use.
 

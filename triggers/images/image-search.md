@@ -38,6 +38,10 @@ If a visible icon is missed, compare its scale and captured appearance with the 
 | Match Threshold | Minimum similarity for a successful match, including the threshold itself. |
 | Similarity | Actual candidate similarity, not a probability that the application completed its task. |
 
+![Load from Preview Pane, Match Threshold and Similarity in Image Search.](/assets/callouts/batch2/en/image-search-template.png)
+
+In this earlier editor, the yellow triangle template has a 95% threshold and a measured similarity of 100%.
+
 The template is not automatically fitted to arbitrary rotations or new sizes. Prepare a matching sample for another scale. [AI Search](/en/triggers/images/ai-search-trigger) instead recognizes classes learned by a compatible model; it is not a universal rotation-proof version of this template search.
 
 <details>

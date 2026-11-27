@@ -45,7 +45,7 @@ When a condition is already checked by an aura, use [Aura Is Active](/en/behavio
 
 ## Compare with Selector and Sequence
 
-![The three IfThenElse roles in the earlier editor](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_CSBaIFoJJPCR9f6p.png)
+![The earlier IfThenElse editor shows the condition, the branch for Success, and the branch for Failure from left to right.](/assets/callouts/batch2/en/ifthenelse.png)
 
 `Selector → Sequence(Condition, Then), Else` looks similar, but can try Else after Then fails. IfThenElse does not try another branch after choosing Then.
 

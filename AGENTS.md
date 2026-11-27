@@ -252,6 +252,15 @@ These rules apply especially to:
 - generated screenshots, mockups, and visual explainers
 - any image where layout, centering, clipping, or text fit matters
 
+### Callouts for product screenshots
+
+Use the bilingual screenshots in `assets/callouts/batch1` and `assets/callouts/batch2` as references when a reader needs to locate a control, read a result, or follow a connection.
+
+- Start with a real capture. Anchor the highlight to the visible text, icon, or control at native resolution. Leave the measured value and any connecting line visible.
+- Draw one thin, rounded amber corner with a short dash and reflect it horizontally and vertically. Keep equal clearance on opposite sides. For a small port, center the corners on the visible port.
+- Use short labels on dark rounded plates. Give each label clear space and highlight only the controls needed for that step. Produce matching RU and EN figures from the same geometry, keeping the original UI language.
+- Place the figure beside its instruction. If the example uses an earlier editor or a different value from the exercise, say so in the article. Check both languages at article width and inspect small targets at native size.
+
 ### Diagram style for technical SVGs
 
 For custom technical diagrams such as `memory-*`, `pointer-*`, `struct-*`, and similar explainer SVGs, prefer one consistent visual language so new diagrams can be generated quickly and still match the existing set.

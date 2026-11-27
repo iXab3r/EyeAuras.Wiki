@@ -37,4 +37,8 @@ When the whole group is only useful in your chosen foreground window, use [Windo
 
 An empty enabling group adds no restriction. With several conditions, check the combination rule in the group header. An unknown combined result does not grant permission. The object must also be loaded to run.
 
+![The Window Is Active trigger is marked DISABLED, and its tooltip explains that MyFolder is disabled.](/assets/callouts/batch2/en/enabling-folder-disabled.png)
+
+In this earlier editor, hovering over DISABLED shows that the parent folder’s enabling conditions are inactive.
+
 Normally a disabled parent prevents its children's enabling conditions from being evaluated too. There is an editing exception: the selected object can continue evaluating while the EyeAuras window is active. An unlocked overlay also stays visible for placement. Test the restriction after locking the overlay, selecting another object and leaving the editor.
