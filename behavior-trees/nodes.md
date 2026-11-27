@@ -45,6 +45,15 @@ Aura/trigger **Active**, **Not Active** and **Unknown** are different states. No
 | Retry until successful | [Until Success](/en/behavior-trees/nodes/until-success): one child attempt per tick; Failure becomes Running. |
 | Set a temporary test result | [Fixed Status](/en/behavior-trees/nodes/fixed-status): its parameter and last displayed result are different things. |
 | Explain a section | [Comment](/en/behavior-trees/nodes/comment): a note does not replace an executable check. |
+| Check whether a behavior tree is active | [Is Active](/en/behavior-trees/nodes/IsActive) |
+| Check whether a key is held | [Check Key State](/en/behavior-trees/nodes/CheckKeyState) |
+| Ignore brief changes in a condition | [Debounce](/en/behavior-trees/nodes/Debounce) |
+| Interrupt work when a condition succeeds | [Interrupter](/en/behavior-trees/nodes/Interrupter) |
+| Move the pointer to a point | [Mouse Move](/en/behavior-trees/nodes/MouseMoveAbs) |
+| Move the pointer by an offset | [Mouse Move Rel.](/en/behavior-trees/nodes/MouseMoveRel) |
+| Enter text in a target window | [Send Text](/en/behavior-trees/nodes/SendText) |
+| Leave a loop or block in a macro | [Break](/en/behavior-trees/nodes/Break) |
+| Finish a macro with a chosen result | [Return](/en/behavior-trees/nodes/Return) |
 
 ## Find the template
 

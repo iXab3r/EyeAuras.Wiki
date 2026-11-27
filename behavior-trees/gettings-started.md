@@ -53,7 +53,7 @@ Cancellation and exceptions are separate events. Read the error or event message
 
 Graph children are ordered horizontally, left to right; height alone does not set priority. An ordered tree view shows the corresponding nesting and order. [Sequence](/en/behavior-trees/nodes/sequence) requires successful steps, [Selector](/en/behavior-trees/nodes/selector) chooses the first successful alternative, and [IfThenElse](/en/behavior-trees/nodes/ifthenelse) separates one condition from its two branches.
 
-![A general animation of behavior-tree traversal](https://habrastorage.org/files/5f3/cdb/96b/5f3cdb96beee450ca78697a67010b8e9.gif)
+![A general animation of behavior-tree traversal](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/5f3cdb96beee450ca78697a67010b8e9.gif)
 
 The animation comes from [this Russian-language article](https://habr.com/ru/companies/cloud_mts/articles/306214/). Its colour legend is not an EyeAuras status legend. For broader theory, the earlier guide also provided a [behavior-tree search](https://letmegooglethat.com/?q=behavior+tree).
 

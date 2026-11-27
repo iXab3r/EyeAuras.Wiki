@@ -96,7 +96,7 @@ Use Run Macro to invoke another macro, [Run Aura](/en/behavior-trees/nodes/execu
 
 Auras can react to image matches or received events. Coordinate simultaneous reactions deliberately rather than assuming that independent auras form a single ordered program:
 
-![Aura interface example](https://eyeauras.net/assets/img/appimages/EyeAuras_OzDyUnmzFH.webp =x400)
+![Aura interface example](https://s3.eyeauras.net/media/wiki/home/EyeAuras_OzDyUnmzFH.webp =x400)
 
 C# and related technologies extend built-in steps. Ordinary classes and Blazor components still need explicit dependencies; they do not inherit every top-level script capability.
 

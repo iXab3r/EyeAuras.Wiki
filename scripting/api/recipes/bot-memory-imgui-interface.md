@@ -1,5 +1,5 @@
 ---
-title: AI Recipe: Bot Using Memory API And ImGui Interface
+title: "AI Recipe: Bot Using Memory API And ImGui Interface"
 description: Short recommendation recipe for a bot that reads memory, shows an ImGui interface, and can run in-app scripts.
 published: true
 date: 2026-04-22T00:00:00.000Z

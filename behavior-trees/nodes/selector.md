@@ -71,6 +71,6 @@ The larger rotation first checks whether an action is appropriate, then chooses 
 
 Unlike Selector, Sequence stops on the first Failure. Neither should be assumed to recheck previous conditions continuously while a later child is Running.
 
-![Earlier illustration accompanying the Selector explanation](https://i.imgur.com/pgaOalh.png)
+![Earlier illustration accompanying the Selector explanation](https://s3.eyeauras.net/media/wiki/behavior-trees/nodes/selector/pgaOalh.png)
 
 </details>

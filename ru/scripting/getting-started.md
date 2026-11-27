@@ -62,7 +62,7 @@ Log.Info(JsonConvert.SerializeObject(new { Hello = "World" }));
 
 [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) позволяет собирать формы из компонентов. Для окна нужен маршрут [пользовательского интерфейса](/ru/overlays/custom-ui), а не только код действия. Ниже сохранён пример оформления из прежней версии; он показывает форму, но не входит в первый скрипт этой статьи.
 
-![](https://telegra.ph/file/d83bcbeeac554d2e9b939.png =x300)
+![](https://s3.eyeauras.net/media/wiki/faq/d83bcbeeac554d2e9b939.png =x300)
 
 После журнала можно перейти к [поиску изображения](/ru/scripting/examples/basic/image-search). Возможности старых поколений скриптинга отличаются от текущего окружения: переносите пример вместе с его зависимостями и контекстом.
 

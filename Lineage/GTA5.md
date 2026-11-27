@@ -27,7 +27,7 @@ If only an image-based aura is slow, first inspect its [capture statistics](/en/
 
 The 2024 illustration shows `Game Mode`; Windows may localize its labels.
 
-![Game Mode in the earlier Windows settings](http://files.eyesquad.net/screenshots/11-09-2024/Discord_tRNKShE2GYG74pgRIecTtoNII.png)
+![Game Mode in the earlier Windows settings](https://s3.eyeauras.net/media/wiki/Lineage/GTA5/Discord_tRNKShE2GYG74pgRIecTtoNII.png)
 
 | Setting | Scope of the comparison |
 | --- | --- |
@@ -37,4 +37,4 @@ The 2024 illustration shows `Game Mode`; Windows may localize its labels.
 
 The second older screenshot uses **Default graphics settings**, where the switch was global. The per-app route above starts with one game instead.
 
-![Earlier global Default graphics settings page](http://files.eyesquad.net/screenshots/11-09-2024/Discord_kvqBHaMReyO1ATkhWLoispdYu.png)
+![Earlier global Default graphics settings page](https://s3.eyeauras.net/media/wiki/Lineage/GTA5/Discord_kvqBHaMReyO1ATkhWLoispdYu.png)

@@ -97,7 +97,7 @@ An action sequence in the earlier editor:
 
 A pack can have its own buttons, settings and state display. This community design uses the platform's UI capabilities; it is not the mandatory appearance of an aura:
 
-![Community interface example 4](https://telegra.ph/file/d83bcbeeac554d2e9b939.png)
+![Community interface example 4](https://s3.eyeauras.net/media/wiki/faq/d83bcbeeac554d2e9b939.png)
 
 | Author and material | Historical project shown |
 | --- | --- |

@@ -114,7 +114,7 @@ When the displayed state can change outside a button handler, the [reactive togg
 
 Use **C# Overlay** when aura activity should control a persistent panel. Its generated entry point must finish setup before the overlay displays; do not place the blocking dialog code above into that entry point. Start with [the overlay counter](/en/scripting/blazor-windows/1-intro).
 
-![Earlier Blazor window example](http://files.eyesquad.net/screenshots/31-10-2024/1YWZKXCaFhEh7SNnSx8YMWjAf.png)
+![Earlier Blazor window example](https://s3.eyeauras.net/media/wiki/scripting/blazor-windows/getting-started/1YWZKXCaFhEh7SNnSx8YMWjAf.png)
 ![C# Overlay in the earlier editor’s add-overlay menu](/assets/callouts/batch3/en/blazor-start-overlay.png)
 ![Editing the overlay component](https://s3.eyeauras.net/media/2024/11/Code_MJvkplH0Iiqmm9SV.png)
 

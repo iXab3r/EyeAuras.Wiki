@@ -61,7 +61,7 @@ Application services are accessed through [Dependency Injection](/en/scripting/d
 
 [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) builds interfaces from components. Use the [custom UI route](/en/overlays/custom-ui) to host one, rather than pasting component markup into an action. This example from an earlier version shows a possible form; it is not part of the first program:
 
-![Earlier form layout](https://telegra.ph/file/d83bcbeeac554d2e9b939.png =x300)
+![Earlier form layout](https://s3.eyeauras.net/media/wiki/faq/d83bcbeeac554d2e9b939.png =x300)
 
 After logging, try [image search](/en/scripting/examples/basic/image-search). Earlier scripting generations differ from the current runtime; carry an example's dependencies and context with its code. Runtime diagnostics and cancellation support do not protect arbitrary code against every failure.
 

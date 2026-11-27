@@ -27,7 +27,7 @@ dateCreated: 2024-09-11T15:06:23.936Z
 
 На снимке 2024 года показан переключатель `Game Mode`. В русской Windows названия переведены.
 
-![Game Mode в настройках Windows](http://files.eyesquad.net/screenshots/11-09-2024/Discord_tRNKShE2GYG74pgRIecTtoNII.png)
+![Game Mode в настройках Windows](https://s3.eyeauras.net/media/wiki/Lineage/GTA5/Discord_tRNKShE2GYG74pgRIecTtoNII.png)
 
 | Параметр | Область изменения |
 |---|---|
@@ -37,4 +37,4 @@ dateCreated: 2024-09-11T15:06:23.936Z
 
 На втором старом снимке оптимизация оконных игр находится в **Default graphics settings** и меняется глобально. Современный путь для конкретного приложения выше позволяет начать с одной игры, не меняя этот параметр для всех.
 
-![Прежняя страница Default graphics settings](http://files.eyesquad.net/screenshots/11-09-2024/Discord_kvqBHaMReyO1ATkhWLoispdYu.png)
+![Прежняя страница Default graphics settings](https://s3.eyeauras.net/media/wiki/Lineage/GTA5/Discord_kvqBHaMReyO1ATkhWLoispdYu.png)

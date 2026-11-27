@@ -48,6 +48,15 @@ dateCreated: 2024-03-07T15:12:13.483Z
 | Повторять попытки до успеха | [Until Success](/ru/behavior-trees/nodes/until-success): одна попытка ребёнка за тик, Failure становится Running |
 | Временно задать исход проверки | [Fixed Status](/ru/behavior-trees/nodes/fixed-status): выбранный параметр отличается от последнего результата выполнения |
 | Подписать участок схемы | [Comment](/ru/behavior-trees/nodes/comment): пояснение не заменяет выполняемую проверку |
+| Проверить, активно ли дерево поведения | [Is Active](/ru/behavior-trees/nodes/IsActive) |
+| Проверить, удерживается ли клавиша | [Check Key State](/ru/behavior-trees/nodes/CheckKeyState) |
+| Отфильтровать краткие изменения условия | [Debounce](/ru/behavior-trees/nodes/Debounce) |
+| Прервать работу при выполнении условия | [Interrupter](/ru/behavior-trees/nodes/Interrupter) |
+| Переместить указатель в заданную точку | [Mouse Move](/ru/behavior-trees/nodes/MouseMoveAbs) |
+| Сместить указатель относительно текущей позиции | [Mouse Move Rel.](/ru/behavior-trees/nodes/MouseMoveRel) |
+| Ввести текст в выбранное окно | [Send Text](/ru/behavior-trees/nodes/SendText) |
+| Выйти из цикла или блока макроса | [Break](/ru/behavior-trees/nodes/Break) |
+| Завершить макрос с заданным результатом | [Return](/ru/behavior-trees/nodes/Return) |
 
 ## Где взять узел
 

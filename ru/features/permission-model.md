@@ -27,8 +27,8 @@ dateCreated: 2024-04-20T10:52:21.002Z
 
 Зелёные сведения владельца и сведения о чужой папке означают разные условия проверки:
 
-![Папка текущего владельца](https://i.imgur.com/WhQhQou.png)
-![Папка другого владельца](https://i.imgur.com/oAiE2Ws.png)
+![Папка текущего владельца](https://s3.eyeauras.net/media/wiki/features/permission-model/WhQhQou.png)
+![Папка другого владельца](https://s3.eyeauras.net/media/wiki/features/permission-model/oAiE2Ws.png)
 
 ## Выбрать уровень
 
@@ -44,9 +44,9 @@ dateCreated: 2024-04-20T10:52:21.002Z
 
 ![Текущий локальный пример без ограничений с доступными настройками Fixed Value](/assets/wiki-media/m023.png)
 
-![Configurable — настройка существующего набора](https://i.imgur.com/49AsqnH.png)
-![Read-Only — просмотр](https://i.imgur.com/a8mrtb4.png)
-![Private Content — закрытое содержимое](https://i.imgur.com/Yjnrr82.png)
+![Configurable — настройка существующего набора](https://s3.eyeauras.net/media/wiki/features/permission-model/49AsqnH.png)
+![Read-Only — просмотр](https://s3.eyeauras.net/media/wiki/features/permission-model/a8mrtb4.png)
+![Private Content — закрытое содержимое](https://s3.eyeauras.net/media/wiki/changelogs/6788/Yjnrr82.png)
 
 Ограничения наследуются от родителя: вложенная папка не должна рассматриваться отдельно от эффективного уровня всей цепочки. Владелец и разблокировка по паролю дают полный доступ в приложении. Права закрытого родителя могут влиять на видимость и редактирование вложенных элементов.
 

@@ -54,7 +54,7 @@ My Tree
 
 В графе дети выполняются в порядке слева направо; вертикальное положение само по себе порядок не задаёт. В сохранённых конфигурациях со списком та же вложенность показана строками. `Sequence` проходит все успешные шаги, [Selector](/ru/behavior-trees/nodes/selector) выбирает первый успешный вариант, а [IfThenElse](/ru/behavior-trees/nodes/ifthenelse) явно разделяет условие и две ветки.
 
-![Общая анимация обхода дерева](https://habrastorage.org/files/5f3/cdb/96b/5f3cdb96beee450ca78697a67010b8e9.gif)
+![Общая анимация обхода дерева](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/5f3cdb96beee450ca78697a67010b8e9.gif)
 
 Анимация из [статьи об устройстве деревьев](https://habr.com/ru/companies/cloud_mts/articles/306214/) иллюстрирует переход между узлами. Её собственная легенда цветов не является легендой EyeAuras.
 

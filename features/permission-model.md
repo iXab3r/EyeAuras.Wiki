@@ -27,8 +27,8 @@ The older menu below uses earlier names. The current private mode is **Private C
 
 The owner header and another user's header represent different effective access:
 
-![Folder owned by the current user](https://i.imgur.com/WhQhQou.png)
-![Folder owned by someone else](https://i.imgur.com/oAiE2Ws.png)
+![Folder owned by the current user](https://s3.eyeauras.net/media/wiki/features/permission-model/WhQhQou.png)
+![Folder owned by someone else](https://s3.eyeauras.net/media/wiki/features/permission-model/oAiE2Ws.png)
 
 ## Choose a level
 
@@ -44,9 +44,9 @@ The current local sample below has no signed-in account, assigned owner, restric
 
 ![Current unrestricted local sample with editable Fixed Value settings](/assets/wiki-media/m023.png)
 
-![Configurable: edit existing settings](https://i.imgur.com/49AsqnH.png)
-![Read-Only: view without editing](https://i.imgur.com/a8mrtb4.png)
-![Private Content: hidden contents](https://i.imgur.com/Yjnrr82.png)
+![Configurable: edit existing settings](https://s3.eyeauras.net/media/wiki/features/permission-model/49AsqnH.png)
+![Read-Only: view without editing](https://s3.eyeauras.net/media/wiki/features/permission-model/a8mrtb4.png)
+![Private Content: hidden contents](https://s3.eyeauras.net/media/wiki/changelogs/6788/Yjnrr82.png)
 
 Restrictions inherit from parents. Check effective access along the whole folder chain, rather than considering a nested folder alone. Ownership and a successful password unlock grant full access in the application; a restricted parent can affect visibility and editing below it.
 
