@@ -17,6 +17,10 @@ When a trigger or action behaves differently from expected, preserve the descrip
 1. Click **Report a problem** in the EyeAuras title bar to open **Error Report**. A mini-app may provide its own reporting button.
 2. Describe your steps, actual result and expected result. Include the feature or pack and version. For example: “I selected my window, but Preview stayed empty; I expected its image.” Report observations rather than a guessed cause.
 3. Review the attachments and select logs from the affected run. Include earlier logs if the failure happened before a restart, and configuration when it is needed to reproduce the problem.
+
+   ![Earlier Error Report window with a blank comment field, attachment checkboxes and a preview pane. The captured-window title and the preview text are hidden.](/assets/callouts/batch2/en/report-review-attachments.png)
+
+   In the October 2023 interface, describe the problem at the top and review the selected attachments on the left. The captured-window title and attachment preview text are hidden in this image.
 4. Click **Save...**, choose your own directory and wait for the `.7z` archive. Open it for reading and check the comment and selected files. Saving alone does not send it.
 5. To submit to normal EyeAuras support, use **Send** and wait for the confirmation ID. If a pack author requested a file directly, share the saved archive through an agreed [contact](/en/contacts).
 

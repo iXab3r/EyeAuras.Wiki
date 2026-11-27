@@ -1,6 +1,48 @@
 {
   "coordinates": "Crop and mark bounds are [left, top, right, bottom] in original screenshot pixels. Right and bottom are exclusive. Optional padding is [left, top, right, bottom] in output pixels.",
   "scenes": {
+    "ai-search-model-preset": {
+      "source": "https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_Q9D1pFfEA4ceWxQK.png",
+      "sha256": "3d68192ff7ab71de08222aac1bf68c5d7c1c673c9a53dc4ab4e72fb3e1b93314",
+      "crop": [
+        0,
+        0,
+        830,
+        223
+      ],
+      "marks": [
+        {
+          "bounds": [
+            191,
+            44,
+            334,
+            73
+          ],
+          "ru": "Скачать модель",
+          "en": "Download"
+        },
+        {
+          "bounds": [
+            337,
+            44,
+            658,
+            75
+          ],
+          "ru": "Выбор модели",
+          "en": "Model preset"
+        },
+        {
+          "bounds": [
+            677,
+            43,
+            826,
+            76
+          ],
+          "ru": "Статус модели",
+          "en": "Model status"
+        }
+      ]
+    },
     "assistant-start-session": {
       "source": "https://s3.eyeauras.net/media/2026/04/EyeAuras_vuJB3YPFza.png",
       "sha256": "24f6fd78f99b52867ab43d67ab111fd1adc6069fee4f5e9a9698f56067d1a7b6",
@@ -577,6 +619,60 @@
         }
       ]
     },
+    "report-review-attachments": {
+      "source": "assets/legacy/1efpgwe[1].png",
+      "sha256": "f79413e7894de141fb87c8b0c12d758de608b7d5508ef027a1fe4e735b4c09fb",
+      "crop": [
+        0,
+        0,
+        1296,
+        671
+      ],
+      "redactions": [
+        {
+          "rect": [
+            38,
+            181,
+            382,
+            204
+          ],
+          "reason": "Captured window title and identifiers"
+        },
+        {
+          "rect": [
+            384,
+            135,
+            1287,
+            640
+          ],
+          "reason": "Complete attachment preview contents",
+          "en": "Preview text redacted",
+          "ru": "Текст предпросмотра скрыт"
+        }
+      ],
+      "marks": [
+        {
+          "bounds": [
+            5,
+            68,
+            1291,
+            128
+          ],
+          "ru": "Опишите, что произошло",
+          "en": "Describe what happened"
+        },
+        {
+          "bounds": [
+            12,
+            137,
+            138,
+            169
+          ],
+          "ru": "Выбор вложений",
+          "en": "Select attachments"
+        }
+      ]
+    },
     "report-save-send": {
       "source": "assets/legacy/1efpgwe[1].png",
       "sha256": "f79413e7894de141fb87c8b0c12d758de608b7d5508ef027a1fe4e735b4c09fb",
@@ -702,6 +798,102 @@
           ],
           "ru": "Клавиша записи",
           "en": "Recording hotkey"
+        }
+      ]
+    },
+    "template-editor-crop": {
+      "source": "https://s3.eyeauras.net/media/2026/03/EyeAuras_2GV7n4SiIU.png",
+      "sha256": "040873216af09d2b2b97232fc4f2e84611bdc3cba107269cea3fb92fe9471032",
+      "crop": [
+        0,
+        0,
+        1085,
+        916
+      ],
+      "marks": [
+        {
+          "bounds": [
+            23,
+            69,
+            87,
+            132
+          ],
+          "ru": "Обрезка",
+          "en": "Crop tool"
+        },
+        {
+          "bounds": [
+            916,
+            205,
+            1016,
+            237
+          ],
+          "ru": "Применить рамку",
+          "en": "Apply the crop"
+        }
+      ]
+    },
+    "template-editor-remove-color": {
+      "source": "https://s3.eyeauras.net/media/2026/03/EyeAuras_GzpbgEXA4d.png",
+      "sha256": "52e8a64b27c05f99b54782d89ded2648c6615c791cbfaec777e79cb69644db21",
+      "crop": [
+        0,
+        0,
+        1085,
+        916
+      ],
+      "marks": [
+        {
+          "bounds": [
+            771,
+            209,
+            1063,
+            261
+          ],
+          "ru": "Допуск",
+          "en": "Tolerance"
+        },
+        {
+          "bounds": [
+            770,
+            266,
+            880,
+            341
+          ],
+          "ru": "Выбранный цвет",
+          "en": "Picked color"
+        }
+      ]
+    },
+    "template-editor-resize": {
+      "source": "https://s3.eyeauras.net/media/2026/03/EyeAuras_bkvQJXOPqM.png",
+      "sha256": "7b0f26a342878483840844cd190f9818fb1ff03dbd329b79c05c334455efff05",
+      "crop": [
+        0,
+        0,
+        1085,
+        916
+      ],
+      "marks": [
+        {
+          "bounds": [
+            770,
+            280,
+            1062,
+            352
+          ],
+          "ru": "Размер в пикселях",
+          "en": "Pixel dimensions"
+        },
+        {
+          "bounds": [
+            771,
+            402,
+            907,
+            436
+          ],
+          "ru": "Сохранять пропорции",
+          "en": "Keep proportions"
         }
       ]
     },

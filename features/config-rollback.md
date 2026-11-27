@@ -27,6 +27,8 @@ Practise in your own test profile, with file-based configuration saving and **Fi
 
 In this October 2024 example, the filter is set to one day. Choose All-time to look further back, then compare snapshot times.
 
+The [full history window](https://s3.eyeauras.net/media/2024/10/EyeAuras_Y3P3cw9Pi1E0WkMc.png) shows the Commit ID, message and date of the selected snapshot below the list.
+
 ## Choose the restoration scope
 
 | Command | What it does |

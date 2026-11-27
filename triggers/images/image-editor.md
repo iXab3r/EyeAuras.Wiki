@@ -23,13 +23,15 @@ Start with an **Image Search** trigger containing a sample loaded through **Load
 
    In this example, the crop keeps the flamingo and removes much of the empty space:
 
-   ![Crop frame around the useful sample](https://s3.eyeauras.net/media/2026/03/EyeAuras_2GV7n4SiIU.png =x700)
+   ![Crop selected in the template editor, a blue crop frame around the flamingo and Apply crop in the right panel.](/assets/callouts/batch2/en/template-editor-crop.png =x700)
 
 3. Choose **Remove Color**, start with **Tolerance = 0%**, and click a flat-background pixel. If nearby shades remain, increase tolerance a little and select again. A large tolerance can remove part of the icon too.
 
    The checkerboard below represents transparency, excluded from Image Search comparison:
 
-   ![Remove Color makes the background transparent](https://s3.eyeauras.net/media/2026/03/EyeAuras_GzpbgEXA4d.png =x700)
+   ![Remove Color with tolerance at 20% and a pink sampled color. Areas of the flamingo now show the transparency checkerboard.](/assets/callouts/batch2/en/template-editor-remove-color.png =x700)
+
+   At 20% tolerance, some of the pink plumage has disappeared. Start at 0% to preserve the details of your icon.
 
 4. Choose **Erase** and a suitable **Brush size** for isolated unwanted detail. Keep distinctive lines and enough opaque pixels in the icon.
 5. Use **Undo** or **Ctrl+Z** to revert a mistake; **Redo** or **Ctrl+Y** restores an undone edit.
@@ -50,7 +52,7 @@ Prefer capturing a sample at the same scale as the icon. If its dimensions diffe
 | Apply | Applies the selected size to the sample. |
 | Reset | Resets resize parameters to the current image. |
 
-![Resize controls with aspect ratio preservation](https://s3.eyeauras.net/media/2026/03/EyeAuras_bkvQJXOPqM.png =x700)
+![Resize displays a width of 2401 pixels and a height of 1162 pixels with Keep aspect ratio enabled.](/assets/callouts/batch2/en/template-editor-resize.png =x700)
 
 Shrinking only the template does not shrink the source application's icon. When capture resize effects are enabled, match the sample to their output.
 

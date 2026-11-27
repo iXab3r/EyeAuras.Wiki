@@ -18,6 +18,10 @@ Open your own Notepad window before setting this up. Leave just one instance ope
 
 1. Add **Win Activate** to an aura, for example in **On Enter**.
 2. Open the window list in **Target Window** and select Notepad. Check that the expression identifies the intended window.
+
+   ![Target Window expression field, window picker and matched Demo Workspace window.](/assets/callouts/batch1/en/window-selector.png)
+
+   The shared Target Window selector here matches Demo Workspace. For this exercise, select your Notepad window and check its title in the result row.
 3. If **Timeout** is available, set it to `1000` ms for the activation attempt.
 4. Put another window over Notepad, return to the action editor in EyeAuras and click **Execute** on Win Activate.
 

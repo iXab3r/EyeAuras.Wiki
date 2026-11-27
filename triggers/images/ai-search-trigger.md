@@ -41,6 +41,10 @@ A model can miss a person or misclassify another object. Inspect the frame, sele
 | Confidence Threshold | Filters scores; the trigger requires a score strictly greater than its threshold. Confidence is a model score, not measured accuracy on your data. |
 | IoU Threshold | Controls suppression of overlapping detections. It is not a confidence threshold or a measurement of overall model quality. |
 
+![The earlier AI Search model selector shows Yolo 12 Small, Download model and Model is not loaded.](/assets/callouts/batch2/en/ai-search-model-preset.png)
+
+In this earlier editor, Yolo 12 Small is selected and the model has yet to be loaded. For the photo exercise, choose Yolo 8 Nano and click Download model.
+
 Detection produces boxes; segmentation also produces masks; classification scores the image as a whole and need not locate objects. Activation checks the retained results of the selected class. Recognizing people does not imply knowledge of game inventory, resource values or behavior over time.
 
 <details>
