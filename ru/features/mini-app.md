@@ -1,5 +1,5 @@
 ---
-title: 🚀 Mini-app
+title: Mini-app
 description: Как превратить скрипт или пак в отдельное мини-приложение на базе EyeAuras
 published: true
 date: 2026-10-11T00:00:00.000Z

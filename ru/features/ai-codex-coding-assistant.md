@@ -1,5 +1,5 @@
 ---
-title: 🧠 AI Codex Coding Assistant
+title: AI Codex Coding Assistant
 description: Что такое встроенный Codex-режим в EyeAuras, чем он отличается от обычного AI Assistant, что такое threads и что он умеет уже сейчас
 published: true
 date: 2026-04-21T22:30:00.000Z

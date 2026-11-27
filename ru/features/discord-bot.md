@@ -1,5 +1,5 @@
 ---
-title: 🤖 Discord Bot
+title: Discord Bot
 description: Как пользоваться EyeAuras Bot в Discord DM, теги в каналах, приватность и ограничения
 published: true
 date: 2026-04-04T00:00:00.000Z

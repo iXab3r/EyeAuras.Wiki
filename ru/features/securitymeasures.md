@@ -1,5 +1,5 @@
 ---
-title: 🥷 Обход обнаружения
+title: Обход обнаружения
 description: 
 published: true
 date: 2025-03-12T23:19:10.881Z

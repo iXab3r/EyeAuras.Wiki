@@ -1,5 +1,5 @@
 ---
-title: 📝 EyePad
+title: EyePad
 description: Режим EyeAuras для работы со скриптами, решениями и mini-app
 published: true
 date: 2026-03-24T00:10:39.000Z

@@ -1,5 +1,5 @@
 ---
-title: 🚀 Mini-app
+title: Mini-app
 description: How to turn a script or a pack into a mini-app built on top of EyeAuras
 published: true
 date: 2026-10-11T00:00:00.000Z
