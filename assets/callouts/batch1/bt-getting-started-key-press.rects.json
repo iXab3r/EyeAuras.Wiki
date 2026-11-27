@@ -1,0 +1,100 @@
+{
+ "image": {
+  "file": "raw-bt-getting-started-key-press.png",
+  "width": 988,
+  "height": 640
+ },
+ "frame": "bt-getting-started-key-press",
+ "purpose": "ru/behavior-trees/gettings-started.md \"Как подключить реальное условие и действие\" (Key Press: Keys field) and ru/behavior-trees/nodes/KeyPress.md",
+ "mapping": {
+  "devicePixelRatio": 1,
+  "cdpViewport": [
+   1428,
+   856
+  ],
+  "windowSize": [
+   1440,
+   900
+  ],
+  "clientToWindowCapture": [
+   6,
+   38
+  ],
+  "captureCrop": {
+   "x": 446,
+   "y": 82,
+   "width": 988,
+   "height": 640
+  },
+  "clientCrop": {
+   "x": 440,
+   "y": 44,
+   "width": 988,
+   "height": 640
+  },
+  "clientToRaw": [
+   -440,
+   -44
+  ],
+  "app": "1.10.10127.0 (Sources/bin launcher, --appVersion)",
+  "source": "raw-b6key.png"
+ },
+ "rects": {
+  "keys": {
+   "label": "Клавиша",
+   "x": 671,
+   "y": 116,
+   "width": 283,
+   "height": 27,
+   "client": {
+    "x": 1111,
+    "y": 159.8,
+    "width": 283,
+    "height": 27
+   },
+   "source": "General → Keys hotkey field + edit/clear buttons"
+  },
+  "delay": {
+   "label": "Задержка нажатия",
+   "x": 671,
+   "y": 152,
+   "width": 302,
+   "height": 29,
+   "client": {
+    "x": 1111,
+    "y": 196.3,
+    "width": 302,
+    "height": 29
+   },
+   "source": "General → Delay (ms) + randomize toggle"
+  },
+  "inputMode": {
+   "label": "Тип нажатия",
+   "x": 671,
+   "y": 183,
+   "width": 236,
+   "height": 72,
+   "client": {
+    "x": 1111,
+    "y": 227,
+    "width": 236,
+    "height": 72.3
+   },
+   "source": "Input: Press and release / Press and hold / Release"
+  },
+  "folderDefaults": {
+   "label": "Окно и симулятор — из папки",
+   "x": 671,
+   "y": 259,
+   "width": 304,
+   "height": 113,
+   "client": {
+    "x": 1111,
+    "y": 303,
+    "width": 304,
+    "height": 113
+   },
+   "source": "notice \"Window and Input Simulator could be set only via Folder Properties\" + Window/Simulator rows bound to folder defaults"
+  }
+ }
+}

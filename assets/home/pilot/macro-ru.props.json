@@ -1,0 +1,51 @@
+{
+ "src": "raw-macro.png",
+ "imageWidth": 1428,
+ "imageHeight": 857,
+ "padding": {
+  "left": 72,
+  "top": 72,
+  "right": 72,
+  "bottom": 96
+ },
+ "radius": 10,
+ "color": "#f5a623",
+ "labelColor": "#1c1c1c",
+ "dim": 0.3,
+ "inflate": 4,
+ "stroke": 2,
+ "highlights": [
+  {
+   "x": 286,
+   "y": 197,
+   "width": 304,
+   "height": 72,
+   "label": "Условие по ауре",
+   "side": "right",
+   "labelY": 209
+  },
+  {
+   "x": 318,
+   "y": 293,
+   "width": 272,
+   "height": 288,
+   "label": "Вложенные циклы",
+   "side": "right",
+   "labelY": 305
+  },
+  {
+   "x": 1111,
+   "y": 215,
+   "width": 305,
+   "height": 40,
+   "label": "Переменная сессии",
+   "side": "above",
+   "pad": [
+    3,
+    4,
+    2,
+    6
+   ]
+  }
+ ]
+}

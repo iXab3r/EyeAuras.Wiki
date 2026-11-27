@@ -7,29 +7,25 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-03-09T13:21:37.597Z
 ---
+# Read a README from your script project
 
-# Read an embedded README
+Add a text document and print it in the log. Its source is the script project, rather than an arbitrary file on disk. This is useful for help, configuration, CSS and JavaScript that need to travel with a project.
 
-In an EyeAuras `C# Script` project, use `Show Files` to add a text resource named `README.md`, then put the code below in `Script.csx`. The file must be included in this project’s resources. `GetService<IScriptFileProvider>()` comes from the script container; pass the provider explicitly to an ordinary helper class.
-> You can import a ready-made example from here: [https://eu.eyeauras.net/share/S20250309131425bvdreSJs6IeI](https://eu.eyeauras.net/share/S20250309131425bvdreSJs6IeI)
+You need an editable **C# Script** in a running EyeAuras host. You can [import the prepared example](https://eu.eyeauras.net/share/S20250309131425bvdreSJs6IeI), or create your own:
 
-### How is it useful?
-- custom configuration files
-- some documentation for your program
-- JavaScript files which will be loaded in your UI
-- custom CSS files
+1. Create an aura and a **C# Script** action in **On Enter**.
+2. Show **File Tree**, called **Show Files** in older versions. Under **New file**, choose **Markdown** and enter `README` without an extension; the template creates `README.md`.
+3. Replace its contents with:
 
-### Example
+```markdown 
+any text
+```
 
-1. Create an aura.
-2. Add a `C# Script` action to `On Enter`.
-3. Copy and paste the script itself.
-4. Create a new Markdown file, name it README
-5. Run the script.
-6. The script logs the root entries and the contents of `README.md`. Other files and directories may also appear in the listing.
+4. Put the complete program below in **Script.csx**:
 
-`Script.csx`
-```csharp 
+```csharp
+using PoeShared.Scaffolding;
+
 {
     Log.Info("Hello, World!");
 
@@ -51,17 +47,26 @@ In an EyeAuras `C# Script` project, use `Show Files` to add a text resource name
 }
 ```
 
-`README.md`
-```markdown 
-any text
-```
+5. Click **Run**. The log should show `Hello, World!`, a diagnostic root listing, then `README:` and `any text`. Other project files and directories may appear in the listing too.
+6. Change the README text in the project, wait for recompilation and run again. The new contents should be logged. Changing an unrelated same-named disk file does not update this document.
 
-The embedded provider identifies a resource by its full manifest name. Use that name, its full slash-separated form, or a unique suffix at a name boundary. For example, `MyProject.docs.README.md` can be requested as `MyProject.docs.README.md` or `MyProject/docs/README.md`; `README.md` works only if it matches uniquely. Ambiguous names return not-found. Directory listings do not promise to strip the project prefix.
+The host provides **GetService** and **Log**; **PoeShared.Scaffolding** supplies the **DumpToTable** extension used here. Pass IScriptFileProvider explicitly to an ordinary helper class.
 
-The script's embedded provider precedes the previous provider in the composite. The composite selects the first existing file in provider order; this does not resolve ambiguity inside one embedded provider. The script disposes its stream and reader. Do not dispose the borrowed provider.
+## Distinguish a document from an embedded assembly resource
 
-## Related contracts
+The **Markdown** template creates an editable project document exposed by the project file service at its path. A file added through **Add → Existing File(s)...** is stored separately as a binary embedded resource. For that embedded form, lookup follows these rules:
 
-[Script context](/en/scripting/api/core/app-runtime-contexts) · [Resources and references](/en/scripting/api/scripting/references-and-resources) · [Resource loading and priority](/en/scripting/api/scripting/file-provider-operations)
+| Request | Meaning |
+| --- | --- |
+| `README.md` | A short request works when it identifies a resource uniquely. |
+| `MyProject.docs.README.md` | Exact full manifest name. |
+| `MyProject/docs/README.md` | Full slash form of that name. |
+| Folder-qualified path | Boundary-suffix lookup can apply. Multiple matches return Exists == false; use the full name to disambiguate. |
 
-See the linked resource contract for the checked source versions and full provider behavior. This example has not been executed in the script host.
+**GetDirectoryContents** projects resource names into a tree; it does not promise to remove the project prefix. [Embedded resources](/en/scripting/embedded-resources) explains full names, `wwwroot` and export.
+
+At runtime, embedded resources precede the previous file source. The composite chooses the first existing file in provider order; ambiguity inside one source remains not found.
+
+The program owns and closes its stream and StreamReader inside the explicit block. Do not dispose the borrowed provider. Edit text documents in the project; replace binary resource bytes or import their change from the IDE. Embedded **Watch** does not monitor an already compiled DLL for new bytes.
+
+See [script-host context](/en/scripting/api/scripting/runtime) and [file-provider operations](/en/scripting/api/scripting/file-provider-operations) for the corresponding contracts.

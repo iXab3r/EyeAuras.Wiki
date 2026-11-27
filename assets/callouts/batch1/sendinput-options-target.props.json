@@ -1,0 +1,35 @@
+{
+ "src": "raw-sendinput-options-target.png",
+ "imageWidth": 760,
+ "imageHeight": 266,
+ "padding": {
+  "left": 72,
+  "top": 72,
+  "right": 72,
+  "bottom": 96
+ },
+ "radius": 10,
+ "color": "#f5a623",
+ "labelColor": "#1c1c1c",
+ "dim": 0.3,
+ "inflate": 4,
+ "stroke": 2,
+ "highlights": [
+  {
+   "x": 36,
+   "y": 32,
+   "width": 360,
+   "height": 126,
+   "label": "Окно-получатель",
+   "side": "right"
+  },
+  {
+   "x": 36,
+   "y": 167,
+   "width": 376,
+   "height": 63,
+   "label": "Задержка нажатия",
+   "side": "right"
+  }
+ ]
+}

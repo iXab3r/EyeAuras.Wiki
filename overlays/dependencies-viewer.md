@@ -8,33 +8,44 @@ editor: markdown
 dateCreated: 2023-06-18T16:59:12.604Z
 ---
 
-# Dependencies Viewer
+# Trace an aura's condition dependency
 
-The Dependencies Viewer Overlay in EyeAuras provides a visual representation of the dependency structure of Auras. It allows users to get a quick overview of how different Auras are interconnected and depend on each other. This can be especially useful for complex configurations where many Auras interact in intricate ways.
+Use **Dependencies Viewer** to see which linked aura supplies a condition. Its edges come from conditions that reference other auras. The graph does not execute those conditions or replace the property Binding Editor.
 
-![](/assets/legacy/eyeauras_gksfvq7xla%5B1%5D.png)
+## Check one link without actions
 
-### Common options
+1. Create an aura **Source** with **Fixed Value → Is NOT Active** and no actions.
+2. Create **Dependent** with an **Aura Is Active** trigger. In **Links**, select Source and configure an active-state check as described in [Aura Is Active](/en/triggers/aura-is-active).
+3. Create **Graph** with **Fixed Value → Is Active** and a **Dependencies Viewer** overlay. It only displays the graph.
+4. Open **Graph → Auras → Links** in the overlay editor and select Dependent. Leave **Show dependencies** and **Show connections** enabled. The graph should contain Dependent, Source and their connection.
+5. Toggle Source to **Is Active**, then **Is NOT Active**. Check the Aura Is Active result in Dependent's editor. Use the graph to inspect the node set and connection, not action completion.
 
-You can refer to the common overlay options here: [Common Options](https://wiki.eyeauras.net/en/overlays/common-options)
+If it is hidden, check Graph's activity and [overlay visibility](/en/overlays/common-options). If an edge is missing, verify the link in Dependent's trigger: selecting an aura for display does not create that condition link.
 
-### Display Auras
+![Larger graph in the earlier interface](/assets/legacy/eyeauras_gksfvq7xla%5B1%5D.png)
 
-You can specify which Auras you want to display in the Dependencies Viewer. This can be useful when you want to analyze the dependencies of a specific set of Auras.
+| Graph setting | Effect |
+| --- | --- |
+| Auras → Links | Initial auras or folders to display; choose a folder to inspect a group |
+| Show dependencies | Adds dependencies of the selected auras |
+| Show connections | Shows connection lines; hiding them does not delete configuration links |
+| Show background | Shows the graph background |
 
-### Highlight Active Auras
+Activity and On Enter/While Active/On Exit busy-state indicators are not connected to this graph's current display. Check the editor and [Event Viewer](/en/features/event-viewer) rather than treating colors in the old screenshot as live state. Active and an action group being busy are different facts.
 
-This feature allows you to visually distinguish between active and inactive Auras. Active Auras will be highlighted, making it easier to understand the current state of your configuration.
+<details>
+<summary>Arrangement fields</summary>
 
-### Gaming Applications
+| Field | Stored choice |
+| --- | --- |
+| Auto-arrange after updates | Automatic arrangement preference |
+| Arrange Direction | Direction, default Down |
+| Arrange Algorithm | Algorithm, default Layered |
 
-1. Visualize the dependency structure of your Auras in a multiplayer game to optimize your configurations.
-2. Monitor the activation state of game-specific Auras in real-time during gameplay.
-3. Analyze the interdependencies of your Auras in a strategy game to better understand how they interact.
-4. Debug your Aura configurations in a role-playing game by tracking their activation and dependencies.
-5. Refine your Aura setup for a racing game by visualizing how different Auras depend on each other.
-6. Use the overlay to simplify the process of troubleshooting Aura dependencies in a first-person shooter game.
-7. Understand the relationship between Auras tied to character abilities in MOBAs (Multiplayer Online Battle Arena).
-8. Get a visual overview of your complex Aura configurations in a simulation game.
-9. Track the activation of Auras related to in-game events in a real-time strategy game.
-10. Analyze and optimize Aura dependencies for effective resource management in a survival game.
+These fields are persisted, but the current graph component does not apply them to arrangement. Changing them is not a check that a particular layout algorithm ran.
+
+</details>
+
+The graph covers linked-aura condition evaluators, not all C# calls or property bindings. Use [Binding Editor](/en/features/bindings) for a specific property's source. Moving graph nodes does not create dependencies or change action order.
+
+This applies to your own set in any application, including a game-oriented set with independently configured conditions. It does not read game state. The [older URL guide](/en/overlays/dependenciesviewer) explains how to interpret earlier state/action-group illustrations. [Common Options](https://wiki.eyeauras.net/en/overlays/common-options) covers placement and visibility.

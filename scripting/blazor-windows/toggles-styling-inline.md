@@ -7,107 +7,114 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T15:48:02.521Z
 ---
+# Style a button inside its component
 
-# CSS and what it is
-CSS (Cascading Style Sheets) describes the **styles** of your interface: colors, sizes, and so on.
+Make a toggle stand out: a lime background, black text and a width of 80% of its panel. CSS changes appearance; C# still changes the trigger.
 
-The mechanism is extremely powerful and over the years has gained so many details that a full description would fill a thick book. Fortunately it's also simple—*easy to learn, hard to master*—and you don't need to understand its internals to use it effectively.
+Use two loaded auras in one folder: `TargetAura` with **Hotkey Is Active → Toggle Trigger state on Click**, and a separate panel with **C# Overlay** and **Fixed Value → Is Active**. Give the trigger a free hotkey and leave its actions empty for this exercise. `./TargetAura` must resolve to your aura with one such trigger. [The first toggle](/en/scripting/blazor-windows/4-toggle-hotkeyisactive) explains that setup.
 
-## [Bootstrap](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
-Bootstrap is a massive collection of useful CSS classes covering most common requests—colored buttons, editors, etc. EyeAuras loads Bootstrap CSS/JS automatically, so all classes from the documentation are available in any overlay by default. We've already been using them throughout the series.
-
-Sometimes standard styles aren't enough and you want something custom. Let's take the code that toggles a trigger and simply recolor the button using CSS.
-
-![Demo](https://s3.eyeauras.net/media/2025/05/3UAeooHWHD.png)
-
-## Prepare the overlay and target auras
-
-Create a **C# Overlay v3** aura and `TargetAura` in the same folder. Add `HotkeyIsActive` in toggle mode to each target and keep them loaded. The shown `./TargetAura` paths resolve relative to the overlay context; adjust them to your actual tree. If several triggers match, the first is selected.
-
-Replace `UserOverlay.cs` and `UserOverlay.razor` with the corresponding complete blocks below. They are parts of one `public partial` class in the same namespace. `[Inject]` supplies `AuraTree`; Script.csx globals are not component globals.
+1. Replace `UserOverlay.cs` and `UserOverlay.razor` in your C# Overlay with the complete files below. Keep `BlazorDemo` consistent in both; replacing the files removes the old duplicate fields and handlers.
+2. Keep `Script.csx` short, without a wait, for example `Log.Debug("Panel ready");`.
 
 ## UserOverlay.cs
+
 ```csharp
-using System;
-using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using ReactiveUI;
 using PoeShared.Blazor;
 using EyeAuras.Scripting.Api;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 
-public partial class UserOverlay : BlazorReactiveComponent {
+namespace BlazorDemo;
 
+public partial class UserOverlay : BlazorReactiveComponent
+{
     [Inject]
-    public IAuraTreeScriptingApi AuraTree { get; init; }
+    public IAuraTreeScriptingApi AuraTree { get; set; }
 
-    public bool TriggerIsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura").TriggerValue = value;
-    }
+    private IHotkeyIsActiveTrigger trigger;
+    private bool IsActive => trigger.TriggerValue ?? false;
 
     protected override void OnInitialized()
     {
-        ChangeTrackers.Add(Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1)));
+        trigger = AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
+        ChangeTrackers.Add(trigger.WhenAnyValue(x => x.TriggerValue));
         base.OnInitialized();
+    }
+
+    private async Task SetActive(bool value)
+    {
+        trigger.TriggerValue = value;
+        await Refresh("styled toggle clicked");
     }
 }
 ```
 
 ## UserOverlay.razor
-```html
+
+```razor
+@namespace BlazorDemo
 @using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
 <style>
-.custom-button {
+.demo-panel .custom-button {
     background: lime;
     color: black;
     width: 80%;
 }
 </style>
 
-<h3 class="text-center shadow-1">Toggle Trigger</h3>
-
-<div class="text-center mt-4">
-    <ToggleButton
-        @bind-IsChecked="@TriggerIsActive"
-        Class="btn custom-button">
-                Trigger is Active
+<div class="demo-panel">
+    <ToggleButton IsChecked="@IsActive" IsCheckedChanged="SetActive"
+                  Class="btn custom-button">
+        Trigger: @(IsActive ? "on" : "off")
     </ToggleButton>
 </div>
-
-<p class="text-center mt-3 alert alert-info" style="font-size: 1.5rem;">
-    @if (TriggerIsActive){
-        <span class="shadow-1">Trigger is currently active</span>
-    } else {
-        <span class="text-warning shadow-1">Trigger is currently not active</span>
-    }
-</p>
 ```
 
-![Demo](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_WPu1ZGwKwS.gif)
+3. After compilation, click the green button. Its text and the target trigger change state; its colour stays as specified by CSS. The hotkey changes the same trigger.
 
----
+![Green button in the earlier example](https://s3.eyeauras.net/media/2025/05/3UAeooHWHD.png)
 
-## Breakdown
-## UserOverlay.razor
-```html
-<style>
-.custom-button {
-    background: lime;
-    color: black;
-    width: 80%;
-}
-</style>
+| Setting or technique | Scope |
+| --- | --- |
+| `background: lime`, `color: black` | Background and text colour of the matching button. |
+| `width: 80%` | Width relative to its parent area, not the screen. |
+| `.demo-panel .custom-button` | Matches this panel's button without selecting every button in the document. |
+| A Razor `style` element | Declares rules inside the component markup, but they apply in the WebView document. This is not automatic component CSS isolation. |
+| `ToggleButton.Style` | Sets values directly on the visible button, rather than defining a CSS selector. |
+| `btn` | Basic [Bootstrap styling](https://getbootstrap.com/docs/5.3/getting-started/introduction/) supplied by the window. Available classes depend on the host's resources. |
+
+`[Inject]` obtains the tree service from the component's host. Script.csx globals are not implicit Razor members. The button reads and writes the actual `TriggerValue`, displaying `null` as off. `WhenAnyValue` also updates it after a hotkey change. Add trackers before `base.OnInitialized()`; the component owns their subscription and disposes it when destroyed, not merely when hidden. Other aura conditions still determine overall activity. See [reactive updates](/en/scripting/blazor-windows/reactive-toggle) for the notification and polling alternatives.
+
+<details>
+<summary>Set values directly without a selector</summary>
+
+In the same component, replace just `ToggleButton` with this fragment and remove the `style` element. Keep the state and handler in `UserOverlay.cs`:
+
+```razor
+<ToggleButton IsChecked="@IsActive" IsCheckedChanged="SetActive"
+              Style="background: lime; color: black; width: 80%;">
+    Trigger: @(IsActive ? "on" : "off")
+</ToggleButton>
 ```
-This is an inline style—define a CSS class directly in the component and use it right away. It's simple and fine for small projects, but has downsides. It's better to switch to proper CSS files as your project grows; that's the standard approach in web development.
 
-## Additional
-ChatGPT and other bots handle CSS well and can generate all kinds of classes. For example, here's CSS from ChatGPT 4o that adds a gradient. We're not discussing optimality—leave that to the pros :)
+A shared class is easier to maintain for several buttons. Layout is a separate choice, as in the earlier row of toggles:
+
+![Earlier toggle row](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_WPu1ZGwKwS.gif)
+
+</details>
+
+<details>
+<summary>Add a gradient and hover highlight</summary>
+
+Replace the simple rule inside `style` with this alternative. It keeps the same panel-specific selector and adds a moving highlight on hover:
+
 ```css
-.custom-button {
+.demo-panel .custom-button {
     background: linear-gradient(90deg, red, darkred);
     color: white;
     border: none;
@@ -120,7 +127,7 @@ ChatGPT and other bots handle CSS well and can generate all kinds of classes. Fo
     transition: background 0.3s ease;
 }
 
-.custom-button::before {
+.demo-panel .custom-button::before {
     content: '';
     position: absolute;
     top: 0; left: -100%;
@@ -131,15 +138,18 @@ ChatGPT and other bots handle CSS well and can generate all kinds of classes. Fo
     z-index: 1;
 }
 
-.custom-button:hover::before {
+.demo-panel .custom-button:hover::before {
     left: 100%;
 }
 
-.custom-button > * {
+.demo-panel .custom-button > * {
     position: relative;
     z-index: 2;
 }
 ```
-![Demo 1](https://s3.eyeauras.net/media/2025/05/J0g2tAOpQa.gif)
 
-The button writes `TriggerValue`, and the hotkey changes the same trigger. The `ChangeTrackers` timer rereads it about once per second, so external changes appear with a delay. Add the timer before `base.OnInitialized()`, which seals the tracker list and owns the subscriptions through component `Anchors`. Hiding a window is not the same as disposing its component.
+![Gradient styling in the earlier demonstration](https://s3.eyeauras.net/media/2025/05/J0g2tAOpQa.gif)
+
+</details>
+
+When the rules grow, [move them into a CSS file](/en/scripting/blazor-windows/toggles-styling-cssfile).

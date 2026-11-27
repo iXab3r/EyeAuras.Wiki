@@ -7,53 +7,39 @@ tags: scripting, C#, automation, hotkey, tutorial
 editor: markdown
 dateCreated: 2024-02-20T19:56:21.080Z
 ---
+# Log a message and repeat it with F1
 
-# Hello, World - Printing the Legendary Hello, World
+This minimal program writes one line to EyeAuras's log. It has no input data or external packages: the message comes from the code, and the running **C# Script** host supplies **Log**.
 
-> You can import the ready-made example from here: [Hello, World Example](https://eu.eyeauras.net/share/S20240223231508UC4AdkJYNJjI){.is-info}
+You can [import the prepared example](https://eu.eyeauras.net/share/S20240223231508UC4AdkJYNJjI), or create it manually in an aura you own.
 
-## Creating an Aura
-Well, a screenshot is a must here, sorry.
+1. Create an aura and add **C# Script** to **On Enter**.
 
-## Creating a C# Script Action
-![](https://i.imgur.com/mz7CUzL.png)
+2. Put this complete program in top-level **Script.csx**:
 
-## Typing in the Code (in some fresh versions, the newly created script may already contain this code)
 ```csharp
 Log.Info("Hello, world!");
 ```
 
-## Pressing Run
-![](https://i.imgur.com/VP8JnWk.png)
+3. Click **Run** in the editor.
 
-## Voila!
-![](https://i.imgur.com/JeZXXU8.png)
+4. Find `Hello, world!` in that action's **Event Log**. Running again adds another line. The program finishes after logging, so it needs no manual Stop.
 
-Congratulations, this was officially the first step towards mighty scripts of the future.
+The result to check is the text in the selected action's log. In an ordinary C# class, pass a logger explicitly; copying this statement into an unrelated project does not create one. A fresh script's default template can differ between versions.
 
-## Run the script with a hotkey
+For a next step with changing data, use the [typed counter example](/en/scripting/examples/basic/variables). It stores a value on its owner, so repeated runs can increase the counter instead of logging the same constant message.
 
-To make it a bit more interesting, let's set up our script to run only when a specific key, for example, `F1`, is pressed.
+## Run it on a key press
 
-## Adding the HotkeyIsActive Trigger to the Aura
-![](https://i.imgur.com/j7ma0e1.png)
+1. In the same aura, add **Hotkey Is Active**.
 
-## Select Click/Hold mode and F1
+2. Set **F1** and **Hold**, leaving the script in **On Enter**.
 
-![](https://i.imgur.com/s3eKrnp.png)
+3. Press and release F1. The aura enters its active state and runs the action. Press and release again to get another entry.
 
+| Mode | State changes |
+| --- | --- |
+| Hold | Active from KeyDown to KeyUp. Two separate press/release cycles produce two entries into the active state. |
+| Toggle | Toggles on KeyUp. The first cycle activates it and the second deactivates it, so the second does not run On Enter again. The tracker calls this mode Click. |
 
-## That's It!
-Now, every time you press `F1`, your script will print in the `Event Log`. Of course, this might not be the most exciting thing we can do, but more on that in the following examples.
-
-Run `Log.Info("Hello, world!");` in the top-level C# Script Action. EyeAuras supplies
-`Log`; no package or input is needed. The message appears in that Action's Event Log.
-Ordinary classes receive a logger explicitly. A fresh script's default template
-can vary by version.
-
-The current tracker sets Hold active on KeyDown and inactive on KeyUp. Click
-(Toggle in the UI) toggles on KeyUp. For an On Enter action, two press/release cycles
-produce two entries in Hold; in Toggle the second cycle turns the state off.
-This is a state-transition contract, not ordering of long-running actions.
-
-[HotkeyTracker implementation](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Wpf/UI/Hotkeys/HotkeyTracker.cs).
+These are state transitions, not a queue for an unlimited number of long-running actions. This short program finishes before the next press. The [HotkeyTracker implementation](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Wpf/UI/Hotkeys/HotkeyTracker.cs) defines those transitions.

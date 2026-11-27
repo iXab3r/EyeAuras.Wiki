@@ -7,112 +7,105 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T01:13:28.765Z
 ---
+# Change the counter in your overlay
 
-# Building Blocks
+Make **Click Me** increment a number in your own panel. This example separates the Razor markup from its C# handler so you can edit either without changing the host window.
 
-Create an aura with C# Overlay, then use the two `UserOverlay` files below as parts of one public partial class in the same namespace. Clicking `Click Me` increments the count.
-When you add a new overlay, several files are created automatically. Each is important to the program.
-![Header](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_uPjkmxmv2r.png)
+1. Create a test aura with **C# Overlay**, keep it loaded and make it active with **Fixed Value → Is Active**. The generated project contains `Script.csx`, `UserOverlay.cs` and `UserOverlay.razor`.
+2. Keep the entry point short:
 
-## Script.csx
-This is the script entry point. Compilation and script execution have a separate lifecycle from Razor rendering; do not use it as an event for every show or hide.
-It can contain nothing beyond the sample code, but you can use it to initialize data, read information, etc. You can also do this in the window/component code, but sometimes it's convenient to have a common entry point.
 ```csharp
 Log.Debug("This script is entry point for Overlay");
 ```
 
----
+3. Replace both component files below. They deliberately use `BlazorDemo` as the same namespace in both files.
 
 ## UserOverlay.cs
+
 ```csharp
+using System.Threading.Tasks;
 using PoeShared.Blazor;
 
-public partial class UserOverlay : BlazorReactiveComponent {
-    private int count = 0;
+namespace BlazorDemo;
 
-    private void IncrementCount()
+public partial class UserOverlay : BlazorReactiveComponent
+{
+    private int count;
+
+    private async Task Increment()
     {
         count++;
+        await Refresh("counter clicked");
     }
 }
 ```
-This is the **code-behind** file. Most Razor components consist of two parts—`*.razor` and `*.cs`. The Razor part usually contains Razor/HTML/CSS markup, while the `*.cs` file holds methods, fields and properties accessible from the markup.
-> Note: you *can* write C# directly inside `*.razor` and skip the `*.cs` file, but this series keeps logic in code-behind to make markup smaller. Editor completion capabilities depend on the EyeAuras version.
-{.is-info}
-
-Let's break down the code:
-```csharp
-public partial class UserOverlay : BlazorReactiveComponent
-```
-Class declaration. To let EyeAuras find it, the class must be `public`. Because it has a second part (`*.razor`), it must be `partial`, meaning the class is split across multiple files. Finally, `: BlazorReactiveComponent` sets the base class—more on that later.
-
-```csharp
-private int count = 0;
-```
-We declare a field storing how many times the button was clicked.
-> Note: This field value persists for the lifetime of the overlay. If the aura unloads or the overlay is destroyed, the value is reset.
-
-```csharp
-private void IncrementCount()
-{
-    count++;
-}
-```
-This method simply increments the counter, allowing us to track clicks.
-
----
 
 ## UserOverlay.razor
+
 ```razor
+@namespace BlazorDemo
 @using Microsoft.AspNetCore.Components.Web
 @using PoeShared.Blazor
 @inherits BlazorReactiveComponent
 
 <h3 class="text-center">Interactive Counter</h3>
-
 <div class="text-center mt-4">
-    <button @onclick="IncrementCount" class="btn btn-primary btn-lg">
-        Click Me
-    </button>
+    <button @onclick="Increment" class="btn btn-primary btn-lg">Click Me</button>
 </div>
-
 <p class="text-center mt-3" style="font-size: 1.5rem;">
     You clicked <strong>@count</strong> times!
 </p>
 ```
-The second part of our component describing how it should render. Let's look at what's inside:
-```html
-@inherits BlazorReactiveComponent
+
+4. Once the editor finishes compiling, click **Click Me**. The count starts at `0`, then shows `1`, `2`, and so on. If compilation fails, read the diagnostic before looking for a window setting.
+
+![Counter markup and code in the earlier editor](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_uPjkmxmv2r.png)
+
+| Part | What it does |
+| --- | --- |
+| `public partial class UserOverlay` and `@namespace BlazorDemo` | Join the C# and Razor files into one public component. |
+| `@inherits BlazorReactiveComponent` | Supplies EyeAuras reactive component behaviour, including `Refresh`. |
+| `count` | State of this component instance, initially zero. It is not a persistent aura variable. |
+| `@onclick="Increment"` | Calls the C# handler for a click. The handler increments the field and awaits `Refresh("counter clicked")`. |
+| `btn btn-primary btn-lg` | Bootstrap button styling; `text-center`, `mt-4` and `mt-3` control alignment and spacing. |
+| `@count` inside `strong` | Inserts the current value into the markup. The inline `font-size` controls this paragraph only. |
+
+Recreating the component resets this field. Merely hiding its window does not necessarily recreate it. `Script.csx` must finish its setup for C# Overlay to display the component.
+
+The examples include their own namespace imports. A project `_Imports.razor` can supply shared Razor imports, but it does not import names into ordinary `.cs` files. The [earlier component template](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Blazor.Shared/CodeEditor/Templates/RazorComponentTemplate.cs) shows the generated code-behind arrangement.
+
+The two files are component code, not executable top-level script code. `AuraTree`, `Variables`, `GetService` and the script's `cancellationToken` need explicit dependencies or parameters here. The reactive base class supplies its own `Log`; that does not turn it into the script host's global logger.
+
+<details>
+<summary>Keep the handler in the Razor file instead</summary>
+
+Use this as an alternative to the two files above, not in addition to their field and handler. Leave `UserOverlay.cs` as an empty matching partial class:
+
+```csharp
+using PoeShared.Blazor;
+
+namespace BlazorDemo;
+
+public partial class UserOverlay : BlazorReactiveComponent
+{
+}
 ```
-This tells Blazor to use `BlazorReactiveComponent` (provided by **EyeAuras**) as the base class. It's optional but strongly recommended for access to extra functionality.
 
-```html
-<h3 class="text-center">Interactive Counter</h3>
+Keep the same `UserOverlay.razor` markup and add this block at its end. Also add `@using System.Threading.Tasks` with its other directives:
+
+```razor
+@code {
+    private int count;
+    private async Task Increment()
+    {
+        count++;
+        await Refresh("counter clicked");
+    }
+}
 ```
-Just a centered heading.
 
-```html
-<div class="text-center mt-4">
-    <button @onclick="IncrementCount" class="btn btn-primary btn-lg">
-        Click Me
-    </button>
-</div>
-```
-Here the interesting part is `@onclick="IncrementCount"` which hooks up the click handler. Each click increases `count` by 1.
+Razor `@code` members belong to the same component class as code-behind. Duplicating them in both files produces duplicate members. This choice changes file organisation, not the counter's lifetime.
 
-```html
-<p class="text-center mt-3" style="font-size: 1.5rem;">
-    You clicked <strong>@count</strong> times!
-</p>
-```
-The final piece: display the current value of `count`, the same variable we increment when the button is pressed.
+</details>
 
----
-
-We end up with a simple form containing a button and an updating value. In about 20 lines we created a functional and somewhat nice program. Play with colors, add more values and use this overlay as a test bed. More to come!
-
-`Log` in `Script.csx` is a sandbox member; an ordinary `UserOverlay` class does not inherit it. Matching filenames or imports do not share script fields with a component. Pass a model through `DataContext` or inject a service. For explicit redraw in `BlazorReactiveComponent`, use `await Refresh("reason")`; external changes need an observed source. [Next: control a trigger](/en/scripting/blazor-windows/4-toggle-hotkeyisactive).
-
-The current generator creates `UserOverlay.razor` with `@namespace` and `UserOverlay.cs` with the same `namespace`. Preserve these lines when replacing the example body: class name and namespace must match between both parts. The current entity is named `C# Overlay`; older screenshots use the v3 suffix.
-
-[RazorComponentTemplate](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Blazor.Shared/CodeEditor/Templates/RazorComponentTemplate.cs).
+Next, [connect a button to a real Hotkey Is Active trigger](/en/scripting/blazor-windows/4-toggle-hotkeyisactive).

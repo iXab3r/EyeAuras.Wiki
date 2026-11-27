@@ -7,41 +7,64 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-06-12T16:08:52.785Z
 ---
-# Чтение экспортов модулей из образа процесса
+# Найти экспорт DLL в своём процессе
 
-Запустите этот верхнеуровневый `C# Script` в EyeAuras с загруженным модулем памяти. Входы — имя процесса `EyeAuras.exe` и загруженный модуль `kernel32.dll`; при нескольких процессах поиск по имени выберет первый. Для точного выбора используйте известный PID с `LocalProcess.ByProcessId`. Нужны права чтения выбранного процесса.
+Посмотрим таблицу экспортов `kernel32.dll`, уже загруженной в процесс EyeAuras. Результат — имена, ordinal и RVA из PE-образа в памяти, включая перенаправления. Экспорт может обозначать функцию, данные или строку перенаправления; сама запись ещё не является значением поля или разрешением вызвать функцию.
 
-В предыдущих руководствах мы уже научились получать список модулей запущенного процесса.
+Нужен настольный Windows-хост EyeAuras с загруженным **EyeAuras.Memory**. Для первого опыта выбирается PID самого хоста, поэтому не требуется угадывать имя чужого процесса или его адреса.
 
-Этого достаточно, чтобы читать часть информации из них, но современные игры устроены гораздо сложнее: в них тысячи структур и методов.
-Здесь и помогают публичные экспорты — данные, которые DLL экспортируют наружу и которые указывают на конкретные места в бинарном файле.
+## Вывести экспорты и найти LoadLibraryA
 
-## Пример
+1. Создайте действие **C# Script** и вставьте весь код в `Script.csx`:
 
 ```csharp
+using System;
+using System.Linq;
 using EyeAuras.Memory;
 using EyeAuras.Memory.Scaffolding;
+using PoeShared.Scaffolding;
 
-using (var process = LocalProcess.ByProcessName("EyeAuras.exe"))
 {
-    Log.Info($"Process: {process.ProcessName} ({process.ProcessId})");
-
+    using var process = LocalProcess.ByProcessId(Environment.ProcessId);
     var modules = process.GetProcessModules();
-    Log.Info($"Modules: {modules.Count()}");
+    Log.Info($"Process: {process.ProcessName}, PID={process.ProcessId}; modules={modules.Count}");
 
-    using var kernel32Mem = process.MemoryOfModule("kernel32.dll");
-    var kernel32Exports = kernel32Mem.ReadExports();
-    Log.Info($"Kernel 32 exports: {kernel32Exports.DumpToNamedTable("Exports")}");
+    var module = process.GetProcessModule("kernel32.dll");
+    using var memory = process.MemoryOfModule(module);
+    var exports = memory.ReadExports();
+    Log.Info($"Module: {module.FilePath}; base=0x{module.BaseAddress.ToInt64():X}");
+    Log.Info(exports.DumpToNamedTable("Exports"));
 
-    var loadLibraryA = kernel32Exports.FirstOrDefault(x => x.ExportName == "LoadLibraryA");
-    Log.Info($"LoadLibraryA: {loadLibraryA}");
+    var matches = exports.Where(x => x.ExportName == "LoadLibraryA").ToArray();
+    if (matches.Length == 0) Log.Info("LoadLibraryA: export not found");
+    foreach (var export in matches)
+    {
+        var address = module.BaseAddress.ToInt64() + export.RVA;
+        Log.Info($"{export.ExportName}: ordinal={export.Ordinal}, RVA=0x{export.RVA:X}, address=0x{address:X}");
+        if (export.IsForwarder) Log.Info($"Forwarder: {export.ForwarderName}");
+    }
 }
 ```
 
-В `EventLog` попадут сведения о процессе и таблица экспортов загруженного PE-образа. `MemoryOfModule` — представление адресов модуля, а не копия DLL с диска; процесс должен оставаться открытым. `ReadExports` также возвращает экспорты только по ordinal и перенаправления: проверяйте `IsForwarder`/`ForwarderName`, прежде чем считать запись адресом исполняемого кода. Наличие имени не доказывает, что по нему можно безопасно вызвать функцию. `using` закрывает созданный читатель процесса; представление модуля его не заменяет.
+2. Нажмите **Run**, откройте журнал событий. Сначала появятся PID, число модулей и путь к DLL, затем таблица экспортов и результат поиска `LoadLibraryA`.
+3. Если запись содержит `IsForwarder = true`, прочитайте `ForwarderName`: вычисленный адрес указывает на строку перенаправления в этой DLL. Пример не переходит в другую DLL и не вызывает найденный символ.
 
-## Дальше
+| Данные | Что они означают |
+| --- | --- |
+| `ModuleName` / `FilePath` | Имя для выбора загруженного модуля и его путь. `GetProcessModule` сравнивает имя без учёта регистра; отсутствие модуля — ошибка, а не пустой список экспортов. |
+| `BaseAddress` | Адрес начала этого загруженного PE-образа в текущем процессе. Он может измениться при следующем запуске. |
+| `RVA` | Смещение относительно базы. Для неперенаправленного экспорта адрес равен `BaseAddress + RVA`; нулевой RVA в незаполненной позиции таблицы не означает функцию по базе. |
+| `Ordinal` | Номер экспорта с учётом ordinal base DLL. Он отличается от индекса `ExportAddressTableIndex`. |
+| `ExportName` / `UnDecoratedExportName` | Исходное имя и, когда доступно, разобранное C++ имя. У экспорта только по номеру имени нет. |
+| `IsForwarder` / `ForwarderName` | Признак и строка вида `DLL.Symbol`; разрешение конечного адреса в этой операции не выполняется. |
 
-[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Процессы и память](/ru/scripting/api/memory/processes) · [Примитивы памяти](/ru/scripting/memory-api/memory-basics)
+`ReadExports()` — готовый PE-helper из `EyeAuras.Memory.Scaffolding`, поддерживающий PE32 и PE32+. Не нужно писать свой сканер. Если в корректном образе нет таблицы экспортов, возвращается пустой список; ошибка доступа или разбора — другой исход.
 
-Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.
+Представление `MemoryOfModule` не копирует DLL с диска и не владеет процессом. Сначала освобождается представление, затем читатель с его дескрипторами; `process.Memory` заимствовано. Адреса имеют смысл, пока существует этот процесс и загружен модуль. Представление не проверяет автоматически все границы произвольного чтения.
+
+<details>
+<summary>Выбрать другой собственный экземпляр</summary>
+
+Получите его PID из [списка процессов](/ru/scripting/examples/advanced/memory/get-processes) и замените только `Environment.ProcessId`. Нужны соответствующие права чтения и реально загруженный модуль. Старый вариант `LocalProcess.ByProcessName("EyeAuras.exe")` также поддерживается, но выбирает первый совпавший процесс, а не обязательно этот хост. Ни имя, ни PID не фиксируют время жизни приложения.
+
+</details>

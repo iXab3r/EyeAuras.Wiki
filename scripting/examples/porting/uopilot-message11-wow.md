@@ -8,9 +8,55 @@ editor: markdown
 dateCreated: 2025-03-23T22:15:13.718Z
 ---
 
-# Port combat and relogin from UOPilot
+# Port a timed loop with screen-based conditions from UOPilot
 
-## UO Pilot
+The source repeats key sequences while independent deadlines admit less frequent actions. Image and color checks choose recovery branches. In EyeAuras those conditions also come from captured pixels: names such as world, ring and ban are not built-in WoW data.
+
+## Observe a color count without input
+
+You need EyeAuras with C# Script and computer vision. Show an image with a red RGB 255,0,0 region in a separate window you own. Your own picture is enough; no account or password is needed.
+
+1. Create a separate aura with Fixed Value set to Is NOT Active. Add a `C# Script` action under On Enter and open its editor.
+2. Put this complete program in `Script.csx`, click `Run` and select your own window with the picker.
+3. The log shows a count of matching pixels in the actual capture. An exact red region should give a nonzero count; no match gives 0. This is a count, not an area percentage or probability of an application state.
+
+```csharp
+using System.Drawing;
+using EyeAuras.Shared.Osd;
+using EyeAuras.OpenCVAuras.Scripting;
+
+{
+    var window = await GetService<IOsdSelectionService>().PickWindow();
+    cancellationToken.ThrowIfCancellationRequested();
+    if (window == null || !window.IsWindow) { Log.Warn("Window not selected or unavailable"); return; }
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>().ForWindow(window);
+    var count = cv.CountPixels(Color.Red, 100);
+    Log.Info($"Red pixels: {count}");
+}
+```
+
+If the count is unexpected, inspect the selected window and captured color with [Color Search](/en/triggers/images/color-search). The complete port requires the same calibration for every indicator rather than guessing states from filenames.
+
+## Preserve the algorithm's structure
+
+| Source element | Port behavior and boundary |
+| --- | --- |
+| Repeat 350 | Up to 350 main-body series, then a final sequence and another outer pass |
+| Rapidfire, Buff, tDejunk, tFetch, tHeal, tPet | Independent next-admission deadlines compared with DateTimeOffset.Now; not an exact replacement for UOPilot timer |
+| Send_down / Send_up | Press holds between Down and Up and attempts release in finally; the five-second Backspace hold uses the same path |
+| findcolor | CountPixels with a calibrated color, region and threshold. The integer overload uses Color.FromArgb; UOPilot parameters are not automatically equivalent |
+| FindImage | Rectangle.Empty for absence; use ImageSearchRaw and check Detected.Success before an additional Similarity comparison |
+| Regions | Rectangle.FromLTRB for opposite corners, or X/Y/Width/Height for CountPixels |
+| reloger / login / world | Branches driven by prepared screen indicators; sequential searches do not share one atomic frame |
+| Interpreter timing | UOPilot linedelay/EmptyLineDelay and initial startup jitter are not emulated as per-line C# timing; explicit body waits remain separate |
+| YOUR_PASSWORD | Fictional literal only. Text logs part of its argument; this demonstration is not password storage |
+
+Namespace using directives stay above Script.csx's executable block; CV's using var stays inside it. The top-level host supplies GetService, Log, Sleep and cancellationToken. An ordinary class or Razor component requires explicit dependencies and context.
+
+<details>
+<summary>Historical UOPilot source</summary>
+
+These are the original commands, paths, timings and jumps, not an EyeAuras macro file or automatic configuration import. Treat credential-like example text as inert sample data, not account instructions.
 
 ```js
 set #win findwindow (1Wow.exe)
@@ -251,29 +297,35 @@ if #login > 3 or #disc > 10 or #world1 > 90
 end_if
 ```
 
-## Run the C# loop
+</details>
 
-Put the entire block in a top-level EyeAuras C# Script. Open `1Wow.exe`, supply your `world.bmp`, `vopros.bmp`, `ring.bmp` and `ban.bmp` under `C:\Scripts\GWYN\Image`, and adapt the window, colors, regions and key layout. These are example inputs, not universal WoW coordinates.
+<details>
+<summary>Complete C# Script port</summary>
 
-Set the local `password` value before running and keep it out of published code. Run starts the loop; Stop requests cancellation. The selected input simulator and target application determine whether input is accepted; background operation is not promised. After 350 repetitions the original final sequence runs. Detection of the configured blocking indicator returns from the script. This game workflow was not executed here.
+Prepare an open window matching `1Wow.exe`, your own world.bmp, vopros.bmp, ring.bmp and ban.bmp under `C:\Scripts\GWYN\Image`, calibrated regions/colors, a suitable layout and an available Windows Input backend. For an owned test interface, replace the expression, templates and coordinates. These historical constants are not universal WoW coordinates or evidence of a particular client state.
 
-Deadlines use `DateTimeOffset.Now`, not a proven equivalent of UOPilot timers. Sequential image/color searches are not one atomic frame. Regions use `Rectangle.FromLTRB`; thresholds are explicit, not an exact conversion between engines.
+Windows Input activates its target. The expression can match a title, path or process name; narrow [window matching](/en/features/window-matching-expressions) if several windows match. Capture and input use the same window. This complete variant sends actual input, unlike the first program. Keep YOUR_PASSWORD **fictional** in a local demonstration; do not substitute a real secret into logged Text. Recognition can be understood with the read-only program alone.
+
+Put the entire block in the C# action's Script.csx and use Run only after preparing your own controlled target. Stop requests cancellation; the blocking-indicator branch can also return from the script. Body delays use a base value plus Random.Next, whose upper bound is excluded; equivalent random distributions or elapsed timing across engines are not promised.
 
 ```csharp
+using System;
 using System.Drawing;
 using System.Windows.Input;
 using System.IO;
 using EyeAuras.Roxy.Api;
 using EyeAuras.OpenCVAuras.Scripting;
 using EyeAuras.Shared.Services;
+using EyeAuras.Shared.Scaffolding;
 using PoeShared.Scaffolding;
 
 {
     var SendInputWindow = GetService<ISendInputScriptingApi>();
-    var SendInput = SendInputWindow;
+    SendInputWindow.InputSimulatorId = "Windows Input";
+    var SendInput = SendInputWindow; // all keys in this flow target the same window
     var rng = new Random();
     var imageDirectory = @"C:\Scripts\GWYN\Image";
-    var password = "YOUR_PASSWORD";
+    var password = "YOUR_PASSWORD"; // fictional placeholder for this example
     string Image(string name) => Path.Combine(imageDirectory, name);
     int blz = 0, disc = 0, login = 0;
     Rectangle world1 = default, d2 = default, ring = default;
@@ -285,8 +337,12 @@ using PoeShared.Scaffolding;
     void Press(Key key, int delayMs)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        SendInput.KeyDown(key);
-        try { Sleep(delayMs); }
+        try
+        {
+            SendInput.KeyDown(key);
+            Sleep(delayMs);
+            cancellationToken.ThrowIfCancellationRequested();
+        }
         finally { SendInput.KeyUp(key); }
     }
 
@@ -294,11 +350,14 @@ using PoeShared.Scaffolding;
 
     var window = GetService<IWindowSelector>().GetWindow("1Wow.exe");
 
-    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-        .ForWindow(window)
-        .EnableOsd(10);
+    cancellationToken.ThrowIfCancellationRequested();
+    if (!window.IsWindow) { Log.Warn("Window unavailable"); return; }
 
-    SendInputWindow.TargetWindow = window;
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
+        .ForWindow(window) //capture this window
+        .EnableOsd(10); //enable the capture OSD
+
+    SendInputWindow.TargetWindow = window; //input uses this same window
 
     mainLoop:
     while (!cancellationToken.IsCancellationRequested)
@@ -331,23 +390,23 @@ using PoeShared.Scaffolding;
                 goto reloger;
             }
 
-            Sleep(150 + random(250));
-            Press(Key.D1, 50 + random(100));
+            Sleep(150 + random(100));
+            Press(Key.D1, 50 + random(50));
 
-            Sleep(159 + random(250));
-            Press(Key.D1, 50 + random(100));
+            Sleep(159 + random(100));
+            Press(Key.D1, 50 + random(50));
 
-            Sleep(150 + random(250));
-            Press(Key.D1, 50 + random(100));
+            Sleep(150 + random(100));
+            Press(Key.D1, 50 + random(50));
 
-            Sleep(150 + random(250));
-            Press(Key.D1, 50 + random(100));
+            Sleep(150 + random(100));
+            Press(Key.D1, 50 + random(50));
 
             //Rapifire
             if (Rapidfire < DateTimeOffset.Now)
             {
-                Sleep(175 + random(475));
-                Press(Key.D2, 50 + random(100));
+                Sleep(175 + random(300));
+                Press(Key.D2, 50 + random(50));
                 Rapidfire = DateTimeOffset.Now + TimeSpan.FromMilliseconds(500 + random(100));
             }
 
@@ -401,7 +460,7 @@ using PoeShared.Scaffolding;
         Press(Key.F6, 1 + random(10));
         Sleep(100 + random(10000));
         Press(Key.F8, 1 + random(10));
-        Sleep(3000 + random(300));
+        Sleep(3000 + random(400));
         Press(Key.D0, 1 + random(10));
         Sleep(3000 + random(400));
         Press(Key.D8, 1 + random(10));
@@ -411,7 +470,7 @@ using PoeShared.Scaffolding;
         Press(Key.F3, 1 + random(10));
     }
 
-    return;
+    return; // cancellation must not fall through into reloger
 
     reloger:
     {
@@ -448,9 +507,7 @@ using PoeShared.Scaffolding;
             {
                 Press(Key.End, 80 + random(150));
                 Sleep(100);
-                SendInput.KeyDown(Key.Back);
-                try { Sleep(5000); }
-                finally { SendInput.KeyUp(Key.Back); }
+                Press(Key.Back, 5000);
                 goto login;
             }
             else
@@ -487,6 +544,11 @@ using PoeShared.Scaffolding;
     goto mainLoop;
 }
 ```
-`ImageSearchRaw` exposes `Detected`; check `Success` before similarity. `ImageSearch` returns `Rectangle.Empty` when absent. `ForWindow` rectangles are window-relative and are used here as state indicators. `Press` releases a held key in `finally`. Sleep delays longer than 30 ms may return early on cancellation; short pauses do not. Explicit checkpoints bound the loop, while synchronous CV/input calls receive no script token. Releasing a key is not proof that the game processed it. Exact UOPilot parity and relogin behavior depend on the target and remain outside this generic source review.
 
-[CV contracts](/en/scripting/api/computer-vision/images) · [Input contracts](/en/scripting/api/ISendInputScriptingApi) · [Script context](/en/scripting/api/scripting/runtime)
+Deadlines are assigned after their actions, so capture and waiting time also contribute to the real interval. Explicit token checks prevent new iterations after cancellation. Sleep can return early; Press checks the token inside try and then attempts KeyUp in finally for the same target/backend. The synchronous input call receives no script token, so neither Stop nor an elapsed pause guarantees immediate completion. KeyUp can itself fail, and completed effects are not rolled back.
+
+The input variables intentionally alias one context-owned API instance for the same window; do not dispose a borrowed host controller separately. The owned CV accessor is disposed on block exit. ImageSearchRaw exposes detection metadata; Success must be checked before Similarity. Simple ImageSearch rectangles are window-relative and used here as state indicators, not clicks or internal game values.
+
+</details>
+
+The first observable result is the pixel count from your own window. Assess a full loop only after every indicator has a real prepared source. Call completion is not confirmation that another application processed a key or login. [CV contracts](/en/scripting/api/computer-vision/images) · [Input contracts](/en/scripting/api/ISendInputScriptingApi) · [Script context](/en/scripting/api/scripting/runtime).

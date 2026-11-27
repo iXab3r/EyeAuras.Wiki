@@ -185,9 +185,9 @@ separate acquisition has a race: multiple callbacks can observe a free slot.
 
 ## Useful Tips
 
-- ✅ Use `IgnoreModifiers = true` for flexibility if you want to handle combinations regardless of additional modifiers.
-- ✅ Use `SemaphoreSlim` or other synchronization mechanisms if you need to prevent simultaneous calls to the same method.
-- ✅ Remember that methods can accept parameters, whose types are resolved through the script Unity container at invocation (e.g., `IAuraEventLoggingService`).
+- Use `IgnoreModifiers = true` for flexibility if you want to handle combinations regardless of additional modifiers.
+- Use `SemaphoreSlim` or other synchronization mechanisms if you need to prevent simultaneous calls to the same method.
+- Remember that methods can accept parameters, whose types are resolved through the script Unity container at invocation (e.g., `IAuraEventLoggingService`).
 
 
 ## Source lifetime boundary

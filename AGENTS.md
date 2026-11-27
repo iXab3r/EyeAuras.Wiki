@@ -114,7 +114,7 @@ Not every page has a translation yet. Before creating a translated file, check w
 - `/scripting` and `/ru/scripting`
   Scripting docs, API usage, IDE integration, examples, ImGui, Blazor Windows, embedded resources, and related developer workflows.
 
-- Root-level files such as `/home.md`, `/faq.md`, `/contacts.md`, `/permission-model.md`
+- Root-level files such as `/home.md`, `/faq.md`, `/contacts.md`, `/aura-library.md`
   General-purpose landing pages and site-wide informational documents.
 
 - `/assets`
@@ -123,8 +123,15 @@ Not every page has a translation yet. Before creating a translated file, check w
 - `/changelogs/draft`
   Draft or staging changelog material.
 
-- `/YoloEase`, `/ru/YoloEase`, `/Lineage`, `/ru/BankaBot`, `/ru/dma`, `/ru/docs`
+- `/YoloEase`, `/ru/YoloEase`, `/Lineage`, `/ru/dma`, `/ru/docs`
   Product-specific or niche documentation areas. Treat them as specialized sections and follow the local naming/style patterns already present there.
+
+## Retired features
+
+BankaBot is retired. Do not recreate its removed English/Russian sections or promote it
+in current guides, navigation or recipes. Treat the 14 removed pages as retired scope,
+not pending editorial work. Preserve historical release facts and the separate API corpus;
+legacy API examples are not current feature guidance.
 
 ## Markdown document rules
 
@@ -161,7 +168,7 @@ dateCreated: 2026-03-31T00:00:00.000Z
 Rules:
 
 - Keep frontmatter present on normal wiki pages and changelogs.
-- In frontmatter/header values, do **not** use `:` inside the value text because it breaks parsing. Rephrase the value instead.
+- In YAML frontmatter, quote scalar values containing `: ` (colon followed by a space), and validate the resulting YAML. Colons inside correctly quoted values are allowed; do not remove meaningful text just to avoid them.
 - Do not omit the `tags:` field.
 - For new files, prefer adding meaningful tags when the expected format is clear from nearby files.
 - Preserve existing metadata unless there is a good reason to update it.
@@ -245,6 +252,15 @@ These rules apply especially to:
 - generated screenshots, mockups, and visual explainers
 - any image where layout, centering, clipping, or text fit matters
 
+### Callouts for product screenshots
+
+Use the bilingual screenshots in `assets/callouts/batch1` and `assets/callouts/batch2` as references when a reader needs to locate a control, read a result, or follow a connection.
+
+- Start with a real capture. Anchor the highlight to the visible text, icon, or control at native resolution. Leave the measured value and any connecting line visible.
+- Draw one thin, rounded amber corner with a short dash and reflect it horizontally and vertically. Keep equal clearance on opposite sides. For a small port, center the corners on the visible port.
+- Use short labels on dark rounded plates. Give each label clear space and highlight only the controls needed for that step. Produce matching RU and EN figures from the same geometry, keeping the original UI language.
+- Place the figure beside its instruction. If the example uses an earlier editor or a different value from the exercise, say so in the article. Check both languages at article width and inspect small targets at native size.
+
 ### Diagram style for technical SVGs
 
 For custom technical diagrams such as `memory-*`, `pointer-*`, `struct-*`, and similar explainer SVGs, prefer one consistent visual language so new diagrams can be generated quickly and still match the existing set.
@@ -322,6 +338,41 @@ Use decimal notation only for normal human-facing counts or values where decimal
 
 ## Writing style
 
+### User articles, API documentation and recipes
+
+Classify the page by its purpose before editing. User articles explain a product
+workflow; API discovery maps, operation contracts and references follow the
+[API author role](docs/roles/api-docs-author.md) and
+[API practice](docs/practices/api-documentation.md). The user-article layout below
+must not reformat that API corpus, including contract pages outside `scripting/api`.
+Practical scripting tutorials and examples can be user articles; preserve their
+exact code, runtime context, dependencies and supported contracts.
+
+For user articles, start with a concrete human goal and explain what supplies the
+condition or data. Give prerequisites, numbered UI steps with real labels and values,
+and an observable result. Explain new terms before using them. Keep the Russian voice
+direct and concise, without decorative emoji, invented personal experience or claims
+that EyeAuras controls another application's internal events. Do not force identical
+empty sections. Preserve supported capabilities, material limits, URLs and useful media.
+Use the accepted [style snapshot](ai-writing-style-state.md) for parameter tables.
+
+For a full editorial rollout, census every locale and section, including unpublished,
+legacy and specialized material. Freeze source revisions and a purpose-based API blob
+manifest before article edits. Keep the inventory, per-page decisions and verification
+evidence in the owning issue and local `.workspace/`, never in tracked product docs.
+Preserve release archives as historical changelogs; review their facts and format
+without turning old releases into current tutorials or silently dropping them.
+
+The ordered passes are user-article rewriting, then systematic useful cross-references,
+then a separate user-facing recipes section. Follow the selected source language;
+Russian-first work leaves English translation as an explicit later stage. A recipe
+solves one complete user story, from basic UI setup through developer workflows,
+with prerequisites, exact steps or code, expected result, limits and feature links.
+The current recipes target is 30–40 distinct stories. Existing API architecture
+recipes under `scripting/api/recipes` remain part of the separate API corpus.
+Record source review, compilation, supported-host execution and live publication
+as separate evidence; none substitutes for another.
+
 For settings, parameters, properties, and comparable named options, use Markdown tables
 with the exact UI name and a short explanation. Use one consistent format across
 comparable sections of an article. Put optional or advanced groups inside a details
@@ -351,4 +402,3 @@ steps. See [the accepted layout guidance](ai-writing-style-state.md#settings-and
 
 - There are `.html` files alongside some markdown pages. Treat them as legacy/generated artifacts unless the task explicitly asks to edit them.
 - Prefer editing `.md` sources.
-

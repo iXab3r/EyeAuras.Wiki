@@ -7,48 +7,69 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-10-19T13:28:14.334Z
 ---
-# SetTargetWindowSize
+# Задать размер выбранного окна
 
-Ниже `SetTargetWindowSize` — локальная функция примера, а не встроенная команда. Вставьте весь блок в верхнеуровневый файл `C# Script` (действие ауры, скриптовый узел BT или шаг макроса). Откройте Блокнот; пример запросит размер его окна 800×600. Для другого окна измените выражение `notepad.exe`.
+Скрипт может запросить у Windows новый размер уже открытого окна. Для первого опыта откройте собственный пустой Блокнот в обычном оконном режиме и оставьте только одно такое окно: пример запросит наружный размер `800×600`, не печатая в него и не перемещая его.
 
-## Что важно знать
-
-- `targetWindowExpression` может быть заголовком окна, именем процесса и т. д. Подробнее — [здесь](/ru/features/window-matching-expressions)
-- Если `targetWindowExpression` не задан, метод возьмёт `TargetWindow`, настроенный на уровне папки или BT
-- Точно такой же подход можно использовать и для перемещения окна — достаточно заменить `SetWindowSize` на другой метод
+1. В собственной ауре добавьте **C# Script**. Вставьте весь код в `Script.csx`; это функции данного скрипта, а не методы встроенного API или отдельного обычного класса.
+2. Оставьте вызов с `"notepad.exe"` для Блокнота. Для другого своего окна замените [выражение поиска](/ru/features/window-matching-expressions), предварительно проверив, что оно выбирает нужное единственное окно.
 
 ```csharp
+using System;
 using System.Drawing;
-using PoeShared.Native;
 using EyeAuras.Shared.Services;
+using EyeAuras.Shared.Scaffolding;
+using PoeShared.Native;
+using PoeShared.Prism;
 
 SetTargetWindowSize(800, 600, "notepad.exe");
-// SetTargetWindowSize(800, 600); // взять выражение из TargetWindow папки/BT
+// SetTargetWindowSize(new Size(800, 600)); // TargetWindow из переменных папки/BT
 
-private void SetTargetWindowSize(int width, int height, string? targetWindowExpression = default){
+private void SetTargetWindowSize(int width, int height, string targetWindowExpression = null)
+{
     SetTargetWindowSize(new Size(width, height), targetWindowExpression);
 }
 
-private void SetTargetWindowSize(Size newSize, string? targetWindowExpression = default)
+private void SetTargetWindowSize(Size newSize, string targetWindowExpression = null)
 {
-    string windowExpression;
     if (string.IsNullOrEmpty(targetWindowExpression))
     {
-        var defaultWindowVar = Variables.Get<string>("default.WindowSelector.TargetWindow");
-        if (!defaultWindowVar.HasValue)
+        var value = Variables.Get<string>("default.WindowSelector.TargetWindow");
+        if (!value.HasValue || string.IsNullOrEmpty(value.Value))
         {
-            throw new ArgumentException("Folder's TargetWindow is not set");
+            Log.Warn("Сначала задайте TargetWindow или передайте выражение");
+            return;
         }
-        windowExpression = defaultWindowVar.Value;
+        targetWindowExpression = value.Value;
     }
-    else
+
+    using var selector = GetService<IFactory<IWindowSelector>>().Create();
+    var target = selector.FindWindow(targetWindowExpression);
+    if (target == null || !target.IsWindow)
     {
-        windowExpression = targetWindowExpression;
+        Log.Warn("Подходящее окно не найдено");
+        return;
     }
-    var targetWindow = GetService<IWindowSelector>().GetWindow(windowExpression);
-    var accepted = UnsafeNative.SetWindowSize(targetWindow.Handle, newSize);
-    Log.Info($"SetWindowSize accepted: {accepted}; requested: {newSize}");
+    cancellationToken.ThrowIfCancellationRequested();
+    var accepted = UnsafeNative.SetWindowSize(target.Handle, newSize);
+    var actual = UnsafeNative.GetWindowRect(target.Handle);
+    Log.Info($"Окно: {target.Title}; запрос: {newSize}; accepted: {accepted}; границы: {actual}");
 }
 ```
 
-`PoeShared.Native.UnsafeNative.SetWindowSize` вызывает `SetWindowPos` без перемещения, смены Z-порядка и активации. Проверьте видимый результат в целевом окне: приложение может ограничивать размер, быть развёрнутым или обрабатывать запрос по-своему. Это нативный размер окна, не обещание клиентской области 800×600; рамка, DPI и экранные координаты ввода — разные контексты. Значение `accepted` отражает результат вызова обёртки, а не измерение итоговой геометрии. [Карта окон](/ru/scripting/api/windows-subsystems/window-handles) ведёт к контрактам SDK; токен отмены в этот нативный вызов не передаётся.
+3. Нажмите **Run**. Блокнот должен изменить размер; журнал покажет адресата, запрос, результат вызова и прочитанные наружные границы. Если окна нет, выводится отдельное сообщение — это не успешное изменение.
+4. Измените размер в вызове, например на `1000, 700`, и повторите запуск для того же своего окна.
+
+| Параметр или результат | Смысл |
+| --- | --- |
+| `width`, `height` или `Size` | Размер, передаваемый нативному `SetWindowPos`. Оба варианта локальной функции сохранены. |
+| `targetWindowExpression` | Явное выражение поиска. Если оно пустое, функция читает `default.WindowSelector.TargetWindow` из доступной иерархии переменных. |
+| `TargetWindow` папки/BT | Настройка источника выражения для вызова без третьего аргумента. Она должна быть задана; скрипт её не создаёт. |
+| `accepted` | Результат обёртки нативного запроса, а не измерение итоговой геометрии. |
+| `GetWindowRect` | Наружные границы HWND, включая рамки Windows. Они отличаются от клиентской области и видимой рамки `DwmFrameBounds`. |
+
+`SetWindowSize` не меняет положение, порядок окон или активацию. Он не пересчитывает DPI и не обещает клиентскую область `800×600`: нативные координаты зависят от DPI-контекста процесса. Приложение может ограничивать размер или оставаться развёрнутым, поэтому сравнивайте видимый результат и прочитанные границы.
+
+Фабрика заимствована у хоста, созданный объект выбора окна освобождается при выходе из функции; окно этим не закрывается. Токен проверяется перед вызовом, но в сам `SetWindowSize` не передаётся. Для перемещения нужен другой нативный вызов с его собственными параметрами — изменение размеров не является командой перемещения.
+
+Подробнее — [система координат](/ru/features/coordinate-system) и [контракты поиска окон](/ru/scripting/api/windows-subsystems/window-handles).

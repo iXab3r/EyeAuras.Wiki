@@ -1,0 +1,84 @@
+{
+ "image": {
+  "file": "raw-macro.png",
+  "width": 1428,
+  "height": 857
+ },
+ "mapping": {
+  "devicePixelRatio": 1,
+  "cdpViewport": [
+   1428,
+   856
+  ],
+  "cdpScreenXY": [
+   316,
+   203
+  ],
+  "windowRect": {
+   "left": 310,
+   "top": 165,
+   "width": 1440,
+   "height": 900
+  },
+  "clientToWindowCapture": [
+   6,
+   38
+  ],
+  "windowCaptureCrop": {
+   "x": 6,
+   "y": 5,
+   "width": 1428,
+   "height": 857,
+   "note": "outer grey frame (6/5/6 px) + bottom status strip removed, same as showcase pipeline"
+  },
+  "clientToRaw": [
+   0,
+   33
+  ],
+  "verifiedBy": "selected row wrapper client x286..1052,y116..140 -> capture x292..1057,y154..177; Name input border client (1192,182.3) -> capture (1198,220)"
+ },
+ "rects": {
+  "nestedLoops": {
+   "label": "Вложенные циклы",
+   "x": 318,
+   "y": 293,
+   "width": 272,
+   "height": 288,
+   "client": {
+    "x": 318,
+    "y": 260,
+    "width": 272,
+    "height": 288
+   },
+   "source": "rows 'Repeat 2 times' (.ant-tree-node-content-wrapper x=318,y=260) .. 'Press MouseLeft' (bottom 548); right edge = max left-text extent 581.2 + 8.8"
+  },
+  "auraCondition": {
+   "label": "Условие по ауре",
+   "x": 286,
+   "y": 197,
+   "width": 304,
+   "height": 72,
+   "client": {
+    "x": 286,
+    "y": 164,
+    "width": 304,
+    "height": 72
+   },
+   "source": "rows 'IfThenElse' (wrapper x=286,y=164) .. 'Check Workspace ready' (bottom 236); right edge aligned with nestedLoops"
+  },
+  "sessionVariable": {
+   "label": "Переменная сессии",
+   "x": 1111,
+   "y": 215.3,
+   "width": 305,
+   "height": 40,
+   "client": {
+    "x": 1111,
+    "y": 182.3,
+    "width": 305,
+    "height": 40
+   },
+   "source": ".bt-script-node-editor .r-expander-content rows 'Name' (y=182.3,h=20) + 'Value' (y=202.3,h=20), x=1111..1416"
+  }
+ }
+}

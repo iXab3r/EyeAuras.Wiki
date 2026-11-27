@@ -8,95 +8,69 @@ editor: markdown
 dateCreated: 2024-08-29T14:37:33.998Z
 ---
 
-# Использование Selenium для автоматизации браузера
-> Импортировать готовый пример можно отсюда https://eu.eyeauras.net/share/S20240829142432YXyi4jtEdmlm
-{.is-info}
+# Заполнить свою тестовую страницу через Selenium
 
-## Зачем ?
-Поиск изображений и симуляция пользовательского ввода хороши, когда мы работаем с играми или какими-то НЕструктурированными данными. Если задача автоматизировать что-то в браузере, то я крайне рекомендую посмотреть в сторону использования [Selenium](https://www.selenium.dev/) и [MS Edge](https://www.microsoft.com/en-us/edge?ep=657&form=MA13FJ&es=40). Это проверенная временем и целой индустрией связка, которая позволяет работать с веб-страницами и дает вам полную власть над тем, что там происходит. По сути, **Selenium** решает те же проблемы, которые решает глаз, но исключительно для браузеров.
-Огромный плюс такого вида автоматизации в том, что вы можете управлять множеством окон одновременно и у вас не будет никаких проблем с пересечением ввода или неверными детектами - команды WebDriver адресуются конкретной браузерной сессии. Общие файлы, процессы и ресурсы машины от этого не становятся полностью изолированными.
+Selenium работает с элементами страницы: находит поле по имени, вводит текст и читает результат из DOM. Для такой задачи не нужны снимок окна и поиск пикселей. Здесь отдельный сеанс Microsoft Edge откроет ваш локальный HTML-файл, введёт `EyeAuras` и прочитает это значение обратно в журнал EyePad.
 
-## Открыть Bing и отправить запрос
+Нужны установленный Microsoft Edge и соответствующий ему **Microsoft Edge WebDriver**. Посмотрите версию в `edge://settings/help`, скачайте драйвер с [официальной страницы Microsoft](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/) и распакуйте, например, в `C:\Tools\EdgeDriver`. У браузера и драйвера должны совпадать первые три части номера версии; это [требование Microsoft](https://learn.microsoft.com/en-us/microsoft-edge/webdriver/). Selenium и драйвер — разные зависимости.
 
-Вставьте весь код ниже в верхнеуровневый файл действия `C# Script` в Windows. Нужны установленный Edge, доступ к NuGet и сети, возможность записать драйвер на диск и совместимый Edge WebDriver. [Официальное руководство Selenium](https://www.selenium.dev/documentation/webdriver/browsers/edge/) требует согласовать основную версию браузера и драйвера. Закреплённые версии пакетов ниже сохранены; их совместимость с вашим браузером не проверена.
+## Прочитать значение собственного поля
 
-Входы примера — `https://www.bing.com`, имя элемента `q` и строка `Selenium C# example`. Страница, форма и сетевые задержки могут измениться; `Sleep(5000)` — фиксированная пауза, а не проверка готовности DOM.
+1. Создайте **C# Script** в [EyePad](/ru/features/eyepad).
+2. В `driverDirectory` укажите папку, содержащую ваш `msedgedriver.exe`. Вставьте программу в `Script.csx`.
+3. Нажмите `Run`. Скрипт создаёт временную страницу и отдельный сеанс Edge без видимого окна; он не подключается к вашим открытым вкладкам или профилю.
+4. В журнале появится `Значение поля: EyeAuras`. После завершения сеанс браузера и драйвер закрываются, временный файл удаляется.
 
-## Что тут вообще происходит
-Код ниже выполняет несколько действий:
-1. Проверяет, что у вас есть все необходимые компоненты для запуска этой автоматизации. Если нет - докачивает их и кладет в папочку рядом.
-2. Запускает браузер. В качестве примера запускается полновесный браузер с интерфейсом.
-3. Открывает страницу поисковика bing.com
-4. Вбивает текст
-5. Нажимает Submit
-6. Завершает скрипт и закрывает браузер
-
-## Как это кастомизировать
-Полноценное описание работы с Selenium не уместится даже в одну книгу, не говоря уже про маленькую статью. Информации в интернете масса, ChatGPT тоже отлично ориентируется в нем, так что дерзайте :)
-
-## Пример кода (актуальная версия по ссылке выше)
 ```csharp
 #r "nuget: Selenium.WebDriver, 4.24.0"
-#r "nuget: WebDriverManager, 2.17.4"
-#r "nuget: SharpZipLib, 1.4.2"
-#r "nuget: AngleSharp, 1.1.2"
 
 using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
+using System;
+using System.IO;
 
-// Initialize the Edge WebDriver
-using (var driver = InitializeSeleniumDriver())
 {
-    // Открываем Bing
-    driver.Navigate().GoToUrl("https://www.bing.com");
-
-    Sleep(5000);
-    cancellationToken.ThrowIfCancellationRequested();
-
-    // Find the search box using its name attribute
-    IWebElement searchBox = driver.FindElement(By.Name("q"));
-
-    // Type the search query into the search box
-    searchBox.SendKeys("Selenium C# example");
-
-    // Submit the form
-    searchBox.Submit();
-
-    // Wait for a few seconds to see the results
-    Sleep(5000);
-    cancellationToken.ThrowIfCancellationRequested();
-}
-
-EdgeDriver InitializeSeleniumDriver(){
-    Log.Info("Ensuring that we have webdriver installed");
-    var driverPath = new WebDriverManager.DriverManager()
-        .SetUpDriver(new WebDriverManager.DriverConfigs.Impl.EdgeConfig());
-
-    Log.Info($"Initializing webdriver session using driver @ {driverPath}");
-
-    // Set up the Edge WebDriver options
-    var options = new EdgeOptions(){
-    LeaveBrowserRunning = false
-    };
-
-    var service = EdgeDriverService.CreateDefaultService(
-        driverPath: Path.GetDirectoryName(driverPath),
-        driverExecutableFileName: Path.GetFileName(driverPath)
-    );
-    service.UseVerboseLogging = true;
-    return new EdgeDriver(service, options);
+    var driverDirectory = @"C:\Tools\EdgeDriver";
+    var page = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".html");
+    try
+    {
+        File.WriteAllText(page,
+            "<!doctype html><meta charset='utf-8'><title>Local demo</title>" +
+            "<label>Имя <input name='demo'></label>");
+        cancellationToken.ThrowIfCancellationRequested();
+        using var service = EdgeDriverService.CreateDefaultService(driverDirectory);
+        var options = new EdgeOptions { LeaveBrowserRunning = false };
+        options.AddArgument("--headless=new");
+        using var driver = new EdgeDriver(service, options);
+        driver.Navigate().GoToUrl(new Uri(page).AbsoluteUri);
+        cancellationToken.ThrowIfCancellationRequested();
+        var field = driver.FindElement(By.Name("demo"));
+        field.SendKeys("EyeAuras");
+        Log.Info($"Значение поля: {field.GetAttribute("value")}");
+    }
+    finally
+    {
+        File.Delete(page);
+    }
 }
 ```
 
-На экране должны появиться Bing и результаты запроса. `SetUpDriver` может скачать драйвер и создать файлы в рабочем окружении; точный путь напечатается в журнале. `using` завершает сессию драйвера; здесь `LeaveBrowserRunning = false`, браузер не оставляется намеренно. После `Sleep` пример явно проверяет отмену. Синхронные вызовы WebDriver не получают токен скрипта и могут ждать собственного тайм-аута. Этот пример не запускался в браузере. [Карта автоматизации браузера](/ru/scripting/api/scripting/browser-automation) помогает выбрать следующий шаг.
+`Log` и `cancellationToken` здесь принадлежат верхнеуровневому скрипту EyeAuras. В обычном C#-классе передайте журнал и токен явно. Selenium выполняет синхронные команды: проверка токена между ними не прерывает уже ожидающую ответа команду WebDriver. Выход из блока освобождает принадлежащий скрипту драйвер и его сеанс, а не чужие окна Edge.
 
-## Контракты закреплённых версий
+| Что выбрать | Результат |
+|---|---|
+| `By.Name("demo")` | Поиск элемента по атрибуту `name`; также доступны `By.CssSelector` и `By.XPath`. |
+| `SendKeys` / `GetAttribute("value")` | Ввод в найденное поле и чтение его значения, без отправки формы. |
+| `--headless=new` | Edge работает без видимого окна. Для просмотра собственной тестовой страницы можно убрать этот аргумент. |
+| `Click()` / `Submit()` | Нажатие элемента или отправка формы на вашей странице; сами по себе эти методы не находят нужный элемент. |
 
-[EdgeDriver 4.24.0](https://github.com/SeleniumHQ/selenium/blob/selenium-4.24.0/dotnet/src/webdriver/Edge/EdgeDriver.cs)
-имеет используемый конструктор `(EdgeDriverService, EdgeOptions)`.
-[WebDriver.Dispose](https://github.com/SeleniumHQ/selenium/blob/selenium-4.24.0/dotnet/src/webdriver/WebDriver.cs)
-отправляет команду Quit при наличии сессии и освобождает исполнитель команд.
-[WebDriverManager 2.17.4](https://github.com/rosolko/WebDriverManager.Net/blob/2.17.4/WebDriverManager/DriverManager.cs)
-возвращает путь бинарника из `SetUpDriver`; без явной версии он выбирает Latest,
-а каталог загрузки по умолчанию основан на текущем рабочем каталоге.
-Latest не означает совпадение с версией установленного браузера.
+Для загружаемой по сети страницы готовность навигации не гарантирует появления всех динамических элементов: ожидание нужного элемента настраивается отдельно. Несколько созданных драйверов дают отдельные сеансы; это не управление любым существующим окном браузера.
+
+<details>
+<summary>Прежний вариант с WebDriverManager</summary>
+
+[Исходный пример](https://eu.eyeauras.net/share/S20240829142432YXyi4jtEdmlm) использует `Selenium.WebDriver 4.24.0`, `WebDriverManager 2.17.4`, `SharpZipLib 1.4.2` и `AngleSharp 1.1.2`. Он открывает Bing и отправляет поисковую форму. Для знакомства достаточно локального примера выше.
+
+В WebDriverManager 2.17.4 вызов `new WebDriverManager.DriverManager().SetUpDriver(new WebDriverManager.DriverConfigs.Impl.EdgeConfig())` выбирает последнюю версию драйвера, а не обязательно версию установленного Edge. Режим `WebDriverManager.Helpers.VersionResolveStrategy.MatchingBrowser` передаётся вторым аргументом. Эта версия библиотеки использует старые адреса загрузки Microsoft; при их недоступности подготовьте подходящий драйвер вручную, как описано выше. Добавление ссылки NuGet само по себе браузер не устанавливает.
+
+</details>

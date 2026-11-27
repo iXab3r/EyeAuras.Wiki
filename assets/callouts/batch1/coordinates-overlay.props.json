@@ -1,0 +1,63 @@
+{
+ "src": "raw-coordinates-overlay.png",
+ "imageWidth": 800,
+ "imageHeight": 306,
+ "padding": {
+  "left": 72,
+  "top": 72,
+  "right": 72,
+  "bottom": 96
+ },
+ "radius": 10,
+ "color": "#f5a623",
+ "labelColor": "#1c1c1c",
+ "dim": 0.3,
+ "inflate": 4,
+ "stroke": 2,
+ "highlights": [
+  {
+   "x": 36,
+   "y": 67,
+   "width": 383,
+   "height": 80,
+   "label": "Положение и размер",
+   "side": "right"
+  },
+  {
+   "x": 36,
+   "y": 157,
+   "width": 383,
+   "height": 80,
+   "label": "Смещение",
+   "side": "right"
+  },
+  {
+   "x": 193,
+   "y": 248,
+   "width": 118,
+   "height": 20,
+   "label": "Якорь области",
+   "side": "right",
+   "pad": [
+    3,
+    4,
+    3,
+    4
+   ]
+  },
+  {
+   "x": 193,
+   "y": 277,
+   "width": 118,
+   "height": 20,
+   "label": "Якорь содержимого",
+   "side": "right",
+   "pad": [
+    3,
+    4,
+    3,
+    4
+   ]
+  }
+ ]
+}

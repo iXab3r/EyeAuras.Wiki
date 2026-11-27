@@ -1,0 +1,63 @@
+{
+ "src": "raw-bt-getting-started-key-press.png",
+ "imageWidth": 988,
+ "imageHeight": 640,
+ "padding": {
+  "left": 72,
+  "top": 72,
+  "right": 72,
+  "bottom": 96
+ },
+ "radius": 10,
+ "color": "#f5a623",
+ "labelColor": "#1c1c1c",
+ "dim": 0.3,
+ "inflate": 4,
+ "stroke": 2,
+ "highlights": [
+  {
+   "x": 671,
+   "y": 116,
+   "width": 283,
+   "height": 27,
+   "label": "Клавиша",
+   "side": "left"
+  },
+  {
+   "x": 671,
+   "y": 152,
+   "width": 302,
+   "height": 29,
+   "label": "Задержка нажатия",
+   "side": "left",
+   "pad": [
+    4,
+    4,
+    0,
+    4
+   ]
+  },
+  {
+   "x": 671,
+   "y": 183,
+   "width": 236,
+   "height": 72,
+   "label": "Тип нажатия",
+   "side": "left",
+   "pad": [
+    1,
+    4,
+    4,
+    4
+   ]
+  },
+  {
+   "x": 671,
+   "y": 259,
+   "width": 304,
+   "height": 113,
+   "label": "Окно и симулятор — из папки",
+   "side": "left"
+  }
+ ]
+}

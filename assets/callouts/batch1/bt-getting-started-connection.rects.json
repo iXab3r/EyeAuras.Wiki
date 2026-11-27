@@ -1,0 +1,72 @@
+{
+ "image": {
+  "file": "raw-bt-getting-started-connection.png",
+  "width": 680,
+  "height": 370
+ },
+ "frame": "bt-getting-started-connection",
+ "purpose": "ru/behavior-trees/gettings-started.md step 3 (connect the entry output to the Sequence input)",
+ "mapping": {
+  "devicePixelRatio": 1,
+  "cdpViewport": [
+   1428,
+   856
+  ],
+  "windowSize": [
+   1440,
+   900
+  ],
+  "clientToWindowCapture": [
+   6,
+   38
+  ],
+  "captureCrop": {
+   "x": 406,
+   "y": 288,
+   "width": 680,
+   "height": 370
+  },
+  "clientCrop": {
+   "x": 400,
+   "y": 250,
+   "width": 680,
+   "height": 370
+  },
+  "clientToRaw": [
+   -400,
+   -250
+  ],
+  "app": "1.10.10127.0 (Sources/bin launcher, --appVersion)",
+  "source": "raw-b6.png"
+ },
+ "rects": {
+  "rootOutput": {
+   "label": "Выход: тяните отсюда",
+   "x": 323,
+   "y": 75,
+   "width": 12,
+   "height": 13,
+   "client": {
+    "x": 722.6,
+    "y": 324.9,
+    "width": 12,
+    "height": 12.7
+   },
+   "source": "My Tree node socket-output (data-testid output-O)"
+  },
+  "sequenceInput": {
+   "label": "Вход: отпустите здесь",
+   "x": 323,
+   "y": 138,
+   "width": 12,
+   "height": 13,
+   "client": {
+    "x": 722.6,
+    "y": 388.4,
+    "width": 12,
+    "height": 12.7
+   },
+   "source": "Sequence node socket-input (data-testid input-I)"
+  }
+ }
+}

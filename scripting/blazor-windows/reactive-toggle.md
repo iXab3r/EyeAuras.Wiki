@@ -7,90 +7,92 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T14:35:20.794Z
 ---
+# Refresh a toggle after a hotkey change
 
-# Controlling an aura through the UI
-The previous code works, but it's imperfect. Clicking the button toggles the trigger and aura as expected. But if you activate the trigger with a **hotkey**, the UI doesn't re-render because it doesn't know it should. We need to signal an update.
+A panel should show a trigger change even when it came from a hotkey. Observe `TriggerValue` so the component refreshes on notifications rather than continuously polling.
 
-For simplicity we solve it head-on: the interface will refresh **once per second**. It's not optimal, but fine for a very simple UI.
+Prepare neighbouring `TargetAura` and panel auras as in [the first toggle](/en/scripting/blazor-windows/4-toggle-hotkeyisactive): **Hotkey Is Active → Toggle** on the target, **C# Overlay** and its own **Fixed Value → Is Active** on the panel. Both must stay loaded.
 
-## Prepare the overlay and target auras
-
-Create a **C# Overlay v3** aura and `TargetAura` in the same folder. Add `HotkeyIsActive` in toggle mode to each target and keep them loaded. The shown `./TargetAura` paths resolve relative to the overlay context; adjust them to your actual tree. If several triggers match, the first is selected.
-
-Replace `UserOverlay.cs` and `UserOverlay.razor` with the corresponding complete blocks below. They are parts of one `public partial` class in the same namespace. `[Inject]` supplies `AuraTree`; Script.csx globals are not component globals.
+1. Replace the two component files below; leave the short `Script.csx` unchanged.
+2. After compilation, compare the panel text with `TargetAura`'s trigger state.
+3. Toggle the trigger with its hotkey, then with the panel button. Both change the same source, and the text updates in both cases.
 
 ## UserOverlay.cs
+
 ```csharp
-using System;
-using System.Reactive.Linq;
+using System.Threading.Tasks;
+using ReactiveUI;
 using Microsoft.AspNetCore.Components;
 using PoeShared.Blazor;
 using EyeAuras.Scripting.Api;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 
-public partial class UserOverlay : BlazorReactiveComponent {
+namespace BlazorDemo;
 
+public partial class UserOverlay : BlazorReactiveComponent
+{
     [Inject]
-    public IAuraTreeScriptingApi AuraTree { get; init; }
+    public IAuraTreeScriptingApi AuraTree { get; set; }
 
-    public IHotkeyIsActiveTrigger Trigger
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
-    }
-
-    public bool TriggerIsActive
-    {
-        get => Trigger.TriggerValue ?? false;
-        set => Trigger.TriggerValue = value;
-    }
+    private IHotkeyIsActiveTrigger trigger;
+    private bool IsActive => trigger.TriggerValue ?? false;
 
     protected override void OnInitialized()
     {
-        ChangeTrackers.Add(Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1)));
+        trigger = AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
+        ChangeTrackers.Add(trigger.WhenAnyValue(x => x.TriggerValue));
         base.OnInitialized();
+    }
+
+    private async Task SetActive(bool value)
+    {
+        trigger.TriggerValue = value;
+        await Refresh("toggle clicked");
     }
 }
 ```
 
 ## UserOverlay.razor
-```html
+
+```razor
+@namespace BlazorDemo
 @using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
-<h3 class="text-center shadow-1">Toggle Trigger</h3>
-
-<div class="text-center mt-4">
-    <ToggleButton @bind-IsChecked="@TriggerIsActive"
-    Class="btn btn-secondary">
-                Trigger is Active
-    </ToggleButton>
-</div>
-
-<p class="text-center mt-3 alert alert-info" style="font-size: 1.5rem;">
-    @if (TriggerIsActive){
-        <span class="shadow-1">Trigger is currently active</span>
-    } else {
-        <span class="text-warning shadow-1">Trigger is currently not active</span>
-    }
-</p>
+<h3>Control TargetAura</h3>
+<ToggleButton IsChecked="@IsActive" IsCheckedChanged="SetActive"
+              Class="btn btn-secondary">
+    Toggle trigger
+</ToggleButton>
+<p>Trigger: @(IsActive ? "on" : "off")</p>
 ```
 
-![Demo](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_W7LNmgAsPK.gif)
+![External changes updating the panel in the earlier example](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_W7LNmgAsPK.gif)
 
----
+| Mechanism | Purpose |
+| --- | --- |
+| `WhenAnyValue(x => x.TriggerValue)` | Reads the initial value and observes property-change notifications. Requires `using ReactiveUI`. |
+| `ChangeTrackers.Add(...)` | Gives the observable to `BlazorReactiveComponent`. Add it before `base.OnInitialized()`, which seals and connects the list. |
+| `IsActive` | Reads the same trigger when rendering; this UI displays `null` as off. |
+| `Refresh("toggle clicked")` | Updates through the component dispatcher after a button write. The base also handles signals from `ChangeTrackers`. |
 
-## Breakdown
-## UserOverlay.cs
+No manual `Subscribe` or mirrored variable is needed here. The base owns the subscription through its `Anchors` and releases it with the component. Hiding a window does not mean disposing it. A short `using` in `Script.csx` would have a different lifetime and is not the place to own this observer.
+
+This uses notifications from the existing trigger, not an assumption that arbitrary auto-properties in Razor or `.csx` are woven. The path is relative to the panel context; lookup requires the intended loaded trigger. Its value does not override the aura's other activity conditions.
+
+<details>
+<summary>Polling a source without notifications</summary>
+
+For a source that cannot notify, replace the `ChangeTrackers.Add(trigger.WhenAnyValue(...))` line with this fragment inside `OnInitialized`, before the base call:
+
 ```csharp
- protected override void OnInitialized()
-    {
-        ChangeTrackers.Add(Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1)));
-        base.OnInitialized();
-    }
+ChangeTrackers.Add(System.Reactive.Linq.Observable.Timer(
+    System.DateTimeOffset.Now, System.TimeSpan.FromSeconds(1)));
 ```
-EyeAuras uses a mechanism to control rendering. One of the simplest ways to use it is to add an event to `ChangeTrackers` in `OnInitialized`. Here it's just a timer—every tick forces the interface to re-render. It doesn't check whether anything changed; it simply says "re-render".
 
-Later we'll look at optimizing via `ReactiveSection` and more precise tracking. For many situations this approach is good enough—`Blazor` is fast and doing a "blank" re-render with a simple UI isn't a crime.
+This refreshes periodically and can show external changes with a delay. Do not add both mechanisms without a reason. [Multiple toggles](/en/scripting/blazor-windows/multiple-toggles) uses this timer for a whole panel.
 
-The button writes `TriggerValue`, and the hotkey changes the same trigger. The `ChangeTrackers` timer rereads it about once per second, so external changes appear with a delay. Add the timer before `base.OnInitialized()`, which seals the tracker list and owns the subscriptions through component `Anchors`. Hiding a window is not the same as disposing its component.
+For a larger component, `ReactiveSection` can limit updates to the fragment that depends on a source; it is a separate optimisation, not required for this button.
+
+</details>

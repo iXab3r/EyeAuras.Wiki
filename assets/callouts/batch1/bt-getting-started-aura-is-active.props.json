@@ -1,0 +1,41 @@
+{
+ "src": "raw-bt-getting-started-aura-is-active.png",
+ "imageWidth": 988,
+ "imageHeight": 640,
+ "padding": {
+  "left": 72,
+  "top": 72,
+  "right": 72,
+  "bottom": 96
+ },
+ "radius": 10,
+ "color": "#f5a623",
+ "labelColor": "#1c1c1c",
+ "dim": 0.3,
+ "inflate": 4,
+ "stroke": 2,
+ "highlights": [
+  {
+   "x": 671,
+   "y": 127,
+   "width": 118,
+   "height": 27,
+   "label": "Выбор ауры",
+   "side": "left"
+  },
+  {
+   "x": 671,
+   "y": 199,
+   "width": 304,
+   "height": 57,
+   "label": "Аура и нужное состояние",
+   "side": "left",
+   "pad": [
+    2,
+    4,
+    2,
+    4
+   ]
+  }
+ ]
+}

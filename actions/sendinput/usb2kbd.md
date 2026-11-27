@@ -1,6 +1,6 @@
 ---
 title: Creating your own Usb2Kbd
-description: 
+description: Connect a compatible USB HID input device or prepare the documented ATmega8 variant
 published: true
 date: 2025-06-26T23:05:46.103Z
 tags: 
@@ -8,153 +8,110 @@ editor: markdown
 dateCreated: 2025-06-26T21:39:17.968Z
 ---
 
-[Usb2Kbd](https://usb2kbd.ru/) is an Arduino-based input device capable of sending key presses on command. In essence, it's a programmable keyboard/mouse.  
-With this device, you can automate even the most uncooperative software or systems.
+# Use a Usb2Kbd device
 
-## Why not just buy it from the official site?
+A compatible physical Usb2Kbd can receive keyboard and mouse commands from EyeAuras. For a first check, enter **7** in your own empty test field: you can see the result without submitting a form or accessing game data.
 
-You **can** buy a pre-flashed device from the author. However, due to recurring issues with different device batches in the past, a more reliable solution is to build a clone yourself — this way, you get a proven working device with a verified firmware version.
+You need the supported USB variant and compatible firmware. EyeAuras talks directly to its HID interface without the bundled DLL. The [Usb2Kbd author's site](https://usb2kbd.ru/) also describes LAN/COM models with another command transport; the shared product name does not make those models compatible with this USB implementation.
 
-The author’s distribution model assigns a **unique VID/PID** and bundles a **custom DLL** with each device. This is **extremely** inconvenient when using the device on multiple machines or sharing setups.  
-Additionally, the original DLLs had multiple bugs that had to be patched on the client side. As of now, **EyeAuras does NOT use any extra libraries** and communicates with the device directly.
+![Two ATmega8 USBASP boards from the assembly example](https://s3.eyeauras.net/media/2025/06/IMG_3699.jpg =x400)
 
-![Close up](https://s3.eyeauras.net/media/2025/06/IMG_3699.jpg =x400)
+## Connect an already prepared device
 
-# What You’ll Need
+Before starting, connect an already flashed, compatible controller to the computer running EyeAuras. Know its **VID/PID** and **Serial number**. The firmware variant in the archive below uses **VID_0245&PID_D342** and **1232**; use the real values for a different device.
 
-- 15 minutes of your time
-- Firmware tool: **Khazama AVR Programmer** (included in archive)
-- USBASP driver (included in archive)
-- Firmware file (included in archive)
-- **TWO** (important!) **USBASP** devices based on **ATMega8** – costs around **$5** each  
-  - [US] Amazon – example: https://www.amazon.com/Ferwooh-Downloader-Programmer-Microcontroller-Adapter/dp/B08DTRPT1Z/  
-  - [RU] Robot-kit – https://robot-kit.ru/3370/
-- Cable to connect the devices (usually included)
-- Paperclip or jumper – needed to short **JP2** on the device being flashed
+1. Create a test aura with **Send Sequence**. Add **7** from the main number row through **Keyboard**, keeping **Key down → delay → Key up**.
+2. Open **Advanced input settings** and select **Input Simulator = Usb2Kbd device**.
 
-# Instructions
+   The older image shows the selector and unconfigured-device warning:
 
-### Download the archive with prerequisites
-Download link: https://s3.eyeauras.net/media/2025/06/usb2kbd.zip
+   ![Usb2Kbd device selected for Send Sequence](https://s3.eyeauras.net/media/2025/06/EyeAuras_u05n6CbeSHjASUB3.png =x600)
 
-### Prepare the target device – short JP2
-Pick one of the devices — doesn't matter which. Initially, both are the same. One will become your Usb2Kbd device, the other will act as the programmer.
+3. Choose **Install...** to open **Usb2Kbd settings**. Here Install configures EyeAuras' connection; it does not flash the controller.
+4. For the archived firmware variant, choose **Detect automatically** and check the values. This button immediately saves the specific **VID_0245&PID_D342 / 1232** profile; it does not enumerate arbitrary connected devices. For another compatible variant, enter its Device and Serial number manually.
+5. Leave **Post-operation delay = 5 ms** and select **Ok**. These device settings are global to this input method.
 
-On the **target device** (the one you're flashing), **short the JP2 pins**. A paperclip works — just make sure the contacts aren’t touching anything else.
+   ![Device, Serial number and Post-operation delay settings](https://s3.eyeauras.net/media/2025/06/ShareX_dfe3exVzay6OP5YN.png =x200)
 
-![Target device](https://s3.eyeauras.net/media/2025/06/IMG_3698.jpg =x400)
+6. Select your test application's **Target Window**, keep **Block User input = None** and enable **Key/Button State**. Focus the empty field and use **Execute**. One digit 7 should appear.
+7. If nothing appears, check connection, VID/PID, serial and focus. A saved identifier or disappearing warning confirms configuration, not receipt by the application.
 
-### Connect the devices
+![Saved device connection settings in the older interface](https://s3.eyeauras.net/media/2025/06/EyeAuras_jFqVNV0vHSnfn5dJ.png)
 
-Use the ribbon cable to connect both devices. Make sure it’s firmly seated.
+| Setting | Meaning |
+| --- | --- |
+| Device | HID identifier fragment, such as VID_0245&PID_D342. The implementation looks for that device's control HID collection |
+| Serial number | Number included in command packets; it must match the firmware |
+| Post-operation delay | Minimum spacing between commands; the current implementation clamps it to at least 5 ms, even if a lower value is entered |
+| Detect automatically | A preset for the described variant, saved as soon as it is clicked |
+| Reset | Resets values in the settings window; Ok saves them |
+| Target Window | Recipient of ordinary desktop input. The device shares focus and cursor state rather than providing a separate background channel |
 
-You should have something like this:
+The protocol includes key, button, wheel and movement commands with the serial number in the packet. This is not any arbitrary Arduino keyboard: its firmware must understand this format. Movement also accounts for DPI; recheck [coordinates](/en/features/coordinate-system) after changing monitor or scaling.
 
-- **Target (1)** – the one being flashed (with JP2 shorted)
-- **Programmer (2)** – used to flash Target (1)
+## Apply the input method to a folder
 
-![Wired](https://s3.eyeauras.net/media/2025/06/Photos_qt6wFLu8IX5vnwJi.jpg =x500)
+For a group, enable **Folder Properties → Triggers/Actions/Overlays Defaults → Input Simulator = Usb2Kbd device**. Check existing action bindings or deliberately use **Apply to All**. Global Device/Serial settings do not replace simulator selection on a component.
 
-### Connect to the computer
+![Usb2Kbd device in folder defaults](https://s3.eyeauras.net/media/2025/06/EyeAuras_X3t0uKQGRPWRfFLN.png)
 
-Plug **Programmer (2)** (the one WITHOUT the jumper) into a USB port.
+<details>
+<summary>Build the archived two-USBASP ATmega8 variant</summary>
 
-A light may turn on (depends on the model), first on **Programmer (2)**, then on **Target (1)**.  
-_P.S.: After flashing, the LED on Target (1) will no longer light up — useful to tell them apart._
+This is a separate hardware-preparation route for the original example. You need **two ATmega8 USBASP boards**, their ribbon cable, a **JP2** jumper and the [firmware/tool archive](https://s3.eyeauras.net/media/2025/06/usb2kbd.zip). One board becomes Target; the other remains Programmer. Do not transfer these steps to a different board or microcontroller without its documentation.
 
-![Inserted](https://s3.eyeauras.net/media/2025/06/Photos_vWVE1omRVkxzb9cU.jpg =x500)
+The archive contains `main.hex`, the USBASP driver installer and `Khazama AVR Programmer.msi`. Original example board links: [Amazon](https://www.amazon.com/Ferwooh-Downloader-Programmer-Microcontroller-Adapter/dp/B08DTRPT1Z/) and [Robot-kit](https://robot-kit.ru/3370/). Compatibility depends on the board and controller, not the store or price.
 
-### Install USBASP driver
+1. With both boards unplugged, select **Target (1)** and short its **JP2** pins. The jumper must touch only the intended contacts.
 
-Run `InstallDriver.exe` from the `driver` folder in the archive.  
-Installation is just: **Next → Next → Finish**.
+   ![JP2 on the target USBASP board](https://s3.eyeauras.net/media/2025/06/IMG_3698.jpg =x400)
 
-![Driver Install](https://s3.eyeauras.net/media/2025/06/explorer_x6YMxIwuDtx2HV4r.png =x400)
+2. Join Target (1) and **Programmer (2)** with the correctly oriented ribbon cable. Only Target has JP2 shorted.
 
-### Install Khazama AVR Programmer
+   ![Target and Programmer joined by a ribbon cable](https://s3.eyeauras.net/media/2025/06/Photos_qt6wFLu8IX5vnwJi.jpg =x500)
 
-Run `Khazama AVR Programmer.msi` from the archive.  
-Installation is also: **Next → Next → Finish**.
+3. Connect **Programmer (2)** to USB, leaving Target attached to it by the cable.
 
-![Khazama Install](https://s3.eyeauras.net/media/2025/06/explorer_VGFKmZaWKioZokGt.png =x400)
+   ![The Programmer is connected to USB](https://s3.eyeauras.net/media/2025/06/Photos_vWVE1omRVkxzb9cU.jpg =x500)
 
-### Launch Khazama AVR Programmer
+4. Install the programming driver through `driver/InstallDriver.exe`, then install `Khazama AVR Programmer.msi`. These are flashing tools, rather than required installations on every computer using the finished HID device.
 
-Launch it from Start Menu or via shortcut.  
-Select **ATMEGA8** in the dropdown.
+   ![USBASP programming-driver installer](https://s3.eyeauras.net/media/2025/06/explorer_x6YMxIwuDtx2HV4r.png =x400)
 
-![Khazama UI](https://s3.eyeauras.net/media/2025/06/Khazama_AVR_Programmer_hEAnG7Z8zxvdC2It.png)
+   ![Khazama installer](https://s3.eyeauras.net/media/2025/06/explorer_VGFKmZaWKioZokGt.png =x400)
 
-### Verify connection & jumper
+5. Open Khazama and select **ATMEGA8**.
 
-Go to `Command` → `Fuses and Lock Bits...`.
+   ![ATMEGA8 selected in Khazama](https://s3.eyeauras.net/media/2025/06/Khazama_AVR_Programmer_hEAnG7Z8zxvdC2It.png)
 
-![Open Fuses](https://s3.eyeauras.net/media/2025/06/msedge_vceQvSiBBDqVxB5r.png)
+6. Open **Command → Fuses and Lock Bits...** and choose **Read All** to check communication. Do not change fuse bits merely to match a picture. If reading fails, check the board, cable and jumper first.
 
-Click **Read All**. If successful, you’ll see values appear in a few seconds.  
-If there’s an error — something’s wrong with your previous steps.
+   ![Opening Fuses and Lock Bits](https://s3.eyeauras.net/media/2025/06/msedge_vceQvSiBBDqVxB5r.png)
 
-![Fuses](https://s3.eyeauras.net/media/2025/06/Khazama_AVR_Programmer_jM5G6HgYIiMsMVhP.png)
+   ![Read All in the controller settings](https://s3.eyeauras.net/media/2025/06/Khazama_AVR_Programmer_jM5G6HgYIiMsMVhP.png)
 
-### Load the firmware file
+7. Use **File → Load FLASH file to Buffer** to select `main.hex` from the archive. Check the selected file path.
 
-Final step: locate the file `main.hex` in the archive — this is the firmware.
+   ![Loading a FLASH file into the buffer](https://s3.eyeauras.net/media/2025/06/msedge_9wdOK2WkAob19fpS.png)
 
-In Khazama, go to `File` → `Load FLASH file to Buffer`.
+   ![The selected main.hex firmware](https://s3.eyeauras.net/media/2025/06/msedge_wSXfntALbLMrrst4.png)
 
-![Load FLASH](https://s3.eyeauras.net/media/2025/06/msedge_9wdOK2WkAob19fpS.png)
+8. Select **Auto Program** and wait for successful completion. It programs Target, the board with the jumper.
 
-Choose `main.hex`.
+   ![Auto Program in the original flashing example](https://s3.eyeauras.net/media/2025/06/Code_VJUOeYEfoezd2yXk.gif)
 
-![Loaded flash](https://s3.eyeauras.net/media/2025/06/msedge_wSXfntALbLMrrst4.png)
+9. Disconnect power and the ribbon cable, then remove Target's JP2 jumper. Put Programmer aside and connect the flashed Target directly to USB. Continue with EyeAuras settings above. A compatible finished HID device uses Windows' system HID driver.
 
-### Flash it
+   ![The finished device without its jumper](https://s3.eyeauras.net/media/2025/06/IMG_3701.jpg =x400)
 
-Now just click **Auto Program**, wait a few seconds… and you’re done!  
-You now have a working Usb2Kbd device for **EyeAuras**.
+</details>
 
-🚨 **IMPORTANT**: You flashed **Target (1)** — the one with the jumper. That’s the one you’ll use from now on. Don’t forget to remove the jumper — it won’t work otherwise.
+## Older interface demonstrations
 
-You can store **Programmer (2)** away in case you want to flash more units later.
+The first GIF shows Send Sequence; the second shows a macro input node. These are different editors using the same configured device. Their appearance does not establish compatibility with your hardware or target application.
 
-![Flash](https://s3.eyeauras.net/media/2025/06/Code_VJUOeYEfoezd2yXk.gif)
+![Older Send Sequence demonstration through Usb2Kbd](https://s3.eyeauras.net/media/2025/06/EyeAuras_JDZlg740lGwiPBED.gif =x400)
 
-### Plug it into your computer
+![Older macro-node demonstration through Usb2Kbd](https://s3.eyeauras.net/media/2025/06/EyeAuras_ErWZbRhxLmhdb47W.gif =x500)
 
-Unplug **Programmer (2)**, remove the jumper from **Target (1)**, and unplug the cable.  
-You can now plug the device into **any computer** — **no extra drivers or tools needed**.
-
-You’ve got a ready-to-use input emulator!
-
-![Usb2Kbd](https://s3.eyeauras.net/media/2025/06/IMG_3701.jpg =x400)
-
----
-
-### Using it in EyeAuras
-
-- Create an aura in any folder
-- Add a `Send Sequence` action
-- Open `Advanced input settings`
-- Choose `Usb2Kbd device` from the list  
-  Notice the orange exclamation icon — it means the device is not yet set up
-
-![SendSequence](https://s3.eyeauras.net/media/2025/06/EyeAuras_u05n6CbeSHjASUB3.png =x600)
-
-- Click `Install`
-- In the popup, click `Detect automatically`
-- Click OK
-
-![Usb2Kbd settings](https://s3.eyeauras.net/media/2025/06/ShareX_dfe3exVzay6OP5YN.png =x200)
-
-- If everything worked, the orange icon will disappear
-- Done! This configuration is **global**, so any action using Usb2Kbd will now simulate input through the device
-
-![Result](https://s3.eyeauras.net/media/2025/06/EyeAuras_jFqVNV0vHSnfn5dJ.png)
-
-💡 **Tip**: Set `Usb2Kbd` on the **folder level** — it will apply to all auras/macros inside
-
-![Folder properties](https://s3.eyeauras.net/media/2025/06/EyeAuras_X3t0uKQGRPWRfFLN.png)
-
-# Demo
-![SendSequence via Usb2Kbd](https://s3.eyeauras.net/media/2025/06/EyeAuras_JDZlg740lGwiPBED.gif =x400)
-![Macro via Usb2Kbd](https://s3.eyeauras.net/media/2025/06/EyeAuras_ErWZbRhxLmhdb47W.gif =x500)
+Hardware does not guarantee acceptance by every program. Selecting Usb2Kbd device without the device does not create a software replacement. Choose another [input method](/en/actions/sendinput/options) for ordinary system input or a virtual driver.

@@ -7,131 +7,115 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T01:13:28.765Z
 ---
-# Из чего состоит оверлей
+# Изменить текст и кнопку своего оверлея
 
-Создайте ауру и добавьте **C# Overlay v3**. В его редакторе используйте `UserOverlay.cs` и `UserOverlay.razor` ниже как две части одного класса в одном пространстве имён. При нажатии `Click Me` счётчик должен увеличиваться.
+Сделаем панель, которая считает нажатия на кнопку. На этом небольшом примере видно, где хранится число, что рисует Razor и какой код выполняется при нажатии.
 
-Когда вы добавляете новый оверлей, EyeAuras автоматически создает несколько файлов. Каждый из них важен для работы программы.
+Нужен собственный **C# Overlay**, созданный по [вводной статье](/ru/scripting/blazor-windows/1-intro). Оставьте его ауру активной и загруженной. В редакторе найдите `Script.csx`, `UserOverlay.cs` и `UserOverlay.razor`.
 
-![Header](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_uPjkmxmv2r.png)
+![Три файла в редакторе](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_uPjkmxmv2r.png)
 
-## Script.csx
+## Заменить файлы
 
-Это точка входа скриптовой части оверлея. Не используйте её как событие каждого показа или скрытия окна: компиляция и исполнение скрипта живут отдельно от перерисовки Razor-компонента.
-
-Для счётчика его можно оставить пустым. При желании здесь удобно инициализировать данные, читать информацию и выполнять общую подготовку. То же самое можно делать и в коде окна/компонента, но иногда полезно иметь единую точку входа.
+1. В `Script.csx` оставьте короткую точку входа:
 
 ```csharp
-Log.Debug("This script is entry point for Overlay");
+Log.Debug("Подготовка панели завершена");
 ```
 
----
-
-## UserOverlay.cs
+2. Полностью замените `UserOverlay.cs`:
 
 ```csharp
+using System.Threading.Tasks;
 using PoeShared.Blazor;
 
-public partial class UserOverlay : BlazorReactiveComponent {
-    private int count = 0;
+namespace BlazorDemo;
 
-    private void IncrementCount()
+public partial class UserOverlay : BlazorReactiveComponent
+{
+    private int count;
+
+    private async Task Increment()
     {
         count++;
+        await Refresh("counter clicked");
     }
 }
 ```
 
-Это файл **code-behind**. Большинство Razor-компонентов состоят из двух частей — `*.razor` и `*.cs`. В части Razor обычно находится разметка Razor/HTML/CSS, а в файле `*.cs` — методы, поля и свойства, доступные из разметки.
+3. Полностью замените `UserOverlay.razor`:
 
-> Примечание: вы *можете* писать C# прямо внутри `*.razor` и не использовать `*.cs`, но в этой серии логика вынесена в `*.cs`, чтобы разметка оставалась небольшой. Возможности подсказок редактора зависят от версии EyeAuras.
-{.is-info}
-
-Разберем код по частям:
-
-```csharp
-public partial class UserOverlay : BlazorReactiveComponent
-```
-
-Это объявление класса. Чтобы EyeAuras смог его найти, класс должен быть `public`. Поскольку у него есть вторая часть (`*.razor`), он должен быть `partial`, то есть класс разделен между несколькими файлами. Наконец, `: BlazorReactiveComponent` задает базовый класс — к нему мы еще вернемся.
-
-```csharp
-private int count = 0;
-```
-
-Здесь мы объявляем поле, в котором хранится количество нажатий кнопки.
-
-> Примечание: значение этого поля сохраняется на протяжении всей жизни оверлея. Если аура выгружается или оверлей уничтожается, значение сбрасывается.
-
-```csharp
-private void IncrementCount()
-{
-    count++;
-}
-```
-
-Этот метод просто увеличивает счетчик, чтобы мы могли отслеживать клики.
-
----
-
-## UserOverlay.razor
-
-```html
+```razor
+@namespace BlazorDemo
 @using Microsoft.AspNetCore.Components.Web
 @using PoeShared.Blazor
 @inherits BlazorReactiveComponent
 
-<h3 class="text-center">Interactive Counter</h3>
-
-<div class="text-center mt-4">
-    <button @onclick="IncrementCount" class="btn btn-primary btn-lg">
-        Click Me
-    </button>
-</div>
-
-<p class="text-center mt-3" style="font-size: 1.5rem;">
-    You clicked <strong>@count</strong> times!
-</p>
+<h1>Счётчик</h1>
+<p>Нажатий: @count</p>
+<button class="btn btn-primary" @onclick="Increment">Прибавить один</button>
 ```
 
-Это вторая часть компонента, которая описывает, как он должен отображаться. Посмотрим, что здесь есть:
+4. Дождитесь успешной компиляции проекта в редакторе. Нажмите **Прибавить один** в оверлее: число увеличится с `0` до `1`, затем до `2`.
 
-```html
+`public partial class` делает компонент доступным для оконного механизма и объединяет его две части. Namespace `BlazorDemo` здесь задан явно **в обоих файлах**. Если оставляете namespace из шаблона, сохраните его и в `@namespace`, и в C#; иначе это будут разные классы. Не оставляйте прежние поля и методы счётчика рядом с заменой.
+
+| Файл или элемент | Что происходит |
+| --- | --- |
+| `Script.csx` | Выполняет начальную подготовку проекта. Его `Log` относится к контексту скрипта. Эта точка входа должна завершиться, чтобы C# Overlay закончил подготовку показа. |
+| `UserOverlay.cs` | Вторая часть того же `partial` класса: хранит `count` и обработчик. |
+| `UserOverlay.razor` | Выводит текущее число. `@onclick` вызывает `Increment` при нажатии. |
+| `Refresh("counter clicked")` | Просит базовый `BlazorReactiveComponent` обновить отображение на его диспетчере. |
+| `btn btn-primary` | Применяет оформление кнопки из стилей, подключённых оконным механизмом. |
+
+Число принадлежит экземпляру компонента, а не переменной ауры. После уничтожения и нового создания компонента оно снова равно нулю. Скрытие окна не обязательно уничтожает экземпляр.
+
+## Где доступны сервисы и данные
+
+В Razor и обычном классе нет глобальных `AuraTree`, `Variables`, `GetService` или `cancellationToken` из `Script.csx`. Для компонента сервис запрашивают через `[Inject]`, а нужные данные передают явно. У базового компонента есть собственный `Log`; это журнал компонента, а не автоматически переданная переменная скрипта.
+
+Пример не запускает фоновых задач и не создаёт подписок. Для подписок в следующих статьях используется срок жизни компонента, а не бесконечный цикл в `Script.csx`.
+
+<details>
+<summary>Тот же счётчик в одном Razor-файле</summary>
+
+Для маленького компонента C# можно оставить в `@code`. В таком случае замените `UserOverlay.cs` на пустую вторую часть, чтобы не объявить `count` и `Increment` дважды:
+
+```csharp
+using PoeShared.Blazor;
+
+namespace BlazorDemo;
+
+public partial class UserOverlay : BlazorReactiveComponent
+{
+}
+```
+
+А `UserOverlay.razor` — на:
+
+```razor
+@namespace BlazorDemo
+@using System.Threading.Tasks
+@using Microsoft.AspNetCore.Components.Web
+@using PoeShared.Blazor
 @inherits BlazorReactiveComponent
+
+<h1>Счётчик</h1>
+<p>Нажатий: @count</p>
+<button class="btn btn-primary" @onclick="Increment">Прибавить один</button>
+
+@code {
+    private int count;
+    private async Task Increment()
+    {
+        count++;
+        await Refresh("counter clicked");
+    }
+}
 ```
 
-Эта строка говорит Blazor использовать `BlazorReactiveComponent` (предоставляемый **EyeAuras**) в качестве базового класса. Это необязательно, но настоятельно рекомендуется, если вам нужен доступ к дополнительным возможностям.
+Это альтернативное расположение того же кода. Не добавляйте его одновременно с первым обработчиком.
 
-```html
-<h3 class="text-center">Interactive Counter</h3>
-```
+</details>
 
-Просто заголовок по центру.
-
-```html
-<div class="text-center mt-4">
-    <button @onclick="IncrementCount" class="btn btn-primary btn-lg">
-        Click Me
-    </button>
-</div>
-```
-
-Самое интересное здесь — `@onclick="IncrementCount"`, это привязка обработчика клика. Каждый клик увеличивает `count` на 1.
-
-```html
-<p class="text-center mt-3" style="font-size: 1.5rem;">
-    You clicked <strong>@count</strong> times!
-</p>
-```
-
-И финальная часть: отображение текущего значения `count` — той самой переменной, которую мы увеличиваем при нажатии кнопки.
-
----
-
-В итоге получается простая форма с кнопкой и обновляющимся значением. Буквально за 20 строк мы создали рабочую и вполне симпатичную мини-программу. Поэкспериментируйте с цветами, добавьте другие значения и используйте этот оверлей как тестовую площадку. Продолжение следует!
-
-`Log` в `Script.csx` — член среды скрипта. Обычный `UserOverlay` его не наследует. Совпадение имён файлов или `using` не связывает поля скрипта с компонентом; передавайте модель через `DataContext` при создании окна либо внедряйте нужный сервис. Для ручного запроса перерисовки в `BlazorReactiveComponent` используйте `await Refresh("причина")`; для внешних изменений нужен наблюдаемый источник. [Далее — управление триггером](/ru/scripting/blazor-windows/4-toggle-hotkeyisactive).
-
-Текущий генератор создаёт `UserOverlay.razor` с `@namespace` и `UserOverlay.cs` с тем же `namespace`. Сохраняйте эти строки при замене тела примера: имя класса и namespace обеих частей должны совпадать. Название сущности в текущем коде — `C# Overlay`; старые скриншоты используют суффикс v3.
-
-[RazorComponentTemplate](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Blazor.Shared/CodeEditor/Templates/RazorComponentTemplate.cs).
+Дальше можно заменить счётчик [переключателем своей ауры](/ru/scripting/blazor-windows/4-toggle-hotkeyisactive).

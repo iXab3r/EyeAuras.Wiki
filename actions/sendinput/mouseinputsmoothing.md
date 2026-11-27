@@ -1,6 +1,6 @@
 ---
 title: Mouse Input Smoothing
-description: 
+description: Compare absolute mouse trajectories and choose the built-in smoothing algorithm
 published: true
 date: 2024-05-14T18:37:54.663Z
 tags: 
@@ -8,47 +8,55 @@ editor: markdown
 dateCreated: 2022-12-25T20:38:37.667Z
 ---
 
-## Why do I need it?
+# Smooth a mouse move
 
-In real-world mouse movement is not instant and is usually determined by how often your device reports its position to OS. For gaming devices, it could be in range of hundreds and even thousands of input events per second. 
+To make the cursor travel visibly toward a point, choose **Mouse Move smoothing algorithm**. EyeAuras replaces a direct move with intermediate positions and delays. A click is a separate event.
 
-This makes our mouse movement to appear smooth even when you do 360-no-scope-flickshot. And applications know for a fact, that there is almost never such thing as instant “teleports" of cursor (still possible if OS or app is lagging). 
+Smoothing changes the path and its duration; it does not identify a control or guarantee that an application treats the input as physical.
 
-Considering the fact that EyeAuras is able to simulate mouse input it has to “mask” simulated input and make it appear to OS like “real” input. This where smoothing comes into play - it makes instant movement from point A to point B look more human by injecting dozens of extra inputs instead of straight A → B
+## Compare a direct move and a smooth move
 
-##   
-How to use User Input Smoothing?
+Use your own open window with a clear, unused point inside it. Choose an absolute Mouse Move with Windows Input: relative offsets use a different movement path.
 
-This is configured in **Advanced** section of **SendInput/Sequence/Text** actions. 
+1. In **Send Sequence → Advanced input settings**, select the window and **Input Simulator = Windows Input**. Turn off **Restore after Action is completed → Mouse position** and set **Randomize Mouse Movement X/Y = 0**.
+2. Add **Mouse → Move**. Turn off **Relative movement** in the step's properties.
+3. Under **Mouse position**, use **Pick mouse position** to select a free point inside that window. Add no mouse-button events.
+4. Set **Mouse Move smoothing algorithm = Disabled** and use **Execute**. The cursor should move directly to the point.
+5. Start farther away, choose **Linear Normal** and execute again. Intermediate movements should end at the same target.
+6. Compare **Randomized Normal**. Try Fast for a shorter transition or Slow for a more visible one, checking the endpoint as well as the path.
 
-By default, smoothing is disabled. This was the only option for versions of up to **1.2.4153 (Dec 2022).**
+For a useful comparison, start at the same location and avoid moving the mouse manually during playback.
 
-There are multiple algorithms(described below), pick one that fits you best by trial-and-error approach. In most cases **Randomized Fast** should work just fine. 
+## Available algorithms
 
-## Smoothing algorithms
+| Algorithm | How the path is made |
+| --- | --- |
+| Disabled | One target point without an intermediate route; the default choice |
+| Linear Fast / Normal / Slow | WindMouse-family paths with strong attraction and small deviations. “Linear” does not promise a mathematically straight line |
+| Randomized Fast / Normal / Slow | The same family with greater random deviation; variants differ in waits and route segmentation |
+| ML Human Move | MlHumanMouseV1 uses a local ML.NET FastTree model pack to predict movement parameters, then creates a bounded Bezier/easing path to the exact target, with a 2x runtime speed multiplier |
+| ML Human Move Fast | MlHumanMouseFastV1 uses the same model-backed planner with a 4x runtime speed multiplier |
 
-### Disabled
+Linear and Randomized need no ML model. The ML variants need their local model pack; a selector entry alone does not establish readiness. They are separate from AI Search. The action editor selects an algorithm, rather than exposing Gravity, Wind or a protection-bypass probability.
 
-No smoothing is applied, mouse movement is instantaneous.
+These older GIFs illustrate a nearly straight path and a more varied one. They do not measure timing on your computer or promise an identical route.
 
-### Linear
+![An older Linear trajectory illustration](/assets/legacy/g100_wnd1_w5-10_s10_a1.gif)
 
-Makes linear approximation of mouse movement. Does not look very human to a naked eye, but enough to fool protection and input-detection systems in most games. 
+![An older Randomized trajectory illustration](/assets/legacy/g6_wnd2_w1-5_s10_a10.gif)
 
-![](/assets/legacy/g100_wnd1_w5-10_s10_a1.gif)
+<details>
+<summary>What else affects the result</summary>
 
-### Randomized
+| Setting or context | What to check |
+| --- | --- |
+| Target Window | Absolute movement uses a point relative to the selected window; without a target, the point is in screen coordinates |
+| Relative movement | An offset from the current cursor; this path does not apply the selected absolute-move smoother |
+| Randomize Mouse Movement | Changes the endpoint itself. Leave it at 0 for precise positioning |
+| Restore → Mouse position | Can return the cursor immediately after the operation, hiding its final position |
+| Windows Message API | Sends window messages instead of a visible system-cursor trajectory; this implementation does not apply smoothing |
+| Duration and cancellation | Distance, algorithm waits and delivery all matter. Smoothing is not a fixed-duration scheduler, and cancellation does not undo movement already sent |
 
-Applies random seed to all inputs making it look much more humane. 
+</details>
 
-![](/assets/legacy/g6_wnd2_w1-5_s10_a10.gif)
-
-### ML Human Move
-
-`MlHumanMouseV1` uses a local ML.NET FastTree model pack to predict compact
-movement parameters, then generates a bounded Bezier/easing route from the
-current cursor position to the exact target. This default variant runs at the
-normal ML route shape with a 2x runtime speed multiplier.
-
-`MlHumanMouseFastV1` uses the same model-backed route planner with a 4x runtime
-speed multiplier and appears as **ML Human Move Fast** in smoother selectors.
+If the endpoint is wrong, correct the [coordinate system](/en/features/coordinate-system) and window source first. A different curve cannot fix a screen/window coordinate mismatch. The action manages its input controller for each operation; selecting a smoother does not create a separate running script or a window you must keep alive.

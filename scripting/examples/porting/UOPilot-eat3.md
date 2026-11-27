@@ -7,15 +7,55 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-03-23T22:19:29.386Z
 ---
-# Port an eating sequence from UOPilot/AHK
 
-The target sequence activates `TL.exe`, opens a menu with F, searches for `Vegetarian.bmp` or its fallback, selects food, closes the menu and right-clicks a saved point. The original script remains below for comparison.
+# Port a menu search and selection flow from AutoHotkey
 
-The GUI status is replaced by log messages. Scheduling and input behavior are not claimed equivalent to the original timer/game integration.
+The source opens a menu, finds one of two templates, selects the found item, then right-clicks a saved point. Begin by checking **your own window and image** without sending input. EyeAuras searches captured pixels; it does not read an application's item list.
 
-An alternative would be to use the [Toast API](/scripting/examples/basic/toast-wpf), the OnScreenCanvas API, or [BlazorWindows](/scripting/blazor-windows/getting-started), but for displaying a single line of text, all of that feels like overkill.
+## Find your template without clicking
 
-## UO Pilot
+You need the full EyeAuras application with C# Script and computer vision available. Prepare your own `Vegetarian.bmp` at `C:\Scripts\Eat`, for example a crop of an image visible in a separate test window you own. Match its visible scale; the filename does not define its contents.
+
+1. Create a separate aura with Fixed Value set to Is NOT Active and no automatic work. Add a `C# Script` action under On Enter and open its editor.
+2. Put this complete program in top-level `Script.csx`, click `Run`, and select your own test window with the picker.
+3. The script log receives a window-relative rectangle or “Template not found”. This program sends no keys or clicks. Cancelling selection ends it before CV accessor creation.
+
+```csharp
+using System.Drawing;
+using EyeAuras.Shared.Osd;
+using EyeAuras.OpenCVAuras.Scripting;
+
+{
+    var window = await GetService<IOsdSelectionService>().PickWindow();
+    cancellationToken.ThrowIfCancellationRequested();
+    if (window == null || !window.IsWindow) { Log.Warn("Window not selected or unavailable"); return; }
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>().ForWindow(window);
+    var found = cv.ImageSearch(@"C:\Scripts\Eat\Vegetarian.bmp", 95);
+    Log.Info(found.IsEmpty ? "Template not found" : $"Window region: {found}");
+}
+```
+
+This is an EyeAuras host script: `GetService`, `Log` and `cancellationToken` are top-level host capabilities. Ordinary C# helpers or Razor components need explicit dependencies and token parameters. The owned CV accessor is disposed on block exit; namespace using directives stay above that block.
+
+## Map the original operations
+
+| Source operation | EyeAuras path and preparation |
+| --- | --- |
+| WinActivate, TL.exe | Resolve a window, then Activate. Change the expression and recalibrate points for your own fixture |
+| Vegetarian.bmp / Vegetarian1.bmp | Two own templates in imageDirectory; retain the first attempt, retry after a pause and fallback template |
+| ImageSearch within opposite corners | Rectangle.FromLTRB converts left/top/right/bottom to a C# region; 95 is a similarity threshold, not a probability |
+| Screen point 1005,1005 and point saved by F5 | SendInput with TargetWindow=null; do not add the window origin again |
+| Found result and point 1499,1004 | SendInputWindow targets the same window as ForWindow. Windows Input uses DWM-frame-relative coordinates, not the client origin |
+| F3 / F5 / F6 | Request one pass / save cursor / toggle repetition; handlers set flags while the main loop serializes CV and input |
+| SetTimer,100 | This port pauses 100 ms after a pass; work duration is additional, so it is not the original fixed timer schedule |
+| Status GUI | Log messages; a separate [Toast](/en/scripting/examples/basic/toast-wpf), OnScreenCanvas API or [Blazor Window](/en/scripting/blazor-windows/getting-started) can provide UI, but this program creates none of them |
+
+Check [coordinate systems](/en/features/coordinate-system), capture region and found bounds in your own window first. This is not automatic conversion of configuration, layout, scale, keyboard layout or delivery backend.
+
+<details>
+<summary>Historical AutoHotkey source</summary>
+
+The original uses AutoHotkey syntax despite the UOPilot page address: status GUI, F5 for a screen point, F3 for one pass and F6 for timer control. It remains source text, not an EyeAuras macro import.
 
 ```js
 #NoEnv
@@ -141,19 +181,23 @@ MyImageSearch(ByRef FoundX, ByRef FoundY, X1, Y1, X2, Y2, ImageFile)
 }
 ```
 
-## EyeAuras C# Script
+</details>
 
-Run the entire C# block as a top-level EyeAuras C# Script. Open `TL.exe`, prepare both templates in `C:\Scripts\Eat` or change `imageDirectory`, and adjust the layout/window dimensions. `1005,1005` is a screen point; the search region and `1499,1004` are window-relative, not necessarily client-area coordinates. F5 saves a screen point, F3 requests one pass, and F6 toggles repetition. Stop cancels the loop.
+<details>
+<summary>Complete C# Script port</summary>
 
-The main loop serializes CV/input work; key handlers only update flags under a lock. The 100 ms pause follows a completed pass, so it is not a fixed external timer period. Keybind methods must remain outside the executable block as script-instance methods. Choose a valid nonzero saved point; this example uses `Point.Empty` as its unset sentinel.
+Prepare an open, stable target, both BMP templates, calibrated screen/window points and regions, the intended keyboard layout and an available Windows Input backend. Use your own controlled fixture; every original coordinate must belong to it before enabling input. Windows Input activates the chosen window; background delivery to arbitrary applications is not promised.
 
+`TL.exe` is an expression matching title, path or process name, not a strict process-only filter. Narrow the [window expression](/en/features/window-matching-expressions) to one intended target if several windows match. The two screen points must not address another window.
 
+Put the **whole** block in the C# action's Script.csx. Click Run, use F5 to save your own right-click point, then request F3. F6 enables repetition; another F6 prevents future passes but does not cancel the current one. Stop requests loop cancellation. Use free F3/F5/F6 bindings: these script-instance handlers are active while the script runs. Point.Empty is the unset sentinel, so the saved point must be nonzero.
 
 ```csharp
 using System.Drawing;
 using System.IO;
 using System.Windows.Input;
 using EyeAuras.Shared.Services;
+using EyeAuras.Shared.Scaffolding;
 using EyeAuras.OpenCVAuras.Scripting;
 using EyeAuras.Roxy.Api;
 using EyeAuras.Scripting.Api;
@@ -175,8 +219,12 @@ private bool captureCursor { get; set; }
     Point savedCursor = Point.Empty;
     var SendInput = GetService<ISendInputScriptingApi>();
     var SendInputWindow = GetService<ISendInputScriptingApi>();
+    SendInput.InputSimulatorId = "Windows Input";
+    SendInputWindow.InputSimulatorId = "Windows Input";
     SendInput.TargetWindow = null;
     var window = GetService<IWindowSelector>().GetWindow("TL.exe");
+    cancellationToken.ThrowIfCancellationRequested();
+    if (!window.IsWindow) { Log.Warn("Window unavailable"); return; }
     SendInputWindow.TargetWindow = window;
     using var cv = GetService<IComputerVisionExperimentalScriptingApi>().ForWindow(window).EnableOsd(10);
 
@@ -232,7 +280,7 @@ private bool captureCursor { get; set; }
                     Log.Warn($"Vegetarian image not found");
                     Sleep(2000);
                     cancellationToken.ThrowIfCancellationRequested();
-                    Log.Warn($"Sequence ended");
+                    Log.Warn($"Pass ended");
                     return;
                 }
             }
@@ -289,6 +337,13 @@ public void SaveCursor() { lock (stateGate) captureCursor = true; }
 [Keybind(Hotkey = "F6")]
 public void ToggleScript() { lock (stateGate) enabled = !enabled; }
 ```
-A match selects the template’s top-left corner. `ForWindow` image results are window-relative and are passed to a separate input accessor targeting that same window. Screen points use `TargetWindow = null` to avoid a second transform. Missing both templates ends the pass with a warning. `Rectangle.FromLTRB` converts opposite corners to size. Cancellation checkpoints follow waits; synchronous CV/input calls do not promise immediate interruption. Native input and game behavior have not been executed here.
+
+Keep the Keybind methods outside the executable block as script-instance methods, not local functions. Flags are protected by one lock and reset on Run; cursor, CV and the serialized main loop are local. The current host registration resolves two input API instances with different TargetWindow values; their context owns their controller lifetimes. The CV accessor has its explicit owned scope.
+
+Simple ForWindow ImageSearch returns a window-relative rectangle; the port uses its top-left corner with input targeting that same window. Screen points use the other accessor with TargetWindow=null to avoid a second transform. No match ends this pass with a warning; it does not itself turn off F6 repetition.
+
+Sleep and token checkpoints bound future work, but synchronous CV/input calls do not receive this script token and need not stop instantly. Clicks already sent are not rolled back. The observable first result is a logged region; the complete port's result must be observed in the prepared target, not inferred from a successful call.
+
+</details>
 
 [CV contracts](/en/scripting/api/computer-vision/images) · [Input contracts](/en/scripting/api/ISendInputScriptingApi) · [Script context](/en/scripting/api/scripting/runtime)

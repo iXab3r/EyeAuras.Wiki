@@ -1,5 +1,5 @@
 ---
-title: How to Query Chat GPT
+title: Read window text with OpenAI
 description: 
 published: true
 date: 2025-03-17T22:38:10.124Z
@@ -8,17 +8,20 @@ editor: markdown
 dateCreated: 2025-03-17T22:25:15.654Z
 ---
 
-# Ask a model about one captured image
+# Read text from your own window with OpenAI
 
-The built-in EyeAuras AI route uses `EyeAuras.AI`, `AiEngine`, a configured profile and a session. Editor UI can use `IScriptAiChatSessionFactory`. These require their host registrations, not an arbitrary script's GetService call. See [AI runtime](/en/scripting/api/ml/ai-runtime) and [AI clients](/en/scripting/api/ml/script-ai-clients).
+Send an image of your own window to an image-capable model and read its text response. The request contains the captured JPEG and your instruction. For local OCR with text segments and coordinates, use [Text Search](/en/triggers/images/text-search); this example returns free-form text without OCR bounding boxes or an accuracy guarantee.
 
-This separate historical provider example keeps `OpenAI 2.1.0` and `gpt-4o`. It does not call the built-in assistant. The [official model page](https://developers.openai.com/api/docs/models/gpt-4o) describes text/image input and currently marks the model Deprecated; account access is a separate prerequisite. The package XML confirms `CreateImagePart`, `GetChatClient` and `CompleteChat`; Emgu.CV `4.9.0.5494` documents `ToJpegData(int)` returning JPEG bytes.
+This is a version-bound example for **OpenAI SDK 2.1.0**, **Chat Completions** and the historical **`gpt-4o`** model. The [official model catalog](https://developers.openai.com/api/docs/models/gpt-4o) marks it Deprecated. You need API access to that model; replacing the key cannot make an unavailable model work. It is not a model recommendation for a new project.
 
-## Capture one frame and send the request
+## Prepare one request
 
-Create an EyeAuras C# Script with working window capture. Open your own window, replace `OCR Demo` with its title and supply a provider key instead of the placeholder. Do not publish that key with the pack. The package must restore into a compatible host.
+You need a **C# Script** in [EyePad](/en/features/eyepad), working window capture and your own authorized OpenAI API access with billing available. Signing into ChatGPT or an EyeAuras account does not supply the API key used by this code. Image inputs are billable API data; prepare a window without personal information.
 
-`ProcessPixels` copies the borrowed image into an owned byte array. The network call happens after the callback returns; do not hand `Captured.InputImage` to a background task. A continuously updating trigger subscription is unnecessary for this one-frame operation.
+1. Open your own test window with a clear phrase such as `Order ready`. Replace `OCR Demo` with its [window-matching expression](/en/features/window-matching-expressions).
+2. Paste the program into `Script.csx`. `YOUR_API_KEY` is a fictional placeholder; an intentional request requires your configured key. Do not publish it in a shared script.
+3. Click `Run` once. The program encodes a captured image as JPEG and makes one network request. The log shows returned text; access, network or model errors end the run with an error.
+4. Compare the response with the visible phrase. The model can make mistakes. The selected source determines which window is captured; the model does not learn a hidden window title from the application's internal data.
 
 ```csharp
 #r "nuget: OpenAI, 2.1.0"
@@ -28,41 +31,58 @@ using OpenAI.Chat;
 using Emgu.CV;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 {
-    var targetWindow = GetService<IWindowSelector>().GetWindow("OCR Demo");
-    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
-        .ForWindow(targetWindow);
-
     cancellationToken.ThrowIfCancellationRequested();
+    var window = GetService<IWindowSelector>().GetWindow("OCR Demo");
+    if (!window.IsWindow)
+    {
+        Log.Info("The test window is no longer available");
+        return;
+    }
+
+    using var cv = GetService<IComputerVisionExperimentalScriptingApi>()
+        .ForWindow(window);
     var jpegBytes = cv.ProcessPixels(image => image.ToJpegData(90));
     cancellationToken.ThrowIfCancellationRequested();
-
-    var openAIClient = new OpenAIClient("<your-api-key-here>");
-    var chatClient = openAIClient.GetChatClient("gpt-4o");
-    var recognizedText = RecognizeImage(chatClient, jpegBytes);
-    Log.Info($"Recognition Result: {recognizedText}");
-
-    string RecognizeImage(
-        OpenAI.Chat.ChatClient client,
-        byte[] jpegBytes)
+    var client = new OpenAIClient("YOUR_API_KEY").GetChatClient("gpt-4o");
+    var messages = new List<ChatMessage>
     {
-        var imageBytes = BinaryData.FromBytes(jpegBytes);
-        List<ChatMessage> messages =
-        [
-            new UserChatMessage(
-                    ChatMessageContentPart.CreateTextPart("Perform OCR on the image and print found text and window in which it was found"),
-                    ChatMessageContentPart.CreateImagePart(imageBytes, "image/jpeg")),
-            ];
-
-        ChatCompletion completion = client.CompleteChat(messages);
-        return completion.Content[0].Text;
-    }
+        new UserChatMessage(
+            ChatMessageContentPart.CreateTextPart(
+                "Read the visible text in this image. Return only that text."),
+            ChatMessageContentPart.CreateImagePart(
+                BinaryData.FromBytes(jpegBytes), "image/jpeg"))
+    };
+    ChatCompletion completion = client.CompleteChat(
+        messages, cancellationToken: cancellationToken);
+    var text = string.Concat(completion.Content.Select(part => part.Text));
+    Log.Info(string.IsNullOrWhiteSpace(text) ? "The response contains no text" : text);
 }
 ```
 
-On success the Event Log contains the model's response. This is free-form text, not OCR segments with verified coordinates, and it may be inaccurate or omit expected text. No ROI is supplied, so the selected window is captured. The response has no CV similarity threshold or `Detected.Bounds`. For local OCR with coordinates, use [Text Search and click](/en/scripting/examples/basic/click-on-text).
+`GetWindow` throws if no window matches, before sending a request. `IsWindow` checks whether the selected handle is still valid; keep the window stable while capturing it.
 
-The using scope disposes the created CV accessor; the callback image is borrowed. This listing does not pass a token into synchronous capture or CompleteChat: checking before a call does not interrupt an active request. Keep it out of UI/render callbacks. The SDK also has token-taking completion overloads, but this preserves the historical call shape. No provider request, authentication or image upload was executed for this documentation check.
+| Parameter | Meaning |
+| --- | --- |
+| `OpenAI, 2.1.0` | The C# client version used by these calls. New SDK examples may use different APIs. |
+| `gpt-4o` | Historical model identifier, subject to service and account availability. |
+| `ToJpegData(90)` | JPEG encoding quality `90`, not recognition confidence. |
+| `image/jpeg` | Media type corresponding to the encoded bytes. |
+| `cancellationToken` | Cancels the SDK request cooperatively; cancellation cannot retract data already transmitted. |
 
-See [script contexts](/en/scripting/api/core/app-runtime-contexts), [capture ownership](/en/scripting/api/computer-vision/images), and the [CV API](/en/scripting/api/IComputerVisionExperimentalScriptingApi).
+`ProcessPixels` lends the callback an image. Encode the JPEG inside that callback; the resulting byte array belongs to the program. Do not retain or dispose the borrowed image. The owned `cv` accessor is disposed when the explicit block exits, including on cancellation or error. The synchronous capture call does not take this token, so checks around it do not make capture instantly cancellable.
+
+The response may contain several content parts. The program joins their text and reports an empty text result explicitly instead of indexing the first part unconditionally. A refusal or non-text answer is not successful OCR.
+
+<details>
+<summary>Dependencies and the built-in AI route</summary>
+
+`ToJpegData(int)` uses the **Emgu.CV 4.9.0.5494** contract supplied by the EyeAuras environment. Do not replace an already loaded native library with an arbitrary package version. `GetService`, `Log` and `cancellationToken` belong to top-level `Script.csx`; ordinary classes require explicit dependencies.
+
+The [OpenAI image guide](https://developers.openai.com/api/docs/guides/images-vision) explains image and text inputs. The [2.1.0 ChatClient source](https://github.com/openai/openai-dotnet/blob/OpenAI_2.1.0/src/Custom/Chat/ChatClient.cs) defines the cancellation overload used here. Current Responses examples are not a drop-in replacement for this pinned Chat Completions client.
+
+The built-in `EyeAuras.AI` runtime uses configured profiles and sessions through `AiEngine` and registered host services, including `IScriptAiChatSessionFactory` where supplied. It is a separate route from a script-owned `OpenAIClient`; an AI Assistant profile does not fill this literal key automatically. See [AI runtime](/en/scripting/api/ml/ai-runtime) and [script AI clients](/en/scripting/api/ml/script-ai-clients) for that context.
+
+</details>

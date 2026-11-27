@@ -1,0 +1,72 @@
+{
+ "image": {
+  "file": "raw-sendinput-options-target.png",
+  "width": 760,
+  "height": 266
+ },
+ "frame": "sendinput-options-target",
+ "purpose": "ru/actions/sendinput/options.md (Send Sequence → Advanced input settings)",
+ "mapping": {
+  "devicePixelRatio": 1,
+  "cdpViewport": [
+   1428,
+   856
+  ],
+  "windowSize": [
+   1440,
+   900
+  ],
+  "clientToWindowCapture": [
+   6,
+   38
+  ],
+  "captureCrop": {
+   "x": 273,
+   "y": 320,
+   "width": 760,
+   "height": 266
+  },
+  "clientCrop": {
+   "x": 267,
+   "y": 282,
+   "width": 760,
+   "height": 266
+  },
+  "clientToRaw": [
+   -267,
+   -282
+  ],
+  "app": "1.10.10127.0 (Sources/bin launcher, --appVersion)",
+  "source": "raw-b5.png"
+ },
+ "rects": {
+  "targetWindow": {
+   "label": "Окно-получатель",
+   "x": 36,
+   "y": 32,
+   "width": 360,
+   "height": 126,
+   "client": {
+    "x": 303,
+    "y": 314,
+    "width": 360,
+    "height": 126
+   },
+   "source": "Target Window label + WindowSelectorEditorComponent (expression, pick buttons, matched window)"
+  },
+  "keyPressDelay": {
+   "label": "Задержка нажатия",
+   "x": 36,
+   "y": 167,
+   "width": 376,
+   "height": 63,
+   "client": {
+    "x": 303,
+    "y": 449,
+    "width": 376,
+    "height": 63
+   },
+   "source": "Key Press delay label + Min/Max ms + randomize (shuffle) toggle; shown when \"Use default Key Down / Key Up delay\" is on"
+  }
+ }
+}

@@ -7,96 +7,84 @@ tags: yoloease, machine-learning, ai-translated
 editor: markdown
 dateCreated: 2026-05-08T12:00:00.000Z
 ---
-# Annotation and Training
+# Train once, review the next task, then repeat
 
-Your first model will almost always start with manual annotation. After that, YoloEase uses the latest model for predictions and helps you label the next tasks much faster.
+Use a small manually reviewed seed task to obtain a model, then let that model suggest boxes on more of your own images. You still decide which boxes are correct. Training can run while you review a later task, but only completed tasks available when the dataset is prepared enter that run.
 
-## Start small, then scale up
+You need [prepared components](/en/YoloEase/prerequisites), a [project with labels and real images](/en/YoloEase/prepare-data), and permission to write its working folder. The example uses 10 PNG frames and your own `tgt` and `btn` classes. Include different positive examples and background; those names are not built-in object knowledge.
 
-A practical workflow looks like this: annotate `5-10` frames by hand, train, do a bit more manual annotation, get your first model, then move on to tasks with dozens or hundreds of frames using auto-annotation. Do not wait until you have built a large dataset manually.
+## Make the first task
 
-This is exactly where YoloEase works best: `Trainer` prepares a new model in the background while you review the next task. As the model improves, you can use larger batches and draw fewer boxes from scratch.
+1. Open **Trainer**, click **Refresh** and set **Batch size = 50%**. For 10 unassigned files, check the displayed count is **5**, then **Create Task**. Before a first model exists, the prediction step is skipped.
 
-## Create your first task
+![Trainer panel with the Batch size slider and Create Task button.](/assets/callouts/batch3/en/yolo-trainer-batch.png)
 
-Open the `Trainer` tab. If you do not have a model yet, the prediction step will be skipped, and `Create Task` will select frames from the available data.
+The screenshot shows a different project with 122 files. At a batch size of 5%, Trainer offers six files.
 
-![Trainer before model](https://s3.eyeauras.net/media/2026/05/YoloEase_e7nteB308n.png)
+2. In the editor, select the class and press **N**. Click opposite corners of every intended object and review all five frames. A reviewed empty background frame can remain empty.
 
-Click `Create Task`, then open the task through `Annotate Task` or from the task list.
+![Frame navigation and Finish Job in a new task in the annotation editor.](/assets/callouts/batch3/en/yolo-annotation-finish.png)
+![The second task frame shows six TGT boxes and the selected tgt class in the Labels panel.](/assets/callouts/batch3/en/yolo-annotation-label.png)
+![Button and target annotations use separate classes](https://s3.eyeauras.net/media/2026/05/YoloEase_8VeAPbGp5G.png)
 
-More details about batch size, prediction strategy, and progress tracking: [Trainer](/YoloEase/features/trainer).
+3. Click **Finish Job**. This saves and completes the task; closing the editor alone is insufficient. [Editor shortcuts and saving](/en/YoloEase/features/annotation-editor).
 
-## Annotate the first frames
+![A completed first task ready for training](https://s3.eyeauras.net/media/2026/05/YoloEase_0N5rmLKhsA.png)
 
-The empty editor shows labels on the right, frame navigation at the top, and the toolbar on the left. At this stage there are no objects yet, and the `Models` block tells you that no trained ONNX model has been found.
+## Train and locate a real output
 
-![Empty annotation editor](https://s3.eyeauras.net/media/2026/05/YoloEase_WpUxt25zLI.png)
+4. In **Settings → Training settings**, choose `yolo11s.pt`, **Epochs = 50**, **Model Size = 640**. In Trainer select **Local Training**, **Run once**, **Train/Validation % split = 80%**, then **Start automatic training**. The dataset needs at least one training image and one validation image; small-set rounding affects the actual counts.
 
-Select a label and draw rectangles around the objects. For AimTrainer.io, that means the small `tgt` targets and the `btn` button.
+![An earlier local training run and its epoch output](https://s3.eyeauras.net/media/2026/05/YoloEase_pNV4AW3F2r.png)
 
-![Annotating targets](https://s3.eyeauras.net/media/2026/05/YoloEase_AT0n2plVpV.png)
+5. Read the stage output for a successful training result and ONNX export. **Cycle completed** can also appear after an error or cancellation. Open the metrics to inspect this run, without treating completion or a low loss as a guarantee of useful detections.
 
-![Annotating button and targets](https://s3.eyeauras.net/media/2026/05/YoloEase_8VeAPbGp5G.png)
+![Metrics from an earlier small training run](https://s3.eyeauras.net/media/2026/05/YoloEase_UQNGLfMszk.png)
 
-When the task is ready, click `Finish Job`. This step is important: completed tasks are included in the next training dataset.
+6. Use **open...** at a successful training result to select the produced file. Keep the `.pt` weights for further training and the actual `.onnx` for a compatible inference host. Detailed settings and output paths: [Trainer](/en/YoloEase/features/trainer).
 
-For details about the toolbar, hotkeys, boxes, model suggestions, and label matching, see the [annotation editor](/YoloEase/features/annotation-editor).
+## Review predictions and the next task
 
-![Ready for first training](https://s3.eyeauras.net/media/2026/05/YoloEase_0N5rmLKhsA.png)
+7. Refresh after a model becomes available. Review its predictions and class thresholds to choose useful new frames. **Annotated-first** prefers unassigned files with predictions, then fills randomly; it does not prove that those images contain the model's worst errors.
 
-## Start training
+![Predictions used to inspect available images](https://s3.eyeauras.net/media/2026/05/YoloEase_eUeVre8Bbg.png)
+![A prediction for the button class](https://s3.eyeauras.net/media/2026/05/YoloEase_fDH7TdlEga.png)
+![Predictions for target objects](https://s3.eyeauras.net/media/2026/05/YoloEase_jPrfbGeQtE.png)
 
-Go back to `Trainer` and start local training. YoloEase will build a dataset from completed tasks, split the images into training and validation sets, and then start training.
+8. Create the next task and add **Latest** in **Models**. Click **Load**, check class mapping, enable **Create suggestions**, and use **Run current** or **Run all**. This is explicit inference by the selected model.
 
-![Training running](https://s3.eyeauras.net/media/2026/05/YoloEase_pNV4AW3F2r.png)
+![Latest resolves to an ONNX file. Its status is Not loaded and Create suggestions is unchecked.](/assets/callouts/batch3/en/yolo-annotation-model.png)
 
-When training finishes, open the metrics. The first result may look noisy, and that is normal when you do not have much data yet.
+The ONNX file is available here. Click **Load** to read its classes, then enable **Create suggestions**.
 
-![Training metrics](https://s3.eyeauras.net/media/2026/05/YoloEase_UQNGLfMszk.png)
+![Model-assisted annotation ready for review](https://s3.eyeauras.net/media/2026/05/YoloEase_KMBzwXfQT9.png)
 
-## Review predictions
+9. Accept correct suggestions, adjust boxes and classes, draw missed objects and remove false positives. **Accept**/**Accept all** is required for temporary suggestions to become saved annotation. Direct box creation with **Create suggestions** off still needs review.
 
-Once a model is available, YoloEase can run predictions on frames. This helps you see what the model has already learned, where it makes mistakes, and which frames are worth adding to the next task.
+![Deleting an extra detection](https://s3.eyeauras.net/media/2026/05/YoloEase_UyYYi1dOFb.png)
 
-![Prediction preview](https://s3.eyeauras.net/media/2026/05/YoloEase_eUeVre8Bbg.png)
+10. Click **Finish Job**, then start another **Run once**. Completed tasks are collected again; it is not automatic checkpoint resumption. To fine-tune an existing run, explicitly select its compatible `.pt` as the base model.
 
-![Prediction with button](https://s3.eyeauras.net/media/2026/05/YoloEase_fDH7TdlEga.png)
+| Stage | What to check before continuing |
+| --- | --- |
+| Manual seed task | Every intended object has a consistent class and box; reviewed negatives are deliberate. |
+| Training and export | The actual stage succeeded and an ONNX file exists, beyond a process starting or a cycle ending. |
+| Predictions | The correct model, classes and thresholds are selected; missing and extra boxes remain visible review work. |
+| Next completed task | Accepted/corrected boxes are saved with **Finish Job**, so they can enter the next dataset. |
 
-![Prediction on targets](https://s3.eyeauras.net/media/2026/05/YoloEase_jPrfbGeQtE.png)
+## Decide whether another cycle helps
 
-## Use the model for auto-annotation
+Compare models on images held out from training. More cycles do not guarantee better accuracy, particularly when new frames are near-duplicates or errors were accepted as truth. Increase task size only when suggestions are useful enough to review efficiently.
 
-Open the next task. Now you can add `Latest` in the `Models` block, load the model, and run it on the current frame or on the entire task.
+![Metrics from another demonstration generation, not an expected improvement target](https://s3.eyeauras.net/media/2026/05/YoloEase_IQStvCNnhh.png)
 
-![Editor with model](https://s3.eyeauras.net/media/2026/05/YoloEase_jEFZb2nxWc.png)
+Use **All tasks** to reopen completed tasks and correct earlier annotation. You can run a newer model there, but review what it changes before finishing the task again.
 
-After you run it, the model will either create suggestions or add boxes directly if that option is enabled. Review the result visually.
+![Open next to a completed annotation task in the Tasks list.](/assets/callouts/batch3/en/yolo-open-task.png)
 
-![Auto annotated task](https://s3.eyeauras.net/media/2026/05/YoloEase_KMBzwXfQT9.png)
+Each run retains its weights, reports and export in the working folder. **open...** selects its model output.
 
-If the model creates suggestions, they stay temporary until you click `Accept` or `Accept all`. Suggestions that are not accepted will not be used for training.
+![Opening a model result from Trainer](https://s3.eyeauras.net/media/2026/05/YoloEase_AKduA4R9xH.png)
+![The results folder contains best.pt, last.pt and a separate file of type ONNX File.](/assets/callouts/batch3/en/yolo-export-files.png)
 
-If the model added an extra object, select it and remove it with `Q`, `Delete`, or `Backspace`.
-
-![Removing false positive](https://s3.eyeauras.net/media/2026/05/YoloEase_UyYYi1dOFb.png)
-
-## Repeat the next generations
-
-After the second and third iteration, quality usually improves noticeably: the model helps annotate more frames, and you mostly fix mistakes instead of drawing everything manually.
-
-![Second generation metrics](https://s3.eyeauras.net/media/2026/05/YoloEase_IQStvCNnhh.png)
-
-You can reopen completed tasks if you want to annotate them again with a newer model or fix older mistakes.
-
-![Reopen completed tasks](https://s3.eyeauras.net/media/2026/05/IBbk1nDkee.png)
-
-The final weights are stored in the training run folder. Use `Open` in `Trainer` to open the output folder and retrieve `best.pt`, `last.pt`, and `.onnx`.
-
-![Open model folder](https://s3.eyeauras.net/media/2026/05/YoloEase_AKduA4R9xH.png)
-
-![Model output files](https://s3.eyeauras.net/media/2026/05/1gcs8iFm66.png)
-
-What `.pt`, `.onnx`, model size, and opset mean: [YOLO ONNX and model weights](/YoloEase/features/yolo-onnx).
-
-If your dataset is small or the objects look too repetitive, move on to [augmentations](/YoloEase/features/augmentations). If the model is already good enough, connect it in [EyeAuras](/YoloEase/use-in-eyeauras). If something breaks, open [diagnostics](/YoloEase/features/diagnostics).
+Read [YOLO ONNX](/en/YoloEase/features/yolo-onnx) for file formats and model-size/opset limits. Use [augmentations](/en/YoloEase/features/augmentations) for controlled image variation, [EyeAuras](/en/YoloEase/use-in-eyeauras) to inspect a compatible model on your window, or [diagnostics](/en/YoloEase/features/diagnostics) for a failed stage.

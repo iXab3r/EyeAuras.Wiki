@@ -1,0 +1,100 @@
+{
+ "image": {
+  "file": "raw-binding-editor.png",
+  "width": 792,
+  "height": 442
+ },
+ "frame": "binding-editor",
+ "purpose": "ru/bindings.md, ru/features/bindings.md (Binding Editor opened from the binding square of Image Capture Rate)",
+ "mapping": {
+  "devicePixelRatio": 1,
+  "cdpViewport": [
+   1428,
+   856
+  ],
+  "windowSize": [
+   1440,
+   900
+  ],
+  "clientToWindowCapture": [
+   6,
+   38
+  ],
+  "captureCrop": {
+   "x": 64,
+   "y": 317,
+   "width": 792,
+   "height": 442
+  },
+  "clientCrop": {
+   "x": 58,
+   "y": 279,
+   "width": 792,
+   "height": 442
+  },
+  "clientToRaw": [
+   -58,
+   -279
+  ],
+  "app": "1.10.10127.0 (Sources/bin launcher, --appVersion)",
+  "source": "raw-b1-editor.png"
+ },
+ "rects": {
+  "target": {
+   "label": "Свойство-получатель",
+   "x": 10,
+   "y": 7,
+   "width": 229,
+   "height": 18,
+   "client": {
+    "x": 67.6,
+    "y": 285.6,
+    "width": 229,
+    "height": 18
+   },
+   "source": "popout title \"Binding Editor :: MaxFramesPerSecond\""
+  },
+  "sourceTree": {
+   "label": "Объект-источник",
+   "x": 19,
+   "y": 39,
+   "width": 272,
+   "height": 168,
+   "client": {
+    "x": 76.6,
+    "y": 317.8,
+    "width": 272,
+    "height": 168
+   },
+   "source": "bindings-tree (aura tree inside Binding Editor)"
+  },
+  "properties": {
+   "label": "Свойства источника",
+   "x": 317,
+   "y": 69,
+   "width": 397,
+   "height": 160,
+   "client": {
+    "x": 374.6,
+    "y": 347.8,
+    "width": 397.80000000000007,
+    "height": 160
+   },
+   "source": "property rows Name..SessionObjectId (name, type pill, current value)"
+  },
+  "bind": {
+   "label": "Создать связь",
+   "x": 716,
+   "y": 75,
+   "width": 49,
+   "height": 148,
+   "client": {
+    "x": 774.4,
+    "y": 353.8,
+    "width": 49,
+    "height": 148
+   },
+   "source": "bind buttons column"
+  }
+ }
+}

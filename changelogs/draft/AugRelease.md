@@ -30,16 +30,16 @@ The most noticeable changes:
 - the [homepage](https://eyeauras.net/) has been updated
 - pages for specific auras were redesigned, for example: [GTA5 fishing bot](https://eyeauras.net/share/S20240710235018df4VPCkM0Wan), [Blum clicker](https://eyeauras.net/share/S20240606142306qxWxc7fy40p6), [Lineage 2 bot](https://eyeauras.net/share/S20240628015518RjpkU2Sdkh5I)
 - screenshots, videos, and the feature list were updated — they now link to specific [Wiki](https://wiki.eyeauras.net/) pages
-- the download section is no longer hidden away on the homepage, and the release date is now visible
+- the download section now shows the release date
 - pricing information is also available right away
 
-![](https://i.imgur.com/aEcqbXL.jpeg)
+![](https://s3.eyeauras.net/media/wiki/changelogs/6862/aEcqbXL.jpg)
 
 ### Link previews
 
 If you paste links to the EyeAuras website (https://eyeauras.net/) or even to a specific aura (https://eyeauras.net/share/S20240426185158EYI4GEqRm2vh), a small preview will be shown. This works in most modern messengers and platforms: Twitter, Discord, Telegram, and so on.
 
-![Telegram](https://i.imgur.com/6BHr4q3.png)
+![Telegram](https://s3.eyeauras.net/media/wiki/changelogs/6884/6BHr4q3.png)
 
 ### Aura Pack revisions
 
@@ -271,7 +271,7 @@ For normal users, this means:
 
 This will be especially noticeable for users connected to `EU Eye Hub`. Over time, I will also add a separate file hub for the RU region.
 
-![Settings](https://i.imgur.com/pmmsLCG.png)
+![Settings](https://s3.eyeauras.net/media/wiki/changelogs/6884/pmmsLCG.png)
 
 ### Aura Tree improvements — copy/paste support
 

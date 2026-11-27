@@ -7,156 +7,123 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T16:12:56.395Z
 ---
-# CSS-файлы
-CSS обычно подключается как отдельные файлы с описанием классов — иногда таких классов могут быть тысячи.
+# Вынести оформление кнопки в CSS-файл
 
-## HTML-тег head
-Если кликнуть по C# overlay и нажать `F12` (открыть dev tools), в верхней части HTML вы увидите примерно следующее:
-```html
-<head>
-    <meta charset="utf-8">
-    <base href="/">
+Если правила оформления мешают читать Razor, перенесите их в `Styles.css`. Подключим файл через `HeadContent`: панель останется той же, а цвет и ширина кнопки будут задаваться отдельным ресурсом проекта.
 
-    <link href="_content/AntDesign/css/ant-design-blazor.css" rel="stylesheet">
-    <link href="_content/PoeShared.Blazor.Wpf/css/bootstrap.css" rel="stylesheet">
-    <link href="_content/PoeShared.Blazor.Wpf/css/bootstrap-extra.css" rel="stylesheet">
-    <link href="_content/PoeShared.Blazor.Wpf/css/app.css" rel="stylesheet">
-    <link href="_content/PoeShared.Blazor.Wpf/css/font-awesome6.min.css" rel="stylesheet">
-    <link href="_content/PoeShared.Blazor.Wpf/css/font-play-regular.css" rel="stylesheet">
-    <link href="_content/PoeShared.Blazor.Controls/assets/css/main-colors.css" rel="stylesheet">
-    <link href="_content/PoeShared.Blazor.Controls/assets/css/main-style.css" rel="stylesheet">
-    <link href="_content/PoeShared.Blazor.Controls/assets/css/main-ant-blazor.css" rel="stylesheet">
-    <link href="_content/EyeAuras.Blazor.Shared/EyeAuras.Blazor.Shared.bundle.scp.css" rel="stylesheet">
-    <link href="EyeAuras.styles.css" rel="stylesheet">
-</head>
-```
+Нужны две загруженные ауры в одной папке: `TargetAura` с **Hotkey Is Active → Toggle Trigger state on Click** и отдельная панель с **C# Overlay** и **Fixed Value → Is Active**. Назначьте триггеру свободную горячую клавишу; действия для этого опыта не нужны. Путь `./TargetAura` должен указывать на вашу ауру с одним таким триггером. Подготовка самой кнопки разобрана в [предыдущем примере](/ru/scripting/blazor-windows/4-toggle-hotkeyisactive).
 
-Именно здесь объявляются дополнительные стили и иногда скрипты. Браузер обрабатывает их сразу при запуске, чтобы понимать, что нужно загрузить. Во время рендеринга эти стили используются для управления внешним видом и расположением элементов. Наш CSS-файл тоже должен попасть сюда. Но сначала просто создадим его.
+1. В редакторе своего C# Overlay выберите **New file → CSS**, имя `Styles`. Получится `Styles.css`.
 
-## Создание CSS-файла
-В скрипте overlay нажмите `New` -> `CSS` и укажите имя. В примере будем использовать имя по умолчанию — `Styles`. Вы можете выбрать любое имя, но тогда не забудьте обновить путь в коде.
+![Добавление CSS-файла в прежнем редакторе](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_mzNnQuvluB.png)
 
-![New CSS](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_mzNnQuvluB.png)
+2. Замените содержимое CSS на приведённое ниже. Шаблон первоначально задаёт жёлтый фон для `body, html`; для своей кнопки это правило не нужно.
+3. Получите полное имя ресурса и вставьте его вместо `MyScript.Styles.css` в `UserOverlay.razor`.
 
-## CSS по умолчанию
-По умолчанию EyeAuras создаёт такой файл:
-```css
-body, html {
-    background: yellow;
+В полном имени ресурса участвует namespace **проекта**, а не только `@namespace` компонента. Например, `Styles.css` может получить имя `MyScript.Styles.css`, а `Theme/Styles.css` — `MyScript.Theme.Styles.css`. Не подставляйте `BlazorDemo` только потому, что так называется класс в примере.
+
+Чтобы получить фактическое имя, оставьте в `Script.csx` этот законченный короткий код и дождитесь подготовки проекта:
+
+```csharp
+foreach (var name in typeof(Script).Assembly.GetManifestResourceNames())
+{
+    Log.Info(name);
 }
 ```
 
-Этот стиль сделает фон окна/overlay жёлтым. Но одного создания CSS-файла недостаточно — его нужно ещё подключить, чтобы браузер понял, откуда его загружать.
-
-## HeadContent — декларативный способ
-В Blazor содержимое заголовка страницы управляется через [HeadContent](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/control-head-content?view=aspnetcore-9.0). Он позволяет при необходимости добавлять дополнительные CSS-файлы в HTML-заголовок.
-
-Когда компонент загружается, он находит `HeadContent` и добавляет ссылки в элемент `head` — дальше браузер всё делает сам. Например:
-
-```csharp
-<HeadContent>
-    <link href="MyScript.Styles.css" rel="stylesheet"/>
-</HeadContent>
-```
-
-Этот код подключает `Styles.css` в заголовок. Чтобы не мучить ваши глаза, вместо стандартного CSS я сразу вставил пример с зелёной кнопкой, не меняя фон.
-
-![Demo](https://s3.eyeauras.net/media/2025/05/OTFy9w6Fgm.png)
-
-В одной папке создайте ауру с **C# Overlay v3** и ауру `TargetAura`. В каждую целевую ауру добавьте `HotkeyIsActive` и настройте горячую клавишу в режиме переключения. Оставьте целевые ауры загруженными. Путь `./TargetAura` в примере ищется относительно контекста оверлея; при другой структуре дерева замените их. Если подходящих триггеров несколько, выбирается первый.
-
-Замените содержимое `UserOverlay.cs` и `UserOverlay.razor` в этом оверлее кодом ниже. Это две части одного `public partial` класса в одном пространстве имён. `AuraTree` получает компонент через `[Inject]`; глобальные переменные из `Script.csx` в него автоматически не передаются.
-
-## Подготовить ресурс
-
-Добавьте `Styles.css` в файлы этого C# Overlay v3 через `New` → `CSS` и сохраните приведённое ниже содержимое. Файл должен попасть в ресурсы скрипта. В примере входной путь — `MyScript.Styles.css`: **замените `MyScript` на пространство имён проекта**, а при вложенных папках используйте полное имя ресурса. Например, `Theme/Styles.css` в проекте `MyScript` получает имя `MyScript.Theme.Styles.css`.
-
-Имена manifest-ресурсов выводятся в отладочный журнал при подготовке скрипта; их также показывает `ScriptEmbeddedResourceFileProvider.GetManifestNames()` у конкретного провайдера. `GetService<IScriptFileProvider>()` может вернуть составной провайдер, поэтому приведение к этому классу не гарантировано. Используйте полное имя, а не предположение, что любой путь с окончанием `Styles.css` найдётся. Оконный хост подключает файловый провайдер скрипта к WebView2.
+Скопируйте полное имя своего `Styles.css` из журнала в указанную ниже строку. `Script` здесь — тип верхнеуровневого скрипта; такой глобальный контекст не появляется в обычном классе или Razor. Файловый механизм окна раздаёт ресурсы проекта в WebView2. Полное имя устраняет догадки с короткими путями; общий `IScriptFileProvider` может быть составным, поэтому приводить его к `ScriptEmbeddedResourceFileProvider` не нужно.
 
 ## UserOverlay.cs
+
 ```csharp
-using System;
-using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using ReactiveUI;
 using PoeShared.Blazor;
 using EyeAuras.Scripting.Api;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 
-public partial class UserOverlay : BlazorReactiveComponent {
+namespace BlazorDemo;
 
+public partial class UserOverlay : BlazorReactiveComponent
+{
     [Inject]
-    public IAuraTreeScriptingApi AuraTree { get; init; }
+    public IAuraTreeScriptingApi AuraTree { get; set; }
 
-    public bool TriggerIsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura").TriggerValue = value;
-    }
+    private IHotkeyIsActiveTrigger trigger;
+    private bool IsActive => trigger.TriggerValue ?? false;
 
     protected override void OnInitialized()
     {
-        ChangeTrackers.Add(Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1)));
+        trigger = AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura");
+        ChangeTrackers.Add(trigger.WhenAnyValue(x => x.TriggerValue));
         base.OnInitialized();
+    }
+
+    private async Task SetActive(bool value)
+    {
+        trigger.TriggerValue = value;
+        await Refresh("styled toggle clicked");
     }
 }
 ```
 
 ## UserOverlay.razor
-```html
+
+```razor
+@namespace BlazorDemo
 @using Microsoft.AspNetCore.Components.Web
 @using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
 <HeadContent>
-    <link href="MyScript.Styles.css" rel="stylesheet"/>
+    <link href="MyScript.Styles.css" rel="stylesheet" />
 </HeadContent>
 
-<h3 class="text-center shadow-1">CSS via HeadContent</h3>
-
-<div class="text-center mt-4">
-    <ToggleButton
-        @bind-IsChecked="@TriggerIsActive"
-        Class="btn custom-button">
-                Trigger is Active
+<div class="demo-panel">
+    <ToggleButton IsChecked="@IsActive" IsCheckedChanged="SetActive"
+                  Class="btn custom-button">
+        Триггер: @(IsActive ? "включён" : "выключен")
     </ToggleButton>
 </div>
 ```
 
 ## Styles.css
+
 ```css
-.custom-button {
+.demo-panel .custom-button {
     background: lime;
     color: black;
     width: 80%;
 }
 ```
 
----
+4. Дождитесь компиляции с правильным полным именем файла. Кнопка должна стать зелёной, с чёрной подписью и шириной 80% панели. Нажатие и горячая клавиша продолжают переключать триггер.
 
-## Разбор
+![Результат подключения CSS в прежнем примере](https://s3.eyeauras.net/media/2025/05/OTFy9w6Fgm.png)
 
-## UserOverlay.razor
-```html
-<HeadContent>
-    <link href="MyScript.Styles.css" rel="stylesheet"/>
-</HeadContent>
-```
+| Часть | Что делает |
+| --- | --- |
+| `Styles.css` | Хранит правила; само добавление файла ещё не подключает его к документу. |
+| `HeadContent` | Передаёт содержимое в `head` через `HeadOutlet`, который зарегистрирован оконным механизмом EyeAuras. |
+| `link` с `rel="stylesheet"` | Даёт браузеру путь к таблице стилей. Это отдельный шаг от нахождения встроенного ресурса. |
+| `MyScript.Styles.css` | Образец полного manifest-имени. Замените фактическим именем своего файла; вложенные папки также входят в имя. |
+| `.demo-panel .custom-button` | Ограничивает правило своей панелью. Файл не получает автоматическую изоляцию от остальных компонентов документа. |
 
-Это ключевая часть, которая подключает стили.
+`[Inject]` предоставляет компоненту сервис дерева; это не глобальное имя из `Script.csx`. Кнопка читает и меняет реальный `TriggerValue`, а `null` показывает как выключенное. `WhenAnyValue` обновляет её и после горячей клавиши. Источник добавлен до `base.OnInitialized()`; подписку освобождает компонент при уничтожении, а не при простом скрытии окна. Итоговая активность ауры также зависит от остальных её условий. Подробности и вариант с периодическим обновлением — в [механизме обновления](/ru/scripting/blazor-windows/reactive-toggle).
 
-## Styles.css
-```css
-.custom-button {
-    background: lime;
-    color: black;
-    width: 80%;
-}
-```
+Содержимым `HeadContent` управляет Blazor вместе с компонентом. Не используйте этот способ как механизм переключения глобальной темы. Если несколько компонентов одновременно управляют `HeadContent`, согласуйте подключение на уровне их общего владельца. Порядок и специфичность CSS-правил по-прежнему влияют на итоговый вид.
 
-Здесь хранятся наши стили. Сейчас класс только один, но вы можете создать столько классов, сколько нужно. Результат — зелёная кнопка с чёрным текстом, шириной 80% родителя. Итоговый стиль зависит от специфичности селекторов и порядка правил; этот пример не гарантирует переопределение любого стиля хоста.
-Нажатие кнопки записывает `TriggerValue`; горячая клавиша меняет тот же триггер. Таймер в `ChangeTrackers` заставляет компонент перечитывать состояние примерно раз в секунду, поэтому внешнее изменение видно с задержкой. Добавляйте таймер до `base.OnInitialized()`: там список отслеживания запечатывается и подписки привязываются к `Anchors` компонента. Скрытие окна само по себе не равно уничтожению компонента.
+<details>
+<summary>Посмотреть подключение в браузерной части</summary>
 
-WPF-host регистрирует `HeadOutlet` в элементе `headOutlet` своей страницы, а C# Overlay передаёт ему `IScriptFileProvider` через `AdditionalFileProvider`. Поэтому `HeadContent` и разрешение пути CSS — два отдельных шага: ссылка должна попасть в head, а ресурс должен находиться у провайдера.
+В C# Overlay откройте инструменты разработчика клавишей **F12**. В `head` будет ссылка на собственный файл рядом с ресурсами хоста. Перечень системных CSS зависит от версии; добавлять в свой компонент копию всех системных ссылок не требуется.
 
-[BlazorContentControl](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Blazor.Wpf/BlazorContentControl.cs).
+Если ссылка есть, а цвет прежний, проверьте загрузку ресурса по полному имени и совпадение CSS-селектора. Наличие ссылки само по себе не означает успешную загрузку.
+
+[HeadContent в Blazor](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/control-head-content?view=aspnetcore-9.0), [оконный BlazorContentControl](https://github.com/iXab3r/PoeEye/blob/0e02c98dcab4bff263684f1c0647eed120e2700f/PoeEye/PoeShared.Blazor.Wpf/BlazorContentControl.cs).
+
+</details>
+
+Если момент подключения нужно выбрать из C#, используйте [LoadCss](/ru/scripting/blazor-windows/toggles-styling-css-load).

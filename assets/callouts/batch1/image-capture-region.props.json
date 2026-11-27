@@ -1,0 +1,42 @@
+{
+ "src": "raw-image-capture-region.png",
+ "imageWidth": 1161,
+ "imageHeight": 382,
+ "padding": {
+  "left": 72,
+  "top": 72,
+  "right": 72,
+  "bottom": 96
+ },
+ "radius": 10,
+ "color": "#f5a623",
+ "labelColor": "#1c1c1c",
+ "dim": 0.3,
+ "inflate": 4,
+ "stroke": 2,
+ "highlights": [
+  {
+   "x": 36,
+   "y": 64,
+   "width": 632,
+   "height": 24,
+   "label": "Область захвата",
+   "side": "below",
+   "pad": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "align": "start"
+  },
+  {
+   "x": 1115,
+   "y": 38,
+   "width": 40,
+   "height": 14,
+   "label": "Фактический FPS",
+   "side": "below"
+  }
+ ]
+}

@@ -1,0 +1,86 @@
+{
+ "image": {
+  "file": "raw-sendinput-options-simulator.png",
+  "width": 760,
+  "height": 254
+ },
+ "frame": "sendinput-options-simulator",
+ "purpose": "ru/actions/sendinput/options.md (Send Sequence → Advanced input settings)",
+ "mapping": {
+  "devicePixelRatio": 1,
+  "cdpViewport": [
+   1428,
+   856
+  ],
+  "windowSize": [
+   1440,
+   900
+  ],
+  "clientToWindowCapture": [
+   6,
+   38
+  ],
+  "captureCrop": {
+   "x": 273,
+   "y": 584,
+   "width": 760,
+   "height": 254
+  },
+  "clientCrop": {
+   "x": 267,
+   "y": 546,
+   "width": 760,
+   "height": 254
+  },
+  "clientToRaw": [
+   -267,
+   -546
+  ],
+  "app": "1.10.10127.0 (Sources/bin launcher, --appVersion)",
+  "source": "raw-b5.png"
+ },
+ "rects": {
+  "restore": {
+   "label": "Возврат после действия",
+   "x": 36,
+   "y": 9,
+   "width": 300,
+   "height": 82,
+   "client": {
+    "x": 303,
+    "y": 555,
+    "width": 300,
+    "height": 82
+   },
+   "source": "Restore after Action is completed: Window / Mouse position / Key/Button State"
+  },
+  "blockInput": {
+   "label": "Блокировка ввода",
+   "x": 36,
+   "y": 133,
+   "width": 446,
+   "height": 27,
+   "client": {
+    "x": 303,
+    "y": 679,
+    "width": 446,
+    "height": 27
+   },
+   "source": "Block User input select"
+  },
+  "inputSimulator": {
+   "label": "Способ отправки ввода",
+   "x": 36,
+   "y": 221,
+   "width": 446,
+   "height": 27,
+   "client": {
+    "x": 303,
+    "y": 767,
+    "width": 446,
+    "height": 27
+   },
+   "source": "Input Simulator select"
+  }
+ }
+}

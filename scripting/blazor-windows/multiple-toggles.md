@@ -7,106 +7,92 @@ tags: ai-translated
 editor: markdown
 dateCreated: 2025-05-11T14:52:06.974Z
 ---
+# Put three toggles on one panel
 
-# Controlling an aura through the UI
-The code works but isn't perfect. Clicking the button toggles the trigger and aura correctly. But if you activate a trigger **with a hotkey**, the UI doesn't refresh automatically—it needs a signal. We'll use the same simple solution: refresh the interface **once per second**. Not optimal, but fine for our tiny UI.
+Control three of your own auras from one panel. Each item holds its actual trigger, so a button and its hotkey change the same value without three mirrored state properties.
 
-## Prepare the overlay and target auras
-
-Create a **C# Overlay v3** aura and `TargetAura 1`, `TargetAura 2`, `TargetAura 3` in the same folder. Add `HotkeyIsActive` in toggle mode to each target and keep them loaded. The shown `./TargetAura` paths resolve relative to the overlay context; adjust them to your actual tree. If several triggers match, the first is selected.
-
-Replace `UserOverlay.cs` and `UserOverlay.razor` with the corresponding complete blocks below. They are parts of one `public partial` class in the same namespace. `[Inject]` supplies `AuraTree`; Script.csx globals are not component globals.
+1. In one folder, create `TargetAura 1`, `TargetAura 2` and `TargetAura 3`. Give each **Hotkey Is Active → Toggle** with a different free hotkey. Leave them loaded, with no actions for this exercise.
+2. Add a separate panel aura with **C# Overlay** and **Fixed Value → Is Active**.
+3. Replace its two component files below. Leave `Script.csx` as a short entry point without waiting.
 
 ## UserOverlay.cs
+
 ```csharp
 using System;
+using System.Threading.Tasks;
 using System.Reactive.Linq;
 using Microsoft.AspNetCore.Components;
 using PoeShared.Blazor;
 using EyeAuras.Scripting.Api;
 using EyeAuras.DefaultAuras.Triggers.HotkeyIsActive;
 
-public partial class UserOverlay : BlazorReactiveComponent {
+namespace BlazorDemo;
 
+public partial class UserOverlay : BlazorReactiveComponent
+{
     [Inject]
-    public IAuraTreeScriptingApi AuraTree { get; init; }
+    public IAuraTreeScriptingApi AuraTree { get; set; }
 
-    public bool Trigger1IsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 1").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 1").TriggerValue = value;
-    }
-
-    public bool Trigger2IsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 2").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 2").TriggerValue = value;
-    }
-
-    public bool Trigger3IsActive
-    {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 3").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 3").TriggerValue = value;
-    }
+    private ToggleItem[] items = Array.Empty<ToggleItem>();
 
     protected override void OnInitialized()
     {
+        items = new[]
+        {
+            new ToggleItem("Trigger 1", AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 1")),
+            new ToggleItem("Trigger 2", AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 2")),
+            new ToggleItem("Trigger 3", AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 3")),
+        };
         ChangeTrackers.Add(Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1)));
         base.OnInitialized();
+    }
+
+    private async Task SetActive(ToggleItem item, bool value)
+    {
+        item.Trigger.TriggerValue = value;
+        await Refresh("group toggle clicked");
+    }
+
+    private sealed record ToggleItem(string Label, IHotkeyIsActiveTrigger Trigger)
+    {
+        public bool IsActive => Trigger.TriggerValue ?? false;
     }
 }
 ```
 
 ## UserOverlay.razor
-```html
+
+```razor
+@namespace BlazorDemo
 @using PoeShared.Blazor
 @using PoeShared.Blazor.Controls
 @inherits BlazorReactiveComponent
 
-<h3 class="text-center shadow-1">Toggle Multiple Triggers</h3>
-
-<div class="text-center mt-4 mx-2 d-flex gap-1 alert alert-info">
-    <ToggleButton @bind-IsChecked="@Trigger1IsActive">
-        Trigger <b>1</b>
-    </ToggleButton>
-    <ToggleButton @bind-IsChecked="@Trigger2IsActive">
-        Trigger <b>2</b>
-    </ToggleButton>
-    <ToggleButton @bind-IsChecked="@Trigger3IsActive">
-        Trigger <b>3</b>
-    </ToggleButton>
-</div>
-```
-
-![Demo](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_WPu1ZGwKwS.gif)
-
----
-
-## Breakdown
-## UserOverlay.cs
-```csharp
-    public bool Trigger1IsActive
+<h3>My triggers</h3>
+<div class="d-flex gap-1 alert alert-info">
+    @foreach (var item in items)
     {
-        get => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 1").TriggerValue ?? false;
-        set => AuraTree.GetTriggerByPath<IHotkeyIsActiveTrigger>("./TargetAura 1").TriggerValue = value;
+        <ToggleButton @key="item" IsChecked="@item.IsActive"
+                      IsCheckedChanged="value => SetActive(item, value)">
+            @item.Label: @(item.IsActive ? "on" : "off")
+        </ToggleButton>
     }
-```
-For convenience we declare properties for each aura. The logic is the same as before, but instead of splitting trigger lookup and value access, we do both at once. `GetTriggerByPath` guarantees the trigger is found (or throws), so this is safe.
-
-## UserOverlay.razor
-```html
-<div class="text-center mt-4 mx-2 d-flex gap-1 alert alert-info">
-    <ToggleButton @bind-IsChecked="@Trigger1IsActive">
-        Trigger <b>1</b>
-    </ToggleButton>
-    ...
 </div>
 ```
-Key classes in the parent `<div>`:
-- `d-flex` – lay out elements in a row
-- `gap-1` – small gap between them (`gap-2`, `gap-3`, etc. are also available). These classes come from [Bootstrap](https://getbootstrap.com/)
-- `alert alert-info` – wrap buttons in a colored box for visibility
 
-The buttons themselves changed only by variable name and small style tweaks. See [here](https://getbootstrap.com/docs/5.3/components/buttons/) for more button styles. We'll cover customizing styles next.
+4. Once compilation finishes, click the second button. Only the trigger in `TargetAura 2` changes. Toggle another trigger with its hotkey: its panel button catches up in about a second.
 
-The button writes `TriggerValue`, and the hotkey changes the same trigger. The `ChangeTrackers` timer rereads it about once per second, so external changes appear with a delay. Add the timer before `base.OnInitialized()`, which seals the tracker list and owns the subscriptions through component `Anchors`. Hiding a window is not the same as disposing its component.
+![Three buttons for three auras in the earlier example](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_WPu1ZGwKwS.gif)
+
+| Setting or part | What it changes |
+| --- | --- |
+| Labels and paths in `items` | One entry connects a label to its trigger. Paths are relative to the panel's tree context; missing aura/trigger lookup throws, and multiple matching triggers select the first. |
+| `ToggleItem.IsActive` | Reads the current `TriggerValue`; `null` is displayed as off. The model stores a reference, not a second writable value. |
+| `SetActive(item, value)` | Writes only the chosen trigger and refreshes the panel after the click. |
+| `Observable.Timer(..., TimeSpan.FromSeconds(1))` | Requests periodic refreshes so hotkey changes become visible. This is polling, not property-change observation. |
+| `d-flex gap-1` | Places the buttons in a row with spacing. Other [Bootstrap](https://getbootstrap.com/) gap sizes can change the spacing. |
+| `alert alert-info` | Gives the group a coloured background. [Bootstrap button styles](https://getbootstrap.com/docs/5.3/components/buttons/) provide other appearances. |
+
+Add the timer before `base.OnInitialized()`. The base class seals `ChangeTrackers`, subscribes through component `Anchors` and releases the subscription when the component is disposed. Hiding its window alone may leave polling active; do not create another timer in `Script.csx`.
+
+For a notifying source, use [TriggerValue observation](/en/scripting/blazor-windows/reactive-toggle) for each item instead of the timer. The aura's other conditions still determine its overall activity. Continue with [colours, content and conditional buttons](/en/scripting/blazor-windows/toggle-styling).

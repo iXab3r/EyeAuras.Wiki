@@ -8,17 +8,42 @@ editor: markdown
 dateCreated: 2023-02-16T20:13:29.512Z
 ---
 
-In many-many scenarios you do not really want for **ALL** your auras to work - process data, do image/text search, scan files, etc. You may need only a subset of them active at any given moment under some set of conditions.
+# Enabling Conditions — run a group only when needed
 
-> For example, imagine that you have a set of auras that scans your screen and tries to find some NPC name/image. But you know for a fact, that this NPC only spawns outside city area, which means that whenever you're standing in the city it does not make any sense to do the scanning. Moreover, outside the city doing the scan may lead to false-positive activations of your ImageSearch and nobody wants that.
+A group of visual checks may only be useful while you are inspecting something. Put the auras in a folder and give that folder **Enabling conditions**. When permission is withdrawn, the child auras stop working, including their ordinary trigger calculations.
 
-To solve this problem **Enabling Conditions** were created. At the very core they are **Triggers,** but serve the different purpose. Triggers are responsible for Activating/Deactivating aura and Enabling Conditions are responsible for fully disabling aura. If aura is disabled Triggers are not calculated at all thus preserving CPU/GPU resources AND protecting your scripts from undesired activations. 
+An ordinary trigger answers “is this aura's condition met?” An enabling condition answers “should this aura run at all?” This can avoid unnecessary image or text searches; it does not supply the data those searches need.
 
-**Enabling Conditions** could be created either at:
+## Hold a key to enable a group of reminders
 
--   **Folder level** - ALL auras withing this folder will be affected, even inside subfolders. 
--   **Aura level** - only this specific aura will be affected
+1. Create a folder named “Inspection mode”. In **Enabling conditions**, add [Hotkey Is Active](/en/triggers/hotkey-is-active), choose an unused F8 key and select **Hold**. Leave this as the only enabling condition for now.
 
-Parent takes precedence, i.e. if **Folder's** conditions are not met **Aura's** conditions will not even be calculated and Aura will be considered **disabled.**
+   ![Folder Enabling conditions with the Hotkey field and Toggle and Hold modes.](/assets/callouts/batch3/en/folder-hotkey-condition.png)
 
-The same approach applies when there are multiple nested folders with different conditions - if parent folder is disabled (conditions are not met), then sub-folders will be considered disabled as well.
+   In this earlier editor the hotkey is still unassigned and Toggle is selected. Set F8 and choose Hold for the exercise.
+
+2. Inside the folder, create a “Reminder” aura. In its ordinary **Triggers**, add [Fixed Value](/en/triggers/fixed-value) set to **Is Active**.
+3. In **Overlays**, add [Text](/en/overlays/text). Set **Content** to “Check the selected region”, place it on screen and enable **Locked**.
+4. Select an aura outside the folder, switch to your working application, then hold and release F8.
+
+The reminder appears while F8 is held and disappears when released. Its words come from Content; the key controls whether the group is allowed to run.
+
+You can now place a configured [Text Search](/en/triggers/images/text-search) in the same folder. First make sure the search works with the correct source window and region on its own.
+
+When the whole group is only useful in your chosen foreground window, use [Window Is Active](/en/triggers/window-is-active) in its Enabling conditions instead of the key in this example. If that window check is already configured in another aura, [Aura Is Active](/en/triggers/aura-is-active) lets you reuse its state rather than duplicate the check.
+
+## Choose the scope
+
+| Location | Effect |
+| --- | --- |
+| Folder Enabling conditions | Controls its child auras and nested folders. |
+| Aura Enabling Conditions | Controls that aura. |
+| Aura Triggers | Determines Active / Not Active while the aura is allowed to run. A false ordinary trigger does not by itself stop all other trigger calculations. |
+
+An empty enabling group adds no restriction. With several conditions, check the combination rule in the group header. An unknown combined result does not grant permission. The object must also be loaded to run.
+
+![The Window Is Active trigger is marked DISABLED, and its tooltip explains that MyFolder is disabled.](/assets/callouts/batch2/en/enabling-folder-disabled.png)
+
+In this earlier editor, hovering over DISABLED shows that the parent folder’s enabling conditions are inactive.
+
+Normally a disabled parent prevents its children's enabling conditions from being evaluated too. There is an editing exception: the selected object can continue evaluating while the EyeAuras window is active. An unlocked overlay also stays visible for placement. Test the restriction after locking the overlay, selecting another object and leaving the editor.

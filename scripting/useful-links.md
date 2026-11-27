@@ -8,86 +8,106 @@ editor: markdown
 dateCreated: 2025-09-21T11:29:06.078Z
 ---
 
-# Development and reverse-engineering resources
+# Find a reference for your scripting task
 
-Use the language reference and API browser for C# syntax/types, the Blazor section for UI, and reverse-engineering references for Windows structures and binary formats. External documentation may use a different .NET version, service registration or UI host. Start EyeAuras code with [script context](/en/scripting/sandbox), [packages](/en/scripting/nuget), and [API discovery](/en/scripting/api/AGENTS).
+Use an EyeAuras example for the first run, a language reference for C# syntax and the matching SDK/API contract for an exact method. This collection helps you choose a resource without installing every listed tool.
 
-## C# development
+1. Identify what you need: language syntax, an EyeAuras capability, UI behaviour or a data format.
+2. Choose the resource below and select the version used by your project.
+3. Return to the example and check its files, dependencies and host. Finding a reference does not automatically make its code run inside EyeAuras.
 
-* **.NET Documentation** – Official docs for runtime, libraries, and tools: [https://learn.microsoft.com/dotnet/](https://learn.microsoft.com/dotnet/)
-* **C# Language Reference** – Full spec-level docs and examples: [https://learn.microsoft.com/dotnet/csharp/language-reference/](https://learn.microsoft.com/dotnet/csharp/language-reference/)
-* **.NET API Browser** – Browse all public APIs across versions: [https://learn.microsoft.com/dotnet/api/](https://learn.microsoft.com/dotnet/api/)
-* **Roslyn (C# Compiler & Analyzers)** – Source, analyzers, and code fixes: [https://github.com/dotnet/roslyn](https://github.com/dotnet/roslyn)
-* **C# Language Design Notes** – Proposals and meeting notes: [https://github.com/dotnet/csharplang](https://github.com/dotnet/csharplang)
-* **.NET Runtime Source** – JIT, GC, BCL internals: [https://github.com/dotnet/runtime](https://github.com/dotnet/runtime)
-* **.NET Performance Guide** – Patterns, pitfalls, and tuning: [https://learn.microsoft.com/dotnet/standard/garbage-collection/performance](https://learn.microsoft.com/dotnet/standard/garbage-collection/performance)
-* **Maoni’s GC Blog** – Deep dives on GC internals: [https://devblogs.microsoft.com/dotnet/author/maoni/](https://devblogs.microsoft.com/dotnet/author/maoni/)
-* **Stephen Toub on Async** – Stephen Toub’s explanation of async/await implementation: [https://devblogs.microsoft.com/dotnet/how-async-await-really-works/](https://devblogs.microsoft.com/dotnet/how-async-await-really-works/)
-* **Source Generators** – Concepts and how-tos: [https://learn.microsoft.com/dotnet/csharp/roslyn-sdk/source-generators-overview](https://learn.microsoft.com/dotnet/csharp/roslyn-sdk/source-generators-overview)
-* **P/Invoke Reference** – Community signatures for Win32: [https://www.pinvoke.net/](https://www.pinvoke.net/)
-* **NativeAOT** – Ahead-of-time compiling .NET apps: [https://learn.microsoft.com/dotnet/core/deploying/native-aot/](https://learn.microsoft.com/dotnet/core/deploying/native-aot/)
-* **BenchmarkDotNet** – Microbenchmarking framework: [https://github.com/dotnet/BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet)
-* **ILSpy** – Open-source .NET decompiler: [https://github.com/icsharpcode/ILSpy](https://github.com/icsharpcode/ILSpy)
-* **dnSpyEx** – Debugger/decompiler for .NET (community fork): [https://github.com/dnSpyEx/dnSpy](https://github.com/dnSpyEx/dnSpy)
-* **Awesome .NET** – Curated libraries/tools: [https://github.com/quozd/awesome-dotnet](https://github.com/quozd/awesome-dotnet)
+| Your next task | Start here |
+| --- | --- |
+| Run your first script | [Getting started](/en/scripting/getting-started), [script context](/en/scripting/sandbox) and [NuGet dependencies](/en/scripting/nuget). |
+| Find an EyeAuras API area | [Discovery maps](/en/scripting/api/core/eyeauras-structure) route you to operations and source types. Confirm the actual contract in your version’s reference/SDK; a map is not a list of every service installed in your host. |
+| Follow one practical example | [Hello, World!](/en/scripting/examples/basic/hello-world), [variables](/en/scripting/examples/basic/variables) or [Image Search](/en/scripting/examples/basic/image-search). |
+| Build a UI | Start with [Blazor windows in EyeAuras](/en/scripting/blazor-windows/getting-started), then consult the external references. An ASP.NET browser sample does not create a desktop EyeAuras window by itself. |
+| Ask a focused question | [Community contacts](/en/contacts): provide the build, a short example and expected result without credentials or other secrets. |
 
----
+## C# and .NET
 
-## Blazor development
+| Resource | When to use it |
+| --- | --- |
+| [.NET Documentation](https://learn.microsoft.com/dotnet/) | Find runtime, library and tooling documentation; select your project version. |
+| [C# Language Reference](https://learn.microsoft.com/dotnet/csharp/language-reference/) | Look up C# syntax, keywords and operators for your compiler version. |
+| [.NET API Browser](https://learn.microsoft.com/dotnet/api/) | Find .NET type members and signatures; select the relevant framework version. |
+| [Roslyn (C# Compiler & Analyzers)](https://github.com/dotnet/roslyn) | Inspect the C# compiler and analyzer source. |
+| [C# Language Design Notes](https://github.com/dotnet/csharplang) | Read language proposals and design notes. A proposal is not a shipped compiler feature. |
+| [.NET Runtime Source](https://github.com/dotnet/runtime) | Inspect runtime, GC and base-library implementation. |
+| [.NET Performance Guide](https://learn.microsoft.com/dotnet/standard/garbage-collection/performance) | Investigate garbage-collection performance with measurements from your workload. |
+| [Maoni’s GC Blog](https://devblogs.microsoft.com/dotnet/author/maoni/) | Read Microsoft author articles about GC internals. |
+| [Stephen Toub on Async](https://devblogs.microsoft.com/dotnet/how-async-await-really-works/) | Understand async/await implementation; distinguish language behaviour from the EyeAuras host. |
+| [Source Generators](https://learn.microsoft.com/dotnet/csharp/roslyn-sdk/source-generators-overview) | Learn source-generator contracts for a compatible project. |
+| [P/Invoke Reference](https://www.pinvoke.net/) | Find community Win32 signatures, then check them against Microsoft contracts. |
+| [NativeAOT](https://learn.microsoft.com/dotnet/core/deploying/native-aot/) | Read NativeAOT deployment requirements for a separate application; this is not a Script.csx run mode. |
+| [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet) | Design a microbenchmark in a prepared .NET project. |
+| [ILSpy](https://github.com/icsharpcode/ILSpy) | Inspect decompiled .NET assemblies. |
+| [dnSpyEx](https://github.com/dnSpyEx/dnSpy) | Read the community .NET debugger/decompiler documentation. |
+| [Awesome .NET](https://github.com/quozd/awesome-dotnet) | Discover libraries; a listing does not mean a package is registered in EyeAuras. |
 
-* **Blazor Docs (ASP.NET Core)** – Official docs for Server, WASM, and Hybrid: [https://learn.microsoft.com/aspnet/core/blazor/](https://learn.microsoft.com/aspnet/core/blazor/)
-* **Blazor Performance Best Practices**: [https://learn.microsoft.com/aspnet/core/blazor/performance](https://learn.microsoft.com/aspnet/core/blazor/performance)
-* **JS Interop** – Call JS from .NET and vice versa: [https://learn.microsoft.com/aspnet/core/blazor/javascript-interoperability/](https://learn.microsoft.com/aspnet/core/blazor/javascript-interoperability/)
-* **Security & Identity** – Auth, authz, tokens: [https://learn.microsoft.com/aspnet/core/blazor/security/](https://learn.microsoft.com/aspnet/core/blazor/security/)
-* **SignalR with Blazor** – Real-time features: [https://learn.microsoft.com/aspnet/core/blazor/fundamentals/signalr](https://learn.microsoft.com/aspnet/core/blazor/fundamentals/signalr)
-* **Blazor University** – Community-written deep dives: [https://blazor-university.com/](https://blazor-university.com/)
-* **Awesome Blazor** – Components, libraries, samples: [https://github.com/AdrienTorris/awesome-blazor](https://github.com/AdrienTorris/awesome-blazor)
-* **MudBlazor** – Popular UI component library: [https://mudblazor.com/](https://mudblazor.com/)
-* **Radzen Blazor** – UI controls & tools: [https://blazor.radzen.com/](https://blazor.radzen.com/)
-* **Blazorise** – Component library: [https://blazorise.com/](https://blazorise.com/)
-* **.NET WebAssembly Docs** – WASM runtime details: [https://learn.microsoft.com/aspnet/core/blazor/webassembly-build-tools-and-aot](https://learn.microsoft.com/aspnet/core/blazor/webassembly-build-tools-and-aot)
-* **gRPC & Minimal APIs** – Backends frequently paired with Blazor: [https://learn.microsoft.com/aspnet/core/grpc/](https://learn.microsoft.com/aspnet/core/grpc/) and [https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis](https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis)
-* **NSwag/Swashbuckle** – OpenAPI for C# clients/UI: [https://github.com/RicoSuter/NSwag](https://github.com/RicoSuter/NSwag) and [https://github.com/domaindrivendev/Swashbuckle.AspNetCore](https://github.com/domaindrivendev/Swashbuckle.AspNetCore)
+<details>
+<summary>Blazor</summary>
 
----
+| Resource | When to use it |
+| --- | --- |
+| [Blazor Docs (ASP.NET Core)](https://learn.microsoft.com/aspnet/core/blazor/) | Read Blazor concepts for the matching version and hosting model. |
+| [Blazor Performance Best Practices](https://learn.microsoft.com/aspnet/core/blazor/performance) | Investigate component rendering performance in the matching host. |
+| [JS Interop](https://learn.microsoft.com/aspnet/core/blazor/javascript-interoperability/) | Look up .NET–JavaScript interop and object lifetime. |
+| [Security & Identity](https://learn.microsoft.com/aspnet/core/blazor/security/) | Read web authentication/authorization contracts, separately from EyeAuras account access. |
+| [SignalR with Blazor](https://learn.microsoft.com/aspnet/core/blazor/fundamentals/signalr) | Understand SignalR in the relevant Blazor hosting mode. |
+| [Blazor University](https://blazor-university.com/) | Read community explanations and compare them with versioned official contracts. |
+| [Awesome Blazor](https://github.com/AdrienTorris/awesome-blazor) | Find community component and sample projects. |
+| [MudBlazor](https://mudblazor.com/) | Read the component library documentation before adding its dependency and setup. |
+| [Radzen Blazor](https://blazor.radzen.com/) | Inspect the library controls and examples. |
+| [Blazorise](https://blazorise.com/) | Read the component library documentation and dependencies. |
+| [.NET WebAssembly Docs](https://learn.microsoft.com/aspnet/core/blazor/webassembly-build-tools-and-aot) | Understand WebAssembly builds/AOT; do not confuse them with desktop WebView2. |
+| [gRPC](https://learn.microsoft.com/aspnet/core/grpc/) / [Minimal APIs](https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis) | Look up server endpoints and gRPC contracts for a separately configured backend. |
+| [NSwag](https://github.com/RicoSuter/NSwag) / [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) | Read OpenAPI generation and client/documentation tooling contracts. |
 
-## Reverse Engineering
+</details>
 
-* **Vergilius Project** – Windows kernel structure layouts/offsets: [https://www.vergiliusproject.com/](https://www.vergiliusproject.com/)
-* **Ghidra** – Open-source suite from NSA: [https://github.com/NationalSecurityAgency/ghidra](https://github.com/NationalSecurityAgency/ghidra)
-* **IDA Free** – Disassembler and debugger with a non-commercial free license; check the vendor’s current terms: [https://hex-rays.com/ida-free](https://hex-rays.com/ida-free)
-* **radare2 / r2** – RE framework: [https://github.com/radareorg/radare2](https://github.com/radareorg/radare2)
-* **Cutter** – GUI powered by Rizin: [https://cutter.re/](https://cutter.re/)
-* **x64dbg** – Open-source Windows debugger: [https://x64dbg.com/](https://x64dbg.com/)
-* **WinDbg / WinDbg Preview** – Microsoft’s kernel/user-mode debugger: [https://learn.microsoft.com/windows-hardware/drivers/debugger/](https://learn.microsoft.com/windows-hardware/drivers/debugger/)
-* **WDK Docs** – Driver development & kernel internals: [https://learn.microsoft.com/windows-hardware/drivers/](https://learn.microsoft.com/windows-hardware/drivers/)
-* **Windows Internals (Book)** – Deep OS internals reference: [https://learn.microsoft.com/sysinternals/resources/windows-internals](https://learn.microsoft.com/sysinternals/resources/windows-internals)
-* **Sysinternals Suite** – Power tools for Windows: [https://learn.microsoft.com/sysinternals/](https://learn.microsoft.com/sysinternals/)
-* **System Informer** – System explorer & memory tools: [https://systeminformer.io/](https://systeminformer.io/)
-* **Capstone / Keystone / Unicorn** – Disasm/asm/emulation engines: [https://www.capstone-engine.org/](https://www.capstone-engine.org/) / [https://github.com/keystone-engine/keystone](https://github.com/keystone-engine/keystone) / [https://www.unicorn-engine.org/](https://www.unicorn-engine.org/)
-* **PE/COFF Spec** – Official file format docs: [https://learn.microsoft.com/windows/win32/debug/pe-format](https://learn.microsoft.com/windows/win32/debug/pe-format)
-* **ReactOS Source** – NT-like OS source for learning: [https://github.com/reactos/reactos](https://github.com/reactos/reactos)
+<details>
+<summary>Windows and binary formats</summary>
 
----
+| Resource | When to use it |
+| --- | --- |
+| [Vergilius Project](https://www.vergiliusproject.com/) | Look up Windows structure layouts for a specific OS version. |
+| [Ghidra](https://github.com/NationalSecurityAgency/ghidra) | Read the Ghidra project documentation and source. |
+| [IDA Free](https://hex-rays.com/ida-free) | Check the author’s current IDA Free features and terms; do not assume another edition’s permissions. |
+| [radare2 / r2](https://github.com/radareorg/radare2) | Read the binary-analysis framework documentation. |
+| [Cutter](https://cutter.re/) | Read the Rizin-based analysis UI documentation. |
+| [x64dbg](https://x64dbg.com/) | Read the Windows debugger project documentation. |
+| [WinDbg / WinDbg Preview](https://learn.microsoft.com/windows-hardware/drivers/debugger/) | Find Microsoft debugger concepts and commands. |
+| [WDK Docs](https://learn.microsoft.com/windows-hardware/drivers/) | Read Windows driver-development contracts. |
+| [Windows Internals (Book)](https://learn.microsoft.com/sysinternals/resources/windows-internals) | Find the Windows Internals books and related material. |
+| [Sysinternals Suite](https://learn.microsoft.com/sysinternals/) | Find Microsoft diagnostic utilities and their documentation. |
+| [System Informer](https://systeminformer.io/) | Read the system/process inspection project documentation. |
+| [Capstone](https://www.capstone-engine.org/) / [Keystone](https://github.com/keystone-engine/keystone) / [Unicorn](https://www.unicorn-engine.org/) | Distinguish disassembly, assembly and emulation libraries and their own APIs. |
+| [PE/COFF Spec](https://learn.microsoft.com/windows/win32/debug/pe-format) | Look up the PE/COFF format specification. |
+| [ReactOS Source](https://github.com/reactos/reactos) | Study an NT-like OS implementation; it is not a contract for every Windows build. |
 
-## Game Reverse Engineering
+</details>
 
-* **UnknownCheats** – Large forum on game security, reversing, and cheats: [https://unknowncheats.me/](https://unknowncheats.me/)
-* **Cheat Engine** – Memory scanner/debugger & trainer tool: [https://www.cheatengine.org/](https://www.cheatengine.org/)
-  **CE Wiki** – Tutorials and internals: [https://wiki.cheatengine.org/index.php?title=Main\_Page](https://wiki.cheatengine.org/index.php?title=Main_Page)
-* **Guided Hacking** – Tutorials, forums, resources: [https://guidedhacking.com/](https://guidedhacking.com/)
-* **GameHacking.org** – Community & resources: [https://gamehacking.org/](https://gamehacking.org/)
-* **ReClass.NET** – Reverse engineer class layouts: [https://github.com/ReClassNET/ReClass.NET](https://github.com/ReClassNET/ReClass.NET)
-* **MinHook** – Lightweight API hooking library: [https://github.com/TsudaKageyu/minhook](https://github.com/TsudaKageyu/minhook)
-* **Microsoft Detours** – Function patching library: [https://github.com/microsoft/Detours](https://github.com/microsoft/Detours)
-* **ScyllaHide** – Anti-anti-debug plugin: [https://github.com/x64dbg/ScyllaHide](https://github.com/x64dbg/ScyllaHide)
-* **Il2CppDumper** – Dump & generate structs for Unity IL2CPP: [https://github.com/Perfare/Il2CppDumper](https://github.com/Perfare/Il2CppDumper)
-* **Unreal Engine Docs** – Reflection, UObject system, and editor scripting: [https://docs.unrealengine.com/](https://docs.unrealengine.com/)
-* **DirectX Graphics Docs** – Rendering & hooking contexts: [https://learn.microsoft.com/windows/win32/direct3d/](https://learn.microsoft.com/windows/win32/direct3d/)
-* **Dear ImGui** – Immediate-mode GUI (often used in overlays/tools): [https://github.com/ocornut/imgui](https://github.com/ocornut/imgui)
+<details>
+<summary>Game-analysis tools and communities</summary>
 
----
+| Resource | When to use it |
+| --- | --- |
+| [UnknownCheats](https://unknowncheats.me/) | Find community discussions about game analysis and security. |
+| [Cheat Engine](https://www.cheatengine.org/) / [CE Wiki](https://wiki.cheatengine.org/index.php?title=Main_Page) | Read the memory-analysis tool’s project documentation and its separate tutorial wiki. |
+| [Guided Hacking](https://guidedhacking.com/) | Find community learning material; access conditions are set by the site. |
+| [GameHacking.org](https://gamehacking.org/) | Find community resources and discussions. |
+| [ReClass.NET](https://github.com/ReClassNET/ReClass.NET) | Inspect class and structure layouts in the supported tool. |
+| [MinHook](https://github.com/TsudaKageyu/minhook) | Read the hooking library documentation and examples. |
+| [Microsoft Detours](https://github.com/microsoft/Detours) | Read Microsoft’s function-interception library contracts. |
+| [ScyllaHide](https://github.com/x64dbg/ScyllaHide) | Read the plugin documentation without assuming an invisibility guarantee. |
+| [Il2CppDumper](https://github.com/Perfare/Il2CppDumper) | Read supported Unity IL2CPP metadata-analysis workflows. |
+| [Unreal Engine Docs](https://docs.unrealengine.com/) | Choose documentation for the relevant Unreal Engine version. |
+| [DirectX Graphics Docs](https://learn.microsoft.com/windows/win32/direct3d/) | Look up DirectX graphics API contracts. |
+| [Dear ImGui](https://github.com/ocornut/imgui) | Read Dear ImGui source; EyeAuras separately needs a compatible wrapper and host. |
 
-## Legal & ethical note
+</details>
 
-These links include tools and topics commonly used in security research and game reverse engineering. Use them responsibly and within the boundaries of law and the terms of the software/games you analyze.
+Community collections and forums help with discovery; the library author’s documentation supplies its primary contract. If a site restricts access, use its ordinary public documentation or another primary reference without assuming that the project has ended.
+
+Ordinary .NET, browser Blazor and C++ examples do not inherit `Log`, `AuraTree` or other Script.csx capabilities. Check dependencies, registered services and resource ownership. Work with software and data you are authorized to inspect, and check the tool authors’ licensing and access terms.

@@ -7,50 +7,74 @@ tags:
 editor: markdown
 dateCreated: 2024-09-11T21:03:45.385Z
 ---
-# Кликнуть по распознанному слову
 
-Выполните код в `C# Script` EyeAuras рядом с аурой `Test`, содержащей настроенный `Text Search`. Путь `./Test` отсчитывается от текущего контекста дерева. Выберите окно/ROI и OCR-движок в триггере; `HVDK` замените точным текстом нужного сегмента. Ввод использует выбранный доступный симулятор и перемещает настоящий курсор.
+# Найти слово, проверить рамку и один раз кликнуть
 
-1. Создаем ауру, кидаем в нее триггер Text Search
-2. В триггере указываем зону захвата. Важно! Не забываем включить опцию `Include Text Segments` - по умолчанию она выключена ради увеличения производительности
-3. Создаем ауру со скриптом
-4. Копипастим, исправляем параметры поиска слова на желаемые
+Для первого опыта покажите единственное слово `READY` в своём стабильном тестовом окне, без кнопок отправки и других значимых действий. Скрипт сначала выведет найденную рамку, а после вашего решения выполнит один клик. Нужны работающие OCR/OpenCV и `Windows Input`.
+
+1. Создайте ауру `Test` с `Text Search` и соседнюю ауру с действием `C# Script`.
+2. В триггере выберите своё тестовое окно, ограничьте область словом и проверьте `Recognized text` через `Refresh Once`.
+
+| Настройка | Для этого примера |
+| --- | --- |
+| `OCR Symbols` | Доступный английский движок. |
+| `Include text segments` | Включено: нужны отдельные рамки. |
+| `Scale factor` | 1; цепочка эффектов для первого опыта пустая. |
+| `click` в коде | Сначала `false`: только результат в журнале. |
+
+3. Вставьте в верхнеуровневый `Script.csx` весь код. Нажмите `Run` и укажите **то же тестовое окно**, которое настроено в триггере:
 
 ```csharp
-var sendInput = GetService<ISendInputScriptingApi>();
-sendInput.TargetWindow = null; // ToScreen ниже даёт абсолютные координаты
+using System.Linq;
+using EyeAuras.OpenCVAuras.Triggers.TextSearch;
+using EyeAuras.Roxy.Api;
+using EyeAuras.Shared.Osd;
+using PoeShared.Scaffolding;
 
+var click = false;
+var target = await GetService<IOsdSelectionService>().PickWindow();
+if (target == null || !target.IsWindow) { Log.Warn("Окно недоступно"); return; }
 var ocr = AuraTree.GetTriggerByPath<ITextSearchTrigger>("./Test");
+var data = await ocr.RefreshAsync(cancellationToken);
+if (data.Detected == null || data.Detected.Segments.IsDefaultOrEmpty)
+{ Log.Warn("Нет сегментов OCR"); return; }
 
-if (!ocr.IncludeTextSegments){
-    throw new ArgumentException($"It seems that {nameof(ocr.IncludeTextSegments)} is disabled in TextSearch {ocr}, segments data is not available");
+var matches = data.Detected.Segments.Where(x => x.Text == "READY").ToArray();
+if (matches.Length != 1) { Log.Info("Нужен ровно один сегмент READY"); return; }
+var box = data.ToScreen(matches[0].Region);
+var frame = target.DwmFrameBounds;
+if (box.IsEmpty || !frame.Contains(box)) { Log.Warn("Рамка вне выбранного окна"); return; }
+Log.Info($"Окно: {target.Title}; текст: {matches[0].Text}; экранная рамка: {box}");
+if (!click) return;
+
+cancellationToken.ThrowIfCancellationRequested();
+var input = GetService<ISendInputScriptingApi>();
+input.InputSimulatorId = "Windows Input";
+var previousTarget = input.TargetWindow;
+try
+{
+    input.TargetWindow = target;
+    var point = box.Center();
+    input.MouseMoveTo(point.X - frame.X, point.Y - frame.Y);
+    input.MouseClick();
 }
-
-var data = ocr.Refresh();
-Log.Info($"OCR chars: {data.Detected.Segments.DumpToTable()}");
-
-var textToClickOn = 
-    data.Detected
-    .Segments
-    .Where(x => x.Text == "HVDK") //or any other logic
-    .FirstOrDefault();
-if (textToClickOn == default){
-    Log.Info("Подходящий текстовый сегмент не найден");
-    return;
-}
-
-var textLocationOnScreen = data.ToScreen(textToClickOn.Region);
-Log.Info($"Text: {textToClickOn.Text}, rel: {textToClickOn.Region}, screen: {textLocationOnScreen}");
-
-sendInput.MouseMoveTo(textLocationOnScreen.Center());
-sendInput.MouseClick();
+finally { input.TargetWindow = previousTarget; }
 ```
 
+4. При `click = false` проверьте в журнале окно, текст и рамку своей надписи. Если OCR разбил слово на несколько сегментов, сначала уточните язык или область.
+5. Оставьте окно на месте, замените `click` на `true` и повторите запуск с выбором того же окна. Курсор перейдёт в центр найденной рамки и сделает один левый клик. После опыта верните `false`.
 
-При совпадении скрипт печатает исходную область и экранный прямоугольник, перемещает курсор в его центр и кликает. `Segments` — сегменты OCR, не обязательно слова; регистр и пробелы в сравнении учитываются. Отключённый `Include Text Segments` не равен отсутствию совпадения. Координаты `Region` локальны для распознанной области; `data.ToScreen` учитывает матрицы именно этого захвата. Изображения результата заимствованы. Триггер из дерева не принадлежит скрипту, освобождать его нельзя. Обновление и ввод синхронные; остановка между ними не отменяет уже начатую операцию.
+Если перед кликом нужно разобраться с распознаванием, начните с [настройки Text Search](/ru/triggers/images/text-search) и [вывода текста в журнал](/ru/scripting/examples/basic/text-search). Сначала проверьте распознанную строку, затем включите рамки сегментов, необходимые для этого примера.
 
-## Дальше
+Преобразование одно на каждом этапе: локальная `Region` → `ToScreen` → вычитание начала `DwmFrameBounds` для адресного ввода. Стандартный контроллер активирует указанное окно и добавляет это начало обратно. Это не клиентские координаты и не фоновый клик. Не перемещайте окно и не меняйте масштаб во время опыта; внутренний масштаб OCR, отличный от 1, требует дополнительного пересчёта рамки до `ToScreen`.
 
-[Контекст скрипта](/ru/scripting/api/core/app-runtime-contexts) · [Захват и результаты CV](/ru/scripting/api/computer-vision/images) · [CV API](/ru/scripting/api/IComputerVisionExperimentalScriptingApi) · [Ввод](/ru/scripting/api/ISendInputScriptingApi)
+Триггер и службы заимствованы; прежний адресат ввода восстанавливается в `finally`. Токен передаётся в запрос OCR и проверяется перед вводом, но уже начатый синхронный клик не отменяется мгновенно. Выбор окна отменяется Escape или правой кнопкой.
 
-Контракты сверены со срезом EyeAuras `20fd3d4` и PoeEye `0e02c98`. Полные сигнатуры смотрите в SDK/XML своей версии; наличие символа не подтверждает доступность внешнего пакета или нативного компонента. Пример здесь не проверялся компиляцией или запуском.
+<details>
+<summary>Посмотреть исходные сегменты</summary>
+
+Сразу после проверки `data.Detected` можно вывести `Log.Info(data.Detected.Segments.DumpToTable());`. `Segments` зависят от движка и не всегда являются словами; сравнение строки учитывает регистр и пробелы. `Score` — оценка OCR, не процент площади и не гарантия правильности.
+
+Контракты: [контекст скрипта](/ru/scripting/api/core/app-runtime-contexts), [захват и координаты](/ru/scripting/api/computer-vision/images), [операции CV](/ru/scripting/api/IComputerVisionExperimentalScriptingApi), [ввод](/ru/scripting/api/ISendInputScriptingApi).
+
+</details>

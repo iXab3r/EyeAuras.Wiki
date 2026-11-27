@@ -23,15 +23,18 @@ Primary Russian style references used for this snapshot:
 - `ru/features/keylogin.md`
 - `ru/scripting/getting-started.md`
 - `ru/features/packs.md`
-- `ru/BankaBot/getting-started.md`
-- `ru/BankaBot/behavior-trees.md`
-- `ru/BankaBot/rules.md`
 
 Useful secondary references:
 
 - `ru/features/eyepad.md`
 - `ru/features/mini-app.md`
 - `ru/features/sublicenses.md`
+
+## Retired scope
+
+BankaBot is retired and its 14 English/Russian user pages are outside the current editorial
+backlog. Do not recreate or promote that section. Keep historical release facts and
+protected API examples separate from current feature guidance.
 
 ## Style summary
 
@@ -45,6 +48,15 @@ The preferred EyeAuras wiki style is:
 
 ## Preferred Russian writing patterns
 
+- For user articles, open with one concrete task, explain where its condition or data
+  comes from, and carry it through prerequisites, numbered setup steps and a visible
+  result. Keep meaningful alternatives and limits after that first working path.
+- These user-article conventions do not replace the separate API author role/practice
+  for discovery, operation contracts and reference pages, wherever those pages live.
+  Practical scripting examples still need their exact context, dependencies and code.
+- Use real UI labels and supported behavior. Avoid decorative emoji, invented personal
+  experience, fake game integrations and repeated lists of hypothetical uses. Historical
+  release notes retain their changelog shape and facts rather than acquiring a tutorial.
 - Start with the plain answer first.
 - Explain difficult things in simple human language before introducing technical details.
 - Prefer short paragraphs over long dense blocks.
@@ -64,8 +76,9 @@ The preferred EyeAuras wiki style is:
   - `Важно:`
   - warning block near the top for alpha features when relevant
 - Prefer concrete examples early, especially links, buttons, commands, and screenshots.
+- For annotated UI screenshots, use short, rounded amber corner marks and dark rounded labels. Align the marks to the visible control: give text even top and left clearance, center on the painted socket, and leave a gap where its connection passes through. Check the crop at native size. The Position panel and My Tree ports in `assets/callouts/batch1/en/` are the references.
 - Write as if you are helping a capable user get something working, not defending a design document.
-- If the page documents a concrete product or subsystem, it is fine to use a slightly more direct, grounded tone, as in the `BankaBot` pages.
+- If the page documents a concrete product or subsystem, use a direct, grounded tone.
 
 ## Tone rules
 

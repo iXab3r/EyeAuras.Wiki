@@ -1,0 +1,55 @@
+{
+ "src": "raw-sendinput-options-simulator.png",
+ "imageWidth": 760,
+ "imageHeight": 254,
+ "padding": {
+  "left": 72,
+  "top": 72,
+  "right": 72,
+  "bottom": 96
+ },
+ "radius": 10,
+ "color": "#f5a623",
+ "labelColor": "#1c1c1c",
+ "dim": 0.3,
+ "inflate": 4,
+ "stroke": 2,
+ "highlights": [
+  {
+   "x": 36,
+   "y": 9,
+   "width": 300,
+   "height": 82,
+   "label": "Возврат после действия",
+   "side": "right"
+  },
+  {
+   "x": 36,
+   "y": 133,
+   "width": 446,
+   "height": 27,
+   "label": "Блокировка ввода",
+   "side": "right",
+   "pad": [
+    3,
+    4,
+    3,
+    4
+   ]
+  },
+  {
+   "x": 36,
+   "y": 221,
+   "width": 446,
+   "height": 27,
+   "label": "Способ отправки ввода",
+   "side": "right",
+   "pad": [
+    3,
+    4,
+    3,
+    4
+   ]
+  }
+ ]
+}

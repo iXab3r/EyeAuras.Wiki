@@ -1,0 +1,100 @@
+{
+ "image": {
+  "file": "raw-coordinates-overlay.png",
+  "width": 800,
+  "height": 306
+ },
+ "frame": "coordinates-overlay",
+ "purpose": "ru/features/coordinate-system.md, ru/overlays (overlay Position block: bounds, offset, anchors)",
+ "mapping": {
+  "devicePixelRatio": 1,
+  "cdpViewport": [
+   1428,
+   856
+  ],
+  "windowSize": [
+   1440,
+   900
+  ],
+  "clientToWindowCapture": [
+   6,
+   38
+  ],
+  "captureCrop": {
+   "x": 273,
+   "y": 237,
+   "width": 800,
+   "height": 306
+  },
+  "clientCrop": {
+   "x": 267,
+   "y": 199,
+   "width": 800,
+   "height": 306
+  },
+  "clientToRaw": [
+   -267,
+   -199
+  ],
+  "app": "1.10.10127.0 (Sources/bin launcher, --appVersion)",
+  "source": "raw-b3.png"
+ },
+ "rects": {
+  "position": {
+   "label": "Положение и размер",
+   "x": 36,
+   "y": 67,
+   "width": 383,
+   "height": 80,
+   "client": {
+    "x": 303,
+    "y": 266.1,
+    "width": 383,
+    "height": 79.6
+   },
+   "source": "Position label + SCREEN BOUNDS X/Y/Width/Height (OverlayPosition.SourceBounds)"
+  },
+  "offset": {
+   "label": "Смещение",
+   "x": 36,
+   "y": 157,
+   "width": 383,
+   "height": 80,
+   "client": {
+    "x": 303,
+    "y": 355.9,
+    "width": 383,
+    "height": 79.6
+   },
+   "source": "Offset label + RELATIVE ADJUSTMENT X/Y/Width/Height (OverlayPosition.BoundsOffset)"
+  },
+  "positionAnchor": {
+   "label": "Якорь области",
+   "x": 193,
+   "y": 248,
+   "width": 118,
+   "height": 20,
+   "client": {
+    "x": 460,
+    "y": 446.8,
+    "width": 118.3,
+    "height": 20
+   },
+   "source": "Position Anchor button (where the rectangle is placed in the area)"
+  },
+  "contentAnchor": {
+   "label": "Якорь содержимого",
+   "x": 193,
+   "y": 277,
+   "width": 118,
+   "height": 20,
+   "client": {
+    "x": 460,
+    "y": 475.5,
+    "width": 117.8,
+    "height": 20
+   },
+   "source": "Content Anchor button (where content sits inside the rectangle)"
+  }
+ }
+}
