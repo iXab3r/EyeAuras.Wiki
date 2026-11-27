@@ -19,7 +19,7 @@ dateCreated: 2025-10-19T13:42:12.071Z
 1. Подготовьте собственный текстовый файл `help.txt` с содержимым `Справка проекта`.
 2. Покажите дерево файлов через `File Tree` — на прежних снимках это `Show Files`. В контекстном меню дерева выберите `Add` → `Existing File(s)...` и добавьте файл. На старом снимке команда называется `Add Existing File...`.
 
-![Add Existing File...](https://s3.eyeauras.net/media/2025/10/EyeAuras_hFvtxUlceb.png)
+![В прежнем меню дерева файлов команда Add new открывает подменю с пунктом Existing File(s).](/assets/callouts/batch3/ru/script-resource-add-file.png)
 
 3. Через `Rename...` задайте ресурсу имя `docs/help.txt`. Выберите его в дереве: у встроенного ресурса показывается служебное описание, а не текстовый редактор содержимого.
 
@@ -109,7 +109,7 @@ foreach (var fi in files.GetDirectoryContents("/"))
 
 В Rider или Visual Studio этому соответствует `Build Action = EmbeddedResource`:
 
-![Пометка embedded resource в Rider](https://s3.eyeauras.net/media/2025/10/rider64_24V6ZnFu8u.png)
+![В свойствах файла в Rider для Build action выбрано EmbeddedResource.](/assets/callouts/batch3/ru/ide-build-action-resource.png)
 
 При обратном импорте читаются явные `Include` и байты соответствующих файлов относительно проекта. Указывайте каждый ресурс явно; импорт не выполняет произвольные MSBuild targets и не обещает обработку всех шаблонов путей. `None Remove` убирает файл из набора `None`, а не заменяет все настройки копирования содержимого в выходную папку.
 

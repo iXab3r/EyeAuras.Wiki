@@ -21,7 +21,9 @@ Start with two auras in one EyeAuras instance. **local://review-status** needs n
 5. In another aura, add two [Send Network Message](/en/actions/send-network-message) actions with the same Channel Id. Set their **Message text** to `review` and `done` respectively.
 6. Use **Execute** on the first action. Its message should appear in the receiver's **Message history**, the trigger should become active and the text should show. Execute the second: the trigger should become inactive and the text disappear. An unrelated `report` message matches neither condition and leaves the stored state unchanged.
 
-![Message source, activation conditions and receiving history](https://s3.eyeauras.net/media/2024/05/EyeAuras_ZFPMXXmojJIAI40z.png)
+![Receive channel, Hello activation condition and received Hello, world! in the history.](/assets/callouts/batch3/en/network-receive-message.png)
+
+The earlier receiver shows `Hello, world!` in its history with **Deactivate on message** off. Turn it on and set both conditions for the exercise above. The original channel identifier and sender name are hidden.
 
 ## Understand the state lifetime
 

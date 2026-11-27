@@ -19,6 +19,10 @@ Prepare a separate [macro](/en/macros/getting-started) with `Activation → Is L
 1. In the initial Block add `Wait`, `Return`, another `Wait`, then `Fixed Status` in order.
 2. Set the first Wait's `General → Delay = 500 ms`, the second to `5000 ms`, randomization off. Set Fixed Status to Failure. On Return choose `General → Return → Success`.
 
+   ![The last row of Daily routine reads Return with Status Success.](/assets/callouts/batch3/en/return-with-status.png)
+
+   This is the last step in Daily routine. In your test macro, put Return between the two waits to see it skip the second one.
+
 ```text
 My Macro
 └─ Block

@@ -19,7 +19,7 @@ You need a saved YoloEase 2 `.yeproj` and readable images. Adding a folder does 
 2. Click the source's **Open** to inspect that folder, then **Trainer → Refresh** to update the file list and working copies.
 3. Check the available count in Trainer. **Create Task** opens a selected batch in the [annotation editor](/en/YoloEase/features/annotation-editor), where you can see the actual frames.
 
-![A source path beside the project labels](https://s3.eyeauras.net/media/2026/05/YoloEase_CeXbLsliGW.png)
+![Project tab with Add label, Add Video and Add Folder. One source appears below the class list.](/assets/callouts/batch3/en/yolo-project-labels.png)
 
 | Input or control | Storage and effect |
 | --- | --- |
@@ -35,7 +35,7 @@ The folder synchroniser includes `.png`, `.jpg` and `.bmp`; another image extens
 
 EyeAuras **Save Video** records your own selected CV preview, which you can open through **Add Video...**. This avoids unintentionally training on the whole desktop when recognition will use a smaller region.
 
-![Saving the prepared CV image as video in EyeAuras](https://s3.eyeauras.net/media/2026/05/eg2kO3Tv2P.png)
+![Save video and Image as is below the EyeAuras capture preview.](/assets/callouts/batch3/en/yolo-capture-video.png)
 
 Use the same effects before recognition as before recording. Background, scale, borders and overlays change the pixels. Keep distinct recordings or projects when comparing different pipelines; do not apply an already-recorded effect twice.
 

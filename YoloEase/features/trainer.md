@@ -13,7 +13,9 @@ Trainer builds a dataset from completed annotation tasks, runs YOLO and exports 
 
 You need YoloEase 2, [passing prerequisites](/en/YoloEase/prerequisites), readable source frames and at least one task saved with **Finish Job**. The resulting dataset needs at least one training and one validation image, with actual examples of the intended classes. Label names or unaccepted suggestions alone do not provide that data.
 
-![Trainer and the controls for selecting an annotation batch](https://s3.eyeauras.net/media/2026/05/YoloEase_e7nteB308n.png)
+![Trainer panel with the Batch size slider and Create Task button.](/assets/callouts/batch3/en/yolo-trainer-batch.png)
+
+The screenshot shows a different project with 122 files. At a batch size of 5%, Trainer offers six files.
 
 ## Run locally
 
@@ -38,7 +40,7 @@ You need YoloEase 2, [passing prerequisites](/en/YoloEase/prerequisites), readab
 
 5. Inspect the actual `.onnx`, `.pt` weights and `results.csv`/`results.png`. Keep `.pt` for training, and use the compatible ONNX for [EyeAuras](/en/YoloEase/use-in-eyeauras). YoloEase may rename the ONNX using the project, base model and run name.
 
-![Weights and export from one demonstration run](https://s3.eyeauras.net/media/2026/05/1gcs8iFm66.png)
+![The results folder contains best.pt, last.pt and a separate file of type ONNX File.](/assets/callouts/batch3/en/yolo-export-files.png)
 
 A typical result inside the working folder is:
 

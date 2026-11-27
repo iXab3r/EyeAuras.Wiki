@@ -17,6 +17,10 @@ Start with your own project, a completed annotation task and a baseline training
 2. For an actual pixel variation, inspect one mild option such as **Box Blur → Radius: 1px** using the [detailed procedure](/en/YoloEase/features/augmentations). Read its saved-image limitation first: the current generator draws coloured annotation contours into the PNG itself.
 3. Check enabled rows before the next [Trainer](/en/YoloEase/features/trainer) cycle. Clear a row's checkbox to exclude it without deleting the setting.
 
+   ![Checked Noise row with 5% in the Properties column.](/assets/callouts/batch3/en/yolo-augmentation-enabled.png)
+
+   Only Noise is enabled in this example. Each pixel has a 5% chance of receiving noise.
+
 You now have a deliberate dataset-preparation choice. Adding a row alone does not change images; variants are produced during dataset construction before training, with the original annotations retained.
 
 | Your situation | Next step |

@@ -16,11 +16,15 @@ dateCreated: 2024-12-25T17:57:20.897Z
 
 1. Откройте скрипт и нажмите `Properties`.
 
-![Кнопка Properties](https://s3.eyeauras.net/media/2026/04/EyeAuras_Vlj2LmgbOY.png =x600)
+![В прежнем окне Script Properties выбрана вкладка Overview. Раздел NuGet расположен под ней слева.](/assets/callouts/batch3/ru/script-properties-nuget.png)
+
+[Полное окно редактора с кнопкой Properties](https://s3.eyeauras.net/media/2026/04/EyeAuras_Vlj2LmgbOY.png)
 
 2. Во вкладке `NuGet` найдите `Newtonsoft.Json`, выберите версию `13.0.3` и нажмите `Add Package`. Для уже установленной другой версии используйте `Update Package`.
 
-![Вкладка NuGet](https://s3.eyeauras.net/media/2026/04/EyeAuras_9TwUfSgAH2.png =x600)
+![На вкладке NuGet над списком пакетов расположено поле Search packages.](/assets/callouts/batch3/ru/nuget-package-search.png)
+
+[Полное окно со списком и сведениями об установленном пакете](https://s3.eyeauras.net/media/2026/04/EyeAuras_9TwUfSgAH2.png)
 
 3. Используйте код ниже. Если пакет уже добавлен через интерфейс, не дублируйте его директиву: оставьте одну ссылку на эту версию.
 

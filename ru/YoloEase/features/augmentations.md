@@ -20,15 +20,15 @@ dateCreated: 2026-05-08T12:30:00.000Z
 
 1. Откройте `Augmentations`. Пустой список показывает `No augmentations configured`.
 
-![Пустой список аугментаций в YoloEase 2.0.80](https://s3.eyeauras.net/media/2026/05/7XUJ1VcSyO.png)
+![Пустая вкладка Augmentations с кнопкой Add в правом верхнем углу.](/assets/callouts/batch3/ru/yolo-augmentation-list.png)
 
 2. Нажмите `Add`. В окне `Add new Augmentation` выберите `Box Blur → Radius: 1px`. Это создаст строку эффекта; повторно добавить точно такую же настройку нельзя.
 
-![Выбор эффекта и его параметра](https://s3.eyeauras.net/media/2026/05/p0ezutBSKi.png)
+![В меню эффектов для Box Blur доступен радиус 1 пиксель, а для Noise — вероятность 5% для каждого пикселя.](/assets/callouts/batch3/ru/yolo-augmentation-percent.png)
 
 3. Проверьте галочку слева от строки и её значение в `Properties`. Чтобы заменить параметр, удалите строку через `Remove` с подтверждением и добавьте нужный вариант заново. Галочка позволяет временно выключить эффект.
 
-![Включённый Noise 5 процентов как пример строки эффекта](https://s3.eyeauras.net/media/2026/05/4KpzkNcDVB.png)
+![Включённая строка Noise с параметром 5% в колонке Properties.](/assets/callouts/batch3/ru/yolo-augmentation-enabled.png)
 
 Снимки показывают YoloEase 2.0.80; смысл строк и кнопки `Add` сохранён в следующей версии.
 

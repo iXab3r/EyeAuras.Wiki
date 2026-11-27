@@ -24,7 +24,7 @@ If your EyeAuras account already holds licenses or history, link the service to 
 
 The illustration shows Google, Discord and Twitch below the username and password fields. A differently configured site may offer a different selection.
 
-![EyeAuras login with Google, Discord and Twitch](https://s3.eyeauras.net/media/2026/09/NVIDIA_Overlay_xSXrW6oAuy.png =x600)
+![Google, Discord and Twitch sign-in buttons in the EyeAuras login panel](/assets/callouts/batch3/en/external-provider-buttons.png)
 
 For a new user, provider sign-in can create an EyeAuras account without a separate registration. Automatic email linking requires the site option to be enabled, a verified address and one matching account. Ambiguous matches are not merged. If an address is occupied and safe linking is unavailable, sign into the existing account and link the service in `Profile`.
 

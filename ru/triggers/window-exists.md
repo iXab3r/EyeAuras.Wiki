@@ -24,7 +24,9 @@ dateCreated: 2023-06-18T11:51:38.910Z
 
 Триггер станет Active, а аура выполнит On Enter и подаст сигнал. Переключение на другую программу само по себе не убирает найденное окно. Повторный сигнал появится после исчезновения всех совпадений и нового появления окна.
 
-![Выбор окна для Window Exists](https://s3.eyeauras.net/media/2024/05/EyeAuras_i1HqMJPIQLu7SC7C.png)
+![Общее поле Target Window, в результате найдено окно Demo Workspace.](/assets/callouts/batch1/ru/window-selector.png)
+
+На примере общего поля найдено окно Demo Workspace. В упражнении выберите своё окно Блокнота и сверьте найденное название. [Прежний редактор Window Exists](https://s3.eyeauras.net/media/2024/05/EyeAuras_i1HqMJPIQLu7SC7C.png).
 
 ## Настройка и состояния
 

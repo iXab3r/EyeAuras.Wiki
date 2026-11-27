@@ -1,0 +1,3198 @@
+{
+  "coordinates": "Crop and mark bounds are [left, top, right, bottom] in original screenshot pixels. Right and bottom are exclusive. Optional padding is [left, top, right, bottom] in output pixels. Label origins are [x, y] in output pixels. Frame indices are zero-based. Redaction bounds are in source pixels.",
+  "scenes": {
+    "ai-search-class-thresholds": {
+      "source": "https://s3.eyeauras.net/media/2026/05/eg2kO3Tv2P.png",
+      "sha256": "78267f6cb02492698bcb6a0b8f196b89f8356f1bd562aa37db4934b33c62d4bb",
+      "crop": [
+        498,
+        104,
+        1490,
+        433
+      ],
+      "marks": [
+        {
+          "bounds": [
+            528,
+            247,
+            1109,
+            287
+          ],
+          "ru": "Порог уверенности",
+          "en": "Confidence threshold",
+          "label": [
+            752,
+            149
+          ]
+        },
+        {
+          "bounds": [
+            528,
+            299,
+            1110,
+            339
+          ],
+          "ru": "Порог IoU",
+          "en": "IoU threshold",
+          "label": [
+            652,
+            203
+          ]
+        },
+        {
+          "bounds": [
+            530,
+            390,
+            995,
+            431
+          ],
+          "ru": "Выбор класса",
+          "en": "Class filter",
+          "label": [
+            522,
+            296
+          ]
+        }
+      ]
+    },
+    "assistant-guidance-rebuild": {
+      "source": "https://s3.eyeauras.net/media/2026/04/EyeAuras_y9R4GuIA9N.png",
+      "sha256": "684f21df19e0f2feb0b1f3578c9eb2ea03a39d67b29a42d258e1164ca6afe564",
+      "crop": [
+        12,
+        219,
+        942,
+        338
+      ],
+      "marks": [
+        {
+          "bounds": [
+            251,
+            222,
+            340,
+            267
+          ],
+          "label": [
+            241,
+            125
+          ],
+          "ru": "Пересобрать",
+          "en": "Rebuild"
+        },
+        {
+          "bounds": [
+            795,
+            296,
+            927,
+            324
+          ],
+          "label": [
+            748,
+            125
+          ],
+          "ru": "Дата снимка",
+          "en": "Snapshot date"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        30
+      ]
+    },
+    "assistant-profile-fields": {
+      "source": "https://s3.eyeauras.net/media/2026/04/EyeAuras_eSthNpc63A.png",
+      "sha256": "82485345face14c81fc061c0f87ffb2b52d1c27cb6d358fc72cfa91216a34359",
+      "crop": [
+        398,
+        265,
+        967,
+        375
+      ],
+      "marks": [
+        {
+          "bounds": [
+            583,
+            267,
+            953,
+            295
+          ],
+          "label": [
+            15,
+            5
+          ],
+          "ru": "Модель",
+          "en": "Model"
+        },
+        {
+          "bounds": [
+            583,
+            335,
+            953,
+            366
+          ],
+          "label": [
+            15,
+            74
+          ],
+          "ru": "Протокол",
+          "en": "Protocol"
+        }
+      ]
+    },
+    "aura-trigger-links": {
+      "source": "https://s3.eyeauras.net/media/2024/05/EyeAuras_83uLM0FmkdR4pgvJ.png",
+      "sha256": "a3881cbac1cf659a0a8d1f238db25f23d2287975d8f0eacccbe6b6f5c3d398bc",
+      "crop": [
+        0,
+        28,
+        300,
+        66
+      ],
+      "marks": [
+        {
+          "bounds": [
+            7,
+            30,
+            122,
+            64
+          ],
+          "label": [
+            14,
+            51
+          ],
+          "en": "Match rule",
+          "ru": "Правило проверки"
+        },
+        {
+          "bounds": [
+            203,
+            29,
+            297,
+            64
+          ],
+          "label": [
+            200,
+            51
+          ],
+          "en": "Aura links",
+          "ru": "Связи аур"
+        }
+      ],
+      "padding": [
+        3,
+        4,
+        4,
+        39
+      ]
+    },
+    "blazor-component-template": {
+      "source": "https://s3.eyeauras.net/media/2024/11/EyeAuras_I6MYDieptaZe5a8u.png",
+      "sha256": "c431f5fdfb04f6c2dfdcbb5ae20ffbcf8232b984e961c59060c7734c38a04469",
+      "crop": [
+        49,
+        35,
+        246,
+        215
+      ],
+      "marks": [
+        {
+          "bounds": [
+            52,
+            76,
+            202,
+            109
+          ],
+          "label": [
+            7,
+            185
+          ],
+          "ru": "Шаблон компонента",
+          "en": "Component template"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        30
+      ]
+    },
+    "blazor-intro-new-aura": {
+      "source": "https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_KBChU81nd6.png",
+      "sha256": "943fd6cfa018d56092756d22b9cd4985eeb09f490333cdcaef136fee3ee098bf",
+      "crop": [
+        0,
+        0,
+        496,
+        169
+      ],
+      "marks": [
+        {
+          "bounds": [
+            283,
+            60,
+            490,
+            96
+          ],
+          "label": [
+            146,
+            99
+          ],
+          "ru": "Тестовая аура",
+          "en": "Test aura"
+        }
+      ]
+    },
+    "blazor-intro-overlay": {
+      "source": "https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_xVFX70YeoA.png",
+      "sha256": "2f74d4769ebef0c2f0d38f22c6572e0b9e3491a409995d31002b842b99300cd0",
+      "crop": [
+        0,
+        0,
+        325,
+        274
+      ],
+      "marks": [
+        {
+          "bounds": [
+            115,
+            62,
+            309,
+            99
+          ],
+          "label": [
+            10,
+            69
+          ],
+          "ru": "Оверлей",
+          "en": "Overlay"
+        }
+      ]
+    },
+    "blazor-start-overlay": {
+      "source": "https://s3.eyeauras.net/media/2024/11/msedge_zVrveCuFgBbtBB68.png",
+      "sha256": "e82809d8de5962d9486f26027758818f92984c1be14fea5b9d61d462bfdad9d7",
+      "crop": [
+        0,
+        0,
+        324,
+        247
+      ],
+      "marks": [
+        {
+          "bounds": [
+            117,
+            62,
+            311,
+            99
+          ],
+          "label": [
+            12,
+            69
+          ],
+          "ru": "Оверлей",
+          "en": "Overlay"
+        }
+      ]
+    },
+    "break-repeat-body": {
+      "source": "assets/home/pilot/raw-macro.png",
+      "sha256": "63ce5438dddff217da2b029b44765a576a1a940ce7e8c498f6680ff790a53523",
+      "crop": [
+        314,
+        289,
+        748,
+        416
+      ],
+      "marks": [
+        {
+          "bounds": [
+            336,
+            317,
+            419,
+            340
+          ],
+          "label": [
+            224,
+            31
+          ],
+          "en": "Loop condition",
+          "ru": "Условие цикла"
+        },
+        {
+          "bounds": [
+            336,
+            365,
+            422,
+            388
+          ],
+          "label": [
+            224,
+            79
+          ],
+          "en": "Put Break here",
+          "ru": "Сюда поместите Break"
+        }
+      ]
+    },
+    "check-key-selection": {
+      "source": "https://s3.eyeauras.net/media/2025/08/EyeAuras_dfgmUF8kNg.png",
+      "sha256": "212cf535f96a075e08cf023a305bc9d2689fe8434ae8b9d564934e9f362a8cc8",
+      "crop": [
+        0,
+        0,
+        657,
+        94
+      ],
+      "marks": [
+        {
+          "bounds": [
+            411,
+            3,
+            623,
+            46
+          ],
+          "label": [
+            414,
+            54
+          ],
+          "en": "Choose a key",
+          "ru": "Выбор клавиши"
+        }
+      ]
+    },
+    "codex-new-thread": {
+      "source": "https://s3.eyeauras.net/media/2026/04/EyeAuras_PcLPt8SCFy.png",
+      "sha256": "65b1650ef9c155d2911631891dd6214bc6fc5799c62f963ad2521b1a9ec7fb5f",
+      "crop": [
+        0,
+        29,
+        700,
+        282
+      ],
+      "marks": [
+        {
+          "bounds": [
+            334,
+            30,
+            437,
+            60
+          ],
+          "label": [
+            442,
+            8
+          ],
+          "ru": "Новая беседа",
+          "en": "New thread"
+        },
+        {
+          "bounds": [
+            11,
+            151,
+            349,
+            228
+          ],
+          "label": [
+            70,
+            208
+          ],
+          "ru": "Сохранённая беседа",
+          "en": "Saved thread"
+        }
+      ]
+    },
+    "codex-profile-ready": {
+      "source": "https://s3.eyeauras.net/media/2026/04/EyeAuras_TyMJnKr1Rb.png",
+      "sha256": "c96f801fe07018c3fc6e397fdd3192e6e62db6c6bab1538c9a3839835710fbac",
+      "crop": [
+        1381,
+        32,
+        2088,
+        105
+      ],
+      "marks": [
+        {
+          "bounds": [
+            1526,
+            36,
+            1735,
+            70
+          ],
+          "label": [
+            147,
+            43
+          ],
+          "ru": "Профиль",
+          "en": "Profile"
+        },
+        {
+          "bounds": [
+            1757,
+            38,
+            1905,
+            70
+          ],
+          "label": [
+            378,
+            43
+          ],
+          "ru": "Готов к запуску",
+          "en": "Ready to start"
+        }
+      ]
+    },
+    "codex-start-runtime": {
+      "source": "https://s3.eyeauras.net/media/2026/04/EyeAuras_TyMJnKr1Rb.png",
+      "sha256": "c96f801fe07018c3fc6e397fdd3192e6e62db6c6bab1538c9a3839835710fbac",
+      "crop": [
+        0,
+        32,
+        465,
+        105
+      ],
+      "marks": [
+        {
+          "bounds": [
+            2,
+            37,
+            225,
+            70
+          ],
+          "label": [
+            3,
+            44
+          ],
+          "ru": "Режим и вход",
+          "en": "Mode and sign-in"
+        },
+        {
+          "bounds": [
+            231,
+            39,
+            327,
+            69
+          ],
+          "label": [
+            232,
+            44
+          ],
+          "ru": "Запуск Codex",
+          "en": "Start runtime"
+        }
+      ]
+    },
+    "comment-markdown": {
+      "source": "https://s3.eyeauras.net/media/wiki/behavior-trees/nodes/comment/oXOamNx.png",
+      "sha256": "ba8fa384f74adaedc2b3f11f2b1dc4d3962e0fc70e08e122ff2b81cabf20083a",
+      "crop": [
+        0,
+        0,
+        655,
+        362
+      ],
+      "marks": [
+        {
+          "bounds": [
+            378,
+            14,
+            480,
+            45
+          ],
+          "label": [
+            514,
+            50
+          ],
+          "en": "Format",
+          "ru": "Формат"
+        },
+        {
+          "bounds": [
+            330,
+            107,
+            478,
+            209
+          ],
+          "label": [
+            325,
+            222
+          ],
+          "en": "Note source",
+          "ru": "Текст заметки"
+        }
+      ]
+    },
+    "delay-random-range": {
+      "source": "https://s3.eyeauras.net/media/2024/05/EyeAuras_18f7NSJLeiMFPOCD.png",
+      "sha256": "998d5d96f65223fbded81533923970d978eaa4cab70b262ea74fbc48619c564f",
+      "crop": [
+        0,
+        0,
+        456,
+        75
+      ],
+      "marks": [
+        {
+          "bounds": [
+            85,
+            27,
+            247,
+            68
+          ],
+          "label": [
+            82,
+            82
+          ],
+          "en": "Delay range",
+          "ru": "Диапазон задержки"
+        },
+        {
+          "bounds": [
+            265,
+            32,
+            375,
+            66
+          ],
+          "label": [
+            250,
+            82
+          ],
+          "en": "Random timing",
+          "ru": "Случайная задержка"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        37
+      ]
+    },
+    "export-local-json": {
+      "source": "https://s3.eyeauras.net/media/2026/04/EyeAuras_2ayTMoUOpH.png",
+      "sha256": "8913013f6a8721ae39b37bcc47067ea5ea2fec8da6d6e313b3dc9e302c81e808",
+      "crop": [
+        245,
+        301,
+        979,
+        495
+      ],
+      "marks": [
+        {
+          "bounds": [
+            257,
+            381,
+            427,
+            431
+          ],
+          "label": [
+            427,
+            95
+          ],
+          "ru": "Сохранить файл",
+          "en": "Save to disk"
+        },
+        {
+          "bounds": [
+            257,
+            432,
+            427,
+            481
+          ],
+          "label": [
+            473,
+            145
+          ],
+          "ru": "Копировать JSON",
+          "en": "Copy JSON"
+        }
+      ]
+    },
+    "external-provider-buttons": {
+      "source": "https://s3.eyeauras.net/media/2026/09/NVIDIA_Overlay_xSXrW6oAuy.png",
+      "sha256": "1947833b15288f4c15469088f7bcb18e6bc19301b95f14efabb1671f8089b024",
+      "crop": [
+        0,
+        0,
+        531,
+        373
+      ],
+      "marks": [
+        {
+          "bounds": [
+            86,
+            203,
+            524,
+            250
+          ],
+          "label": [
+            92,
+            179
+          ],
+          "ru": "Вход через сервис",
+          "en": "Provider sign-in"
+        }
+      ]
+    },
+    "eyepad-launcher": {
+      "source": "https://s3.eyeauras.net/media/2026/03/explorer_TlhuI0lTDo.png",
+      "sha256": "6b181198cb6a55e201678f7b7e70e2edde6c73245374eef5a175959c2c150f18",
+      "crop": [
+        0,
+        3,
+        761,
+        245
+      ],
+      "marks": [
+        {
+          "bounds": [
+            2,
+            136,
+            109,
+            165
+          ],
+          "label": [
+            135,
+            135
+          ],
+          "ru": "Запуск EyePad",
+          "en": "Launch EyePad"
+        }
+      ]
+    },
+    "eyepad-run-log": {
+      "source": "https://s3.eyeauras.net/media/2026/03/EyeAuras_IXRX6vl5Qg.png",
+      "sha256": "f842ae66f3a934bf942b86da14c12652b3809d06537241800dbca99c9de1c624",
+      "crop": [
+        3,
+        3,
+        1197,
+        498
+      ],
+      "marks": [
+        {
+          "bounds": [
+            1098,
+            77,
+            1166,
+            105
+          ],
+          "label": [
+            1030,
+            124
+          ],
+          "ru": "Запуск скрипта",
+          "en": "Run the script"
+        },
+        {
+          "bounds": [
+            10,
+            399,
+            156,
+            425
+          ],
+          "label": [
+            232,
+            437
+          ],
+          "ru": "Журнал вкладки",
+          "en": "Tab log"
+        }
+      ]
+    },
+    "file-match-fields": {
+      "source": "https://s3.eyeauras.net/media/2024/05/EyeAuras_7j9OpEKOveRWtpG9.png",
+      "sha256": "704423d92645c06d403c199f6faaf17affc2d02a745214f663921b6d2f6518c8",
+      "crop": [
+        0,
+        0,
+        582,
+        169
+      ],
+      "marks": [
+        {
+          "bounds": [
+            9,
+            33,
+            129,
+            68
+          ],
+          "label": [
+            284,
+            39
+          ],
+          "en": "File path",
+          "ru": "Путь к файлу"
+        },
+        {
+          "bounds": [
+            9,
+            132,
+            251,
+            167
+          ],
+          "label": [
+            284,
+            139
+          ],
+          "en": "Text condition",
+          "ru": "Проверка текста"
+        }
+      ],
+      "padding": [
+        0,
+        1,
+        2,
+        7
+      ]
+    },
+    "fixed-value-state": {
+      "source": "assets/home/showcase-aura.png",
+      "sha256": "73796c8595f48d3f3abee39f1a26203ea45a55d22004c3fce8ca04f20f0f8205",
+      "crop": [
+        0,
+        74,
+        540,
+        151
+      ],
+      "marks": [
+        {
+          "bounds": [
+            89,
+            125,
+            199,
+            150
+          ],
+          "label": [
+            318,
+            56
+          ],
+          "en": "Inactive",
+          "ru": "Неактивен"
+        }
+      ],
+      "padding": [
+        4,
+        4,
+        4,
+        8
+      ]
+    },
+    "folder-hotkey-condition": {
+      "source": "https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_hTppLb5Pft7hqfO9.png",
+      "sha256": "fb8bdd5d379e6c76404f626e4959d18d0653184d68a6c2fffaf8e2dd6c894819",
+      "crop": [
+        0,
+        0,
+        787,
+        287
+      ],
+      "marks": [
+        {
+          "bounds": [
+            161,
+            94,
+            727,
+            138
+          ],
+          "ru": "Выбор клавиши",
+          "en": "Choose a key",
+          "label": [
+            450,
+            148
+          ]
+        },
+        {
+          "bounds": [
+            118,
+            218,
+            307,
+            253
+          ],
+          "ru": "Режим клавиши",
+          "en": "Hotkey mode",
+          "label": [
+            325,
+            225
+          ]
+        }
+      ]
+    },
+    "folder-permission-choices": {
+      "source": "https://s3.eyeauras.net/media/wiki/changelogs/6788/Z9qXakW.png",
+      "sha256": "38eed603c04b2be555f28821e0c71e2972f09c03fbf29b59739fadd2711c75e3",
+      "crop": [
+        90,
+        467,
+        703,
+        721
+      ],
+      "marks": [
+        {
+          "bounds": [
+            472,
+            568,
+            688,
+            604
+          ],
+          "label": [
+            180,
+            17
+          ],
+          "ru": "Настраиваемая папка",
+          "en": "Configurable folder"
+        }
+      ]
+    },
+    "graph-aura-link": {
+      "source": "assets/awflp_se_2c10e943e5[1].png",
+      "sha256": "551dbcb2a7a3ac1c0f09ad5171015a2f8302f68a7999f8fe27186f3c1dc617d1",
+      "crop": [
+        0,
+        0,
+        1113,
+        571
+      ],
+      "marks": [
+        {
+          "bounds": [
+            28,
+            75,
+            309,
+            111
+          ],
+          "label": [
+            53,
+            112
+          ],
+          "en": "Linked aura",
+          "ru": "Связанная аура"
+        }
+      ]
+    },
+    "ide-build-action-resource": {
+      "source": "https://s3.eyeauras.net/media/2025/10/rider64_24V6ZnFu8u.png",
+      "sha256": "96334b25f8244e2999047872c738cea0258920bc994961462a75d045d96cc847",
+      "crop": [
+        542,
+        648,
+        1210,
+        705
+      ],
+      "marks": [
+        {
+          "bounds": [
+            572,
+            665,
+            679,
+            700
+          ],
+          "label": [
+            20,
+            65
+          ],
+          "ru": "Действие при сборке",
+          "en": "Build action"
+        },
+        {
+          "bounds": [
+            794,
+            665,
+            1188,
+            704
+          ],
+          "label": [
+            252,
+            65
+          ],
+          "ru": "Встроить ресурс",
+          "en": "Embed resource"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        36
+      ]
+    },
+    "ide-project-export": {
+      "source": "https://s3.eyeauras.net/media/2025/10/EyeAuras_eO23JLfMTK.png",
+      "sha256": "05533369083301f3ec9de8c0d9d077fbf3a69c1690b5afcaa70274215fee46b3",
+      "crop": [
+        0,
+        0,
+        511,
+        42
+      ],
+      "marks": [
+        {
+          "bounds": [
+            217,
+            4,
+            308,
+            39
+          ],
+          "label": [
+            211,
+            48
+          ],
+          "ru": "Выгрузить проект",
+          "en": "Export project"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        34
+      ]
+    },
+    "ide-project-import": {
+      "source": "https://s3.eyeauras.net/media/2025/10/EyeAuras_eO23JLfMTK.png",
+      "sha256": "05533369083301f3ec9de8c0d9d077fbf3a69c1690b5afcaa70274215fee46b3",
+      "crop": [
+        206,
+        0,
+        508,
+        42
+      ],
+      "marks": [
+        {
+          "bounds": [
+            315,
+            4,
+            413,
+            39
+          ],
+          "label": [
+            104,
+            48
+          ],
+          "ru": "Загрузить с диска",
+          "en": "Import from disk"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        34
+      ]
+    },
+    "import-source-file": {
+      "source": "https://s3.eyeauras.net/media/2026/04/EyeAuras_1QpMi38ffV.png",
+      "sha256": "67983a847b3e84143be12819732fafd5e079909000f231262390be97d7e19dcb",
+      "crop": [
+        233,
+        43,
+        976,
+        425
+      ],
+      "marks": [
+        {
+          "bounds": [
+            253,
+            201,
+            958,
+            251
+          ],
+          "label": [
+            264,
+            125
+          ],
+          "ru": "Ссылка на набор",
+          "en": "Publication link"
+        },
+        {
+          "bounds": [
+            254,
+            359,
+            421,
+            408
+          ],
+          "label": [
+            194,
+            303
+          ],
+          "ru": "Открыть файл",
+          "en": "Open a file"
+        }
+      ]
+    },
+    "import-update-options": {
+      "source": "https://s3.eyeauras.net/media/2026/04/EyeAuras_lVrq3hdYQj.png",
+      "sha256": "a87d2f7a51ec1784c0534b332a39a4df8ba18540c25f0203af0d4e8c2ddb0262",
+      "crop": [
+        239,
+        52,
+        918,
+        313
+      ],
+      "marks": [
+        {
+          "bounds": [
+            257,
+            172,
+            453,
+            202
+          ],
+          "label": [
+            250,
+            123
+          ],
+          "ru": "Подготовленная версия",
+          "en": "Packed version"
+        },
+        {
+          "bounds": [
+            257,
+            232,
+            453,
+            263
+          ],
+          "label": [
+            250,
+            186
+          ],
+          "ru": "Связь с обновлениями",
+          "en": "Update subscription"
+        }
+      ]
+    },
+    "legacy-send-input-event": {
+      "source": "assets/legacy/eyeauras_vkyrrjgchm.png",
+      "sha256": "f53b26cf6f2daf350f6a7f7ad1dba366cd2a52c46dea4a792b165a6083d9ee7c",
+      "crop": [
+        0,
+        0,
+        784,
+        123
+      ],
+      "marks": [
+        {
+          "bounds": [
+            14,
+            81,
+            105,
+            119
+          ],
+          "label": [
+            14,
+            131
+          ],
+          "en": "Shortcut",
+          "ru": "Сочетание"
+        },
+        {
+          "bounds": [
+            432,
+            82,
+            588,
+            118
+          ],
+          "label": [
+            440,
+            131
+          ],
+          "en": "Complete press",
+          "ru": "Полное нажатие"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        36
+      ]
+    },
+    "legacy-send-text-method": {
+      "source": "assets/legacy/eyeauras_iejiqhr0ng.png",
+      "sha256": "6640476787766c9066f76fa9c6683c65fbd54a4687429cdd0f67287cd21f7ba4",
+      "crop": [
+        0,
+        0,
+        858,
+        161
+      ],
+      "marks": [
+        {
+          "bounds": [
+            13,
+            35,
+            176,
+            70
+          ],
+          "label": [
+            208,
+            41
+          ],
+          "en": "Text to insert",
+          "ru": "Вводимый текст"
+        },
+        {
+          "bounds": [
+            15,
+            75,
+            297,
+            115
+          ],
+          "label": [
+            66,
+            166
+          ],
+          "en": "Clipboard paste",
+          "ru": "Вставка из буфера"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        32
+      ]
+    },
+    "lifecycle-event-selection": {
+      "source": "https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_mrej2NiRxEGWybKN.png",
+      "sha256": "406a5f4f4b96f2e67c0cbec9270d06984d84e879150539bf6fb5aed48c6a87c7",
+      "crop": [
+        0,
+        0,
+        337,
+        74
+      ],
+      "marks": [
+        {
+          "bounds": [
+            10,
+            37,
+            117,
+            69
+          ],
+          "label": [
+            5,
+            80
+          ],
+          "en": "Active event",
+          "ru": "Активное событие"
+        },
+        {
+          "bounds": [
+            147,
+            36,
+            279,
+            72
+          ],
+          "label": [
+            160,
+            80
+          ],
+          "en": "Add an event",
+          "ru": "Добавить событие"
+        }
+      ],
+      "padding": [
+        2,
+        1,
+        2,
+        36
+      ]
+    },
+    "log-level-warnings": {
+      "source": "assets/legacy/4w4qwwx[1].png",
+      "sha256": "47887e56842d2d8bd193a4d664d40ed2ed1f9157d3a403a8c7d1cf2ed0fdff81",
+      "crop": [
+        173,
+        200,
+        654,
+        253
+      ],
+      "marks": [
+        {
+          "bounds": [
+            345,
+            210,
+            448,
+            245
+          ],
+          "label": [
+            120,
+            57
+          ],
+          "ru": "Текущий режим",
+          "en": "Selected level"
+        },
+        {
+          "bounds": [
+            448,
+            210,
+            650,
+            245
+          ],
+          "label": [
+            291,
+            57
+          ],
+          "ru": "Порог предупреждений",
+          "en": "Warnings and errors"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        31
+      ]
+    },
+    "macro-activation-mode": {
+      "source": "https://s3.eyeauras.net/media/2024/09/EyeAuras_cTJ0Uf3NQzi7gF1u.png",
+      "sha256": "0638ec4922515f0b5a0f23dca9a50aee8061e62a7737192fb4abf37b97615cc5",
+      "crop": [
+        15,
+        201,
+        432,
+        333
+      ],
+      "marks": [
+        {
+          "bounds": [
+            76,
+            204,
+            216,
+            231
+          ],
+          "label": [
+            238,
+            5
+          ],
+          "en": "Loaded",
+          "ru": "Загружен"
+        },
+        {
+          "bounds": [
+            184,
+            268,
+            300,
+            298
+          ],
+          "label": [
+            292,
+            70
+          ],
+          "en": "Run once",
+          "ru": "Один запуск"
+        }
+      ]
+    },
+    "macro-enable-link": {
+      "source": "https://s3.eyeauras.net/media/2024/09/EyeAuras_cTJ0Uf3NQzi7gF1u.png",
+      "sha256": "0638ec4922515f0b5a0f23dca9a50aee8061e62a7737192fb4abf37b97615cc5",
+      "crop": [
+        9,
+        167,
+        410,
+        194
+      ],
+      "marks": [
+        {
+          "bounds": [
+            192,
+            167,
+            281,
+            194
+          ],
+          "label": [
+            130,
+            41
+          ],
+          "en": "Linked aura",
+          "ru": "Связанная аура"
+        },
+        {
+          "bounds": [
+            287,
+            167,
+            387,
+            194
+          ],
+          "label": [
+            260,
+            41
+          ],
+          "en": "Condition state",
+          "ru": "Состояние условия"
+        }
+      ],
+      "padding": [
+        8,
+        8,
+        8,
+        36
+      ]
+    },
+    "mouse-move-anchor": {
+      "source": "https://s3.eyeauras.net/media/2025/08/EyeAuras_7ewg0RoYQh.png",
+      "sha256": "48efdd4b56b495f2211a7bfccb9bfb747d1b8eb83f28b8cd5bdaf93ee339da99",
+      "crop": [
+        0,
+        0,
+        428,
+        129
+      ],
+      "marks": [
+        {
+          "bounds": [
+            170,
+            2,
+            302,
+            126
+          ],
+          "label": [
+            168,
+            134
+          ],
+          "en": "Region anchor",
+          "ru": "Привязка в области"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        31
+      ]
+    },
+    "mouse-move-offset": {
+      "source": "https://s3.eyeauras.net/media/2025/08/EyeAuras_DMjOlNdH2h.png",
+      "sha256": "1ff534b5c4e4f2fededb5c7d8ddbfd8e99fb31c38bfeabe37752830c0f0c81c0",
+      "crop": [
+        0,
+        0,
+        428,
+        89
+      ],
+      "marks": [
+        {
+          "bounds": [
+            166,
+            1,
+            382,
+            87
+          ],
+          "label": [
+            158,
+            96
+          ],
+          "en": "Position offset",
+          "ru": "Смещение позиции"
+        }
+      ],
+      "padding": [
+        0,
+        2,
+        0,
+        32
+      ]
+    },
+    "mouse-move-position": {
+      "source": "https://s3.eyeauras.net/media/2025/08/EyeAuras_DOrxeVBXrY.png",
+      "sha256": "106cc68564bd970bad58e62261a46b550bedb1cf890421695aaff8bada8fbe05",
+      "crop": [
+        0,
+        0,
+        653,
+        232
+      ],
+      "marks": [
+        {
+          "bounds": [
+            394,
+            0,
+            611,
+            85
+          ],
+          "label": [
+            321,
+            95
+          ],
+          "en": "X and Y",
+          "ru": "Координаты"
+        },
+        {
+          "bounds": [
+            425,
+            194,
+            646,
+            229
+          ],
+          "label": [
+            237,
+            204
+          ],
+          "en": "Add an offset",
+          "ru": "Добавить смещение"
+        }
+      ],
+      "padding": [
+        0,
+        5,
+        5,
+        4
+      ]
+    },
+    "mouse-move-ranges": {
+      "source": "https://s3.eyeauras.net/media/2025/08/EyeAuras_fTb1fjQ6Sj.png",
+      "sha256": "b52c7ebad626f0fd5bc102ff9cc38c6379f456d2b3eeae01754f47898c36539b",
+      "crop": [
+        0,
+        0,
+        424,
+        88
+      ],
+      "marks": [
+        {
+          "bounds": [
+            166,
+            1,
+            382,
+            87
+          ],
+          "label": [
+            178,
+            96
+          ],
+          "en": "Axis ranges",
+          "ru": "Разброс по осям"
+        }
+      ],
+      "padding": [
+        0,
+        3,
+        0,
+        33
+      ]
+    },
+    "mouse-move-region-source": {
+      "source": "https://s3.eyeauras.net/media/2025/08/EyeAuras_ttF92DbAou.png",
+      "sha256": "9b68be112408430b70104fd11262e43870f2cecea098bb76005370d7658ff68a",
+      "crop": [
+        0,
+        0,
+        433,
+        312
+      ],
+      "marks": [
+        {
+          "bounds": [
+            175,
+            194,
+            316,
+            231
+          ],
+          "label": [
+            11,
+            236
+          ],
+          "en": "Result variable",
+          "ru": "Переменная результата"
+        },
+        {
+          "bounds": [
+            178,
+            265,
+            344,
+            307
+          ],
+          "label": [
+            186,
+            318
+          ],
+          "en": "Linked aura",
+          "ru": "Связанная аура"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        33
+      ]
+    },
+    "mouse-move-relative-offset": {
+      "source": "https://s3.eyeauras.net/media/2025/08/EyeAuras_pkO20KJVhg.png",
+      "sha256": "2e5e86fb059529bb090be2a0dd2e0cf291a8d549a296f00c80f97c10d7f01fef",
+      "crop": [
+        0,
+        0,
+        659,
+        132
+      ],
+      "marks": [
+        {
+          "bounds": [
+            395,
+            1,
+            612,
+            88
+          ],
+          "label": [
+            344,
+            99
+          ],
+          "en": "Movement offset",
+          "ru": "Сдвиг указателя"
+        }
+      ],
+      "padding": [
+        0,
+        2,
+        0,
+        0
+      ]
+    },
+    "network-receive-message": {
+      "source": "https://s3.eyeauras.net/media/2024/05/EyeAuras_ZFPMXXmojJIAI40z.png",
+      "sha256": "4987a6c7c7f7cffb86637c1800469de79e7a16d742fbe685e9d91d9899550418",
+      "crop": [
+        0,
+        0,
+        1281,
+        351
+      ],
+      "marks": [
+        {
+          "bounds": [
+            70,
+            61,
+            452,
+            106
+          ],
+          "ru": "Канал приёма",
+          "en": "Receive channel",
+          "label": [
+            535,
+            77
+          ]
+        },
+        {
+          "bounds": [
+            204,
+            151,
+            411,
+            193
+          ],
+          "ru": "Условие активации",
+          "en": "Activation condition",
+          "label": [
+            427,
+            160
+          ]
+        },
+        {
+          "bounds": [
+            425,
+            315,
+            528,
+            347
+          ],
+          "ru": "Принятый текст",
+          "en": "Received text",
+          "label": [
+            544,
+            320
+          ]
+        }
+      ],
+      "redactions": [
+        [
+          76,
+          79,
+          376,
+          95
+        ],
+        [
+          582,
+          301,
+          916,
+          318
+        ],
+        [
+          371,
+          322,
+          424,
+          340
+        ]
+      ]
+    },
+    "network-send-message": {
+      "source": "https://s3.eyeauras.net/media/2024/05/EyeAuras_rAQm0JMEY4pkQkij.png",
+      "sha256": "a64141001bf3e54ae7741f792f3d9dbe2cf6c4b5e7cacd2d3a0df1bb24845022",
+      "crop": [
+        0,
+        0,
+        1000,
+        314
+      ],
+      "marks": [
+        {
+          "bounds": [
+            77,
+            61,
+            461,
+            104
+          ],
+          "ru": "Канал отправки",
+          "en": "Send channel",
+          "label": [
+            500,
+            76
+          ]
+        },
+        {
+          "bounds": [
+            55,
+            149,
+            267,
+            191
+          ],
+          "ru": "Текст сообщения",
+          "en": "Message text",
+          "label": [
+            282,
+            158
+          ]
+        },
+        {
+          "bounds": [
+            339,
+            282,
+            465,
+            312
+          ],
+          "ru": "Отправлено",
+          "en": "Sent text",
+          "label": [
+            487,
+            285
+          ]
+        }
+      ],
+      "redactions": [
+        [
+          82,
+          77,
+          386,
+          95
+        ],
+        [
+          525,
+          266,
+          852,
+          283
+        ]
+      ]
+    },
+    "nuget-package-search": {
+      "source": "https://s3.eyeauras.net/media/2026/04/EyeAuras_9TwUfSgAH2.png",
+      "sha256": "6e7c231a0e299c3340fa8f31fae52f61d7b0e938d24df4647dc6ff7fc5538b2b",
+      "crop": [
+        6,
+        46,
+        1111,
+        250
+      ],
+      "marks": [
+        {
+          "bounds": [
+            16,
+            147,
+            220,
+            241
+          ],
+          "label": [
+            10,
+            210
+          ],
+          "ru": "Вкладка пакетов",
+          "en": "Packages tab"
+        },
+        {
+          "bounds": [
+            256,
+            173,
+            1088,
+            222
+          ],
+          "label": [
+            270,
+            210
+          ],
+          "ru": "Поиск пакета",
+          "en": "Package search"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        35
+      ]
+    },
+    "overlay-text-content": {
+      "source": "assets/home/showcase-aura.png",
+      "sha256": "73796c8595f48d3f3abee39f1a26203ea45a55d22004c3fce8ca04f20f0f8205",
+      "crop": [
+        7,
+        324,
+        690,
+        508
+      ],
+      "marks": [
+        {
+          "bounds": [
+            187,
+            353,
+            366,
+            476
+          ],
+          "label": [
+            379,
+            37
+          ],
+          "en": "Displayed text",
+          "ru": "Текст оверлея"
+        },
+        {
+          "bounds": [
+            187,
+            477,
+            278,
+            507
+          ],
+          "label": [
+            292,
+            158
+          ],
+          "en": "Font size",
+          "ru": "Размер шрифта"
+        }
+      ]
+    },
+    "pack-configuration-source": {
+      "source": "https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_YHNcG55SWZ75iSis.png",
+      "sha256": "90c92aeb1ae3ab0dfca4c94333690693a65eb1aca3499f88d2c7f29403422438",
+      "crop": [
+        4,
+        4,
+        784,
+        101
+      ],
+      "marks": [
+        {
+          "bounds": [
+            12,
+            61,
+            164,
+            94
+          ],
+          "label": [
+            8,
+            101
+          ],
+          "ru": "Источник настроек",
+          "en": "Settings source"
+        },
+        {
+          "bounds": [
+            397,
+            60,
+            528,
+            96
+          ],
+          "label": [
+            384,
+            101
+          ],
+          "ru": "Значения по умолчанию",
+          "en": "Default settings"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        31
+      ]
+    },
+    "pack-distribution-policy": {
+      "source": "https://s3.eyeauras.net/media/2026/04/EyeAuras_6Ib89kDGV9.png",
+      "sha256": "b5de88a1f598269324f03eed91808f98c1161795b55482da8102b55bf4683620",
+      "crop": [
+        245,
+        465,
+        953,
+        551
+      ],
+      "marks": [
+        {
+          "bounds": [
+            581,
+            471,
+            740,
+            503
+          ],
+          "label": [
+            516,
+            9
+          ],
+          "ru": "Версия для комплекта",
+          "en": "Pack version"
+        },
+        {
+          "bounds": [
+            581,
+            512,
+            715,
+            546
+          ],
+          "label": [
+            337,
+            91
+          ],
+          "ru": "Способ выдачи",
+          "en": "Distribution"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        36
+      ]
+    },
+    "pack-download": {
+      "source": "https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_QH1tYoEBoCemep3b.png",
+      "sha256": "f0b77e05619493751c891cbd8802c82eb03da9f572e92fc7e18ca813f60d024f",
+      "crop": [
+        820,
+        6,
+        1433,
+        79
+      ],
+      "marks": [
+        {
+          "bounds": [
+            1126,
+            17,
+            1430,
+            75
+          ],
+          "label": [
+            303,
+            78
+          ],
+          "ru": "Скачать комплект",
+          "en": "Download the pack"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        29
+      ]
+    },
+    "play-sound-preview": {
+      "source": "https://s3.eyeauras.net/media/2024/05/EyeAuras_Cd0NOjfW7gmIOFqx.png",
+      "sha256": "3700b631b46acb909f0d581edd86d28e82bb14c5cd9c17d1e0e4a5f1b2c0ef9a",
+      "crop": [
+        0,
+        0,
+        786,
+        62
+      ],
+      "marks": [
+        {
+          "bounds": [
+            139,
+            28,
+            218,
+            61
+          ],
+          "label": [
+            93,
+            70
+          ],
+          "en": "Preview Ping",
+          "ru": "Прослушать Ping"
+        },
+        {
+          "bounds": [
+            306,
+            28,
+            607,
+            61
+          ],
+          "label": [
+            355,
+            70
+          ],
+          "en": "Volume",
+          "ru": "Громкость"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        37
+      ]
+    },
+    "return-with-status": {
+      "source": "assets/home/pilot/raw-macro.png",
+      "sha256": "63ce5438dddff217da2b029b44765a576a1a940ce7e8c498f6680ff790a53523",
+      "crop": [
+        279,
+        583,
+        840,
+        709
+      ],
+      "marks": [
+        {
+          "bounds": [
+            287,
+            652,
+            483,
+            679
+          ],
+          "label": [
+            222,
+            72
+          ],
+          "en": "Macro result",
+          "ru": "Результат макроса"
+        }
+      ]
+    },
+    "run-aura-linked-actions": {
+      "source": "https://s3.eyeauras.net/media/wiki/changelogs/6627/xs0T9Ks.png",
+      "sha256": "e08adb0df62ef1efa4fa57636e921cb04eadfd9988b2204ca273833eb079d69d",
+      "crop": [
+        0,
+        0,
+        714,
+        330
+      ],
+      "marks": [
+        {
+          "bounds": [
+            443,
+            11,
+            712,
+            46
+          ],
+          "label": [
+            510,
+            52
+          ],
+          "en": "Strategy",
+          "ru": "Стратегия"
+        },
+        {
+          "bounds": [
+            388,
+            117,
+            469,
+            141
+          ],
+          "label": [
+            480,
+            121
+          ],
+          "en": "Action count",
+          "ru": "Число действий"
+        }
+      ]
+    },
+    "script-properties-nuget": {
+      "source": "https://s3.eyeauras.net/media/2026/04/EyeAuras_Vlj2LmgbOY.png",
+      "sha256": "930d35cd1b233e863fdc4478646341a8901645610475c8c6db0d330b5c111822",
+      "crop": [
+        71,
+        136,
+        300,
+        365
+      ],
+      "marks": [
+        {
+          "bounds": [
+            96,
+            287,
+            251,
+            357
+          ],
+          "label": [
+            16,
+            235
+          ],
+          "ru": "Раздел пакетов",
+          "en": "Packages section"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        34
+      ]
+    },
+    "script-resource-add-file": {
+      "source": "https://s3.eyeauras.net/media/2025/10/EyeAuras_hFvtxUlceb.png",
+      "sha256": "819425383eac55c17440848604834119176218b2bfa883e082ed748bd80549dd",
+      "crop": [
+        137,
+        136,
+        556,
+        220
+      ],
+      "marks": [
+        {
+          "bounds": [
+            142,
+            140,
+            273,
+            182
+          ],
+          "label": [
+            3,
+            86
+          ],
+          "ru": "Открыть подменю",
+          "en": "Open submenu"
+        },
+        {
+          "bounds": [
+            279,
+            178,
+            438,
+            211
+          ],
+          "label": [
+            147,
+            86
+          ],
+          "ru": "Выбрать файл",
+          "en": "Choose a file"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        35
+      ]
+    },
+    "text-match-exact": {
+      "source": "assets/legacy/eyeauras_ruxbjypgds.png",
+      "sha256": "cbad16a3bdf2d62ac5c28a06174e989b20dc4960fc7f2fef6001c852957bae6e",
+      "crop": [
+        0,
+        0,
+        412,
+        90
+      ],
+      "marks": [
+        {
+          "bounds": [
+            1,
+            0,
+            186,
+            39
+          ],
+          "label": [
+            212,
+            12
+          ],
+          "en": "Expression",
+          "ru": "Выражение"
+        },
+        {
+          "bounds": [
+            1,
+            43,
+            114,
+            86
+          ],
+          "label": [
+            212,
+            56
+          ],
+          "en": "Test input",
+          "ru": "Тестовый текст"
+        }
+      ],
+      "padding": [
+        4,
+        6,
+        6,
+        6
+      ]
+    },
+    "text-match-predicate": {
+      "source": "assets/legacy/eyeauras_i9f6mfq9lz.png",
+      "sha256": "3439366e355c47c18ca03477e624782dde83b1e7568cac43636ab5dfbe3aaff1",
+      "crop": [
+        0,
+        0,
+        469,
+        91
+      ],
+      "marks": [
+        {
+          "bounds": [
+            2,
+            0,
+            198,
+            42
+          ],
+          "label": [
+            220,
+            13
+          ],
+          "en": "C# expression",
+          "ru": "Условие C#"
+        },
+        {
+          "bounds": [
+            2,
+            47,
+            113,
+            87
+          ],
+          "label": [
+            220,
+            58
+          ],
+          "en": "Test value",
+          "ru": "Тестовое значение"
+        }
+      ],
+      "padding": [
+        5,
+        6,
+        6,
+        6
+      ]
+    },
+    "text-match-regex": {
+      "source": "assets/legacy/eyeauras_jb1lvsh9pz.png",
+      "sha256": "ac0fc937839e1c31bbef887d584d630fc04ffdfc75247c012d62c87638e5ab29",
+      "crop": [
+        1378,
+        0,
+        1753,
+        90
+      ],
+      "marks": [
+        {
+          "bounds": [
+            1455,
+            1,
+            1512,
+            44
+          ],
+          "label": [
+            36,
+            100
+          ],
+          "en": "Regex mode",
+          "ru": "Режим Regex"
+        },
+        {
+          "bounds": [
+            1575,
+            46,
+            1697,
+            87
+          ],
+          "label": [
+            201,
+            100
+          ],
+          "en": "Matched digits",
+          "ru": "Найденные цифры"
+        }
+      ],
+      "padding": [
+        5,
+        7,
+        5,
+        33
+      ]
+    },
+    "timer-intervals": {
+      "source": "https://s3.eyeauras.net/media/2024/05/EyeAuras_F6lmJuzxm8TcoWyg.png",
+      "sha256": "4fac06d5aec98668f376d43fbd895b04468c22abc190feedf18ee81ab4270a79",
+      "crop": [
+        0,
+        0,
+        621,
+        67
+      ],
+      "marks": [
+        {
+          "bounds": [
+            15,
+            30,
+            200,
+            65
+          ],
+          "label": [
+            44,
+            76
+          ],
+          "en": "Active interval",
+          "ru": "Время активности"
+        },
+        {
+          "bounds": [
+            210,
+            30,
+            430,
+            65
+          ],
+          "label": [
+            231,
+            76
+          ],
+          "en": "Inactive interval",
+          "ru": "Время паузы"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        37
+      ]
+    },
+    "tree-is-active-state": {
+      "source": "https://s3.eyeauras.net/media/2025/08/EyeAuras_QxRuxRhJEV.png",
+      "sha256": "8960a26ebf2e38ec62d5abeeb185a5e6f600029934ec0e671c2b2731b9ab084e",
+      "crop": [
+        0,
+        0,
+        659,
+        184
+      ],
+      "marks": [
+        {
+          "bounds": [
+            346,
+            98,
+            506,
+            133
+          ],
+          "label": [
+            514,
+            104
+          ],
+          "en": "Tree state",
+          "ru": "Состояние дерева"
+        },
+        {
+          "bounds": [
+            350,
+            147,
+            449,
+            181
+          ],
+          "label": [
+            462,
+            152
+          ],
+          "en": "Invert the check",
+          "ru": "Инверсия проверки"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        7
+      ]
+    },
+    "tree-send-text-fields": {
+      "source": "https://s3.eyeauras.net/media/2025/08/EyeAuras_ea1jBx1plw.png",
+      "sha256": "240c63051ab289775251706c19dd4a1eef61d1c2515215496cf0c2381d83dcd9",
+      "crop": [
+        0,
+        0,
+        660,
+        267
+      ],
+      "marks": [
+        {
+          "bounds": [
+            332,
+            2,
+            454,
+            35
+          ],
+          "label": [
+            467,
+            46
+          ],
+          "en": "Typing method",
+          "ru": "Способ ввода"
+        },
+        {
+          "bounds": [
+            275,
+            181,
+            405,
+            214
+          ],
+          "label": [
+            418,
+            187
+          ],
+          "en": "Text to type",
+          "ru": "Текст для ввода"
+        }
+      ]
+    },
+    "wait-progress": {
+      "source": "assets/eyeauras_axhsmldh9g.gif",
+      "sha256": "797906fbb67807171cd1b9fbc623d42fb883c4207419524bf21202d83e3dc271",
+      "crop": [
+        283,
+        202,
+        580,
+        335
+      ],
+      "marks": [
+        {
+          "bounds": [
+            347,
+            271,
+            557,
+            301
+          ],
+          "label": [
+            75,
+            139
+          ],
+          "en": "Interval progress",
+          "ru": "Ход ожидания"
+        }
+      ],
+      "padding": [
+        0,
+        0,
+        0,
+        36
+      ],
+      "frameIndex": 60
+    },
+    "webview-runtime-diagnostic": {
+      "source": "https://s3.eyeauras.net/media/2026/04/jH1zi6zLsH.png",
+      "sha256": "7c3bbed3adbe9efff6056c95a629ac907410d91eedc92a5c5e0d4ff981a92166",
+      "crop": [
+        23,
+        129,
+        1037,
+        457
+      ],
+      "marks": [
+        {
+          "bounds": [
+            29,
+            293,
+            180,
+            320
+          ],
+          "label": [
+            5,
+            199
+          ],
+          "ru": "Сообщение EyeAuras",
+          "en": "EyeAuras message"
+        },
+        {
+          "bounds": [
+            598,
+            258,
+            967,
+            307
+          ],
+          "label": [
+            581,
+            191
+          ],
+          "ru": "Ответ установщика",
+          "en": "Installer response"
+        }
+      ]
+    },
+    "yolo-annotation-finish": {
+      "source": "https://s3.eyeauras.net/media/2026/05/YoloEase_WpUxt25zLI.png",
+      "sha256": "55dbb9a109f8731e0a1dfc2084d0587508392a0abc851e8548ba2e60e069ff2c",
+      "crop": [
+        7,
+        45,
+        1371,
+        858
+      ],
+      "marks": [
+        {
+          "bounds": [
+            331,
+            52,
+            655,
+            101
+          ],
+          "ru": "Навигация по кадрам",
+          "en": "Frame navigation",
+          "label": [
+            725,
+            21
+          ]
+        },
+        {
+          "bounds": [
+            1117,
+            805,
+            1244,
+            851
+          ],
+          "ru": "Завершить задачу",
+          "en": "Complete the task",
+          "label": [
+            843,
+            774
+          ]
+        }
+      ]
+    },
+    "yolo-annotation-label": {
+      "source": "https://s3.eyeauras.net/media/2026/05/YoloEase_AT0n2plVpV.png",
+      "sha256": "dc5aad93a176e6561e0e12d832c71655a1f744acae99e473ae01b860090f0f96",
+      "crop": [
+        145,
+        47,
+        1372,
+        648
+      ],
+      "marks": [
+        {
+          "bounds": [
+            984,
+            136,
+            1360,
+            180
+          ],
+          "ru": "Текущий класс",
+          "en": "Current class",
+          "label": [
+            879,
+            146
+          ]
+        },
+        {
+          "bounds": [
+            308,
+            516,
+            402,
+            570
+          ],
+          "ru": "Ручная разметка",
+          "en": "Manual box",
+          "label": [
+            265,
+            483
+          ]
+        }
+      ]
+    },
+    "yolo-annotation-model": {
+      "source": "https://s3.eyeauras.net/media/2026/05/YoloEase_jEFZb2nxWc.png",
+      "sha256": "c35fc75dadf7ee26fb8c77d01fdc779962b185dd10d6edb0c62f6effa0710faf",
+      "crop": [
+        965,
+        463,
+        1370,
+        797
+      ],
+      "marks": [
+        {
+          "bounds": [
+            1136,
+            530,
+            1287,
+            570
+          ],
+          "ru": "Загрузить модель",
+          "en": "Load the model",
+          "label": [
+            186,
+            42
+          ]
+        },
+        {
+          "bounds": [
+            989,
+            631,
+            1118,
+            662
+          ],
+          "ru": "Подсказки",
+          "en": "Suggestions",
+          "label": [
+            167,
+            171
+          ]
+        }
+      ]
+    },
+    "yolo-augmentation-enabled": {
+      "source": "https://s3.eyeauras.net/media/2026/05/4KpzkNcDVB.png",
+      "sha256": "9f17b53af7cd6d4c807eaaa75fe2f38eaf8967385161c8c166d4324b20648651",
+      "crop": [
+        8,
+        48,
+        1191,
+        208
+      ],
+      "marks": [
+        {
+          "bounds": [
+            14,
+            159,
+            103,
+            195
+          ],
+          "ru": "Эффект включён",
+          "en": "Enabled effect",
+          "label": [
+            103,
+            118
+          ]
+        },
+        {
+          "bounds": [
+            252,
+            158,
+            293,
+            195
+          ],
+          "ru": "Вероятность шума",
+          "en": "Noise probability",
+          "label": [
+            300,
+            119
+          ]
+        }
+      ]
+    },
+    "yolo-augmentation-list": {
+      "source": "https://s3.eyeauras.net/media/2026/05/7XUJ1VcSyO.png",
+      "sha256": "2b1e55620ea07386db76853e5fa6ffbcd310a879059fca41bd00f83400bf2183",
+      "crop": [
+        6,
+        49,
+        1190,
+        192
+      ],
+      "marks": [
+        {
+          "bounds": [
+            1116,
+            79,
+            1187,
+            115
+          ],
+          "ru": "Добавить эффект",
+          "en": "Add a variation",
+          "label": [
+            920,
+            39
+          ]
+        }
+      ]
+    },
+    "yolo-augmentation-percent": {
+      "source": "https://s3.eyeauras.net/media/2026/05/p0ezutBSKi.png",
+      "sha256": "d85ecd843c6ad8c2c6e212b2a4dec93e91f0758a584eb86b2baa635ce9fd591a",
+      "crop": [
+        32,
+        137,
+        1164,
+        566
+      ],
+      "marks": [
+        {
+          "bounds": [
+            475,
+            461,
+            669,
+            509
+          ],
+          "ru": "Радиус размытия",
+          "en": "Blur radius",
+          "label": [
+            443,
+            395
+          ]
+        },
+        {
+          "bounds": [
+            687,
+            461,
+            881,
+            509
+          ],
+          "ru": "Вероятность шума",
+          "en": "Noise probability",
+          "label": [
+            867,
+            336
+          ]
+        }
+      ]
+    },
+    "yolo-capture-video": {
+      "source": "https://s3.eyeauras.net/media/2026/05/EyeAuras_3vpNUagE6e.png",
+      "sha256": "ad7f44fb1d6556457f34dee00de5244008fb41dfd258934fa43969142c2a167d",
+      "crop": [
+        548,
+        340,
+        1630,
+        772
+      ],
+      "marks": [
+        {
+          "bounds": [
+            924,
+            728,
+            1043,
+            769
+          ],
+          "ru": "Запись видео",
+          "en": "Record video",
+          "label": [
+            370,
+            347
+          ]
+        },
+        {
+          "bounds": [
+            1193,
+            729,
+            1310,
+            768
+          ],
+          "ru": "Вид кадра",
+          "en": "Preview mode",
+          "label": [
+            656,
+            345
+          ]
+        }
+      ]
+    },
+    "yolo-create-project": {
+      "source": "https://s3.eyeauras.net/media/2026/05/YoloEase_egOi46KQfu.png",
+      "sha256": "756f210735f76bd85992a1cfb3115727d03f931f0bf8fc1ed984fb3a04798a52",
+      "crop": [
+        208,
+        64,
+        994,
+        224
+      ],
+      "marks": [
+        {
+          "bounds": [
+            729,
+            75,
+            827,
+            123
+          ],
+          "ru": "Новый проект",
+          "en": "New project",
+          "label": [
+            366,
+            25
+          ]
+        }
+      ]
+    },
+    "yolo-export-files": {
+      "source": "https://s3.eyeauras.net/media/2026/05/1gcs8iFm66.png",
+      "sha256": "ac415557ccdf3f67865027279d1c97de6e8c495cdf1fe41f921d3fe5b7f8c8fb",
+      "crop": [
+        16,
+        54,
+        1000,
+        221
+      ],
+      "marks": [
+        {
+          "bounds": [
+            41,
+            96,
+            135,
+            167
+          ],
+          "ru": "Веса обучения",
+          "en": "Training weights",
+          "label": [
+            139,
+            69
+          ]
+        },
+        {
+          "bounds": [
+            545,
+            171,
+            629,
+            209
+          ],
+          "ru": "Экспорт ONNX",
+          "en": "ONNX export",
+          "label": [
+            781,
+            124
+          ]
+        }
+      ]
+    },
+    "yolo-extract-frames": {
+      "source": "https://s3.eyeauras.net/media/2026/05/YoloEase_sFCEGiqTnK.png",
+      "sha256": "803578d7a481ce9125cbe5fa9ec64e94698ac1f3d184bb2cd5c40d2980ab83db",
+      "crop": [
+        234,
+        219,
+        951,
+        618
+      ],
+      "marks": [
+        {
+          "bounds": [
+            262,
+            247,
+            930,
+            323
+          ],
+          "ru": "Шаг по кадрам",
+          "en": "Frame step",
+          "label": [
+            511,
+            3
+          ]
+        },
+        {
+          "bounds": [
+            262,
+            324,
+            930,
+            400
+          ],
+          "ru": "Диапазон кадров",
+          "en": "Frame range",
+          "label": [
+            522,
+            189
+          ]
+        },
+        {
+          "bounds": [
+            790,
+            559,
+            940,
+            604
+          ],
+          "ru": "Извлечь кадры",
+          "en": "Extract frames",
+          "label": [
+            302,
+            347
+          ]
+        }
+      ]
+    },
+    "yolo-install-disk-error": {
+      "source": "https://s3.eyeauras.net/media/2026/05/YoloEase_5T0uv3vFkV.png",
+      "sha256": "51c7f22dc50265d1581a519f6ce29ec06e644d0b9dd7de65d5601eab0ac2edf8",
+      "crop": [
+        236,
+        258,
+        1176,
+        546
+      ],
+      "marks": [
+        {
+          "bounds": [
+            246,
+            270,
+            437,
+            308
+          ],
+          "ru": "Компонент",
+          "en": "Component",
+          "label": [
+            213,
+            20
+          ]
+        },
+        {
+          "bounds": [
+            246,
+            490,
+            523,
+            514
+          ],
+          "ru": "Причина сбоя",
+          "en": "Failure reason",
+          "label": [
+            304,
+            233
+          ]
+        }
+      ],
+      "redactions": [
+        [
+          249,
+          343,
+          1166,
+          474
+        ]
+      ]
+    },
+    "yolo-ml-search-inspect": {
+      "source": "https://s3.eyeauras.net/media/2026/05/RuS1yziKuU.png",
+      "sha256": "3cf4a1d1791fbb04ee933f6330bf64be223ab048ef9ec8526ac5b17f803d8703",
+      "crop": [
+        669,
+        159,
+        1156,
+        525
+      ],
+      "marks": [
+        {
+          "bounds": [
+            768,
+            241,
+            818,
+            287
+          ],
+          "ru": "Открыть ONNX",
+          "en": "Open ONNX",
+          "label": [
+            227,
+            85
+          ]
+        },
+        {
+          "bounds": [
+            788,
+            478,
+            922,
+            516
+          ],
+          "ru": "Показ на экране",
+          "en": "On-screen display",
+          "label": [
+            271,
+            325
+          ]
+        }
+      ]
+    },
+    "yolo-open-task": {
+      "source": "https://s3.eyeauras.net/media/2026/05/IBbk1nDkee.png",
+      "sha256": "58a9c748bd128474f9192c8426d4260d958f322e73c1dea353059a0b837b2ebe",
+      "crop": [
+        8,
+        45,
+        1188,
+        401
+      ],
+      "marks": [
+        {
+          "bounds": [
+            350,
+            307,
+            527,
+            349
+          ],
+          "ru": "Готовая задача",
+          "en": "Completed task",
+          "label": [
+            339,
+            319
+          ]
+        },
+        {
+          "bounds": [
+            913,
+            310,
+            1056,
+            350
+          ],
+          "ru": "Открыть разметку",
+          "en": "Reopen the task",
+          "label": [
+            903,
+            319
+          ]
+        }
+      ]
+    },
+    "yolo-prerequisites-missing": {
+      "source": "https://s3.eyeauras.net/media/2026/05/YoloEase_wfJdcyvdZj.png",
+      "sha256": "323f46a5f98614dd672e4d90cbe61368e9d5cfd22cfdfd6d1aaa9bfac77d7656",
+      "crop": [
+        8,
+        74,
+        1184,
+        551
+      ],
+      "marks": [
+        {
+          "bounds": [
+            245,
+            136,
+            483,
+            169
+          ],
+          "ru": "Не установлен",
+          "en": "Missing runtime",
+          "label": [
+            491,
+            69
+          ]
+        },
+        {
+          "bounds": [
+            879,
+            78,
+            1005,
+            116
+          ],
+          "ru": "Установка",
+          "en": "Install missing",
+          "label": [
+            872,
+            45
+          ]
+        },
+        {
+          "bounds": [
+            246,
+            293,
+            467,
+            327
+          ],
+          "ru": "Зависит от Python",
+          "en": "Depends on Python",
+          "label": [
+            478,
+            227
+          ]
+        }
+      ],
+      "redactions": [
+        [
+          256,
+          221,
+          1158,
+          261
+        ]
+      ]
+    },
+    "yolo-prerequisites-ready": {
+      "source": "https://s3.eyeauras.net/media/2026/05/YoloEase_OuA9BUthjc.png",
+      "sha256": "26dbb33b5e567be2dc5d26f6bb8e5b96e1fc571f64d4fe48a9f0c3b7a7a4ed63",
+      "crop": [
+        8,
+        77,
+        1180,
+        211
+      ],
+      "marks": [
+        {
+          "bounds": [
+            11,
+            81,
+            179,
+            113
+          ],
+          "ru": "Итог проверки",
+          "en": "Overall status",
+          "label": [
+            194,
+            11
+          ]
+        },
+        {
+          "bounds": [
+            244,
+            136,
+            467,
+            170
+          ],
+          "ru": "Python готов",
+          "en": "Python ready",
+          "label": [
+            475,
+            66
+          ]
+        }
+      ]
+    },
+    "yolo-project-labels": {
+      "source": "https://s3.eyeauras.net/media/2026/05/YoloEase_CeXbLsliGW.png",
+      "sha256": "f7dd049950a1870d52abfaf0e7a69ab6364980928985b7ec6c0a95ef678e54f4",
+      "crop": [
+        0,
+        0,
+        1187,
+        410
+      ],
+      "marks": [
+        {
+          "bounds": [
+            8,
+            153,
+            129,
+            201
+          ],
+          "ru": "Добавить класс",
+          "en": "Add a class",
+          "label": [
+            130,
+            207
+          ]
+        },
+        {
+          "bounds": [
+            982,
+            194,
+            1181,
+            235
+          ],
+          "ru": "Добавить источник",
+          "en": "Add a source",
+          "label": [
+            817,
+            201
+          ]
+        }
+      ]
+    },
+    "yolo-trainer-batch": {
+      "source": "https://s3.eyeauras.net/media/2026/05/YoloEase_e7nteB308n.png",
+      "sha256": "b94b279a8f20dce10ac00b4d390792cb9467fe7b4d8e32e18491865fa565e9ce",
+      "crop": [
+        0,
+        0,
+        1187,
+        526
+      ],
+      "marks": [
+        {
+          "bounds": [
+            771,
+            117,
+            1107,
+            168
+          ],
+          "ru": "Размер задания",
+          "en": "Task size",
+          "label": [
+            595,
+            134
+          ]
+        },
+        {
+          "bounds": [
+            7,
+            473,
+            134,
+            518
+          ],
+          "ru": "Создать задание",
+          "en": "Create a task",
+          "label": [
+            144,
+            456
+          ]
+        }
+      ]
+    },
+    "yolo-training-settings": {
+      "source": "https://s3.eyeauras.net/media/2026/05/YoloEase_T7diUmh3YW.png",
+      "sha256": "70bf04c6ff95ec866432228dfeff6b9e92d00c0eb266abe3547acb812ed703a8",
+      "crop": [
+        0,
+        0,
+        1187,
+        713
+      ],
+      "marks": [
+        {
+          "bounds": [
+            211,
+            249,
+            673,
+            299
+          ],
+          "ru": "Рабочая папка",
+          "en": "Project folder",
+          "label": [
+            688,
+            264
+          ]
+        },
+        {
+          "bounds": [
+            142,
+            472,
+            430,
+            522
+          ],
+          "ru": "Исходная модель",
+          "en": "Base model",
+          "label": [
+            449,
+            484
+          ]
+        },
+        {
+          "bounds": [
+            213,
+            566,
+            421,
+            615
+          ],
+          "ru": "Размер входа",
+          "en": "Input size",
+          "label": [
+            725,
+            580
+          ]
+        }
+      ],
+      "redactions": [
+        [
+          348,
+          261,
+          579,
+          288
+        ]
+      ]
+    }
+  }
+}

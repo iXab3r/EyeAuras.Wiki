@@ -18,6 +18,10 @@ Suppose you want to monitor a small coloured indicator in your own application. 
 1. Open your test application and add **Color Search** to your aura.
 2. In **Capture settings → Target Window**, select its window. Set **Image Capture Rate = 5 Frames Per Second**.
 3. Open **Preview captured image**. If the image is wrong, use **Show more... → Capture Source** to compare available methods. Start with **Windows Graphics** when available.
+
+   ![The shared Capture settings panel shows the target, a rate of 5 FPS and Windows Graphics.](/assets/callouts/batch1/en/image-capture-settings.png)
+
+   This Image Search example shows where to select the capture source. Color Search uses the same fields.
 4. Limit **Crop region** to the indicator using the preview. Change the indicator in your application and confirm that the same area changes in the capture.
 
 The result is the current image of your indicator, not automatically an **Active** condition. Next configure [Color Search](/en/triggers/images/color-search); add sound or another reaction separately as an aura action.

@@ -35,7 +35,9 @@ dateCreated: 2026-05-08T12:30:00.000Z
 
 На старом снимке ниже ошибка места возникла при подготовке PyTorch. Текст строки позволяет отличить такую проблему от нехватки видеопамяти уже во время обучения.
 
-![Ошибка свободного места в Prerequisites YoloEase 2.0.80](https://s3.eyeauras.net/media/2026/05/YoloEase_5T0uv3vFkV.png)
+![Ошибка установки PyTorch в YoloEase 2.0.80. В конце сообщения видна причина No space left on device.](/assets/callouts/batch3/ru/yolo-install-disk-error.png)
+
+Строки с локальными путями скрыты.
 
 ## Разметка и набор для обучения
 

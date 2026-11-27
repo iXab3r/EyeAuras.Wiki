@@ -19,7 +19,9 @@ You need completed tasks, [prepared prerequisites](/en/YoloEase/prerequisites), 
 
 1. In **Settings → Training settings → Yolo8/10+ base model**, select `yolo11s.pt` or your own compatible detect `.pt`. Set **Model Size = 640** and the intended **Epochs**, for example **50**.
 
-![Base-model and image-size settings in the earlier YoloEase 2.0.80 interface](https://s3.eyeauras.net/media/2026/05/YoloEase_T7diUmh3YW.png)
+![Project folder control, yolo11s.pt base model and model size of 640 in YoloEase 2.0.80.](/assets/callouts/batch3/en/yolo-training-settings.png)
+
+The local workspace path is hidden.
 
 The earlier image also shows older storage controls; use [project setup](/en/YoloEase/getting-started) for the current storage route.
 
@@ -27,7 +29,7 @@ The earlier image also shows older storage controls; use [project setup](/en/Yol
 3. Use **open...** at a successful result. Find the corresponding run under `datasets/<run-id>/`, normally `runs/train/weights`. Follow the actual output path when run naming differs.
 4. Keep `best.pt`, `last.pt` and the exported ONNX. YoloEase renames the ONNX using project/model/run names; the `.pt` names remain unchanged.
 
-![Separate best.pt, last.pt and ONNX files from an earlier run](https://s3.eyeauras.net/media/2026/05/1gcs8iFm66.png)
+![The results folder contains best.pt, last.pt and a separate file of type ONNX File.](/assets/callouts/batch3/en/yolo-export-files.png)
 
 5. In **Machine Learning(AI) Search → Load from file...**, load the ONNX and inspect a real class in your own window using [integration](/en/YoloEase/features/eyeauras-integration).
 

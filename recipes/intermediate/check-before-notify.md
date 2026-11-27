@@ -27,6 +27,10 @@ You need the **Behavior Tree** editor, the **Sequence**, **Aura Is Active** and 
 3. Select Aura Is Active. In **General → Links → Edit**, select only Ready state, keep **must be Active**, and choose **Operator → All must match (AND)**. Verify that this actual link is present; an empty link list is not your readiness check.
 4. Select Run Aura. In **General → Auras → Links**, select only Ready cue. Check **1 action** and choose **Strategy → run 1-by-1 in order of addition**.
 
+   ![Execute Aura editor showing Strategy and the linked aura’s action count.](/assets/callouts/batch3/en/run-aura-linked-actions.png)
+
+   In the earlier editor, Sounds has two actions and the selected strategy picks one at random. Here the cue should have one action, with Strategy set to run in order.
+
 ```text
 My Tree
 └─ Sequence

@@ -23,7 +23,9 @@ dateCreated: 2025-08-17T08:50:59.377Z
 
 На прежнем снимке видны X/Y и кнопки дополнительных групп. В текущем редакторе они находятся в General:
 
-![Координаты и дополнительные группы Mouse Move](https://s3.eyeauras.net/media/2025/08/EyeAuras_DOrxeVBXrY.png)
+![В прежнем редакторе указаны X и Y, равные нулю. Внизу находится ссылка для добавления смещения.](/assets/callouts/batch3/ru/mouse-move-position.png)
+
+В упражнении введите 200 и 150. На снимке из прежнего редактора обе координаты равны нулю.
 
 | Настройка | Что задаёт |
 | --- | --- |
@@ -46,7 +48,7 @@ dateCreated: 2025-08-17T08:50:59.377Z
 | Индикатор привязки у свойства | Собственная [привязка](/ru/features/bindings) координаты или области |
 | Unlink / Unbind | Убрать текущую связь, прежде чем вернуться к фиксированным координатам |
 
-![Область и выбор источника Mouse Move](https://s3.eyeauras.net/media/2025/08/EyeAuras_ttF92DbAou.png)
+![Размеры области, переменная Last Found Result и строка Linked Aura с нулём связей.](/assets/callouts/batch3/ru/mouse-move-region-source.png)
 
 Для источника **Linked Aura** сначала настройте и проверьте свою ауру [Image Search](/ru/triggers/images/image-search). Перед Mouse Move в [Sequence](/ru/behavior-trees/nodes/sequence) поставьте [Aura Is Active](/ru/behavior-trees/nodes/aura-is-active) со ссылкой на ту же ауру и ожидаемым состоянием Active, чтобы перед перемещением требовалось условие поиска.
 
@@ -63,11 +65,11 @@ dateCreated: 2025-08-17T08:50:59.377Z
 | add click anchor... → Anchor | Точка внутри исходной области: центр, угол или край. Несмотря на название кнопки, клик не добавляется |
 | add offset to mouse position... → Offset | Дополнительные X/Y к рассчитанному положению; в режиме области доступны также размеры смещения |
 
-![Случайный разброс по двум осям](https://s3.eyeauras.net/media/2025/08/EyeAuras_fTb1fjQ6Sj.png)
+![Нулевые диапазоны разброса по X и по Y.](/assets/callouts/batch3/ru/mouse-move-ranges.png)
 
-![Выбор центра, края или угла области](https://s3.eyeauras.net/media/2025/08/EyeAuras_7ewg0RoYQh.png)
+![Девять точек привязки, выбрана верхняя левая.](/assets/callouts/batch3/ru/mouse-move-anchor.png)
 
-![Дополнительное смещение положения](https://s3.eyeauras.net/media/2025/08/EyeAuras_DMjOlNdH2h.png)
+![В полях смещения по X и по Y указаны нули.](/assets/callouts/batch3/ru/mouse-move-offset.png)
 
 Сначала из области, якоря и Offset получается точка, затем добавляется Randomize. Это не автоматическое исправление DPI или несовпадающего источника. После успешного перемещения может выполниться подключённый ребёнок; его Running продолжится в следующем тике без повторного движения. Для движения от текущего положения используйте [Mouse Move Rel.](/ru/behavior-trees/nodes/MouseMoveRel).
 

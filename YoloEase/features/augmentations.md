@@ -19,15 +19,15 @@ You need your own YoloEase 2 project, completed rectangle-annotation tasks, [pre
 
 1. Open **Augmentations**. With an empty list it shows **No augmentations configured**.
 
-![The empty augmentations list in the earlier YoloEase 2.0.80 interface](https://s3.eyeauras.net/media/2026/05/7XUJ1VcSyO.png)
+![Empty Augmentations list with Add in the upper right.](/assets/callouts/batch3/en/yolo-augmentation-list.png)
 
 2. Click **Add**. In **Add new Augmentation**, select **Box Blur → Radius: 1px**. This creates a row; an identical setting cannot be added twice.
 
-![Selecting an augmentation and its parameter](https://s3.eyeauras.net/media/2026/05/p0ezutBSKi.png)
+![The picker offers a 1 px Box Blur radius and a 5% chance of noise for each pixel.](/assets/callouts/batch3/en/yolo-augmentation-percent.png)
 
 3. Check the row's checkbox and **Properties**. To change the parameter, use **Remove**, confirm, then add the desired variant. Clear the checkbox for temporary exclusion.
 
-![An enabled Noise 5 percent row in the earlier interface](https://s3.eyeauras.net/media/2026/05/4KpzkNcDVB.png)
+![Checked Noise row with 5% in the Properties column.](/assets/callouts/batch3/en/yolo-augmentation-enabled.png)
 
 The illustrations are from YoloEase 2.0.80. The row, parameter choices and **Add** route remain relevant; they are not a clean-image preview.
 

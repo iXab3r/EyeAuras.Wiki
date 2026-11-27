@@ -23,7 +23,9 @@ dateCreated: 2023-06-18T11:37:32.752Z
 
 Если нужна видимая памятка вместо звука, используйте [Text](/ru/overlays/text) с собственным **Content**; размещение и блокировка описаны в [общих параметрах](/ru/overlays/common-options). Чтобы несколько аур следовали одному ручному переключателю, оставьте Fixed Value в одной исходной ауре, а в остальных используйте [Aura Is Active](/ru/triggers/aura-is-active).
 
-![Выбор фиксированного состояния](https://s3.eyeauras.net/media/2024/05/EyeAuras_dwDaZIhSanYHVRtK.png)
+![В Fixed Value выбран вариант Is NOT Active между Is Active и Not set.](/assets/callouts/batch3/ru/fixed-value-state.png)
+
+В примере Status monitor выбрано начальное неактивное состояние. В своей тестовой ауре переключитесь на Is Active, чтобы запустить действие On Enter.
 
 ## Какое значение выбрать
 

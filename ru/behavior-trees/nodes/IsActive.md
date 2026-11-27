@@ -30,7 +30,7 @@ My Tree
 4. В своей ауре выберите `Is Active`. Дождитесь обновления состояния связи и вернитесь к дереву. Поле `General → Status` узла покажет Active. Новый тик пройдёт до последнего Fixed Status с `Success`.
 5. Включите `Invert`: отображаемый результат проверки станет противоположным. При всё ещё активном корне следующий тик даст Failure.
 
-![Состояние и Invert узла Is Active в прежнем редакторе](https://s3.eyeauras.net/media/2025/08/EyeAuras_QxRuxRhJEV.png)
+![У узла Is Active в прежнем редакторе видны состояние Inactive и снятый флажок Invert.](/assets/callouts/batch3/ru/tree-is-active-state.png)
 
 | Поле или ситуация | Результат проверки без ребёнка |
 | --- | --- |

@@ -17,6 +17,10 @@ Create this as your own small, display-only set. Keep its auras loaded and EyeAu
 ## Create the switch and the normal reminders
 
 1. Right-click an empty area of the tree, choose **New Aura**, and name it **Maintenance**. Add **Triggers → + → Fixed Value**, initially **Is NOT Active**. Give this source aura no actions or overlays.
+
+   ![Is NOT Active selected in Fixed Value.](/assets/callouts/batch3/en/fixed-value-state.png)
+
+   Choose Is NOT Active to start with maintenance mode off.
 2. At the root, create **New folder** named **Normal reminders**. Do not move Maintenance inside it.
 3. In that folder, create an aura **Review notes**. Add **Fixed Value → Is Active** in Triggers and **Text** in Overlays. Set **Content** to `Review your notes`, **Font 24**, **Size to fit** off and **Window → Mode → Overlay**. Unlock, place a 450 × 80 area, then enable **Locked** and **Clickthrough**.
 4. Create a second child aura **Save draft** in the same folder, with the same settings but **Content** `Save your draft`. Place it below the first reminder rather than over it. Leave both auras' action lists empty.

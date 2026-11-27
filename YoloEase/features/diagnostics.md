@@ -32,7 +32,9 @@ The result is a local record of the failing stage, command and error. **Copy out
 | Expected images are missing | Source path and **Refresh**. An unavailable source can lead synchronisation to remove its working copies; restore the source first. |
 | Too many near-identical frames | Narrow **Range of frames to extract** or increase **Frame step** in [video extraction](/en/YoloEase/features/video-splitter). |
 
-![A disk-space error during PyTorch preparation in the earlier YoloEase 2.0.80 interface](https://s3.eyeauras.net/media/2026/05/YoloEase_5T0uv3vFkV.png)
+![PyTorch installation failure in YoloEase 2.0.80 with No space left on device at the end of the error.](/assets/callouts/batch3/en/yolo-install-disk-error.png)
+
+Log lines containing local paths are hidden.
 
 That installation error is different from running out of video memory during training. The application log uses `logs/<APPNAME>.<CONFIGURATION>.log` and rolling variants; the opened application-data folder identifies the actual location for your build.
 

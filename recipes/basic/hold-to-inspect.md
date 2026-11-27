@@ -34,6 +34,10 @@ You need a visible panel in your own application with two known states: a solid 
 ## Put the group behind the held key
 
 1. Select the **Inspect panel** folder. In **Enabling Conditions**, click **+** and add **Hotkey Is Active**. Assign **F8**, choose **Hold**, and leave **Suppress Key** off. Do not put this key in the child's ordinary Triggers list.
+
+   ![Key and mode in the folder’s Enabling conditions panel.](/assets/callouts/batch3/en/folder-hotkey-condition.png)
+
+   The earlier folder panel has no key assigned and Toggle is selected. For this example, assign F8, select Hold and clear Suppress Key.
 2. Select an aura outside this folder; create a separate empty **Setup** aura at the root if necessary. Leave the editor for your viewer. Keep the folder and child loaded, and EyeAuras unpaused.
 3. With green displayed, hold F8: the label should appear. Release F8: it should disappear. With gray displayed, holding F8 should not produce the label. Release the key between comparisons.
 

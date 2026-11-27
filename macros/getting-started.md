@@ -49,7 +49,9 @@ Running means unfinished work; Success and Failure are node results, not aura Ac
 
 Create your own aura with a configured trigger such as [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active). Link it through `Activation → activate when Aura Activated... → Enabling Condition → Links`. [Enabling Conditions](https://wiki.eyeauras.net/en/features/enabling-conditions) control admission; the macro still contains the commands.
 
-![Macro activation links in the earlier editor](https://s3.eyeauras.net/media/2024/09/EyeAuras_cTJ0Uf3NQzi7gF1u.png)
+![Enabling Condition shows Links 1 and Not active in the earlier macro editor.](/assets/callouts/batch3/en/macro-enable-link.png)
+
+In the September 2024 editor, Links shows one linked aura and the condition is currently inactive. [Full activation panel](https://s3.eyeauras.net/media/2024/09/EyeAuras_cTJ0Uf3NQzi7gF1u.png).
 
 | When Activated | Behavior |
 | --- | --- |
@@ -57,7 +59,9 @@ Create your own aura with a configured trigger such as [Hotkey Is Active](https:
 | Run once | One invocation on an activation transition from false to true |
 | Run periodically | Repeat while activation is allowed; Tick every is a pause after a completed pass, not a fixed period independent of work duration |
 
-![Automatic execution choices in the earlier macro editor](https://s3.eyeauras.net/media/2024/09/EyeAuras_A48Sp2u234hI9o3F.png)
+![Is Loaded is checked and Run once is selected among the three activation modes.](/assets/callouts/batch3/en/macro-activation-mode.png)
+
+This earlier editor has Run once selected. Choose Run periodically below it for repeated execution. [Full example with an empty condition](https://s3.eyeauras.net/media/2024/09/EyeAuras_A48Sp2u234hI9o3F.png).
 
 Without conditions or triggers, activation is `manual`; a loaded macro can still run manually. Loading, activation and execution mode are separate, as described under [Root](/en/behavior-trees/nodes/root).
 

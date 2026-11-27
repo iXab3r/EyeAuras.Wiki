@@ -18,6 +18,8 @@ Start with your own working project and permission to distribute it. For a first
 
 1. Create your own folder **HW** with an aura **Script** and a **C# Script** action. Set up the window from the guide above. Use **Run** to check the panel, then close it or use **Stop**. Keep the normal EyeAuras interface available while preparing the set.
 2. Open **Share/Export** for the folder. Review **Content** and linked dependencies. In **Pack Options**, set **Application name**, for example `MyPanel`, and an appropriate **Recommended Version**.
+
+   ![Recommended Version is set to Current in Pack Options.](/assets/callouts/batch3/en/pack-distribution-policy.png)
 3. Set **Command line** for the prepared folder structure:
 
 ```text

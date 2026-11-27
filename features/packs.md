@@ -17,6 +17,8 @@ You need your own checked set, an account to publish under your name, and access
 
 1. Select the set's root folder. Open **Publish/Synchronize** from its context menu, or use the export dialog. For a new publication, leave the destination address empty, check **Content** and name it in **Overview**.
 2. Start with **Configuration source = Use defaults**, **Recommended Version = Current**, and **Pack Distribution Policy = Any**. If source distribution is acceptable, use **Script Compilation Mode = Script Only** and protection **None**. Keep the main window visible until your set has a working interface of its own.
+
+   ![The earlier Pack editor shows Use defaults selected for Configuration source.](/assets/callouts/batch3/en/pack-configuration-source.png)
 3. Click **Publish**. The older dialog calls this **Publish folder**. After success, the folder shows its source and revision.
 4. Open the publication link and select **Download portable pack**. Wait for preparation and download the ZIP. A publication link and a prepared archive are separate results.
 5. Extract into a separate directory, not over your working installation. Run the included executable and check that it loads the intended set. Required external windows, files, drivers and services must also be available on that PC.
@@ -30,7 +32,7 @@ The synchronization indicator identifies the linked publication. The adjacent li
 
 ![Folder linked to its publication](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_gXZvzr9Bq2WDvppS.png =x200)
 ![Opening the publication page](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_cq93pPKwMCu5MUZQ.png)
-![Downloading a portable pack](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_QH1tYoEBoCemep3b.png =x200)
+![The publication page offers Import link into Eye Auras alongside Download portable pack.](/assets/callouts/batch3/en/pack-download.png)
 
 ## What the bundle contains
 
@@ -51,7 +53,9 @@ The synchronization indicator identifies the linked publication. The adjacent li
 | Prefer Packed | Prefers the prepared version. This is not a source-code protection setting. |
 | Packed Only | Requires prepared content for an ordinary recipient. The policy does not itself compile scripts or remove their text. |
 
-![Distribution policy in the older packing editor](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_bJkfO2dFN6UYcplP.png =x200)
+![Pack Options with Current selected for Recommended Version and Prefer Packed selected for Pack Distribution Policy.](/assets/callouts/batch3/en/pack-distribution-policy.png)
+
+This example uses Prefer Packed. Choose Any for the exercise above.
 
 The import option **Prefer packed version** requests prepared publication contents. It is not the same as downloading an application ZIP: those contents can be imported into a running EyeAuras. Ownership checks and server policy determine the available choices.
 

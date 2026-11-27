@@ -19,6 +19,10 @@ Have EyeAuras open and one Notepad window containing your own notes. Use only on
 1. Right-click an empty area of the EyeAuras tree and choose **New Aura**. Name it **Recording checklist**.
 2. In **Triggers**, click **+** and add **Window Is Active**. Set **Target Window** to `notepad`. Check that the selected window information identifies your notes window; [window matching](/en/features/window-matching-expressions) explains how to narrow it when several windows match.
 3. In **Overlays**, click **+** and add **Text**. Enter these three lines in **Content**, using actual line breaks: `Check microphone`, `Choose recording file`, `Review notes`. This is fixed text you type into the overlay, not a binding to Notepad's document.
+
+   ![Text overlay editor with the Content and Font fields.](/assets/callouts/batch3/en/overlay-text-content.png)
+
+   The screenshot shows a single line, Status: Ready, in Content. Enter all three lines of your reminder in that field.
 4. Set the overlay as follows. Under **Position**, temporarily turn **Locked** off, move the reminder beside your notes and give it enough width and height for all three lines. A starting size of 500 × 120 is suitable; adjust it if text is clipped.
 
 | Setting | Value |

@@ -20,6 +20,10 @@ Use **YoloEase 2 on Windows x64** with its managed training toolchain and writab
 2. In YoloEase click **New...** and save **OwnMarker.yeproj** in your own local folder. Keep the neighbouring **OwnMarker** working folder with it. In **Prerequisites**, click **Check all**, expand errors, use **Install missing** for the managed dependencies, then **Check all** again. CPU is supported; the informational GPU rows do not require a GPU for this route. Installation may download Python/packages/weights; it does not install a graphics driver. [Environment details](/en/YoloEase/prerequisites).
 3. In **Settings** choose **Backend = Offline**. On **Project → Add label**, set **Label name = marker**, choose a colour, then **Add**. Drop only your 20 project PNGs onto **Drop folders, images, or videos here**. Individual images are copied into the project. A new class name does not create training examples.
 4. In **Trainer**, click **Refresh**, set **Batch size = 100%** and check that **20** unassigned files are selected. Click **Create Task**. In **Labels** select `marker`, press **N** and click opposite corners around every intended object. Use unrotated boxes with one consistent object-boundary policy. Inspect every frame with **D/F**, correct classes and extents, and leave genuinely empty reviewed frames without invented boxes.
+
+   ![Trainer with the Batch size control and Create Task button highlighted.](/assets/callouts/batch3/en/yolo-trainer-batch.png)
+
+   Here 5% selects six files. For your dataset, choose 100% and check that Batch size shows all 20 files before clicking Create Task.
 5. Click **Finish Job** after reviewing the whole task. Closing the editor alone saves but does not complete a new task. Reopen it through **All tasks** and check that the boxes are retained. Completed annotations supply the dataset; unaccepted model suggestions do not. [Annotation editor](/en/YoloEase/features/annotation-editor).
 
 ## Train once and inspect the actual split

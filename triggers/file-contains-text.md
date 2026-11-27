@@ -22,7 +22,9 @@ dateCreated: 2023-06-18T12:56:51.981Z
 
 The older image shows the path and expression. The current editor also displays File contents, file size and time since modification.
 
-![File path and matching condition](https://s3.eyeauras.net/media/2024/05/EyeAuras_7j9OpEKOveRWtpG9.png)
+![An empty File Contains Text editor with the file path and expression fields highlighted.](/assets/callouts/batch3/en/file-match-fields.png)
+
+[Full editor with file picker and test controls](https://s3.eyeauras.net/media/2024/05/EyeAuras_7j9OpEKOveRWtpG9.png).
 
 | Setting or result | Meaning |
 | --- | --- |

@@ -24,7 +24,7 @@ dateCreated: 2022-12-20T17:30:47.018Z
 
 На снимке прежнего редактора показаны два интервала в миллисекундах. Для первого опыта замените **оба** значения на `1000`, независимо от значений на изображении.
 
-![Timer Trigger](https://s3.eyeauras.net/media/2024/05/EyeAuras_F6lmJuzxm8TcoWyg.png)
+![В прежнем редакторе Timer для Active for указано 1000 мс, а для Not Active for — 500 мс.](/assets/callouts/batch3/ru/timer-intervals.png)
 
 | Настройка или поведение | Что учитывать |
 |---|---|

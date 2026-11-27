@@ -54,6 +54,10 @@ Gateway is optional. The earlier alpha announcement offered access through the c
 | `Max Context Tokens` | Advertised context size used for local tracking; it does not enlarge the model's actual limit. |
 | `Function Calling` | Exposes registered tools when the model and connection support them, including documentation lookup. It does not register every EyeAuras service or grant unlimited access. |
 
+![The earlier Gateway profile uses gpt-5.4-mini under Model Id and Responses under API Type.](/assets/callouts/batch3/en/assistant-profile-fields.png)
+
+In the April 2026 Gateway example the fields show gpt-5.4-mini and Responses. Use a model available to your connection.
+
 An environment reference can be entered as in the original example:
 
 ```text
@@ -98,7 +102,7 @@ Agent Guidance packages EyeAuras documentation, examples, SDK notes and MCP stat
 3. Use **Add to C# Project** or **Add to Solution** to copy it beside the selected project. For a solution, EyeAuras attempts to find a C# project with the solution's name.
 4. Direct the external agent to the generated folder and its `AGENTS.md` entry point. Configure any supported MCP connection separately.
 
-![Agent Guidance page](https://s3.eyeauras.net/media/2026/04/EyeAuras_y9R4GuIA9N.png =x600)
+![Agent Guidance showing Rebuild and the timestamp of a prepared guidance snapshot.](/assets/callouts/batch3/en/assistant-guidance-rebuild.png)
 
 The pack contains its own `AGENTS.md`, `README.md`, `manifest.json`, `mcp-status.json` and `docs/`. The managed destination is:
 

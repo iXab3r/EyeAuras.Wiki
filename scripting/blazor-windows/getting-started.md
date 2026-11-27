@@ -21,7 +21,9 @@ Use the desktop EyeAuras host with its Blazor window services and WebView2 Runti
 
 2. In the script editor, use **New file → Component (with code-behind)** and name it `UserComponent`. Older editors call this a Razor component. Add an ordinary C# file named `WindowModel.cs`.
 
-![Component template in the earlier editor](https://s3.eyeauras.net/media/2024/11/EyeAuras_I6MYDieptaZe5a8u.png)
+![Razor Component among the file types in the earlier editor](/assets/callouts/batch3/en/blazor-component-template.png)
+
+[Full menu screenshot](https://s3.eyeauras.net/media/2024/11/EyeAuras_I6MYDieptaZe5a8u.png)
 
 3. Replace the four files with the contents below. All component and model files use `BlazorDemo`; `Script.csx` imports it.
 
@@ -113,7 +115,7 @@ When the displayed state can change outside a button handler, the [reactive togg
 Use **C# Overlay** when aura activity should control a persistent panel. Its generated entry point must finish setup before the overlay displays; do not place the blocking dialog code above into that entry point. Start with [the overlay counter](/en/scripting/blazor-windows/1-intro).
 
 ![Earlier Blazor window example](http://files.eyesquad.net/screenshots/31-10-2024/1YWZKXCaFhEh7SNnSx8YMWjAf.png)
-![Adding an overlay in the earlier editor](https://s3.eyeauras.net/media/2024/11/msedge_zVrveCuFgBbtBB68.png)
+![C# Overlay in the earlier editor’s add-overlay menu](/assets/callouts/batch3/en/blazor-start-overlay.png)
 ![Editing the overlay component](https://s3.eyeauras.net/media/2024/11/Code_MJvkplH0Iiqmm9SV.png)
 
 The [reactive component contract](/en/scripting/api/core/blazor) describes the shared base. The same HTML/CSS/Razor principles apply, but the overlay settings own its window. You can put a handler in a Razor `@code` block or its matching partial C# class; [the counter files](/en/scripting/blazor-windows/3-hello-world) show both arrangements.

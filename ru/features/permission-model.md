@@ -21,7 +21,9 @@ dateCreated: 2024-04-20T10:52:21.002Z
 
 На старом снимке показано меню уровней. В текущем меню приватный режим называется **Private Content**, а обычный — **No Restrictions**.
 
-![Выбор ограничения папки](https://i.imgur.com/Z9qXakW.png)
+![Пункт Configurable в подменю Permissions рядом с другими уровнями доступа](/assets/callouts/batch3/ru/folder-permission-choices.png)
+
+[Полный снимок меню](https://s3.eyeauras.net/media/wiki/changelogs/6788/Z9qXakW.png)
 
 Зелёные сведения владельца и сведения о чужой папке означают разные условия проверки:
 

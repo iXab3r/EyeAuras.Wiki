@@ -17,9 +17,9 @@ You need your own editable **C# Script**, a dedicated empty export directory, an
 
 1. In the script editor, choose **Export...** and a dedicated directory. **Export clears its files and subdirectories, retaining `.git`.** Do not select a directory containing unrelated work.
 
-![IDE integration controls in the older editor](https://s3.eyeauras.net/media/2025/10/EyeAuras_gzfCRUFI9X.png)
+![Export on the earlier script editor toolbar, between Open In IDE and Import.](/assets/callouts/batch3/en/ide-project-export.png)
 
-![Export command](https://s3.eyeauras.net/media/2025/10/EyeAuras_JSVt6axMGz.png)
+[Full script editor toolbar](https://s3.eyeauras.net/media/2025/10/EyeAuras_gzfCRUFI9X.png)
 
 2. Open the exported `.sln` in your IDE. Its directory contains projects and NuGet settings for the EyeAuras SDK. Restore dependencies and inspect diagnostics.
 
@@ -30,7 +30,7 @@ You need your own editable **C# Script**, a dedicated empty export directory, an
 3. Change the message in **Script.csx** to `Log.Info("Hello from IDE");` and save.
 4. In EyeAuras, choose **Import...**, select that `.sln` and wait for it to load. Import replaces the script project's contents from disk; edits made only in EyeAuras after export will be lost.
 
-![Import command](https://s3.eyeauras.net/media/2025/10/EyeAuras_mu4Q1nJJ7V.png)
+![Import on the earlier script editor toolbar, between Export and Live.](/assets/callouts/batch3/en/ide-project-import.png)
 
 5. Click **Run** in EyeAuras and find `Hello from IDE` in the action's **Event Log**. The changed message identifies the code that returned from disk.
 

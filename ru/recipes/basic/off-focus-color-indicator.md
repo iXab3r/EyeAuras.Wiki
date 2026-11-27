@@ -22,6 +22,10 @@ dateCreated: 2026-11-10T16:05:04.371Z
 4. В **Color source - what to search for and how** задайте **Comparison Granularity → Aggregate Average Color of Entire Area** и **Comparison Method → Human Perception**. На красном изображении нажмите **Copy Captured Color to Target Color**.
 5. В **Trigger activation conditions** включите **Min**, задайте **Min 95%**, **Max 100%** и нажмите **Refresh Once** в каждом состоянии. Красный должен давать **Active**, серый на корректном кадре — **Not Active**. Если состояния не разделяются, сначала проверьте цель, область и реальные цвета.
 
+   ![Допустимый диапазон Match Threshold и текущее значение Similarity.](/assets/callouts/batch2/ru/color-search-range.png)
+
+   На снимке прежнего редактора сходство 64,67% выше верхней границы 62,94%. Для своей красной плашки начните с диапазона 95–100% и проверьте показания на обоих цветах.
+
 | Параметр | Значение |
 | --- | --- |
 | Target Window | Ваш просмотрщик-источник |

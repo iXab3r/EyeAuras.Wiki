@@ -24,7 +24,9 @@ Both conditions now match: “Notification allowed” becomes active and plays t
 
 To keep the combined result visible, add a [Text overlay](/en/overlays/text) to “Notification allowed” and enter your own message in **Content**. It shows while that aura is active; [Common Options](/en/overlays/common-options) covers locking and normal visibility checks outside the editor. The linked auras still only supply the conditions.
 
-![Aura Is Active links in the older editor](https://s3.eyeauras.net/media/2024/05/EyeAuras_83uLM0FmkdR4pgvJ.png)
+![The trigger’s combination rule is All conditions. Link opens its list of aura references.](/assets/callouts/batch3/en/aura-trigger-links.png)
+
+[Full earlier editor with the linked conditions](https://s3.eyeauras.net/media/2024/05/EyeAuras_83uLM0FmkdR4pgvJ.png).
 
 ## Link settings
 

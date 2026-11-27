@@ -18,12 +18,14 @@ You need a build with the `AI` tab and `Codex` mode, a compatible **OpenAI** pro
 
 1. Open a small `Script.csx` project in [EyePad](/en/features/eyepad). Use a copy you are comfortable editing for the first exercise.
 2. Open `AI`, switch `Chat` to `Codex`, and select the profile and `API Key`. Use `Show Settings` for the endpoint and key configuration described in [AI Assistant](/en/features/ai-assistant).
+
+   ![The earlier AI toolbar is set to Codex and API Key. Start Codex is to their right.](/assets/callouts/batch3/en/codex-start-runtime.png)
 3. Check for `Ready`, then click `Start Codex`. This starts the separate Codex runtime; wait for the available models and conversations to load.
 4. Click `New Thread` and choose an available model. Ask: “Explain what Script.csx does in the current EyePad project. Name the files and dependencies you use. Do not edit code yet.”
 5. Compare the answer with the open files. In the same thread, you can then request one minimal change and review the resulting code. A completed agent response does not establish that the program compiled or ran.
 6. Click `Stop Codex` when finished. Returning to the thread list alone does not stop work.
 
-![Starting Codex with a selected profile and ready status](https://s3.eyeauras.net/media/2026/04/EyeAuras_TyMJnKr1Rb.png =x200)
+![The earlier AI toolbar shows the selected EyeAuras AiGateway profile and a green Ready indicator.](/assets/callouts/batch3/en/codex-profile-ready.png)
 
 | Setting | Purpose |
 | --- | --- |
@@ -40,7 +42,7 @@ In the current integration, `ChatGPT Login` reports `Unavailable` outside the te
 
 A `Thread` has its own history, state, model and reasoning effort. Reopen or archive threads in the list, and show additional or archived entries when needed. Use separate threads for an error investigation and a new feature.
 
-![Codex threads with separate task histories](https://s3.eyeauras.net/media/2026/04/EyeAuras_PcLPt8SCFy.png =x200)
+![The earlier thread list shows New Thread above two saved conversations.](/assets/callouts/batch3/en/codex-new-thread.png)
 
 Switching threads does not cancel a task running in another one. Stop it explicitly. Ordinary Chat history is not automatically transferred to Codex.
 

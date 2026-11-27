@@ -20,13 +20,13 @@ EyePad позволяет запустить свой C#-файл без соз�
 EyeAuras.exe --pad
 ```
 
-![Portable EyePad](https://s3.eyeauras.net/media/2026/03/explorer_TlhuI0lTDo.png)
+![Файл EyePad.vbs рядом с EyeAuras.exe в переносимой версии 1.9.9321.](/assets/callouts/batch3/ru/eyepad-launcher.png)
 
 2. Через меню `File` → `Open...` выберите свой `Script.csx`.
 3. Нажмите `Run`. Сообщение из скрипта появится в журнале выбранной вкладки. Скрипт с одной записью в журнал завершится сам; для продолжающейся работы есть `Stop` и `Restart`.
 4. Сохраните изменения через `Save`; для нового файла выберите `Save As...` и укажите собственный путь.
 
-![EyePad Single Script](https://s3.eyeauras.net/media/2026/03/EyeAuras_IXRX6vl5Qg.png)
+![В EyePad 1.9.9321 открыт Script.csx. Справа вверху кнопка Run, внизу пустой журнал Event Viewer перед первым запуском.](/assets/callouts/batch3/ru/eyepad-run-log.png)
 
 На старых снимках журнал подписан `Event Viewer`; расположение панелей может отличаться. Проверяйте выбранную вкладку и её журнал, а не только статус запуска всей программы.
 

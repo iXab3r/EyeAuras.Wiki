@@ -18,6 +18,10 @@ Prepare your own six PNGs in an image editor: bars **200 × 20** and **400 × 40
 
 1. Create **New Aura → Small bar** with only **Color Search**. Under **Capture settings → Target Window**, pick the small-bar viewer and set **Image Capture Rate = 5**. In **Preview captured image**, verify the correct current image; correct the capture source before measuring a black, stale or wrong frame.
 2. Set **Crop region → X/Y/Width/Height** to exactly the whole small bar's interior, including both filled and empty parts, excluding the viewer and borders. The resulting frame must be 200 × 20. Keep this same crop for all three states. These are source-image coordinates, not desktop position.
+
+   ![Four capture-region fields above the preview.](/assets/callouts/batch1/en/image-capture-region.png)
+
+   The example shows the X, Y, Width and Height fields. For your bar, enter the rectangle that covers its entire interior.
 3. Open **Effects... → Add → Color Replacement - HSV Range**. Use only this effect over the whole cropped frame, with no resize, blur or other transforms. Set the inclusive ranges **H 55–65**, **S 200–255**, **V 150–255**. Enable **both** replacement checkboxes: the matching-color swatch is white **RGB(255,255,255)**, the nonmatching swatch black **RGB(0,0,0)**. Keep **Invert** off if shown. H uses the editor's 0–180 scale, S/V 0–255.
 4. In **Image as is**, inspect the actual output: filled green becomes exact white, empty black stays black. Compare **w/o effects**, then return to Image as is. If the mask has unintended gray/color pixels or includes other content, fix the source, range or crop before interpreting a fraction.
 5. Configure Color Search as below. Enter white explicitly in Target Color; do **not** copy the average of a half-full frame as the target.

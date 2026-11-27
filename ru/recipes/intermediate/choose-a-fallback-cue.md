@@ -34,6 +34,10 @@ My Tree
 
 5. У Fixed Status задайте показанные значения через **General → Status**. В каждом Run Aura откройте **General → Auras → Links**, укажите только его звуковую ауру, проверьте **1 action**, выберите **Strategy → run 1-by-1 in order of addition**.
 
+   ![Счётчик действий выбранной ауры и настройка Strategy.](/assets/callouts/batch3/ru/run-aura-linked-actions.png)
+
+   Здесь у Sounds два действия. В своём дереве проверьте обе ветки отдельно: каждый Run Aura должен показывать одно действие своей звуковой ауры.
+
 ## Менять доступную ветку
 
 1. Нажмите верхнюю **Tick BT Once**. Основная проверка неуспешна, её Ping пропущен. Запасная проходит, звучит Bell, Selector возвращает **Success**.

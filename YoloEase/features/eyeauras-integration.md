@@ -20,6 +20,11 @@ You need a compatible `detect` ONNX, its class names, desktop EyeAuras with the 
 3. After successful training and export, use **open...** on the Trainer result and take the `.onnx`. Keep `.pt` for training.
 4. Add **Machine Learning(AI) Search** to your own aura. Set **Capture settings → Target Window**, restore the region/effects and select the file through **Yolo Model → Load from file...**.
 5. In **Search for**, choose a real model class. Set **Confidence Threshold = 30** and **IoU Threshold = 40** for an initial comparison, then open **Preview captured image**. They are starting values, not accuracy guarantees.
+
+   ![class selector, confidence and IoU thresholds in the aura trigger](/assets/callouts/batch3/en/ai-search-class-thresholds.png)
+
+   The EyeAuras 1.9.9572.0 trigger shown here has Any class selected, with thresholds of 35% and 45%. For this exercise, load your ONNX, choose one of its classes and compare the result at 30% and 40%.
+
 6. Show and remove an object in that window. Check its actual class and box. **Active** means findings passed the filter; empty findings and a load/search error are different outcomes.
 
 The result should be a correctly placed, correctly named detection on your capture, with the corresponding trigger state. Only then configure a separate reaction. [AI Search](/en/triggers/images/ai-search-trigger) covers the trigger editor in detail.
@@ -40,7 +45,9 @@ YoloEase editor auto-annotation explicitly runs YoloDotNet on CPU. EyeAuras uses
 
 The tree's **ML Search** node is a separate entrypoint from an aura trigger editor. When ticked, it snapshots the search result into tree variables for following nodes. The target window comes from BT context/default binding, rather than automatically inheriting an unrelated aura capture selector.
 
-![Loading ONNX and enabling OSD in the earlier ML Search node editor](https://s3.eyeauras.net/media/2026/05/RuS1yziKuU.png)
+![ONNX file picker and selected Enable OSD in the earlier ML Search behavior-tree node editor.](/assets/callouts/batch3/en/yolo-ml-search-inspect.png)
+
+The [full earlier editor](https://s3.eyeauras.net/media/2026/05/RuS1yziKuU.png) shows the tree on the left and its selected ML Search node settings on the right.
 
 Place **ML Search** before **ML Find Class** in a **Sequence**. In **Filters → Class**, enter an actual model class and click **Add**. An empty class list does not restrict classes. Use the **On-screen display** group to inspect the search and selected region; the earlier editor called the option **Enable OSD**.
 

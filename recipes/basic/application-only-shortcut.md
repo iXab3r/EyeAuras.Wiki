@@ -18,6 +18,10 @@ Open one Notepad window with your own disposable text document and have an avail
 
 1. Right-click an empty area of the tree, choose **New Aura**, and name it **Notes active**.
 2. In **Triggers**, click **+** and add **Window Is Active**. Set **Target Window** to `notepad`. Verify that the selected window information identifies your document. Leave its action lists and overlays empty.
+
+   ![Target Window expression and details of the matching window.](/assets/callouts/batch1/en/window-selector.png)
+
+   The shared selector here matches Demo Workspace. For Notes active, enter notepad and check the matching Notepad window.
 3. Switch between Notepad and another application. **Notes active** should be **Active** only with the matching window in the foreground. Keep this aura loaded and enabled.
 
 ## Limit the hotkey and add its cue

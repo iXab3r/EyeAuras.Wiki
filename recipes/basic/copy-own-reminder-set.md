@@ -23,6 +23,10 @@ Make a local copy of a two-aura set, then change the copied reminder without cha
 1. Select the **Transfer test** folder and open **Share/Export** with the export button or **Ctrl+S**. In **Content**, verify that the folder and both children are included.
 2. Inspect **Missing linked objects detected** if it appears. Our one link should point inside the selected folder. If you intentionally added a source outside it, either include that source with **Add linked objects** and recheck Content, or deliberately retain the external dependency. Do not assume all neighboring items are included.
 3. Choose **Destination → Local export → Save to file...** and save `reminder-copy.json` in your own directory. Close the export window. This route saves locally; it is not **Publish** and does not need a share link.
+
+   ![File save and JSON copy controls for a local export.](/assets/callouts/batch3/en/export-local-json.png)
+
+   In Local export, choose Save to file… and select a directory for reminder-copy.json.
 4. Click **Import**, choose **Source → Import from file → Open...**, and select your JSON. Inspect **Preview** for the folder, two auras and their stored paths. Selecting a folder before opening this dialog does not choose a new import destination.
 5. Because the originals still exist, open **Import Options** and choose **Copy** when the conflicts are shown. This imports copies with separate identities and adjusted conflicting paths. Do not choose Replace: it replaces existing items rather than merging settings. Ignore Conflicts would skip conflicting incoming objects.
 

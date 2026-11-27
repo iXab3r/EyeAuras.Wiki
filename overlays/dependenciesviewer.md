@@ -38,7 +38,7 @@ This earlier large graph used state colors. It helps interpret old configuration
 
 Earlier versions described an interactive window opened by **Show dependencies** in a context menu, with node dragging and zoom, and an overlay form. Use the registered **Dependencies Viewer** overlay and **Graph → Auras → Links** for this current route; it does not require the historical menu command.
 
-![Earlier graph overlay beside the editor](/assets/awflp_se_2c10e943e5[1].png)
+![The earlier Dependencies Viewer shows its Link Aura row beside the intact graph from Hotkey to Action1 and Action2.](/assets/callouts/batch3/en/graph-aura-link.png)
 
 | Change you need | Where to make it |
 | --- | --- |

@@ -14,7 +14,9 @@ To keep an old one-key action working, recreate its events in [Send Sequence](/e
 
 **Send Input is a legacy action type.** Use Send Sequence for new input. The image shows its former WPF editor, rather than an extra mode of the current sequence editor.
 
-![The former single-event Send Input editor](/assets/legacy/eyeauras_vkyrrjgchm.png)
+![Key is set to Ctrl+Q and Press (Down + Up) is selected.](/assets/callouts/batch3/en/legacy-send-input-event.png)
+
+This older action uses Ctrl+Q. To follow the migration example below, check the Ctrl+A action in your own aura. [Full legacy panel with coordinates and advanced settings](/assets/legacy/eyeauras_vkyrrjgchm.png).
 
 ## Migrate one Ctrl+A
 

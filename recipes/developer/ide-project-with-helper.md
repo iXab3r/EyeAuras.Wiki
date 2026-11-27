@@ -18,6 +18,10 @@ You need an editable **C# Script**, a C# IDE for the generated solution, and a d
 2. Wait for compilation and click **Run** in EyeAuras. The action's **Event Log** should show `Counter: 001`, `Counter: 002`, `Counter: 003`, separated by 500 ms waits. Stop during a wait ends this finite run without adding the remaining reports.
 3. Choose **Export...** and the dedicated empty directory. Open the generated `.sln` in your IDE. Keep the **actual exported project names, `.csproj` files, SDK/reference entries and NuGet configuration**; do not replace them with a hand-written minimal project.
 4. In `CounterFormatter.cs` on disk, change only the displayed prefix `Counter:` to `Sample:` and save. In EyeAuras choose **Import...**, select that exported `.sln`, and wait for synchronization and diagnostics. Import replaces the project with the disk contents, so first save any EyeAuras-only changes you need.
+
+   ![The Import command in the script editor.](/assets/callouts/batch3/en/ide-project-import.png)
+
+   After saving CounterFormatter.cs, choose Import… and open the exported solution.
 5. Click **Run in EyeAuras** again. Seeing `Sample: 001` through `Sample: 003` identifies the helper version that returned from disk. An IDE build alone does not run this script host.
 
 ## Script.csx

@@ -24,6 +24,10 @@ You need the Behavior Tree editor with **Sequence**, **Until Success**, **Aura I
 
 1. Through **Add new Node**, add Sequence, Until Success, Aura Is Active and Run Aura. Connect them exactly as below. Sequence has two enabled children, left to right: Until Success and Run Aura. Until Success has only Aura Is Active as its child.
 2. In Aura Is Active, use **General → Links → Edit** to select only Retry ready, require **must be Active**, and set **Operator → All must match (AND)**. Leave it without a child.
+
+   ![Aura Is Active with All must match and must be Active selected for one linked aura.](/assets/callouts/batch1/en/bt-getting-started-aura-is-active.png)
+
+   This screenshot links a sample aura named Сигнал готовности. Use Edit to select Retry ready in this tree.
 3. In Until Success, check **General → Child** identifies that condition. In Run Aura, choose **General → Auras → Links → Retry cue**, verify **1 action**, and select **Strategy → run 1-by-1 in order of addition**.
 
 ```text

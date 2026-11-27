@@ -16,6 +16,10 @@ For a small text configuration where `enabled=true` represents the state you nee
 
 1. Save an accessible local file in **UTF-8**. Use a small file where `enabled=true` occurs only for the intended state.
 2. Open the existing **File Contains Text**, or add it to an aura. Select that file with **File path → …**, then check **File contents**.
+
+   ![Location of the file path and text condition in the earlier editor.](/assets/callouts/batch3/en/file-match-fields.png)
+
+   The earlier editor labels these fields Path to file and Text or expression to search for. Select your file and enter the expression from the next step.
 3. Choose **Regex** and enter `(?m)^enabled=true\r?$`. This matches a complete line with that exact value; `enabled=false` does not match. Turn off **Test mode**.
 4. Save `enabled=true` in the file: the trigger should become active. Change it to `enabled=false` and save to deactivate it. Add an overlay or an **On Enter** action separately for a visible reaction, as in the current guide.
 

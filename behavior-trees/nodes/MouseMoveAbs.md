@@ -23,7 +23,9 @@ Open your own separate text-editor window. Make it large enough that X=200, Y=15
 
 The earlier image shows X/Y and the optional groups, now under General:
 
-![Mouse Move coordinates and optional groups](https://s3.eyeauras.net/media/2025/08/EyeAuras_DOrxeVBXrY.png)
+![X and Y are zero in the earlier editor. The link below opens additional offset fields.](/assets/callouts/batch3/en/mouse-move-position.png)
+
+Enter 200 and 150 for the exercise. The earlier editor shows both coordinates at zero.
 
 | Setting | Purpose |
 | --- | --- |
@@ -48,7 +50,7 @@ Choose `move to something...` to expose the X/Y/Width/Height region and sources:
 | Property binding indicator | A custom coordinate or region [binding](/en/features/bindings); earlier UI shows a black square beside the property |
 | Unlink / Unbind | Remove a source connection before returning to fixed coordinates |
 
-![Mouse Move region and source choices](https://s3.eyeauras.net/media/2025/08/EyeAuras_ttF92DbAou.png)
+![Region dimensions, Last Found Result and the Linked Aura row showing zero links.](/assets/callouts/batch3/en/mouse-move-region-source.png)
 
 For a **Linked Aura** source, first configure and inspect your own [Image Search](/en/triggers/images/image-search) aura. Put [Aura Is Active](/en/behavior-trees/nodes/aura-is-active), linked to that same aura with expected state Active, before Mouse Move in a [Sequence](/en/behavior-trees/nodes/sequence) to require the search condition before moving.
 
@@ -65,11 +67,11 @@ The found region must belong to the intended window and coordinate system. Verif
 | add click anchor... → Anchor | Choose a point within the region, such as center, top-left or bottom-right; despite the button name, no click is added |
 | add offset to mouse position... → Offset | Add X/Y to the calculated position; region mode also exposes size offsets |
 
-![Random scatter on both axes](https://s3.eyeauras.net/media/2025/08/EyeAuras_fTb1fjQ6Sj.png)
+![X and Y randomization ranges are both set to zero.](/assets/callouts/batch3/en/mouse-move-ranges.png)
 
-![Choosing the center, edge or corner of a region](https://s3.eyeauras.net/media/2025/08/EyeAuras_7ewg0RoYQh.png)
+![Nine anchor choices with the top-left cell selected.](/assets/callouts/batch3/en/mouse-move-anchor.png)
 
-![Additional position offset](https://s3.eyeauras.net/media/2025/08/EyeAuras_DMjOlNdH2h.png)
+![X and Y offset fields each contain zero.](/assets/callouts/batch3/en/mouse-move-offset.png)
 
 The source region, anchor and Offset produce a point, then Randomize is applied. This does not correct DPI or mismatched sources. A successful move can admit a connected child; retained child Running resumes without another move. For displacement from the current position, use [Mouse Move Rel.](/en/behavior-trees/nodes/MouseMoveRel).
 

@@ -26,7 +26,9 @@ dateCreated: 2024-11-04T00:26:45.232Z
 
 2. В редакторе проекта выберите **New file → Component(with code-behind)**, имя `UserComponent`. Он создаёт `.razor` и `.cs`. На старом снимке шаблон назывался **Razor Component**.
 
-![Добавление компонента в прежнем редакторе](https://s3.eyeauras.net/media/2024/11/EyeAuras_I6MYDieptaZe5a8u.png)
+![Шаблон Razor Component среди типов файлов прежнего редактора](/assets/callouts/batch3/ru/blazor-component-template.png)
+
+[Полный снимок меню](https://s3.eyeauras.net/media/2024/11/EyeAuras_I6MYDieptaZe5a8u.png)
 
 3. Создайте обычный C# файл `WindowModel.cs`. Замените содержимое всех четырёх файлов приведёнными ниже вариантами. Namespace `BlazorDemo` должен совпадать в модели и обеих частях компонента; `Script.csx` подключает его через `using`.
 
@@ -116,7 +118,7 @@ public partial class UserComponent : BlazorReactiveComponent<WindowModel>
 
 Добавьте C# Overlay вместо действия, оставьте его ауру активной и редактируйте `UserOverlay`, как в [начале серии](/ru/scripting/blazor-windows/1-intro). Старые иллюстрации показывают место добавления и результат стандартного шаблона:
 
-![Добавление C# Overlay](https://s3.eyeauras.net/media/2024/11/msedge_zVrveCuFgBbtBB68.png)
+![Пункт C# Overlay в меню добавления оверлеев прежнего редактора](/assets/callouts/batch3/ru/blazor-start-overlay.png)
 ![Стандартный компонент в прежнем оверлее](https://s3.eyeauras.net/media/2024/11/Code_MJvkplH0Iiqmm9SV.png)
 
 На таком механизме строятся и более плотные панели состояния:

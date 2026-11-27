@@ -14,7 +14,9 @@ To insert a prepared note, add a **Text** step to [Send Sequence](/en/actions/se
 
 The standalone **Send Text** action is legacy. Its old WPF editor and conversion command are separate from the current Text step. This image shows the former delivery options.
 
-![Legacy Send Text and its input methods](/assets/legacy/eyeauras_iejiqhr0ng.png)
+![Text to send and the selected Control+V paste option in the legacy action.](/assets/callouts/batch3/en/legacy-send-text-method.png)
+
+[Full legacy Send Text panel](/assets/legacy/eyeauras_iejiqhr0ng.png).
 
 ## Insert a note in your own draft
 

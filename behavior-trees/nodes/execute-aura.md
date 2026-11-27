@@ -19,6 +19,10 @@ Create your own loaded aura named `Reusable pause`. Give it a [Fixed Value](/en/
 1. Add a [Delay](/en/actions/delay) to `On Enter`: `Delay, ms = 1000`, randomization off. Add another Delay of `2000` ms to `On Exit`; leave `While Active` empty. The aura must contain exactly these two actions.
 2. Create a separate tree with `Activation → Is Loaded` and `Execution → When Activated → Do nothing`. Through `Add new Node`, add `Run Aura` and connect it to the entry.
 3. Open the node's `General → Auras → Links`, select only `Reusable pause` and confirm. Its link row should show two actions rather than `NO ACTIONS`.
+
+   ![The earlier Execute Aura node shows the Sounds link with two actions and the Strategy field above it.](/assets/callouts/batch3/en/run-aura-linked-actions.png)
+
+   Sounds has two linked actions in this earlier editor. Its strategy is random. For the two delays, select `run 1-by-1 in order of addition` in that field.
 4. Choose `General → Strategy → run 1-by-1 in order of addition`. Click the upper `Tick BT Once` and await its completion.
 
 Run Aura calls the On Enter Delay, then the On Exit Delay. Expect roughly three seconds plus execution overhead, visible in the editor's last-tick duration, followed by `Success`. The aura can remain inactive throughout: invoking collections does not simulate aura activation and deactivation.

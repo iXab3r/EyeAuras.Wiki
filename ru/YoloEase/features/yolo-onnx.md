@@ -20,7 +20,9 @@ dateCreated: 2026-05-08T12:30:00.000Z
 
 1. В `Settings → Yolo8/10+ base model` выберите `yolo11s.pt` либо свой локальный совместимый файл `.pt` для детекции. `Model Size = 640` задаёт размер изображения при обучении; `Epochs` — число проходов по данным.
 
-![Поля базовой модели и размера в YoloEase 2.0.80](https://s3.eyeauras.net/media/2026/05/YoloEase_T7diUmh3YW.png)
+![Папка проекта и поля исходной модели yolo11s.pt и размера 640 в YoloEase 2.0.80.](/assets/callouts/batch3/ru/yolo-training-settings.png)
+
+Локальный путь к рабочей папке скрыт.
 
 На старом снимке также видны параметры прежнего выбора хранилища; для текущей подготовки проекта используйте [первые шаги](/ru/YoloEase/getting-started).
 
@@ -28,7 +30,7 @@ dateCreated: 2026-05-08T12:30:00.000Z
 3. После завершения нажмите `open...` у результата и найдите каталог `runs/train/weights` соответствующего набора в `datasets/<идентификатор>/`. При повторных или отличающихся запусках ориентируйтесь на путь из вывода, а не только на имя папки.
 4. Сохраните `best.pt`, `last.pt` и экспортированный ONNX. YoloEase переименовывает готовый ONNX в имя проекта, модели и запуска; веса `.pt` остаются под своими именами.
 
-![Раздельные best.pt, last.pt и экспортированный ONNX](https://s3.eyeauras.net/media/2026/05/1gcs8iFm66.png)
+![В папке результатов видны best.pt, last.pt и отдельный файл с типом ONNX File.](/assets/callouts/batch3/ru/yolo-export-files.png)
 
 5. Загрузите `.onnx` в `Machine Learning(AI) Search → Load from file...` и проверьте настоящий класс на собственном окне по [инструкции интеграции](/ru/YoloEase/features/eyeauras-integration).
 

@@ -25,11 +25,11 @@ dateCreated: 2025-05-11T13:31:15.490Z
 
 1. Создайте собственную тестовую ауру через **Add new → New Aura**.
 
-![Создание ауры](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_KBChU81nd6.png)
+![Команда New Aura в меню Inside root folder](/assets/callouts/batch3/ru/blazor-intro-new-aura.png)
 
 2. В разделе **Overlays** добавьте **C# Overlay**. На старом снимке он называется `C# Overlay (v3, alpha)`.
 
-![Добавление C# Overlay в прежнем редакторе](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_xVFX70YeoA.png)
+![Пункт C# Overlay (v3, alpha) в меню Overlays прежнего редактора](/assets/callouts/batch3/ru/blazor-intro-overlay.png)
 
 3. Оставьте сгенерированные файлы без изменений. Для постоянной видимости добавьте в эту ауру **Fixed Value** со значением **Is Active** и оставьте ауру загруженной.
 

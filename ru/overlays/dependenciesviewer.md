@@ -37,7 +37,7 @@ dateCreated: 2022-11-02T15:14:53.516Z
 
 В прежнем интерфейсе описывались два входа: **Show dependencies** в контекстном меню и оверлей **Dependencies Viewer**. Для текущего пути используйте зарегистрированный оверлей и **Graph → Auras → Links**. Наличие старого пункта меню не требуется этому сценарию.
 
-![Оверлей графа рядом со старым редактором](/assets/awflp_se_2c10e943e5[1].png)
+![В прежнем Dependencies Viewer рядом с полным графом от Hotkey к Action1 и Action2 видна строка Link Aura.](/assets/callouts/batch3/ru/graph-aura-link.png)
 
 | Что нужно изменить | Где это делать |
 | --- | --- |

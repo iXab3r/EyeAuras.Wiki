@@ -15,11 +15,15 @@ You need an editable **C# Script** and access to the configured package sources 
 
 1. Open the script and click **Properties**.
 
-![Script Properties button](https://s3.eyeauras.net/media/2026/04/EyeAuras_Vlj2LmgbOY.png =x600)
+![The earlier Script Properties window opens on Overview. NuGet is directly below it in the sidebar.](/assets/callouts/batch3/en/script-properties-nuget.png)
+
+[Full editor showing the Properties button](https://s3.eyeauras.net/media/2026/04/EyeAuras_Vlj2LmgbOY.png)
 
 2. On **NuGet**, find `Newtonsoft.Json`, select **13.0.3**, and click **Add Package**. Use **Update Package** when replacing an installed version.
 
-![NuGet tab](https://s3.eyeauras.net/media/2026/04/EyeAuras_9TwUfSgAH2.png =x600)
+![The NuGet tab contains a Search packages field above the package list.](/assets/callouts/batch3/en/nuget-package-search.png)
+
+[Full package list and installed package details](https://s3.eyeauras.net/media/2026/04/EyeAuras_9TwUfSgAH2.png)
 
 3. Use the program below. If Properties already added the directive, keep one reference to this version rather than adding a duplicate.
 

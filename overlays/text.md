@@ -17,6 +17,10 @@ Keep a short reminder such as “Check the microphone before recording” availa
 1. Create an aura with just [Hotkey Is Active](/en/triggers/hotkey-is-active). Choose an unused **F7** and **Toggle Trigger state on Click**.
 2. Under **Overlays**, add **Text**. Expand its Text section and enter “Check the microphone before recording” in **Content**. The older editor calls this field Text.
 3. Set **Font** to `24` and turn **Size to fit** off. Choose white **Font Color**, then a black **Outline** with thickness `2`.
+
+   ![The expanded Text section shows Status: Ready in Content and a font size of 28.](/assets/callouts/batch3/en/overlay-text-content.png)
+
+   The Status monitor example uses `Status: Ready` and font size 28. Enter your reminder in Content and set Font to 24 for the exercise.
 4. Turn **Locked** off, place the reminder and give it a wide enough rectangle, for example `500 × 80`. Enable Locked again and optionally Click-through.
 5. Switch to your working application and press F7. Press it again to hide the reminder.
 

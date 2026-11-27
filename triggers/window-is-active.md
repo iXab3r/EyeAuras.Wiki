@@ -21,7 +21,9 @@ To hear a notification when you return to Notepad, use Window Is Active. It chec
 
 When Notepad comes to the foreground, the trigger becomes Active and the sound plays. Switching away makes it Not Active. On Enter does not repeat while Notepad stays in the foreground.
 
-![Selecting a target for Window Is Active](https://s3.eyeauras.net/media/2024/05/EyeAuras_TntB9EP1WPMvNOEe.png)
+![The common window picker, expression and match result for Demo Workspace.](/assets/callouts/batch1/en/window-selector.png)
+
+In this example the shared selector matches Demo Workspace. For the exercise, select your Notepad window and check the matched title. [Earlier Window Is Active editor](https://s3.eyeauras.net/media/2024/05/EyeAuras_TntB9EP1WPMvNOEe.png).
 
 ## Target and states
 

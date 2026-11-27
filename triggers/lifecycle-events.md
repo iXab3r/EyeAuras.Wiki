@@ -19,7 +19,7 @@ dateCreated: 2025-02-27T15:07:04.010Z
 
 The image shows AppStarted selected and AppClosed available to add. A selected event's tooltip shows its time or **Not triggered yet**.
 
-![Selected lifecycle event and another available subscription](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_mrej2NiRxEGWybKN.png)
+![AppStarted shows a green active indicator and the + AppClosed button offers another subscription.](/assets/callouts/batch3/en/lifecycle-event-selection.png)
 
 ## Events and state
 

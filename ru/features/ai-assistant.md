@@ -52,6 +52,10 @@ AI Assistant — чат во вкладке AI. Здесь можно спрос
 | Max Context Tokens | Размер контекста для отслеживания его заполнения. Сам по себе не меняет лимит модели. |
 | Function Calling | Доступ модели к инструментам EyeAuras, включая поиск по документации. Обычно стоит оставить включённым. |
 
+![В прежнем профиле Gateway указаны gpt-5.4-mini в Model Id и Responses в API Type.](/assets/callouts/batch3/ru/assistant-profile-fields.png)
+
+В примере Gateway за апрель 2026 года указаны gpt-5.4-mini и Responses. Выберите модель, доступную для вашего подключения.
+
 ## Если чат не запускается
 
 **Unavailable / ключ недоступен:** проверьте API Key и значение указанной переменной окружения. Для Gateway нужен доступный токен EyeAuras.
@@ -82,6 +86,8 @@ AI Assistant — чат во вкладке AI. Здесь можно спрос
 1. Нажмите Rebuild.
 2. Откройте результат через Open Guidance Pack или сохраните через Export Guidance Pack.
 3. Чтобы добавить его к проекту, используйте Add to C# Project или Add to Solution. Агенту укажите папку `generated/ai`.
+
+![В Agent Guidance видны кнопка Rebuild и время подготовки снимка документации.](/assets/callouts/batch3/ru/assistant-guidance-rebuild.png)
 
 При повторном добавлении эта папка заменяется целиком: свои файлы храните отдельно. Существующий AGENTS.md проекта не переписывается.
 

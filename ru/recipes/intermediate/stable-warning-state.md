@@ -38,6 +38,10 @@ My Tree
 | Activation Timeout | 1000 ms |
 | Deactivation Timeout | 1000 ms |
 
+![В прежнем Debounce режим ожидания и два отдельных поля задержки.](/assets/callouts/batch2/ru/debounce.png)
+
+На снимке оба интервала равны нулю. В этом упражнении введите 1000 мс в каждом из двух полей.
+
 ## Увидеть допуск, отказ и новый вход
 
 1. Переведите источник в **Is Active**, дождитесь известного Active и нажмите верхнюю **Tick BT Once**. Debounce и Sequence вернут **Running**, без Ping.

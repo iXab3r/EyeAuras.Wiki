@@ -26,12 +26,14 @@ dateCreated: 2023-10-29T18:35:33.765Z
 1. Запустите YoloEase, создайте или откройте свой `.yeproj` и перейдите на **Prerequisites**.
 2. Нажмите **Check all**. Развернутые строки показывают найденные пути, версии и причину отсутствия компонента.
 
-![Проверки показывают отсутствующее окружение](https://s3.eyeauras.net/media/2026/05/YoloEase_wfJdcyvdZj.png)
+![Managed Python 3.11 помечен Missing, а Python environment — Blocked. Сверху видна кнопка Install missing.](/assets/callouts/batch3/ru/yolo-prerequisites-missing.png)
+
+Пути к файлам в выводе проверки скрыты.
 
 3. Нажмите **Install missing** и дождитесь завершения. Устанавливаются управляемые компоненты приложения, а не драйвер видеокарты. Вручную менять системный Python или переменные окружения для этого пути не требуется.
 4. При необходимости снова **Check all**. Обязательные проверки должны проходить; **GPU acceleration** и **GPU driver helper** информационные, поэтому отсутствие GPU не блокирует CPU-обучение.
 
-![Пример успешно подготовленного окружения](https://s3.eyeauras.net/media/2026/05/YoloEase_OuA9BUthjc.png)
+![Общий статус All ready и статус Ready у Managed Python 3.11.](/assets/callouts/batch3/ru/yolo-prerequisites-ready.png)
 
 | Проверка | Что она проверяет или готовит |
 | --- | --- |
@@ -59,7 +61,9 @@ dateCreated: 2023-10-29T18:35:33.765Z
 
 Если установка остановилась, прочитайте ошибку конкретной строки. Например, при **No space left on device** освободите место на указанном диске, затем Clear all и повторите Install missing. Сообщение о драйвере и ошибка загрузки пакета требуют разных действий.
 
-![Пример ошибки нехватки места при установке](https://s3.eyeauras.net/media/2026/05/YoloEase_5T0uv3vFkV.png)
+![Ошибка установки PyTorch в YoloEase 2.0.80. В конце сообщения видна причина No space left on device.](/assets/callouts/batch3/ru/yolo-install-disk-error.png)
+
+Строки с локальными путями скрыты.
 
 Версии пакетов и выбор CPU/CUDA лучше сверять с выводом своей сборки. Общий порядок и файлы: [YOLO ONNX](/ru/YoloEase/features/yolo-onnx); разбор ошибок: [диагностика](/ru/YoloEase/features/diagnostics).
 

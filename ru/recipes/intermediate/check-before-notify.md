@@ -27,6 +27,10 @@ dateCreated: 2026-11-10T16:38:45.973Z
 3. Выберите Aura Is Active. В **General → Links → Edit** укажите только Готовность, оставьте **must be Active**, выберите **Operator → All must match (AND)**. Проверьте наличие именно этой связи: пустой список не проверяет вашу готовность.
 4. Выберите Run Aura. В **General → Auras → Links** укажите только Сигнал готовности. Проверьте **1 action**, выберите **Strategy → run 1-by-1 in order of addition**.
 
+   ![Редактор Execute Aura с полем Strategy и счётчиком действий выбранной ауры.](/assets/callouts/batch3/ru/run-aura-linked-actions.png)
+
+   В прежнем редакторе у Sounds показаны два действия и выбран случайный запуск. В этой проверке у звуковой ауры должно быть одно действие, а в Strategy — последовательный запуск.
+
 ```text
 My Tree
 └─ Sequence

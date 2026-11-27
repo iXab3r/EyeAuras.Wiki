@@ -31,7 +31,7 @@ EyeAuras uses Microsoft WebView2 for its interface. Having Microsoft Edge instal
 3. Start EyeAuras again after installation finishes. The expected result is the interface opening instead of the missing-runtime message.
 4. If it still fails, restart Windows and preserve the exact application and installer messages for a [report](/en/report-a-problem). “Already installed” does not prove that WebView2 opened successfully inside EyeAuras.
 
-![Example installer response reporting an existing runtime](https://s3.eyeauras.net/media/2026/04/jH1zi6zLsH.png =x420)
+![EyeAuras reports WebView2 is not installed while the Microsoft installer reports that the runtime is already installed.](/assets/callouts/batch3/en/webview-runtime-diagnostic.png)
 
 ## Not connected and sign-in fails
 

@@ -21,7 +21,9 @@ dateCreated: 2023-06-18T12:12:23.045Z
 
 Когда Блокнот окажется на переднем плане, триггер станет Active и прозвучит сигнал. При переходе в другую программу он станет Not Active. Пока Блокнот остаётся активным, On Enter повторно не выполняется.
 
-![Выбор окна для Window Is Active](https://s3.eyeauras.net/media/2024/05/EyeAuras_TntB9EP1WPMvNOEe.png)
+![Общая панель выбора окна с выражением и найденным окном Demo Workspace.](/assets/callouts/batch1/ru/window-selector.png)
+
+На примере общего поля найдено окно Demo Workspace. В упражнении выберите своё окно Блокнота и сверьте найденное название. [Прежний редактор Window Is Active](https://s3.eyeauras.net/media/2024/05/EyeAuras_TntB9EP1WPMvNOEe.png).
 
 ## Настройка и состояния
 

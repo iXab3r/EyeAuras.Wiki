@@ -21,6 +21,10 @@ Prepare one non-sensitive document in your own text editor. Display those Englis
 3. Under **Text recognition settings - OCR**, choose your available English **OCR Symbols** entry. Set **Scale factor 1** and leave **Invert image**, **Binary threshold** and **Include text segments** off.
 4. Show Status READY, click **Refresh Once**, and inspect **Recognized text**. It must contain the intended words, not merely a visible source image. Resolve wrong letters, blank capture or language errors before relying on the condition.
 
+   ![Windows OCR language, the recognized text and a matching regular expression.](/assets/callouts/batch2/en/text-search-ocr.png)
+
+   This example reads Connection lost. For your own window, look for Status READY in Recognized text before checking the regex.
+
 | Setting | Starting value |
 | --- | --- |
 | Image Capture Rate | 1 FPS |

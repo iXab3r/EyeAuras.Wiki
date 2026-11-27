@@ -19,6 +19,10 @@ dateCreated: 2025-08-17T09:09:31.142Z
 1. В исходный Block добавьте по порядку `Wait`, `Return`, ещё один `Wait` и `Fixed Status`.
 2. Первому Wait задайте `General → Delay = 500 ms`, второму — `5000 ms`, случайный разброс выключите. У Fixed Status выберите Failure. У Return в `General → Return` выберите `Success`.
 
+   ![Последняя строка Daily routine показывает Return with Status и выбранный результат Success.](/assets/callouts/batch3/ru/return-with-status.png)
+
+   В макросе Daily routine узел Return стоит в конце. В своём примере поместите его между двумя паузами, чтобы увидеть, как он пропустит вторую.
+
 ```text
 My Macro
 └─ Block

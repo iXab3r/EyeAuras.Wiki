@@ -49,7 +49,9 @@ My Macro
 
 После ручной проверки создайте свою ауру с проверенным триггером, например [Hotkey Is Active](/ru/triggers/hotkey-is-active), и свяжите её с макросом через `Activation → activate when Aura Activated... → Enabling Condition → Links`. [Условия включения](/ru/features/enabling-conditions) определяют допуск; сами команды остаются в макросе.
 
-![Условие включения макроса в прежнем редакторе](https://s3.eyeauras.net/media/2024/09/EyeAuras_cTJ0Uf3NQzi7gF1u.png)
+![В прежнем редакторе макроса у Enabling Condition видны Links 1 и состояние Not active.](/assets/callouts/batch3/ru/macro-enable-link.png)
+
+В редакторе сентября 2024 года Links показывает одну связанную ауру, а условие сейчас неактивно. [Полная панель активации](https://s3.eyeauras.net/media/2024/09/EyeAuras_cTJ0Uf3NQzi7gF1u.png).
 
 | When Activated | Что происходит |
 | --- | --- |
@@ -57,7 +59,9 @@ My Macro
 | Run once | Один запуск при переходе состояния активации из false в true |
 | Run periodically | Повторные запуски, пока активация разрешена; Tick every задаёт паузу после законченного прохода, а не точный период независимо от его длительности |
 
-![Режимы запуска в прежнем редакторе макроса](https://s3.eyeauras.net/media/2024/09/EyeAuras_A48Sp2u234hI9o3F.png)
+![Включён флажок Is Loaded, среди трёх режимов When Activated выбран Run once.](/assets/callouts/batch3/ru/macro-activation-mode.png)
+
+В прежнем редакторе выбран Run once. Для повторного запуска выберите Run periodically строкой ниже. [Полный пример с пустым условием](https://s3.eyeauras.net/media/2024/09/EyeAuras_A48Sp2u234hI9o3F.png).
 
 У макроса без условий и триггеров состояние активации manual; загруженный макрос всё равно можно запустить вручную. Загрузка, активность и режим исполнения различаются, как описано у [Root](/ru/behavior-trees/nodes/root).
 

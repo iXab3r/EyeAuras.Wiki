@@ -26,9 +26,9 @@ Choose **Warnings/Errors** when you only need warnings and errors in ordinary ap
 | Warnings/Errors | Sets the shared Warn threshold for ordinary messages, filtering Debug and Info where that threshold applies |
 | Disabled | Restricts ordinary messages through the shared threshold; it does not stop arbitrary third-party output or a script writing its own file |
 
-The screenshot uses an earlier arrangement. Use the current labels above.
+The earlier editor shows Everything selected. Its Only warnings and errors option corresponds to Warnings/Errors in the exercise above.
 
-![Earlier log-level settings](/assets/legacy/4w4qwwx%5B1%5D.png)
+![The earlier Log File Level setting has Everything selected. Only warnings and errors is the other option.](/assets/callouts/batch3/en/log-level-warnings.png)
 
 | Level | Typical purpose |
 | --- | --- |

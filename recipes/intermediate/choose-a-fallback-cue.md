@@ -34,6 +34,10 @@ My Tree
 
 5. Set each Fixed Status through **General → Status** as shown. For each Run Aura, open **General → Auras → Links**, select only its cue, verify **1 action**, and choose **Strategy → run 1-by-1 in order of addition**.
 
+   ![The linked aura’s action count and the Strategy setting.](/assets/callouts/batch3/en/run-aura-linked-actions.png)
+
+   Sounds has two actions here. In your tree, check each branch separately. Each Run Aura should list one action from its own cue.
+
 ## Change the eligible branch
 
 1. Click the upper **Tick BT Once**. Preferred's check fails; its Ping is skipped. Fallback succeeds, Bell plays and Selector returns **Success**.

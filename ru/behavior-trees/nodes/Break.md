@@ -20,6 +20,10 @@ dateCreated: 2025-08-17T09:16:49.021Z
 2. У Repeat выберите `General → When Activated → Run N times`, `Repeat = 5`, `Delay = 0 ms` без разброса. В нём уже есть структурные блоки `Condition` и `Loop body`.
 3. Добавьте Fixed Status с параметром Success и переместите его внутрь Condition. В Loop body расположите по порядку `Wait` с `Delay = 500 ms`, `Break`, затем Fixed Status с параметром Failure. Узлы можно перетаскивать в нужный блок; проверьте вложенность перед запуском.
 
+   ![Разделы Condition и Loop body внутри Repeat в макросе Daily routine.](/assets/callouts/batch3/ru/break-repeat-body.png)
+
+   В Daily routine узел Repeat проверяет Workspace ready в разделе Condition, а в Loop body выполняет вложенный Repeat. В упражнении поместите в этот же раздел Loop body свои Wait и Break.
+
 ```text
 My Macro
 └─ Block

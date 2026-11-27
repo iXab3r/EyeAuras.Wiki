@@ -20,11 +20,16 @@ You need a real `.onnx` from [successful training and export](/en/YoloEase/featu
 3. Click **Load from file...**, select your `.onnx` and wait for model information and class names. A load error is different from a search that completed without suitable detections.
 4. Select your own window and capture region using [capture settings](/en/triggers/images/imagecapturetriggers). Keep it visible. Apply the same effects as in training frames, without applying an already-recorded effect twice.
 5. In **Search for**, select your actual class, for example `tgt`; **Any class** shows all classes. Start with **Confidence Threshold = 30** and **IoU Threshold = 40**, then open **Preview captured image**.
+
+   ![class selector, confidence and IoU thresholds in the aura trigger](/assets/callouts/batch3/en/ai-search-class-thresholds.png)
+
+   The EyeAuras 1.9.9572.0 trigger shown here has Any class selected, with thresholds of 35% and 45%. For this exercise, load your ONNX, choose one of its classes and compare the result at 30% and 40%.
+
 6. Show an object and then a frame without it. Inspect the actual boxes and labels; the trigger state reflects filtered findings. Keep this test aura free of input actions. A missing box is not a reason to add a click as a diagnostic.
 
-![An earlier EyeAuras demonstration using a model and behavior tree](https://s3.eyeauras.net/media/2026/05/RuS1yziKuU.png)
+![ONNX file picker and selected Enable OSD in the earlier ML Search behavior-tree node editor.](/assets/callouts/batch3/en/yolo-ml-search-inspect.png)
 
-The image shows the earlier ML Search demonstration. For the current trigger, use **Load from file...**, **Search for** and **Preview captured image** rather than treating every pictured control as the same editor.
+The [full earlier editor](https://s3.eyeauras.net/media/2026/05/RuS1yziKuU.png) shows the tree on the left and its selected ML Search node settings on the right. For the aura trigger in this exercise, use **Load from file...**, **Search for** and **Preview captured image**.
 
 | Setting or result | What to check |
 | --- | --- |

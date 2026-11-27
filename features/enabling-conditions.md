@@ -17,6 +17,11 @@ An ordinary trigger answers “is this aura's condition met?” An enabling cond
 ## Hold a key to enable a group of reminders
 
 1. Create a folder named “Inspection mode”. In **Enabling conditions**, add [Hotkey Is Active](/en/triggers/hotkey-is-active), choose an unused F8 key and select **Hold**. Leave this as the only enabling condition for now.
+
+   ![Folder Enabling conditions with the Hotkey field and Toggle and Hold modes.](/assets/callouts/batch3/en/folder-hotkey-condition.png)
+
+   In this earlier editor the hotkey is still unassigned and Toggle is selected. Set F8 and choose Hold for the exercise.
+
 2. Inside the folder, create a “Reminder” aura. In its ordinary **Triggers**, add [Fixed Value](/en/triggers/fixed-value) set to **Is Active**.
 3. In **Overlays**, add [Text](/en/overlays/text). Set **Content** to “Check the selected region”, place it on screen and enable **Locked**.
 4. Select an aura outside the folder, switch to your working application, then hold and release F8.

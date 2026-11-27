@@ -25,6 +25,10 @@ You need EyeAuras with the **New Macro** editor and **Run Aura** template availa
 1. In the tree's creation menu choose **New Macro** and open it. Select the top settings row: enable **Activation → Is Loaded**, choose **Execution → When Activated → Do nothing**, and add no automatic activation conditions.
 2. In the existing **Drag'n'drop instructions here** block, use **Add new Node** to add **Run Aura**, **Wait**, then another **Run Aura** as three siblings in that order. Choose the macro Wait template, not a BT wait in a different tree.
 3. In the first Run Aura, open **General → Auras → Links**, select only Routine start, and confirm that its row shows **1 action**, not NO ACTIONS. Choose **Strategy → run 1-by-1 in order of addition**.
+
+   ![Action count on the linked aura row and the Strategy field.](/assets/callouts/batch3/en/run-aura-linked-actions.png)
+
+   The earlier editor shows one Sounds aura with two actions. In this macro, select one sound aura with one action in each Run Aura.
 4. In Wait, set **General → Delay** to **1500 ms**. Turn randomization off with the shuffle button if Min/Max are shown.
 5. In the final Run Aura, link only Routine finish, check **1 action**, and choose the same ordered strategy. Add no Repeat node or further children.
 

@@ -21,7 +21,9 @@ You need your own folder, a signed-in EyeAuras account and permission to change 
 
 The older menu below uses earlier names. The current private mode is **Private Content**, and the ordinary mode is **No Restrictions**.
 
-![Folder restriction menu](https://i.imgur.com/Z9qXakW.png)
+![Configurable in the Permissions submenu alongside the other folder access levels](/assets/callouts/batch3/en/folder-permission-choices.png)
+
+[Full menu screenshot](https://s3.eyeauras.net/media/wiki/changelogs/6788/Z9qXakW.png)
 
 The owner header and another user's header represent different effective access:
 

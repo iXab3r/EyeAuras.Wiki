@@ -23,6 +23,11 @@ Open your own photograph with a clearly visible person in an ordinary image view
 3. Under **Neural network source - YOLO**, select **Yolo 8 Nano** and click **Download model**. Wait for **Model is loading...** to finish. **Model is not loaded** or a loading error means there is no ready model to search with.
 4. Under **Inference performance tuning → Provider**, choose **Cpu** if listed. Leave thread counts unchanged for the first check; this example does not require a GPU provider.
 5. Under **Trigger activation conditions → Search for**, select **person**. Set **Confidence Threshold = 50%**, **IoU Threshold = 45%**, then click **Refresh Once**.
+
+   ![Confidence and IoU thresholds and the class selector in the Machine Learning(AI) Search trigger.](/assets/callouts/batch3/en/ai-search-class-thresholds.png)
+
+   In EyeAuras 1.9.9572.0 this panel shows Any class, 35% confidence and 45% IoU before loading a model. For the exercise, load the model, select person and use thresholds of 50% and 45%.
+
 6. Inspect the result list and preview. A retained person result with score **strictly above 50%** makes the trigger active. For detection models, enable preview **Bounding Boxes** and **Labels** to inspect the rectangle and class.
 7. Open a photograph without people in the same viewer and refresh. With no qualifying result, the trigger should become inactive. Restore the first photograph and check again.
 

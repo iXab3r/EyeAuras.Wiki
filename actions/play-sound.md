@@ -21,7 +21,9 @@ Play Sound can notify you when a program's window appears. [Window Exists](/en/t
 
 When the window appears and the aura becomes active, the sound plays once. On Enter does not repeat while the window stays found. For another notification, the aura must become inactive between appearances.
 
-![Sound selection in the older editor](https://s3.eyeauras.net/media/2024/05/EyeAuras_Cd0NOjfW7gmIOFqx.png)
+![Ping is selected with a preview button beside it. The volume slider reads 100%.](/assets/callouts/batch3/en/play-sound-preview.png)
+
+The speaker button previews Ping. This earlier editor shows 100% volume. Set the volume to 50% for the exercise.
 
 For a reminder you can still see after Ping, add [Text](/en/overlays/text) to the same aura and enter your message in **Content**. Its normal visibility follows the aura’s activity; [Common Options](/en/overlays/common-options) covers placement and locking.
 

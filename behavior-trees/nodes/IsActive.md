@@ -30,7 +30,7 @@ My Tree
 4. Set your aura's Fixed Value to `Is Active`. Wait for the linked state to update, then return to the tree. The node's `General → Status` shows Active; another tick reaches the last step with Success.
 5. Enable `Invert`. The displayed check state is inverted; while the root remains active, the next tick returns Failure.
 
-![State and Invert in the earlier Is Active editor](https://s3.eyeauras.net/media/2025/08/EyeAuras_QxRuxRhJEV.png)
+![The earlier Is Active node shows Status Inactive and Invert unchecked.](/assets/callouts/batch3/en/tree-is-active-state.png)
 
 | Setting or root state | Check result without a child |
 | --- | --- |

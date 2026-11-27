@@ -30,6 +30,10 @@ My Tree
 ```
 
 4. У Aura Is Active в **General → Links → Edit** выберите только Прекратить ожидание, потребуйте **must be Active**, задайте **All must match (AND)**. Ребёнка проверке не добавляйте. В **General** Interrupter проверьте: **If** указывает на эту проверку, **Action** — на Wait.
+
+   ![Поля If и Then Interrupt для левого и правого ребёнка в прежнем редакторе.](/assets/callouts/batch2/ru/interrupter.png)
+
+   Поля на снимке пока пусты. После соединения слева должно появиться условие Aura Is Active, справа — действие Wait.
 5. У Wait задайте **General → Delay = 2000 ms**, случайный разброс выключен, ребёнка нет. У последнего Fixed Status выберите **General → Status → Success**, тоже без ребёнка.
 
 ## Прервать и начать полный новый срок

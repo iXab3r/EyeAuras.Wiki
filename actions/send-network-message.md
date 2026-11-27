@@ -24,7 +24,9 @@ Start inside one running EyeAuras. **local://review-status** connects auras in t
 
 Sending history is not confirmation that the receiver ran its reaction. If only the sender has a record, check channel spelling, receiver enablement and its history before changing the reaction.
 
-![Channel, message text and sending history](https://s3.eyeauras.net/media/2024/05/EyeAuras_rAQm0JMEY4pkQkij.png)
+![Send channel, Hello, world! message and sent history row in the earlier editor.](/assets/callouts/batch3/en/network-send-message.png)
+
+This earlier example sent `Hello, world!`. Enter `local://review-status` and the text `review` for the exercise. The original channel identifier is hidden.
 
 | Setting | Purpose |
 | --- | --- |

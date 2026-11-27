@@ -17,6 +17,8 @@ dateCreated: 2026-03-24T00:10:39.000Z
 
 1. Создайте свою папку **HW** и ауру **Script** с главным **C# Script**. Настройте собственное окно по руководству выше и проверьте обычным **Run**, что оно открывается и закрывается. Сначала оставьте интерфейс EyeAuras доступным для диагностики.
 2. Откройте для папки **Share/Export**, проверьте **Content** и зависимости. В **Pack Options** задайте **Application name**, например `MyPanel`, и нужную **Recommended Version**. Упаковывайте именно свой законченный набор.
+
+   ![На панели Pack Options для Recommended Version выбран Current.](/assets/callouts/batch3/ru/pack-distribution-policy.png)
 3. В **Command line** укажите режим EyePad и целевой файл набора. Пример для структуры HW/Script:
 
 ```text

@@ -23,7 +23,9 @@ Open a separate text-editor window with an empty nonsecret draft and click in it
 
 The earlier screenshot demonstrates `Hello, World!` with a 30 ms delay setting. Its `Key Press Delay` field is now labelled `Delay`:
 
-![Text, delay and delivery methods in the earlier Send Text editor](https://s3.eyeauras.net/media/2025/08/EyeAuras_ea1jBx1plw.png)
+![Type characters is selected, Key Press Delay is 30 ms and Text contains Hello, World!](/assets/callouts/batch3/en/tree-send-text-fields.png)
+
+[Full Send Text node panel](https://s3.eyeauras.net/media/2025/08/EyeAuras_ea1jBx1plw.png).
 
 | Setting | Effect |
 | --- | --- |

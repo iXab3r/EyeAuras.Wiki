@@ -24,7 +24,9 @@ You need one aura and working audio output. Use [Fixed Value](/en/triggers/fixed
 
 You should hear Ping, a pause of about one second after it finishes, then Bell. To repeat, switch Fixed Value to Is NOT Active and back to Is Active. In **While Active**, the chain would repeat while the aura remains active.
 
-![Delay settings in the older editor](https://s3.eyeauras.net/media/2024/05/EyeAuras_18f7NSJLeiMFPOCD.png)
+![The earlier Delay editor shows a 1000–1500 ms range with Randomize checked.](/assets/callouts/batch3/en/delay-random-range.png)
+
+This earlier example uses a random delay from 1000 to 1500 ms. For the one-second pause, clear Randomize and enter 1000 ms.
 
 ## Settings
 

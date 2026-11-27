@@ -18,6 +18,10 @@ Use a small local UTF-8 file that EyeAuras can read. In your own writable folder
 
 1. Right-click an empty part of the EyeAuras tree, choose **New Aura**, and name it **Checklist warning**. In **Triggers**, click **+** and add **File Contains Text**.
 2. In **File path**, enter your file's complete path or select it with **...**. Check **File contents**: it must show both saved lines, including TODO. There is no need to invent a capture window or an OCR language for a local text file.
+
+   ![File path and text condition fields in the earlier File Contains Text editor.](/assets/callouts/batch3/en/file-match-fields.png)
+
+   The earlier editor labels the upper field Path to file. Enter the path to your saved checklist, then set the condition in the lower field.
 3. In the text evaluator, choose **Regex**, enter `TODO` without quotes or outer slashes, and enable **Ignore Case**. This literal pattern finds that fragment anywhere in the saved contents. **Text** mode would compare the entire file instead. Keep **Test mode** off so the real file controls the result.
 4. In **Overlays**, click **+** and add **Text**. Enter `Finish the checklist` in **Content** and use the settings below. Turn **Locked** off to place a readable 450 × 80 reminder, then turn it on again. Leave all action lists empty.
 

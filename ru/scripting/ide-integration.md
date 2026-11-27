@@ -18,9 +18,9 @@ dateCreated: 2025-10-19T16:35:51.518Z
 
 1. В редакторе действия нажмите `Export...` и выберите отдельную папку. **Экспорт очищает её файлы и подпапки, сохраняя `.git`.** Не выбирайте папку с другими нужными данными.
 
-![Controls](https://s3.eyeauras.net/media/2025/10/EyeAuras_gzfCRUFI9X.png)
+![Кнопка Export на панели прежнего редактора скрипта между Open In IDE и Import.](/assets/callouts/batch3/ru/ide-project-export.png)
 
-![Export](https://s3.eyeauras.net/media/2025/10/EyeAuras_JSVt6axMGz.png)
+[Вид всей панели редактора](https://s3.eyeauras.net/media/2025/10/EyeAuras_gzfCRUFI9X.png)
 
 2. Откройте полученное `.sln` в IDE. Рядом находятся проекты и настройки NuGet для SDK EyeAuras. Восстановите зависимости и проверьте диагностику.
 
@@ -31,7 +31,7 @@ dateCreated: 2025-10-19T16:35:51.518Z
 3. В `Script.csx` замените сообщение на `Log.Info("Hello from IDE");` и сохраните файл.
 4. В EyeAuras нажмите `Import...`, выберите экспортированное `.sln` и дождитесь загрузки. Импорт заменяет содержимое проекта скрипта данными с диска; правки, сделанные только в EyeAuras после экспорта, будут потеряны.
 
-![Import](https://s3.eyeauras.net/media/2025/10/EyeAuras_mu4Q1nJJ7V.png)
+![Кнопка Import в прежнем редакторе скрипта между Export и Live.](/assets/callouts/batch3/ru/ide-project-import.png)
 
 5. Нажмите `Run` в EyeAuras и найдите `Hello from IDE` в `Event Log`. Это подтверждает, что вернулось именно ваше изменение.
 

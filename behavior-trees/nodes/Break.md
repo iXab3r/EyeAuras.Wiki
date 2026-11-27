@@ -20,6 +20,10 @@ Create your own [macro](/en/macros/getting-started) with `Activation → Is Load
 2. On Repeat choose `General → When Activated → Run N times`, `Repeat = 5`, `Delay = 0 ms`, randomization off. Repeat already contains the structural blocks `Condition` and `Loop body`.
 3. Add a Fixed Status with Success and move it inside Condition. Inside Loop body, arrange `Wait` with `Delay = 500 ms`, `Break`, then Fixed Status with Failure. Check the nesting after dragging the steps.
 
+   ![Condition and Loop body inside Repeat in the Daily routine macro.](/assets/callouts/batch3/en/break-repeat-body.png)
+
+   In Daily routine, Repeat checks Workspace ready under Condition and runs another Repeat under Loop body. For this exercise, put your Wait and Break in Loop body.
+
 ```text
 My Macro
 └─ Block

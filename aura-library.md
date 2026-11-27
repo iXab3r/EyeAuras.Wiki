@@ -35,6 +35,10 @@ The result is a specific publication with understood prerequisites, rather than 
 ## Inspect the import before applying it
 
 1. Copy the normal publication link and paste it into **Import → Source** in EyeAuras, or use the site's **Import** link. If opening the app fails, use the manual link route.
+
+   ![The import source panel with its publication URL field and local file button.](/assets/callouts/batch3/en/import-source-file.png)
+
+   Paste the link from the pack page into the upper Paste pack URL field. The Open… button below it selects a saved file.
 2. Click **Download**, then inspect **Preview**, **Overview** and **Pack Options** before **Import**. For exported JSON already on disk, use **Source → Import from file → Open...**; copied JSON can also be pasted into Source. A local file without a publication is not an update subscription.
 3. Choose update behavior in **Import Options** and resolve conflicts deliberately with **Copy**, **Replace** or a conflict-skipping choice. See [Export and Import](/en/features/export-import) for their exact scope.
 4. Check your own target windows, paths, permissions and dependencies before using the imported behavior. Download access does not make its settings correct for your PC or grant editing rights to closed contents.

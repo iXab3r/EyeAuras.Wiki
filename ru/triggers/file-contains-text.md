@@ -21,7 +21,9 @@ dateCreated: 2023-06-18T12:56:51.981Z
 
 На старом снимке видны путь и проверка текста. В текущем редакторе также есть отдельный просмотр **File contents**, размер файла и время после изменения.
 
-![Путь к файлу и условие File Contains Text](https://s3.eyeauras.net/media/2024/05/EyeAuras_7j9OpEKOveRWtpG9.png)
+![В пустом редакторе File Contains Text выделены поля пути и текстового условия.](/assets/callouts/batch3/ru/file-match-fields.png)
+
+[Полный редактор с кнопкой выбора файла и настройками проверки](https://s3.eyeauras.net/media/2024/05/EyeAuras_7j9OpEKOveRWtpG9.png).
 
 | Настройка или результат | Что означает |
 | --- | --- |

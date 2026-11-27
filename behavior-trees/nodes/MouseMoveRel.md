@@ -31,7 +31,9 @@ My Tree
 
 Repeating this whole tree starts again at the absolute point. Repeating only the relative node keeps shifting the pointer. Actual travel depends on the backend and system mouse settings; X=40 is not a universal guarantee of exactly 40 physical pixels.
 
-![Mouse Move Rel. X/Y offsets](https://s3.eyeauras.net/media/2025/08/EyeAuras_pkO20KJVhg.png)
+![The Mouse Move Rel. node has both Offset fields at zero.](/assets/callouts/batch3/en/mouse-move-relative-offset.png)
+
+This earlier example starts with a zero offset. Set X to 40 and leave Y at zero for the exercise.
 
 | Setting | Effect |
 | --- | --- |
@@ -40,7 +42,7 @@ Repeating this whole tree starts again at the absolute point. Repeating only the
 | randomize... → Randomize — X ± / Y ± | Add scatter to the displacement; zero gives a fixed command |
 | Window / Simulator | Inherited target/backend; Windows Input changes the system pointer position |
 
-![Random scatter for relative movement](https://s3.eyeauras.net/media/2025/08/EyeAuras_fTb1fjQ6Sj.png)
+![Both relative-movement randomization ranges are zero.](/assets/callouts/batch3/en/mouse-move-ranges.png)
 
 With Windows Message API, relative movement starts at the last position sent to **that window through that backend**, not the system pointer. Send an absolute move through the same backend/window first. The target must support the resulting window message; choosing a window does not guarantee universal background input.
 

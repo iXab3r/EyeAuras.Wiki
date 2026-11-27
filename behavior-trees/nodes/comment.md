@@ -27,6 +27,10 @@ The first tick starts the timer; a later tick after the delay completes Wait.
 3. The card shows the note with a bold first line. Switch to `Format → Text` to display the asterisks literally, useful for documenting exact expressions.
 4. Click the upper `Tick BT Once`: Wait returns Running. After two seconds, tick again for Success. The note has not changed the branch's delay or route.
 
+![The earlier editor shows Markdown selected, note source on the right, and the rendered Comment card on the left.](/assets/callouts/batch3/en/comment-markdown.png)
+
+In this earlier example, `# Title` and `## Sub-Title` on the right appear as two heading levels on the card.
+
 The current content and format fields are under General:
 
 | Setting | Display |

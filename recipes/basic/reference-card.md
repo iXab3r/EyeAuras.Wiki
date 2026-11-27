@@ -28,6 +28,10 @@ Prepare a readable PNG you own or have permission to use, such as a 600 × 300 r
 | Position → Locked | On after placement |
 | Position → Clickthrough | On |
 
+![Screen rectangle dimensions and the Locked checkbox in the Position panel.](/assets/callouts/batch1/en/coordinates-overlay.png)
+
+Width and Height size the card on screen. Adjust them for your PNG, then enable Locked.
+
 5. Leave the aura enabled and EyeAuras unpaused. Select another aura and return to Notepad: the card should be visible. Switch to a different application: it should disappear. Return to Notepad and confirm the same card appears again.
 
 [Window Is Active](/en/triggers/window-is-active) chooses when the card is needed; [Image](/en/overlays/image) supplies your imported reference; [common overlay options](/en/overlays/common-options) control its size, placement and mouse interaction. An unlocked card or the selected aura's editing preview can stay visible while you configure it. Check ordinary visibility after locking and leaving that editor context.

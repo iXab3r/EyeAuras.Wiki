@@ -13,7 +13,7 @@ YoloEase keeps images, annotation tasks and training runs in one project. Start 
 
 Use Windows x64, YoloEase 2 from the [author's releases](https://github.com/iXab3r/YoloEase/releases/) and the [prepared environment](/en/YoloEase/prerequisites). For this example, collect **10 of your own PNG frames** showing targets and a button in different positions. Create the class names `tgt` and `btn` yourself; neither is built in. Include actual examples of both classes in the first task.
 
-![YoloEase project creation screen](https://s3.eyeauras.net/media/2026/05/YoloEase_egOi46KQfu.png)
+![New and Open existing on the YoloEase 2.0.80 start screen.](/assets/callouts/batch3/en/yolo-create-project.png)
 
 ## Complete the first cycle
 

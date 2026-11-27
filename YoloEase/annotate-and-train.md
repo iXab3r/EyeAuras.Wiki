@@ -17,12 +17,14 @@ You need [prepared components](/en/YoloEase/prerequisites), a [project with labe
 
 1. Open **Trainer**, click **Refresh** and set **Batch size = 50%**. For 10 unassigned files, check the displayed count is **5**, then **Create Task**. Before a first model exists, the prediction step is skipped.
 
-![Trainer before the first model is available](https://s3.eyeauras.net/media/2026/05/YoloEase_e7nteB308n.png)
+![Trainer panel with the Batch size slider and Create Task button.](/assets/callouts/batch3/en/yolo-trainer-batch.png)
+
+The screenshot shows a different project with 122 files. At a batch size of 5%, Trainer offers six files.
 
 2. In the editor, select the class and press **N**. Click opposite corners of every intended object and review all five frames. A reviewed empty background frame can remain empty.
 
-![A new task before manual annotation](https://s3.eyeauras.net/media/2026/05/YoloEase_WpUxt25zLI.png)
-![Manually annotated target examples](https://s3.eyeauras.net/media/2026/05/YoloEase_AT0n2plVpV.png)
+![Frame navigation and Finish Job in a new task in the annotation editor.](/assets/callouts/batch3/en/yolo-annotation-finish.png)
+![The second task frame shows six TGT boxes and the selected tgt class in the Labels panel.](/assets/callouts/batch3/en/yolo-annotation-label.png)
 ![Button and target annotations use separate classes](https://s3.eyeauras.net/media/2026/05/YoloEase_8VeAPbGp5G.png)
 
 3. Click **Finish Job**. This saves and completes the task; closing the editor alone is insufficient. [Editor shortcuts and saving](/en/YoloEase/features/annotation-editor).
@@ -51,7 +53,10 @@ You need [prepared components](/en/YoloEase/prerequisites), a [project with labe
 
 8. Create the next task and add **Latest** in **Models**. Click **Load**, check class mapping, enable **Create suggestions**, and use **Run current** or **Run all**. This is explicit inference by the selected model.
 
-![Loading a model for a later task](https://s3.eyeauras.net/media/2026/05/YoloEase_jEFZb2nxWc.png)
+![Latest resolves to an ONNX file. Its status is Not loaded and Create suggestions is unchecked.](/assets/callouts/batch3/en/yolo-annotation-model.png)
+
+The ONNX file is available here. Click **Load** to read its classes, then enable **Create suggestions**.
+
 ![Model-assisted annotation ready for review](https://s3.eyeauras.net/media/2026/05/YoloEase_KMBzwXfQT9.png)
 
 9. Accept correct suggestions, adjust boxes and classes, draw missed objects and remove false positives. **Accept**/**Accept all** is required for temporary suggestions to become saved annotation. Direct box creation with **Create suggestions** off still needs review.
@@ -75,11 +80,11 @@ Compare models on images held out from training. More cycles do not guarantee be
 
 Use **All tasks** to reopen completed tasks and correct earlier annotation. You can run a newer model there, but review what it changes before finishing the task again.
 
-![Reopening completed tasks for correction](https://s3.eyeauras.net/media/2026/05/IBbk1nDkee.png)
+![Open next to a completed annotation task in the Tasks list.](/assets/callouts/batch3/en/yolo-open-task.png)
 
 Each run retains its weights, reports and export in the working folder. **open...** selects its model output.
 
 ![Opening a model result from Trainer](https://s3.eyeauras.net/media/2026/05/YoloEase_AKduA4R9xH.png)
-![Output weights and export from an earlier run](https://s3.eyeauras.net/media/2026/05/1gcs8iFm66.png)
+![The results folder contains best.pt, last.pt and a separate file of type ONNX File.](/assets/callouts/batch3/en/yolo-export-files.png)
 
 Read [YOLO ONNX](/en/YoloEase/features/yolo-onnx) for file formats and model-size/opset limits. Use [augmentations](/en/YoloEase/features/augmentations) for controlled image variation, [EyeAuras](/en/YoloEase/use-in-eyeauras) to inspect a compatible model on your window, or [diagnostics](/en/YoloEase/features/diagnostics) for a failed stage.

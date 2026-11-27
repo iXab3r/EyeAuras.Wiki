@@ -30,6 +30,10 @@ My Tree
 ```
 
 4. In Aura Is Active, use **General → Links → Edit**, select only Stop waiting, require **must be Active**, choose **All must match (AND)** and give the check no child. In Interrupter's **General**, verify **If** names this check and **Action** names Wait.
+
+   ![If and Then Interrupt fields for the left and right child in the earlier editor.](/assets/callouts/batch2/en/interrupter.png)
+
+   Both fields are empty in the screenshot. After wiring, the left field should name Aura Is Active and the right field should name Wait.
 5. In Wait set **General → Delay = 2000 ms**, randomization off, no child. Set the last Fixed Status to **General → Status → Success**, also without a child.
 
 ## Interrupt and start a fresh interval

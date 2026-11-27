@@ -22,6 +22,10 @@ Prepare a source you can change between two known colors at the same position. A
 4. In **Color source - what to search for and how**, select **Comparison Granularity → Aggregate Average Color of Entire Area** and **Comparison Method → Human Perception**. Display red and click **Copy Captured Color to Target Color**.
 5. In **Trigger activation conditions**, enable **Min**, set **Min 95%** and **Max 100%**, and use **Refresh Once** in each state. Red should give **Active**; gray should give **Not Active** on a valid frame. If they do not separate, first inspect the target, crop and actual colors.
 
+   ![The Match Threshold range and the current Similarity reading.](/assets/callouts/batch2/en/color-search-range.png)
+
+   In this earlier example, 64.67% similarity exceeds the 62.94% upper bound. For your red patch, start with 95–100% and check the reading for both colors.
+
 | Setting | Value |
 | --- | --- |
 | Target Window | Your source viewer |

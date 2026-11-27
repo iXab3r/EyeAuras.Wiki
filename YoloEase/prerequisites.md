@@ -26,12 +26,14 @@ Use **YoloEase 2 for Windows x64**, from the [author's releases](https://github.
 1. Open YoloEase, create or open your own `.yeproj`, and select **Prerequisites**.
 2. Click **Check all**. Expand a failed row to read its actual path, detected version and error.
 
-![Prerequisite checks before installing the managed environment](https://s3.eyeauras.net/media/2026/05/YoloEase_wfJdcyvdZj.png)
+![Managed Python 3.11 is marked Missing, with Python environment Blocked and Install missing at the top.](/assets/callouts/batch3/en/yolo-prerequisites-missing.png)
+
+Local paths in the check output are hidden.
 
 3. Click **Install missing** and wait for the operation to finish. This prepares application-managed dependencies; it does not install a graphics driver.
 4. Run **Check all** again if needed. The required checks should pass. **GPU driver helper** and **GPU acceleration** are informational: a missing GPU does not prevent the CPU route.
 
-![An example of completed prerequisite checks](https://s3.eyeauras.net/media/2026/05/YoloEase_OuA9BUthjc.png)
+![All ready in the summary and Ready next to Managed Python 3.11.](/assets/callouts/batch3/en/yolo-prerequisites-ready.png)
 
 | Check | What it checks or prepares |
 | --- | --- |
@@ -59,7 +61,9 @@ The application-data folder contains `tools/python-3.11`, `tools/venv`, `tools/d
 
 For an installation failure, use the error in the affected row. For example, **No space left on device** calls for space on the indicated filesystem, then **Clear all** and **Install missing**. A failed package download and an unsupported GPU driver need different remedies.
 
-![Earlier installation output showing a disk-space error](https://s3.eyeauras.net/media/2026/05/YoloEase_5T0uv3vFkV.png)
+![PyTorch installation failure in YoloEase 2.0.80 with No space left on device at the end of the error.](/assets/callouts/batch3/en/yolo-install-disk-error.png)
+
+Log lines containing local paths are hidden.
 
 The managed toolchain described here is present in the YoloEase 2.0.90 source line. Check the versions and CPU/CUDA selection reported by your build instead of substituting newer package versions by name. See [YOLO ONNX](/en/YoloEase/features/yolo-onnx) and [diagnostics](/en/YoloEase/features/diagnostics).
 

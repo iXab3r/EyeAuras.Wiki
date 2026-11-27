@@ -11,7 +11,7 @@ dateCreated: 2026-05-08T12:30:00.000Z
 
 Annotate a small task of your own images, then complete it so Trainer can use the saved boxes. Manual annotation requires no trained model. You need a [project with class labels and images](/en/YoloEase/prepare-data); **Trainer → Create Task** opens its selected batch. Reopen an unfinished task with **Annotate Task** or choose it from the task list.
 
-![The annotation editor before adding boxes or loading a model](https://s3.eyeauras.net/media/2026/05/YoloEase_WpUxt25zLI.png)
+![Frame navigation and Finish Job in a new task in the annotation editor.](/assets/callouts/batch3/en/yolo-annotation-finish.png)
 
 | Area | Purpose |
 | --- | --- |
@@ -25,7 +25,7 @@ Annotate a small task of your own images, then complete it so Trainer can use th
 1. Select `tgt` in **Labels**, press **N**, then click opposite corners of a visible target. A rectangle must span at least 4 image pixels.
 2. Draw every required target on the frame. Select `btn` for a button. Move or resize boxes to cover the intended object consistently, without unnecessarily including background.
 
-![Manual boxes for the target class](https://s3.eyeauras.net/media/2026/05/YoloEase_AT0n2plVpV.png)
+![The second task frame shows six TGT boxes and the selected tgt class in the Labels panel.](/assets/callouts/batch3/en/yolo-annotation-label.png)
 ![Separate classes for targets and the button](https://s3.eyeauras.net/media/2026/05/YoloEase_8VeAPbGp5G.png)
 
 3. Use **D/F** to inspect the previous/next frame. Draw missing objects and correct misplaced or wrongly classified boxes. A genuinely empty frame can remain empty after review; do not add a fictitious object.
@@ -72,7 +72,10 @@ Without a trained model, continue manually; this state does not block annotation
 3. Map each enabled model class to the intended project label. Disabled rows are skipped; numeric model indices are not project `LabelId` values.
 4. Enable **Create suggestions**. For an initial review, set confidence to **25%** and IoU to **70%**, then click **Run current**. **Run all** applies that model to the task's frames; it is not an implicit chain of every configured model.
 
-![A loaded model in the Models panel](https://s3.eyeauras.net/media/2026/05/YoloEase_jEFZb2nxWc.png)
+![Latest resolves to an ONNX file. Its status is Not loaded and Create suggestions is unchecked.](/assets/callouts/batch3/en/yolo-annotation-model.png)
+
+The ONNX file is available here. Click **Load** to read its classes, then enable **Create suggestions**.
+
 ![Model results ready for visual review](https://s3.eyeauras.net/media/2026/05/YoloEase_KMBzwXfQT9.png)
 
 5. Check classes and box extents. **Accept** or **Accept all** turns correct suggestions into annotation; delete false positives with **Q**, **Delete** or **Backspace**, and draw missed objects.

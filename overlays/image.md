@@ -20,6 +20,10 @@ Prepare your own PNG or JPEG. Animated GIFs are also supported: Image plays the 
 2. Under **Overlays**, add **Image**. In its Image section, click **Load image from file...** and select the file. It appears in **Preview**.
 3. Under **Visual style**, enable **Aspect Ratio** to preserve the picture's proportions when resizing.
 4. Turn **Locked** off, place the overlay and resize it by its edge. Start large enough to read the details. Enable Locked again and optionally Click-through.
+
+   ![The Position panel shows Locked, the overlay coordinates and its dimensions.](/assets/callouts/batch1/en/coordinates-overlay.png)
+
+   Here the overlay is 200 × 200 and Locked is checked. Clear it before resizing the overlay to fit your image.
 5. Switch to your working application, hold F8, then release it.
 
 The picture appears while the key is held and hides on release. When the aura is selected for editing or Locked is off, the picture can stay visible independently of the key.

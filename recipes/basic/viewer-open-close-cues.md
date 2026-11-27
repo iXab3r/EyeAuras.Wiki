@@ -19,6 +19,10 @@ Prepare your own local text file, such as `EA-Preview.txt`, and use Notepad as i
 1. Right-click an empty area of the tree, choose **New Aura**, and name it **Viewer cues**.
 2. In **Triggers**, click **+**, choose **Window Exists**, and set **Target Window** to `notepad`. Open your text file in Notepad and verify that the selected window information points to that viewer.
 3. In **On Enter**, click **+** and add **Play Sound**. Choose **Ping** in **Audio notification** and set **Volume** to **50%**. The play button beside the selector lets you check the chosen sound and audio output.
+
+   ![Ping sound selector, preview button and volume control.](/assets/callouts/batch3/en/play-sound-preview.png)
+
+   Use the speaker button to preview Ping. The screenshot shows 100% volume; set it to 50% for this exercise.
 4. In **On Exit**, add another **Play Sound**, choose **Bell**, and set **Volume** to **50%**. Leave **While Active** empty: otherwise a reaction placed there can repeat while the window remains present.
 
 | Action list | Reaction |

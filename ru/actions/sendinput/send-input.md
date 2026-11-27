@@ -14,7 +14,9 @@ dateCreated: 2023-06-18T16:03:09.798Z
 
 **Send Input — устаревший тип действия.** В текущем редакторе для нового ввода добавляйте [Send Sequence](/ru/actions/sendinput/send-sequence). У старого типа был отдельный WPF-редактор; снимок ниже показывает именно его, а не дополнительный режим нового Send Sequence.
 
-![Старый редактор одного события Send Input](/assets/legacy/eyeauras_vkyrrjgchm.png)
+![Указано сочетание Ctrl+Q и выбран тип события Press (Down + Up).](/assets/callouts/batch3/ru/legacy-send-input-event.png)
+
+В примере из прежнего редактора задано Ctrl+Q. Для упражнения ниже откройте действие с Ctrl+A в своей ауре. [Полная панель прежнего действия с координатами и дополнительными настройками](/assets/legacy/eyeauras_vkyrrjgchm.png).
 
 ## Перенести старое Ctrl+A
 

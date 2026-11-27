@@ -39,7 +39,9 @@ The condition is ready to evaluate real input. It does not send a reply or run a
 
 `Hello, world` matches exactly that string. `12345` matches those digits **as text**, entered without extra quotes; there is no separate numeric input type. With Ignore Case, `HELLO` also matches `hello` and `Hello`. A full sentence such as `The quick brown fox jumps over the lazy dog` is compared in the same way.
 
-![Text equals the test input in the older editor](/assets/legacy/eyeauras_ruxbjypgds.png)
+![The expression and input text both contain test.](/assets/callouts/batch3/en/text-match-exact.png)
+
+[View the complete Text test](/assets/legacy/eyeauras_ruxbjypgds.png).
 
 The older screenshot uses `test` in both fields. Current styling and field placeholders can differ; the comparison remains the same.
 
@@ -47,7 +49,9 @@ The older screenshot uses `test` in both fields. Current styling and field place
 
 Enter `\d+` without outer slashes. In `test 123 text`, the match is `123`; a pattern need not cover the whole input. Use boundaries when required, for example `^Processing complete$`.
 
-![Regex extracts digits from a longer string](/assets/legacy/eyeauras_jb1lvsh9pz.png)
+![Regex is selected and Matching text shows 123 with a green check.](/assets/callouts/batch3/en/text-match-regex.png)
+
+[View the expression and test input](/assets/legacy/eyeauras_jb1lvsh9pz.png).
 
 | Pattern | What it finds |
 | --- | --- |
@@ -67,7 +71,9 @@ An external [regex editor](https://regex101.com/) can help explore syntax, but i
 
 This field parses a string-to-bool expression, not a complete Script.csx file. It does not supply top-level script globals such as `Log`, `AuraTree`, `Variables` or `cancellationToken`. Namespace using directives and script package imports do not belong in this field; available expression types come from its parser context.
 
-![A numeric C# condition in the older test editor](/assets/legacy/eyeauras_i9f6mfq9lz.png)
+![The C# expression compares the parsed number with 50. The test input is 150.](/assets/callouts/batch3/en/text-match-predicate.png)
+
+[View the complete C# test and its result](/assets/legacy/eyeauras_i9f6mfq9lz.png).
 
 The older screenshot checks whether a number is greater than 50; `150` passes. A conversion error is different from an ordinary false result.
 

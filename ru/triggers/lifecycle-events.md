@@ -18,7 +18,7 @@ dateCreated: 2025-02-27T15:07:04.010Z
 
 Снимок показывает выбранное **AppStarted** и кнопку добавления **AppClosed**. В подсказке выбранного события отображается время срабатывания либо **Not triggered yet**.
 
-![Выбранное событие и добавление второй подписки](https://s3.eyeauras.net/media/2025/02/NVIDIA_Overlay_mrej2NiRxEGWybKN.png)
+![У AppStarted виден зелёный индикатор, кнопка + AppClosed добавляет подписку на другое событие.](/assets/callouts/batch3/ru/lifecycle-event-selection.png)
 
 ## Выбрать событие и понимать состояние
 

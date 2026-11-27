@@ -27,14 +27,16 @@ Use YoloEase 2 on Windows x64. For dataset preparation and training, first compl
 | `Additional arguments` | Leave empty for the first setup, or use `device=cpu` for an explicit CPU run. Arguments go to Ultralytics. |
 | `Storage subfolder` / `Resolved storage` | Relative storage setting and resulting path. Keep the new project's path initially. **Apply** changes configuration; it does not move all existing files. |
 
-![Project storage and training settings](https://s3.eyeauras.net/media/2026/05/YoloEase_T7diUmh3YW.png)
+![Project folder control, yolo11s.pt base model and model size of 640 in YoloEase 2.0.80.](/assets/callouts/batch3/en/yolo-training-settings.png)
+
+The local workspace path is hidden.
 
 ## Add labels and images
 
 4. On **Project**, click **Add label**. Set **Label name** to `tgt`, choose a colour and click **Add**. Repeat for `btn`. Colours distinguish annotations; choosing a colour does not teach the model that object.
 5. Drop 10 of your own PNG files onto the data area. Alternatively, **Add Folder...** connects a folder of PNG/JPG/BMP files. A folder keeps an external path and supplies working copies during synchronisation; [data sources](/en/YoloEase/features/data-sources) explains the difference.
 
-![Project labels and a connected source](https://s3.eyeauras.net/media/2026/05/YoloEase_CeXbLsliGW.png)
+![Project tab with Add label, Add Video and Add Folder. One source appears below the class list.](/assets/callouts/batch3/en/yolo-project-labels.png)
 
 6. Open **Trainer**, click **Refresh** and check the available file count. Those real frames can now enter **Create Task**; boxes appear only after [annotation](/en/YoloEase/features/annotation-editor).
 
@@ -44,11 +46,13 @@ Keep class names consistent. Internal project `LabelId` values are not automatic
 
 7. Record your own test window or use a video you own. In EyeAuras, **Save Video** in the CV preview records the prepared image that recognition will see, including the selected region and effects.
 
-![Recording prepared frames from the EyeAuras preview](https://s3.eyeauras.net/media/2026/05/EyeAuras_3vpNUagE6e.png)
+![Save video and Image as is below the EyeAuras capture preview.](/assets/callouts/batch3/en/yolo-capture-video.png)
 
-8. Click **Add Video...** in YoloEase and choose the file. In **Extract frames**, set a frame range and **Frame step = 5**, then click **Extract frames**. Check the displayed frame count: the step counts frame indices, not seconds.
+8. Click **Add Video...** in YoloEase and choose a recording with at least 300 frames so the slider offers a step of 5. In **Extract frames**, set a frame range and **Frame step = 5**, then click **Extract frames**. Check the displayed frame count: the step counts frame indices, not seconds.
 
-![Frame range and extraction step](https://s3.eyeauras.net/media/2026/05/YoloEase_sFCEGiqTnK.png)
+![Extract frames shows a step of 2 for frames 0–243 and an estimate of 122 frames.](/assets/callouts/batch3/en/yolo-extract-frames.png)
+
+The YoloEase 2.0.80 screenshot shows a step of 2 across frames 0–243, giving an estimate of 122 frames. The slider goes up to 4 for this recording.
 
 Extraction opens a PNG folder and adds it as a source under `local-sources`. You can split those frames into a small initial task and later batches. Decoding uses Windows media support; a recognised extension does not guarantee an installed codec. See [video extraction](/en/YoloEase/features/video-splitter).
 

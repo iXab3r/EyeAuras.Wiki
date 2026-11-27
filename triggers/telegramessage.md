@@ -18,6 +18,10 @@ To see whether a condition from an old aura accepts `review`, start without send
 
 1. Open **Activate** in your Telegram Message trigger. For a simple example, choose **Regex** and enter `\Areview\z`.
 2. Enable **Test mode** and enter `review` as the test input. It should match. Replace the input with `done`: it should not match. This checks the expression, not the Telegram connection.
+
+   ![Regex mode and the Matching text field showing a match.](/assets/callouts/batch3/en/text-match-regex.png)
+
+   This example of the shared editor matched 123. To test the condition from step 1, enter review in the test input.
 3. Turn **Test mode** off to restore real incoming text. For a live check, follow the current guide's **Telegram Bot Token** and **Chat Id (optional)** setup, then send a new message from your own user account. Keep the token out of shared auras.
 4. Check **Message history**. With **Deactivate on message** off, a match gives a short activation with automatic deactivation; turn it on and configure a separate off command for a retained state. Add **On Enter** actions or an overlay separately.
 

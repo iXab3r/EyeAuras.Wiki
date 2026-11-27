@@ -24,6 +24,10 @@ dateCreated: 2026-11-10T16:38:45.973Z
 
 1. Через **Add new Node** добавьте Sequence, Until Success, Aura Is Active и Run Aura. Соедините по схеме ниже. У Sequence два включённых ребёнка слева направо: Until Success и Run Aura. Единственный ребёнок Until Success — Aura Is Active.
 2. У Aura Is Active через **General → Links → Edit** выберите только Готовность повтора, потребуйте **must be Active**, задайте **Operator → All must match (AND)**. Ребёнка этой проверке не добавляйте.
+
+   ![В Aura Is Active выбраны All must match и must be Active для одной связанной ауры.](/assets/callouts/batch1/ru/bt-getting-started-aura-is-active.png)
+
+   На снимке показана связь с Сигналом готовности. В этом дереве через Edit выберите Готовность повтора.
 3. У Until Success проверьте **General → Child**: там должна быть эта проверка. У Run Aura выберите **General → Auras → Links → Сигнал повтора**, проверьте **1 action**, задайте **Strategy → run 1-by-1 in order of addition**.
 
 ```text

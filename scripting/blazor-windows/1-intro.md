@@ -25,11 +25,11 @@ A panel with buttons, a counter or settings can run inside EyeAuras without a se
 
 1. Create your own test aura with **Add new → New Aura**.
 
-![Create a test aura](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_KBChU81nd6.png)
+![New Aura in the Inside root folder menu](/assets/callouts/batch3/en/blazor-intro-new-aura.png)
 
 2. Under **Overlays**, add **C# Overlay**. Older screenshots call it `C# Overlay (v3, alpha)`.
 
-![Add C# Overlay in the earlier editor](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_xVFX70YeoA.png)
+![C# Overlay (v3, alpha) in the earlier editor’s Overlays menu](/assets/callouts/batch3/en/blazor-intro-overlay.png)
 
 3. Keep the generated files. Add **Fixed Value → Is Active** to the aura and leave it loaded so the panel stays visible.
 

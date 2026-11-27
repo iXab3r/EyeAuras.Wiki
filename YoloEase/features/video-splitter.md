@@ -19,9 +19,9 @@ You need an open project and a video readable by the installed Windows codecs. T
 2. Wait for **Reading video metadata...**. If decoding fails, check that file and codec before attempting extraction; training Python components do not provide this decoder.
 3. Set **Frame step = 5** and a short **Range of frames to extract** using the sliders. For a recording with at least **300 frames**, range **0–45** requests **10** frames: `0, 5, …, 45`. A shorter video's slider can cap the step below 5.
 
-![Frame step and range in the earlier YoloEase 2.0.80 interface](https://s3.eyeauras.net/media/2026/05/YoloEase_sFCEGiqTnK.png)
+![Extract frames shows a step of 2 for frames 0–243 and an estimate of 122 frames.](/assets/callouts/batch3/en/yolo-extract-frames.png)
 
-The earlier image shows extraction inside Project. The current route opens a separate window with the same **Frame step** and **Range of frames to extract** labels.
+The YoloEase 2.0.80 screenshot shows a step of 2 across frames 0–243, giving an estimate of 122 frames. The slider goes up to 4 for this recording. In the current editor these two sliders are in a separate window.
 
 4. Check **You are going to get ~… frames using these settings**, then click **Extract frames**.
 5. On successful completion, the output folder opens and appears as a project source. Inspect several PNGs for readable objects and different states.

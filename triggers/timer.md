@@ -24,7 +24,7 @@ The cycle starts **Inactive**, waits the first interval, becomes **Active**, wai
 
 The earlier editor image shows two millisecond intervals. Replace **both** values with `1000` for this example, regardless of the numbers in the image.
 
-![Earlier Timer editor with two millisecond intervals](https://s3.eyeauras.net/media/2024/05/EyeAuras_F6lmJuzxm8TcoWyg.png)
+![The earlier Timer has Active for set to 1000 ms and Not Active for set to 500 ms.](/assets/callouts/batch3/en/timer-intervals.png)
 
 | Setting or behaviour | What to expect |
 | --- | --- |

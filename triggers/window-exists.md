@@ -24,7 +24,9 @@ The window can be in the background. If foreground focus matters, use [Window Is
 
 The trigger becomes Active and the aura runs On Enter, playing the sound. Switching to another program does not by itself remove the matching window. Another notification follows only after all matches disappear and a matching window appears again.
 
-![Selecting a target for Window Exists](https://s3.eyeauras.net/media/2024/05/EyeAuras_i1HqMJPIQLu7SC7C.png)
+![Shared Target Window selector showing Demo Workspace as the matched window.](/assets/callouts/batch1/en/window-selector.png)
+
+In this example the shared selector matches Demo Workspace. For the exercise, select your Notepad window and check the matched title. [Earlier Window Exists editor](https://s3.eyeauras.net/media/2024/05/EyeAuras_i1HqMJPIQLu7SC7C.png).
 
 ## Target and states
 

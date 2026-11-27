@@ -25,6 +25,10 @@ My Tree
 1. Set **Wait → General → Delay = 2000** in the **ms** field. If Min/Max appear, turn randomisation off with the shuffle button.
 2. Set **Fixed Status → General → Status → Success**.
 3. Click the upper **Tick BT Once**. Wait and Sequence return Running; the second child is not called. The control becomes available again rather than blocking the application for two seconds.
+
+   ![Wait in the earlier tree editor with its progress bar at 48% and a five-second interval.](/assets/callouts/batch3/en/wait-progress.png)
+
+   The earlier editor shows the progress bar on the Wait node. Its interval here is five seconds. Use two seconds for the manual-tick exercise.
 4. Wait more than two seconds and click the same **Tick BT Once**. Wait succeeds, Fixed Status executes and the pass succeeds.
 5. Tick after completion to start a new interval: Wait returns Running again.
 

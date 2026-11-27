@@ -16,6 +16,10 @@ You need desktop EyeAuras with the script-hosted [Blazor window services and Web
 
 1. Create your own aura `RecipeHelp` and add **Actions → On Enter → C# Script** for manual Run. In its project, use **New file → Component**, name it `MainWindow`, and replace `MainWindow.razor` below. If that template also created `MainWindow.cs`, remove that generated file from this new project; the complete component here is a single Razor file.
 2. Prepare a UTF-8 file `help.txt` containing the exact text below and an actual non-sensitive reference PNG you own. This Wiki does not supply the image. In the script file tree, choose **Add → Existing File(s)...** to import both as resources. Use **Rename** to give them the project paths `docs/help.txt` and `images/reference.png`.
+
+   ![Adding an existing file to the project tree.](/assets/callouts/batch3/en/script-resource-add-file.png)
+
+   Choose Existing File(s)… here for your help.txt and image.
 3. Replace **Script.csx** with the complete file below. Keep exactly one resource matching each logical path, with the spelling and folder case shown. The component namespace is `RecipeHelp`; it need not equal the generated project's namespace.
 4. Wait for compilation and click **Run**. A window titled **Project reference** should show all three help lines and your supplied image. Resize it: the image keeps its aspect ratio and fits the available width.
 5. Close the window to finish this Run, or click the action's **Stop**. The close wait ends or is cancelled, then the owned window is disposed. A new Run reads the packaged text again.

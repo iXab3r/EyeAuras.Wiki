@@ -16,6 +16,8 @@ Start with your own small folder named `Transfer test`, containing one disabled 
 1. Select the folder and open **Share/Export** using the export button or **Ctrl+S**. In **Content**, check that the folder and its contents are included.
 2. If **Missing linked objects detected** appears, inspect the dependencies. **Add linked objects** adds linked objects missing from the set. Check **Content** again afterwards.
 3. Choose **Destination → Local export → Save to file…** and save the JSON in your own directory. **Open in Explorer** locates the result. Close the export dialog.
+
+   ![Local export provides Save to file to write a JSON file and Copy JSON to copy its contents.](/assets/callouts/batch3/en/export-local-json.png)
 4. Click **Import**, choose **Source → Import from file → Open…**, and select that file. Check the contents and paths in **Preview**.
 5. The original objects still exist, so choose **Copy** in **Import Options**. This keeps them and gives the imported objects separate IDs. Do not use **Replace** for this exercise.
 6. Find the copy in the tree and rename its aura. The original aura should keep its name. Leave both disabled until you have checked their settings and external dependencies.
@@ -24,7 +26,7 @@ Ordinary import uses the paths stored in the file. Selecting a folder before ope
 
 The source screen lets you inspect a file or link before changing the working tree.
 
-![Choosing a publication link or local file](https://s3.eyeauras.net/media/2026/04/EyeAuras_1QpMi38ffV.png =x600)
+![Source offers an empty publication URL field and Open under Import from file.](/assets/callouts/batch3/en/import-source-file.png)
 
 ## Choose what to transfer
 
@@ -55,7 +57,7 @@ Export does not scrub secrets from your settings. Before sharing, review tokens,
 | Clone locally | Available with a subscription. Creates distinct local IDs while keeping the source link, allowing multiple copies of one pack. Older text calls this Local Clone. |
 | No subscription | Makes a one-time import. A later author revision does not automatically replace this copy. |
 
-![Import options](https://s3.eyeauras.net/media/2026/04/EyeAuras_lVrq3hdYQj.png =x600)
+![Prefer packed version and Subscribe to updates are both off in the earlier Import Options panel.](/assets/callouts/batch3/en/import-update-options.png)
 
 | Conflict choice | Result |
 | --- | --- |

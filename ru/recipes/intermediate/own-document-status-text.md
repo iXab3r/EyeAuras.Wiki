@@ -21,6 +21,10 @@ dateCreated: 2026-11-10T16:38:45.973Z
 3. В **Text recognition settings - OCR** выберите доступный английский вариант **OCR Symbols**. Задайте **Scale factor 1**, выключите **Invert image**, **Binary threshold** и **Include text segments**.
 4. Покажите Status READY, нажмите **Refresh Once** и проверьте **Recognized text**. Там должны быть нужные слова: одного видимого исходного кадра недостаточно. До настройки условия устраните неверные буквы, пустой захват или ошибки языка.
 
+   ![Язык Windows OCR, распознанная строка и совпадение с регулярным выражением.](/assets/callouts/batch2/ru/text-search-ocr.png)
+
+   На примере распознано Connection lost. В своём окне сначала найдите Status READY в поле Recognized text, затем проверьте Regex.
+
 | Параметр | Начальное значение |
 | --- | --- |
 | Image Capture Rate | 1 FPS |

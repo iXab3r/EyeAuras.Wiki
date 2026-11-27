@@ -23,7 +23,9 @@ dateCreated: 2025-08-17T08:39:46.611Z
 
 На старом снимке вводится `Hello, World!`; прежнее поле `Key Press Delay` в текущем редакторе называется `Delay`:
 
-![Методы ввода, задержка и текст Send Text в прежнем редакторе](https://s3.eyeauras.net/media/2025/08/EyeAuras_ea1jBx1plw.png)
+![Выбран способ Type characters, задержка Key Press Delay составляет 30 мс, а в Text введено Hello, World!](/assets/callouts/batch3/ru/tree-send-text-fields.png)
+
+[Полная панель узла Send Text](https://s3.eyeauras.net/media/2025/08/EyeAuras_ea1jBx1plw.png).
 
 | Настройка | Что делает |
 | --- | --- |

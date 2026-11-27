@@ -13,7 +13,7 @@ YoloEase связывает кадры, разметку и обучение в 
 
 Нужны Windows x64, YoloEase 2 и [готовое окружение](/ru/YoloEase/prerequisites). Для учебного проекта приготовьте 10 своих PNG-кадров с видимыми целями и кнопкой. Имена классов в этом руководстве — `tgt` и `btn`; они не встроены в YoloEase, вы создаёте их сами.
 
-![Стартовое окно с созданием проекта](https://s3.eyeauras.net/media/2026/05/YoloEase_egOi46KQfu.png)
+![Кнопки New и Open existing на стартовом экране YoloEase 2.0.80.](/assets/callouts/batch3/ru/yolo-create-project.png)
 
 ## Пройти первый цикл
 

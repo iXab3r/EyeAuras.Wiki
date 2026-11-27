@@ -31,7 +31,9 @@ My Tree
 
 The image shows the keyboard selector. The current field is `Key`; earlier descriptions called it `Hotkey`:
 
-![Keyboard selection for Check Key State](https://s3.eyeauras.net/media/2025/08/EyeAuras_dfgmUF8kNg.png)
+![Key displays None, with the key selection button to its right.](/assets/callouts/batch3/en/check-key-selection.png)
+
+Select F8 for this exercise. The earlier screenshot shows the empty selector before a key is assigned.
 
 | Setting or observation | Result of the check without a child |
 | --- | --- |

@@ -38,6 +38,10 @@ My Tree
 | Activation Timeout | 1000 ms |
 | Deactivation Timeout | 1000 ms |
 
+![Wait mode and the two separate timeout fields in the earlier Debounce editor.](/assets/callouts/batch2/en/debounce.png)
+
+Both timeouts are zero in the screenshot. Enter 1000 ms in each field for this exercise.
+
 ## Observe admission, rejection and re-entry
 
 1. Set Warning source to **Is Active**, wait for its known Active state, then click the upper **Tick BT Once**. Debounce and Sequence return **Running**, without Ping.

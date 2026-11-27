@@ -17,6 +17,10 @@ Use a new display-only aura, with EyeAuras unpaused. No external window, script 
 ## Prepare the display and event collection
 
 1. Create **New Aura → Pulse check**. Add only **Triggers → Timer**. Set **Active for = 1000** and **Not Active for = 1000**, both in **ms**. Leave inversion and extra activation/deactivation delays off; leave action lists empty.
+
+   ![Active for and Not Active for fields in the Timer editor.](/assets/callouts/batch3/en/timer-intervals.png)
+
+   In the earlier Timer panel, the active interval is 1000 ms and the inactive interval is 500 ms. Set both to 1000 ms for a symmetric cycle.
 2. Under **Overlays**, add **Text**: **Content** `Pulse active`, **Font 24**, **Size to fit** off. Keep **Window → Mode → Overlay**; unlock and place a readable rectangle, then enable **Locked**. Select another aura before observing visibility so the editing preview does not hold the text on screen.
 3. Use **Show event log** in the main window and open **Event Viewer** before restarting the cycle. Show its filters, enable **Auras**, set **Level → Info**, clear the text filter and unpause the panel. Keep it open rather than collapsed.
 4. Disable Pulse check with its aura switch, then enable it again. The new cycle starts Inactive: initially the text is hidden, then appears after roughly one second, hides after roughly another second, and repeats.

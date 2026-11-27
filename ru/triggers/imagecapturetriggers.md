@@ -19,6 +19,10 @@ dateCreated: 2022-11-04T01:04:28.005Z
 1. Откройте приложение и добавьте в ауру `Color Search`.
 2. В `Capture settings → Target Window` выберите его окно. Задайте `Image Capture Rate = 5 Frames Per Second`.
 3. Раскройте `Preview captured image`. Если виден неверный кадр, откройте `Show more... → Capture Source` и сравните доступные методы. Начните с `Windows Graphics`, если он доступен.
+
+   ![Общий блок Capture settings с окном, частотой 5 FPS и выбранным Windows Graphics.](/assets/callouts/batch1/ru/image-capture-settings.png)
+
+   На примере Image Search видно, где выбрать источник. У Color Search эти поля находятся в том же блоке.
 4. В `Crop region` ограничьте кадр индикатором, ориентируясь по предпросмотру. Измените его состояние в исходном приложении: в кадре должен измениться тот же участок.
 
 Результат — актуальные пиксели вашего индикатора. Они ещё не означают `Active`: для этого настройте [условие Color Search](/ru/triggers/images/color-search). Звук или другая реакция добавляются отдельно в действия ауры.

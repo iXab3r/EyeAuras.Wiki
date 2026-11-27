@@ -18,7 +18,7 @@ You need an editable **C# Script** project. The examples run in its top-level **
 1. Prepare your own `help.txt` containing `Project help`.
 2. Show **File Tree**. In its context menu, choose **Add → Existing File(s)...** and select the file. Older images call these **Show Files** and **Add Existing File...**.
 
-![Adding an existing file in the older editor](https://s3.eyeauras.net/media/2025/10/EyeAuras_hFvtxUlceb.png)
+![In the earlier file tree menu, Add new opens a submenu containing Existing File(s).](/assets/callouts/batch3/en/script-resource-add-file.png)
 
 3. Use **Rename...** to set its resource name to `docs/help.txt`. Selecting a binary resource shows its description, rather than an editor for its contents.
 
@@ -108,7 +108,7 @@ The runtime can supply a composite provider: embedded assembly resources precede
 
 In Rider or Visual Studio, the corresponding build action is **EmbeddedResource**.
 
-![EmbeddedResource build action in Rider](https://s3.eyeauras.net/media/2025/10/rider64_24V6ZnFu8u.png)
+![The Rider file properties show Build action set to EmbeddedResource.](/assets/callouts/batch3/en/ide-build-action-resource.png)
 
 Import reads explicit **Include** entries and their file bytes relative to the project. Declare resources explicitly; import does not execute arbitrary MSBuild targets or promise all wildcard rules. **None Remove** removes an item from the None set; it does not replace every output-copy setting.
 

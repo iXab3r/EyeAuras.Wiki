@@ -19,13 +19,13 @@ You need an installed or portable EyeAuras version with EyePad support, and your
 EyeAuras.exe --pad
 ```
 
-![EyePad launcher in a portable distribution](https://s3.eyeauras.net/media/2026/03/explorer_TlhuI0lTDo.png)
+![EyePad.vbs beside EyeAuras.exe in the portable 1.9.9321 folder.](/assets/callouts/batch3/en/eyepad-launcher.png)
 
 2. Choose **File → Open...** and select your `Script.csx`.
 3. Click **Run**. Its message should appear in the selected tab's log. A script that only logs a line finishes by itself; continuing work has **Stop** and **Restart** controls.
 4. Save edits with **Save**. For a new file, choose **Save As...** and your own path.
 
-![Single-script EyePad workspace](https://s3.eyeauras.net/media/2026/03/EyeAuras_IXRX6vl5Qg.png)
+![EyePad 1.9.9321 with Script.csx open. Run is at the upper right. The Event Viewer below is empty before the first run.](/assets/callouts/batch3/en/eyepad-run-log.png)
 
 Older images label the log **Event Viewer**; panel placement can differ. Check the selected tab and its log, rather than only the application's overall startup status.
 
