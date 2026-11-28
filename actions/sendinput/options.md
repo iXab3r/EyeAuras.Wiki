@@ -21,7 +21,7 @@ Say you already have a short Send Sequence with the Down/Up pair for **Ctrl+F**.
 3. Turn on **Restore after Action is completed → Key/Button State**. Leave window and mouse restoration off for the first check, so you can see where the command landed.
 4. Put the focus in the document and click **Execute**. The window should get the input and open its search panel. If the shortcut landed in another field, fix the window or the focus inside it, not the delay.
 
-Windows Input and the simulators of a physical or virtual keyboard normally activate the target window and send ordinary input. They share the cursor and focus with the desktop. **Target Window is not a universal background-input channel.**
+Windows Input and the simulators of a physical or virtual keyboard normally activate the target window and send ordinary input. They share the cursor and focus with the desktop. **Target Window is not a universal background-input channel.** A capture window or a linked search region does not set where the input goes.
 
 ## Main settings
 

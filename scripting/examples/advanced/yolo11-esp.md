@@ -9,7 +9,7 @@ dateCreated: 2025-06-28T09:04:25.549Z
 ---
 # Label objects in your own image with YOLO11
 
-The script draws boxes and class names over your own photograph or training video on the primary screen. **F1** pauses detection. **F2** chooses a region.
+The script draws boxes and class names over your own photograph or training video on the primary screen. **F1** pauses detection. **F2** chooses a region. While the script runs, other programs do not get these two keys.
 
 You need desktop EyeAuras on Windows with OpenCV/ONNX Runtime, a compatible **EyeAuras.ImGuiSdk 0.1.47** and the ONNX model available at the address in the code. The [EyeAuras package](https://packages.eyeauras.net/v3/index.json) depends on **EyeAuras.ClickableTransparentOverlay 11.5.28**, so do not add a separate [ImGui.NET](https://github.com/mellinoe/ImGui.NET) version next to it. For the first run, use the primary monitor at 100% scale.
 

@@ -37,7 +37,7 @@ You need EyeAuras with the **New Macro** editor and the **Run Aura** template av
 | Second | Macro Wait → Delay 1500 ms, randomization off |
 | Third | Run Aura → Routine finish, ordered |
 
-6. Unpause EyeAuras and click the upper **Run Macro Once**. You should hear Ping, about 1.5 seconds of silence after it ends, then Bell, and the macro should show a completed result.
+6. Make sure EyeAuras is not paused and click the upper **Run Macro Once**. You should hear Ping, about 1.5 seconds of silence after it ends, then Bell, and the macro should show a completed result.
 7. After it finishes, leave it alone: a second pair of cues should not play on its own. Click Run Macro Once again only when you want another full run. To stop a run in progress, click its **Stop**. Cancellation is cooperative and does not undo a sound that has already played.
 
 A [macro](/en/macros/getting-started) sets the order of the steps and waits for each one. [Run Aura](/en/behavior-trees/nodes/execute-aura) runs the auras' actions without changing their activity. It collects actions from On Enter, While Active and On Exit, which is why the unused lists are empty here. [Play Sound](/en/actions/play-sound) waits for the sound to end because Play in background is off. In an ordinary aura you can put [Delay](/en/actions/delay) between actions, but this recipe uses a finite macro.

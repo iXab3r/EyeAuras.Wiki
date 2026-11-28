@@ -48,7 +48,7 @@ The attachment is a JPEG of the selected window, or of the whole virtual desktop
 
 Telegram allows up to **4096 characters for text** and **1024 for a photo caption**, counted after entity parsing. The action does not split a longer message for you. See Telegram's [formatting options](https://core.telegram.org/bots/api#formatting-options) and the [legacy Markdown rules](https://core.telegram.org/bots/api#markdown-style).
 
-If the network fails or the action is cancelled, you cannot tell whether the message was delivered, and the action does not resend it. Sending it again by hand can produce a duplicate, so check the history and the chat first.
+If the network fails or the action is cancelled, you cannot tell whether the message was delivered, and it may not be sent again. Sending it again by hand can produce a duplicate, so check the history and the chat first.
 
 ## If the message did not arrive
 

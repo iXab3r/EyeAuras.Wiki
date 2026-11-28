@@ -186,7 +186,7 @@ MyImageSearch(ByRef FoundX, ByRef FoundY, X1, Y1, X2, Y2, ImageFile)
 <details>
 <summary>Complete C# Script port</summary>
 
-Before you run it you need an open target window, both BMP templates, points and regions measured for that window, a suitable keyboard layout and available Windows Input. Windows Input activates the window. All the numbers come from the original setup, so replace them for another interface.
+Before you run it you need an open target window, both BMP templates, points and regions measured for that window, a suitable keyboard layout and available Windows Input. Windows Input activates the window. All the numbers come from the original setup, so replace them for another interface. The two screen points must not land in another window.
 
 `TL.exe` is compared with the window title, path or process name, so it is not a strict process-only filter. If several windows match, narrow the [window expression](/en/features/window-matching-expressions) until only the one you need is left.
 

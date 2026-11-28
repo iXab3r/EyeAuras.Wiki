@@ -174,4 +174,4 @@ public sealed class VariablesOnScreenHelper : DisposableReactiveObject
 
 Чтобы использовать класс в другом скрипте, нужна явная ссылка на проект или ауру, где он лежит. Имена и значения экранируются через `HtmlEncode`, потому что `WithHtml` принимает готовую доверенную разметку.
 
-Экранный canvas использует координаты рабочего стола и основного монитора. Он не привязан к окну, откуда берутся переменные,. Подробности — [экранные объекты](/ru/scripting/api/osd/screen-overlay) и [время жизни скрипта](/ru/scripting/api/scripting/reactive-lifetime).
+Экранный canvas использует координаты рабочего стола и основного монитора. Он не привязан к окну, откуда берутся переменные. Подробности — [экранные объекты](/ru/scripting/api/osd/screen-overlay) и [время жизни скрипта](/ru/scripting/api/scripting/reactive-lifetime).

@@ -18,7 +18,7 @@ A browser is enough to browse the library. To import, you need EyeAuras installe
 
 1. Open the [library](https://eyeauras.net/library). For example, to find learning materials, enter **Tutorial** under **by Tags** and click **Apply**.
 2. If there are too many results, type words from the name or description into **Search**. Use **by User** to find packs by one author and **by Application/Game** to find packs for an application. **Reset** clears the filters.
-3. Click the pack's title. Read the description and look at the author, revision and EyeAuras version. Check the requirements for windows, resolution, language, resources and external components.
+3. Click the pack's title. Read the description and look at the author, revision and EyeAuras version. Check the requirements for windows, resolution, language, resources and external components. Look through the scripts and resources you can open before you run a pack you do not know: packs in the library are not reviewed.
 4. If the pack fits, pick a way to get it from the table below.
 
 | Library control | Purpose |

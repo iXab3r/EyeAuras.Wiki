@@ -17,11 +17,11 @@ The feature is still changing. Answers and code can contain mistakes, so check t
 ## How to start
 
 1. Open **AI**, select **Chat** and choose a profile. The profile sets the model, the server address and the way you sign in.
-2. If you need your own key, open **Manage Profiles** and enter it in **API Key**. You can enter an environment variable instead. Do not paste a key into the chat itself.
+2. If you need your own key, open **Manage Profiles** and enter it in **API Key**. You can enter an environment variable instead. Do not paste a key into the chat itself, and do not attach sensitive images or files.
 3. Click **Start Session**.
 4. Ask a specific question, for example: “Which trigger and overlay show my own text only while a chosen window is active?” If you are sorting out an error, add its full text and your EyeAuras version.
 
-A `Ready` or `Key Available` status only means the key was found. The server and the model are checked when you send the first request.
+A `Ready` or `Key Available` status only means the key was found. It does not check the server, access to the model or account limits.
 
 If your question is about the active window, compare [Window Is Active](/en/triggers/window-is-active) with [Enabling Conditions](/en/features/enabling-conditions). While you check the answer, show a [Text overlay](/en/overlays/text) first and add input later.
 

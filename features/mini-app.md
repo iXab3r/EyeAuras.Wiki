@@ -60,7 +60,7 @@ A full example for a prepared set:
 --pad --read-only --publish-single-file --ui splashOnly --readiness script --acceptLicense "config/auras/HW/Script.json"
 ```
 
-You change the settings of a published folder in **Synchronization → Pack Options**. In the older screenshot this section is called Pack Config. After a change, save the settings and prepare a new revision. A copy that was already downloaded does not change by itself.
+You change the settings of a published folder in **Synchronization → Pack Options**. In the older screenshot this section is called Pack Config. After a change, save the settings and prepare a new revision. A copy that was already downloaded does not change by itself. Some packing options are experimental and need author access.
 
 ![Published folder and pack description](https://s3.eyeauras.net/media/2025/11/EyeAuras_lxOycYxSQe.png)
 ![Pack settings in the earlier interface](https://s3.eyeauras.net/media/2025/11/EyeAuras_P7miHrVhX5.png)

@@ -11,7 +11,7 @@ dateCreated: 2025-06-27T21:35:22.410Z
 
 The script finds the target in the [Target Tracking](https://aimtrainer.io/target-tracking) trainer and draws a box around it. After that you can turn on mouse movement and clicking separately. The script looks at the pixels of the browser window, and the model returns a box for the `Tgt` class. The boxes are drawn by **EyeAuras OSD**, without ImGui.
 
-You need desktop EyeAuras with OpenCV/ONNX Runtime, access to the model linked in the code and working capture of the visible browser window. Movement and clicking need the input module and **Windows Input**. For the first try, keep the browser on the primary monitor at 100% scale, do not move the window and open only one tab with the trainer.
+You need desktop EyeAuras with OpenCV/ONNX Runtime, access to the model linked in the code, working capture of the visible browser window, the input module and **Windows Input**. For the first try, keep the browser on the primary monitor at 100% scale, do not move the window and open only one tab with the trainer.
 
 ## Check the detection first
 

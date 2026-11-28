@@ -62,7 +62,7 @@ Time accounting, hardware binding and features are copied into a key when it is 
 
 In the current **License Issue** web form, only an administrator can issue keys. An ordinary author has to arrange a batch through [Contacts](/en/contacts). The form sets the count, **Duration**, a comment and the allowed overrides for accounting, binding and sessions. Keys are secrets and are not part of the public pack description.
 
-Activating a key involves no payment. To get a key or learn the product terms, ask the author.
+You cannot buy a key in the activation window. To get a key or learn the product terms, ask the author.
 
 <details>
 <summary>Add sign-in and access checks to your pack or mini-app</summary>

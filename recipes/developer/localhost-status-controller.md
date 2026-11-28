@@ -17,7 +17,7 @@ You need desktop EyeAuras whose C# host includes the ASP.NET Core hosting/MVC/Ke
 1. Create an editable `RecipeStatus` aura through **Add new → New Aura → Actions → On Enter → C# Script**. You will start it by hand with Run. No automatic activation is needed.
 2. In the project's file tree, use **Add new file → C# File** to add **StatusSnapshot.cs** and **StatusController.cs**. Replace their whole contents with the code below and keep the `RecipeStatus` namespace. Replace the whole **Script.csx** too.
 3. Wait for compilation, click **Run** and check the action's **Event Log** for startup errors. Open `http://127.0.0.1:52081/status` in your browser. You should get a JSON object with `name` equal to `RecipeStatus` and `count` equal to `3`. Each request logs `Read-only recipe status requested`.
-4. Click **Stop**. `RunAsync(cancellationToken)` requests shutdown, waits for it and disposes the host, asynchronously when that is supported. After that, refreshing the page should get no response from this recipe.
+4. Click **Stop**. In .NET 8, `RunAsync(cancellationToken)` requests shutdown, waits for it and disposes the host, asynchronously when that is supported. After that, refreshing the page should get no response from this recipe.
 
 | Part | What it does |
 | --- | --- |

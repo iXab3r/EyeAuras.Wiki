@@ -12,7 +12,7 @@ dateCreated: 2026-11-10T16:38:45.973Z
 
 You choose a window once in a folder, and both visual checks start looking at it. This is handy when one application needs several recognizers: each keeps its own search settings, and the window is set in one place.
 
-Open two separate windows of your own text editor. Write **SOURCE A** in large letters in one and **SOURCE B** in the other. Both windows must be visible and not minimized, so that capture gets fresh pixels.
+Open two separate windows of your own text editor. Write **SOURCE A** in large letters in one and **SOURCE B** in the other. Both windows must be visible and not minimized, and the capture method must show their current picture.
 
 ## Make the folder own the choice
 
