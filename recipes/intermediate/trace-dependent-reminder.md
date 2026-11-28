@@ -1,6 +1,6 @@
 ---
 title: "Find which layer hides your linked reminder"
-description: "Separate condition links, property bindings, enabling permission and overlay visibility in one owned display-only set."
+description: "Build a small set and check condition links, the text binding, permission to work and visibility one at a time."
 published: true
 date: 2026-11-10T17:01:45.000Z
 tags: recipes, intermediate
@@ -10,35 +10,35 @@ dateCreated: 2026-11-10T17:01:45.000Z
 
 # Find why a linked reminder is missing
 
-Trace a reminder through four separate layers: permission to work, its condition, the source of its words and overlay visibility. Build a small known set first; then each controlled change tells you where to inspect a similar problem in your own configuration.
+A reminder can go missing for four different reasons: it is not permitted to work, its condition is not met, the source of its text is broken, or the overlay is not visible. First build a small set where everything is known. Then change one thing at a time, and you will see where to look for a similar problem in your own configuration.
 
-You need Text, Fixed Value, the Aura Is Active trigger, Dependencies Viewer and Binding editor. Use only your own display-only auras, loaded and enabled, with EyeAuras unpaused. Preserve an [export](/en/features/export-import) before experimenting on an existing important set.
+You need Text, Fixed Value, the Aura Is Active trigger, Dependencies Viewer and Binding editor. Use your own display-only auras, loaded and enabled. EyeAuras must not be paused. If you plan to experiment on an important existing set, save an [export](/en/features/export-import) first.
 
 ## Build a known dependency and text binding
 
-1. Create a root **New Aura → Message source** with **Fixed Value → Is Active** and a **Text** overlay. Set **Content** to `Review notes`, **Font 24**, **Size to fit** off. Unlock and place a readable rectangle, then enable **Locked**. Leave actions empty.
-2. Create a root **New folder → Reminder group**. In its **Enabling Conditions**, add only **Fixed Value → Is Active**. Inside it create **Linked reminder** with ordinary **Triggers → Aura Is Active**. In **Links**, select only Message source, require **Active**, and choose **Logical operator → All must match (AND)**.
-3. Add Text to Linked reminder with Font 24/Size to fit off. Click its **Content** binding indicator. In **Binding editor**, select Message source on the left; on the right expand **Overlays → Text → Content** and click **bind**. This connects a string source to a string destination, not the reverse direction. Place this overlay away from the source and lock it.
-
-   The editor shown is open for a capture-rate property. For this step open it from **Content**, then use the same source tree and **bind** column.
+1. Create a root **New Aura → Message source** with **Fixed Value → Is Active** and a **Text** overlay. Set **Content** to `Review notes`, **Font 24**, **Size to fit** off. Unlock the overlay, place the rectangle so the text is readable, then enable **Locked**. Leave actions empty.
+2. Create a root **New folder → Reminder group**. In its **Enabling Conditions**, add only **Fixed Value → Is Active**. Inside it create the aura **Linked reminder** with an ordinary **Triggers → Aura Is Active**. In **Links**, select only Message source, choose **Active** and set **Logical operator → All must match (AND)**.
+3. Add Text to Linked reminder with Font 24 and Size to fit off. Click the binding indicator next to **Content**. In **Binding editor**, select Message source on the left, expand **Overlays → Text → Content** on the right and click **bind**. The string goes from the source to the destination, not the other way. Place this overlay away from the source one and lock it.
 
    ![Source tree, properties and bind buttons in the Binding Editor](/assets/callouts/batch1/en/binding-editor.png)
 
-4. Outside Reminder group, create **Graph** with **Fixed Value → Is Active** and **Dependencies Viewer**. In the overlay's **Graph → Auras → Links**, select Linked reminder. Enable **Show dependencies** and **Show connections**; place the graph away from the text. Its connection identifies the aura-state dependency, not the Content binding.
-5. Open **Show event log → Event Viewer** before making changes. Show filters, enable **Auras**, set **Level → Info**, clear the text filter and unpause the panel.
+4. Outside Reminder group, create the aura **Graph** with **Fixed Value → Is Active** and a **Dependencies Viewer** overlay. In the overlay's **Graph → Auras → Links**, select Linked reminder. Enable **Show dependencies** and **Show connections**, and place the graph away from the text. The graph edge shows the aura-state dependency, not the Content binding.
+5. Before you change anything, open **Show event log → Event Viewer**. Show the filters, enable **Auras**, set **Level → Info**, clear the text filter and unpause the panel.
 
 ## Isolate one layer at a time
 
-1. Change Message source's **Content** to `Review complete`. Both visible Text overlays should update. If only the original changes, inspect the destination's binding indicator and selected source property. A red indicator or conversion error needs its own explanation; graph edges do not validate property bindings.
-2. Set Message source's Fixed Value **Is NOT Active**. Select an aura outside the group and leave the editor. Linked reminder should hide. Restore **Is Active** and it should return. The dependency edge remains structural; check the trigger's reported state and Event Viewer messages/context, not graph colors.
-3. Set Reminder group's **Enabling Conditions → Fixed Value → Is NOT Active**. Again select away and leave the editor: its child is not permitted to work even though Message source is Active. Restore the folder's **Is Active** permission.
-4. If a reminder remains visible during a negative check, inspect **Locked** and the currently selected editing context. For normal observation use **Window → Mode → Overlay**, **Opacity 100%**, a visible position and Locked on. An unlocked or selected editor preview can stay visible independently of the normal condition.
+1. Change Message source's **Content** to `Review complete`. Both Text overlays on screen should update. If only the source one changed, check the binding indicator on the destination and which property is selected as the source. Deal with a red indicator or a conversion error separately.
+2. Set Message source's Fixed Value to **Is NOT Active**. Select an aura outside the group and leave the editor. Linked reminder should hide, and come back when you restore **Is Active**. The graph edge stays: it shows structure. Look at the trigger's state and at the messages with context in Event Viewer, not at the graph colors.
+3. Set Reminder group's **Enabling Conditions → Fixed Value → Is NOT Active**. Again select another item and leave the editor. The child is not permitted to work, even though Message source is Active. Set the folder back to **Is Active**.
+4. If a reminder should be hidden but stays on screen, check **Locked** and which item is selected in the editor. For normal observation you need **Window → Mode → Overlay**, **Opacity 100%**, a visible position and Locked on. An unlocked overlay or the preview of a selected aura can be visible regardless of the normal condition.
 
 | Symptom | Inspect first |
 | --- | --- |
-| Child is unloaded or not permitted to work | Its loading, parent permission and pause, before ordinary trigger results |
-| Loaded, allowed child has a false/Unknown condition | Aura Is Active's actual Links, expected state and source aura |
-| Condition is correct but words do not follow | Content's binding source→target and compatible string type |
-| Words/state are correct but display is missing or misleading | Position, opacity, locking and selected-editor preview |
+| Child is unloaded or not permitted to work | Loading, parent permission and pause. Look at ordinary triggers after that |
+| Child is loaded and allowed, but the condition is false or Unknown | Aura Is Active's actual Links, the expected state and the source aura |
+| Condition is correct but the words do not follow the source | Content's source→target direction and a compatible string type |
+| Text and state are correct but the reminder is missing or misleading | Position, opacity, locking and the preview of a selected aura |
 
-[Enabling Conditions](/en/features/enabling-conditions), [Bindings](/en/features/bindings) and [common overlay options](/en/overlays/common-options) control different layers. [Dependencies Viewer](/en/overlays/dependencies-viewer) supplies structure; its activity/busy colors and stored arrangement choices are not live confirmation. [Event Viewer](/en/features/event-viewer) shows only reported entries accepted while open and enabled, not a complete audit or proof that an external action completed. This set has no actions: finish with permission and source both Active and the two matching reminders visible.
+[Enabling Conditions](/en/features/enabling-conditions), [Bindings](/en/features/bindings) and [common overlay options](/en/overlays/common-options) control different layers. [Dependencies Viewer](/en/overlays/dependencies-viewer) shows structure. [Event Viewer](/en/features/event-viewer) shows only the messages the panel accepted while it was open and enabled.
+
+At the end, leave the permission and the source Active: there should be two matching reminders on screen.

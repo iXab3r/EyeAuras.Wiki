@@ -9,14 +9,14 @@ dateCreated: 2025-06-27T21:35:22.410Z
 ---
 # Outline a training target, then add a click
 
-Find `Tgt` in your own [Target Tracking](https://aimtrainer.io/target-tracking) session. First show its box, then optionally enable movement and clicking. Data comes from browser-window pixels; this version draws through **EyeAuras OSD**, without ImGui or access to browser/game internals.
+The script finds the target in the [Target Tracking](https://aimtrainer.io/target-tracking) trainer and draws a box around it. After that you can turn on mouse movement and clicking separately. The script looks at the pixels of the browser window, and the model returns a box for the `Tgt` class. The boxes are drawn by **EyeAuras OSD**, without ImGui.
 
-Use desktop EyeAuras with OpenCV/ONNX Runtime, the available external model from the code, visible browser capture, the input module and **Windows Input**. For the first exercise, keep one training tab in a stable window on the primary monitor at 100% scale.
+You need desktop EyeAuras with OpenCV/ONNX Runtime, access to the model linked in the code and working capture of the visible browser window. Movement and clicking need the input module and **Windows Input**. For the first try, keep the browser on the primary monitor at 100% scale, do not move the window and open only one tab with the trainer.
 
 ## Check the detection first
 
-1. Open your Target Tracking session and click **Play**. Its base page title is **Tracking - Aim Trainer**; your browser can append its name. Set `GetWindow` to an expression matching your actual training window.
-2. Add **C# Script** and paste the full program into top-level `Script.csx`. Keep `performInput = false`:
+1. Open Target Tracking and click **Play**. Look at the browser window title: the page title is **Tracking - Aim Trainer**, but your browser can append its own name. In `GetWindow`, set an expression that matches only your trainer window.
+2. Add a **C# Script** action and paste the whole code into `Script.csx`. Keep `performInput = false`:
 
 ```csharp
 using System;
@@ -76,25 +76,25 @@ using PoeShared.Scaffolding;
 }
 ```
 
-3. Click **Run** and return to your training window. Purple outlines its DWM frame; red outlines a detected target. The log records `Tgt`, score and screen bounds. No match clears the target box; another foreground window pauses processing.
-4. Click **Stop** after checking the box. If you want the training click, set `performInput = true`, Run again and activate **only your own trainer**. Each suitable pass now moves to the target centre and left-clicks. Stop ends the loop; switching away pauses processing.
+3. Click **Run** and go back to the trainer window. The purple box is the DWM frame of the window, and the red box is the detected target. The log gets `Tgt`, the score and the box in screen coordinates. If no target is found, the red box is removed. While another window is active, the script processes nothing.
+4. Click **Stop**. If the box is in the right place, set `performInput = true`, click Run again and activate **only your own trainer**. Now the cursor moves to the centre of the target and left-clicks on every pass where a target is found. Stop ends the loop. If you switch away from the trainer window, processing pauses.
 
-| Setting | Effect |
+| Setting | What it changes |
 | --- | --- |
-| `performInput` | `false`: detection and boxes. `true`: also real movement/click, after you have verified the window and box. |
-| `GetWindow(...)` | Capture/input recipient. A missing or invalid window ends the program with a log message instead of selecting the desktop. |
-| `confidenceThreshold: 30` | Filters scores above 30%, then the script keeps `Tgt`. The first matching prediction comes from score-descending results; that does not establish a correct target. |
-| `iouThreshold: 40` | Overlap threshold for duplicate-box suppression, not a target-area threshold. |
-| `WaitOne(10)` | Cancellable 10 ms pause between passes. Capture, inference, logging and input add time; this does not promise 100 FPS. |
+| `performInput` | `false`: detection and boxes only. `true`: real movement and clicking as well. |
+| `GetWindow(...)` | The window the script captures and sends input to. If the window is missing, the script logs that and exits. |
+| `confidenceThreshold: 30` | Keeps scores above 30%, then only `Tgt` predictions. The script takes the first one from the list sorted by score. |
+| `iouThreshold: 40` | Overlap threshold used to remove duplicate boxes. |
+| `WaitOne(10)` | A 10 ms pause between passes. It can be cancelled. |
 
-OSD receives screen bounds through `ToScreen`. Input receives window coordinates through `ToWindow` because `TargetWindow` is set; Windows Input converts those to screen and activates the recipient. This is not background delivery. Keep the training window stable: focus can change between checking and acting. Stop does not interrupt an already running synchronous search or input call.
+OSD gets screen coordinates through `ToScreen`. Input gets window coordinates through `ToWindow` because `TargetWindow` is set: Windows Input converts them to screen coordinates itself and activates the window. The active window can change between the check and the action, so do not switch away from the trainer. Detection and input are synchronous, so Stop does not interrupt a call that has already started.
 
-If the goal is an aura condition rather than a script-owned search loop, use the [AI Search guide](/en/triggers/images/ai-search-trigger) with a compatible ONNX model containing the required class. Verify its capture, class and boxes first, then configure a separate reaction to the aura’s state; loading a model does not add the click from this script.
+If you need an aura condition instead of your own loop in a script, use the [AI Search trigger](/en/triggers/images/ai-search-trigger) with a compatible ONNX model that has the class you need. Check capture, class and boxes first, then set up the reaction to the aura's state separately.
 
-The original ONNX model detects objects, with input `images` 1×3×640×640 and output `output0` 1×5×8400. Its only class is `Tgt`; do not substitute an ordinary COCO model and expect that class. File metadata records Ultralytics 8.1.13 and AGPL-3.0; consult the [author's terms](https://www.ultralytics.com/license).
+The linked model is an ONNX object detection model. Input is `images` 1×3×640×640, output is `output0` 1×5×8400, and the only class is `Tgt`. It was trained on images of this trainer. The file metadata lists Ultralytics 8.1.13 and AGPL-3.0. See the [author's license terms](https://www.ultralytics.com/license). Do not swap in an ordinary COCO model and expect the same class.
 
-The loader stretches captured pixels to the model input, and its parser scales boxes back to the processed image. `ToScreen`/`ToWindow` then apply capture transforms, so no second manual resize or offset is needed. `Score` 0…1 is a model score, not image-area coverage or a measured probability of a correct click. A model/capture failure is distinct from an empty prediction list.
+The loader stretches the frame to the model input size, and the result parser maps the boxes back to the processed image. `ToScreen`/`ToWindow` then account for the capture region and its transforms, so you do not need to scale the box by hand. `Score` from 0 to 1 is the model's score.
 
-The script leaves execution-provider selection to the host: Default tries available DirectML session options, otherwise CPU. This does not promise recovery from model or inference errors.
+The script leaves the choice of execution provider to the host: Default tries the available DirectML session options and otherwise uses CPU.
 
-This Run owns its rectangles: they are disposed before canvas clearing, input settings are restored, then canvas/CV are released. The input service and captured/result images are borrowed; do not dispose the images separately. `Log`, `GetService` and the token are `Script.csx` capabilities, not ordinary-class globals. See [runtime](/en/scripting/api/scripting/runtime), [capture ownership](/en/scripting/api/computer-vision/images) and [CV operations](/en/scripting/api/IComputerVisionExperimentalScriptingApi). For native drawing use [the ImGui variant](/en/scripting/examples/advanced/aimtrainer-ml).
+On exit the script cleans up after itself: it disposes its rectangles, then clears the canvas, restores the previous input settings and releases OSD and CV. The input service, the captured frames and the result images do not belong to the script, so do not dispose the images separately. `Log`, `GetService` and the token exist only in `Script.csx`, not in an ordinary C# class. See [runtime](/en/scripting/api/scripting/runtime), [capture ownership](/en/scripting/api/computer-vision/images) and [CV operations](/en/scripting/api/IComputerVisionExperimentalScriptingApi). The same example with native drawing is [the ImGui variant](/en/scripting/examples/advanced/aimtrainer-ml).

@@ -1,6 +1,6 @@
 ---
 title: How to Find Color
-description: Explanation of how to find a color in a specific area using a script in C#.
+description: How to find a color in an area of a window with a C# script.
 published: true
 date: 2024-02-23T23:03:50.178Z
 tags: color, C#, script, coordinates, search, ai-translated
@@ -9,21 +9,21 @@ dateCreated: 2024-02-23T22:58:56.886Z
 ---
 # Locate a coloured block and log its screen position
 
-Draw a red square at least **32×32 pixels** on a light background in your own image editor. Find a matching 8×8 block inside it and log the block's screen rectangle. The script reads captured pixels through **Color Search**, without moving the mouse.
+The script looks for a coloured block in a window and logs its screen coordinates. For the example, draw a red square at least **32×32 pixels** on a light background in your own image editor. The script finds a matching 8×8 block inside it. It reads the window's pixels through the configured **Color Search** and does not move the mouse.
 
-You need working capture/OpenCV and an editable C# Script action. You can [import the original example](https://eu.eyeauras.net/share/S20240223230313LBOJUBwnUmRU); its window and colour still need configuring on your machine.
+You need working capture/OpenCV and a C# Script action you can edit. You can [import the original example](https://eu.eyeauras.net/share/S20240223230313LBOJUBwnUmRU), but you still have to pick the window and colour on your machine.
 
-1. In one folder, create **ColorSearch** with a **Color Search** trigger and a sibling **Script** aura with **C# Script** in **On Enter**.
-2. Select your image-editor window and a region containing the square. Keep image zoom at 100% and start without effects.
-3. Set the options below, then click **Refresh Once**. The square should be visible in the preview and its colour should meet the threshold.
+1. In one folder, create a **ColorSearch** aura with a **Color Search** trigger, and next to it a **Script** aura with **C# Script** in **On Enter**.
+2. Select your image-editor window and a region with the square. Keep image zoom at 100% and add no effects for the first search.
+3. Set the options from the table and click **Refresh Once**. The square should be visible in the preview and the result should pass the threshold.
 
 | Setting | Value and purpose |
 | --- | --- |
-| Target Color | Use **Pick Color from Preview Pane** on the red area to sample the actual captured colour. |
-| Comparison Granularity | **Average Color of 8x8 Pixel Blocks** finds a local block rather than averaging the entire region. |
-| Match Threshold | Lower bound 90%, upper bound 100%. Set both bounds if Min mode is enabled. |
+| Target Color | Pick the red with **Pick Color from Preview Pane**. That way the sample comes from what is really captured. |
+| Comparison Granularity | **Average Color of 8x8 Pixel Blocks** looks for a single block instead of the average colour of the whole region. |
+| Match Threshold | Lower bound 90%, upper bound 100%. If Min mode is enabled, set both bounds. |
 
-4. Put the complete program in the sibling action's **Script.csx** and click **Run**:
+4. Paste the whole program into the **Script.csx** of the neighbouring action and click **Run**:
 
 ```csharp
 using System.Linq;
@@ -54,16 +54,16 @@ var screenRect = matchResult.ToScreen(localRect);
 Log.Info($"Colored area found @ {screenRect}");
 ```
 
-On a match, **Colored area found @** reports a screen rectangle for a block. It need not outline the entire drawn square. Missing processing data prompts a source check; **Colored area not found** means the returned result did not satisfy the condition.
+If the colour is found, the log shows **Colored area found @** with the screen rectangle of the block. If there is no data to search, the log asks you to check the source. **Colored area not found** means a result came back but did not pass the condition.
 
-The threshold measures colour similarity under the selected comparison method, not the percentage of red pixels in the window. **Aggregate Average Color of Entire Area** is a different operation: it compares the region's average and returns that whole region on success. See [Color Search](/en/triggers/images/color-search).
+The threshold is how similar the colour is to the sample under the selected comparison method. It is not the percentage of red pixels in the window. **Aggregate Average Color of Entire Area** does a different job: it compares the average colour of the region and returns the whole region on success. More in [Color Search](/en/triggers/images/color-search).
 
-| Code contract | Boundary |
+| Code | What to know |
 | --- | --- |
-| GetAuraByPath / First() | Require the configured aura and at least one IColorSearchTrigger. A structure error prevents the search. |
-| RefreshAsync(cancellationToken) | Uses the trigger's settings and passes the token into frame/request handling. It is not instant native-operation cancellation. |
-| Detected.Bounds → ToScreen | Converts processed-frame bounds using this result's transforms; do not add the window origin again. |
+| GetAuraByPath / First() | The aura must exist and contain at least one IColorSearchTrigger. |
+| RefreshAsync(cancellationToken) | Uses the trigger's settings and passes the token into the request. |
+| Detected.Bounds → ToScreen | Bounds are in processed-frame coordinates. ToScreen already applies this result's region and effects, so do not add the window origin again. |
 
-The top-level host provides **AuraTree**, **Log** and the token; pass services explicitly to ordinary helpers. The trigger is borrowed, and this refresh returns detection data without image buffers. A synchronous **Refresh(cancellationToken)** is also available, but blocks the caller.
+The trigger is borrowed. This RefreshAsync returns detection data without image buffers.
 
-For other result forms, see [CV results](/en/scripting/api/computer-vision/images) and [CV operations](/en/scripting/api/IComputerVisionExperimentalScriptingApi).
+Other ways to read results are in [CV results](/en/scripting/api/computer-vision/images) and [CV operations](/en/scripting/api/IComputerVisionExperimentalScriptingApi).

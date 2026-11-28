@@ -1,6 +1,6 @@
 ---
 title: "Separate CV capture cost from ten same-frame passes"
-description: "Warm up capture separately, measure ten new-frame searches and then count pixels ten times on one owned copy."
+description: "Warm up capture separately, time ten searches on new frames, then count pixels ten times on one saved copy."
 published: true
 date: 2026-11-10T18:20:14.885Z
 tags: recipes, developer
@@ -10,25 +10,25 @@ dateCreated: 2026-11-10T18:20:14.885Z
 
 # Separate CV capture cost from ten same-frame passes
 
-Find out whether time is spent obtaining a frame or processing its pixels. The first group requests ten capture/search operations; the second counts the same saved frame ten times. They answer different questions.
+This recipe shows where the time goes: getting a frame or processing its pixels. The first group captures a frame and searches it for a colour ten times. The second counts pixels in one saved copy ten times.
 
-You need desktop EyeAuras with its registered CV/capture services and compatible native Emgu CV **4.9.0.5494** and MiniProfiler **4.3.8** dependencies. Use the host's existing assemblies rather than adding a different native Emgu package. Prepare a local, non-sensitive window you own.
+You need desktop EyeAuras with its registered CV and capture services and compatible native Emgu CV **4.9.0.5494** and MiniProfiler **4.3.8** dependencies. Use the host's assemblies and do not add a different native Emgu package. The source is a local window of your own with no sensitive data.
 
-1. Save the complete **status.html** below in your own folder and open that physical file in your browser. Keep its orange rectangle visible at a fixed zoom and window size, unobscured and not minimized. No model or external website is needed.
-2. Create `RecipeCvTiming` through **Add new → New Aura → Actions → On Enter → C# Script**. Replace **Script.csx** with the complete file below. Use manual **Run** and the action's **Event Log**.
-3. When the window picker appears, select the window containing your orange sample. A missing or invalid selection ends the script before creating a window accessor. The picker has no token parameter; cancellation is checked immediately after it returns.
-4. Read the capture/search entries, then the same-frame counts and final profiler report. Each measured group has exactly **10** passes; capture warm-up and count warm-up are outside their respective measured groups. Profiler durations are in milliseconds.
-5. Repeat with the same window size and capture conditions before comparing results. **Stop** is checked between synchronous operations. It need not interrupt an operation already running; leaving the block releases the owned frame copy and accessor.
+1. Save **status.html** below in your own folder and open the file in your browser. The orange rectangle must be visible. Do not change the zoom or window size, and do not cover or minimize the window.
+2. Create `RecipeCvTiming` through **Add new → New Aura → Actions → On Enter → C# Script**. Replace the whole **Script.csx** with the file below. Start it by hand with **Run** and watch the action's **Event Log**.
+3. When the window picker appears, select the window with your orange sample. If the selection is missing or invalid, the script ends without creating a window accessor. The picker takes no token, so cancellation is checked right after it returns.
+4. Read the capture/search entries, then the same-frame counts and the final profiler report. Each measured group has exactly **10** passes. Capture warm-up and count warm-up are not part of the measurements. Profiler durations are in milliseconds.
+5. Before comparing results, repeat the run with the same window size and capture conditions. **Stop** is checked between synchronous operations and may not interrupt one that is already running. On leaving the block, the script releases its frame copy and the accessor.
 
-| Output | Interpretation |
+| Output | How to read it |
 | --- | --- |
-| `New capture/search` | Includes requesting a refreshed window image and exact-color search, with nested profiler stages. It is not a pixel-loop-only benchmark. |
-| `Same owned frame/count` | Reads one copied BGR image repeatedly, excluding new capture from those steps. |
-| Orange count | Exact bytes `R=255, G=87, B=34`; zero is valid if the actual captured pixels differ. |
+| `New capture/search` | A request for a fresh window image plus an exact-colour search, with nested profiler stages. |
+| `Same owned frame/count` | Repeated reading of one copied BGR image. New capture is not included. |
+| Orange count | Counts the exact bytes `R=255, G=87, B=34`. Zero is possible if the real captured pixels differ. |
 
-The rectangle's CSS dimensions do not prescribe an exact screenshot pixel count: zoom, DPI, capture method and surrounding window content matter. The window search returns window-relative points; `Point.Empty` is also its no-result marker and should not be interpreted as a confirmed top-left detection. The counting helper returns a count, not a confidence score.
+The rectangle's CSS size does not set an exact pixel count in the capture: zoom, DPI, capture method and the rest of the window all matter. The window search returns points relative to the window. `Point.Empty` also means "nothing found", so it does not prove a match in the top-left corner.
 
-The callback image is borrowed. Only `image.Copy()` leaves the callback, and the script disposes that copy. The synchronous helper respects row stride and keeps its byte span inside the call; no span crosses an await. Use [capture settings](/en/triggers/images/imagecapturetriggers) to resolve a wrong/black frame, and [same-frame profiling](/en/scripting/examples/advanced/profiling-countpixels) for algorithm comparisons.
+The image in the callback belongs to the host. Only the script's own `image.Copy()` leaves the callback, and the script disposes it. The synchronous helper respects row stride and keeps its byte span inside the call, so no span crosses an await. If the frame is wrong or black, see [capture settings](/en/triggers/images/imagecapturetriggers). For comparing algorithms, see [same-frame profiling](/en/scripting/examples/advanced/profiling-countpixels).
 
 ## status.html
 

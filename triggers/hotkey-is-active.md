@@ -1,6 +1,6 @@
 ---
 title: Hotkey Is Active
-description: Tracks selected keyboard or mouse input and exposes its trigger state.
+description: Fires on a key, a combination or a mouse button. Hold and Toggle modes, key suppression, and limiting the hotkey to one window.
 published: true
 date: 2024-06-22T19:41:02.799Z
 tags: 
@@ -10,41 +10,39 @@ dateCreated: 2023-06-18T11:24:31.243Z
 
 # Hotkey Is Active — start an action with a key
 
-To play a notification with F6, put Hotkey Is Active and Play Sound in the same aura. The trigger tracks the key; the action in On Enter runs when the aura becomes active.
+Hotkey Is Active watches a key, a combination or a mouse button. In the example below you press F6 and the aura plays a sound. The action is in On Enter, so it runs at the moment the aura becomes active.
 
 ## Try F6 as a toggle
 
-Open your own Notepad window and choose an unused key. This example uses F6; choose another if it is already assigned in your setup.
+Notepad is a handy place to test. If F6 is already taken on your computer, choose another free key.
 
 1. Create an aura with one **Hotkey Is Active** trigger. Some versions spell the name HotkeyIsActive.
-2. Keep **Hotkey** set to **Selected** and assign F6 in the combination editor. The older editor opens it with **Edit**.
+2. Keep **Hotkey** set to **Selected** and assign F6 in the combination editor.
 3. Set **Mode** to **Toggle Trigger state on Click** (Toggle in the older editor). Leave **Suppress Key** off and do not add interception conditions yet.
-4. Add [Play Sound](/en/actions/play-sound) with Ping to **On Enter**. Check the volume with its preview button.
-5. Switch to Notepad, press and release F6, then press and release it twice more.
+4. Add [Play Sound](/en/actions/play-sound) with Ping to **On Enter**. Check the volume with the preview button.
+5. Switch to Notepad, then press and release F6. Do it two more times.
 
-The first press enables the trigger and plays Ping. The second disables it silently; the third enables it and plays the sound again. On Enter does not repeat while the trigger stays active. Use **While Active** for a repeating action chain.
+The first press turns the trigger on and plays Ping. The second turns it off without a sound. The third turns it on again and the sound repeats. On Enter does not repeat while the trigger stays active. For actions that should repeat, use **While Active**.
 
-In Toggle mode, input in EyeAuras's own windows is ignored by default. Test in Notepad, or enable handling of EyeAuras windows under Advanced to test there. Hold continues to handle input despite this restriction.
+In Toggle mode, presses in EyeAuras's own windows are ignored by default. That is why we test in Notepad. To test right in the EyeAuras editor, enable handling of EyeAuras windows under Advanced. This limit does not apply to Hold.
 
-![F3, Toggle and the checked Suppress Key option in the earlier Hotkey Is Active editor.](/assets/callouts/batch2/en/hotkey-toggle.png)
-
-This earlier setup uses F3 with Suppress Key on. For the F6 exercise above, leave Suppress Key off.
+![F3, Toggle and the checked Suppress Key option in the earlier Hotkey Is Active editor](/assets/callouts/batch2/en/hotkey-toggle.png)
 
 ## Main settings
 
 | Setting | Effect |
 |---|---|
-| Hotkey — Selected | Tracks a specific key, combination, mouse button or wheel direction. Use the combination editor for mouse and wheel input; in the older field, double-click with the required button or rotate the wheel. |
+| Hotkey — Selected | Watches a specific key, combination, mouse button or wheel direction. Set mouse and wheel input in the combination editor. |
 | Mode — Hold | Active while the key or button is held. |
-| Mode — Toggle Trigger state on Click | Changes state after pressing and releasing: first enables, next disables. Called Toggle in the older editor. |
-| Suppress Key | Prevents supported input from reaching other applications. Not every kind of input can be suppressed. Without interception conditions, suppression may also apply outside your intended application. |
-| Ignore Ctrl/Alt/Shift | Allows triggering while modifiers are held. This setting resets when the assigned combination itself contains modifiers. |
-| Is Pressed | The older editor displays the state and lets you change it manually for a quick check. |
+| Mode — Toggle Trigger state on Click | Switches state after you press and release. The first press turns it on, the next turns it off. |
+| Suppress Key | Stops the press from reaching other applications. Not every kind of input can be suppressed. Without interception conditions, suppression may also apply outside the application you meant. |
+| Ignore Ctrl/Alt/Shift | The trigger fires even while modifiers are held. If the assigned combination itself contains modifiers, this setting resets. |
+| Is Pressed | In the older editor it shows the state. You can switch it by hand for a quick check. |
 
 <details>
 <summary>Track any key or mouse button</summary>
 
-Instead of Selected, choose an input group. The older editor calls this Tracking Mode.
+Instead of Selected, you can choose an input group.
 
 | Group | Input tracked |
 |---|---|
@@ -52,22 +50,22 @@ Instead of Selected, choose an input group. The older editor calls this Tracking
 | Any Mouse button | Any mouse button. |
 | Any Keyboard/Mouse key | Keyboard keys and mouse buttons. |
 
-These groups do not track mouse movement or measure idle time. Assign a wheel direction as a specific combination in Selected.
+These groups do not track mouse movement or idle time. A wheel direction is assigned as a specific combination in Selected.
 
 </details>
 
 ## Handle the key only in the intended window
 
-1. Create a separate “Notepad active” aura with [Window Is Active](/en/triggers/window-is-active). Set Target Window to `notepad` and check the matches.
-2. In Hotkey Is Active, add “Notepad active” as an Active condition through **Advanced → Interception Condition → Links**.
-3. Set **Mode** to Hold. Briefly hold F6 in Notepad, then try it in another program. The notification should occur only in Notepad.
+1. Create a separate aura called “Notepad active” with [Window Is Active](/en/triggers/window-is-active). Set Target Window to `notepad` and check the matches.
+2. Go back to Hotkey Is Active. In **Advanced → Interception Condition → Links**, add “Notepad active” as an Active condition.
+3. Set **Mode** to Hold. Hold F6 briefly in Notepad, then do the same in another program. The sound should play only in Notepad.
 
-For Toggle, choose what happens when you leave the window:
+If you use Toggle, choose what happens when you leave the window:
 
 | Advanced setting | Effect |
 |---|---|
-| If EyeAuras window is Active | Intercept events allows handling in EyeAuras windows; Ignore all mouse/keyboard input events disables it for Toggle. Hold continues to be processed. Older editor: Handle Even if EyeAuras is Active. |
-| Ignore If Hotkey Is Pressed | Allows handling an already-enabled toggle even after the linked condition stops matching, so you can turn it off from another window. It does not bypass the condition when the toggle is off. Older wording: Ignore if Hotkey is set. |
-| Automatically deactivate Trigger | Turns off an active trigger when its interception condition stops matching. After returning to the window, enable Toggle again. |
+| If EyeAuras window is Active | Intercept events allows handling in EyeAuras windows. Ignore all mouse/keyboard input events turns it off for Toggle, while Hold keeps working. |
+| Ignore If Hotkey Is Pressed | A toggle that is already on is still handled after the linked condition stops matching. This lets you turn Toggle off from another window. It has no effect on a toggle that is off. |
+| Automatically deactivate Trigger | Turns off an active trigger when its interception condition stops matching. After you return to the window, turn Toggle on again. |
 
-With several links, check their required states and combination rule. Interception conditions control where Hotkey Is Active accepts and suppresses input. They observe the states supplied by your linked auras; they do not create a game-specific condition or an action by themselves.
+With several links, check their required states and the rule that combines them.

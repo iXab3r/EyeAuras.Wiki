@@ -1,6 +1,6 @@
 ---
 title: Embedded Resources
-description: 
+description: How to put a file inside a script and read it from code.
 published: true
 date: 2025-10-19T16:05:00.000Z
 tags: ai-translated
@@ -9,22 +9,22 @@ dateCreated: 2025-10-19T13:42:12.071Z
 ---
 # Include a help file with your script
 
-An embedded resource stores a file inside the compiled script assembly. Add **docs/help.txt** so the help travels with the project and can be read without a separate disk path. Images, videos, models, executables and DLLs can also be carried this way; including a file does not execute it or initialize a model.
+An embedded resource is a file stored right inside the script assembly. It travels with the project, and you can read it without a path on disk. As an example, we will add **docs/help.txt**. You can store images, videos, models, executables and DLLs the same way.
 
-You need an editable **C# Script** project. The examples run in its top-level **Script.csx**, where EyeAuras supplies **GetService**, **Log** and **cancellationToken**. Pass required dependencies explicitly to an ordinary helper class.
+You need an editable **C# Script** project. The examples run in its top-level **Script.csx**, where EyeAuras gives you **GetService**, **Log** and **cancellationToken**. An ordinary helper class does not get them, so pass what it needs explicitly.
 
 ## Add the file and read its text
 
-1. Prepare your own `help.txt` containing `Project help`.
-2. Show **File Tree**. In its context menu, choose **Add → Existing File(s)...** and select the file. Older images call these **Show Files** and **Add Existing File...**.
+1. Create a text file `help.txt` with the text `Project help`.
+2. Open the file tree with **File Tree**. In the tree's context menu, choose **Add → Existing File(s)...** and select the file. On older screenshots these are called **Show Files** and **Add Existing File...**.
 
-![In the earlier file tree menu, Add new opens a submenu containing Existing File(s).](/assets/callouts/batch3/en/script-resource-add-file.png)
+![Old file tree menu: Add new, then Existing File(s)](/assets/callouts/batch3/en/script-resource-add-file.png)
 
-3. Use **Rename...** to set its resource name to `docs/help.txt`. Selecting a binary resource shows its description, rather than an editor for its contents.
+3. Use **Rename...** to name the resource `docs/help.txt`. If you select a binary resource in the tree, you see its description, not an editor.
 
-![Selected resource in the file tree](https://s3.eyeauras.net/media/2025/10/EyeAuras_1Yr73UevIj.png)
+![A resource selected in the file tree](https://s3.eyeauras.net/media/2025/10/EyeAuras_1Yr73UevIj.png)
 
-4. Replace **Script.csx** with this complete program:
+4. Replace the contents of **Script.csx** with this code:
 
 ```csharp
 using System.IO;
@@ -44,27 +44,29 @@ using EyeAuras.Repl;
 }
 ```
 
-5. Click **Run**. The log should show `Project help`. If it reports that the resource was not found, check the name against the lookup rules below.
+5. Click **Run**. The log shows `Project help`. If it says the resource was not found, check the name and the lookup rules below.
 
-The block closes the stream and StreamReader. The container's **IScriptFileProvider** is borrowed; do not dispose it. To remove a resource, delete it from the project list. To replace its bytes, remove it and add the changed file under the same final name, or import the change from the IDE, then recompile.
+The stream and the StreamReader close on their own when the block ends. Do not dispose **IScriptFileProvider**.
 
-**New file** can instead create an editable text document, such as Markdown. The file service exposes that too, but its presence in the tree does not make it a binary embedded resource. The [README example](/en/scripting/examples/basic/file-provider) demonstrates that separate path.
+To remove a resource, delete it from the project list. To replace its contents, remove the old resource and add the changed file under the same name, or import it from the IDE. Then recompile the script.
+
+**New file** creates an ordinary editable text document, such as Markdown. The file service sees it too. That case is covered in the [README example](/en/scripting/examples/basic/file-provider).
 
 ## Choose a resource name and reader
 
-Resource compilation uses the project's **DefaultNamespace**, or its project name when unset. Slashes become dots: namespace `MyScript` and file `Images/logo.png` produce `MyScript.Images.logo.png`.
+A resource name starts with the project's **DefaultNamespace**, or with the project name if it is not set. Slashes in the path become dots: namespace `MyScript` and file `Images/logo.png` give `MyScript.Images.logo.png`.
 
-| Access form | Lookup behaviour |
+| How you read | How the resource is found |
 | --- | --- |
-| IScriptFileProvider.GetFileInfo | Accepts a full manifest name, its full slash form, or an unambiguous boundary suffix. Full-name comparisons are case-insensitive. |
-| `Images/logo.png` | Can match `MyScript.Images.logo.png`; `wwwroot` variants are also considered. Multiple candidates return Exists == false instead of selecting an arbitrary file. |
+| IScriptFileProvider.GetFileInfo | Accepts the full manifest name, the full name with slashes, or an unambiguous suffix that starts at a name boundary. Full names are compared without regard to case. |
+| `Images/logo.png` | Can match `MyScript.Images.logo.png`. Variants with `wwwroot` are checked too. If several files match, you get Exists == false, not a random one of them. |
 | Assembly.GetManifestResourceNames() | Lists the exact full resource names in that assembly. |
-| Assembly.GetManifestResourceStream(fullName) | Opens a stream using the exact, case-sensitive manifest name. The caller must close it. |
-| GetDirectoryContents | Shows a diagnostic tree projection of resource names, not necessarily the original folders with project prefixes removed. |
+| Assembly.GetManifestResourceStream(fullName) | Opens a stream by the exact, case-sensitive manifest name. You must close the stream. |
+| GetDirectoryContents | Shows the resource names as a tree for diagnostics. This is not always the original folder layout with the project prefix removed. |
 
-A leaf such as `logo.png` is not a universal alias. Arbitrary dotted partial names do not have the same guarantees as slash paths. When ambiguous, use a full name such as `MyScript.Images.logo.png` or `MyScript/Images/logo.png`.
+A partial name with dots is not the same as a path with slashes. If a short name matches several files, write the full one: `MyScript.Images.logo.png` or `MyScript/Images/logo.png`.
 
-List full names from **Script.csx**:
+To list the full names from **Script.csx**:
 
 ```csharp
 foreach (var name in typeof(Script).Assembly.GetManifestResourceNames())
@@ -73,7 +75,7 @@ foreach (var name in typeof(Script).Assembly.GetManifestResourceNames())
 }
 ```
 
-**Script** here is the generated submission type, not a universal type available in ordinary libraries. An equivalent listing with a log prefix is:
+**Script** here is the type generated for your script. An ordinary library has no such type. The same listing with a prefix in the log:
 
 ```csharp
 var asm = typeof(Script).Assembly;
@@ -83,7 +85,7 @@ foreach (var name in asm.GetManifestResourceNames())
 }
 ```
 
-For the shared provider's directory listing, add `using EyeAuras.Repl;` at the top of **Script.csx**, then use this fragment:
+To list files through the file service, add `using EyeAuras.Repl;` at the top of **Script.csx** and use this fragment:
 
 ```csharp
 var files = GetService<IScriptFileProvider>();
@@ -93,11 +95,11 @@ foreach (var fi in files.GetDirectoryContents("/"))
 }
 ```
 
-The runtime can supply a composite provider: embedded assembly resources precede the earlier source of project files, and the first existing file wins. This does not resolve ambiguity inside one embedded source. Do not assume the returned service can be cast to ScriptEmbeddedResourceFileProvider.
+The file service can look in several sources. Assembly resources are checked first, then the earlier source of project files. The first file found wins, but that does not resolve an ambiguous name inside one source.
 
 ## Keep resources when working in an IDE
 
-[Project export](/en/scripting/ide-integration) writes resource files to disk and adds explicit **EmbeddedResource** items to `.csproj`. For `Image 12.jpg`:
+When you [export the project](/en/scripting/ide-integration), EyeAuras writes the resource files to disk and adds **EmbeddedResource** items to `.csproj`. For `Image 12.jpg`:
 
 ```xml
 <ItemGroup>
@@ -106,24 +108,24 @@ The runtime can supply a composite provider: embedded assembly resources precede
 </ItemGroup>
 ```
 
-In Rider or Visual Studio, the corresponding build action is **EmbeddedResource**.
+In Rider or Visual Studio this is the **EmbeddedResource** build action.
 
-![The Rider file properties show Build action set to EmbeddedResource.](/assets/callouts/batch3/en/ide-build-action-resource.png)
+![Rider file properties with Build action set to EmbeddedResource](/assets/callouts/batch3/en/ide-build-action-resource.png)
 
-Import reads explicit **Include** entries and their file bytes relative to the project. Declare resources explicitly; import does not execute arbitrary MSBuild targets or promise all wildcard rules. **None Remove** removes an item from the None set; it does not replace every output-copy setting.
+On import, EyeAuras reads the explicit **Include** entries and the files themselves, by paths relative to the project. List every resource explicitly. Import does not run arbitrary MSBuild targets and may not handle every wildcard rule. **None Remove** only takes the file out of the None set.
 
 <details>
 <summary>Display an image or stream a large file</summary>
 
-After adding `Image 12.jpg`, a **Razor component in a prepared window** can contain:
+Once `Image 12.jpg` is added to the project, a **Razor component in a prepared window** can contain:
 
 ```html
 <img src="Image 12.jpg" />
 ```
 
-The window must expose project files, as described in [Blazor Windows](/en/scripting/blazor-windows/getting-started). An arbitrary external HTML page does not gain that access.
+The window must serve project files, see [Blazor Windows](/en/scripting/blazor-windows/getting-started).
 
-For a large file, read a stream instead of allocating another whole-file array. Add `video/tutorial.mp4`, then run this separate **Script.csx**. It counts bytes without playing the video; cancellation lets **Stop** end the loop:
+Read a large file as a stream instead of loading it whole into an array. Add `video/tutorial.mp4`, then run this separate **Script.csx**. It only counts bytes. The cancellation check lets **Stop** end the loop:
 
 ```csharp
 using System.IO;
@@ -145,28 +147,26 @@ using EyeAuras.Repl;
 }
 ```
 
-JSON, fonts and models need their own configuration or consumer API after reading. Use a whole byte array only when that API requires one.
-
 </details>
 
 <details>
 <summary>Reference a DLL stored as a resource</summary>
 
-If a library is on [NuGet](https://nuget.org/), prefer its [package](/en/scripting/nuget) for version and dependency information. For your own compatible DLL, add it to the resources and put its reference at the start of **Script.csx**:
+If the library is on [NuGet](https://nuget.org/), it is better to use the [package](/en/scripting/nuget): it sets the version and the dependencies. For your own compatible DLL, add it to the resources and reference it at the start of **Script.csx**:
 
 ```csharp
 #r "assemblyPath: MyDll.dll"
 ```
 
-This is a reference declaration, not a complete program. For the alternate filename MyLib.dll, the directive is:
+For a file named MyLib.dll:
 
 ```csharp
 #r "assemblyPath: MyLib.dll"
 ```
 
-During compilation, resource metadata supplies the reference. At runtime, the assembly-load handler can resolve it from embedded bytes. Dependencies and runtime compatibility still need to be satisfied.
+At compile time the reference takes its metadata from the resource. At runtime the assembly-load handler can load the assembly from the resources. The DLL's dependencies and runtime compatibility are up to you.
 
-For example, **after adding a compatible Newtonsoft.Json.dll** to the project:
+For example, **after adding a compatible Newtonsoft.Json.dll** to the project you can run:
 
 ```csharp
 #r "assemblyPath: Newtonsoft.Json.dll"
@@ -178,6 +178,6 @@ Log.Info(JsonConvert.SerializeObject(new { Hello = "World" }));
 
 ## When a file change is not visible
 
-Resources are baked into the DLL. This provider's **Watch** returns **NullChangeToken**: changing a loose file does not rewrite a loaded assembly. Update the project resource or import it, wait for compilation, and run the new version.
+Resources are baked into the DLL. If you change the file on disk, the loaded assembly stays the same: this provider's **Watch** returns **NullChangeToken**. Update the resource in the project or import it from the IDE, wait for compilation and run the new version.
 
-For **Exists == false**, check project inclusion, full names and ambiguous endings such as `a/logo.png` and `b/logo.png`. For a DLL, also check its **assemblyPath** directive and dependency diagnostics. See [NuGet and assembly references](/en/scripting/nuget) for dependency declarations.
+If you get **Exists == false**, check three things: the file is in the project, the full name is right, and there are no identical endings such as `a/logo.png` and `b/logo.png`. For a DLL, also check its **assemblyPath** directive and the diagnostics for its dependencies.

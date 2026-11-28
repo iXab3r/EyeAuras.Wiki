@@ -9,19 +9,19 @@ dateCreated: 2024-09-11T21:03:45.385Z
 ---
 # Find a word, check its bounds and click once
 
-For a first attempt, display just **READY** in your own stable test window, away from submit buttons or other consequential controls. The script logs the detected box first. After you inspect it, you can permit one click. You need working OCR/OpenCV and **Windows Input**.
+The script finds a word on the screen and logs its box. When you allow it, it clicks that word once. For a first attempt, show just **READY** in your own test window that does not change and has no submit buttons or other important controls. You need working OCR/OpenCV and **Windows Input**.
 
-1. Create **Test** with a Text Search trigger and a sibling aura with a C# Script action.
-2. In the trigger, select your test window, restrict the region to the word, and verify **Recognized text** with **Refresh Once**.
+1. Create an aura named **Test** with a Text Search trigger, and next to it an aura with a C# Script action.
+2. In the trigger, select your test window, narrow the region to the word and check **Recognized text** with **Refresh Once**.
 
 | Setting | For this example |
 | --- | --- |
 | OCR Symbols | An available English engine. |
-| Include text segments | Enabled: individual boxes are required. |
-| Scale factor | **1**, with no effects for this first attempt. |
-| click in the program | Start at **false** for log-only inspection. |
+| Include text segments | Enabled: the script needs individual boxes. |
+| Scale factor | **1**. Leave the effects empty for the first attempt. |
+| click in the program | Start with **false**: the result is only logged. |
 
-3. Paste the complete program into top-level **Script.csx**. Click **Run** and select **the same test window** configured in the trigger:
+3. Paste the whole program into top-level **Script.csx**. Click **Run** and select **the same test window** as in the trigger:
 
 ```csharp
 using System.Linq;
@@ -60,20 +60,20 @@ try
 finally { input.TargetWindow = previousTarget; }
 ```
 
-4. With **click = false**, check the logged window, text and screen box against your visible word. If OCR splits it into several segments, adjust the language or region first.
-5. Keep the window in place, set **click = true**, and run again, selecting that same window. The cursor should move to the detected box's centre and make one left click. Return the flag to false afterwards.
+4. While **click = false**, check the window, text and box in the log against your word. If OCR split the word into several segments, fix the language or region first.
+5. Do not move the window. Set **click = true** and run again, selecting the same window. The cursor moves to the centre of the detected box and makes one left click. Set the flag back to false afterwards.
 
-To resolve recognition setup before enabling the click, use the [Text Search guide](/en/triggers/images/text-search) and the [log-only text example](/en/scripting/examples/basic/text-search). First confirm the recognized string, then enable the segment boxes required by this example.
+If you need to sort out recognition first, start with the [Text Search guide](/en/triggers/images/text-search) and the [log-only text example](/en/scripting/examples/basic/text-search).
 
-The conversion is explicit at each stage: local **Region → ToScreen → subtract DwmFrameBounds origin** for targeted input. The standard controller activates the selected window and adds that origin back. These are not client coordinates or a background click. Keep the window, zoom and display scale stable. OCR ScaleFactor other than 1 requires an additional segment-box conversion before ToScreen.
+Coordinates are converted once at each step: local **Region → ToScreen → subtract DwmFrameBounds origin**, because the input is aimed at the window. The standard controller activates the selected window and adds that origin back. Do not move the window or change the zoom during the test. If the OCR ScaleFactor is not 1, convert the segment box once more before ToScreen.
 
-The trigger and services are borrowed. The previous input target is restored in **finally**. The token reaches the OCR request and is checked before input; an already started synchronous click is not instantly cancelled. Escape or right-click cancels window selection. The top-level host supplies AuraTree/GetService/Log/token; helpers need explicit dependencies.
+The trigger and services are borrowed. The previous input target is restored in **finally**. The token goes into the OCR request and is checked before input, but a synchronous click that has already started is not cancelled right away. Escape or a right-click cancels window selection.
 
 <details>
 <summary>Inspect individual OCR segments</summary>
 
-After checking data.Detected, add `Log.Info(data.Detected.Segments.DumpToTable());` to inspect the raw segments, preserving this program's **PoeShared.Scaffolding** import. Segments depend on the engine and need not be words. Exact string comparison is case- and whitespace-sensitive; replace READY with your own unique target if needed. Disabled Include text segments is a setup issue, not proof that no matching word exists.
+Right after the data.Detected check you can add `Log.Info(data.Detected.Segments.DumpToTable());`. What ends up in Segments depends on the engine: they are not always words. String comparison is case- and whitespace-sensitive.
 
-OCR Score is an engine estimate, not an area percentage or a correctness guarantee. See [capture and coordinates](/en/scripting/api/computer-vision/images), [CV operations](/en/scripting/api/IComputerVisionExperimentalScriptingApi) and [input](/en/scripting/api/ISendInputScriptingApi) for the separate contracts.
+More on the API: [capture and coordinates](/en/scripting/api/computer-vision/images), [CV operations](/en/scripting/api/IComputerVisionExperimentalScriptingApi) and [input](/en/scripting/api/ISendInputScriptingApi).
 
 </details>

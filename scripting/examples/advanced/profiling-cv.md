@@ -9,13 +9,13 @@ dateCreated: 2025-03-22T15:03:07.266Z
 ---
 # Find which stage of a CV operation takes time
 
-Profiling breaks work into measured steps. Start with 10 colour searches in your own window: the event-log report separates first-use resource creation from later passes, without adding mouse movement to the measurement.
+Profiling splits one operation into measured steps. Start with 10 colour searches in your own window. The report in the event log shows how much time went into creating resources on first use and how much into the later passes.
 
-Use desktop EyeAuras with OpenCV and MiniProfiler. The first run needs only a visible coloured image in your own window; no model or template file. This is a **C# Script** action, not an ordinary C# class.
+You need desktop EyeAuras with OpenCV and MiniProfiler. For the first run, a visible window of your own with a coloured image is enough. No model or template file is needed. This is a **C# Script** action, not an ordinary C# class.
 
 ## Record a bounded series
 
-1. Prepare the window and add **C# Script**. Paste the complete program into `Script.csx`:
+1. Prepare the window and add a **C# Script** action. Paste the whole code into `Script.csx`:
 
 ```csharp
 using System;
@@ -76,27 +76,27 @@ using StackExchange.Profiling;
 }
 ```
 
-2. Click **Run** and select your window. The report contains **Warm-up**, 10 **Loop** steps and instrumented CV stages, in milliseconds. The last position is window-relative; **No match** describes the last frame.
-3. Compare warm-up separately from later passes. Record source, window size, ROI, operation, thresholds and environment. Each call gets a new frame: this measures a CV pipeline, not two algorithms on identical pixels.
+2. Click **Run** and select your window. The report has **Warm-up**, 10 **Loop** steps and the internal CV stages, with times in milliseconds. The last position is relative to the selected window. **No match** describes the last frame.
+3. Look at warm-up first, then at the later passes. Before you compare two runs, write down the source, window size, ROI, operation, thresholds and environment. Every call takes a new frame, so this measures the whole CV pipeline, not two algorithms on the same pixels.
 
 | Setting | How to choose it |
 | --- | --- |
-| `operation = "color"` | Finds the first RGB 255,87,34 pixel at 95% similarity. An absent colour measures the no-match path. `Point.Empty` is this API's no-result marker and is ambiguous with a match at 0,0. |
-| `operation = "image"` | Save your actual template to `C:\Images\target.png` and show it in the selected window. The 95% threshold is image similarity. |
-| `operation = "ml"` | Requires your own [Aim Trainer session](/en/scripting/examples/advanced/aimtracker-ml-ea), its external `Tgt` model and compatible ONNX Runtime setup. The first call includes loading/creation. |
-| `roi` | `Rectangle.Empty` means the whole selected-window capture. Your custom region uses window coordinates, without a desktop offset. |
-| `iterations` | Ten measured passes after one warm-up. `finally` reports collected steps on exit from the loop, including cancellation; a warm-up failure occurs before that block. |
+| `operation = "color"` | Finds the first RGB 255,87,34 pixel at 95% similarity. If the window has no such colour, the no-match path is measured. `Point.Empty` means "not found" in this API, so it cannot be told apart from a real match at 0,0. |
+| `operation = "image"` | Save your template to `C:\Images\target.png` beforehand and show it in the selected window. The 95% threshold is image similarity. |
+| `operation = "ml"` | Needs your own [Aim Trainer session](/en/scripting/examples/advanced/aimtracker-ml-ea), its external `Tgt` model and a compatible ONNX Runtime setup. The first call includes loading and creating the model. |
+| `roi` | `Rectangle.Empty` is the whole capture of the selected window. Set your own region in window coordinates, without a desktop offset. |
+| `iterations` | Ten measured passes after one warm-up. The report in `finally` prints the steps collected so far, even if you stop the script inside the loop. A failure in the warm-up itself happens before that block. |
 
-`EnableProfiling()` enables implemented timing points on this accessor. A **Refresh** step can include capture, effects and detection; its name does not mean each sub-operation has a separate timer. The main program has OSD disabled and sends no input. [Count pixels on one frame](/en/scripting/examples/advanced/profiling-countpixels) for a different comparison.
+`EnableProfiling()` turns on the timing points that the implementation provides, and only for this CV instance. A **Refresh** step can include capture, effects and detection: the step names do not mean every stage is timed separately. In the main code OSD is off and no input is sent. [Counting pixels on one frame](/en/scripting/examples/advanced/profiling-countpixels) is a different example.
 
-Synchronous capture/search receives no Run token: Stop is checked before the next pass. Results and `Captured.InputImage` are borrowed and must not be disposed separately. CV is released after reporting. The live timing tree grows in memory; the report storage's 60-minute TTL does not bound that tree.
+Synchronous capture and search do not take the token. Stop is checked before the next pass. Results and `Captured.InputImage` do not belong to the script, so do not dispose them separately. CV is released after the report. The timing tree grows in memory.
 
 <details>
 <summary>Measure display or your own reaction</summary>
 
-To include built-in highlighting, create CV with `.ForWindow(window).EnableProfiling().EnableOsd(fps: 10)`. **OSD** steps appear when highlighting actually updates; its FPS limit means this need not happen on every pass. Rendering adds work.
+To turn on built-in highlighting, create CV with `.ForWindow(window).EnableProfiling().EnableOsd(fps: 10)`. The report gets **OSD** steps when the highlighting is actually updated. Because of the FPS limit, that does not happen on every pass. Highlighting adds its own load.
 
-The following **fragment** goes in the main `for`, immediately after `lastPosition = FindCenter()` inside **Loop**, for a reaction on each suitable pass. For one reaction, place it after the loop while CV remains alive. Add it only after verifying the result in your own stable training window: Windows Input activates its recipient and moves/clicks the real cursor. Leave it out for a search-only measurement.
+The following **fragment** goes into the main `for`, right after `lastPosition = FindCenter()` inside **Loop**. Then the reaction runs on every pass with a match. For a single reaction, put it after the loop while CV is still alive. Use it only in your own stable training window and with a verified result: Windows Input activates the window and moves and clicks the real cursor. Leave it out for a search-only measurement.
 
 ```csharp
 var input = GetService<EyeAuras.Roxy.Api.ISendInputScriptingApi>();
@@ -120,18 +120,18 @@ finally
 }
 ```
 
-Movement and click get separate steps. The input target is set, so these are window coordinates; another `ToScreen` would convert twice. Focus can change after checking it, and the synchronous input cannot be interrupted by the Run token. Put the reaction before report output so its completed steps are included.
+Movement and click are measured as separate steps. `TargetWindow` is set, so window coordinates are passed, and calling `ToScreen` again would convert twice. The active window can change between the check and the input. The token does not interrupt synchronous input. Put the reaction before the report output so that its finished steps are included.
 
-For several scripts, `IProfilerProvider.GetOrAdd(string name)` provides an explicitly named shared profiler. Keep independent runs separate from that shared tree. The implementation uses [MiniProfiler](https://miniprofiler.com/); see its [source](https://github.com/MiniProfiler/dotnet) and [Step guide](https://miniprofiler.com/dotnet/HowTo/ProfileCode). A namespace import supplies types/extensions, not every runtime service in an arbitrary host.
+For several scripts there is `IProfilerProvider.GetOrAdd(string name)`, a shared profiler with an explicit name. Keep independent runs out of that shared tree if you want to compare them. The implementation uses [MiniProfiler](https://miniprofiler.com/). See its [source](https://github.com/MiniProfiler/dotnet) and [Step guide](https://miniprofiler.com/dotnet/HowTo/ProfileCode).
 
 </details>
 
 <details>
 <summary>Aggregate a report as text or HTML</summary>
 
-Create `ProfileReport.cs` in the same script project with the full helper below. HTML output requires **Mason.FluentHtml 3.0.1**, the host's dependency version rather than a promise for every SDK host. If missing, put `#r "nuget:Mason.FluentHtml, 3.0.1"` at the beginning of `Script.csx`. MiniProfiler remains a host dependency (**4.3.8** in this setup).
+Create `ProfileReport.cs` in the same script project with the full helper below. HTML output needs **Mason.FluentHtml 3.0.1**. That is the version in the current host, and another SDK host may not have it. If the reference is missing, add `#r "nuget:Mason.FluentHtml, 3.0.1"` at the top of `Script.csx`. MiniProfiler stays a host dependency (**4.3.8** in this setup).
 
-After the loops, while CV is alive, replace the `finally` report output with this **fragment**:
+After the loops, while CV is still alive, replace the report output in `finally` with this **fragment**:
 
 ```csharp
 Log.Info(cv.Profiler.RenderPlainText());
@@ -145,7 +145,7 @@ GetService<EyeAuras.Shared.Services.IAuraEventLoggingService>().LogMessage(
     });
 ```
 
-Complete `ProfileReport.cs`:
+The full `ProfileReport.cs`:
 
 ```csharp
 using System.Linq;
@@ -294,16 +294,16 @@ public static class ProfileReport
 }
 ```
 
-The helpers group completed direct child timings of root steps by name, skip unfinished `DurationMilliseconds`, and choose sorted-sample indices for the 1st/99th percentiles. That is one aggregation strategy, not universal statistics for every tree depth. Change the selection deliberately for another nesting. The ordinary class receives `MiniProfiler`; it has no ambient `Log`/`GetService`.
+The helpers group by name the finished timings that sit directly under the root steps, skip unfinished `DurationMilliseconds` and take the 1st and 99th percentiles from the sorted list. If your nesting is different, adjust the selection to it. The ordinary class gets `MiniProfiler` as a parameter. The global `Log`/`GetService` are not available to it.
 
-![HTML report from the earlier example](https://s3.eyeauras.net/media/2025/03/JxiAlxDqzw9sxCOc.png)
+![HTML profiling report](https://s3.eyeauras.net/media/2025/03/JxiAlxDqzw9sxCOc.png)
 
 </details>
 
 <details>
 <summary>Historical output from 22 March 2025</summary>
 
-These numbers from **DESKTOP-PK81KT3** belong to the earlier ML/OSD/move/click loop. One line is truncated in the original excerpt; frame, hardware and load are not fully recorded. It illustrates timing-tree and aggregate formats, not a run of this page's current program or a speed target for your host.
+These numbers come from **DESKTOP-PK81KT3** and the earlier loop with ML, OSD, movement and click. One line in the excerpt is truncated. Treat them as an example of the timing tree and the summary format.
 
 ```text
 [Script] Performance stats:

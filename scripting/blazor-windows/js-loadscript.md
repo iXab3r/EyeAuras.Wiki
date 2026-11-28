@@ -9,10 +9,10 @@ dateCreated: 2025-05-12T00:32:40.408Z
 ---
 # Read an element's width through JavaScript
 
-Measure a panel inside WebView2 and show the returned number in Razor. The module reads browser DOM geometry; this is not the native Windows window size.
+To find out the real width of an element inside WebView2, you need the browser DOM. Let's write a small ES module: a button measures the panel and Razor shows the number. This is the size on the browser page, not the size of the native Windows window.
 
-1. Create your own aura with **C# Overlay** and **Fixed Value → Is Active**. In the project, choose **New file → JavaScript**, name it `Status` and replace the template contents with the module below.
-2. List its full embedded name with this short `Script.csx` entry point:
+1. Create an aura with **C# Overlay** and **Fixed Value → Is Active**. In the project, choose **New file → JavaScript** and name the file `Status`. Replace the template code with the module below.
+2. Find out its full resource name with this short `Script.csx`:
 
 ```csharp
 foreach (var name in typeof(Script).Assembly.GetManifestResourceNames())
@@ -21,8 +21,8 @@ foreach (var name in typeof(Script).Assembly.GetManifestResourceNames())
 }
 ```
 
-3. Replace `MyScript.Status.js` in the import below with the actual name from the log. A folder contributes to the name, for example `MyScript.UI.Status.js`; changing only the component namespace does not change that resource name. See [embedded resources](/en/scripting/embedded-resources).
-4. Replace both component parts. `BlazorDemo` must match in `.cs` and `.razor`; do not leave duplicate generated counter members beside them. The host serves the project resource at its page base URI; `./` imports relative to that base, not from a Windows path.
+3. In the import line below, replace `MyScript.Status.js` with the full name from the log. Folders are part of the name, for example `MyScript.UI.Status.js`. Changing the component's namespace does not change the resource name. More in [embedded resources](/en/scripting/embedded-resources).
+4. Replace both parts of the component. `BlazorDemo` must be the same in `.cs` and `.razor`. Do not leave the generated counter members next to the new code. The project resource is served from the page's base URI, so `./` in the import is relative to that address, not to a Windows path.
 
 ## Status.js
 
@@ -101,38 +101,38 @@ public partial class UserOverlay : BlazorReactiveComponent
 }
 ```
 
-5. Once compilation and import finish, **Measure width** becomes enabled. Click it: `0` changes to the panel's rounded rendered width, including padding and border. Change its CSS width and repeat; CSS box sizing affects the returned value.
+5. Wait until the project compiles and the module loads. The **Measure width** button becomes enabled. Click it, and `0` changes to the rounded width of the panel, including padding and border. Change the panel's CSS width and measure again. CSS box sizing affects the number.
 
 | Part | Purpose |
 | --- | --- |
-| `JsRuntime` | An injected member of `BlazorReactiveComponent`, not an ordinary C# global. |
-| `import` / `IJSObjectReference` | Loads an ES module and owns a reference used to call its exports. |
-| `ElementReference` | Passes the specific rendered element without a global ID lookup. |
-| `getWidth` | Reads [getBoundingClientRect](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) in CSS pixels. Razor owns rendering the returned value. |
-| `DisposeAsync` | Waits for an import already started, releases the module reference, then calls base cleanup. |
+| `JsRuntime` | A member of `BlazorReactiveComponent` that is injected for you. Ordinary C# classes have no such global. |
+| `import` / `IJSObjectReference` | Loads an ES module. The component keeps the reference and calls the module's exports through it. |
+| `ElementReference` | Passes the exact rendered element, with no lookup by a global ID. |
+| `getWidth` | Reads [getBoundingClientRect](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) in CSS pixels and returns a number. Razor shows the result. |
+| `DisposeAsync` | Waits for an import that has already started, releases the module reference, then runs the base class cleanup. |
 
-This module adds no timers or event listeners. If you add them, export a cleanup function and call it before disposing the module reference: `DisposeAsync` alone does not cancel them. Hiding the window is not component disposal.
+This module has no timers or event listeners. If you add some, export a cleanup function and call it before you dispose the module reference. `DisposeAsync` alone does not cancel them.
 
 ## LoadScript is a different loading mode
 
 | Method | Use |
 | --- | --- |
-| ES module import | Your own code with explicit exports, invoked through the component-owned reference. |
-| `IJsPoeBlazorUtils.LoadScript(path)` | An existing classic library. Creates a `script` with `type="text/javascript"` and returns a task; it does not import exports. |
-| `IJsPoeBlazorUtils.LoadCss(path)` | Connects a stylesheet without returning automatic removal ownership. |
+| ES module import | Your own code with explicit exports. You call the functions through the reference the component owns. |
+| `IJsPoeBlazorUtils.LoadScript(path)` | An existing classic library. Creates a `script` with `type="text/javascript"` and returns a task. It does not import exports. |
+| `IJsPoeBlazorUtils.LoadCss(path)` | Connects a stylesheet. It returns nothing you could use to remove the stylesheet automatically. |
 
-For an existing classic library, inject `PoeShared.Blazor.Services.IJsPoeBlazorUtils` with `[Inject]`, then call `await BlazorUtils.LoadScript("MyScript.Library.js")` from `OnAfterFirstRenderAsync`, using the actual resource name. Do not load the exported `Status.js` with that API. The loader caches paths even while loading or after failure; a repeated call is not a wait or a success check. The library's shutdown remains a separate contract.
+To connect an existing classic library, inject `PoeShared.Blazor.Services.IJsPoeBlazorUtils` with `[Inject]`. Then call `await BlazorUtils.LoadScript("MyScript.Library.js")` from `OnAfterFirstRenderAsync`, with the real name of its resource. Do not load `Status.js` this way, because it uses exports. The loader remembers a path even while it is loading or after it failed, so a second call does not wait and does not check for success again. How to shut the library down is up to the library.
 
-For a stylesheet that belongs to the component markup, use [a CSS file through HeadContent](/en/scripting/blazor-windows/toggles-styling-cssfile). Choose [LoadCss after rendering](/en/scripting/blazor-windows/toggles-styling-css-load) when C# must decide when to connect it; this does not give the stylesheet the module reference’s cleanup lifetime.
+If a stylesheet belongs to the component's markup, connect [a CSS file through HeadContent](/en/scripting/blazor-windows/toggles-styling-cssfile). If C# has to decide when to connect it, use [LoadCss after rendering](/en/scripting/blazor-windows/toggles-styling-css-load).
 
-The historical [series sample](/en/scripting/blazor-windows/1-intro) used this classic loading route for CDN `rgba.js`, local `Script.js` and canvas CSS. This animation shows that third-party example, not the measurement above; its CDN and library contracts are separate prerequisites:
+The old [series sample](/en/scripting/blazor-windows/1-intro) used the classic loader for `rgba.js` from a CDN, a local `Script.js` and CSS for a canvas:
 
-![Historical third-party animation](https://s3.eyeauras.net/media/2025/05/9dIx2khkoQ.gif)
+![Third-party library animation from the old sample](https://s3.eyeauras.net/media/2025/05/9dIx2khkoQ.gif)
 
 <details>
 <summary>Change a dedicated element's text through the module</summary>
 
-The text-changing variant uses the same project/import/lifetime. Add this export to `Status.js`:
+The old sample changed text through JS. To do the same in this project, add this export to `Status.js`:
 
 ```javascript
 export function setStatus(element, text) {
@@ -140,7 +140,7 @@ export function setStatus(element, text) {
 }
 ```
 
-Add this markup next to the existing measurement button in `UserOverlay.razor`:
+Add this markup next to the measurement button in `UserOverlay.razor`:
 
 ```razor
 <button class="btn btn-primary" disabled="@(!ready)" @onclick="ShowStatus">
@@ -149,7 +149,7 @@ Add this markup next to the existing measurement button in `UserOverlay.razor`:
 <span @ref="statusElement"></span>
 ```
 
-Add these members inside its existing `@code` block:
+Add these members inside the existing `@code` block:
 
 ```csharp
 private ElementReference statusElement;
@@ -161,6 +161,6 @@ private async Task ShowStatus()
 }
 ```
 
-Clicking the button writes **Done** into its dedicated empty span. Do not also make Razor dynamically manage that span's children. For an ordinary label, changing C# state and awaiting `Refresh` is simpler.
+A click on the button writes **Done** into the empty span. Razor must not manage the contents of that span at the same time. For an ordinary label it is simpler to change a C# value and await `Refresh`.
 
 </details>

@@ -1,6 +1,6 @@
 ---
 title: "Inspect a one-second pulse and its recorded state changes"
-description: "Combine an equal 1000/1000 ms Timer, locked Text and Event Viewer to follow the same aura through a restart."
+description: "A 1000/1000 ms Timer, a locked Text and Event Viewer show how an aura changes state and starts a new cycle after you re-enable it."
 published: true
 date: 2026-11-10T17:01:45.000Z
 tags: recipes, intermediate
@@ -10,29 +10,33 @@ dateCreated: 2026-11-10T17:01:45.000Z
 
 # Follow a pulse in the overlay and event messages
 
-Make **Pulse active** appear for roughly one second and hide for roughly one second, then compare it with the state-change records for that aura. Disable and re-enable it to distinguish a new cycle from continuation of an old phase.
+The aura shows the text **Pulse active** for about a second, then hides it for about a second. You will compare this with the state records for the same aura in the event log. If you disable the aura and enable it again, you will see that a new cycle starts and the old phase does not continue.
 
-Use a new display-only aura, with EyeAuras unpaused. No external window, script or action is needed. Keep **both** Timer values equal; this recipe does not infer the unequal-duration mapping from editor captions.
+Create a separate display-only aura. EyeAuras must not be paused. You do not need an external window, a script or actions. Keep **both** Timer values equal.
 
 ## Prepare the display and event collection
 
-1. Create **New Aura → Pulse check**. Add only **Triggers → Timer**. Set **Active for = 1000** and **Not Active for = 1000**, both in **ms**. Leave inversion and extra activation/deactivation delays off; leave action lists empty.
+1. Create **New Aura → Pulse check**. Add only **Triggers → Timer**. Set **Active for = 1000** and **Not Active for = 1000**, both in **ms**. Turn off inversion and the extra activation and deactivation delays. Leave the action lists empty.
 
    ![Active for and Not Active for fields in the Timer editor.](/assets/callouts/batch3/en/timer-intervals.png)
-
-   In the earlier Timer panel, the active interval is 1000 ms and the inactive interval is 500 ms. Set both to 1000 ms for a symmetric cycle.
-2. Under **Overlays**, add **Text**: **Content** `Pulse active`, **Font 24**, **Size to fit** off. Keep **Window → Mode → Overlay**; unlock and place a readable rectangle, then enable **Locked**. Select another aura before observing visibility so the editing preview does not hold the text on screen.
-3. Use **Show event log** in the main window and open **Event Viewer** before restarting the cycle. Show its filters, enable **Auras**, set **Level → Info**, clear the text filter and unpause the panel. Keep it open rather than collapsed.
-4. Disable Pulse check with its aura switch, then enable it again. The new cycle starts Inactive: initially the text is hidden, then appears after roughly one second, hides after roughly another second, and repeats.
-5. In Event Viewer enter `Aura state changed to` in the text filter. Find entries whose **context** is Pulse check and compare their timestamps with the observed transitions. The message is emitted by the aura model in category Auras; it reports that aura's combined state, not a special Timer action. Other auras can produce the same message, so do not identify it by text alone.
+2. Under **Overlays**, add **Text**: **Content** `Pulse active`, **Font 24**, **Size to fit** off. Keep **Window → Mode → Overlay**. Unlock the overlay, place the rectangle so the text is readable, then enable **Locked**. Select another aura while you watch. Otherwise the editor preview keeps the text on screen.
+3. Click **Show event log** in the main window to open **Event Viewer** before you start a new cycle. Show its filters, enable **Auras**, set **Level → Info**, clear the text filter and unpause the panel. Do not collapse it.
+4. Disable Pulse check with its aura switch, then enable it again. The new cycle starts Inactive: the text is hidden at first, appears after about a second, hides after about another second, and so on.
+5. In Event Viewer, enter `Aura state changed to` in the text filter. Find the entries whose **context** is Pulse check and compare their timestamps with what you saw on screen. The message reports the aura's combined state, not a separate Timer action. Other auras can write the same text, so the message alone is not enough without the context.
 
 | Observation | Meaning |
 | --- | --- |
-| Initial inactive wait, then alternating visible/hidden Text | Timer's equal-duration condition controls normal overlay visibility |
-| Reported state changes for Pulse check | The aura model reported its transitions; not confirmation of an external operation |
-| Disabled trigger or unavailable/null state | Work is stopped/unavailable; not another ordinary timed Inactive phase |
-| Re-enabled aura | A fresh inactive wait, not the old phase's remaining time |
+| Inactive wait first, then Text is visible and hidden in turn | A Timer with equal durations controls normal overlay visibility |
+| State-change records for Pulse check | The aura model reported its transitions |
+| Trigger disabled or state unavailable/null | Work is stopped or unavailable. This is not another ordinary Inactive phase |
+| Aura re-enabled | A fresh inactive wait, not the rest of the old phase |
 
-Disable the aura again and confirm periodic display stops; select away and leave the editor if its preview remains visible. Re-enable for another deliberate cycle. A full repeat is about two seconds, with scheduling overhead, not an exact stopwatch guarantee. Changing a duration restarts the cycle too; values below 100 ms are clamped, and zero is not a phase-disable command. Keep this exercise at 1000/1000.
+Disable the aura again: the text should stop appearing. If the preview is still visible, select another item and leave the editor. Enable the aura to start a new cycle.
 
-[Timer](/en/triggers/timer) supplies the condition, [Text](/en/overlays/text) and [common options](/en/overlays/common-options) make it visible, and [Event Viewer](/en/features/event-viewer) helps inspect reported transitions. Its text filter searches messages, not context names. The panel retains only 250 accepted entries and misses events while paused, collapsed or filtered out by category; missing history alone does not prove the Timer stopped. Clear filters and repeat with collection open when needed. A [Wait](/en/behavior-trees/nodes/wait) would delay one tree route, not create this periodic aura pulse.
+A full repeat takes about two seconds plus scheduling overhead. Changing a duration also restarts the cycle. Values below 100 ms are raised to that minimum, and zero does not turn a phase off.
+
+[Timer](/en/triggers/timer) supplies the condition, [Text](/en/overlays/text) and [common options](/en/overlays/common-options) make it visible, and [Event Viewer](/en/features/event-viewer) shows the transitions the aura reported.
+
+The text filter searches messages, not context names. The panel keeps only 250 accepted entries and misses events while it is paused, collapsed or the category is turned off. If the history is empty, clear the filters and repeat with the panel open.
+
+[Wait](/en/behavior-trees/nodes/wait) does not fit here: it would delay one tree route, not create this periodic aura pulse.

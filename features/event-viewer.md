@@ -1,6 +1,6 @@
 ---
 title: Event Viewer
-description: Inspect aura events and filter diagnostic messages
+description: The EyeAuras event log and how to find the entry you need
 published: true
 date: 2024-05-03T08:09:18.170Z
 tags: log event viewer logging
@@ -10,55 +10,53 @@ dateCreated: 2024-05-03T08:09:18.170Z
 
 # Event Viewer — see what an aura actually did
 
-When an action does not produce the expected result, open Event Viewer to see whether execution reached it and whether an error was reported. Each entry has a timestamp, importance level, message and context identifying its source.
+Event Viewer is the EyeAuras event log. If an action did not work as expected, open it and see whether execution reached the right place and whether there was an error. Each entry has a time, an importance level, a message and a context: the object that created it.
 
 ## Find your script's message
 
-1. In the main window, use the button with the **Show event log** tooltip and open the **Event Viewer** tab. Open the panel before running the check.
-2. Add **C# Script** to an aura's On Enter actions. In its top-level script editor, use this one-line program:
+1. In the main window, click the button with the **Show event log** tooltip and open the **Event Viewer** tab. Open the panel before you run the check.
+2. Add **C# Script** to an aura's On Enter actions. In the top-level script editor, leave one line:
 
    ```csharp
    Log.Info("Event viewer check");
    ```
 
-3. In Event Viewer, use the magnifying-glass button to show filters. Set **Level — Info**, enable **Scripts**, clear the text filter and make sure the panel is not paused.
-4. Click **Run** in the C# Script editor. Enter `Event viewer check` in the Event Viewer text filter.
+3. In Event Viewer, open the filters with the magnifying-glass button. Set **Level — Info**, turn on **Scripts** and clear the text filter. If the panel is paused, unpause it.
+4. Click **Run** in the C# Script editor. Type `Event viewer check` into the Event Viewer text filter.
 
-An entry with that message and its aura/action context should appear. It confirms that the Log.Info line ran, not that any later work succeeded. Clear the filter before looking for different messages.
+An entry with your message and its context, the aura and the action, appears. Clear the filter before the next check, or messages with other text stay hidden.
 
-`Log` is supplied by the top-level C# Script host; it is not a global available to an ordinary C# class. See [Getting started with scripting](/en/scripting/getting-started).
+`Log` here comes from the top-level C# Script editor. It is not available in an ordinary C# class. See [Getting started with scripting](/en/scripting/getting-started).
 
 ![Message, context and filtering in Event Viewer](/assets/8l0pawo[1].png)
 
-In this older screenshot, 1 marks key-delivery messages, 2 their context, and 3 the filters. Those entries come from input actions rather than the script above.
+In the screenshot, 1 marks the text of key-sending entries, 2 their context and 3 the filters.
 
 ## Filters and controls
 
-![The Level filter shows Info and the Scripts box is checked.](/assets/callouts/batch2/en/event-viewer-filters.png)
-
-In Event Viewer 1.4.6834.0, the minimum level is Info and the Scripts category is enabled. These two filters let the example’s Log.Info message through.
+![The Level filter shows Info and the Scripts box is checked](/assets/callouts/batch2/en/event-viewer-filters.png)
 
 | Control | What it does |
 | --- | --- |
-| Text filter | Matches a substring of the message, ignoring case. A context name alone is not message text. |
-| Level | Minimum importance shown. Info also includes Warning and Error; Debug adds more detail. The default is Info. |
-| Kbd/Mouse, Auras, Compiler, Scripts, System, Comms, Console | Enables the respective event categories. Choose Scripts for script messages and Compiler for compilation diagnostics. |
-| Pause | Stops this panel from accepting new entries. Events missed while paused do not arrive later. |
-| Up/down arrows | Scrolls to the beginning or end of the list. |
-| Trash button | Clears the panel's entries. |
+| Text filter | Looks for a substring in the message text, ignoring case. The context name is not part of the message text. |
+| Level | Minimum importance shown. Info also shows Warning and Error. Debug adds more detailed messages. The default is Info. |
+| Kbd/Mouse, Auras, Compiler, Scripts, System, Comms, Console | Turn on event categories. Use Scripts for script messages and Compiler for compilation. |
+| Pause | The panel stops taking new entries. Events missed during the pause do not show up later. |
+| Up/down arrows | Jump to the beginning or end of the list. |
+| Trash button | Clears the entries in the panel. |
 
 ## Choose a level
 
-| Level | Typical use |
+| Level | What you usually look for |
 | --- | --- |
-| Trace | Very detailed technical messages, potentially including network traffic details; often numerous. |
-| Debug | Operation progress, loading/unloading and intermediate states. |
-| Info | Ordinary events and work performed, such as input or notification actions. |
-| Warning | Something needs attention, but execution may have recovered or continued. The UI may call this Warn. |
-| Error | An execution or configuration error. Read both the message and its context. |
+| Trace | The most detailed technical messages, sometimes including network traffic details. There can be a lot of them. |
+| Debug | Progress of operations, loading and unloading, intermediate states. |
+| Info | Ordinary events and work done, such as input or notification actions. |
+| Warning | Something worth your attention, but the work does not necessarily stop. The UI may call this Warn. |
+| Error | An execution or configuration error. Read the message and its context. |
 
-The panel keeps the latest 250 accepted entries. Disabling a category prevents new entries in that category from entering its history; enabling it later cannot recover them. A collapsed panel also stops collecting. Open the panel, set its filters, then repeat the action you want to diagnose.
+The panel keeps the latest 250 accepted entries. If a category is off, its new events do not get into the history, and turning the filter on later does not bring them back. A collapsed panel does not collect entries either.
 
-If a visual check never activates, first inspect its [source frame and region](/en/triggers/images/imagecapturetriggers) and [enabling conditions](/en/features/enabling-conditions). Event Viewer helps follow reported action execution or errors; a log entry alone does not show that an external recipient processed a command.
+If an image check never activates, first check its [source frame and region](/en/triggers/images/imagecapturetriggers) and [enabling conditions](/en/features/enabling-conditions).
 
-Display filters are not settings for application log files. To send diagnostic information to the developer, use a [problem report](/en/features/problem-reports); Event Viewer is not a complete archive.
+To pass diagnostics to the developer, send a [problem report](/en/features/problem-reports).

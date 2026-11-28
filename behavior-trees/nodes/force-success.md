@@ -10,14 +10,14 @@ dateCreated: 2024-03-07T23:34:41.470Z
 
 # Force Success — continue after an optional step fails
 
-Wrap an optional check in `Force Success` when its normal `Failure` should not stop the parent sequence. The decorator changes a completed result to `Success`; it preserves `Running` while the child still has work to do. It does not repair the failed operation.
+`Force Success` turns its child's `Failure` into `Success`. Use it when a check is optional and the sequence should go on whatever the outcome. While the child is still working, the node returns `Running`.
 
 ## Try it in your own tree
 
-Create a separate tree using [Getting Started](/en/behavior-trees/gettings-started). Keep `Activation → Is Loaded` and `Execution → When Activated → Do nothing` so you control each tick manually.
+Create a separate tree using [Getting Started](/en/behavior-trees/gettings-started). Keep `Activation → Is Loaded` and `Execution → When Activated → Do nothing`, so that every tick is manual.
 
-1. Use `Add new Node` to add `Sequence`, `Force Success` and two `Fixed Status` nodes. Connect them as below, with Sequence's children ordered left to right.
-2. Set the child of Force Success to `General → Status → Failure`, and the last Fixed Status to `Success`. Select Force Success and check the connected node in `General → Child`.
+1. Use `Add new Node` to add `Sequence`, `Force Success` and two `Fixed Status` nodes. Connect them as below. Sequence's children go left to right.
+2. Set the child of Force Success to `General → Status → Failure` and the last Fixed Status to `Success`. Select Force Success and check that `General → Child` shows the right child.
 
 ```text
 My Tree
@@ -27,25 +27,23 @@ My Tree
    └─ Fixed Status: Success
 ```
 
-3. Click the upper `Tick BT Once`. The first check returns `Failure`, Force Success returns `Success`, and Sequence reaches the final child and succeeds.
-4. Change the first check to `Running` and tick again. Force Success and Sequence now return `Running`; the last child is not called in that tick. Change the check back to `Failure` and use the same tick button: Sequence resumes that step and can finish.
+3. Click the upper `Tick BT Once`. The first Fixed Status returns `Failure` and Force Success returns `Success`. Sequence reaches the last child and finishes with `Success`.
+4. Set the first Fixed Status to `Running` and tick again. Force Success and Sequence return `Running`, and the last child does not run in that tick. Set the first one back to `Failure` and click the same button. The sequence runs to the end.
 
 | Setting or child result | Effect |
 | --- | --- |
-| Child | One enabled child. Put several steps in a child Sequence |
+| Child | One connected child. For several steps, connect your own Sequence to Force Success |
 | Success | Force Success returns Success |
-| Failure | Force Success returns Success, allowing the parent to continue |
-| Running | Force Success returns Running |
+| Failure | Force Success also returns Success, and the parent can go on |
+| Running | Force Success returns Running, and the child keeps working |
 
-The original small schema describes the terminal-failure case:
+The smallest case, a failed child whose result is changed:
 
 ```plaintext
 Force Success
     └── Child Node (Failure)
 ```
 
-If failed work should be retried instead of accepted, use [Until Success](/en/behavior-trees/nodes/until-success); it makes another attempt on a later tick. Use [Selector](/en/behavior-trees/nodes/selector) when you want to try a different branch after Failure.
+If the failed step should be retried, use [Until Success](/en/behavior-trees/nodes/until-success). It tries again on the next tick. If you want a different option after Failure, use [Selector](/en/behavior-trees/nodes/selector).
 
-With no connected children, Force Success returns `Success`. A connected but disabled child is different: there is no enabled child to execute, and the decorator reports a configuration error. Exceptions and cancellation are not converted into success.
-
-Use this for an optional step whose failure you deliberately accept. It cannot guarantee that an action succeeded in another application, and should not hide a failure that must stop the sequence.
+With no children, the node returns `Success`, but an optional step needs a child. Force Success does not turn execution errors or cancellation into success.

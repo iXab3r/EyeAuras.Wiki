@@ -9,11 +9,11 @@ dateCreated: 2025-05-11T14:52:06.974Z
 ---
 # Put three toggles on one panel
 
-Control three of your own auras from one panel. Each item holds its actual trigger, so a button and its hotkey change the same value without three mirrored state properties.
+Let's put buttons for three auras on one panel. Each button reads and changes its real trigger, so the button and the hotkey change the same value. You do not need copies of the state or three sets of identical properties.
 
-1. In one folder, create `TargetAura 1`, `TargetAura 2` and `TargetAura 3`. Give each **Hotkey Is Active → Toggle** with a different free hotkey. Leave them loaded, with no actions for this exercise.
-2. Add a separate panel aura with **C# Overlay** and **Fixed Value → Is Active**.
-3. Replace its two component files below. Leave `Script.csx` as a short entry point without waiting.
+1. In one folder, create `TargetAura 1`, `TargetAura 2` and `TargetAura 3`. Add **Hotkey Is Active → Toggle** to each, with its own free hotkey. Leave the auras loaded. They need no actions.
+2. Add a separate aura for the panel, with **C# Overlay** and **Fixed Value → Is Active**.
+3. Replace its two component files with the code below. Leave `Script.csx` as a short entry point with no waiting.
 
 ## UserOverlay.cs
 
@@ -80,19 +80,19 @@ public partial class UserOverlay : BlazorReactiveComponent
 </div>
 ```
 
-4. Once compilation finishes, click the second button. Only the trigger in `TargetAura 2` changes. Toggle another trigger with its hotkey: its panel button catches up in about a second.
+4. After compilation, click the second button. Only the trigger in `TargetAura 2` changes. Now toggle another trigger with its hotkey. Its button on the panel shows the change within about a second.
 
 ![Three buttons for three auras in the earlier example](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_WPu1ZGwKwS.gif)
 
 | Setting or part | What it changes |
 | --- | --- |
-| Labels and paths in `items` | One entry connects a label to its trigger. Paths are relative to the panel's tree context; missing aura/trigger lookup throws, and multiple matching triggers select the first. |
-| `ToggleItem.IsActive` | Reads the current `TriggerValue`; `null` is displayed as off. The model stores a reference, not a second writable value. |
-| `SetActive(item, value)` | Writes only the chosen trigger and refreshes the panel after the click. |
-| `Observable.Timer(..., TimeSpan.FromSeconds(1))` | Requests periodic refreshes so hotkey changes become visible. This is polling, not property-change observation. |
-| `d-flex gap-1` | Places the buttons in a row with spacing. Other [Bootstrap](https://getbootstrap.com/) gap sizes can change the spacing. |
-| `alert alert-info` | Gives the group a coloured background. [Bootstrap button styles](https://getbootstrap.com/docs/5.3/components/buttons/) provide other appearances. |
+| Labels and paths in `items` | Each entry ties a label to its trigger. Paths are relative to the panel's place in the tree. If the aura or the trigger is missing, the lookup throws. If several triggers match, the first one is used. |
+| `ToggleItem.IsActive` | Reads the current `TriggerValue` and shows `null` as off. The model stores a reference to the trigger, not a copy of its value. |
+| `SetActive(item, value)` | Writes only to the chosen trigger and redraws the panel after the click. |
+| `Observable.Timer(..., TimeSpan.FromSeconds(1))` | Redraws the panel once a second, so changes made by hotkeys show up. This is polling, not a subscription to a property. |
+| `d-flex gap-1` | Puts the buttons in a row with gaps. Other [Bootstrap](https://getbootstrap.com/) gap sizes change the spacing. |
+| `alert alert-info` | Gives the group a coloured background. Other looks are in the [Bootstrap button styles](https://getbootstrap.com/docs/5.3/components/buttons/). |
 
-Add the timer before `base.OnInitialized()`. The base class seals `ChangeTrackers`, subscribes through component `Anchors` and releases the subscription when the component is disposed. Hiding its window alone may leave polling active; do not create another timer in `Script.csx`.
+Add the timer before `base.OnInitialized()`. The base class then seals `ChangeTrackers`, subscribes through the component's `Anchors` and unsubscribes when the component is disposed. Do not create a second timer in `Script.csx`.
 
-For a notifying source, use [TriggerValue observation](/en/scripting/blazor-windows/reactive-toggle) for each item instead of the timer. The aura's other conditions still determine its overall activity. Continue with [colours, content and conditional buttons](/en/scripting/blazor-windows/toggle-styling).
+To update the panel on an event instead of once a second, [watch TriggerValue](/en/scripting/blazor-windows/reactive-toggle) for each item. The [next styling example](/en/scripting/blazor-windows/toggle-styling) changes the colour, content and visibility of the buttons.

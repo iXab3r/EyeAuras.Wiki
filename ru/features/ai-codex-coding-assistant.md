@@ -59,7 +59,7 @@ Codex — это режим AI-помощника для работы с код�
 <details>
 <summary>Agent Guidance и внешняя IDE</summary>
 
-В `Show Settings` есть [Agent Guidance](/ru/features/ai-assistant#agent-guidance). Для внешнего агента нажмите `Rebuild`, затем `Add to C# Project` или `Add to Solution`. Появится папка `generated/ai/` с инструкциями, снимком документации и метаданными. Её `AGENTS.md` — точка входа в этот пакет. Корневой файл инструкций вашего проекта он не заменяет.
+В `Show Settings` есть [Agent Guidance](/ru/features/ai-assistant). Для внешнего агента нажмите `Rebuild`, затем `Add to C# Project` или `Add to Solution`. Появится папка `generated/ai/` с инструкциями, снимком документации и метаданными. Её `AGENTS.md` — точка входа в этот пакет. Корневой файл инструкций вашего проекта он не заменяет.
 
 Встроенный Codex получает документацию и так. Для внешней IDE пригодятся статьи про [подключение IDE](/ru/scripting/ide-integration) и [практики скриптов](/ru/scripting/best-practices). MCP даёт подключённому клиенту инструменты для работы с контекстом EyeAuras.
 

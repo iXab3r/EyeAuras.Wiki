@@ -1,6 +1,6 @@
 ---
 title: "Recipes"
-description: "Choose a complete EyeAuras task with prerequisites, settings and an observable result."
+description: "Ready-made solutions for specific tasks, with what to prepare, how to set it up and what you get."
 published: true
 date: 2026-11-10T16:05:04.371Z
 tags: recipes
@@ -10,13 +10,13 @@ dateCreated: 2026-11-10T16:05:04.371Z
 
 # Choose a task to build
 
-Recipes combine several EyeAuras features to solve one concrete task. Choose the result you want, prepare the stated source window or image, then follow the complete setup. Feature guides remain available for individual settings and alternatives.
+A recipe is a ready-made solution for one task, built from several EyeAuras features. Choose the result you want, prepare the window or image it needs, and follow the setup to the end.
 
-Start with [Basic recipes](/en/recipes/basic) for tasks that do not require programming. A foreground reminder needs only your own window and entered text; visual checks also need a source that can supply current pixels. A sound recipe needs an available audio output.
+Start with [Basic recipes](/en/recipes/basic). They need no programming.
 
-For shared configuration, OCR filtering and deliberately driven tree execution, choose [Intermediate recipes](/en/recipes/intermediate). They state the required capture, language or node prerequisites before connecting the parts.
+[Intermediate recipes](/en/recipes/intermediate) cover shared configuration, OCR filtering and deliberately driven tree execution.
 
-For complete C# projects, choose [Developer recipes](/en/recipes/developer): typed observations, packaged resources, IDE helpers, reactive panels, project JS modules and a bounded native list. Each states its host and ownership requirements.
+[Developer recipes](/en/recipes/developer) are complete C# projects: typed observations, packaged resources, IDE helpers, reactive panels, project JS modules and a bounded native list.
 
 | What you want to accomplish | Recipe |
 | --- | --- |
@@ -57,4 +57,4 @@ For complete C# projects, choose [Developer recipes](/en/recipes/developer): typ
 | Create a physical HTML fixture, read its cells in an isolated Selenium 4.24.0 session and always Quit that session. | [Read known cells from your own local HTML table](/en/recipes/developer/read-local-html-table) |
 | Review owned images, complete annotation, train and export a compatible detector, then inspect boxes without input actions. | [Train your own reviewed detector and inspect its boxes](/en/recipes/developer/own-detector-to-boxes) |
 
-Use the checklist or static card when you already know what you want to display. Choose a visual check when the captured image itself must supply the condition, or Replica when you only need a live copy. The recipes explain which state changes should produce a result and which settings affect that result; choosing a source window does not by itself authorize or send input.
+A checklist or a static card fits when you already know what to show. Use a visual check when the captured image itself has to supply the condition. Use Replica when a live copy is enough.

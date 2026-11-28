@@ -1,6 +1,6 @@
 ---
 title: Sandbox
-description: Testing and experimentation area
+description: The environment your scripts run in and what it gives them.
 published: true
 date: 2025-03-23T11:44:49.173Z
 tags: sandbox, scripting, code execution, logging, dependency injection, ai-translated
@@ -9,32 +9,27 @@ dateCreated: 2024-02-20T19:26:43.431Z
 ---
 # Script sandbox
 
-The sandbox is the environment where your scripts run. It provides host members directly to `Script.csx`. Ordinary C# classes do not inherit these members and must receive their dependencies explicitly.
+The sandbox is the environment your scripts run in. It gives a script its basic methods and properties. In `Script.csx` you can use them directly. Ordinary C# classes do not have them, so pass dependencies to those classes explicitly.
 
 ## Why do you need it?
 
 ### It keeps **state** between runs
 
-When you create a property or service, draw something on the screen, or recognize text, the sandbox stores and reuses data from previous runs so the same thing does not have to be created again and again. This improves performance and makes scripts easier to write.
+Say you created a property or a service, drew something on the screen or recognized text. The sandbox keeps that data and uses it again, so you do not redo the work on every run. Scripts run faster and are easier to write.
 
 ### It cleans up after the script
 
-Resources attached to `ExecutionAnchors` are released when the current `Run` ends.
-The sandbox and its `Anchors` can live longer and be reused. Manage subscriptions
-and other owned resources explicitly; not every result of `GetService` is
-released automatically.
+You can attach the resources of one run to `ExecutionAnchors`: they are released when the current `Run` ends. The sandbox itself and its `Anchors` can live longer and be reused. Look after your subscriptions and other resources yourself. Not everything `GetService` returns is released automatically.
 
 ![e0219e2e257a9878d5b6b2323dcb9c37.jpg](/assets/e0219e2e257a9878d5b6b2323dcb9c37.jpg =x200)
 
 ### It provides a set of basic functionality
 
-To make life easier, every script comes with a small set of built-in services by default: logging, access to program files, and so on. To avoid unnecessary bloat, this built-in functionality is intentionally very limited.
-
-The expectation is that you will use `GetService<>` to add whatever capabilities your script needs. More on that below.
+Every script has a few built-in services by default: logging, access to program files and so on. The set is small on purpose, so a script does not carry anything it does not need. You add everything else with `GetService<>`. More on that below.
 
 ## What does it look like in code?
 
-Let’s go over the methods and properties available in every script.
+Below are the methods and properties every script has.
 
 ## Logging
 
@@ -42,13 +37,13 @@ Let’s go over the methods and properties available in every script.
 IFluentLog Log { get; }
 ```
 
-At some point, almost every script needs to report something back: current variable values, debug messages, and so on.
+Almost every script needs to report something: current variable values, debug messages and so on.
 
-`Log` is responsible for that. You can use it to write messages both to the program log files and to the `Event Log` window.
+`Log` does that. It writes both to the program log files and to the `Event Log` window.
 
-Each log entry has one of these **levels**: **Debug**, **Info**, **Warn**, **Error**.
+Each log entry has a **level**: **Debug**, **Info**, **Warn** or **Error**.
 
-The higher the level, the more important the message is. **Error** is the most important. In `Event Log`, you can choose which minimum level should be displayed. By default, it shows **Info** and above.
+The higher the level, the more important the message. **Error** is the most important. In `Event Log` you can choose the lowest level to show. By default it shows **Info** and above.
 
 ```csharp 
 Log.Info("Hello!"); 
@@ -66,8 +61,7 @@ void Sleep(double delayMs);
 void Sleep(double minDelayMs, double maxDelayMs);
 ```
 
-This is a synchronous pause using the current `cancellationToken`. For an
-asynchronous wait, use `await Task.Delay(..., token)`.
+This method pauses the script for the given time. It uses the current `cancellationToken`. The pause is synchronous. For an asynchronous wait, use `await Task.Delay(..., token)`.
 
 ```csharp
 Sleep(2000); // Pause for two seconds.
@@ -75,7 +69,7 @@ Sleep(TimeSpan.FromMilliseconds(100)); // Pause for 100 milliseconds.
 cancellationToken.ThrowIfCancellationRequested();
 ```
 
-> `Sleep` does not itself throw a cancellation exception. On desktop, waits longer than 30 ms can return early on cancellation; waits of 30 ms or less do not check the token. Call `cancellationToken.ThrowIfCancellationRequested()` when work must not continue after cancellation. For asynchronous code, use `await Task.Delay(delay, cancellationToken)`.
+> `Sleep` itself does not throw a cancellation exception. On desktop, a wait longer than 30 ms can end early if the run is cancelled. A wait of 30 ms or less does not check the token. If the script must not go on after cancellation, call `cancellationToken.ThrowIfCancellationRequested()`. In asynchronous code, use `await Task.Delay(delay, cancellationToken)`.
 {.is-info}
 
 ![](https://s3.eyeauras.net/media/wiki/scripting/sandbox/TYwJwzi.png =x300)
@@ -86,11 +80,9 @@ cancellationToken.ThrowIfCancellationRequested();
 T GetService<T>()
 ```
 
-This is the most powerful method in the sandbox. It is your script’s connection to the outside world and the way to access different parts of the program’s functionality.
+This is the most powerful method in the sandbox. Through `GetService` a script reaches the different parts of the program: it requests the service it needs and works through it.
 
-With `GetService`, you can request the “handles” that let you trigger one behavior or another.
-
-For example, pass the logger to an ordinary class. In `Script.csx`:
+For example, let's pass the logger to an ordinary class. In `Script.csx`:
 
 ```csharp
 var reporter = new Reporter(Log);
@@ -110,9 +102,7 @@ public sealed class Reporter
 }
 ```
 
-`Event Log` shows `Result: 5`. Use the exact interface and namespace to resolve a
-registered service; a type's presence in the SDK does not guarantee registration.
-Add your own services through [Script Container Extensions](/en/scripting/script-container-extensions).
+`Event Log` shows `Result: 5`. To get a registered service, give its exact interface and namespace. You can add your own services through [Script Container Extensions](/en/scripting/script-container-extensions).
 
 ## Work with cancellation for one run
 
@@ -130,17 +120,8 @@ for (var step = 1; step <= 3; step++)
 }
 ```
 
-The script writes three messages with pauses. Cancelling the run cancels the wait.
-`cancellationToken` and `ExecutionAnchors` are assigned for each `Run` and reset
-when it ends. Capture the token for the work you start; do not keep it as the
-sandbox's permanent lifetime token or leave untracked background work running.
+The script writes three messages with pauses. If the run is cancelled, the wait stops. `cancellationToken` and `ExecutionAnchors` are issued for each `Run` and reset when it ends. So save the token at the start of the run and pass it to the work you start. Do not keep it as a permanent token for the whole sandbox, and do not leave background work running unattended after the run.
 
-Script-object state can persist between runs of the same project version.
-A dependent project version change recreates the context; this is not durable
-storage. See [variables](/en/scripting/variables) for shared state and settings,
-and [resource lifetime](/en/scripting/api/scripting/reactive-lifetime) for cleanup.
+The state of the script object can survive between runs while the project version stays the same. A change in a dependent project version recreates the context. Do not treat this as long-term storage. For shared data and settings there are [variables](/en/scripting/variables), and for resources there is [resource lifetime](/en/scripting/api/scripting/reactive-lifetime).
 
-The `Sleep` contract is defined by [ScriptSandbox](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Scripting.Metadata/Api/ScriptSandbox.cs)
-and the [desktop wait provider](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Scaffolding/WaitableTimerUtils.cs).
-Numeric delays use milliseconds; actual timing depends on OS scheduling.
-The two-number overload selects a random delay within the supplied range.
+The exact behaviour of `Sleep` is in the source code: [ScriptSandbox](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.Scripting.Metadata/Api/ScriptSandbox.cs) and the [desktop wait provider](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/Scaffolding/WaitableTimerUtils.cs). Numeric delays are in milliseconds. The real duration depends on the OS scheduler. The two-number overload picks a random delay within the given range.

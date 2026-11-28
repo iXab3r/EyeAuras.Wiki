@@ -1,6 +1,6 @@
 ---
 title: ImGui - Getting started
-description: 
+description: How to show your own ImGui panel from a C# script
 published: true
 date: 2026-02-14T16:30:30.911Z
 tags: imgui, scripting, ai-translated
@@ -9,14 +9,14 @@ dateCreated: 2025-06-21T22:04:21.031Z
 ---
 # Build an ImGui control panel
 
-Show a checkbox that changes a trigger in your own aura. ImGui describes the UI again on every frame: the checkbox reads the current value and writes a new one when clicked. It does not need the text-update subscription used by [Blazor Windows](/en/scripting/blazor-windows/getting-started).
+This page builds a small panel with a checkbox that toggles a trigger in your own aura. ImGui redraws the UI on every frame: the checkbox reads the current value, and a click writes a new one. So you do not need to subscribe to changes to update the text, as you do in [Blazor Windows](/en/scripting/blazor-windows/getting-started).
 
-Use a desktop Windows EyeAuras host compatible with **EyeAuras.ImGuiSdk 0.1.47** and its native dependencies. This package from the [EyeAuras feed](https://packages.eyeauras.net/v3/index.json) targets .NET 8 Windows and depends on **EyeAuras.ClickableTransparentOverlay 11.5.28**. Do not load a second ImGui.NET/CTO version into the same process. The package supplies types; `ImGuiContainerExtensions` registers the script service. These are separate setup steps.
+You need desktop EyeAuras for Windows that is compatible with **EyeAuras.ImGuiSdk 0.1.47** and its native dependencies. The package is in the [EyeAuras feed](https://packages.eyeauras.net/v3/index.json), targets .NET 8 Windows and depends on **EyeAuras.ClickableTransparentOverlay 11.5.28**. Do not load another version of ImGui.NET/CTO into the same process.
 
 ## Create the panel
 
-1. Create your own `TargetAura` with **Hotkey Is Active → Toggle Trigger state on Click** and a free hotkey. Keep it loaded, with no actions for this first exercise.
-2. In the same folder, create another aura with a **C# Script** action. Paste this complete program into top-level `Script.csx`:
+1. Create an aura named `TargetAura` with **Hotkey Is Active → Toggle Trigger state on Click** and a free hotkey. Keep it loaded. It needs no actions for now.
+2. In the same folder, create a second aura with a **C# Script** action. Paste the whole program into its top-level `Script.csx`:
 
 ```csharp
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
@@ -50,31 +50,31 @@ using System.Numerics;
 }
 ```
 
-3. After dependency restore and compilation, click **Run**. Change **Is Active** in **My UI**: it writes `TargetAura`'s `TriggerValue`. Toggle the hotkey and the next frame reads its new value.
+3. Wait until the dependency is restored and the script compiles, then click **Run**. Toggle **Is Active** in the **My UI** panel, and `TriggerValue` of `TargetAura` changes. Toggle the trigger with the hotkey, and the next frame reads the new value.
 
-![Toggle in the earlier demonstration](https://s3.eyeauras.net/media/2025/06/EyeAuras_950pfgdzIy4pe780.gif)
+![Panel with a checkbox in an old demo](https://s3.eyeauras.net/media/2025/06/EyeAuras_950pfgdzIy4pe780.gif)
 
-4. Click **Stop**. The outer wait ends; reverse `using` order removes the render subscription before releasing the API instance. Other scripts holding the shared overlay are not closed by releasing your share.
+4. Click **Stop**. The wait ends. The render registration is released first, then the API instance. Other scripts that use the shared window are not closed by this.
 
 | Part | Meaning |
 | --- | --- |
-| `./TargetAura` | A neighbouring aura in this script's tree context. Lookup requires the target and selects the first matching trigger. |
-| `TriggerValue` / `IsActive` | The checkbox changes the trigger's value; the coloured text reads its evaluated state. Other aura conditions still apply. The checkbox displays `null` as off. |
-| `AddNewExtension` then `GetService` | Register the SDK service before resolving it; `#r` alone does not do this. |
-| `AddRenderer` | Returns an owned disposable registration for a callback invoked on the render thread each frame. |
-| `Begin` / `End` | Describe a window in the current frame. `End` is required even when `Begin` reports collapsed content. |
-| `##target-control` | A stable hidden part of the window ID. Do not replace it with a random ID each frame. |
+| `./TargetAura` | A neighbouring aura, relative to the script. The first matching trigger is used. If there is none, you get an error. |
+| `TriggerValue` / `IsActive` | The checkbox changes the trigger's value, and the coloured text shows the resulting state. The aura's other conditions still apply. The checkbox shows `null` as off. |
+| `AddNewExtension` then `GetService` | Register the SDK first, then get the API. `#r` alone is not enough. |
+| `AddRenderer` | Takes a function that is called every frame on the render thread. Returns a disposable registration. |
+| `Begin` / `End` | Open and close the description of a window in the current frame. `End` is required even when the content is collapsed. |
+| `##target-control` | A hidden, fixed part of the window ID. Do not put a random value in it on every frame. |
 
-The SDK starts the native window/context before render callbacks. Keep `GetIO`, `Begin` and drawing inside that context; do not manually create a second context. This native UI does not require Razor, HTML or WebView2. [Blazor OSD](/en/scripting/examples/basic/osd-cursor) is a different renderer.
+The SDK creates the native window and context itself before it calls your render code. Until the context exists, do not call `GetIO`, `Begin` or any drawing. Do not create a second context by hand. This is native ImGui: it does not need Razor, HTML or WebView2. [Blazor OSD](/en/scripting/examples/basic/osd-cursor) works differently.
 
-API instances share **Main**, its settings and font atlas. Do not close that window directly. `GetService`, `AuraTree` and `cancellationToken` are top-level script capabilities; ordinary classes receive dependencies explicitly. Keep waits and lengthy work outside the frame callback.
+All API instances share one **Main** window, its settings and font atlas. Do not close that window directly. `GetService`, `AuraTree` and `cancellationToken` exist only in top-level `Script.csx` code. An ordinary class must be given its dependencies and the token explicitly. Keep waits and long work outside the frame function.
 
-To use your own typeface or Cyrillic glyphs in the panel, follow [loading a TTF resource as the default font](/en/scripting/imgui/loading-font). If other renderers share Main, prefer [local font selection](/en/scripting/imgui/loading-font-static) for only your drawing; both routes require a TTF containing the requested glyphs.
+Need your own font or Cyrillic on the panel? See [how to make a TTF from resources the default font](/en/scripting/imgui/loading-font). If other renderers also use Main, [apply the font only to your own drawing](/en/scripting/imgui/loading-font-static).
 
 <details>
 <summary>Start with the standard demo window</summary>
 
-This complete alternative displays ImGui's built-in demo until Stop:
+This variant runs on its own, in place of the main program. It shows the standard ImGui demo window until you click Stop:
 
 ```csharp
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
@@ -89,14 +89,14 @@ using ImGuiNET;
 }
 ```
 
-![Standard ImGui demo](https://s3.eyeauras.net/media/2025/06/EyeAuras_KXCTkIyw7EU3oo3q.gif)
+![Standard ImGui demo window](https://s3.eyeauras.net/media/2025/06/EyeAuras_KXCTkIyw7EU3oo3q.gif)
 
 </details>
 
 <details>
 <summary>Two windows with independent counters</summary>
 
-This alternative creates and requests closure of its managed windows inside the frame callback. The manager calls `CounterPanel.ToImGui` and owns each window's `Begin/End`; the ordinary content class has only its own counter field.
+Another complete program that replaces the main one. The windows are created inside the frame function, and their closing is requested there too. The manager calls `CounterPanel.ToImGui` itself and does `Begin/End` itself. The counter lives in a field of an ordinary class, which needs no script services.
 
 ```csharp
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
@@ -153,14 +153,14 @@ public sealed class CounterPanel : ICanBeDisplayedInImGui
 }
 ```
 
-Closing one window leaves the other open. The script completes after both hosts are disposed. Stop requests targeted closure and waits while the API still holds the render loop. That acknowledgement requires working native frames; it does not guarantee shutdown after a renderer failure. The manager also disposes disposable content. Do not replace these targeted calls with `CloseAll`, which can affect other owners.
+If you close one window, the other stays open. When both are closed, the script ends. Stop asks the remaining windows to close and waits until they are released. The API keeps rendering during that time. The wait needs a working native frame loop. The manager also disposes content that is disposable. Do not replace these targeted calls with `CloseAll`: it also affects windows that belong to others.
 
 </details>
 
 <details>
 <summary>Start asynchronous work without blocking frames</summary>
 
-This complete alternative starts ten 200 ms steps from a button. Clicks while work is active do not start another task. The delays stand for your asynchronous work; ImGui calls stay on the render thread.
+Another program that replaces the main one. The button starts ten steps of 200 ms each. If you click it again while the work is running, a second task does not start. The delays stand in for your own work, and ImGui stays on the render thread.
 
 ```csharp
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
@@ -227,8 +227,8 @@ using ImGuiNET;
 }
 ```
 
-The gate prevents new work during shutdown and protects task ownership; Interlocked/Volatile transfer progress between threads. Stop disables new starts, removes rendering, then cancels and awaits the worker before disposing its token source. The worker must not dispose that shared source itself. Keep expensive computation outside the render callback too.
+On Stop the order is: new starts are blocked, rendering is removed, the task is cancelled, and the program waits for it to finish. Only then is the token source disposed. The worker task does not dispose it itself. `gate`, `Interlocked` and `Volatile` keep the state consistent between threads.
 
 </details>
 
-ImGui can also draw lines, shapes, labels and projections of coordinates supplied by your program. The [Dear ImGui adopters](https://github.com/ocornut/imgui/wiki/Software-using-dear-imgui) and historical [L2 Demo](https://www.youtube.com/watch?v=y0u20InSjbg) illustrate uses; they do not provide built-in game data. See [IImGuiExperimentalApi operations](/en/scripting/api/IImGuiExperimentalApi) for ownership and shared-state contracts. Basic rendering exists in 0.1.42, but its package lacks the managed-window types used here; these programs consistently select 0.1.47.
+ImGui can also draw lines, shapes, labels and projections of coordinates you supply. The [list of Dear ImGui projects](https://github.com/ocornut/imgui/wiki/Software-using-dear-imgui) and the old [L2 Demo](https://www.youtube.com/watch?v=y0u20InSjbg) show what such interfaces can look like. The contracts and the limits of shared state are described in [IImGuiExperimentalApi operations](/en/scripting/api/IImGuiExperimentalApi). Version 0.1.42 has basic rendering but not the window manager used here. That is why every program on this page uses 0.1.47.

@@ -1,6 +1,6 @@
 ---
 title: "Build a styled panel for your own trigger"
-description: "Observe one loaded Hotkey Is Active trigger, switch it from Razor and style its current value through a project CSS file."
+description: "Watch one loaded Hotkey Is Active trigger, switch it from Razor and style its current value with a project CSS file."
 published: true
 date: 2026-11-10T17:35:11.000Z
 tags: recipes, developer
@@ -10,15 +10,15 @@ dateCreated: 2026-11-10T17:35:11.000Z
 
 # Build a styled panel for your own trigger
 
-Show one real trigger value in a small control panel. A button writes the trigger; property notifications also refresh the panel when its configured hotkey changes it.
+The panel shows the value of a real trigger. A button changes it. If the hotkey changes the value, the panel updates too, through property notifications.
 
-Use desktop EyeAuras with script-hosted Blazor/WebView2 services. Prepare a dedicated folder with two loaded auras: `RecipeSwitch` containing **one Hotkey Is Active** trigger in **Toggle Trigger state on Click** mode, and `RecipePanel` containing **Actions → On Enter → C# Script**. Choose an unused hotkey, keep suppression off, and leave `RecipeSwitch`'s actions empty. Both auras stay outside any condition that would unload them.
+You need desktop EyeAuras with script-hosted Blazor/WebView2 services. Prepare a separate folder with two loaded auras. The first is `RecipeSwitch` with **one Hotkey Is Active** trigger in **Toggle Trigger state on Click** mode. The second is `RecipePanel` with **Actions → On Enter → C# Script**. Choose an unused hotkey, keep suppression off and add no actions to `RecipeSwitch`. Do not put these auras under a condition that unloads them.
 
-1. In `RecipePanel`'s script editor, add **New file → Component**, name `MainWindow`. Keep only the single-file component implementation below; remove a duplicate generated code-behind counter if the template created one.
-2. Through **New file → Component**, create `_Imports.razor` at the project root and replace its generated contents with the imports below. Create **New file → CSS**, then rename it to `wwwroot/panel.css`. Replace these files and **Script.csx** with the complete contents below. Keep exactly one CSS resource at this logical path.
-3. Wait for compilation and click the C# action's **Run**. `./RecipeSwitch` resolves the neighbouring aura in this folder and requires its single matching trigger.
-4. Read **Trigger value** and click **Toggle trigger**. `False`/`True` and the panel's border/background should change together. Toggle the configured hotkey: the same property observation updates the panel without polling.
-5. Close the panel or use **Stop**. Window disposal destroys the component and releases its owned tracker subscription. A later Run reads the trigger's current value; opening the panel does not reset it.
+1. In `RecipePanel`'s script editor, choose **New file → Component** and name it `MainWindow`. Keep only the single Razor file with the code below. If the template created a code-behind with a duplicate counter, remove it.
+2. Through **New file → Component**, create `_Imports.razor` in the project root and replace its contents with the imports below. Through **New file → CSS**, create a file and rename it to `wwwroot/panel.css`. Replace these files and **Script.csx** with the complete contents below. There must be exactly one CSS resource at this logical path.
+3. Wait for compilation and click the C# action's **Run**. The path `./RecipeSwitch` finds the neighbouring aura in the same folder. That aura must have exactly one matching trigger.
+4. Look at **Trigger value** and click **Toggle trigger**. `False`/`True`, the border and the background should change together. Now press your hotkey. The panel watches the same property and updates without polling.
+5. Close the panel or click **Stop**. The component and its change subscription are destroyed together with the window. The next Run reads the trigger's current value: opening the panel does not reset it.
 
 ## Script.csx
 
@@ -106,14 +106,14 @@ using RecipePanel;
 ```
 
 
-| Part | Responsibility |
+| Part | What it does |
 | --- | --- |
-| `@inject IAuraTreeScriptingApi Tree` | Gets the script-context tree service through component DI; it is not a top-level global. |
-| `ChangeTrackers.Add(...)` before `base.OnInitialized()` | Registers the existing trigger's notifications before the base seals the list. The base owns the resulting subscription. |
-| `Refresh("panel toggle")` | Awaits a redraw through the component dispatcher after a button write. |
-| One stored `ClassMapper` | Keeps stable predicates; rendering selects `is-on` or `is-off` from the same trigger value. |
-| `HeadContent` and `wwwroot/panel.css` | Attach project CSS through the window's file provider. Rules are explicitly limited to `.recipe-panel`, not automatically CSS-isolated. |
+| `@inject IAuraTreeScriptingApi Tree` | Gets the tree service from the script context through component DI. |
+| `ChangeTrackers.Add(...)` before `base.OnInitialized()` | Subscribes to the existing trigger's notifications before the base seals the list. The base component owns the subscription. |
+| `Refresh("panel toggle")` | After the button writes the value, waits for a redraw through the component dispatcher. |
+| One stored `ClassMapper` | Keeps stable conditions that pick `is-on` or `is-off` from the same trigger value. |
+| `HeadContent` and `wwwroot/panel.css` | Attach the project CSS through the window's file provider. The rules are explicitly limited to `.recipe-panel`: there is no automatic CSS isolation. |
 
-`Unknown` is displayed for `null`, using the off styling. This is the trigger's value, not a guarantee of the aura's overall Active state: other conditions still apply. The program relies on the existing trigger's notifications, not on Fody weaving a dynamically compiled helper class. Hiding a live window is not disposal.
+For `null` the panel shows `Unknown` with the off styling. This is the trigger's value, not the aura's overall Active state: the other conditions still apply. Hiding a live window does not dispose it.
 
-[Reactive updates](/en/scripting/blazor-windows/reactive-toggle) explain the tracker lifetime; [styling choices](/en/scripting/blazor-windows/toggle-styling) and [project CSS](/en/scripting/blazor-windows/toggles-styling-cssfile) explain presentation. If the CSS is missing, check the resource path and matching provider before changing the trigger code.
+[Reactive updates](/en/scripting/blazor-windows/reactive-toggle) explains who owns the subscription. For the look, see [styling choices](/en/scripting/blazor-windows/toggle-styling) and [project CSS](/en/scripting/blazor-windows/toggles-styling-cssfile). If the CSS is not applied, check the resource path and the file provider first, not the trigger code.

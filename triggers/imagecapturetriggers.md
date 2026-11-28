@@ -1,6 +1,6 @@
 ---
 title: Image, Text, and Color Search
-description: Overview of image, text, and color search features.
+description: The old address of the capture guide. How to check the capture source and where the old settings are now.
 published: true
 date: 2022-11-04T01:31:11.699Z
 tags: ai-translated
@@ -9,39 +9,37 @@ dateCreated: 2022-11-04T01:04:28.005Z
 ---
 # Choose the capture source for image, text or colour search
 
-If you arrived through the older **Image / Text / Color Search** address, use the shared capture section of the relevant search trigger. This is the same pixel-capture mechanism covered by the [current capture guide](/en/triggers/images/imagecapturetriggers), not a second legacy trigger.
+You came here through the older **Image / Text / Color Search** address. There is no separate old trigger. This is the shared capture section that every search trigger has. The [current capture guide](/en/triggers/images/imagecapturetriggers) explains how it works.
 
 ## Inspect your own source before adding a condition
 
-Suppose you want to monitor a small coloured indicator in your own application. First obtain the right pixels; choosing the colour and a reaction comes afterwards.
+Example: you want to watch the colour of a small indicator in your own application. First make sure the trigger sees the right area. The colour and the reaction come later.
 
-1. Open your test application and add **Color Search** to your aura.
+1. Open your application and add **Color Search** to your aura.
 2. In **Capture settings → Target Window**, select its window. Set **Image Capture Rate = 5 Frames Per Second**.
-3. Open **Preview captured image**. If the image is wrong, use **Show more... → Capture Source** to compare available methods. Start with **Windows Graphics** when available.
+3. Open **Preview captured image**. If the image is wrong, open **Show more... → Capture Source** and compare the available methods. Start with **Windows Graphics** if it is there.
 
-   ![The shared Capture settings panel shows the target, a rate of 5 FPS and Windows Graphics.](/assets/callouts/batch1/en/image-capture-settings.png)
+   ![The Capture settings panel with the target window, a rate of 5 FPS and Windows Graphics](/assets/callouts/batch1/en/image-capture-settings.png)
+4. Use **Crop region** and the preview to crop down to the indicator. Change the indicator in your application and check that the same area changes in the capture.
 
-   This Image Search example shows where to select the capture source. Color Search uses the same fields.
-4. Limit **Crop region** to the indicator using the preview. Change the indicator in your application and confirm that the same area changes in the capture.
-
-The result is the current image of your indicator, not automatically an **Active** condition. Next configure [Color Search](/en/triggers/images/color-search); add sound or another reaction separately as an aura action.
+The trigger now gets fresh pixels of your indicator. That is not **Active** yet. For that, set up the [Color Search](/en/triggers/images/color-search) condition.
 
 | Earlier label | Current correspondence |
 | --- | --- |
-| `Target FPS` | **Image Capture Rate**, the requested capture/analysis rate. Processing load can reduce actual FPS. |
-| `Mouse Cursor` | **Capture Mouse Cursor**; not every capture source supports it. |
-| `Settings → Max Capture FPS` | Global trigger limit, which can cap an individual trigger's requested rate. |
-| Capture method | **Show more... → Capture Source**. Recheck pixels and bounds after switching. |
+| `Target FPS` | **Image Capture Rate**. The capture and analysis rate you ask for. Heavy processing can lower the actual FPS. |
+| `Mouse Cursor` | **Capture Mouse Cursor**. Not every capture source can capture the cursor. |
+| `Settings → Max Capture FPS` | A global limit for triggers. It can cap the rate a single trigger asks for. |
+| Capture method | **Show more... → Capture Source**. After switching, check the pixels and bounds again. |
 
 | Capture Source | How to evaluate it |
 | --- | --- |
-| `Windows Graphics` | Windows Graphics Capture for a window. Availability depends on Windows API support; disabling its system border also requires the corresponding API, not a universal version-number promise. |
-| `Shared Surface` | An alternative graphics-surface path for the window. Compare its actual frame when the system method does not fit. |
-| `Desktop duplication` | GPU desktop capture cropped to the region; consider overlapping windows. |
-| `Print Window` | Win32 window capture; hardware-rendered content can be empty or incomplete. |
-| `Copy Device Context` | A GDI alternative compatible with some windows. |
-| `Copy From Screen` | Copies the visible screen area, affected by window position and occlusion. |
+| `Windows Graphics` | Captures a window through Windows Graphics Capture. Available if your Windows supports it. Its system border can be turned off only if the matching API is present. |
+| `Shared Surface` | Another way to get the window's surface through the graphics system. Compare its frame if the system method does not fit. |
+| `Desktop duplication` | Captures the desktop through the GPU and cuts out the region. Watch out for windows that overlap it. |
+| `Print Window` | A Win32 window method. Applications that draw with hardware can return an empty or incomplete frame. |
+| `Copy Device Context` | A GDI method that works with some windows. |
+| `Copy From Screen` | A copy of the visible screen area. It depends on where the window is and what covers it. |
 
-Choose by correct pixels first, then actual FPS and processing timings in the preview tooltip. A fixed speed or memory ranking does not establish the best method for your window. A minimised or unavailable window is not a dependable source of fresh frames.
+First check that the picture is right. Then look at the actual FPS and processing time in the preview tooltip. Do not expect fresh frames from a minimised or unavailable window.
 
-Continue with [capture, crop and effects](/en/triggers/images/imagecapturetriggers), then [image search](/en/triggers/images/image-search), [colour search](/en/triggers/images/color-search), [text search](/en/triggers/images/text-search) or [AI Search](/en/triggers/images/ai-search-trigger).
+Cropping and effects are covered in the [current guide](/en/triggers/images/imagecapturetriggers). Once the source is set up, choose what to search for: an [image](/en/triggers/images/image-search), a [colour](/en/triggers/images/color-search), [text](/en/triggers/images/text-search) or [AI Search](/en/triggers/images/ai-search-trigger).

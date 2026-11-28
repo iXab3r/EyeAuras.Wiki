@@ -9,12 +9,12 @@ dateCreated: 2025-01-04T18:42:33.221Z
 ---
 # Send one randomly selected key to your editor
 
-Choose one of `1`, `2`, `4`, `5`, `A`, `D` and send one press to your own test text field. This is not a sequence through all six: each Run selects an array element again, so repeats are expected.
+The script picks one key from `1`, `2`, `4`, `5`, `A`, `D` and presses it once in your own test text window. The keys are not gone through in order: each run picks at random, so repeats are expected.
 
-Use desktop EyeAuras with **Windows Input** and the OSD window picker. Open an empty text field in your own editor, put the caret in it, select an English keyboard layout and release modifiers. Use a local test document without a submit action.
+You need desktop EyeAuras with **Windows Input** and the OSD window picker. Open an empty text field in your own editor, put the caret in it, switch to an English keyboard layout and release modifiers. Do not use a chat or a submit form.
 
-1. Add **C# Script** to your test aura. Use manual **Run** for the first exercise.
-2. Put this complete program in `Script.csx`:
+1. Add **C# Script** to your test aura. For the first try, start it by hand with **Run**.
+2. Paste the whole program into `Script.csx`:
 
 ```csharp
 using EyeAuras.Roxy.Api;
@@ -45,25 +45,25 @@ using System.Windows.Input;
 }
 ```
 
-3. Click **Run** and select your prepared window. Windows Input activates that target; the key is delivered to the control holding keyboard focus. Escape or right-click cancels window selection.
-4. Repeat a few times. Compare the chosen key in the log with the editor's visible result; the same character can recur.
+3. Click **Run** and select the window you prepared. Windows Input activates it, and the character appears in the field with the caret. Escape or a right-click cancels window selection.
+4. Repeat Run a few times. The log shows the chosen key and the editor shows what reached it.
 
 | Setting | Meaning |
 | --- | --- |
-| `keys` | Six distinct keys, selected through a pseudorandom array index with equal weight. A duplicate array entry increases that key's weight. |
-| Repeat count | One press per Run; no automatic loop or interval between presses. |
-| `20` in `KeyPress` | Requested milliseconds between key-down and key-up, not a repeat period. Omit it to use the API's `KeyPressDelay`. |
-| `TargetWindow` | Your explicitly selected window, using activation rather than a promise of universal background delivery. |
+| `keys` | Six different keys, each with a 1/6 chance. If you add a duplicate to the array, that key comes up more often. |
+| Repeat count | One press per Run. |
+| `20` in `KeyPress` | Milliseconds between key-down and key-up, not a repeat period. Without the argument the API's `KeyPressDelay` is used. |
+| `TargetWindow` | The window you selected yourself. Input is aimed at it and activates it. |
 
-Keys are not precomposed text: layout, modifiers and the focused control affect the result. The normal `KeyPress` path sends down, waits, then sends up. This synchronous call receives no Run token and an already started press is not interrupted by the pre-call cancellation check. The `finally` block restores the borrowed API's settings; it is not a general held-key recovery routine after every backend error.
+Keys are not ready-made text: the result depends on the layout, modifiers and focus inside the window. The token is checked before input. The synchronous `KeyPress` does not get the Run token, so it does not interrupt a press that has already started. The borrowed API's previous settings are restored in `finally`.
 
-For a word or sentence rather than a key event, use the [text-entry example](/en/scripting/examples/basic/send-text). It sends characters with explicit Enter presses between lines; prepare its focused test document as described there.
+If you need a word or sentence rather than a single key, see the [text-entry example](/en/scripting/examples/basic/send-text). It sends characters with explicit Enter presses between lines.
 
 <details>
 <summary>Hotkey invocation and the earlier foreground target</summary>
 
-You can add **Hotkey Is Active → Hold** on `F3` with the action under **On Enter**. Each new activation selects one key; window selection remains part of that operation. Releasing the key allows a later activation.
+You can add **Hotkey Is Active → Hold** on `F3` and put the action under **On Enter**. Each new activation picks one key. Release the key and the aura can be activated again. You still select your window on every run.
 
-The earlier variant used `input.TargetWindow = null`: Windows Input then addresses the current foreground application. That does not suppress input or select a safe editor for you. Explicit selection above makes the intended recipient clear before the press. See [SendInput](/en/scripting/api/ISendInputScriptingApi). Ordinary C# helpers receive the service explicitly instead of inheriting top-level `GetService`.
+The earlier variant had `input.TargetWindow = null`. For Windows Input that means the current foreground application. With explicit selection, as above, the target is clear before the press. Other delivery methods are in [SendInput](/en/scripting/api/ISendInputScriptingApi). Pass the service to an ordinary C# class explicitly.
 
 </details>

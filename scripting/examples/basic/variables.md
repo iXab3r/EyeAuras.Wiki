@@ -9,11 +9,11 @@ dateCreated: 2024-02-20T22:05:21.584Z
 ---
 # Keep a counter between script runs
 
-Suppose every **Run** should increase a counter, and editing the script should not reset it. Store the value with **Variables** on its owner, instead of a local C# variable.
+In this example every **Run** increases a counter, and editing the script code does not reset it. For that, the value is written through **Variables** to its owner's storage, not to a local C# variable.
 
-Use your own editable **C# Script**. These examples run in top-level **Script.csx**, where EyeAuras supplies **Variables**, **AuraTree** and **Log**. Ordinary helper classes receive the services explicitly.
+You need your own editable **C# Script**. The examples run in its top-level **Script.csx**, where EyeAuras provides **Variables**, **AuraTree** and **Log**. Ordinary classes get the services they need passed in.
 
-1. Create a new C# Script action whose context and ancestors have no `myCounter` variable yet.
+1. Create a new C# Script action. Neither it nor its ancestors should have a `myCounter` variable yet.
 2. Replace its code with this typed counter:
 
 ```csharp
@@ -22,33 +22,33 @@ myCounter.Value = myCounter.Value + 1; // increment its stored value
 Log.Info($"Counter value: {myCounter.Value}"); // A fresh owner produces 1, then 2, then 3.
 ```
 
-3. Click **Run**. A missing integer value reads as `0`; after the write, the log should show `Counter value: 1`.
-4. Run again to get `Counter value: 2`. Add a comment, wait for compilation and run once more. It should keep increasing while the variable owner stays the same.
-5. Open **Variables** for the selected owner to find the entry and value. Do not delete someone else's configuration variables to try this example.
+3. Click **Run**. The integer variable does not exist yet, so it reads as `0`. After the write, the log shows `Counter value: 1`.
+4. Click **Run** again and you get `Counter value: 2`. Add a comment to the code, wait for it to compile and run it once more. The value keeps growing as long as the variable owner stays the same.
+5. Open **Variables** for the selected owner and find the entry and its value there.
 
-The current editor also provides **Add variable...**, value editing with **Save**, and deletion with **Remove**. This example writes through the script; a manual edit can change the stored type.
+The current editor also has **Add variable...**, value editing with **Save**, and deletion with **Remove**. Editing a value by hand can change its type.
 
 ## Choose the data lifetime
 
 | Storage | Lifetime and scope |
 | --- | --- |
-| Local C# variable | Until its block or method finishes. |
-| [Sandbox](/en/scripting/sandbox) field or property | Between runs of that instance. Recompilation or recreating the instance resets fields. |
-| Variables in the current script context | An owner entry that survives recompilation. Another action using the same name need not use the same owner. |
-| Aura or folder variable | Data on a selected tree item, with inheritance for descendants. Several scripts can explicitly select a common owner. |
+| Local C# variable | Lives only until its block or method ends. |
+| [Sandbox](/en/scripting/sandbox) field or property | Lives between runs of one sandbox instance. Recompiling or recreating the instance resets the fields. |
+| Variables in the current script context | An entry on the owner that survives recompilation. Another action that uses the same variable name does not necessarily use the same owner. |
+| Aura or folder variable | Data on the selected tree item, inherited by its descendants. Several scripts can address a common owner explicitly. |
 
-Supported simple values participate in saved configuration. A typed handle does not make every arbitrary .NET object persistable. Writing a variable also does not automatically run every aura: consumers must actually read or bind to it.
+Simple supported values are saved with the configuration. That does not make an arbitrary .NET object fit for saving to disk.
 
 <details>
 <summary>Local values, sandbox properties and the indexer</summary>
 
-A local value does not keep a counter across runs:
+A local variable cannot keep a counter between runs:
 
 ```csharp
 var test = 123;
 ```
 
-A sandbox property lasts longer, but only within that instance. This separate example assigns 16 every time rather than incrementing:
+A property lives longer, but only within one sandbox instance. This separate example writes 16 every time instead of incrementing:
 
 ```csharp
 
@@ -64,20 +64,20 @@ Log.Info($"Counter: {MyCounter}");
 
 ```
 
-Count visible entries in the current context with:
+To log the number of entries in the current context:
 
 ```csharp
 Log.Info($"Variables count: {Variables.Count}");
 ```
 
-The indexer returns **object**. This independent fragment overwrites the value with 1 each time:
+The indexer works with **object**. This fragment overwrites the value with 1 every time:
 
 ```csharp
 Variables["myCounter"] = 1; // write 1 to myCounter
 Log.Info($"Counter value: {Variables["myCounter"]}"); // read myCounter; this is 1
 ```
 
-Arithmetic therefore needs a cast. This separate fragment writes 1, then produces 2:
+So arithmetic needs a cast. This standalone fragment first writes 1, then gets 2:
 
 ```csharp
 Variables["myCounter"] = 1; // write 1 to myCounter
@@ -87,13 +87,13 @@ Variables["myCounter"] = (int)Variables["myCounter"] + 1; // explicitly cast the
 Log.Info($"Counter value: {Variables["myCounter"]}"); // myCounter is now 2
 ```
 
-The main example's `Variables.Get<int>` establishes the name and type once. Its **Value** reads and writes the store; the handle itself needs no Dispose.
+The typed `Variables.Get<int>` from the main example sets the name and type once. Its **Value** reads and writes the storage. You do not need to call Dispose on the handle.
 
 </details>
 
 ## Share a value with another aura
 
-Create your own aura **Something** beside the script. These **alternative fragments** write 16 to its `myCounter`; they do not continue incrementing the current script's counter.
+Create your own aura **Something** next to the script. Below are two **alternative** fragments. Both write 16 to its `myCounter` and do not go on incrementing the current script's counter.
 
 By relative path:
 
@@ -111,16 +111,16 @@ var auraVariable = Variables.Get<int>(aura, "myCounter");
 auraVariable.Value = 16;
 ```
 
-The path is relative to the current tree context, not global across EyePad tabs. The variable name alone does not select a shared owner. See [Variables API](/en/scripting/api/IVariablesScriptingApi) for exact overloads.
+The path is counted from the current tree context. The exact overloads are in the [Variables API](/en/scripting/api/IVariablesScriptingApi).
 
-To watch a shared value without rerunning the log inspection, use the [on-screen variables table](/en/scripting/examples/basic/print-variables-on-screen). Set the table’s source to the same aura owner as the writer and include the variable’s name in its rows; that table explicitly observes the selected container.
+To watch the shared value without rereading the log, use the [on-screen variables table](/en/scripting/examples/basic/print-variables-on-screen). Set its source to the same aura the script writes to and add the variable name to its rows.
 
 ## Inherit a folder value
 
-A folder's value is visible to descendants. A local entry with the same name overrides it; removing that local entry exposes the ancestor's value again. Like [CSS inheritance](https://en.wikipedia.org/wiki/CSS), the nearer setting takes precedence.
+A folder's value is available to its descendants. A local entry with the same name overrides the inherited one. Remove the local entry and the ancestor's value shows again. This is like [CSS inheritance](https://en.wikipedia.org/wiki/CSS): the nearer setting wins.
 
-Defaults use this mechanism too: **default.WindowSelector.TargetWindow** affects nested auras' default window selection. Do not change these service names to test a counter.
+Default values spread the same way. For example, **default.WindowSelector.TargetWindow** affects window selection in nested auras. Do not change such service names just to test a counter.
 
-See [typed operations](/en/scripting/api/scripting/variables) to distinguish a missing entry, null, a type fallback and change subscriptions. [Owner and lifetime examples](/en/scripting/api/scripting/variable-lifecycle-operations) cover shared owners, **Remove()** and repeated Run. Subscriptions need their own cleanup and do not select a UI thread; none is needed for this counter.
+[Typed operations](/en/scripting/api/scripting/variables) explain how a missing entry, null, a type fallback and a change subscription differ. A complete example with a shared owner, **Remove()** and repeated Run is in the [owner and lifetime guide](/en/scripting/api/scripting/variable-lifecycle-operations).
 
-Behaviour-tree Blackboard variables have their own context. This example does not create or configure them.
+Behaviour-tree Blackboard variables have their own context.

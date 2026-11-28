@@ -10,7 +10,7 @@ dateCreated: 2026-11-10T16:05:04.371Z
 
 # Build a useful result without code
 
-These tasks use ordinary aura, trigger, action and overlay editors. Each recipe includes its own prerequisites and setup; you do not have to complete the other recipes first. Keep each exercise in a small set with your own windows and data.
+Everything here is built in the ordinary aura, trigger, action and overlay editors. The recipes do not depend on each other: each one lists what it needs and covers the whole setup.
 
 ## Start with a window or a reference
 
@@ -21,7 +21,7 @@ These tasks use ordinary aura, trigger, action and overlay editors. Each recipe 
 | [Keep a reference card beside an editor](/en/recipes/basic/reference-card) | Your imported PNG, a foreground condition and overlay placement |
 | [Limit a notification key to your application](/en/recipes/basic/application-only-shortcut) | A separate window-state aura, hotkey interception Links and one sound |
 
-The first task only needs a notes window. For the card, supply your own readable PNG. For audio tasks, choose sounds you can hear; the notification-key task also needs an unused key in your own test windows.
+The card needs your own readable PNG. The notification key also needs a key that is unused in the windows where you test.
 
 ## Observe a visual source
 
@@ -32,7 +32,7 @@ The first task only needs a notes window. For the card, supply your own readable
 | [Watch a warning color while working elsewhere](/en/recipes/basic/off-focus-color-indicator) | A separately selected capture window, color comparison and a visible reminder |
 | [Watch a live status crop](/en/recipes/basic/live-status-crop) | Replica's own source and region, window presence and display placement |
 
-For a visual check, first confirm that the selected source supplies current pixels in the window state you intend to use. An image match, an average-color comparison and a live copy answer different questions. None of these tasks requires sending keys or clicking a detected region.
+First check that the source gives a fresh picture in the window state you plan to use.
 
 ## Manage your own state and local set
 
@@ -43,6 +43,6 @@ For a visual check, first confirm that the selected source supplies current pixe
 | [Play start and finish cues for a short routine](/en/recipes/basic/two-stage-audible-cue) | Prepared sound actions, a finite macro and a 1500 ms wait |
 | [Copy your reminder set without replacing it](/en/recipes/basic/copy-own-reminder-set) | Local JSON export, Import Preview, Copy and link verification |
 
-The file and copy tasks need a writable local directory. Maintenance uses only your own state and Text; the short routine also needs the Macro templates and audible output. These recipes do not require scripts. For shared capture, OCR or controlled tree routes, continue to [Intermediate recipes](/en/recipes/intermediate).
+The file and copy tasks need a local folder you can write to. The short routine also needs the Macro templates and sound you can hear. For shared capture, OCR and controlled tree routes, go to [Intermediate recipes](/en/recipes/intermediate).
 
-Return to [Recipes](/en/recipes) to choose by outcome, or [Home](/en/home) for the feature overview.
+[Recipes](/en/recipes) lets you choose by outcome. [Home](/en/home) has the feature overview.

@@ -1,6 +1,6 @@
 ---
 title: How to report a problem
-description: 
+description: How to collect a description and logs with Report a problem and send them to support
 published: true
 date: 2026-10-11T00:00:00.000Z
 tags: reporting, ai-translated
@@ -10,65 +10,59 @@ dateCreated: 2023-10-15T20:42:29.377Z
 
 # Save diagnostic data and choose how to share it
 
-When a trigger or action behaves differently from expected, preserve the description and logs from that run through **Report a problem**. You can save and inspect an archive locally before sending anything.
+A trigger did not fire, or an action did something you did not expect? Collect the description and logs from that run with **Report a problem**. You can save the archive locally and look through it before sending anything.
 
 ## If EyeAuras is still running
 
-1. Click **Report a problem** in the EyeAuras title bar to open **Error Report**. A mini-app may provide its own reporting button.
-2. Describe your steps, actual result and expected result. Include the feature or pack and version. For example: “I selected my window, but Preview stayed empty; I expected its image.” Report observations rather than a guessed cause.
-3. Review the attachments and select logs from the affected run. Include earlier logs if the failure happened before a restart, and configuration when it is needed to reproduce the problem.
+1. Click **Report a problem** in the EyeAuras title bar. In a mini-app, its author may add a button of their own. **Error Report** opens.
+2. Write what you did, what you got and what you expected. Add the name of the pack or feature and the version. For example: “I selected my window, but Preview stayed empty; I expected its image.” Write what you saw, not what you think the cause is.
+3. Select the logs from the affected run and look through the attachments. If the failure happened before a restart, find the earlier log too. Add the configuration if the problem cannot be reproduced without it.
 
-   ![Earlier Error Report window with a blank comment field, attachment checkboxes and a preview pane. The captured-window title and the preview text are hidden.](/assets/callouts/batch2/en/report-review-attachments.png)
-
-   In the October 2023 interface, describe the problem at the top and review the selected attachments on the left. The captured-window title and attachment preview text are hidden in this image.
-4. Click **Save...**, choose your own directory and wait for the `.7z` archive. Open it for reading and check the comment and selected files. Saving alone does not send it.
-5. To submit to normal EyeAuras support, use **Send** and wait for the confirmation ID. If a pack author requested a file directly, share the saved archive through an agreed [contact](/en/contacts).
+   ![Earlier Error Report window with a comment field, attachment checkboxes and a preview pane.](/assets/callouts/batch2/en/report-review-attachments.png)
+4. Click **Save...**, choose your own folder and wait for the `.7z` file to appear. Open the archive and check the comment and the selected files. A saved file has not been sent anywhere yet.
+5. To send the report to support, click **Send** and wait for the confirmation with an ID. If a pack author asked for the file directly, pass on the saved archive through an agreed [contact](/en/contacts).
 
 ![Save, Send and Close in the action row of an earlier Error Report window.](/assets/callouts/batch2/en/report-save-send.png)
 
-In this earlier report window, Save writes a local archive. Send submits the report.
-
 | Control or status | Result |
 | --- | --- |
-| Save... | Packs selected data into a local archive and opens its location |
-| Send | Passes the archive to the configured handler: the EyeAuras server in the normal client. A mini-app can supply a different handler; without one, sending is unavailable |
-| Compressing report... / Sending report... | Work is still in progress; delivery is not confirmed |
-| Report sent / Report sent successfully | The handler returned an ID. Keep it for support; it does not mean someone has read the report |
-| Copy | Copies the sent report ID or current status text, not the archive |
-| Closing the dialog | Does not itself submit a report |
+| Save... | Packs the selected data into an archive on your disk and opens its folder. |
+| Send | Passes the archive to the configured handler. In the normal client that is the EyeAuras server. A mini-app can set its own. Without a handler, sending is unavailable. |
+| Compressing report... / Sending report... | Work is still in progress. Delivery is not confirmed yet. |
+| Report sent / Report sent successfully | The handler returned an ID. Keep it for support. |
+| Copy | Copies the sent report ID or the current status text. |
+| Closing the dialog | Opening or closing the dialog does not send a report. |
 
-You can edit or clear a prefilled comment; an empty comment is omitted. Data is prepared for that report dialog. Open a new dialog if you need a fresh snapshot after changing the application state.
+You can edit or clear a prefilled comment. The data is collected for that one report dialog. If something has changed since then and you need a fresh snapshot, open a new dialog.
 
 ## Review what is included
 
 | Data | Inclusion |
 | --- | --- |
-| systemInfo.txt | Automatically collected system, process, path and command-line information |
-| applicationInfo.txt | Current clients automatically include app/sender/license/startup context, tree statistics and subscriptions. Older archives may not contain it |
-| stacktrace.txt | Available exception details; a manually opened report need not contain an exception |
-| Logs and application-window screenshots | Recent logs and available app-window captures are normally selected; review the list |
-| Desktop screenshots and aura configuration | Not selected by default; add when needed |
+| systemInfo.txt | System, process, path and command-line information. Collected automatically. |
+| applicationInfo.txt | Current clients add app, sender, license and startup details, tree statistics and subscriptions on their own. Older archives may not have this file. |
+| stacktrace.txt | Available exception details. A report opened manually may have no exception. |
+| Logs and application-window screenshots | Recent logs and available app-window captures are normally already selected. Check the list. |
+| Desktop screenshots and aura configuration | Not selected by default. Add them when needed. |
 
-Logs, images, paths and settings can contain private information. Deselecting aura configuration does not remove required account or subscription context. There is no automatic guarantee that secrets are redacted. [Problem reports and receiving archives](/en/features/problem-reports) explains the payload, format, example and author-side route. Submitting to EyeAuras does not separately forward the archive to every subscribed pack author.
+Logs, images, paths and settings can contain private information. If you deselect aura configuration, the required account and subscription details stay in. The full contents, the format and the route for authors are described in [Problem reports and receiving archives](/en/features/problem-reports). Sending to EyeAuras does not forward the archive separately to every subscribed pack author.
 
 ## If the application has closed
 
 | Situation | What to preserve |
 | --- | --- |
-| Error Report appeared | The last steps and that failure's attachments. Whether the process exits afterwards depends on the error; not every report means shutdown |
-| The process disappeared without a dialog | Failure time, version and logs from that run. Select those earlier logs after a successful restart |
-| It fails before the interface opens | A copy of the data directory and logs for the agreed diagnosis below |
-
-A disappearing process does not establish the cause. Native failure or external termination needs Windows diagnostics and context. Historical anti-cheat compatibility lists are not present guarantees, and antivirus exclusions are not a universal repair.
+| Error Report appeared | A description of your last steps and that failure's attachments. Whether the application closes afterwards depends on the error. |
+| The process disappeared without a dialog | The failure time, the version and the logs from that run. Once the application starts again, open Report a problem and select them. |
+| It keeps failing before the interface opens | A copy of the data directory and the logs. What to do with them is in the section below. |
 
 <details>
 <summary>When the interface never opens</summary>
 
-1. Close any remaining EyeAuras instance and identify its data directory. The ordinary release profile uses `%appdata%\EyeAuras\release`; a different profile or portable installation uses its own path.
-2. Copy the **whole directory** to a safe location. It can include `config.cfg`, `backups`, separate aura storage and history. A copy of `config.cfg` alone is not a complete backup of those stores.
-3. Preserve the failure time and `logs` folder, then use [Contacts](/en/contacts) to agree which files are needed. A whole-profile archive can contain confidential settings; do not immediately post it in a public chat.
-4. If the application offers a backup or reset, keep your copy first. Restoring changes the working state; see [Configuration history](/en/features/config-rollback).
+1. Close any remaining EyeAuras instance and find its data directory. For the ordinary release profile it is `%appdata%\EyeAuras\release`. A different profile or a portable installation has its own path.
+2. Copy the **whole directory** to a safe location. It can include `config.cfg`, `backups`, separate aura storage and history. `config.cfg` alone is not enough.
+3. Note the time of the last failure and keep the `logs` folder. Write to [Contacts](/en/contacts) and agree which files are needed. An archive of the whole profile can contain confidential settings, so do not post it straight into a public chat.
+4. If the application offers to load a backup or reset the configuration, save your copy first. Restoring changes the working state. See [Configuration history](/en/features/config-rollback).
 
-Deleting `config.cfg` is not a complete reset when auras use separate storage. For a clean-data comparison, agree a separate profile with support and preserve the original directory. Restore only the agreed backup after diagnosis rather than replacing unrelated current data.
+The earlier advice was to delete `config.cfg` and start with empty settings. With separate aura storage that is not a complete reset. To test on clean data, use a separate profile agreed with support. Do not delete the original directory.
 
 </details>

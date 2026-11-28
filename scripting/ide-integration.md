@@ -9,94 +9,97 @@ dateCreated: 2025-10-19T16:35:51.518Z
 ---
 # Edit a project in your IDE and bring it back to EyeAuras
 
-When a script needs several classes, folders and code navigation, export it as a C# solution. Edit it in your IDE, then import it back. EyeAuras remains the execution host: the generated project supports compilation without becoming a separate running EyeAuras instance.
+Once a script grows to several classes and folders, it is easier to write it in an IDE. EyeAuras exports the script as an ordinary C# solution. You edit the files in the IDE and import them back. The script still runs in EyeAuras: the exported project compiles, but EyeAuras itself does not run inside the IDE.
 
-You need your own editable **C# Script**, a dedicated empty export directory, and a C# IDE that can work with `.sln`, such as [Rider](https://www.jetbrains.com/rider/), [Visual Studio](https://visualstudio.microsoft.com/) or [VS Code](https://code.visualstudio.com/). An IDE build needs the SDK and dependencies specified by the generated project. You can start from [Hello, world](/en/scripting/examples/basic/hello-world).
+You need:
+
+- your own editable **C# Script**
+- a separate empty folder for the export
+- a C# IDE that opens `.sln`: [Rider](https://www.jetbrains.com/rider/), [Visual Studio](https://visualstudio.microsoft.com/) or [VS Code](https://code.visualstudio.com/)
+- to build in the IDE, the SDK and dependencies listed in the exported project
+
+You can start from [Hello, world](/en/scripting/examples/basic/hello-world).
 
 ## Complete one round trip
 
-1. In the script editor, choose **Export...** and a dedicated directory. **Export clears its files and subdirectories, retaining `.git`.** Do not select a directory containing unrelated work.
+1. In the script editor, click **Export...** and choose a separate folder. **Export deletes every file and subfolder in it except `.git`.** Do not pick a folder that holds anything you need.
 
-![Export on the earlier script editor toolbar, between Open In IDE and Import.](/assets/callouts/batch3/en/ide-project-export.png)
+![Export button in the old script editor, between Open In IDE and Import](/assets/callouts/batch3/en/ide-project-export.png)
 
-[Full script editor toolbar](https://s3.eyeauras.net/media/2025/10/EyeAuras_gzfCRUFI9X.png)
+2. Open the exported `.sln` in your IDE. Next to it are the projects and the NuGet settings for the EyeAuras SDK. Restore the dependencies and check for errors.
 
-2. Open the exported `.sln` in your IDE. Its directory contains projects and NuGet settings for the EyeAuras SDK. Restore dependencies and inspect diagnostics.
+![Folder with the exported project](https://s3.eyeauras.net/media/2025/10/explorer_BOZVwOvceo.png)
 
-![Exported solution files](https://s3.eyeauras.net/media/2025/10/explorer_BOZVwOvceo.png)
+![Project open in an IDE](https://s3.eyeauras.net/media/2025/10/rider64_oeP2xd0Itf.png)
 
-![Project opened in an IDE](https://s3.eyeauras.net/media/2025/10/rider64_oeP2xd0Itf.png)
+3. In **Script.csx**, change the message to `Log.Info("Hello from IDE");` and save the file.
+4. In EyeAuras, click **Import...**, select that `.sln` and wait for it to load. Import replaces the script project with what is on disk. Edits you made only in EyeAuras after the export are lost.
 
-3. Change the message in **Script.csx** to `Log.Info("Hello from IDE");` and save.
-4. In EyeAuras, choose **Import...**, select that `.sln` and wait for it to load. Import replaces the script project's contents from disk; edits made only in EyeAuras after export will be lost.
+![Import button in the old script editor, between Export and Live](/assets/callouts/batch3/en/ide-project-import.png)
 
-![Import on the earlier script editor toolbar, between Export and Live.](/assets/callouts/batch3/en/ide-project-import.png)
+5. Click **Run** in EyeAuras and find `Hello from IDE` in the action's **Event Log**.
 
-5. Click **Run** in EyeAuras and find `Hello from IDE` in the action's **Event Log**. The changed message identifies the code that returned from disk.
+![Result of the run in Event Log](https://s3.eyeauras.net/media/2025/10/EyeAuras_eO23JLfMTK.png)
 
-![Running the imported code](https://s3.eyeauras.net/media/2025/10/EyeAuras_eO23JLfMTK.png)
-
-The images show an earlier editor. Current EyePad solution files are marked **Read-only**: edit them externally and inspect the result here. **CompileOnce** disables import and file monitoring; turn it off for an editable copy you own.
+In the current EyePad, the files of an open solution are marked **Read-only**: edit them in the IDE and check the result here. In **CompileOnce** mode, import and file watching are off. To edit your own copy, turn that mode off first.
 
 ## Choose how changes return
 
-| Command | Behaviour |
+| Command | What happens |
 | --- | --- |
-| Export... | Writes `.sln`, `.csproj`, source, resources and dependency references to the selected directory. |
-| Import... | Loads the disk project once. It replaces code rather than merging two sets of edits. |
-| Live Import / Live... | Watches the selected solution and imports saved changes. |
-| Open in IDE... | Exports, opens `.sln` through its Windows file association, and starts Live Import. |
+| Export... | Writes `.sln`, `.csproj`, sources, resources and dependency references to the chosen folder. |
+| Import... | Loads the project from disk once. This is a replacement: edits from the two sides are not merged. |
+| Live Import / Live... | Watches the chosen solution and imports saved changes. |
+| Open in IDE... | Exports the project, opens `.sln` with the program Windows has assigned to that extension, and turns on Live Import. |
 
-For a shorter cycle, enable **Live Import** for your `.sln`, edit the message in the IDE and save. Wait for the project update, restart the action and check the log. If it did not change, inspect the selected path and synchronization diagnostics before Stop/Run.
+To skip the manual import after every edit, turn on **Live Import** and choose your `.sln`. Change the message in the IDE and save the file. Wait for the project to update, restart the action and look at the log. If the code did not change, check the selected path and the synchronization diagnostics.
 
-![Live Import control](https://s3.eyeauras.net/media/2025/10/EyeAuras_JLTElJy5Ey.png)
+![Live Import button](https://s3.eyeauras.net/media/2025/10/EyeAuras_JLTElJy5Ey.png)
 
-![Open in IDE control](https://s3.eyeauras.net/media/2025/10/EyeAuras_C1aJ9hBHCB.png)
+![Open in IDE button](https://s3.eyeauras.net/media/2025/10/EyeAuras_C1aJ9hBHCB.png)
 
-This is synchronization from disk, not preservation of all running .NET state. Changes can recreate the script context and reset fields. Automatic restart depends on the surface and host version; update latency is not guaranteed. Monitoring respects `.gitignore`, `.eaignore` and generated-file exclusions. Ending monitoring does not undo changes already imported. Resource handling is covered in [embedded resources](/en/scripting/embedded-resources).
+Synchronization goes one way, from disk into EyeAuras. The state of the running code is not kept: a change can recreate the script context and reset its fields. Watching respects `.gitignore` and `.eaignore` and skips generated files. Resources are covered in [embedded resources](/en/scripting/embedded-resources).
 
 ## Edit an overlay interface
 
-The same workflow can update a **C# Overlay** window's Razor components; see [Blazor Windows](/en/scripting/blazor-windows/getting-started). After successful import and compilation, check the particular visible text or control. Updating can recreate the content.
+You can edit the Razor components of a **C# Overlay** window the same way, see [Blazor Windows](/en/scripting/blazor-windows/getting-started). After the import and a successful compilation, check a specific text or control in the window. An update can recreate the window's content.
 
-![C sharp overlay](https://s3.eyeauras.net/media/2025/10/EyeAuras_FXgRIKk17o.png =x300)
+![C# Overlay with a counter](https://s3.eyeauras.net/media/2025/10/EyeAuras_FXgRIKk17o.png =x300)
 
-These earlier demonstrations show a counter changing in the built-in editor and Rider. They illustrate the development cycle, not guaranteed preservation of every window's state:
+![Editing a C# Overlay in the built-in editor](https://s3.eyeauras.net/media/2025/10/EyeAuras_4geb5IBg7R.gif =x300)
 
-![Overlay editing demonstration](https://s3.eyeauras.net/media/2025/10/EyeAuras_4geb5IBg7R.gif =x300)
-
-![Overlay editing in Rider](https://s3.eyeauras.net/media/2025/10/Discord_uec9o89iub.gif =x400)
+![Editing a C# Overlay in Rider](https://s3.eyeauras.net/media/2025/10/Discord_uec9o89iub.gif =x400)
 
 <details>
-<summary>Project boundaries and IDE features</summary>
+<summary>Export limits and IDE features</summary>
 
-An IDE provides navigation, autocomplete, documentation, folders, ordinary classes, NuGet and Razor editing, including code-behind where supported. Put pure logic in classes and test it in a separate project. Do not reference that test project as a runtime dependency: import matches the script and its dependencies, rather than every project in an arbitrary solution.
+An IDE gives you autocomplete, navigation, documentation, folders, ordinary classes, NuGet and Razor editing, with code-behind where the IDE supports it. You can move pure logic into classes and test it in a separate project. Just do not reference the test project as a dependency of the script: import takes the script project and its dependencies, not the whole solution.
 
-Generated host stubs support compilation. They do not make **Log**, **Variables**, **Sleep** or **cancellationToken** globals in helper classes, or run EyeAuras inside the IDE. Pass dependencies explicitly and use the [script-host context](/en/scripting/api/scripting/runtime). Debugger and extension support depends on your environment.
+The export contains generated host stubs. They are there so the project compiles. They do not make **Log**, **Variables**, **Sleep** or **cancellationToken** available in helper classes. Pass dependencies explicitly, see the [script-host context](/en/scripting/api/scripting/runtime).
 
-EyeAuras import does not run pre-/post-build actions. If an IDE step generates JavaScript from TypeScript, import the resulting JS files. See [embedded resources](/en/scripting/embedded-resources) and [NuGet](/en/scripting/nuget) for dependencies.
+Import into EyeAuras does not run pre-/post-build actions. If the IDE generates JavaScript from TypeScript, import the finished JS files. For libraries, see [embedded resources](/en/scripting/embedded-resources) and [NuGet](/en/scripting/nuget).
 
-This workflow applies to [macros](/en/macros/getting-started), [behaviour-tree scripts](/en/behavior-trees/scripting), [image search](/en/scripting/examples/basic/image-search), [input](/en/scripting/examples/basic/send-text), [memory contracts](/en/scripting/api/memory) and [ImGui](/en/scripting/imgui/getting-started), subject to their host/module requirements. The [early export announcement](/en/changelogs/7930) records its history. This earlier project image shows a larger multi-component use:
+The same workflow works for [macros](/en/macros/getting-started), [behaviour-tree scripts](/en/behavior-trees/scripting), [image search](/en/scripting/examples/basic/image-search), [input](/en/scripting/examples/basic/send-text), [memory](/en/scripting/api/memory) and [ImGui](/en/scripting/imgui/getting-started). How export looked at the start is described in the [early export announcement](/en/changelogs/7930).
 
-![Earlier multi-component project](https://s3.eyeauras.net/media/2025/10/rider64_NlTMZAX9e4.png =x500)
+![A bot project in Rider](https://s3.eyeauras.net/media/2025/10/rider64_NlTMZAX9e4.png =x500)
 
-If your exported working script cannot build with its required SDK and dependencies, prepare a [problem report](/en/features/problem-reports). Review the contents before including **Auras.zip**, which carries configuration.
+If the export of your working script does not build, send a [problem report](/en/features/problem-reports). The **Auras.zip** attachment carries your configuration, so check what is in it before you send it.
 
 </details>
 
 ## Connect an IDE's MCP client
 
-MCP lets an AI client call tools exposed by another program. EyeAuras offers analysis of the **selected exported EyePad project**: compilation diagnostics, symbols, documentation and package/reference information. Every `script_ondisk_*` call resolves the selection again. Check its returned **resolvedWorkspace** instead of assuming that the previous call's project is still selected. The IDE or its client edits the disk files.
+MCP is a protocol that lets an AI client call the tools of another program. Through it EyeAuras offers analysis of the **selected exported EyePad project**: compilation errors, symbols, documentation, references and packages. The project is picked again on every `script_ondisk_*` call, so check the **resolvedWorkspace** that comes back. The code on disk is edited by the IDE or its client.
 
-1. Open [AI Assistant](/en/features/ai-assistant), then **AI**.
-2. Choose **Show Settings** if needed, inspect **MCP Port**, and click **Start MCP**.
-3. Wait for **MCP server is running.** or inspect the error. The default port is `48080`; use the endpoint actually shown:
+1. Open [AI Assistant](/en/features/ai-assistant), then the **AI** tab.
+2. If you do not see the settings, click **Show Settings**. Check **MCP Port** and click **Start MCP**.
+3. Wait for **MCP server is running.** The default port is `48080`. Use the address shown on your screen:
 
 ```text
 http://127.0.0.1:48080/mcp
 ```
 
-4. Add that HTTP MCP endpoint in your client. Rider's route is **Settings | Tools | AI Assistant | Model Context Protocol (MCP)**; VS Code uses its MCP settings or `mcp.json`. In Visual Studio, use the settings of your MCP-capable AI tool. See the official [JetBrains guide](https://www.jetbrains.com/help/ai-assistant/mcp.html) and [VS Code guide](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) for your installed version.
-5. Check the client's available tools and the project returned by a diagnostic request. Starting a server alone does not prove client connection, grant access to every file or execute the script.
+4. In your client, add an HTTP MCP server with that address. In Rider it is under **Settings | Tools | AI Assistant | Model Context Protocol (MCP)**. In VS Code, set the address in the MCP settings or in `mcp.json`. In Visual Studio, use the settings of your AI tool that supports MCP. The interface depends on the client version, see the [JetBrains guide](https://www.jetbrains.com/help/ai-assistant/mcp.html) and the [VS Code guide](https://code.visualstudio.com/docs/copilot/chat/mcp-servers).
+5. In the client, check the list of available tools and the project that a diagnostic request returns.
 
-The [workspace-selection implementation](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/AI/Mcp/EyeAurasMcpOnDiskScriptingPlugin.cs) describes this boundary.
+How the project is picked is visible in the [source code](https://github.com/iXab3r/EyeAuras/blob/c8b2304ac9ada59d217984035c8302b6e375ad10/Sources/EyeAuras.UI/AI/Mcp/EyeAurasMcpOnDiskScriptingPlugin.cs).

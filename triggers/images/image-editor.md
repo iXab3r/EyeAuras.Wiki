@@ -1,6 +1,6 @@
 ---
 title: Template Image Editor
-description: quick editor for Image Search templates - crop, erase, remove color, and resize
+description: Built-in template editor for Image Search. Crop, erase, remove color and resize.
 published: true
 date: 2026-03-26T18:00:00.000Z
 tags: image search editor template
@@ -10,66 +10,60 @@ dateCreated: 2026-03-26T18:00:00.000Z
 
 # Template Image Editor — keep only the useful sample
 
-If an icon has a changing caption or background, leave those pixels out of its Image Search template. The built-in editor can crop the sample, erase unwanted detail and store the result back in the trigger.
+The built-in editor prepares a template for Image Search. You keep the icon, remove the extra pixels and save the result into the trigger. Use it when a caption or background next to the icon keeps changing and should stay out of the template.
 
-It changes the **saved template**. [Image Effects](/en/triggers/images/effects) changes **each captured frame** before matching. Choose according to which image needs work.
+The editor changes the **saved template**. [Image Effects](/en/triggers/images/effects) process **each captured frame** before matching. Pick the one that matches the image you need to change.
 
 ## Keep an icon and remove its background
 
-Start with an **Image Search** trigger containing a sample loaded through **Load...**, the clipboard, or **Load from Preview Pane**. Use an icon on a flat background for this example; with a complex background, crop and erase without removing an entire color.
+You need an **Image Search** trigger with a sample already loaded through **Load...**, the clipboard, or **Load from Preview Pane**. For this example, take an icon on a flat background. With a busy background, crop and erase instead of removing a whole color.
 
 1. Under **Template source - what to search for**, click **Edit...**.
-2. Choose **Crop**, frame the icon without its caption or neighbors, then click **Apply crop**. The mouse wheel zooms the view; you can move the image within the crop area.
+2. Choose **Crop**. Fit the frame around the icon so the caption and neighbors stay outside, then click **Apply crop**. The mouse wheel zooms the view. You can move the image inside the crop area.
 
-   In this example, the crop keeps the flamingo and removes much of the empty space:
+   ![Crop selected in the template editor, a blue crop frame around the flamingo and Apply crop in the right panel](/assets/callouts/batch2/en/template-editor-crop.png =x700)
 
-   ![Crop selected in the template editor, a blue crop frame around the flamingo and Apply crop in the right panel.](/assets/callouts/batch2/en/template-editor-crop.png =x700)
+3. Choose **Remove Color**. Start with **Tolerance = 0%** and click a pixel of the flat background. If nearby shades remain, raise the tolerance a little and click again. A large tolerance can remove part of the icon.
 
-3. Choose **Remove Color**, start with **Tolerance = 0%**, and click a flat-background pixel. If nearby shades remain, increase tolerance a little and select again. A large tolerance can remove part of the icon too.
+   The checkerboard in the picture is transparency. Image Search does not compare those pixels:
 
-   The checkerboard below represents transparency, excluded from Image Search comparison:
+   ![Remove Color with tolerance at 20% and a pink sampled color. Parts of the flamingo show the transparency checkerboard.](/assets/callouts/batch2/en/template-editor-remove-color.png =x700)
 
-   ![Remove Color with tolerance at 20% and a pink sampled color. Areas of the flamingo now show the transparency checkerboard.](/assets/callouts/batch2/en/template-editor-remove-color.png =x700)
-
-   At 20% tolerance, some of the pink plumage has disappeared. Start at 0% to preserve the details of your icon.
-
-4. Choose **Erase** and a suitable **Brush size** for isolated unwanted detail. Keep distinctive lines and enough opaque pixels in the icon.
-5. Use **Undo** or **Ctrl+Z** to revert a mistake; **Redo** or **Ctrl+Y** restores an undone edit.
-6. Click **Save** at the bottom. The trigger's template should update. Back in Image Search, use **Refresh Once** on states with and without the icon.
-
-These screenshots show the sample editor, not an object-recognition model. Transparency excludes pixels; it does not make the remaining template work at any size or rotation.
+4. For single unwanted details, choose **Erase** and set a **Brush size**. Keep the distinctive lines and enough opaque pixels of the icon.
+5. **Undo** or **Ctrl+Z** reverts a mistake. **Redo** or **Ctrl+Y** brings it back.
+6. Click **Save** at the bottom. The template in the trigger should update. Then click **Refresh Once** in Image Search and check a frame with the icon and one without it.
 
 ## Resize the template when necessary
 
-Prefer capturing a sample at the same scale as the icon. If its dimensions differ, open **Resize**.
+If the template is a different size from the icon in the captured frame, open **Resize**. It is easier to take the sample from the frame itself, so the scale matches.
 
 | Resize control | Use |
 | --- | --- |
 | 50%, 75%, 100%, 125%, 150%, 200% | Preset template scales. |
-| Width / Height | Exact pixel dimensions. |
-| Scale | Percentage scaling. |
-| Keep aspect ratio | Preserves proportions; enabled by default. |
+| Width / Height | Exact size in pixels. |
+| Scale | Scale as a percentage. |
+| Keep aspect ratio | Keeps the proportions. On by default. |
 | Apply | Applies the selected size to the sample. |
-| Reset | Resets resize parameters to the current image. |
+| Reset | Resets the resize settings to the current image. |
 
-![Resize displays a width of 2401 pixels and a height of 1162 pixels with Keep aspect ratio enabled.](/assets/callouts/batch2/en/template-editor-resize.png =x700)
+![Resize displays a width of 2401 pixels and a height of 1162 pixels with Keep aspect ratio enabled](/assets/callouts/batch2/en/template-editor-resize.png =x700)
 
-Shrinking only the template does not shrink the source application's icon. When capture resize effects are enabled, match the sample to their output.
+If effects resize the captured frame, match the sample to their output.
 
 <details>
 <summary>Other tools and saving</summary>
 
 | Control | Meaning |
 | --- | --- |
-| Erase → Brush size | Paints transparency onto the sample. |
-| Remove Color → Tolerance | Selects similar colors throughout the image, not only adjacent background pixels. |
-| Adjust → Brightness / Contrast / Saturation | Adjusts the sample. Apply commits the change; Reset resets adjustment parameters. |
-| Fit / 1:1 | Changes the view scale, not saved pixel dimensions. |
-| Save | Applies the edited result to the trigger, including an unfinished crop. |
-| Cancel | Closes without applying the edited result. |
+| Erase → Brush size | Erases pixels with a brush. They become transparent. |
+| Remove Color → Tolerance | How far a color may differ from the pixel you clicked. Similar colors are removed across the whole image, not only the background next to it. |
+| Adjust → Brightness / Contrast / Saturation | Changes the sample's brightness, contrast and saturation. Apply commits the change. Reset resets the adjustment settings. |
+| Fit / 1:1 | Changes the view scale, not the size of the saved template. |
+| Save | Saves the result to the trigger. An unfinished crop is saved too. |
+| Cancel | Closes the editor without changing the trigger. |
 
-When the icon and background share a color, Remove Color can erase both. Undo and retain the background or erase selected areas instead.
+If the icon and the background share a color, Remove Color can remove both. Undo it, then keep the background or erase only selected areas.
 
 </details>
 
-Save does not overwrite the original file from which the sample was loaded. For a separate copy, use **Save...** in [Image Search](/en/triggers/images/image-search).
+Save does not overwrite the file you originally loaded the sample from. To get a separate copy, click **Save...** in [Image Search](/en/triggers/images/image-search).

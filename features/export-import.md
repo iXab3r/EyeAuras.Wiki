@@ -9,81 +9,79 @@ dateCreated: 2023-06-18T18:28:27.203Z
 ---
 # Save your aura set and open an independent copy
 
-Export saves a selected aura, tree or folder to JSON. Before changing a set, you can export it, import a separate copy and compare the two. You do not need to publish anything online.
+Export saves a selected aura, tree or folder with its contents to JSON. For example, before changing a set you can export it, import a copy next to it and compare the two. You do not need to publish anything online for this.
 
-Start with your own small folder named `Transfer test`, containing one disabled aura. You need permission to export its contents; a private pack may restrict this.
+For the first try, take your own small folder named `Transfer test` with one disabled aura. Someone else's private pack will not do: its permissions may forbid export.
 
-1. Select the folder and open **Share/Export** using the export button or **Ctrl+S**. In **Content**, check that the folder and its contents are included.
-2. If **Missing linked objects detected** appears, inspect the dependencies. **Add linked objects** adds linked objects missing from the set. Check **Content** again afterwards.
-3. Choose **Destination → Local export → Save to file…** and save the JSON in your own directory. **Open in Explorer** locates the result. Close the export dialog.
+1. Select the folder in the tree and open **Share/Export** with the export button or **Ctrl+S**. In **Content**, check that the folder and its contents are in the set.
+2. If you see **Missing linked objects detected**, check the dependencies. **Add linked objects** adds linked objects that are not yet in the set. Look through **Content** again afterwards.
+3. Choose **Destination → Local export → Save to file…** and save the JSON to your own folder. **Open in Explorer** finds the saved file. Close the export dialog.
 
-   ![Local export provides Save to file to write a JSON file and Copy JSON to copy its contents.](/assets/callouts/batch3/en/export-local-json.png)
-4. Click **Import**, choose **Source → Import from file → Open…**, and select that file. Check the contents and paths in **Preview**.
-5. The original objects still exist, so choose **Copy** in **Import Options**. This keeps them and gives the imported objects separate IDs. Do not use **Replace** for this exercise.
-6. Find the copy in the tree and rename its aura. The original aura should keep its name. Leave both disabled until you have checked their settings and external dependencies.
+   ![Local export: Save to file writes JSON to a file, Copy JSON copies it to the clipboard](/assets/callouts/batch3/en/export-local-json.png)
+4. Click **Import**, then **Source → Import from file → Open…** and select the saved file. Check the contents and paths in **Preview**.
+5. The original objects already exist, so choose **Copy** in **Import Options**. The originals stay, and the new objects get their own IDs. Do not choose **Replace** here.
+6. Find the imported copy in the tree. Rename its aura and make sure the name of the original aura has not changed. Leave both disabled until you have checked their settings and external dependencies.
 
-Ordinary import uses the paths stored in the file. Selecting a folder before opening the dialog does not make it the destination. Check **Preview**: this form has no separate picker for an arbitrary destination folder.
+Ordinary import puts items at the paths stored in the file. A folder selected before you open the dialog does not become the destination. See where the items will go in **Preview**.
 
-The source screen lets you inspect a file or link before changing the working tree.
-
-![Source offers an empty publication URL field and Open under Import from file.](/assets/callouts/batch3/en/import-source-file.png)
+![Source: an empty publication link field and the Open button under Import from file](/assets/callouts/batch3/en/import-source-file.png)
 
 ## Choose what to transfer
 
 | Option | What it transfers |
 | --- | --- |
-| Selected aura or tree | The selected item's settings. Neighbouring items are not automatically included. |
-| Folder | The folder and its nested folders, auras and trees. Use this for a related set. |
-| Save to file… / Copy JSON | Local JSON for that selection; Copy JSON writes it to the clipboard. Neither copies the whole installation or its history. |
-| Publish | Uploads the set and produces a publication link. |
-| Portable pack | A separate bundle of EyeAuras and configuration for launching the set; see [Packs](/en/features/packs). |
+| Selected aura or tree | The settings of the selected item. |
+| Folder | The folder with all its nested folders, auras and trees. |
+| Save to file… / Copy JSON | Local JSON of the selected set. Copy JSON puts it on the clipboard. |
+| Publish | Uploads the set and gives a publication link. |
+| Portable pack | A separate bundle of EyeAuras and configuration for launching the set. See [Packs](/en/features/packs). |
 
-Embedded resources are prepared with the exported data. External file paths, window names, installed drivers and service access still need checking on the receiving PC. Known internal links can be remapped when copying the set; arbitrary strings in code and references to objects outside it are not automatically repaired. Compatibility across different application versions also needs checking.
+Embedded resources are exported together with the data. A path to an external file, a window name, an installed driver or access to a service will not start working on another PC by themselves. When a copy is made, links inside the set can be remapped. EyeAuras does not fix arbitrary strings in your code or references to objects left outside the set. If the other PC has a different EyeAuras version, check that the set works there.
 
-Export does not scrub secrets from your settings. Before sharing, review tokens, passwords, addresses and embedded resources. Store personal copies appropriately too.
+Export does not remove secrets from your settings. Before you share, check tokens, passwords, addresses and embedded resources.
 
 ## Import a publication and choose how it updates
 
-1. Paste its link into **Source**. Check the name, description and owner.
-2. Click **Download** to retrieve the contents and open **Preview**. Read **Overview** and **Pack Options** before importing.
-3. Choose **Import Options**, then **Import** or the appropriate conflict-resolution button. Import applies the downloaded set, rather than a single highlighted preview item.
+1. Paste the publication link into **Source**. Look at its name, description and owner.
+2. Click **Download**. The contents are downloaded and **Preview** opens. On **Overview** and **Pack Options** you can read the author's description and settings before importing.
+3. Choose a mode in **Import Options**, then click **Import** or the conflict button you need. The whole downloaded set is imported, not the item highlighted in the preview.
 
 ![Publication details before import](https://s3.eyeauras.net/media/2026/04/EyeAuras_RsqOrNqzmX.png =x600)
 
 | Import option | When to use it |
 | --- | --- |
-| Prefer packed version | Requests the author's prepared contents when available. It does not download a portable ZIP. Packed Only policy can force this choice. |
-| Subscribe to updates | Links the local folder to the publication for later updates and applies its current version immediately. Ordinary JSON without a publication has no such subscription. |
-| Clone locally | Available with a subscription. Creates distinct local IDs while keeping the source link, allowing multiple copies of one pack. Older text calls this Local Clone. |
-| No subscription | Makes a one-time import. A later author revision does not automatically replace this copy. |
+| Prefer packed version | To get the contents prepared by the author, if there are any. It does not download a portable ZIP. With the Packed Only policy this choice can be forced. |
+| Subscribe to updates | To link the local folder to the publication and receive updates. The current version is applied right away. Not used for ordinary JSON without a publication. |
+| Clone locally | Available together with a subscription. Creates separate local IDs but keeps the link to the source. Good for several copies of one pack. Older text calls this Local Clone. |
+| No subscription | A one-time import. The author's next version does not replace this copy by itself. |
 
-![Prefer packed version and Subscribe to updates are both off in the earlier Import Options panel.](/assets/callouts/batch3/en/import-update-options.png)
+![Import Options: Prefer packed version and Subscribe to updates are off](/assets/callouts/batch3/en/import-update-options.png)
 
 | Conflict choice | Result |
 | --- | --- |
-| Replace | Replaces conflicting existing items. It does not merge individual settings. |
-| Copy | Keeps existing items and adds copies with distinct IDs and adjusted paths. |
-| Ignore Conflicts | Skips conflicting incoming items and imports the rest. |
+| Replace | Conflicting existing items are replaced with the imported ones. Individual settings are not merged. |
+| Copy | Old items stay, and new ones are added as separate copies with different IDs and adjusted paths. |
+| Ignore Conflicts | Conflicting new items are skipped, and the rest are imported. |
 
-An ordinary import can ask **Ignore / Replace / Copy** for each conflict, with **… All** choices. Subscriptions use folder synchronization instead of independent one-time copying. A local clone is not intended for ordinary republication as the original.
+An ordinary import can ask **Ignore / Replace / Copy** for each conflict, with **… All** choices. With a subscription the folder is synchronized with the source. It is not a one-time independent copy. A local clone is not meant to be published again as the original.
 
-The source form also accepts a prepared installation file or JSON from the clipboard. Choose by the file's contents; an arbitrary file is not a full application configuration.
+The source form also accepts a prepared installation file and JSON from the clipboard.
 
-Before publishing, choose what recipients may view or change through [folder permissions](/en/features/permission-model). For example, **Configurable** lets them adjust exposed properties while keeping actions and triggers read-only. Make that choice alongside the content preview; a share link or library listing serves a different purpose.
+Before publishing, use [folder permissions](/en/features/permission-model) to set what the recipient can view and change. For example, **Configurable** lets them adjust exposed properties and keeps actions and triggers read-only.
 
 <details>
 <summary>Publish a new set or update your publication</summary>
 
-1. Leave the URL in **Destination** empty for a new publication. Set its name and description in **Overview**; the description supports Markdown. Check **Content** and **Pack Options**.
-2. Click **Publish**. A successful upload produces a link. Unlike Save to file…, this uploads to the server.
-3. To publish a revision, paste the existing publication's URL into **Destination**, review its details and choose **Update**.
+1. For a new publication, leave the URL in **Destination** empty. Set the name and description in **Overview**. The description supports Markdown. Check **Content** and **Pack Options**.
+2. Click **Publish**. After the upload a link appears.
+3. To release a new revision, paste the address of the existing publication into **Destination**, check the loaded details and click **Update**.
 
 ![Publication name and description](https://s3.eyeauras.net/media/2026/04/EyeAuras_0eqyEd4cQl.png =x600)
 ![Pack options before publication](https://s3.eyeauras.net/media/2026/04/EyeAuras_6Ib89kDGV9.png =x600)
 ![Destination and publication owner](https://s3.eyeauras.net/media/2026/04/EyeAuras_2ayTMoUOpH.png =x600)
 
-The desktop export dialog checks ownership against the signed-in account and can block updating someone else's publication. Server Editor and Manager permissions are broader than this particular check; website access does not guarantee that this dialog supports the same update. An ownerless publication does not become yours when you paste its URL.
+The export dialog checks the owner against the account you are signed in with and can stop you from updating someone else's publication.
 
-A share link and a public library listing are separate. An unlisted or unfamiliar URL is not an access check: content restrictions and publication permissions are configured separately.
+A link and a listing in the public library are different things. A URL that nobody knows is not protection: content restrictions and publication permissions are set separately.
 
 </details>

@@ -1,6 +1,6 @@
 ---
 title: "Highlight your own element through a project module"
-description: "Import an ES module after rendering, pass one ElementReference and release the component-owned module on close."
+description: "Import an ES module after rendering, pass it one ElementReference and release the module when the window closes."
 published: true
 date: 2026-11-10T17:35:11.000Z
 tags: recipes, developer
@@ -10,15 +10,15 @@ dateCreated: 2026-11-10T17:35:11.000Z
 
 # Highlight your own element through a project module
 
-Let a small JavaScript module highlight one element of your own panel. Razor owns the text and button; JS only adds or removes one class on the element explicitly passed to it.
+A small JavaScript module highlights one element of your own panel. The text and the button live in Razor. JS only adds or removes one class on the element that was explicitly passed to it.
 
-You need desktop EyeAuras with the script-hosted Blazor/WebView2 services and project resource provider. No remote page, browser session or downloaded JS library is involved.
+You need desktop EyeAuras with the script-hosted Blazor/WebView2 services and the project resource provider.
 
-1. Create your own aura `RecipeHighlight` with **Actions → On Enter → C# Script**, using manual **Run**. Through **New file → Component**, create `MainWindow`; replace its single Razor file and remove any duplicate generated counter code-behind.
-2. Through **New file → Component**, create the root `_Imports.razor` and replace its generated contents with the imports below. Through **New file → JavaScript** and **New file → CSS**, create and rename resources to `wwwroot/highlight.js` and `wwwroot/panel.css`. Replace their contents completely: the JS file is an ES module, not a classic script template.
-3. Replace **Script.csx**, wait for compilation, then click **Run**. The window should show one bordered text element and **Toggle highlight**. The button becomes available after the first render and successful module import.
-4. Click the button: that element gains a yellow background and outline. Click again: they disappear. No other element or application is selected.
-5. Close the window or click **Stop**. Component teardown calls the module's cleanup, releases its reference, and then runs base disposal. Reopen with Run: the highlight begins off.
+1. Create an aura `RecipeHighlight` and add **Actions → On Enter → C# Script** for manual **Run**. Through **New file → Component**, add `MainWindow` and replace its single Razor file with the code below. If a generated code-behind with a duplicate counter appeared, remove it.
+2. Through **New file → Component**, create `_Imports.razor` in the project root and replace its contents with the imports below. Through **New file → JavaScript** and **New file → CSS**, create two files and rename them to `wwwroot/highlight.js` and `wwwroot/panel.css`. Replace their contents completely. The JS file here is an ES module, not the classic script from the template.
+3. Replace **Script.csx**, wait for compilation and click **Run**. The window shows one bordered text element and the **Toggle highlight** button. The button becomes available after the first render, once the module has loaded.
+4. Click the button. Only this element gets a yellow background and outline. Click again and the highlight disappears.
+5. Close the window or click **Stop**. On teardown the component calls the module's cleanup, releases its reference and then runs base disposal. On the next Run the highlight starts off.
 
 ## Script.csx
 
@@ -128,16 +128,16 @@ export function clearHighlight(element) {
 ```
 
 
-| Part | Responsibility |
+| Part | What it does |
 | --- | --- |
-| `OnAfterFirstRenderAsync` | Imports only after `@ref` can identify a rendered DOM element. |
-| `./wwwroot/highlight.js` | Relative URL at this script-aware window's page base URI; it resolves the unique project resource, not a disk path. |
-| `IJSObjectReference` | The component-owned module reference used for explicit exports. |
-| `ElementReference panel` | Identifies the one owned element; no global ID lookup or `window` helper is needed. |
-| `clearHighlight`, then `DisposeAsync`, then base | Removes the owned class, releases the module reference and preserves component cleanup. |
+| `OnAfterFirstRenderAsync` | Imports the module once the DOM element behind `@ref` exists. |
+| `./wwwroot/highlight.js` | A URL relative to the page base URI of this window. It finds the unique project resource, not a path on disk. |
+| `IJSObjectReference` | The module reference. The component owns it and calls the exports through it. |
+| `ElementReference panel` | Passes the one element you own, with no global ID lookup and no `window` helper. |
+| `clearHighlight`, then `DisposeAsync`, then base | Removes its own class, releases the module reference and runs the base component cleanup. |
 
-The module adds no timers or event listeners. If you later add either, its cleanup must remove them explicitly; disposing an `IJSObjectReference` alone does not do that. Cleanup awaits an import already started, so closing during loading does not intentionally abandon that reference. Hiding a window does not destroy its component.
+The module adds no timers or event listeners. If you add them later, remove them in cleanup yourself: disposing an `IJSObjectReference` does not do that. If the window is closed while the module is loading, cleanup waits for the started import and does not abandon its reference. Hiding a window does not destroy its component.
 
-The provider accepts this unique folder-qualified resource suffix. Keep the paths and case shown and avoid duplicate resources; [embedded resources](/en/scripting/embedded-resources) explains full manifest names if resolution is ambiguous. The project namespace may prefix those names; changing `@namespace RecipeHighlight` does not rename the resources.
+The provider finds the resource by this unique path ending, folder included. Keep the paths and letter case shown here and do not create duplicate resources. If names are ambiguous, [embedded resources](/en/scripting/embedded-resources) explains full manifest names. The project namespace may be a prefix of those names. `@namespace RecipeHighlight` does not rename the resources.
 
-[JavaScript loading](/en/scripting/blazor-windows/js-loadscript) distinguishes module import from classic `LoadScript`. For an ordinary text or color change driven entirely by C# state, [reactive Razor updates](/en/scripting/blazor-windows/reactive-toggle) are simpler; use the module when you actually need DOM behavior.
+[JavaScript loading](/en/scripting/blazor-windows/js-loadscript) explains how a module import differs from classic `LoadScript`. If the text or colour depends only on C# state, [reactive Razor updates](/en/scripting/blazor-windows/reactive-toggle) are simpler.

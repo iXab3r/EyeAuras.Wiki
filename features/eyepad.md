@@ -9,36 +9,34 @@ dateCreated: 2026-03-24T01:20:00.000Z
 ---
 # Open a standalone script in EyePad
 
-EyePad lets you open your own C# file without creating an aura in the main tree. It is a mode of the same `EyeAuras.exe`: the EyeAuras scripting engine runs the code, while the tab provides an editor, log and execution controls.
+EyePad runs your own C# file without an aura in the main tree. It is a mode of the same `EyeAuras.exe`. The EyeAuras scripting engine runs the code, and the tab gives you an editor, a log and run buttons.
 
-You need an installed or portable EyeAuras version with EyePad support, and your own `Script.csx`. Start with the [minimal log example](/en/scripting/examples/basic/hello-world). Read unfamiliar code first: separate tab trees are not an operating-system security boundary.
+You need an installed or portable EyeAuras with EyePad support, and your own `Script.csx`. Start with the [minimal log example](/en/scripting/examples/basic/hello-world). Read code you did not write before you run it. Tabs have separate trees, but that does not protect your system from the code.
 
-1. In the application directory, run `EyePad.vbs` if your distribution includes it. Alternatively, run:
+1. In the application folder, run `EyePad.vbs` if your copy includes it. Or run this from the same folder:
 
 ```text
 EyeAuras.exe --pad
 ```
 
-![EyePad.vbs beside EyeAuras.exe in the portable 1.9.9321 folder.](/assets/callouts/batch3/en/eyepad-launcher.png)
+![EyePad.vbs next to EyeAuras.exe in the portable folder](/assets/callouts/batch3/en/eyepad-launcher.png)
 
 2. Choose **File → Open...** and select your `Script.csx`.
-3. Click **Run**. Its message should appear in the selected tab's log. A script that only logs a line finishes by itself; continuing work has **Stop** and **Restart** controls.
-4. Save edits with **Save**. For a new file, choose **Save As...** and your own path.
+3. Click **Run**. The script's message appears in the log of the selected tab. A script that only writes one log line finishes by itself. For a script that keeps running there are **Stop** and **Restart**.
+4. Save your changes with **Save**. For a new file, choose **Save As...** and pick your own path.
 
-![EyePad 1.9.9321 with Script.csx open. Run is at the upper right. The Event Viewer below is empty before the first run.](/assets/callouts/batch3/en/eyepad-run-log.png)
-
-Older images label the log **Event Viewer**; panel placement can differ. Check the selected tab and its log, rather than only the application's overall startup status.
+![Script.csx open in EyePad with Run at the upper right and an empty log below](/assets/callouts/batch3/en/eyepad-run-log.png)
 
 ## Choose what to open
 
 | Format | What EyePad opens |
 | --- | --- |
-| `.csx`, `.cs` | A C# script with the supported top-level context. An ordinary library class alone is not an entry point. |
-| `.sln` | A solution containing a script project, synchronized from disk. Its files are read-only in EyePad; edit them in the IDE. |
-| `.dll` | A prepared script assembly. An arbitrary DLL need not contain a suitable entry point. |
-| `.json` | An EyeAuras aura or script configuration, not an arbitrary JSON document. |
+| `.csx`, `.cs` | A standalone C# script. Top-level code gets the EyeAuras context. An ordinary library class is not an entry point by itself. |
+| `.sln` | A solution with a script project, synchronized from disk. Its files are read-only in EyePad, so edit them in the IDE. |
+| `.dll` | A prepared script assembly. A random DLL may not have a suitable entry point. |
+| `.json` | An EyeAuras aura or script configuration, not just any JSON document. |
 
-To open a file at startup, pass its path after `--pad`. Replace these example paths with your own:
+To open a file at startup, pass its path after `--pad`. Replace the paths below with your own:
 
 ```text
 EyeAuras.exe --pad "config\auras\HW\Script.json"
@@ -60,21 +58,21 @@ The mode flag itself is:
 
 ## Continue in an IDE or work on a pack
 
-For a project with several files, open its exported `.sln`. EyePad loads the project and starts **Live Import**. Save changes in the IDE, wait for synchronization, and check the next run's result. See [IDE integration](/en/scripting/ide-integration) for export and synchronization boundaries.
+If the project has several files, open its exported `.sln`. EyePad loads the project and starts **Live Import**. Save the code in the IDE, wait for the update and run again. How to export a project and what the limits of synchronization are is covered in [IDE integration](/en/scripting/ide-integration).
 
 ![Solution with EyePad Live Import](https://s3.eyeauras.net/media/2026/03/EyeAuras_ehBoMmbNoO.png)
 
-**Import...** can load an existing pack into a temporary workspace. Edit the permitted scripts and settings, then explicitly save, export or publish the result. [Pack permissions](/en/features/permission-model) still apply; importing does not publish your edits.
+With **Import...** you can load an existing pack into a temporary workspace and change the scripts and settings you have access to. You have to export or publish the result yourself. Importing publishes nothing. What you can edit depends on [pack permissions](/en/features/permission-model).
 
 ![Imported pack workspace](https://s3.eyeauras.net/media/2026/03/EyeAuras_4kQGkesUgd.png)
 
-Each tab has its own virtual aura tree and state. Tree-relative lookups belong to that context, rather than a global tree across tabs. A file-backed tab has its disk path; a new or imported pack needs an explicit saved result. Temporary workspace contents are not the main EyeAuras profile's persistent aura configuration. Tab separation also does not isolate arbitrary code from shared OS resources.
+Each tab has its own virtual aura tree and its own state. A new or imported pack has to be saved explicitly.
 
 <details>
 <summary>Larger projects and custom interfaces</summary>
 
-EyePad uses C# and Roslyn and supports [NuGet](/en/scripting/nuget), [embedded resources](/en/scripting/embedded-resources), [Blazor Windows](/en/scripting/blazor-windows/1-intro) and [ImGui](/en/scripting/imgui/getting-started). A particular service still depends on the loaded modules and project dependencies; referencing an SDK does not register every service in this host.
+EyePad uses C# and Roslyn and supports [NuGet](/en/scripting/nuget), [embedded resources](/en/scripting/embedded-resources), [Blazor Windows](/en/scripting/blazor-windows/1-intro) and [ImGui](/en/scripting/imgui/getting-started).
 
-Use the main EyeAuras interface for visual editing of triggers, actions, macros and behaviour trees. EyePad is a runtime/editor shell, not a replacement for Rider or Visual Studio. A [mini-app](/en/features/mini-app) is the product you build on that shell; provide its own interface before hiding the main UI.
+Triggers, actions, macros and behavior trees are easier to set up in the main EyeAuras interface. If you want to run your own app on top of the scripting engine, see [mini-app](/en/features/mini-app).
 
 </details>

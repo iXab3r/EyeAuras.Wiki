@@ -10,24 +10,24 @@ dateCreated: 2026-11-10T18:20:14.885Z
 
 # Keep a bounded trail of your own cursor
 
-Draw a short cyan trail behind your cursor, with a visible count capped at 64 positions. This reads positions; it does not move the pointer or send input.
+The script draws a short cyan trail behind your cursor and shows a counter of up to 64 positions.
 
-Use desktop EyeAuras on Windows with the optional **EyeAuras.ImGuiSdk 0.1.47** host and its compatible native dependencies (the SDK source uses ClickableTransparentOverlay 11.5.28). A NuGet reference alone does not install or register a native renderer. Start in your own primary-monitor desktop session, with the renderer visible; see [ImGui setup](/en/scripting/imgui/getting-started).
+You need desktop EyeAuras on Windows with the host for the optional **EyeAuras.ImGuiSdk 0.1.47** and its compatible native dependencies. The SDK source uses ClickableTransparentOverlay 11.5.28. A NuGet reference alone is not enough: it does not install or register a native renderer. Start in your own session on the primary monitor with the renderer visible. See [ImGui setup](/en/scripting/imgui/getting-started).
 
-1. Create an editable aura through **Add new → New Aura**, name it `RecipeTrail`, and add **C# Script** under **Actions → On Enter**. Leave automatic activation and other input actions unused for this exercise.
-2. Replace the complete top-level **Script.csx** with the file below. Allow its pinned package to resolve, then click the action's manual **Run**.
-3. Move your own cursor across the area covered by the renderer. The cyan line joins recent positions. **Owned cursor trail** shows `Stored positions: n/64`; after the buffer fills, old points leave as new ones arrive.
-4. Click **Clear** in that panel. It removes the stored path; sampling resumes on subsequent frames. Click **Stop** in the script editor to remove this renderer and its stored positions. A later Run starts an empty trail.
+1. Create an editable aura through **Add new → New Aura**, name it `RecipeTrail`, and add **C# Script** under **Actions → On Enter**. Do not use automatic activation or other input actions for this example.
+2. Replace the whole top-level **Script.csx** with the file below. Wait for its pinned package to resolve, then click the action's **Run** by hand.
+3. Move your cursor around the area covered by the renderer. The cyan line joins the recent positions. The **Owned cursor trail** panel shows `Stored positions: n/64`. Once the queue is full, new points push out the old ones.
+4. Click **Clear** in the panel: the trail disappears and starts building again from the next frames. **Stop** in the script editor removes the renderer and the stored positions. A new Run starts with an empty trail.
 
 | Choice | Effect |
 | --- | --- |
-| Queue limit `64` | At most 64 `Vector2` positions are retained, not an unlimited mouse history. |
-| Sample interval `16` ms | A minimum interval checked during rendered frames; it does not guarantee 60 samples per second. |
-| `ImGui.GetMousePos()` and background draw list | Coordinates stay in the same live ImGui draw domain. They are not another window's client coordinates. |
+| Queue limit `64` | At most 64 `Vector2` positions are kept, not the whole mouse history. |
+| Sample interval `16` ms | The minimum interval between samples. It is checked during rendering. |
+| `ImGui.GetMousePos()` and background draw list | Positions stay in the same live ImGui coordinate system. They are not another window's client coordinates. |
 
-Do not multiply these positions by a guessed DPI factor or add a captured window's desktop offset. On a different monitor/layout, check the renderer's actual coverage before extending the example. The native canvas can clip points outside that coverage; this is not a universal multi-monitor mapping API.
+Do not multiply these points by a guessed DPI factor or add a captured window's desktop offset. On a different monitor or layout, first check where the renderer's area really is. Points outside it can be clipped. The example has no general mapping for several monitors.
 
-The callback owns no font or native context pointer. All its queue access and drawing occur under one short lock. On Stop, the same lock waits for an entered callback, marks later callbacks inactive and clears the queue; scope exit then removes the registration before releasing the API handle. It does not close the shared `Main` overlay belonging to other users. [Cursor rendering context](/en/scripting/examples/basic/imgui-cursor) explains the coordinate distinction.
+The queue and the drawing are protected by one short lock. On Stop, the same lock waits for a callback that has already started, blocks later calls and clears the queue. Then, on leaving the block, the registration is removed and the API handle is released. The shared `Main` overlay that others use is not closed. [Cursor rendering context](/en/scripting/examples/basic/imgui-cursor) explains how the coordinates differ.
 
 ## Script.csx
 

@@ -1,6 +1,6 @@
 ---
 title: Working with DMA/FPGA
-description: Guide to working with DMA and FPGA
+description: What you need to read memory through an FPGA and how to check that the MPFS module has loaded.
 published: true
 date: 2024-11-12T16:30:25.798Z
 tags: ai-translated
@@ -10,43 +10,41 @@ dateCreated: 2024-11-12T16:30:25.798Z
 
 # Prepare EyeAuras for a DMA source
 
-FPGA access needs two separate prerequisites: a prepared memory-acquisition source and an EyeAuras distribution containing **EyeAuras.Memory.MPFS**. An ordinary Memory API reference or a board alone does not make that source ready.
+To read memory through an FPGA you need two things: a prepared memory source and an EyeAuras distribution that contains the **EyeAuras.Memory.MPFS** module.
 
-Start by identifying the computers' roles and checking module loading. The [DMA example](/en/features/dma) then lists visible processes. Connecting hardware does not create game-state indicators or actions.
+On this page you work out the roles of the computers and check that the module has loaded. The [DMA example](/en/features/dma) shows how to get a process list for the first time.
 
 ## Check a prepared environment
 
-1. Identify the **target computer** whose memory you intend to inspect, and the computer running the reader. Start with your own prepared system and a known test process.
-2. Obtain a compatible distribution containing **EyeAuras.Memory.MPFS**, its MemProcFS/LeechCore native libraries and support for your acquisition device. Its module directory must include **x64/bin-mpfs**, including `vmm.dll` and `leechcore.dll`. Do not assemble it from unrelated DLL versions.
-3. In that distribution, open the status-bar item whose tooltip is **Open module monitor**, then select **Modules**. Find **MpfsMemoryModule** and inspect its loading state and errors. **Assemblies** separately lists **EyeAuras.Memory.MPFS**; an assembly's presence does not establish hardware readiness.
-4. Compare your topology with the figures below. For a device locally connected to the analysis computer, the script source starts with **LCProcess.FPGA()**. Remote acquisition needs its own prepared endpoint; the target computer's IP address alone is insufficient.
-5. Continue to the [process-list example](/en/features/dma) once the module and source are ready. A module-loading error calls for checking the compatible distribution before changing addresses in a script.
-
-The preparation result is an identified module and understood device roles. It is not yet a successful memory read or a write test. Module access and licensing must match the distribution supplied to you; a source file, SDK reference or method name does not grant access or initialize a provider.
+1. Decide which is the **target computer** (the one whose memory you inspect) and which computer runs the memory reader. For a first try, use your own prepared system and a known test process.
+2. Get a compatible distribution with **EyeAuras.Memory.MPFS**, the MemProcFS/LeechCore native libraries and support for your device. Its module directory must include **x64/bin-mpfs** with `vmm.dll` and `leechcore.dll` inside. Do not assemble it from DLLs of random versions.
+3. Start that EyeAuras distribution. In the status bar, click the item with the **Open module monitor** tooltip and select **Modules**. Find **MpfsMemoryModule** and check whether it has loaded and whether there are errors. On **Assemblies** you can separately check that the **EyeAuras.Memory.MPFS** assembly is there.
+4. Compare your setup with the diagrams below. If the device is connected directly to the analysis computer, the script starts with **LCProcess.FPGA()**. To get memory over the network you need a separately prepared remote source. The target computer's IP address alone is not enough.
+5. When the module and the source are ready, go on to the [process-list example](/en/features/dma). If the module did not load, fix the distribution first.
 
 | Prerequisite | Why it matters |
 | --- | --- |
-| Windows and application architecture | This module's native set is under `x64/bin-mpfs` and must match the application. |
-| FPGA and connections | LeechCore and the environment must support the device. PCIe, M.2, Thunderbolt or USB4 labels do not make every adapter compatible. |
-| Device USB driver | FT601 on Windows needs the appropriate FTDI driver. A bundled `FTD3XX.dll` does not demonstrate that driver installation. |
-| MemProcFS / LeechCore | Acquires memory and reconstructs a process view, rather than supplying an API for a particular game's data. |
-| MPFS module | Initializes the native environment and adds its assembly to script references. A `using` directive does not load it. |
-| Test-process PID | Must identify the target system's process, not an unrelated process with the same PID on another computer. |
+| Windows and application architecture | The module's native files are in `x64/bin-mpfs` and must match the application. |
+| FPGA and connections | Your LeechCore and environment must support the device and its interfaces. The PCIe, M.2, Thunderbolt and USB4 labels on the diagram do not mean any adapter will fit. |
+| Device USB driver | FT601 on Windows needs the right FTDI driver. A bundled `FTD3XX.dll` does not mean the device driver is installed. |
+| MemProcFS / LeechCore | Get the memory and rebuild the picture of processes. |
+| MPFS module | Initializes the native environment and adds its assembly to script references. An SDK reference or a `using` directive does not load the module. |
+| Test-process PID | Must belong to a process on the target system, not to a process on another computer that happens to have the same PID. |
 
 ## EyeAuras on the analysis computer
 
-The upper computer is the target; the lower computer runs the analysis program. The FPGA path acquires memory. The separate **Arduino/KMBox** path handles input in the illustrated setup; DMA itself does not send keyboard or mouse events. Mouse and keyboard arrows feed that separate device.
+In the first diagram EyeAuras runs on the analysis computer. One path goes to the data through the FPGA, the other to a separate input device. DMA itself does not press keys or move the mouse.
 
 ![EyeAuras on the analysis PC with FPGA acquisition and a separate Arduino or KMBox input path](/assets/wiki-media/m070.png)
 
-The two paths have different roles: FPGA memory acquisition and Arduino/KMBox input. [Original SVG diagram](/assets/wiki-media/m070-original.svg).
+[Original SVG diagram](/assets/wiki-media/m070-original.svg).
 
 ## EyeAuras on the main computer
 
-Here EyeAuras is beside the main computer, while the other computer and router connections are shown separately. Such a setup needs an agreed data-transfer path between its components. The figure does not mean that local `LCProcess.FPGA()` automatically discovers a device connected to another computer.
+In the second diagram EyeAuras runs on the main PC, and the connections to the other computer are shown separately. In this setup the data has to travel between the computers somehow, and you need to set up that path. A local `LCProcess.FPGA()` will not find a device connected to another computer on its own.
 
 ![EyeAuras on the main PC with a second computer, FPGA and separate network connections](/assets/wiki-media/m071.png)
 
-Main-PC placement with the other computer's connections shown separately. [Original SVG diagram](/assets/wiki-media/m071-original.svg).
+[Original SVG diagram](/assets/wiki-media/m071-original.svg).
 
-Consult the [LeechCore author](https://github.com/ufrisk/LeechCore) for acquisition-source and device requirements. If you only need your own ordinary local process, start with [reading a known value](/en/scripting/examples/advanced/memory/rpm-read), which does not require DMA.
+For memory sources and hardware preparation, see the [LeechCore author](https://github.com/ufrisk/LeechCore). If you only need an ordinary process on your own computer, start with [reading a known value](/en/scripting/examples/advanced/memory/rpm-read). You do not need DMA for that.

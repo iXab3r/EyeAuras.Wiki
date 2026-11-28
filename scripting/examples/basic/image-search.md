@@ -9,14 +9,14 @@ dateCreated: 2024-02-23T23:07:10.725Z
 ---
 # Find your marker in a window and log its bounds
 
-The script compares captured pixels with a template and logs the matching rectangle. Your marker must be visible in the chosen window; this does not read another application's internal resources.
+The script looks for a picture by a template and logs its rectangle. It compares captured pixels, so the template must be visible in the chosen window.
 
-Prepare a small PNG with a distinctive marker, save it as `C:\Templates\marker.png`, and display it in your own image editor at **100%**. Keep the whole marker visible. You need the running OpenCV module and a working capture method; no external NuGet package is needed.
+For the example, make a small PNG with a distinctive marker, save it as `C:\Templates\marker.png` and open it in your image editor at **100%**. The whole marker must fit in the window. You need the running OpenCV module and a working capture method. No external NuGet packages are needed.
 
 1. Create your own **C# Script** action and open **Script.csx**.
-2. Paste the complete program below, replacing the absolute PNG path if necessary.
-3. Click **Run** and select the window displaying your marker with the on-screen picker.
-4. **Event Log** should show `Found relative to the window` and a rectangle, or `No match`. This program does not move or click the mouse.
+2. Paste the program below. If the file is somewhere else, replace the absolute path.
+3. Click **Run** and select the window with your marker in the on-screen picker.
+4. **Event Log** shows `Found relative to the window` with a rectangle, or `No match`.
 
 ```csharp
 using System.Drawing;
@@ -38,25 +38,25 @@ cancellationToken.ThrowIfCancellationRequested();
 }
 ```
 
-The top-level EyeAuras host supplies **GetService**, **Log** and **cancellationToken**; ordinary C# helpers receive their dependencies explicitly. Escape or right-click cancels window picking. The picker itself does not take the Run token, so cancellation is checked around it.
+The top-level EyeAuras host gives you **GetService**, **Log** and **cancellationToken**. An ordinary C# class needs its services passed in explicitly. Escape or a right-click cancels window picking. The picker itself does not take the Run token.
 
 | Value | Meaning |
 | --- | --- |
-| ForWindow(window) | Selects that window for on-demand capture, without the cursor, with an empty region and effect chain. The host chooses the capture method. |
-| new Percentage(90) | A 90% similarity threshold, not 0.9. It is a template-comparison score, not a probability or percentage of the window's area. |
-| Rectangle.Empty as input | Searches the whole captured frame. |
-| Rectangle.Empty as output | No match. A file or capture error can instead interrupt the operation. |
+| ForWindow(window) | The source is the selected window. Capture is on demand, without the cursor, with an empty region and an empty effect chain. The program chooses the capture method. |
+| new Percentage(90) | A 90% similarity threshold, not 0.9. |
+| Rectangle.Empty as input | Search the whole captured frame. |
+| Rectangle.Empty as output | No match. A PNG read error or capture error can interrupt the call instead, and that is a different outcome. |
 
-The created CV accessor belongs to this use and is disposed inside the explicit block. Simple **ImageSearch** already converts its result to window coordinates; do not apply ToScreen to it again. Frame origin need not equal client-area origin. Borders, DPI and capture method matter; do not change image scale after preparing the template.
+The CV accessor belongs to this use and is disposed inside the explicit block. Simple **ImageSearch** already returns window coordinates, so do not apply ToScreen to them. The frame origin may differ from the client-area origin: borders, DPI and the capture method all matter. Do not change the image scale after you prepare the template.
 
 ## Read a configured Image Search trigger
 
-Use a trigger when the window, template and region are already configured in the tree. You can [import the original example](https://eu.eyeauras.net/share/S20240223230622FB6T3303xKok) or prepare your own:
+If the window, template and region are already set up in an aura, use its trigger. You can [import the original example](https://eu.eyeauras.net/share/S20240223230622FB6T3303xKok) or prepare your own:
 
-1. In one folder, create **ImageSearch** with an **Image Search** trigger, and a sibling **Script** aura with a C# Script action.
-2. Select your window, use **Load...** to load the same PNG and set **Match Threshold = 90**. Start with the whole region and no effects.
-3. Click **Refresh Once** and check that the preview shows your marker. See [Image Search](/en/triggers/images/image-search) for setup.
-4. Replace the first program with this complete **Script.csx**, then click **Run**:
+1. In one folder, create an **ImageSearch** aura with an **Image Search** trigger, and next to it a **Script** aura with a C# Script action.
+2. Select your window, load the same PNG with **Load...** and set **Match Threshold = 90**. For the first search keep the whole region and no effects.
+3. Click **Refresh Once** and check that the preview shows your marker. Full setup is in [Image Search](/en/triggers/images/image-search).
+4. Replace the first program with this **Script.csx**, then click **Run**:
 
 ```csharp
 using EyeAuras.OpenCVAuras.Triggers.ImageSearch;
@@ -84,17 +84,17 @@ var screenRect = matchResult.ToScreen(localRect);
 Log.Info($"Image found @ {screenRect}");
 ```
 
-The log distinguishes a screen rectangle, `Image not found`, and a search that did not produce a result. The configured aura and trigger must exist: `.\ImageSearch` is relative to the script's tree context, not its disk directory.
+The log shows a screen rectangle, `Image not found`, or a separate message that the search did not run.
 
-**RefreshAsync(cancellationToken)** passes cancellation to frame acquisition and request handling; it does not promise instant interruption of native matching. Blocking **Refresh(cancellationToken)** also exists. Aura activation delays are separate from the result of this particular search.
+**RefreshAsync(cancellationToken)** passes cancellation to frame acquisition and request handling. There is also a synchronous **Refresh(cancellationToken)**, but it blocks the calling thread.
 
-Here **Detected.Bounds** is local to the processed frame. Use that result's **ToScreen** matrices for its region and effects, without manually adding the window position. The tree trigger is borrowed, and this refresh returns detection data without image buffers.
+Here **Detected.Bounds** is in processed-frame coordinates. That result's **ToScreen** converts it with its own matrices for the region and effects, so do not add the window position by hand. The trigger comes from the tree and must not be disposed. This refresh returns detection data without image buffers.
 
 <details>
 <summary>Raw results, pixel buffers and a separate reaction</summary>
 
-For detailed accessor results, **ImageSearchRaw** exposes nullable Detected.Bounds and the corresponding capture transforms. Apply ToScreen to those raw local bounds, rather than an already converted simple result. A **ProcessPixels** image is borrowed only during its callback. Retain a **Clone()** with its own Dispose if you need it afterwards.
+**ImageSearchRaw** gives the detailed result of a separate CV accessor. Check the nullable Detected.Bounds and convert the local bounds with the matrices of that same result. A **ProcessPixels** frame is available only during its callback. To keep a copy you need **Clone()** and a separate Dispose.
 
-Searching does not send input. A screen point uses **TargetWindow = null** in the standard input controller; a non-null window adds a window-relative conversion. See [clicking text](/en/scripting/examples/basic/click-on-text) for an explicit controlled target, and the [CV map](/en/scripting/api/computer-vision/images) and [CV operations](/en/scripting/api/IComputerVisionExperimentalScriptingApi) for resource and coordinate contracts.
+Searching does not send input. For a screen point the standard input controller needs **TargetWindow = null**. If you set a window, coordinates are converted relative to its frame. For an example that picks the target explicitly, see [clicking text](/en/scripting/examples/basic/click-on-text). Coordinates and resources are covered in the [CV map](/en/scripting/api/computer-vision/images) and [CV operations](/en/scripting/api/IComputerVisionExperimentalScriptingApi).
 
 </details>

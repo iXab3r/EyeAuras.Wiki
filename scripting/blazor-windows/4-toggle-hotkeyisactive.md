@@ -9,11 +9,11 @@ dateCreated: 2025-05-11T14:24:53.840Z
 ---
 # Toggle your own aura from a panel
 
-Give a panel button and a hotkey the same source of truth: the writable `TriggerValue` of **Hotkey Is Active**. The button controls that trigger; the aura's other conditions still apply.
+A button on a panel can change the same trigger as a hotkey. Both write to the `TriggerValue` of **Hotkey Is Active**. The button changes only that trigger, so the aura's other conditions still apply.
 
-1. In one folder, create `TargetAura`. Add **Hotkey Is Active**, choose **Toggle**, assign a free hotkey and leave the aura loaded. Add no actions for this exercise.
-2. In the same folder, create a panel aura with **C# Overlay** and its own **Fixed Value → Is Active**. Its visibility must not depend on `TargetAura`.
-3. Replace the two component files below. Leave the generated `Script.csx` as a short entry point without a loop or wait.
+1. In one folder, create `TargetAura`. Add **Hotkey Is Active** to it, choose **Toggle** and assign a free hotkey. Leave the aura loaded. It needs no actions here.
+2. In the same folder, create an aura for the panel. Add **C# Overlay** and its own **Fixed Value → Is Active**, so the panel stays visible whatever `TargetAura` does.
+3. Replace the two component files with the code below. Leave the generated `Script.csx` short, with no loop or wait.
 
 ## UserOverlay.cs
 
@@ -64,19 +64,19 @@ public partial class UserOverlay : BlazorReactiveComponent
 <p>Trigger: @(IsActive ? "on" : "off")</p>
 ```
 
-4. After compilation, compare the displayed state with the trigger in `TargetAura`. Click **Toggle trigger**: its `TriggerValue` changes and the panel displays the new state.
+4. After compilation, click **Toggle trigger**. The `TriggerValue` of the trigger in `TargetAura` changes, and the panel shows the new state.
 
 ![Button and trigger in the earlier example](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_HeGx0CejHB.gif)
 
 | Part | Meaning |
 | --- | --- |
-| `[Inject] IAuraTreeScriptingApi` | Obtains the tree API from this component's host. `AuraTree` is not an implicit Razor global; see [dependency injection](/en/scripting/dependency-injection). |
-| `"./TargetAura"` | Resolves within the panel's aura-tree context. Use your actual neighbouring aura path, not a filesystem path or another workspace's name. |
-| `GetTriggerByPath<IHotkeyIsActiveTrigger>` | Requires a matching aura and trigger; it throws when they are absent and selects the first matching trigger if several exist. |
-| `TriggerValue ?? false` | Reads the initial and current trigger value. This button deliberately displays `null` as off. |
-| `IsChecked` / `IsCheckedChanged` | Read the displayed value and handle a user change separately. `@bind-IsChecked` is the shorthand when a suitable read/write property supplies both. |
-| `SetActive` and `Refresh` | Write to the selected trigger, then refresh the component through its dispatcher. |
+| `[Inject] IAuraTreeScriptingApi` | The tree API that the component gets from its host. In Razor, `AuraTree` is not a global. See [dependency injection](/en/scripting/dependency-injection). |
+| `"./TargetAura"` | The neighbouring aura, relative to the panel's place in the aura tree. If your tree is laid out differently, change the path. |
+| `GetTriggerByPath<IHotkeyIsActiveTrigger>` | The aura and the trigger must exist, otherwise it throws. If there are several matching triggers, it takes the first one. |
+| `TriggerValue ?? false` | Reads the trigger value, both at the start and later. This button shows `null` as off. |
+| `IsChecked` / `IsCheckedChanged` | The first passes the current value to the button. The second receives the new value after a click. `@bind-IsChecked` is the short form when one read/write property does both. |
+| `SetActive` and `Refresh` | Writes to the trigger, then redraws the component on its dispatcher. |
 
-There is no separate mutable copy of the trigger state. This first example refreshes after panel clicks; an external hotkey change needs a notification or polling source to update an already displayed panel. Add that in [reactive updates](/en/scripting/blazor-windows/reactive-toggle).
+The panel does not keep its own copy of the state. It reads the trigger and redraws only after its own clicks. After a hotkey press the panel may still show the old state. The [next step](/en/scripting/blazor-windows/reactive-toggle) adds updates for outside changes.
 
-The general aura `IsActive` state is not interchangeable with this trigger's writable `TriggerValue`. Keep the target and panel loaded; unloading or replacing a target requires resolving the intended trigger again.
+The aura's general `IsActive` state is not the same thing as this trigger's writable `TriggerValue`. Keep both auras loaded. If the target aura is unloaded or replaced, the component has to find the trigger again.

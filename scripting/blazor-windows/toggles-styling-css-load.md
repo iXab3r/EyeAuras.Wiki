@@ -9,16 +9,16 @@ dateCreated: 2025-05-11T16:22:32.324Z
 ---
 # Load a stylesheet after the component appears
 
-Use `IJsPoeBlazorUtils.LoadCss` when C# should choose when to connect a stylesheet. This example applies your button's rules after the first render, when the browser's JS context is available.
+Sometimes C# has to decide when to connect a stylesheet. `IJsPoeBlazorUtils.LoadCss` does that. In this example it styles a button after the first render, when the browser's JS context is available.
 
-Use two loaded auras in one folder: `TargetAura` with **Hotkey Is Active → Toggle Trigger state on Click**, and a separate panel with **C# Overlay** and **Fixed Value → Is Active**. Give the trigger a free hotkey and leave its actions empty for this exercise. `./TargetAura` must resolve to your aura with one such trigger. [The first toggle](/en/scripting/blazor-windows/4-toggle-hotkeyisactive) explains that setup.
+You need two loaded auras in one folder. `TargetAura` has **Hotkey Is Active → Toggle Trigger state on Click**. A separate panel aura has **C# Overlay** and **Fixed Value → Is Active**. Give the trigger a free hotkey. It needs no actions. The path `./TargetAura` must lead to your aura with one such trigger. [The first toggle](/en/scripting/blazor-windows/4-toggle-hotkeyisactive) shows how to build the button itself.
 
-1. In C# Overlay, choose **New file → CSS → Styles** and save the CSS below.
-2. Find its full resource name and substitute it for `MyScript.Styles.css` in `UserOverlay.cs`.
+1. In C# Overlay, choose **New file → CSS → Styles** and save the CSS below in it.
+2. Find out the file's full resource name. In `UserOverlay.cs`, replace `MyScript.Styles.css` with that name.
 
-The full resource name uses the **project's** namespace, not just the component's `@namespace`. For example, `Styles.css` may become `MyScript.Styles.css`, and `Theme/Styles.css` may become `MyScript.Theme.Styles.css`. Do not substitute `BlazorDemo` just because the component uses that namespace.
+The full resource name includes the **project's** namespace, not just the component's `@namespace`. For example, `Styles.css` may be called `MyScript.Styles.css`, and `Theme/Styles.css` may be called `MyScript.Theme.Styles.css`. Do not put in `BlazorDemo` just because the component uses that namespace.
 
-Leave this complete short entry point in `Script.csx` to list the actual embedded names:
+To find out the real name, leave this short code in `Script.csx`:
 
 ```csharp
 foreach (var name in typeof(Script).Assembly.GetManifestResourceNames())
@@ -27,9 +27,9 @@ foreach (var name in typeof(Script).Assembly.GetManifestResourceNames())
 }
 ```
 
-Copy your file's full name from the script log into the indicated path below. `Script` is the top-level script type; this context is not an ordinary class or Razor global. The C# Overlay host exposes the project file provider to WebView2. In this host, full manifest names are relative URLs at the page's base URI; a Windows path or a made-up dynamic-resource prefix is not interchangeable with them. A general `IScriptFileProvider` can be composite, so do not assume it can be cast to `ScriptEmbeddedResourceFileProvider`. That concrete provider's `GetManifestNames()` is another way to inspect names when you actually own one.
+Copy the full name of your `Styles.css` from the script log into the path marked below. `Script` here is the top-level script type. An ordinary class or Razor has no such global. The full name works as a relative URL from the page's base URI, so a Windows path will not work in its place.
 
-3. Replace both component files below, keeping the namespace consistent. This version does not also need a `HeadContent` link.
+3. Replace both component files with the code below. The namespace is the same in both. This version needs no `HeadContent` link.
 
 ## UserOverlay.cs
 
@@ -101,25 +101,25 @@ public partial class UserOverlay : BlazorReactiveComponent
 }
 ```
 
-4. After compilation and the first render, the button receives a lime background, black text and 80% panel width. It may briefly show its default appearance before CSS loads.
+4. After compilation and the first render, the button gets a lime background, black text and 80% of the panel's width. Until the CSS loads, it may show its default look for a moment.
 
 ![Styling after CSS loading in the earlier example](https://s3.eyeauras.net/media/2025/05/OTFy9w6Fgm.png)
 
-| Mechanism | How to use it |
+| Part | What it does |
 | --- | --- |
-| `[Inject] IJsPoeBlazorUtils` | Gets the host's browser utility service. The component borrows it and does not dispose the shared service. |
-| `OnAfterFirstRenderAsync` | Runs after the first render; await the asynchronous calls. This is not a pre-render initialisation hook. |
-| `Task LoadCss(string cssPath)` | Adds a stylesheet link through JS. Returns a task, not a handle that removes the stylesheet on disposal. |
-| Full resource name | A URL for the project's served resource, not an arbitrary Windows filesystem path. |
-| `.demo-panel .custom-button` | Matches this panel, while the loaded CSS remains part of the window's document. |
+| `[Inject] IJsPoeBlazorUtils` | Gets the window's browser utility service. The component does not own this shared service and does not dispose it. |
+| `OnAfterFirstRenderAsync` | Runs after the first render, when the JS context is available. Await the asynchronous calls. |
+| `Task LoadCss(string cssPath)` | Adds a stylesheet link through JS. Returns a task, not an object you could use to remove the stylesheet later. |
+| Full resource name | A URL of a resource from your project, not any Windows file path. |
+| `.demo-panel .custom-button` | A rule for this panel only. The loaded CSS itself applies to the whole document of the window. |
 
-`[Inject]` obtains the tree service from the component's host. Script.csx globals are not implicit Razor members. The button reads and writes the actual `TriggerValue`, displaying `null` as off. `WhenAnyValue` also updates it after a hotkey change. Add trackers before `base.OnInitialized()`; the component owns their subscription and disposes it when destroyed, not merely when hidden. Other aura conditions still determine overall activity. See [reactive updates](/en/scripting/blazor-windows/reactive-toggle) for the notification and polling alternatives.
+The button reads and writes the real `TriggerValue` and shows `null` as off. Thanks to `WhenAnyValue` it also updates after a hotkey press. The details and a timer-based variant are in [reactive updates](/en/scripting/blazor-windows/reactive-toggle).
 
-The same awaited call can run in a button handler when you want to load styling later. Disposing the component does not automatically remove a stylesheet loaded this way. [HeadContent](/en/scripting/blazor-windows/toggles-styling-cssfile) is the declarative alternative. See [Blazor lifecycle](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-9.0) for the distinction between initialisation and rendering.
+You can move the same awaited call into a button handler if you need the styling later. When the component is disposed, a stylesheet loaded this way is not removed. To connect a stylesheet right in the markup, use [HeadContent](/en/scripting/blazor-windows/toggles-styling-cssfile). The stages of a component's life are described in [Blazor lifecycle](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-9.0).
 
 <details>
 <summary>Repeated calls and edited stylesheets</summary>
 
-The loader caches each path with `loading`, `loaded` or `failed` status. Calling it again for that path returns immediately: it does not start a reload, wait for an existing load or confirm that an earlier attempt succeeded. Do not use repeated `LoadCss` calls as a change detector or retry mechanism. For a clean first test, use a newly created window with the correct resource path.
+The loader remembers each path with a `loading`, `loaded` or `failed` status. A second call for the same path returns at once. It does not start a new load, does not wait for one already running and does not confirm that the earlier attempt worked. So a repeated `LoadCss` call cannot pick up an edited file or retry after an error. For a clean test, use a newly created window with the correct resource path.
 
 </details>

@@ -10,20 +10,19 @@ dateCreated: 2026-11-10T16:05:04.371Z
 
 # Keep your recording checklist beside your notes
 
-Show three preparation reminders while you work in Notepad, then hide them when you switch applications. The condition checks the foreground window. It does not detect whether a recorder is running or whether you completed the checklist.
+While you work in Notepad, three preparation reminders stay on screen. Switch to another application and they go away. The condition checks only the foreground window.
 
-Have EyeAuras open and one Notepad window containing your own notes. Use only one Notepad window for this setup so the expression `notepad` has an unambiguous target. No script, capture or recording integration is needed.
+You need EyeAuras open and one Notepad window with your own notes. Keep exactly one Notepad window so the expression `notepad` finds it without ambiguity.
 
 ## Create the reminder
 
 1. Right-click an empty area of the EyeAuras tree and choose **New Aura**. Name it **Recording checklist**.
-2. In **Triggers**, click **+** and add **Window Is Active**. Set **Target Window** to `notepad`. Check that the selected window information identifies your notes window; [window matching](/en/features/window-matching-expressions) explains how to narrow it when several windows match.
-3. In **Overlays**, click **+** and add **Text**. Enter these three lines in **Content**, using actual line breaks: `Check microphone`, `Choose recording file`, `Review notes`. This is fixed text you type into the overlay, not a binding to Notepad's document.
+2. In **Triggers**, click **+** and add **Window Is Active**. Set **Target Window** to `notepad`. Check in the selected window details that it is your notes window. If several windows match, narrow the expression: see [how to pick the right window](/en/features/window-matching-expressions).
+3. In **Overlays**, click **+** and add **Text**. Enter three lines in **Content**, with real line breaks: `Check microphone`, `Choose recording file`, `Review notes`.
 
-   ![Text overlay editor with the Content and Font fields.](/assets/callouts/batch3/en/overlay-text-content.png)
+   ![Text overlay editor with the Content and Font fields](/assets/callouts/batch3/en/overlay-text-content.png)
 
-   The screenshot shows a single line, Status: Ready, in Content. Enter all three lines of your reminder in that field.
-4. Set the overlay as follows. Under **Position**, temporarily turn **Locked** off, move the reminder beside your notes and give it enough width and height for all three lines. A starting size of 500 × 120 is suitable; adjust it if text is clipped.
+4. Use the settings from the table. Under **Position**, temporarily turn **Locked** off, move the reminder next to your notes and pick a size that fits all three lines. Start with 500 × 120. If the text is clipped, make the area bigger.
 
 | Setting | Value |
 | --- | --- |
@@ -34,8 +33,8 @@ Have EyeAuras open and one Notepad window containing your own notes. Use only on
 | Position → Locked | On after positioning |
 | Position → Clickthrough | On |
 
-5. Leave the aura enabled and EyeAuras unpaused. Select a different aura, then return to Notepad. The checklist should appear. Switch to another application: it should disappear; return to Notepad and it should reappear.
+5. Keep the aura enabled and EyeAuras unpaused. Select a different aura and return to Notepad: the checklist should appear. Switch to another application: it should disappear. Return to Notepad and it appears again.
 
-An unlocked overlay or an aura selected in the active editor can remain visible for editing. Lock it and leave that editing context before judging the condition. The position you chose is the overlay's position; this recipe does not bind it to a moving Notepad window.
+An unlocked overlay and an aura selected in the open editor can stay on screen so that they are easy to set up. Before you check, turn **Locked** on and select another aura. The position belongs to the overlay itself: if you move the Notepad window, the reminder does not follow it.
 
-[Window Is Active](/en/triggers/window-is-active) supplies the foreground condition, [Text](/en/overlays/text) supplies your checklist, and [common overlay options](/en/overlays/common-options) control placement and interaction. Change **Content** when your preparation list changes; the words themselves do not measure recording progress.
+[Window Is Active](/en/triggers/window-is-active) sets the foreground-window condition, [Text](/en/overlays/text) holds your checklist, and [common overlay options](/en/overlays/common-options) control placement and mouse behavior.

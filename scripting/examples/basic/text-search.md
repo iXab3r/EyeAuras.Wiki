@@ -9,22 +9,22 @@ dateCreated: 2024-02-23T23:11:31.331Z
 ---
 # Read a line from your own window
 
-Display **Build ready** in a large dark font on a light background in your text editor. Text Search recognizes the window image, and the script logs the recognized text. This is OCR of visible pixels, not access to the document or application internals.
+**Text Search** recognizes text in a picture of the window, and the script writes it to the log. For this example, type **Build ready** in your text editor in a large dark font on a light background.
 
-You need working capture/OpenCV and an installed OCR engine for English. Check **OCR Symbols** first: naming an engine in an example does not install its language files. You can [import the original example](https://eu.eyeauras.net/share/S20240223231042V9jd1AoFcJ6v).
+You need working capture/OpenCV and an installed OCR engine for English. First check that the option you need is listed in **OCR Symbols**. You can [import the original example](https://eu.eyeauras.net/share/S20240223231042V9jd1AoFcJ6v).
 
-1. In one folder, create **TextSearch** with a **Text Search** trigger, and a sibling **Script** aura with a C# Script action.
-2. Select your own window and a small region around the line. Start without effects.
-3. Configure OCR and click **Refresh Once**. **Recognized text** should contain your line. If it does not, adjust capture, language or readability before adding the script.
+1. In one folder, create a **TextSearch** aura with a **Text Search** trigger and, next to it, a **Script** aura with a C# Script action.
+2. In the trigger, select your window and a small region around the line. Do not add effects yet.
+3. Configure OCR and click **Refresh Once**. **Recognized text** should show your line. If it does not, fix capture, language or readability first.
 
 | Setting | For this example |
 | --- | --- |
-| OCR Symbols | **Tesseract (eng)** if installed and listed, or an available English engine on your installation. |
-| Scale factor | **1** for large readable text. Increasing it changes the image sent to OCR. |
-| Invert image / Binary threshold | Start disabled; check recognized text after each change. |
-| Include text segments | Not required for the full string. Segment boxes are used in [clicking text](/en/scripting/examples/basic/click-on-text). |
+| OCR Symbols | **Tesseract (eng)** if it is installed and listed. Otherwise the English OCR engine available on your installation. |
+| Scale factor | **1** for large readable text. Increasing it changes the image that OCR gets. |
+| Invert image / Binary threshold | Off at first. When you turn them on, check the recognized text after each change. |
+| Include text segments | Not needed for the full line. Segment boxes are used in the [click example](/en/scripting/examples/basic/click-on-text). |
 
-4. Replace the sibling action's **Script.csx** with this complete program and click **Run**:
+4. Paste the whole code into the neighbouring action's **Script.csx** and click **Run**:
 
 ```csharp
 using EyeAuras.OpenCVAuras.Triggers.TextSearch;
@@ -47,15 +47,15 @@ if (string.IsNullOrWhiteSpace(text))
 Log.Info($"Text: {text}");
 ```
 
-**Event Log** should show `Text: Build ready`, possibly with OCR-added whitespace or line breaks. A warning means nonempty text was not obtained. Inspect diagnostics: empty output alone does not prove the text was absent.
+**Event Log** shows `Text: Build ready`. OCR may add spaces and line breaks. A warning means no text came back. In that case check the capture diagnostics.
 
-**Detected.Text** is recognition output. **Detected.Success** also depends on the trigger's [text-matching condition](/en/features/text-match-expressions): text can be recognized without matching that condition. This example logs the string instead of reacting to the aura's state.
+**Detected.Text** is the recognition result. **Detected.Success** also depends on the trigger's [text-matching condition](/en/features/text-match-expressions), so a line can be recognized even when the condition did not match.
 
-| Part | Contract |
+| Part | What to know |
 | --- | --- |
-| AuraTree / Log / cancellationToken | Supplied by top-level C# Script; ordinary classes receive dependencies explicitly. |
-| GetAuraByPath / First() | Require the prepared aura and trigger. |
-| RefreshAsync(cancellationToken) | Passes cancellation to capture/request handling. Native OCR need not stop instantly. |
-| Refresh(cancellationToken) | Blocking alternative to the awaited call. |
+| AuraTree / Log / cancellationToken | Come from the top-level C# Script. Ordinary classes get their services passed in. |
+| GetAuraByPath / First() | The aura and the trigger must already exist. |
+| RefreshAsync(cancellationToken) | Passes the token to capture and request handling. Native OCR may not stop right away after Stop. |
+| Refresh(cancellationToken) | The blocking version of the same call. |
 
-The tree trigger is borrowed; this refresh returns detection data without image buffers. See [Text Search](/en/triggers/images/text-search) for the UI setup and [CV contracts](/en/scripting/api/computer-vision/images) for capture details.
+You do not need to dispose a trigger taken from the tree. The refresh result comes without image buffers. All settings are in [Text Search](/en/triggers/images/text-search), the API description is in [CV images](/en/scripting/api/computer-vision/images).

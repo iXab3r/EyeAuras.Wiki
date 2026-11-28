@@ -9,13 +9,13 @@ dateCreated: 2025-05-11T14:35:20.794Z
 ---
 # Refresh a toggle after a hotkey change
 
-A panel should show a trigger change even when it came from a hotkey. Observe `TriggerValue` so the component refreshes on notifications rather than continuously polling.
+When a trigger is switched with a hotkey, the panel should show the new state by itself, without a mouse click. Let's make the component watch `TriggerValue`. It will then redraw when the value changes, with no constant polling.
 
-Prepare neighbouring `TargetAura` and panel auras as in [the first toggle](/en/scripting/blazor-windows/4-toggle-hotkeyisactive): **Hotkey Is Active → Toggle** on the target, **C# Overlay** and its own **Fixed Value → Is Active** on the panel. Both must stay loaded.
+You need two neighbouring auras, as in [the first toggle](/en/scripting/blazor-windows/4-toggle-hotkeyisactive). `TargetAura` has **Hotkey Is Active → Toggle**. The panel aura has **C# Overlay** and its own **Fixed Value → Is Active**. Both auras must stay loaded.
 
-1. Replace the two component files below; leave the short `Script.csx` unchanged.
-2. After compilation, compare the panel text with `TargetAura`'s trigger state.
-3. Toggle the trigger with its hotkey, then with the panel button. Both change the same source, and the text updates in both cases.
+1. Replace the two component files with the code below. Leave the short `Script.csx` as it is.
+2. After compilation, compare the text on the panel with the trigger state in `TargetAura`.
+3. Toggle the trigger with its hotkey, then with the panel button. Both change the same trigger, and the text updates both times.
 
 ## UserOverlay.cs
 
@@ -70,29 +70,29 @@ public partial class UserOverlay : BlazorReactiveComponent
 
 ![External changes updating the panel in the earlier example](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_W7LNmgAsPK.gif)
 
-| Mechanism | Purpose |
+| Part | What it does |
 | --- | --- |
-| `WhenAnyValue(x => x.TriggerValue)` | Reads the initial value and observes property-change notifications. Requires `using ReactiveUI`. |
-| `ChangeTrackers.Add(...)` | Gives the observable to `BlazorReactiveComponent`. Add it before `base.OnInitialized()`, which seals and connects the list. |
-| `IsActive` | Reads the same trigger when rendering; this UI displays `null` as off. |
-| `Refresh("toggle clicked")` | Updates through the component dispatcher after a button write. The base also handles signals from `ChangeTrackers`. |
+| `WhenAnyValue(x => x.TriggerValue)` | Reads the starting value and watches for change notifications from the trigger's property. Needs `using ReactiveUI`. |
+| `ChangeTrackers.Add(...)` | Hands the update source to `BlazorReactiveComponent`. Add it before `base.OnInitialized()`, because that call seals the list and connects it. |
+| `IsActive` | Reads the same trigger when the component is drawn. `null` is shown as off. |
+| `Refresh("toggle clicked")` | Redraws the component on its dispatcher after the button handler writes the value. The base component also handles signals from `ChangeTrackers`. |
 
-No manual `Subscribe` or mirrored variable is needed here. The base owns the subscription through its `Anchors` and releases it with the component. Hiding a window does not mean disposing it. A short `using` in `Script.csx` would have a different lifetime and is not the place to own this observer.
+You do not need to write `Subscribe` by hand or keep a mirror variable. The base component owns the subscription through its `Anchors` and releases it when the component is disposed. Do not move this subscription into a short `using` in `Script.csx`, because that has a different lifetime.
 
-This uses notifications from the existing trigger, not an assumption that arbitrary auto-properties in Razor or `.csx` are woven. The path is relative to the panel context; lookup requires the intended loaded trigger. Its value does not override the aura's other activity conditions.
+The path is relative to the panel, and the trigger it points to must be loaded.
 
 <details>
 <summary>Polling a source without notifications</summary>
 
-For a source that cannot notify, replace the `ChangeTrackers.Add(trigger.WhenAnyValue(...))` line with this fragment inside `OnInitialized`, before the base call:
+Polling suits a source that cannot send notifications. Replace the `ChangeTrackers.Add(trigger.WhenAnyValue(...))` line with this fragment inside `OnInitialized`, before the base call:
 
 ```csharp
 ChangeTrackers.Add(System.Reactive.Linq.Observable.Timer(
     System.DateTimeOffset.Now, System.TimeSpan.FromSeconds(1)));
 ```
 
-This refreshes periodically and can show external changes with a delay. Do not add both mechanisms without a reason. [Multiple toggles](/en/scripting/blazor-windows/multiple-toggles) uses this timer for a whole panel.
+This redraws on a timer, so outside changes show up with a delay. [Multiple toggles](/en/scripting/blazor-windows/multiple-toggles) uses this timer for a whole panel.
 
-For a larger component, `ReactiveSection` can limit updates to the fragment that depends on a source; it is a separate optimisation, not required for this button.
+In a larger component, `ReactiveSection` can limit redraws to the fragment that depends on a source. It is a separate optimisation and this button does not need it.
 
 </details>

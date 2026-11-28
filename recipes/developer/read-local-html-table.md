@@ -1,6 +1,6 @@
 ---
 title: "Read known cells from your own local HTML table"
-description: "Create a physical HTML fixture, read its cells in an isolated Selenium 4.24.0 session and always Quit that session."
+description: "Save an HTML file on disk, read its table cells in a separate Selenium 4.24.0 session and always Quit that session."
 published: true
 date: 2026-11-10T18:20:14.885Z
 tags: recipes, developer
@@ -10,23 +10,23 @@ dateCreated: 2026-11-10T18:20:14.885Z
 
 # Read known cells from your own local HTML table
 
-Turn two known rows of your own local HTML file into log entries: `Ready: 3` and `Waiting: 0`. This task reads a table; it has no form submission, account or external website.
+The script reads two table rows from your own local HTML file and writes them to the log: `Ready: 3` and `Waiting: 0`.
 
-Use desktop Windows EyeAuras, the pinned **Selenium.WebDriver 4.24.0**, installed Microsoft Edge and a compatible **msedgedriver.exe** in **C:\Tools\EdgeDriver**. The browser and driver must match their supported versions and platform; for Edge, check the first three version components as described in [Selenium setup](/en/scripting/examples/basic/using-selenium). The NuGet reference does not install either executable. Use a new owned session rather than attaching to your daily browser or profile.
+You need desktop EyeAuras on Windows, **Selenium.WebDriver 4.24.0** at exactly this version, installed Microsoft Edge and a compatible **msedgedriver.exe** in **C:\Tools\EdgeDriver**. The browser and the driver must match in version and platform. For Edge, compare the first three version components as described in [Selenium setup](/en/scripting/examples/basic/using-selenium). The NuGet reference does not install either program. Work in a new separate session and do not attach to your daily browser or profile.
 
-1. Create **C:\EARecipeTable\fixtures**, then save the full **fixtures/status.html** below as **C:\EARecipeTable\fixtures\status.html**. It is a physical file on your disk, not a resource that the Wiki supplies.
-2. Create `RecipeTable` through **Add new → New Aura → Actions → On Enter → C# Script**. Replace the complete top-level **Script.csx** below. Keep the pinned package version, physical fixture path and driver directory consistent with your installation.
-3. After compilation, click manual **Run** and inspect **Event Log**. The program creates a new headless Edge session, opens the file URI and reads `#status tbody tr`, taking its two `td` cells. Expect exactly `Ready: 3` and `Waiting: 0` for this unchanged fixture.
-4. Change `3` to `4` in your own HTML, save it and Run again. A fresh session should now log `Ready: 4`. Missing files and driver startup errors are different from a table with no matching rows.
-5. The `finally` calls **Quit** for every successfully constructed driver, including after cancellation or a read error. In Selenium 4.24.0, Quit calls Dispose, which ends the session and disposes its command executor. The service is separately owned by its using block.
+1. Create the folder **C:\EARecipeTable\fixtures** and save **fixtures/status.html** below as **C:\EARecipeTable\fixtures\status.html**.
+2. Create `RecipeTable` through **Add new → New Aura → Actions → On Enter → C# Script**. Replace the whole top-level **Script.csx** with the code below. Do not change the package version. The fixture path and the driver folder in the code must match yours.
+3. After compilation, click **Run** and open **Event Log**. The script creates a new headless Edge session, opens the file URI and reads the two `td` cells in each `#status tbody tr` row. For the unchanged fixture you should see exactly `Ready: 3` and `Waiting: 0`.
+4. Change `3` to `4` in your HTML, save it and click Run again. The new session logs `Ready: 4`.
+5. If the driver was created successfully, the `finally` block always calls **Quit**, including after cancellation or a read error. In Selenium 4.24.0, Quit calls Dispose, which ends the session and disposes its command executor. The service is disposed separately by its own using block.
 
 | Path or option | Meaning |
 | --- | --- |
-| `new Uri(file).AbsoluteUri` | Converts the real absolute Windows file path to a `file:` URI. |
-| `--headless=new`, `LeaveBrowserRunning = false` | This recipe's new session has no visible browser window and is not deliberately left running. |
-| `#status tbody tr` | Selects data rows, excluding the header, in the supplied fixture. |
+| `new Uri(file).AbsoluteUri` | Turns the absolute Windows path into a `file:` URI. |
+| `--headless=new`, `LeaveBrowserRunning = false` | The new session shows no browser window, and the browser is deliberately not left running. |
+| `#status tbody tr` | The data rows of the fixture, without the header. |
 
-An embedded [project file provider](/en/scripting/examples/basic/file-provider) can expose streams or project-relative URLs; neither is automatically a physical path Selenium can open. Keep this fixture on disk. Script cancellation is checked between synchronous WebDriver commands; it cannot guarantee immediate interruption of an already waiting command. No keystrokes or clipboard are needed.
+An embedded [project file provider](/en/scripting/examples/basic/file-provider) gives you streams or project-relative URLs. Those are not necessarily a physical path that Selenium can open, so keep the fixture on disk. Script cancellation is checked between synchronous WebDriver commands. It does not guarantee that a command already waiting stops at once.
 
 ## fixtures/status.html
 

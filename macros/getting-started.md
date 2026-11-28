@@ -10,14 +10,14 @@ dateCreated: 2024-10-17T21:49:33.129Z
 
 # Build your first macro
 
-A macro runs ordered steps with waits, conditions and loops without requiring a whole program. Its Block waits for each step to finish before continuing. Start with two delays and an observable result, without input to another window.
+A macro is a list of steps with waits, conditions and loops. It runs the steps one by one and waits for each to finish. We start with two waits and a result you can see in the editor.
 
 ## Run two waits in one command
 
-1. In the aura tree's creation menu, choose `New Macro` and open it. `My Macro` already contains a `Drag'n'drop instructions here` block. A new macro opens as a nested list.
-2. Select the top root-settings row. Keep `Activation → Is Loaded` enabled and set `Execution → When Activated → Do nothing`. Add no activation conditions yet.
-3. Through `Add new Node`, add two `Wait` nodes and one `Fixed Status` as siblings in that block, in the order below. Choose the macro Wait template.
-4. Set the first Wait to `General → Delay = 1000 ms`, the second to `500 ms`, randomization off. Set Fixed Status to `General → Status → Success`.
+1. In the aura tree's creation menu, choose `New Macro` and open the new item. `My Macro` already contains a `Drag'n'drop instructions here` block. This is where the steps go.
+2. Click the top row with the root settings. Keep `Activation → Is Loaded` enabled and set `Execution → When Activated → Do nothing`. Do not add activation conditions yet.
+3. Through `Add new Node`, add two `Wait` nodes and one `Fixed Status`, one after another. They must sit side by side inside that block, in the order shown below. In the node list, pick the macro Wait.
+4. Set the first Wait to `General → Delay = 1000 ms` and the second to `500 ms`. Turn randomization off. Set Fixed Status to `General → Status → Success`.
 
 ```text
 My Macro
@@ -29,56 +29,50 @@ My Macro
 
 ![Two Wait steps of one second and half a second followed by Fixed Status. Run Macro Once is at the top right.](/assets/callouts/batch2/en/macro-two-waits.png)
 
-5. Click the upper `Run Macro Once`. The macro waits for both delays, then executes the last step. Expect Success after roughly 1.5 seconds plus execution overhead. These Wait nodes do not need a second external tick to finish.
-6. Set Fixed Status to `Failure` and add another Fixed Status with Success **after it**. Run again: the last step still executes, but the Block's aggregate result is Failure.
+5. Click `Run Macro Once` at the top. The macro waits out both delays and runs the last step. After about a second and a half (plus a little overhead) the result is Success.
+6. Change Fixed Status to `Failure` and add another Fixed Status with Success **after it**. Run again. The last step still runs, but the result of the whole Block is Failure. A normal Failure of one step does not cut the list short.
 
-That differs from a [BT Sequence](/en/behavior-trees/nodes/sequence). Use macro IfThenElse for conditional routing and [Break](/en/behavior-trees/nodes/Break) or [Return](/en/behavior-trees/nodes/Return) for early exit; normal Failure alone does not end the sibling list.
+This is how a macro differs from a [BT Sequence](/en/behavior-trees/nodes/sequence). If you need a fork, use macro IfThenElse. If you need to exit early, use [Break](/en/behavior-trees/nodes/Break) or [Return](/en/behavior-trees/nodes/Return).
 
 | Element | Execution |
 | --- | --- |
-| Block | Run enabled children in order; collect normal Failure while still running later siblings |
-| Macro Wait | Await Delay inside this invocation; distinct from BT Wait returning Running for a later tick |
-| Macro IfThenElse | Check Condition and execute only If matched, then or Otherwise; return the chosen branch result |
-| Macro Repeat | Check Condition before each admitted iteration, then execute Loop body |
-| Break | Exit its enclosing loop or block according to its placement |
-| Return | Finish the currently invoked macro with the selected Success or Failure |
+| Block | Runs enabled steps in order. A normal Failure goes into the overall result, but later steps still run |
+| Macro Wait | Waits for Delay inside the current run. This is not the BT Wait, which returns Running until a later tick |
+| Macro IfThenElse | Checks Condition and runs only one branch: If matched, then or Otherwise. Returns the result of that branch |
+| Macro Repeat | Checks Condition before each iteration, then runs Loop body |
+| Break | Exits its enclosing loop or block. What happens next depends on where it is placed |
+| Return | Finishes the currently invoked macro with the selected Success or Failure |
 
-Running means unfinished work; Success and Failure are node results, not aura Active/Inactive states. Errors and cancellation need not become a normal Failure. `Stop` requests cancellation of the issued manual run; it cannot forcibly stop arbitrary code or roll back effects already performed.
+Running means the work is not finished yet. Success and Failure are node results, not the Active/Inactive state of an aura. An error or cancellation does not necessarily become a normal Failure. `Stop` asks to cancel the manual run. A macro cannot force arbitrary code to stop or roll back actions already done.
 
 ## Add automatic activation after the manual example
 
-Create your own aura with a configured trigger such as [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active). Link it through `Activation → activate when Aura Activated... → Enabling Condition → Links`. [Enabling Conditions](https://wiki.eyeauras.net/en/features/enabling-conditions) control admission; the macro still contains the commands.
+Test the macro by hand first. Then create an aura with a trigger you have checked, such as [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active), and link it to the macro through `Activation → activate when Aura Activated... → Enabling Condition → Links`. [Enabling Conditions](https://wiki.eyeauras.net/en/features/enabling-conditions) decide whether the macro may run. The commands themselves stay in the macro.
 
 ![Enabling Condition shows Links 1 and Not active in the earlier macro editor.](/assets/callouts/batch3/en/macro-enable-link.png)
 
-In the September 2024 editor, Links shows one linked aura and the condition is currently inactive. [Full activation panel](https://s3.eyeauras.net/media/2024/09/EyeAuras_cTJ0Uf3NQzi7gF1u.png).
-
 | When Activated | Behavior |
 | --- | --- |
-| Do nothing | Manual execution only; satisfying the condition does not start the macro |
-| Run once | One invocation on an activation transition from false to true |
-| Run periodically | Repeat while activation is allowed; Tick every is a pause after a completed pass, not a fixed period independent of work duration |
+| Do nothing | Manual run only. A met condition does not start the macro |
+| Run once | One run when activation goes from false to true |
+| Run periodically | Runs again and again while activation is allowed. Tick every is a pause after a finished pass, not an exact period: the duration of the pass itself is not included |
 
 ![Is Loaded is checked and Run once is selected among the three activation modes.](/assets/callouts/batch3/en/macro-activation-mode.png)
 
-This earlier editor has Run once selected. Choose Run periodically below it for repeated execution. [Full example with an empty condition](https://s3.eyeauras.net/media/2024/09/EyeAuras_A48Sp2u234hI9o3F.png).
-
-Without conditions or triggers, activation is `manual`; a loaded macro can still run manually. Loading, activation and execution mode are separate, as described under [Root](/en/behavior-trees/nodes/root).
+A macro without conditions or triggers has the activation state `manual`. A loaded macro can still be run by hand. Loading, activation and execution mode are different things. They are described under [Root](/en/behavior-trees/nodes/root).
 
 <details>
 <summary>From key sequences to nested logic</summary>
 
-Replace the practice Fixed Status with [Key Press](/en/behavior-trees/nodes/KeyPress), [Mouse Move](/en/behavior-trees/nodes/MouseMoveAbs) or [Send Text](/en/behavior-trees/nodes/SendText) when needed. First configure your own window/backend through defaults and check the resolved target. A held key needs its own Release; leaving a block does not release it automatically.
-
-The earlier key-sequence example combines a key, Wait and separate Ctrl Down/Up steps:
+Instead of Fixed Status you can put [Key Press](/en/behavior-trees/nodes/KeyPress), [Mouse Move](/en/behavior-trees/nodes/MouseMoveAbs) or [Send Text](/en/behavior-trees/nodes/SendText). First set your own window and input backend through defaults and check which window is shown as the target. A held key needs its own Release: leaving a block does not release it.
 
 ![Keys and a wait in a macro](https://s3.eyeauras.net/media/2024/09/EyeAuras_BFkTE1sqgpZIrxU0.png)
 
-In Daily routine, IfThenElse checks the Workspace ready aura. The matching branch contains Repeat 2 times, with Repeat 3 times inside its Loop body. Configure the aura that supplies the condition first.
+In the Daily routine macro, IfThenElse checks the Workspace ready aura. The If matched, then branch contains Repeat 2 times, with Repeat 3 times inside its Loop body. Set up the aura that supplies the condition first.
 
 ![Workspace ready condition and two nested Repeat nodes in Daily routine.](/assets/callouts/batch2/en/macro-nested-condition.png)
 
-Use Run Macro to invoke another macro, [Run Aura](/en/behavior-trees/nodes/execute-aura) for existing aura actions, and [C# scripts](https://wiki.eyeauras.net/en/scripting/getting-started) for custom steps. Calls do not automatically merge the target window or variable context of the invoked work.
+From a macro you can call another macro with Run Macro, run aura actions with [Run Aura](/en/behavior-trees/nodes/execute-aura) and write custom steps in [C# scripts](https://wiki.eyeauras.net/en/scripting/getting-started). The target window and variables are not shared automatically when you call something.
 
 ![Earlier macro combining conditions, calls and C#](https://s3.eyeauras.net/media/2024/09/EyeAuras_T3Uzq8Dvahwa1sTq.png)
 
@@ -89,20 +83,18 @@ Use Run Macro to invoke another macro, [Run Aura](/en/behavior-trees/nodes/execu
 
 | Approach | Useful for |
 | --- | --- |
-| [Auras](https://wiki.eyeauras.net/en/home) | Pixel, window or event conditions with On Enter / While Active / On Exit reactions |
-| [C# scripts](https://wiki.eyeauras.net/en/scripting/getting-started) | Custom algorithms, data and programmatic interfaces in the appropriate runtime context |
-| [Behavior Trees](https://wiki.eyeauras.net/en/behavior-trees/gettings-started) | Branch selection by Success/Failure and retained Running work between ticks, such as a priority flow with configured cooldowns |
-| Macros | Ordered steps with waits, blocks, conditions, loops and calls in one flow |
-
-Auras can react to image matches or received events. Coordinate simultaneous reactions deliberately rather than assuming that independent auras form a single ordered program:
+| [Auras](https://wiki.eyeauras.net/en/home) | Separate checks on pixels, windows or events with On Enter / While Active / On Exit reactions |
+| [C# scripts](https://wiki.eyeauras.net/en/scripting/getting-started) | Your own algorithm, data and programmatic interface. Needs a suitable runtime context |
+| [Behavior Trees](https://wiki.eyeauras.net/en/behavior-trees/gettings-started) | Picking branches by Success/Failure and work that stays Running between ticks, such as a priority flow with cooldowns |
+| Macros | Ordered steps with waits, blocks, conditions, loops and calls in one place |
 
 ![Aura interface example](https://s3.eyeauras.net/media/wiki/home/EyeAuras_OzDyUnmzFH.webp =x400)
 
-C# and related technologies extend built-in steps. Ordinary classes and Blazor components still need explicit dependencies; they do not inherit every top-level script capability.
+With C# you can add what the built-in nodes lack. But an ordinary class or Blazor component does not get every top-level script capability by itself.
 
 ![C Sharp](https://upload.wikimedia.org/wikipedia/commons/d/d2/C_Sharp_Logo_2023.svg =x100) ![Blazor](https://devblogs.microsoft.com/aspnet/wp-content/uploads/sites/16/2019/04/BrandBlazor_nohalo_1000x.png =x100) ![Roslyn](https://upload.wikimedia.org/wikipedia/commons/2/2a/Roslyn.png =x100)
 
-The historical larger tree illustrates branches and priorities, not a ready integration with application internals:
+The old large tree shows why separate branches and priorities can be useful:
 
 ![Historical behavior tree with several branches](/assets/bt_l2.spoil.old.png)
 

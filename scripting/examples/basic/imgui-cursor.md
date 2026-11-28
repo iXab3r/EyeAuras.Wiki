@@ -9,10 +9,10 @@ dateCreated: 2025-03-31T17:49:10.631Z
 ---
 # Draw a cursor frame with ImGui
 
-Draw a green `10 × 10` frame around the mouse position. The script reads ImGui's mouse point and draws in its background layer; it does not move the pointer or send clicks.
+The script draws a green `10 × 10` frame around the mouse position. It takes the point from ImGui and draws in ImGui's background layer.
 
-1. Use desktop EyeAuras compatible with **EyeAuras.ImGuiSdk 0.1.47**. Create a **C# Script** action in your own aura. Do not load the independent older CTO library below into the same process alongside this SDK.
-2. Put this complete program in top-level `Script.csx`:
+1. You need desktop EyeAuras with a compatible **EyeAuras.ImGuiSdk 0.1.47**. Create a **C# Script** action in your own aura. Do not run the older standalone CTO library from the end of this page at the same time.
+2. Paste the whole program into top-level `Script.csx`:
 
 ```csharp
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
@@ -42,23 +42,23 @@ using System.Numerics;
 }
 ```
 
-3. After compilation, click **Run** and move the mouse normally. The frame follows the point reported by ImGui.
-4. Click **Stop**: the render registration is removed, the previous `NoActivate` value is restored, then the API share is released.
+3. When the code has compiled, click **Run** and move the mouse as usual. The frame follows the point ImGui reports.
+4. Click **Stop**. The rendering is removed, the previous `NoActivate` value comes back and the API instance is released.
 
 | Setting | Meaning |
 | --- | --- |
-| `ImGui.GetMousePos()` | Mouse position in ImGui's draw-list coordinate domain, not another window's client coordinates. |
+| `ImGui.GetMousePos()` | Mouse position in ImGui's draw-list coordinates. It is not converted to another window's client coordinates. |
 | `cursor ± Vector2(5, 5)` | Corners of the 10 × 10 frame around its centre. |
 | `Vector4(0, 1, 0, 1)` | Opaque green RGBA, converted through `GetColorU32`. |
-| Final `1f` | Border thickness; `0f` before the flags means no corner rounding. |
-| `NoActivate = true` | Requests non-activating interaction with shared Main. Run without other scripts changing this setting; the example restores its previous value. |
+| Final `1f` | Border thickness. `0f` before the flags means no corner rounding. |
+| `NoActivate = true` | Asks the shared window not to activate on interaction. It is a setting of the shared Main window, so the example restores the previous value. Try the example without other scripts that change it. |
 
-Each frame describes the rectangle again; it creates no retained OSD object or per-point event subscription. Keep ImGui calls on the frame thread and wait for Stop outside it. Removing a subscription does not interrupt a callback already running. Main may serve other scripts; releasing your share does not close theirs. Monitor origins, clipping and DPI are not fixed by adding an arbitrary desktop offset. See [ImGui operations](/en/scripting/api/IImGuiExperimentalApi) or the different [Blazor OSD example](/en/scripting/examples/basic/osd-cursor).
+The frame is described again on every frame: no separate OSD object or per-point subscription is created. Do not call ImGui outside the frame thread, and do not block that thread waiting for Stop. The shared **Main** window may serve other scripts too. Releasing your share does not close theirs. See [ImGui operations](/en/scripting/api/IImGuiExperimentalApi) or the [Blazor OSD example](/en/scripting/examples/basic/osd-cursor).
 
 <details>
 <summary>Historical standalone CTO 10.2.0 alternative</summary>
 
-This separate project creates its own primary-monitor window and render loop. It is retained for reading older scripts, not for loading another native ImGui version alongside the SDK. It requires its own compatible host.
+This variant creates its own window on the primary monitor. It is kept for reading older scripts, not for running in one process with the SDK above: different native ImGui versions and independent contexts are not interchangeable.
 
 ```csharp
 #r "nuget: ClickableTransparentOverlay, 10.2.0"
@@ -129,8 +129,8 @@ internal class SampleOverlay : Overlay
 }
 ```
 
-[CTO 10.2.0 source](https://github.com/zaafar/ClickableTransparentOverlay/blob/6a343a2af63b7af0cfa9ab41e9b7cc95b88452b9/ClickableTransparentOverlay/Overlay.cs) shows `Run` calling `Start` before waiting for closure; this path needs no separate `Init` call from the script. The width/height constructor uses `DPIAware = false`. The script token is passed explicitly to the ordinary subclass and checked in `Render`; it does not cancel library initialisation and cannot run that check after the frame loop fails.
+In the [CTO 10.2.0 source](https://github.com/zaafar/ClickableTransparentOverlay/blob/6a343a2af63b7af0cfa9ab41e9b7cc95b88452b9/ClickableTransparentOverlay/Overlay.cs), `Run` calls `Start` itself and then waits for the window to close. This path has no separate `Init` call. The width/height constructor uses `DPIAware = false`. The token is passed to our subclass and checked in `Render`. It does not cancel library initialisation, and the check does not run if the frame loop has stopped.
 
-[Dear ImGui](https://github.com/ocornut/imgui) provides the immediate-mode UI; [ClickableTransparentOverlay](https://github.com/zaafar/ClickableTransparentOverlay) supplies the native transparent window. `GetBackgroundDrawList` draws behind ImGui windows; `AddRect` uses its coordinate system and the converted RGBA colour. Labels and other shapes can use that same frame context. Interaction and application data need their own contracts; drawing does not provide game data.
+[Dear ImGui](https://github.com/ocornut/imgui) is the UI library. [ClickableTransparentOverlay](https://github.com/zaafar/ClickableTransparentOverlay) creates the native transparent window around it.
 
 </details>

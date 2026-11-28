@@ -1,6 +1,6 @@
 ---
 title: "Review a pack before allowing its reactions"
-description: "Inspect a prepared pack’s version, permissions, visible logic and dependencies, then decide whether to configure it or defer import."
+description: "Look at a pack’s version, permissions, visible logic and dependencies, then decide whether to configure it or put the import off."
 published: true
 date: 2026-11-10T17:01:45.000Z
 tags: recipes, intermediate
@@ -10,33 +10,41 @@ dateCreated: 2026-11-10T17:01:45.000Z
 
 # Decide whether a pack is ready for your own setup
 
-Finish with an explicit decision: the pack fits your prepared environment, needs specific configuration, or must wait for missing information. Review it before importing into a working tree. A publication name or successful download does not establish what its actions will do.
+Go through the pack before you import it into a working tree. At the end you should have a clear decision: the pack fits your prepared environment, needs specific configuration, or has to wait for missing information.
 
-Use your own non-sensitive test profile and a pack file you already have permission to inspect, ideally a small set of your own. For a publication, have its normal link and author requirements available. This recipe needs no account changes or execution. Private content may prevent a complete review; treat that as unresolved rather than evidence of safety.
+You need your own test profile without personal data and a pack file you are allowed to inspect. It is easiest to start with a small pack of your own. For a publication, have its normal link and the author's requirements at hand. You do not need to change your account or run anything. Private content can get in the way of a complete review.
 
 ## Inspect before applying
 
-1. Open **Import → Source → Import from file → Open...** and choose your prepared JSON. For an already available publication, paste its normal link in **Source**, inspect the author/name, then use **Download** to obtain **Preview**. Opening the source is not the final Import operation.
+1. Open **Import → Source → Import from file → Open...** and choose your prepared JSON. For a publication you already have access to, paste its normal link in **Source**, check the author and name, then click **Download** to get **Preview**.
 
    ![The two import sources and the button to open a local file.](/assets/callouts/batch3/en/import-source-file.png)
-
-   For saved JSON, choose Open… under Import from file.
-2. For a publication, inspect **Overview** and **Pack Options**: record the author, displayed **rev.**, required client version and the author's stated windows, language, files, resources and optional modules. A local JSON without publication metadata does not acquire an author revision or update subscription; compare it with the supplied requirements instead.
-3. In **Preview**, expand the folders and select each relevant aura or folder. Inspect the visible Enabling Conditions, Triggers, actions and overlays. Note unloaded items, scripts, image/audio data and external paths. Read accessible scripts and resource declarations where available; the preview is not a complete execution trace or a guarantee every dependency is exposed. **Item is not browsable**, missing requirements or unavailable code are reasons to stop and ask the author through your normal process, not to assume harmless behavior.
-4. Separate folder permissions from execution. **Read-Only** does not prohibit running configured logic; **Private Content** can hide it. Check inherited restrictions. A library listing, download access, permission to edit and a license requirement are separate facts; do not unlock or change ownership just to finish this review.
-5. In **Import Options**, inspect update/subscription and conflict choices. **Copy** preserves existing objects with distinct IDs; **Replace** replaces conflicts, not individual fields; **Ignore Conflicts** may leave an incomplete set. A subscription applies the current publication too. Do not click Import or a conflict-resolution application button while requirements remain unclear.
+2. For a publication, look at **Overview** and **Pack Options**. Write down the author, the displayed **rev.**, the required client version and the windows, language, files, resources and optional modules the author lists. A local JSON without publication metadata has no author revision and no update subscription. Compare it with the requirements you were given separately.
+3. In **Preview**, expand the folders and select each aura or folder that matters for your task. Look at the visible Enabling Conditions, Triggers, actions and overlays. Note unloaded items, scripts, image and audio data, and external paths. Read scripts and resource declarations where you can. The preview may not show every dependency. If you see **Item is not browsable**, requirements are missing or code is unavailable, stop and ask the author through your normal process.
+4. Do not confuse folder permissions with execution. **Read-Only** does not stop configured logic from running, and **Private Content** can hide it. Take inherited restrictions into account. A pack being listed in the library, being downloadable, being editable and needing a license are four separate facts. Do not unlock the pack or change its owner just to finish the review.
+5. In **Import Options**, look at the update, subscription and conflict choices. **Copy** keeps existing objects, and the copies get separate IDs. **Replace** replaces whole conflicting objects, not individual fields. **Ignore Conflicts** can leave the set incomplete. A subscription also applies the current publication. While the requirements are unclear, do not click Import or any button that applies a conflict resolution.
 
 ## Turn the review into a decision
 
-Make a short local note for the chosen file/revision:
+Write a short note for the chosen file or revision:
 
 | Check | What you must identify |
 | --- | --- |
-| Condition and reaction | Actual source data, enabling permission, On Enter/While Active/On Exit work and any automatic tree/macro entry |
-| References and resources | Included and external aura links, property-binding sources, embedded resources, files, optional models/providers and their availability |
-| Target defaults | Intended Target Window and which capture/action properties inherit or explicitly override it |
-| Access and version | Inspectable contents, permitted settings, matching client/components and stated license requirements |
+| Condition and reaction | The real data source, the enabling permission, On Enter/While Active/On Exit work and any automatic tree/macro entry |
+| References and resources | Included and external aura links, property-binding sources, embedded resources, files, optional models/providers and whether they are available |
+| Target defaults | The intended Target Window and which capture/action properties inherit it and which have their own value |
+| Access and version | Which contents you can inspect, which settings are permitted, whether the client and components match, which license requirements are stated |
 
-Choose **defer** and close the dialog if anything necessary is hidden or unavailable. The working tree remains unchanged because you have not applied the import. If all requirements are understood, your result is a concrete configuration plan, not a security certificate: for example, “set folder Target Window to my document; verify both capture bindings; keep the prepared reaction disabled until checked.” Do not assume a selected destination folder overrides imported paths or that Import has a universal safe/disabled mode.
+If something you need is hidden or unavailable, choose **defer** and close the dialog. The working tree has not changed, because the import was not applied.
 
-When you deliberately proceed later, apply the chosen conflict/update policy only in your own test profile and verify actual loading/enabling before any reaction. Use [Export/Import](/en/features/export-import) for application of the set, [Defaults](/en/features/default-properties) and [Bindings](/en/features/bindings) for source→target values, and [Enabling Conditions](/en/features/enabling-conditions) for permission to work. Choosing a capture window does not grant input focus or delivery. [Aura Library](/en/aura-library) helps discover publications; [Permissions](/en/features/permission-model) explains visibility/edit rights without promising unseen contents are safe.
+If the requirements are clear, the result is a concrete configuration plan. For example: “set folder Target Window to my document; verify both capture bindings; keep the prepared reaction disabled until checked.” A selected destination folder does not override imported paths. And do not count on Import having a universal safe or disabled mode.
+
+When you decide to go ahead, apply the chosen conflict and update policy only in your own test profile. Check loading and enabling before any reactions.
+
+What to read:
+
+- [Export/Import](/en/features/export-import) — how the set is applied.
+- [Defaults](/en/features/default-properties) and [Bindings](/en/features/bindings) — how a value gets from source to target.
+- [Enabling Conditions](/en/features/enabling-conditions) — what gives permission to work.
+- [Aura Library](/en/aura-library) — where to find a publication.
+- [Permissions](/en/features/permission-model) — who can view and edit.

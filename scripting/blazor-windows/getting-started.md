@@ -9,23 +9,21 @@ dateCreated: 2024-11-04T00:26:45.232Z
 ---
 # Open a dialog from a C# Script action
 
-Show a small window with a title supplied by your script and a counter owned by its component. Closing the dialog finishes the waiting script; starting it again creates a fresh counter.
+Let's make a small window with a counter and a title that the script passes in. The script waits while the dialog is open and finishes when you close it. The next run starts with a fresh counter.
 
-Use the desktop EyeAuras host with its Blazor window services and WebView2 Runtime. This example runs in a **C# Script action**, not an EyePad-only project or a browser page. Adding an SDK reference alone does not register a native window service.
+You need the desktop EyeAuras app with the WebView2 Runtime installed. The example runs in a **C# Script action**. It does not work in an EyePad-only project or on a browser page.
 
 ## Create the project files
 
-1. Create your own test aura. Add a **C# Script** action under **On Enter**, and use its manual **Run** control for this exercise so repeated trigger events do not open more windows.
+1. Create a test aura and add a **C# Script** action under **On Enter**. For now, start it by hand with **Run**, so repeated activations do not open several windows.
 
 ![C# Script action editor](https://s3.eyeauras.net/media/2024/11/EyeAuras_xCVTs8bdg1Y7ZU8T.png)
 
-2. In the script editor, use **New file → Component (with code-behind)** and name it `UserComponent`. Older editors call this a Razor component. Add an ordinary C# file named `WindowModel.cs`.
+2. In the script editor, choose **New file → Component (with code-behind)** and name it `UserComponent`. The older screenshot calls this template Razor Component. Then add an ordinary C# file named `WindowModel.cs`.
 
 ![Razor Component among the file types in the earlier editor](/assets/callouts/batch3/en/blazor-component-template.png)
 
-[Full menu screenshot](https://s3.eyeauras.net/media/2024/11/EyeAuras_I6MYDieptaZe5a8u.png)
-
-3. Replace the four files with the contents below. All component and model files use `BlazorDemo`; `Script.csx` imports it.
+3. Replace the contents of all four files with the code below. The model and both parts of the component use the `BlazorDemo` namespace, and `Script.csx` imports it.
 
 ### Script.csx
 
@@ -89,35 +87,37 @@ public partial class UserComponent : BlazorReactiveComponent<WindowModel>
 <p>Clicks: @count</p>
 ```
 
-4. Once compilation finishes, click **Run**. The `480 × 260` window opens in the centre with native title **Test dialog** and component heading **My window**. Click the counter button, then close the window. The script finishes; a new Run starts at zero.
+4. Wait for compilation to finish and click **Run**. A `480 × 260` window opens in the centre of the screen. Its title bar says **Test dialog**, and the heading inside says **My window**. Click the counter button, then close the window. The script finishes, and the next Run starts from zero.
 
 ![Dialog created from the earlier script example](https://s3.eyeauras.net/media/2024/11/EyeAuras_fmFnsjgMCW8P6Z4b.png)
 
-| Part | Purpose and lifetime |
+| Part | What it does |
 | --- | --- |
-| `CreateWindow<UserComponent>(model)` | Creates a native Blazor window and passes the model as the component's `DataContext`. |
-| `window.Title`, `Width`, `Height`, `WindowStartupLocation` | Configure the native window before showing it. The model's `Title` is separate content inside the component. |
-| `ShowDialog(cancellationToken)` | Blocks this script call until the dialog closes or cancellation ends the wait. It keeps the Run alive while the window is in use. |
-| Explicit `{ ... }` with `using var window` | Keeps creation, configuration and the blocking call inside the owned scope. Leaving the block disposes the window. Namespace imports stay above it. |
-| **Stop** | Cancels the current Run token. The window API handles the cancellation and the script leaves its owning scope. |
-| `WindowModel` | Initial data passed to the component. This plain property does not promise automatic notifications for later external changes. |
-| `BlazorReactiveComponent<WindowModel>` | Supplies a typed `DataContext`; the counter handler awaits `Refresh` on the component dispatcher. |
+| `CreateWindow<UserComponent>(model)` | Creates a native Blazor window and passes the model to the component as its `DataContext`. |
+| `window.Title`, `Width`, `Height`, `WindowStartupLocation` | Set up the native window before it is shown. The model's `Title` is a different thing: it is the text inside the component. |
+| `ShowDialog(cancellationToken)` | Shows the window and holds the Run until the dialog is closed or the Run is cancelled. |
+| Explicit `{ ... }` with `using var window` | The window is created, set up and shown inside this block. Leaving the block disposes the window. The `using` imports stay above the block. |
+| **Stop** | Cancels the current Run through its token. The wait ends and the script leaves the block. |
+| `WindowModel` | The starting data passed to the component. If you change its plain property from outside later, the window does not redraw by itself. |
+| `BlazorReactiveComponent<WindowModel>` | Gives the component a typed `DataContext`. The counter handler awaits `Refresh` on the component's dispatcher. |
 
-`GetService` and `cancellationToken` belong to top-level `Script.csx`. Razor and ordinary helper classes need their dependencies explicitly. The component base has its own logger; it does not inherit the script's globals. The window API is named `IDialogWindowUnstableScriptingApi`; do not treat that name as a promise of compatibility across versions. See its [contract](/en/scripting/api/IDialogWindowUnstableScriptingApi) for the supported service surface.
+`GetService` and `cancellationToken` exist only in the top-level `Script.csx`. Razor and ordinary helper classes do not see the script's globals, so pass them what they need explicitly. The base component has its own logger.
 
-`Show()` is non-blocking. Replacing `ShowDialog(...)` with `Show()` in this short block would immediately reach disposal. `.AddTo(ExecutionAnchors)` is another way to assign cleanup to the Run, but anchors alone do not keep a Run alive: meaningful work or a window wait must still remain in progress.
+The window API is called `IDialogWindowUnstableScriptingApi`. `Unstable` in the name means the contract can change between versions. Its [contract page](/en/scripting/api/IDialogWindowUnstableScriptingApi) lists what the service offers.
 
-When the displayed state can change outside a button handler, the [reactive toggle](/en/scripting/blazor-windows/reactive-toggle) shows how to observe an aura trigger from the component. Keep this dialog’s script-owned window lifetime; use the observation pattern inside Razor rather than copying the overlay’s short entry point into this program.
+`Show()` does not wait. If you replace `ShowDialog(...)` with `Show()` in this short block, the script reaches the end of the block at once and the window is disposed. `.AddTo(ExecutionAnchors)` is another way to tie cleanup to the Run. Anchors do not keep a Run alive, though: the script still has to be doing work or waiting for a window.
+
+If the data on screen can change without a button click, the component needs to watch it. The [reactive toggle](/en/scripting/blazor-windows/reactive-toggle) shows how to watch an aura trigger from a component. Take only the watching part from that page: here the script still creates the window and waits for it.
 
 <details>
 <summary>When to use C# Overlay instead</summary>
 
-Use **C# Overlay** when aura activity should control a persistent panel. Its generated entry point must finish setup before the overlay displays; do not place the blocking dialog code above into that entry point. Start with [the overlay counter](/en/scripting/blazor-windows/1-intro).
+Use **C# Overlay** when a panel should appear and hide together with an aura. Its `Script.csx` must finish before the overlay shows, so do not put the `ShowDialog` code from this page there. Start with [the overlay counter](/en/scripting/blazor-windows/1-intro).
 
 ![Earlier Blazor window example](https://s3.eyeauras.net/media/wiki/scripting/blazor-windows/getting-started/1YWZKXCaFhEh7SNnSx8YMWjAf.png)
-![C# Overlay in the earlier editor’s add-overlay menu](/assets/callouts/batch3/en/blazor-start-overlay.png)
+![C# Overlay in the add-overlay menu of the earlier editor](/assets/callouts/batch3/en/blazor-start-overlay.png)
 ![Editing the overlay component](https://s3.eyeauras.net/media/2024/11/Code_MJvkplH0Iiqmm9SV.png)
 
-The [reactive component contract](/en/scripting/api/core/blazor) describes the shared base. The same HTML/CSS/Razor principles apply, but the overlay settings own its window. You can put a handler in a Razor `@code` block or its matching partial C# class; [the counter files](/en/scripting/blazor-windows/3-hello-world) show both arrangements.
+HTML, CSS and Razor work the same way in an overlay, but its window is controlled by the overlay settings. The shared base class is described in the [reactive component contract](/en/scripting/api/core/blazor). A handler can live in a Razor `@code` block or in the matching partial C# class. [The counter files](/en/scripting/blazor-windows/3-hello-world) show both.
 
 </details>

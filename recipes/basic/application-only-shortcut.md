@@ -10,25 +10,24 @@ dateCreated: 2026-11-10T16:05:04.371Z
 
 # Make a notification key belong to one application
 
-Let F6 play a short cue only while your own Notepad window is in the foreground. A separate window-state aura controls whether the hotkey is eligible for interception. This is a notification exercise, not a key remapper or a command sent to Notepad.
+F6 plays a short cue only while your Notepad window is in the foreground. One aura watches the window and allows or blocks the hotkey in the second one.
 
-Open one Notepad window with your own disposable text document and have an available audio output. F6 must be unused for a disruptive command in your test windows; choose a different unused key if necessary. Leave **Suppress Key** off throughout: the application can still receive the original key.
+Open one Notepad window with a throwaway text document. You need a working audio output. F6 must not start anything disruptive in the windows where you test. If it does, pick another unused key. Leave **Suppress Key** off everywhere: the application can still receive the original key.
 
 ## Create the source condition
 
 1. Right-click an empty area of the tree, choose **New Aura**, and name it **Notes active**.
-2. In **Triggers**, click **+** and add **Window Is Active**. Set **Target Window** to `notepad`. Verify that the selected window information identifies your document. Leave its action lists and overlays empty.
+2. In **Triggers**, click **+** and add **Window Is Active**. Set **Target Window** to `notepad`. Check in the selected window details that it is your document. Leave the action lists and overlays empty.
 
-   ![Target Window expression and details of the matching window.](/assets/callouts/batch1/en/window-selector.png)
+   ![Target Window field and details of the matching window](/assets/callouts/batch1/en/window-selector.png)
 
-   The shared selector here matches Demo Workspace. For Notes active, enter notepad and check the matching Notepad window.
-3. Switch between Notepad and another application. **Notes active** should be **Active** only with the matching window in the foreground. Keep this aura loaded and enabled.
+3. Switch from Notepad to another application and back. **Notes active** should be **Active** only while the matching window is in the foreground. Keep this aura loaded and enabled.
 
 ## Limit the hotkey and add its cue
 
-1. Create another **New Aura** at the root, named **Notes notification**. In **Triggers**, add **Hotkey Is Active**. Assign **F6**, select **Hold**, and leave **Suppress Key** off. If you chose another key, use it consistently below.
-2. Open that trigger's **Advanced** section. Under **Interception Condition**, click **Links**, select **Notes active**, and require its **Active** state. Keep this as the only link. Leave **Ignore If Hotkey Is Pressed** off; this exercise starts a fresh gesture after each application change.
-3. In **On Enter**, click **+**, add **Play Sound**, choose **Audio notification → Ping**, and set **Volume** to **50%**. Preview the sound. Leave **While Active** and **On Exit** empty.
+1. Create another **New Aura** at the root and name it **Notes notification**. In **Triggers**, add **Hotkey Is Active**. Assign **F6**, select **Hold**, and leave **Suppress Key** off.
+2. Open that trigger's **Advanced** section. Under **Interception Condition**, click **Links**, select **Notes active**, and require its **Active** state. Do not add other links. Leave **Ignore If Hotkey Is Pressed** off: here each press starts fresh after you change applications.
+3. In **On Enter**, click **+**, add **Play Sound**, choose **Audio notification → Ping**, set **Volume** to **50%**, and preview the sound. Leave **While Active** and **On Exit** empty.
 
 | Setting | Value |
 | --- | --- |
@@ -39,9 +38,9 @@ Open one Notepad window with your own disposable text document and have an avail
 | Ignore If Hotkey Is Pressed | Off |
 | On Enter | Play Sound → Ping, Volume 50% |
 
-4. Keep both auras enabled and EyeAuras unpaused. Leave the editor for Notepad. Press and briefly hold F6: expect one Ping. Release it so the Hold condition returns to **Not Active** before trying again. Holding it continuously should not repeat the cue.
-5. Release the key, switch to a different application, then try a fresh F6 press there: the notification should not activate. Release it before returning to Notepad, where a new press should work again. Test outside EyeAuras itself so its own-window input option does not confuse the comparison.
+4. Keep both auras enabled and EyeAuras unpaused. Go from the editor to Notepad. Press and briefly hold F6: you should hear one Ping. The cue should not repeat while the key is held. Release the key so the Hold condition returns to **Not Active** before the next try.
+5. Switch to a different application and press F6 there: there should be no cue. Release the key and return to Notepad, where a new press should work again. Do not compare in the EyeAuras window itself: it has its own option for input in its own window, and that can skew the result.
 
-[Window Is Active](/en/triggers/window-is-active) supplies the state, the [hotkey's Links](/en/triggers/hotkey-is-active) gate interception, and [Play Sound](/en/actions/play-sound) makes the eligible gesture observable. Putting a window trigger beside a hotkey in an ordinary AND list only combines their results; it does not configure the hotkey's interception eligibility. The link reuses the separate aura's configured state.
+[Window Is Active](/en/triggers/window-is-active) supplies the window state, the [hotkey's Links](/en/triggers/hotkey-is-active) limit interception, and [Play Sound](/en/actions/play-sound) plays the cue. If you just put a window trigger and a hotkey trigger side by side with AND, their results are combined, but that does not set up the hotkey's interception.
 
-Because Suppress Key is off, lack of a cue in another application does not mean that application cannot receive F6. This setup neither grants focus nor sends replacement keys. Release between application changes; it does not rely on promises about automatically clearing a gesture that was already held.
+Release the key before you change applications.

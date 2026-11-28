@@ -1,6 +1,6 @@
 ---
 title: Timer
-description: 
+description: Switch an aura on and off at fixed intervals
 published: true
 date: 2024-05-14T11:04:01.523Z
 tags: 
@@ -10,36 +10,32 @@ dateCreated: 2022-12-20T17:30:47.018Z
 
 # Show your own reminder at regular intervals
 
-Make `Time for a break` appear for about one second, then disappear for about one second. **Timer** supplies the condition from its internal cycle; you supply the text. This first example needs no game window, input or external event.
+**Timer** switches on and off in a loop at the intervals you set. Here it drives a reminder: `Time for a break` appears for about one second, then disappears for about one second.
 
 ## Set up a 1000/1000 ms cycle
 
-1. Create a separate aura without actions or other triggers. Add **Timer**. Leave inversion and extra activation/deactivation delays off.
-2. Set both **Active for** and **Not Active for** to **1000**. The unit **ms** means milliseconds.
-3. Under **Overlays**, add **Text**. Set **Content** to `Time for a break`, **Font** to **24**, and turn **Size to fit** off. Position the text in a clear area of the screen and enable **Locked**. See [Text](/en/overlays/text) for its other options.
-4. Enable the aura, then select a different aura in the tree. The selected overlay's editing preview can keep it visible while you configure it. Watch several cycles after leaving that preview.
-5. Disable the test aura with its switch. Periodic display stops. Enabling it again starts a new cycle with an inactive wait; it does not resume the previous phase's remaining time.
+1. Create a separate aura without actions or other triggers. Add **Timer**. Leave inversion and the extra activation and deactivation delays off.
+2. Set both **Active for** and **Not Active for** to **1000**. The unit is **ms**, milliseconds.
+3. Under **Overlays**, add **Text**. Set **Content** to `Time for a break`, **Font** to **24**, and turn **Size to fit** off. Put the text in a free spot on the screen and enable **Locked**. The other options are described in [Text](/en/overlays/text).
+4. Enable the aura, then select a different aura in the tree: while the overlay is selected, its editing preview can keep it on screen. Watch a few cycles.
+5. Disable the test aura with its switch. The text stops appearing. When you enable the aura again, the cycle starts over from the inactive wait. It does not continue the time left in the previous phase.
 
-The cycle starts **Inactive**, waits the first interval, becomes **Active**, waits the second interval and repeats. With both values at 1000, the text is hidden for roughly one second and visible for roughly one second. One full repeat is about two seconds, not an exact wall-clock scheduling guarantee.
+The cycle starts **Inactive**. Timer waits the first interval, becomes **Active**, waits the second interval, and so on in a loop.
 
-The earlier editor image shows two millisecond intervals. Replace **both** values with `1000` for this example, regardless of the numbers in the image.
-
-![The earlier Timer has Active for set to 1000 ms and Not Active for set to 500 ms.](/assets/callouts/batch3/en/timer-intervals.png)
+![Timer with Active for set to 1000 ms and Not Active for set to 500 ms.](/assets/callouts/batch3/en/timer-intervals.png)
 
 | Setting or behaviour | What to expect |
 | --- | --- |
-| `Active for` and `Not Active for` | The two cycle intervals. Use `1000` in both fields for this first check. |
-| Changing either interval | Restarts the cycle from Inactive with a new wait. It does not adjust the remaining time in the current phase. |
-| Minimum interval | Values below `100 ms` are clamped to that minimum. `0` does not disable a phase. |
-| Disabling the aura or trigger | Stops its active subscription. A disabled trigger has an unavailable/null state, not an ordinary timed Inactive phase. |
-| General trigger settings | Inversion and additional activation/deactivation delays can change the observed condition. Leave them off for this example. |
+| `Active for` and `Not Active for` | The two cycle intervals, in milliseconds. |
+| Changing either interval | Restarts the cycle from Inactive with a new wait. The time left in the current phase is not adjusted. |
+| Minimum interval | Values below `100 ms` are raised to that minimum. `0` does not turn a phase off. |
+| Disabling the aura or trigger | A disabled aura does not run. A disabled trigger has no state, which is not the same as the ordinary Inactive phase. |
+| General trigger settings | Inversion and the extra activation and deactivation delays can change the state you see. |
 
-For unequal intervals, first watch **Active/Inactive in your installed build** and check which duration changes with each field before attaching actions. Values such as `5000` or `15000` are milliseconds; do not assume their field-to-phase mapping without that check.
+For unequal intervals, first watch **Active/Inactive in your installed build** and check which duration changes with each field. Attach actions after that.
 
 ![Timer repeating Active, wait, Inactive, wait and the next cycle](/assets/wiki-media/m076.png)
 
-The diagram shows the repeating part: the arrows and clocks connect Active to Inactive and then to the next Active. The initial inactive wait before the first Active is described above and is not drawn separately. [Original SVG diagram](/assets/wiki-media/m076-original.svg).
+[Original SVG diagram](/assets/wiki-media/m076-original.svg).
 
-If you only need a pause between two actions, use [Delay](/en/actions/delay) rather than a repeating trigger. For a delay inside a behavior tree, use [Wait](/en/behavior-trees/nodes/wait); those pauses are separate from Timer’s repeated aura-state transitions.
-
-Timer changes an aura condition. The response is configured separately: here it is Text visibility; another setup can use actions on a state transition. A timed skill, shop-visit or gathering sequence also needs its own configured actions, target and real conditions. Timer alone does not read an ability's cooldown, locate an NPC or know another application's state.
+If you only need a pause between two actions, use [Delay](/en/actions/delay) instead of Timer. For a delay inside a behavior tree there is [Wait](/en/behavior-trees/nodes/wait).

@@ -10,53 +10,53 @@ dateCreated: 2023-01-17T20:54:14.310Z
 
 # Reduce log detail
 
-Choose **Warnings/Errors** when you only need warnings and errors in ordinary application logging. This reduces diagnostic detail; it does not guarantee faster execution. Existing files remain, and messages skipped now cannot be recovered later.
+If you only need warnings and errors, change **Log File Level** in the settings. EyeAuras will write less diagnostic detail, but it will not necessarily run faster. Existing files stay as they are. Details of events that were not written cannot be recovered later.
 
 ## Change the application setting
 
 1. Open **Settings** and find **Log File Level** in the main EyeAuras settings.
-2. Select **Warnings/Errors**. **Disabled** restricts ordinary logging further, but retaining warnings is more useful for diagnosis.
-3. Click **Save**. The change applies to the running application without restarting.
-4. Reopen settings to check the selection. Subsequent ordinary logs should contain fewer detailed messages. Before reproducing a problem for support, restore **Default** and save again.
+2. Select **Warnings/Errors**. You can also choose **Disabled** to restrict ordinary logging further, but warnings are worth keeping for troubleshooting.
+3. Click **Save**. The setting applies right away, without a restart.
+4. Open the settings again and check the value. From now on the ordinary logs should have fewer detailed entries.
 
 | Log File Level | Effect |
 | --- | --- |
-| Everything | Removes the shared restriction for detailed logging; Trace still requires the individual logger to allow it |
-| Default | Uses the normal logger configuration. The supplied root level is DEBUG; named loggers can differ |
-| Warnings/Errors | Sets the shared Warn threshold for ordinary messages, filtering Debug and Info where that threshold applies |
-| Disabled | Restricts ordinary messages through the shared threshold; it does not stop arbitrary third-party output or a script writing its own file |
+| Everything | The most detailed mode, including Trace where the individual logger allows it |
+| Default | The normal logger configuration. The supplied root level is DEBUG. Named loggers can differ |
+| Warnings/Errors | A shared Warn threshold for ordinary logs. Debug and Info are not written where that threshold applies |
+| Disabled | Ordinary messages are restricted by the shared threshold. A third-party library or a script writing its own file can still write something |
 
-The earlier editor shows Everything selected. Its Only warnings and errors option corresponds to Warnings/Errors in the exercise above.
+In the screenshot, Warnings/Errors is called Only warnings and errors.
 
 ![The earlier Log File Level setting has Everything selected. Only warnings and errors is the other option.](/assets/callouts/batch3/en/log-level-warnings.png)
 
 | Level | Typical purpose |
 | --- | --- |
 | TRACE | Very detailed diagnostic events |
-| DEBUG | Component behavior useful for finding a cause |
+| DEBUG | How components work. Helps to find the cause of an error |
 | INFO | Main execution events |
-| WARN | An unexpected situation that may allow work to continue |
-| ERROR | An operation or component failed; the entry alone does not mean the whole process exited |
+| WARN | Something went wrong, but the program can keep working |
+| ERROR | An operation or component failed. The whole process may not have exited |
 
-This differs from filtering [Event Viewer](/en/features/event-viewer). A display filter hides rows; it cannot restore messages that were never recorded. The ordinary release profile stores logs under `%appdata%\EyeAuras\release\logs`; other profiles and portable data locations differ.
+This setting decides what gets written to the log. The filter in [Event Viewer](/en/features/event-viewer) is different: it only hides rows on screen and cannot bring back messages that were never recorded. Logs of the ordinary release profile are in `%appdata%\EyeAuras\release\logs`. Other profiles and portable installations use a different path.
 
-When you need help with a reproducible failure, restore **Default**, reproduce it, then follow [Report a problem](/en/report-a-problem) to select that run’s logs and save an archive for review. Lowering the level again afterwards cannot add details to an earlier report.
+If you need help with a failure that repeats, set **Default** again and reproduce it. Then follow [Report a problem](/en/report-a-problem) to select that run's logs and save an archive.
 
 <details>
 <summary>Edit log4net.config for a particular installation</summary>
 
-Use the UI for a persistent choice of ordinary log detail. Editing `log4net.config` changes the installation's logger configuration itself.
+This way edits the logger configuration file itself. If you just want less detail, the setting above is enough.
 
-1. Find the directory of the **running instance**, rather than assuming the highest version folder is active. An installed version may use `%localappdata%\EyeAuras\app-<version>`; a portable copy has its own directory. Back up `log4net.config` first. The old `app-1.2.4177` example names one historical version, not today's required path.
-2. In the existing `root` section, find this level element. This is a **fragment inside root**, not a complete configuration file:
+1. Find the directory of the **running instance**, not the folder with the highest version number. For an installed version it may be `%localappdata%\EyeAuras\app-<version>`. A portable copy has its own directory. Back up `log4net.config` before you edit it.
+2. Open `log4net.config` in a text editor and find the level inside the `root` section. This is a fragment inside root, not a complete configuration file:
 
 ```xml
 <level value="DEBUG" />
 ```
 
-3. Change only `DEBUG` to `WARN` and save, preserving the rest of the root section, appenders and file. The application watches this configuration file, so a restart is normally unnecessary.
-4. Account for individual logger levels and overrides as well as the shared UI threshold. A root edit does not impose one level on every output source. To undo the edit, restore your saved value or file.
+3. Change only `DEBUG` to `WARN` and save the file. Leave the rest of the root section and the appenders alone. The application watches this file, so a restart is normally not needed.
+4. Named loggers can have their own levels, and the shared threshold from Settings also affects ordinary messages. So one root edit does not set a single level for every source. To undo the edit, restore your saved value or file.
 
-An application update or replacement can replace this file. **Settings → Save** stores the ordinary mode in application configuration and avoids editing each installed version.
+An application update or reinstall can replace this file. The **Settings → Save** setting is stored in the application configuration, so it is more convenient for a permanent choice.
 
 </details>

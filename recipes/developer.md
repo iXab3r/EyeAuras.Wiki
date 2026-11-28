@@ -10,7 +10,7 @@ dateCreated: 2026-11-10T17:35:11.000Z
 
 # Developer recipes
 
-Choose a small project whose data you own. Each recipe includes the named source files and separates the top-level script from ordinary classes or Razor components. Start with the log counter before adding a window, project resources or an optional native renderer.
+Each recipe is a small project on your own data. It gives the source files by name and shows what goes in the top-level script, what in ordinary classes and what in Razor components. Start with the log counter, then add a window, project resources or an optional native renderer.
 
 | What you will build | Recipe |
 | --- | --- |
@@ -27,6 +27,6 @@ Choose a small project whose data you own. Each recipe includes the named source
 | Create a physical HTML fixture, read its cells in an isolated Selenium 4.24.0 session and always Quit that session. | [Read known cells from your own local HTML table](/en/recipes/developer/read-local-html-table) |
 | Review owned images, complete annotation, train and export a compatible detector, then inspect boxes without input actions. | [Train your own reviewed detector and inspect its boxes](/en/recipes/developer/own-detector-to-boxes) |
 
-The window recipes require a compatible desktop Blazor/WebView2 host; the ImGui recipe states its pinned SDK and native prerequisites. Prepare your own PNG or TTF where requested. A package reference does not register every service.
+The window recipes need a compatible desktop Blazor/WebView2 host. The ImGui recipe lists its pinned SDK version and native requirements separately. A package reference does not register every service on its own.
 
 [All recipes](/en/recipes) · [Basic](/en/recipes/basic) · [Intermediate](/en/recipes/intermediate).

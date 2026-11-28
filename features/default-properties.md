@@ -1,6 +1,6 @@
 ---
 title: Default Properties
-description: Share common settings through folder defaults
+description: How to set a window or another shared property once on a folder
 published: true
 date: 2024-05-14T11:16:25.203Z
 tags: 
@@ -10,44 +10,44 @@ dateCreated: 2023-02-15T19:56:35.160Z
 
 # Default Properties — choose one window for a folder
 
-When several auras watch the same application, set its window once on their folder. Trigger and action properties bound to that default follow later changes, so you do not have to edit each target separately.
+If several auras watch the same application, it is easier to choose its window once, on the folder. Triggers and actions bound to that default get the new window as soon as you change it.
 
-Open the folder's **Triggers/Actions/Overlays Defaults** section. Available properties depend on the installed features; start with **Target Window**.
+The setting is on the folder, in the **Triggers/Actions/Overlays Defaults** section. The list of properties depends on the installed features. Start with **Target Window**.
 
-![Default properties in the older folder editor](/assets/legacy/trtr5ma%5B1%5D.png)
+![Default properties in the folder editor](/assets/legacy/trtr5ma%5B1%5D.png)
 
-The checkbox lets this folder supply a value. In this older editor, Target Window is enabled while the other properties have no local override.
+The checkbox on the left lets the folder set this value.
 
 ## Share a target between two checks
 
-1. Open an application you want to monitor and create a folder for its auras. Add two auras inside it: one with [Window Exists](/en/triggers/window-exists), the other with [Window Is Active](/en/triggers/window-is-active).
-2. Select the folder. Under **Triggers/Actions/Overlays Defaults**, check **Target Window**, select the application's window and inspect the displayed target.
-3. For **Target Window** in each trigger, open the small binding indicator's context menu and choose **Bind to Default**. This explicitly connects both properties to the folder value.
+1. Open the application you want to watch and create a folder for its auras. Add two auras to it: one with [Window Exists](/en/triggers/window-exists), the other with [Window Is Active](/en/triggers/window-is-active).
+2. Select the folder. Under **Triggers/Actions/Overlays Defaults**, check **Target Window** and select the application's window. Make sure the right window is shown.
+3. In each of the two triggers, open the context menu of the small binding indicator beside **Target Window** and choose **Bind to Default**.
 
    Before binding, the indicator beside Target Window is black.
 
-   ![Unbound Target Window and a failed Image Capture Rate binding](/assets/callouts/batch1/en/binding-square.png)
+   ![Unbound indicator at Target Window and a failed binding at Image Capture Rate](/assets/callouts/batch1/en/binding-square.png)
 
-4. Return to the folder and choose a different open window for Target Window.
+4. Go back to the folder and choose a different open window for Target Window.
 
-Both checks now receive that target. Window Exists checks whether it exists; Window Is Active checks whether it is in the foreground. You no longer need to change their window expressions separately.
+Both triggers should get the new window. Window Exists checks whether it exists, and Window Is Active checks whether it is in the foreground.
 
-Left-click the indicator to open the binding editor; right-click for its menu. Older interfaces used Reset to Default or Bind to Default for the default connection.
+Left-click the indicator to open the binding editor. Right-click it for the menu.
 
 ## Connect existing components
 
-New triggers, actions and overlays receive supported default bindings when created. An existing property may have a manual value or another binding: changing the folder does not silently replace it.
+New triggers, actions and overlays get the supported default bindings when you create them. An existing property may have its own value or another binding. A change on the folder does not replace it.
 
 | Method | When to use it |
 | --- | --- |
-| Bind to Default on a property | Connect one trigger, action or overlay property to its corresponding default. |
-| Default / Bind to Default in the older binding editor | The older header-button route to the same connection. In the current interface, use the property indicator's context menu. |
-| Apply to All in the folder | Rebind matching properties in descendant auras and subfolders. The current editor applies every checked default; the older editor had a button for each row. |
+| Bind to Default on a property | Connect one trigger, action or overlay property to the folder value. |
+| Default / Bind to Default in the older binding editor | The same thing, but with a button in the header. In the current interface, use the context menu of the property indicator. |
+| Apply to All in the folder | Switch matching properties in child auras and subfolders to the defaults in one go. The current editor applies every checked default. The older editor had a button on each row. |
 
-![Per-property Apply to All in the older folder editor](/assets/legacy/51tmde2%5B1%5D.png)
+![Apply to All for a single property in the older folder editor](/assets/legacy/51tmde2%5B1%5D.png)
 
-**Apply to All replaces existing individual bindings for the matching properties.** Leave only the defaults you intend to standardize checked. For auras that need their own targets, connect properties individually instead.
+**Apply to All replaces existing individual bindings for the matching properties.** Before you click it, leave checked only the properties you really want to share. If an aura needs its own target, bind its properties one by one instead.
 
-A nested folder can supply its own value. Without a local value, the binding looks up the hierarchy. For a lasting setup, use a [window matching expression](/en/features/window-matching-expressions) that can survive reopening the application: a temporary window handle selected from a list may change.
+A nested folder can set its own value. If it has none, the binding takes the value from the folder above. For a lasting setup, pick a [window matching expression](/en/features/window-matching-expressions) that still works after the application is reopened. A window chosen from the list has a temporary handle that may change.
 
-Use [Bindings](/en/features/bindings) for other property-to-property connections. Script values and inheritance have a separate [variables contract](/en/scripting/api/scripting/variables).
+Other property-to-property links are covered in [Bindings](/en/features/bindings). Script values and their inheritance have a separate [variables page](/en/scripting/api/scripting/variables).

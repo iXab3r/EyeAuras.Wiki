@@ -1,6 +1,6 @@
 ---
 title: Known Issues
-description: Common EyeAuras issues and how to fix them
+description: What to do if EyeAuras cannot use WebView2, does not connect or does not load old auras.
 published: true
 date: 2026-04-25T13:15:00.000Z
 tags: faq, troubleshooting, webview2, network, login, ai-translated
@@ -10,61 +10,59 @@ dateCreated: 2026-04-25T13:15:00.000Z
 
 # Diagnose startup, connection and unavailable components
 
-Identify where EyeAuras stopped before changing settings. Similar icons do not establish the same cause.
+EyeAuras does not open its interface, shows Not connected or does not load pack items? First work out at which stage it stopped.
 
 | Symptom | Start here |
 | --- | --- |
-| WebView2 is not installed | Check the UI runtime below |
-| Not connected or sign-in does not complete | Check the Eye Hub connection |
-| Connected, but an item says Proxy Not Available | Check sign-in, distribution and module availability |
-| Hourglass icons or a list containing only C# Script | Check both connection and module readiness; the icon alone is not a diagnosis |
-| The process closes without an error window | [Preserve the crash context](/en/report-a-problem) |
+| WebView2 is not installed | The WebView2 check below |
+| Not connected or sign-in does not complete | The Eye Hub connection check |
+| Connected, but an item says Proxy Not Available | Sign-in, distribution and module availability |
+| Hourglass icons or a list containing only C# Script | Both the connection and the modules. The icon alone does not tell you the cause |
+| The process closes without an error window | [How to prepare data after a crash](/en/report-a-problem) |
 
 ## Windows lists WebView2, but EyeAuras cannot use it
 
-EyeAuras uses Microsoft WebView2 for its interface. Having Microsoft Edge installed does not establish that the required runtime is available to this process.
+The EyeAuras interface runs on Microsoft WebView2 Runtime. Having Microsoft Edge installed does not yet mean the runtime is available to the process.
 
 ![EyeAuras reports that WebView2 is unavailable](https://s3.eyeauras.net/media/2026/04/sj5qeboNcx.png =x320)
 
-1. Close EyeAuras and open Microsoft's [WebView2 Runtime page](https://developer.microsoft.com/en-us/microsoft-edge/webview2/consumer). EyeAuras uses this [official installer link](https://go.microsoft.com/fwlink/p/?LinkId=2124703).
-2. Follow Microsoft's installation or repair instructions. In the documented April 2026 case, an ordinary installer run said the runtime already existed, while running the official installer as administrator resolved the problem. That is a case-specific recovery option, not the diagnosis of every WebView2 error.
-3. Start EyeAuras again after installation finishes. The expected result is the interface opening instead of the missing-runtime message.
-4. If it still fails, restart Windows and preserve the exact application and installer messages for a [report](/en/report-a-problem). “Already installed” does not prove that WebView2 opened successfully inside EyeAuras.
+1. Close EyeAuras and open Microsoft's [WebView2 Runtime page](https://developer.microsoft.com/en-us/microsoft-edge/webview2/consumer). The direct link to the installer EyeAuras itself uses: [WebView2 Runtime installer](https://go.microsoft.com/fwlink/p/?LinkId=2124703).
+2. Install or repair the runtime following Microsoft's instructions. In a case from April 2026, a normal installer run said the runtime was already installed, and running the installer as administrator helped.
+3. Start EyeAuras again. The interface should open instead of the missing-runtime message.
+4. If that did not help, restart Windows and save the exact EyeAuras and installer messages for a [report](/en/report-a-problem).
 
 ![EyeAuras reports WebView2 is not installed while the Microsoft installer reports that the runtime is already installed.](/assets/callouts/batch3/en/webview-runtime-diagnostic.png)
 
 ## Not connected and sign-in fails
 
-**Not connected** concerns the Eye Hub connection. It differs from a missing license or an unavailable individual module. Connection trouble can affect sign-in, network functions and loading some capabilities. A short editor list also needs a module check.
+**Not connected** means there is no connection to Eye Hub. That is not the same as a missing license or one unavailable module. Without the connection, sign-in, network functions and loading of some features can all fail at once. If the editor list is short, check the modules too, not just the Internet.
 
-1. Record the application version and exact connection status. Compare relevant [release notes](/en/changelogs/9339) before applying advice from another version.
-2. Open **Settings → Network**, enable **Auto-select server location**, then **Save**. This permits endpoint rotation when connection checks fail.
-3. To compare a particular route, disable automatic selection, choose **Preferred server location** and save. The configured choices include **Default Eye Hub**, **EU Eye Hub** and **RU Eye Hub**. Change one setting at a time.
-4. Compare another network you are permitted to use. A system proxy, VPN, network filter or corporate policy can affect routing; a change can help or hinder. Broadly disabling security software is not a diagnostic requirement.
+1. Write down the EyeAuras version and the exact connection status. If a newer version is out, compare its [release notes](/en/changelogs/9339) with yours before applying an old fix.
+2. Open **Settings → Network**. Enable **Auto-select server location** and click **Save**. Now the application switches the regional endpoint by itself when connection checks fail.
+3. To test one particular route, disable automatic selection, choose **Preferred server location** and save. The list has **Default Eye Hub**, **EU Eye Hub** and **RU Eye Hub**. Change one setting at a time.
+4. Try another network you are allowed to use. Keep in mind the system proxy, VPN, network filter and corporate policy: changing the route can help or hurt. You do not need to turn off security software for this check.
 
 | Setting | Effect |
 | --- | --- |
-| Auto-select server location | Allows switching among regional endpoints after failed connection checks; it cannot guarantee access through every network |
-| Preferred server location | Selects an endpoint explicitly; unavailable while automatic selection is enabled |
+| Auto-select server location | Lets the application switch among regional endpoints when connection checks fail |
+| Preferred server location | You pick the endpoint yourself. Unavailable while automatic selection is enabled |
 
-Automatic selection was introduced in [1.9.9339](/en/changelogs/9339), and the separate RU hub in [1.9.9164](/en/changelogs/9164). Those are feature-history facts, not evidence that every present connection failure is fixed. A useful result is either restored connectivity or the recorded version, network, endpoint and error for a report.
+Automatic selection appeared in [1.9.9339](/en/changelogs/9339), and the separate RU hub in [1.9.9164](/en/changelogs/9164).
 
-If Eye Hub is connected but an AI session still will not start, follow the [AI Assistant profile checks](/en/features/ai-assistant) for its **Endpoint**, **Model Id** and **API Type**. Successful EyeAuras account sign-in does not establish that the selected model connection works.
+If Eye Hub is connected but an AI session will not start, check the **Endpoint**, **Model Id** and **API Type** of the selected profile using the [AI Assistant guide](/en/features/ai-assistant).
 
-Earlier screenshots show only C# Script or a partial list. The list alone does not identify the cause.
+With this problem the list shows only C# Script or an incomplete set of items.
 
-![Only C# Script appears in this earlier case](https://s3.eyeauras.net/media/2026/04/19Qz4dvbG5.png =x260)
-![An earlier partially loaded list](https://s3.eyeauras.net/media/2026/04/E85mS45HQE.png =x420)
+![Only C# Script appears in the list](https://s3.eyeauras.net/media/2026/04/19Qz4dvbG5.png =x260)
+![A partially loaded list](https://s3.eyeauras.net/media/2026/04/E85mS45HQE.png =x420)
 
 ## Connected, but saved items remain unavailable
 
-**Proxy Not Available** or **Not Available** means a saved item could not be materialized as an available component. Check the distribution, module loading and required permissions separately from connectivity.
+**Proxy Not Available** or **Not Available** means EyeAuras could not turn a saved item into a working component. The cause can be the distribution, module loading or the permissions the module needs.
 
 ![Tree and editor from an earlier configuration](https://s3.eyeauras.net/media/2026/04/g7bXMfBokZ.png =x420)
 
-1. Check the connection separately from sign-in. In the historical case after 1.9.9339, an ordinary **Login** followed by reopening or restarting helped load old auras; this did not imply a required subscription purchase.
-2. If already signed in, compare your version with the pack's requirements. The component must be supplied and loaded; sign-in alone does not grant every optional module.
-3. Before replacing your set with an author's update, [save your copy](/en/features/export-import) and review the new contents. Avoid overwriting local changes blindly.
-4. If the component is still unavailable, record its full name, pack, version and connection state, then include the relevant startup logs in a [report](/en/report-a-problem).
-
-The expected result is the required editor becoming available and its item loading. Otherwise, those details help distinguish a network problem from a missing implementation or access requirement.
+1. Check the connection separately from sign-in. In the case with old auras after the move to 1.9.9339, an ordinary **Login** followed by reopening or restarting helped. Buying a subscription was not required for that.
+2. If you are already signed in, compare your EyeAuras version with the pack author's requirements. The component must be part of the distribution and must load. Signing in does not give access to every optional module.
+3. If the author released a fixed pack, [save your copy](/en/features/export-import) first, then look through the new version before replacing anything.
+4. If the component is still unavailable, write down its full name, the pack name, the version and the connection state. Attach the logs of that run through a [report](/en/report-a-problem).
