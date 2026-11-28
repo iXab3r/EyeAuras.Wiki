@@ -10,51 +10,47 @@ dateCreated: 2025-08-17T08:50:59.377Z
 
 # Mouse Move — go to a specified point
 
-Use `Mouse Move` to place the pointer at a chosen point. Here, absolute means a destination point rather than a displacement from the current position. The coordinate origin depends on the target and backend. This node does not click.
+`Mouse Move` puts the pointer at a set point. "Absolute" here means "to a specific point", not "this far from the current position". Where the coordinates are counted from depends on the window and the input backend. The node only moves the pointer. It does not click.
 
-## Move within your own window
+## Move to a point in your own window
 
-Open your own separate text-editor window. Make it large enough that X=200, Y=150 from the visible frame's top-left corner lies inside it. Use a new node without search links or coordinate bindings for this first example.
+Open your own text-editor window. Make it large enough: the point X=200, Y=150 from the top-left corner of the visible frame must lie inside the window.
 
-1. Put a separate tree in a folder. In `Triggers/Actions/Overlays Defaults`, enable `Target Window` for your editor and, through `show more...`, `Input Simulator → Windows Input`. Do not override that target in the tree's local Settings.
-2. Keep `Activation → Is Loaded`, `Execution → When Activated → Do nothing`. Add `Mouse Move` and connect it to the entry.
-3. Set `General → Mouse Position → X = 200`, `Y = 150`. Keep randomization and offset at zero. Check the displayed `Window` and `Simulator`: your own window and Windows Input.
-4. Click the upper `Tick BT Once` once. The chosen window is activated and the pointer should move to the specified point inside it, without a click. On normal call completion the node returns Success.
-
-The earlier image shows X/Y and the optional groups, now under General:
+1. Put a separate tree in your own folder. In the folder's `Triggers/Actions/Overlays Defaults`, enable `Target Window` and choose your window. Through `show more...`, enable `Input Simulator → Windows Input`. Do not set a different window in the tree's Settings.
+2. At the tree entry keep `Activation → Is Loaded`, `Execution → When Activated → Do nothing`. Add `Mouse Move` and connect it to the entry.
+3. Set `General → Mouse Position → X = 200`, `Y = 150`. Use a new node with no links, with randomization and offset at zero. At the bottom of the group check `Window` and `Simulator`: they must show your window and Windows Input.
+4. Click the upper `Tick BT Once` once. The window comes to the front and the pointer moves to the set point inside it. There is no click. If everything went normally, the node returns Success.
 
 ![X and Y are zero in the earlier editor. The link below opens additional offset fields.](/assets/callouts/batch3/en/mouse-move-position.png)
 
-Enter 200 and 150 for the exercise. The earlier editor shows both coordinates at zero.
-
 | Setting | Purpose |
 | --- | --- |
-| Mouse Position — X / Y | Destination point; Width / Height also appear for a source region |
-| Crosshair button | Pick a point using the screen tool and current window context |
-| Window / Simulator | Inherited target and backend; check them before running |
-| Input Smoother | Inherited [smoothing](/en/actions/sendinput/mouseinputsmoothing) for supported absolute movement |
+| Mouse Position — X / Y | The source point. If a region is set, Width / Height appear too |
+| Crosshair button | Pick a point right on the screen, taking the current window into account |
+| Window / Simulator | The inherited window and input backend. Check them before you run |
+| Input Smoother | If set in the shared properties, the movement follows the chosen [smoothing](/en/actions/sendinput/mouseinputsmoothing) algorithm |
 
-With Windows Input, the window's screen `DwmFrameBounds` origin is added to X/Y. This is the visible frame origin, **not the client-area origin**. Without a window the coordinates would be screen coordinates; an empty target is not selection of your own window. In this path, X=0,Y=0 is treated as an empty point and causes no move. Success alone therefore does not prove movement.
+In the example, Windows Input adds the position of the window frame on the screen (`DwmFrameBounds`) to X/Y. This is the window frame, **not the origin of its client area**. Without a window the coordinates would be screen coordinates. The point X=0, Y=0 counts as empty here, and the pointer does not move.
 
-Windows Message API sends client-coordinate window messages instead of moving the system pointer in the same way. Do not transfer values between backends or multiply by a guessed DPI factor; see [coordinate systems](/en/features/coordinate-system).
+Windows Message API works differently. It sends the window messages with client-area coordinates and does not move the real system pointer the way Windows Input does. Do not carry numbers from one method to the other without checking the [coordinate system](/en/features/coordinate-system).
 
 <details>
-<summary>Use a found region or another source</summary>
+<summary>Move to a found region or a linked source</summary>
 
-Choose `move to something...` to expose the X/Y/Width/Height region and sources:
+Click `move to something...` to open the X/Y/Width/Height region and the sources:
 
-| Choice | Position source |
+| Choice | Where the position comes from |
 | --- | --- |
-| Move to — Variable → Last Found Result | Bind the last found region in this tree's context; the relevant search must run first |
-| Move to — Linked Aura → Links | Region supplied by a configured linked aura, such as Image Search |
-| Property binding indicator | A custom coordinate or region [binding](/en/features/bindings); earlier UI shows a black square beside the property |
-| Unlink / Unbind | Remove a source connection before returning to fixed coordinates |
+| Move to — Variable → Last Found Result | From the variable with the last found region in the tree's context. The right search must run first |
+| Move to — Linked Aura → Links | From the region given by a linked aura with a configured source, such as Image Search |
+| Property binding indicator | From your own coordinate or region [binding](/en/features/bindings) |
+| Unlink / Unbind | Removes the current link. Do this before going back to fixed coordinates |
 
 ![Region dimensions, Last Found Result and the Linked Aura row showing zero links.](/assets/callouts/batch3/en/mouse-move-region-source.png)
 
-For a **Linked Aura** source, first configure and inspect your own [Image Search](/en/triggers/images/image-search) aura. Put [Aura Is Active](/en/behavior-trees/nodes/aura-is-active), linked to that same aura with expected state Active, before Mouse Move in a [Sequence](/en/behavior-trees/nodes/sequence) to require the search condition before moving.
+For **Linked Aura**, first set up and test your own [Image Search](/en/triggers/images/image-search) aura. In a [Sequence](/en/behavior-trees/nodes/sequence), put [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) before Mouse Move, linked to the same aura with the expected state Active. Then the pointer moves only if the search condition is met.
 
-The found region must belong to the intended window and coordinate system. Verify its bounds, capture region and processing scale before adding movement. A link or Last Found Result is not proof of a valid match in this pass; gate movement on the actual search result. Do not add the window origin twice to coordinates already mapped to the screen.
+The search region must belong to the same window and the same coordinate system. First check the found bounds, the capture region and the processing scale, and only then connect the movement. Do not add the window position to coordinates that are already screen coordinates.
 
 </details>
 
@@ -63,9 +59,9 @@ The found region must belong to the intended window and coordinate system. Verif
 
 | Group | Effect |
 | --- | --- |
-| randomize... → Randomize — X ± / Y ± | Add random scatter to the final point within each axis range; zero disables it |
-| add click anchor... → Anchor | Choose a point within the region, such as center, top-left or bottom-right; despite the button name, no click is added |
-| add offset to mouse position... → Offset | Add X/Y to the calculated position; region mode also exposes size offsets |
+| randomize... → Randomize — X ± / Y ± | The final point shifts at random within the range on each axis. Zeros turn it off |
+| add click anchor... → Anchor | A point inside the source region: the center, a corner or an edge. Despite the button name, no click is added |
+| add offset to mouse position... → Offset | Extra X/Y added to the calculated position. Region mode also has size offsets |
 
 ![X and Y randomization ranges are both set to zero.](/assets/callouts/batch3/en/mouse-move-ranges.png)
 
@@ -73,6 +69,6 @@ The found region must belong to the intended window and coordinate system. Verif
 
 ![X and Y offset fields each contain zero.](/assets/callouts/batch3/en/mouse-move-offset.png)
 
-The source region, anchor and Offset produce a point, then Randomize is applied. This does not correct DPI or mismatched sources. A successful move can admit a connected child; retained child Running resumes without another move. For displacement from the current position, use [Mouse Move Rel.](/en/behavior-trees/nodes/MouseMoveRel).
+The point is first calculated from the region, the anchor and Offset, then Randomize is added. After a successful move a connected child can run. If it returns Running, the next tick continues it and does not move the pointer again. To move from the current position, use [Mouse Move Rel.](/en/behavior-trees/nodes/MouseMoveRel).
 
 </details>

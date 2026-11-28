@@ -1,6 +1,6 @@
 ---
 title: Text File
-description: Continue an earlier file-trigger configuration using the current whole-file evaluator
+description: The old address of the File Contains Text guide. A short example and a link to the current page.
 published: true
 date: 2022-11-02T14:59:35.793Z
 tags: ai-translated
@@ -10,26 +10,24 @@ dateCreated: 2022-11-02T14:58:25.417Z
 
 # Continue from the older File Contains Text guide
 
-This earlier address describes the same **File Contains Text** trigger. It is not a second current trigger with different capitalization. Use [the current file guide](/en/triggers/file-contains-text) for the full setup.
+This is the old guide to **File Contains Text**, the trigger that checks what is in a file. It is the same trigger, so you do not need a new one. The full, current guide is [File Contains Text](/en/triggers/file-contains-text).
 
-For a small text configuration where `enabled=true` represents the state you need:
+Example: you have a small text settings file and want to notice when it says `enabled=true`.
 
-1. Save an accessible local file in **UTF-8**. Use a small file where `enabled=true` occurs only for the intended state.
-2. Open the existing **File Contains Text**, or add it to an aura. Select that file with **File path → …**, then check **File contents**.
+1. Save a local file in **UTF-8**. For the test, use a small file where the line `enabled=true` appears only in the state you need.
+2. Open the existing **File Contains Text**, or add it to an aura. In **File path**, select the file with **…**, then look at **File contents** to see what was read.
 
-   ![Location of the file path and text condition in the earlier editor.](/assets/callouts/batch3/en/file-match-fields.png)
+   ![File path and text condition fields in the earlier editor](/assets/callouts/batch3/en/file-match-fields.png)
 
-   The earlier editor labels these fields Path to file and Text or expression to search for. Select your file and enter the expression from the next step.
-3. Choose **Regex** and enter `(?m)^enabled=true\r?$`. This matches a complete line with that exact value; `enabled=false` does not match. Turn off **Test mode**.
-4. Save `enabled=true` in the file: the trigger should become active. Change it to `enabled=false` and save to deactivate it. Add an overlay or an **On Enter** action separately for a visible reaction, as in the current guide.
+   In the picture these fields are called Path to file and Text or expression to search for.
+3. Choose **Regex** and enter `(?m)^enabled=true\r?$`. Only a separate line with that exact value matches. `enabled=false` does not. Turn off **Test mode**.
+4. Save `enabled=true` in the file, and the trigger becomes active. Change it to `enabled=false` and save, and it becomes inactive. To see a reaction, add an overlay or an **On Enter** action, as in the current guide.
 
 | Earlier setting or behavior | Current meaning |
 | --- | --- |
-| File path | One local file, not a folder or only the newly appended log lines |
-| Text / Regex / C# | Supported [text-matching modes](/en/features/text-match-expressions). C# runs as an evaluator expression rather than a standalone script |
-| Reevaluate on change | Reads a new whole-file snapshot after saving; activity persists while it matches, rather than pulsing for every write |
-| Large log | Still read in full. There is no appended-tail-only mode here; use a small status file for frequent changes instead of a large general log |
+| File path | One specific local file. Not a folder, and not only the new lines of a log. |
+| Text / Regex / C# | Ways to [match text](/en/features/text-match-expressions). A C# expression runs inside the evaluator. It is not a standalone script. |
+| Reevaluate on change | After you save, the whole file is read again. The trigger stays active while the expression matches. It is not a pulse for every write. |
+| Large log | Still read in full. The trigger cannot read only the appended part. If a large file changes often, use a small status file instead. |
 
-Use the current File path, File contents and expression controls.
-
-A file missing at the selected path gives **Unknown**. Check access and the displayed contents separately when an existing file cannot be read.
+If there is no file at the selected path, the result is **Unknown**. If the file exists but cannot be read, check access to it and what **File contents** shows.

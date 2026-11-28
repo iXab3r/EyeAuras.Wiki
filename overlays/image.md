@@ -1,6 +1,6 @@
 ---
 title: Image
-description: display static or animated images as in-game reminders, markers, or visual cues
+description: Shows a static or animated picture from a file on top of other applications, such as a diagram, a cheat sheet or a marker
 published: true
 date: 2023-06-18T16:49:11.857Z
 tags:
@@ -10,34 +10,32 @@ dateCreated: 2023-06-18T16:49:10.767Z
 
 # Image — keep a reference picture in view
 
-Load a wiring diagram, keyboard layout or other reference into Image and display it above your working application. A held key can show it only while you need to consult it.
+Image shows a picture from a file on top of other applications: a wiring diagram, a keyboard layout, any cheat sheet. You can set it up so the picture is visible only while you hold a key.
 
-Prepare your own PNG or JPEG. Animated GIFs are also supported: Image plays the file, rather than calculating a countdown or progress value from another application.
+PNG or JPEG will do. Animated GIFs work too, but the overlay just plays the file.
 
 ## Hold F8 to view your reference
 
-1. Create an aura with one [Hotkey Is Active](/en/triggers/hotkey-is-active). Choose an unused **F8** and **Hold** mode.
-2. Under **Overlays**, add **Image**. In its Image section, click **Load image from file...** and select the file. It appears in **Preview**.
-3. Under **Visual style**, enable **Aspect Ratio** to preserve the picture's proportions when resizing.
-4. Turn **Locked** off, place the overlay and resize it by its edge. Start large enough to read the details. Enable Locked again and optionally Click-through.
+1. Create an aura with one [Hotkey Is Active](/en/triggers/hotkey-is-active). Choose an unused **F8** key and **Hold** mode.
+2. Under **Overlays**, add **Image**. In its Image section, click **Load image from file...** and select the file. The picture appears in **Preview**.
+3. Under **Visual style**, turn on **Aspect Ratio** so the picture does not stretch when you resize it.
+4. Turn **Locked** off, drag the overlay where you want it and pull its edge to resize it. If the picture has small labels, start with a large size. Turn Locked back on and, if you need it, Click-through.
 
-   ![The Position panel shows Locked, the overlay coordinates and its dimensions.](/assets/callouts/batch1/en/coordinates-overlay.png)
-
-   Here the overlay is 200 × 200 and Locked is checked. Clear it before resizing the overlay to fit your image.
+   ![The Position panel shows Locked, the overlay coordinates and its size.](/assets/callouts/batch1/en/coordinates-overlay.png)
 5. Switch to your working application, hold F8, then release it.
 
-The picture appears while the key is held and hides on release. When the aura is selected for editing or Locked is off, the picture can stay visible independently of the key.
+The picture is visible while the key is held. Release the key and it disappears. If the aura is selected in the editor or Locked is off, the picture can stay visible without the key.
 
 ## Image settings
 
 | Setting | What it does |
 | --- | --- |
-| Load image from file... | Loads file data. The dialog lists JPEG, PNG, BMP, GIF and TGA. |
+| Load image from file... | Loads the file. The dialog lists JPEG, PNG, BMP, GIF and TGA. |
 | Preview | Shows the selected picture in the editor. |
 | Clear | Removes the picture from the overlay. |
-| Aspect Ratio | Preserves image proportions when resizing. Unavailable while position is linked to a source. |
-| Position / Locked | Placement and locking; see [Common Options](/en/overlays/common-options). |
+| Aspect Ratio | Keeps the proportions when you resize. Unavailable while the position is linked to a source. |
+| Position / Locked | Placement and locking. See [Common Options](/en/overlays/common-options). |
 
-The loaded data is stored with the overlay configuration as an image resource. Editing the original disk file does not automatically update it: load the file again to replace the picture.
+The picture is stored in the overlay configuration. If you change the file on disk, the overlay does not update on its own. Load the picture again.
 
-For a permanent reference, use [Fixed Value](/en/triggers/fixed-value) set to Is Active instead of the hotkey. For an actual changing region of another window, such as a progress indicator, use [Replica](/en/overlays/replica). An icon, logo, control diagram or animation remains content you supply; a separate trigger is needed for any event-dependent visibility.
+To keep the picture always visible, use [Fixed Value](/en/triggers/fixed-value) set to Is Active instead of the hotkey. If you need a live part of another window, such as a progress bar, use [Replica](/en/overlays/replica).

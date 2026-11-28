@@ -9,11 +9,11 @@ dateCreated: 2024-03-07T14:54:35.964Z
 ---
 # Run required steps in order
 
-Use Sequence when the next step should run only after the preceding step succeeds. Start with a test condition, an elapsed-time wait and a final result, without external actions.
+Sequence runs its children one after another: the next step starts only after the previous one succeeds. For example, first check a permission, then wait, and only then go on.
 
 ## Observe stopping and continuation
 
-Use your own loaded tree with **When Activated → Do nothing**, as in [the first example](/en/behavior-trees/gettings-started). Add, connect and arrange the children left to right:
+Take your own loaded tree with **When Activated → Do nothing**, as in [the first example](/en/behavior-trees/gettings-started). Add the nodes, connect them and place Sequence's children left to right:
 
 ```text
 My Tree
@@ -23,53 +23,53 @@ My Tree
    └─ Fixed Status: Success
 ```
 
-1. Set the first child's **General → Status → Failure** and the final child's **Success**. Give Wait a fixed **Delay = 1500 ms**.
-2. Click the upper **Tick BT Once**. Sequence returns Failure at the first child; Wait and the final child do not execute.
-3. Change the first child's **parameter** to Success and tick again. Execution reaches Wait and returns Running.
-4. Wait two seconds, then click the same **Tick BT Once**. Sequence resumes Wait, runs the final child and returns Success.
+1. Set the first child to **General → Status → Failure** and the last one to **Success**. Give Wait a fixed **Delay = 1500 ms**.
+2. Click the upper **Tick BT Once**. Sequence stops at the first child with Failure. Wait and the last child do not run.
+3. Change the first child's **parameter** to Success and click **Tick BT Once** again. Now execution reaches Wait and returns Running.
+4. Wait two seconds and click the same button once more. Sequence continues from Wait, runs the last child and returns Success.
 
-You have observed different routes in the same tree. The already successful first child is not retested during continuation. After terminal completion, another tick starts from the beginning.
+The first child, already passed, is not checked again on continuation. A tick after completion starts the sequence from the beginning.
 
 | Child result or structure | Sequence result |
 | --- | --- |
-| `Success` | Continue to the next child in this tick. |
-| `Failure` | Return Failure immediately; skip later children. |
-| `Running` | Return Running and retain this child for the next tick. |
-| All enabled children succeed | Success; the next pass starts with the first child. |
-| No enabled children | Success, without performing work. |
-| Disabled child | Excluded from execution, not treated as a failed check. |
+| `Success` | Moves on to the next child in the same tick. |
+| `Failure` | Returns Failure right away. Later children do not run. |
+| `Running` | Returns Running and remembers this child for the next tick. |
+| All enabled children succeed | Success. The next pass starts with the first child. |
+| No enabled children | Success, but nothing is done. |
+| Disabled child | Left out of execution, not counted as Failure. |
 
-In a graph, child order follows horizontal position, left to right. Moving a child vertically alone does not change it. In a nested list, follow the displayed order and nesting.
+In a graph, the order of children follows their horizontal position, left to right. Moving a child up or down does not change it. In a nested list, the order is the order of the rows and the nesting.
 
-![In this separate Sequence example, Aura Is Active comes first and Fixed Status follows. The tree result at the top shows Success.](/assets/callouts/batch2/en/sequence.png)
+![Sequence as a list: Aura Is Active is checked first, Fixed Status follows. The tree result at the top is Success](/assets/callouts/batch2/en/sequence.png)
 
-In this separate Sequence example, Aura Is Active comes first and Fixed Status follows. The tree result at the top shows Success.
-
-An ordinary Sequence does not continuously recheck earlier successful conditions while resuming Running work. If permission can disappear during a long action, design interruption separately. Clearing displayed status does not clear the retained cursor; stopping ticks alone is not a full reset. Completing the pass or fully unloading and draining your own tree permits a fresh run. Use the same entrypoint to continue: another caller can be refused while the route is owned.
+**Important:** while Sequence continues a Running child, it does not recheck the earlier conditions. If a permission can disappear during long work, build the interruption separately.
 
 <details>
 <summary>Conditions, child order and historical examples</summary>
 
-Replace Fixed Status with **Aura Is Active** linked to your own configured aura when ready. The earlier example checks two prepared conditions before **Execute Aura**:
+Instead of Fixed Status you can put **Aura Is Active** linked to your own aura.
 
-![Two configured checks before Execute Aura in the earlier editor](/assets/ivvc60g[1].png)
+![Two checks before Execute Aura](/assets/ivvc60g[1].png)
 
-The data must come from those auras, such as real pixel search; the nodes do not supply game state themselves.
+A tree laid out vertically works the same way, as long as the horizontal order is kept:
 
-![Conceptual comparison of two Sequence layouts with identical horizontal child order](/assets/wiki-media/m051.png)
+![Two Sequence layouts with the same horizontal child order](/assets/wiki-media/m051.png)
 
-Conceptual diagram: A, B and C keep the same horizontal order despite different heights. Arrows show child order, not a promise that every child executes regardless of its result. This is not an editor screenshot. [SVG source](/assets/wiki-media/m051-concept.svg).
+[SVG source](/assets/wiki-media/m051-concept.svg).
 
-A larger route can group common permissions in one Sequence, then use [Selector](/en/behavior-trees/nodes/selector) to choose a priority action or fallback:
+A large task is easier to split: the first Sequence gathers the common permissions, then [Selector](/en/behavior-trees/nodes/selector) picks a priority action or a fallback.
 
 ![The historical combination of Sequence and Selector](/assets/c5do0cg[1].png)
 
-Here `Is Alive` and `Has Target` are already configured aura checks. A ready branch calls Execute Aura, which can contain [Send Sequence](/en/actions/sendinput/send-sequence); the other branch is the fallback. HP, resource, cooldown or target-priority checks likewise need actual sources. This example does not introduce a built-in rotation or HP reader.
+Here the `Is Alive` and `Has Target` checks are already set up in their own auras. The ready branch calls Execute Aura, which can contain [Send Sequence](/en/actions/sendinput/send-sequence). The other branch is the fallback.
 
-![Conceptual Sequence flow showing Success, Failure and Running continuation](/assets/wiki-media/m052.png)
+How checks in a row work before a reaction:
 
-Conceptual diagram: after A succeeds, B is checked. B's Success admits C; Failure ends Sequence without C; Running retains B for the next tick without replaying successful A. Checks can read your own auras. The diagram specifies neither their data source nor a ready program or editor interface. [SVG source](/assets/wiki-media/m052-concept.svg).
+![Diagram: success, stopping on Failure and continuing the current check on Running](/assets/wiki-media/m052.png)
+
+[SVG source](/assets/wiki-media/m052-concept.svg).
 
 </details>
 
-[Selector](/en/behavior-trees/nodes/selector) stops at the first successful alternative; Sequence requires all admitted steps to succeed. For one explicit conditional choice, use [IfThenElse](/en/behavior-trees/nodes/ifthenelse).
+To pick the first successful alternative, you need Selector. For an explicit choice on one condition, use [IfThenElse](/en/behavior-trees/nodes/ifthenelse) instead of repeating the same condition in several branches.

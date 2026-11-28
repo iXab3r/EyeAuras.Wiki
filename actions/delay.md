@@ -1,6 +1,6 @@
 ---
 title: Delay
-description: allows users to control the timing between actions, including an option for randomizing delay durations
+description: A pause between actions, fixed or random.
 published: true
 date: 2024-05-14T18:37:33.237Z
 tags: 
@@ -10,30 +10,28 @@ dateCreated: 2023-06-18T14:34:33.370Z
 
 # Delay — pause between actions
 
-To separate two sound notifications, put Delay between them. It waits for the configured interval before the next action in the same group starts.
+Delay waits for a set time, and only then does the next action in the same group start. For example, you can use it to keep two sound notifications from playing back to back.
 
 ## Play two sounds one second apart
 
-You need one aura and working audio output. Use [Fixed Value](/en/triggers/fixed-value) to start the example manually.
+You need one aura and working sound on your computer. You will start it by hand with [Fixed Value](/en/triggers/fixed-value).
 
-1. Add a Fixed Value trigger and select **Is NOT Active**. Leave other triggers out of this example.
-2. In **On Enter**, add [Play Sound](/en/actions/play-sound), select Ping and turn off **Play in background**. The delay will then start after the sound finishes.
-3. Add Delay next in the same group. Disable random timing: **Randomize** in the older editor, or the crossed-arrows button in the newer one. Set **Delay, ms** to `1000`.
-4. Add another Play Sound after Delay and select Bell. The order is Play Sound → Delay → Play Sound.
-5. Change Fixed Value to **Is Active** and leave the aura active until the second sound finishes.
+1. Add a Fixed Value trigger to the aura and select **Is NOT Active**. You do not need other triggers.
+2. In **On Enter**, add [Play Sound](/en/actions/play-sound), select Ping and turn off **Play in background**. The pause will then start after the sound finishes.
+3. Add Delay next in the same group. Turn off random timing: **Randomize** in the older editor, or the crossed-arrows button in the newer one. Set **Delay, ms** to `1000`.
+4. After Delay, add another Play Sound and select Bell.
+5. Change Fixed Value to **Is Active** and keep the aura on until the second sound.
 
-You should hear Ping, a pause of about one second after it finishes, then Bell. To repeat, switch Fixed Value to Is NOT Active and back to Is Active. In **While Active**, the chain would repeat while the aura remains active.
+You will hear Ping, then Bell about a second after it finishes. To repeat, switch Fixed Value to Is NOT Active and back to Is Active. In **While Active**, the chain would repeat for as long as the aura is active.
 
-![The earlier Delay editor shows a 1000–1500 ms range with Randomize checked.](/assets/callouts/batch3/en/delay-random-range.png)
-
-This earlier example uses a random delay from 1000 to 1500 ms. For the one-second pause, clear Randomize and enter 1000 ms.
+![Delay in the older editor: a 1000–1500 ms range with Randomize checked](/assets/callouts/batch3/en/delay-random-range.png)
 
 ## Settings
 
 | Setting | Effect |
 |---|---|
-| Delay, ms | Pause duration in milliseconds. `1000` ms is one second. |
-| Randomize | Picks a new duration from the configured range on each execution. The newer editor uses the crossed-arrows button. |
-| Min / Max | Lower and upper random-delay bounds. For example, `800` and `1200` give a pause of roughly 0.8–1.2 seconds. |
+| Delay, ms | Length of the pause in milliseconds. `1000` ms is one second. |
+| Randomize | Picks a new pause length from the set range on each run. In the newer editor, use the crossed-arrows button. |
+| Min / Max | Lower and upper bounds of the random delay. For example, `800` and `1200` give a pause of roughly 0.8 to 1.2 seconds. |
 
-Delay waits for time to pass, not for an event in another application. To wait for a window to appear, check it separately with [Window Exists](/en/triggers/window-exists). Other auras keep working during the pause.
+Delay waits for time to pass, not for something to happen in another application. If a window has to appear first, check for it with a separate [Window Exists](/en/triggers/window-exists) trigger. Other auras keep working during the pause.

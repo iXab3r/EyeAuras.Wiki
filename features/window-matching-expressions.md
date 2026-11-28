@@ -1,6 +1,6 @@
 ---
 title: Window Matching Expressions
-description: EyeAuras user interface for selecting specific windows using a custom matching expression.
+description: How to tell EyeAuras which window to use when several are open
 published: true
 date: 2025-06-30T12:42:27.431Z
 tags: eyeauras, выражения, интерфейс, окна, ai-translated
@@ -10,70 +10,70 @@ dateCreated: 2023-06-18T11:57:49.061Z
 
 # Window Matching Expressions — keep the right window selected
 
-If two documents are open in the same application, choose which one an aura should use. A matching expression narrows the candidates; the window selector shows the matching window below the expression. Capture sources, activity checks and input targets can have separate selectors. Changing one does not configure the others.
+The expression in a window field tells EyeAuras which window to work with. You need it when a program has several windows open, for example so that capturing a report does not suddenly switch to another window of the same viewer. The editor shows the window it found below the expression.
+
+Triggers, actions and overlays have this field. The capture source, the window checked for activity and the input target can each have their own. Changing one does not change the others.
 
 ## Select a report window
 
 1. Open your report and a second window of the same application. In a capture trigger, expand **Capture settings → Target Window**.
-2. Use **Click to select Window** to pick the report. Check the selected window and hover over it for details.
-3. To find it again after reopening, enter a distinctive title fragment, such as `October report`, without quotes. Plain text is searched across several window fields.
-4. For a complete match, quote the **whole actual title**, including the application's suffix. If it is exactly `October report — Viewer`, enter `"October report — Viewer"`.
-5. Switch to the other document. The selected-window display and capture preview should still identify the report. Close and reopen the report, then verify the expression finds it again.
+2. Click **Click to select Window** and pick the report. Check the selected window below the expression. Hover over it to see details.
+3. To find the window by name after the document is reopened, enter a distinctive part of the title, such as `October report`. This is plain text without quotes. It is searched as a substring in several window fields.
+4. For a complete match, put the **whole actual title** in quotes. If the title is exactly `October report — Viewer`, enter `"October report — Viewer"`. The application's suffix is part of the title too.
+5. Switch to the other window. The selected-window display and the capture preview should still show the report. Close and reopen the report and check that the expression finds it again.
 
-An exact title stops matching if the document name changes. A native handle selected for one window can change when that window is recreated. Choose what remains stable in your setup.
+If the document is renamed, the exact title stops matching. A handle you got by picking a particular window can also change when the window is created again.
 
-If several checks need this same target, set the expression once in the folder’s [Default Properties](/en/features/default-properties) and bind their Target Window fields to that default. This avoids maintaining separate copies when the chosen window changes.
+If several checks need the same window, set the expression once in the folder’s [Default Properties](/en/features/default-properties) and bind their Target Window fields to it. Then you will not have to edit every copy when the window changes.
 
 ![Target Window expression, window picker and matching window](/assets/callouts/batch1/en/window-selector.png)
 
-After picking a window, compare its title and process below the expression with your intended target.
-
 ## Simple expressions
 
-The matcher checks **process path, process name, window title and process arguments**. A match in a supported field is enough, so a broad string is not a title-only or process-only filter.
+The expression is compared with the **process path, process name, window title and process arguments**. A match in one suitable field is enough.
 
 | Expression | Meaning |
 | --- | --- |
-| `notepad` | Substring in path, title or arguments; process name is compared as a whole value. |
-| `"My document"` or `'My document'` | Complete field match. |
-| `/^My document/` | Regular expression for path, title or arguments. |
-| `0x5A` or `&H5A` | Native window handle. These numbers illustrate syntax, not a handle to use on your machine. |
-| `notepad #2` | Second match after the matcher's sorting. |
-| `#1` | First window in the eligible list. |
+| `notepad` | A substring in the path, title or arguments. The process name is compared as a whole. |
+| `"My document"` or `'My document'` | A complete match of a field. |
+| `/^My document/` | A regular expression for the path, title or arguments. |
+| `0x5A` or `&H5A` | A native window handle. The numbers here only show the syntax. |
+| `notepad #2` | The second match after the results are sorted. |
+| `#1` | The first window in the eligible list. |
 
-Plain and quoted comparisons use **OrdinalIgnoreCase**. Quoting requires a complete match; it does not make matching case-sensitive or restrict it to the title. Regex also uses IgnoreCase.
+Plain text and quoted text **ignore case**: they use **OrdinalIgnoreCase**. Regex also uses IgnoreCase.
 
-Enter regex as `/pattern/`, without outer quotes. `"/fire/"` is exact text, not regex; `/fire/` searches a pattern. Put an index **outside** quotes: `"Firefox" #2`, not `"Firefox #2"`. The [text evaluator's Regex mode](/en/features/text-match-expressions) uses a different field syntax and does not need these outer slashes.
+Write regex as `/pattern/`, without quotes around it. `"/fire/"` is exact text, not regex, while `/fire/` searches by a pattern. The [text evaluator's Regex mode](/en/features/text-match-expressions) is the other way round: it needs no outer slashes.
 
-Indices start at one after sorting by process creation time, Z-order, title length, title text and PID. They are not stable document identifiers, and need not match an old dropdown's visual order.
+Put an index **outside** the quotes: `"Firefox" #2`, not `"Firefox #2"`. Counting starts at one, after sorting by process creation time, Z-order, title length, title text and PID. The list and its order can change, so `#2` is not a permanent identifier of a document.
 
 ## Combine criteria
 
 | Expression | Meaning |
 | --- | --- |
-| `notepad && /report/` | Narrows sequentially: first notepad candidates, then /report/ within that set. |
-| `notepad \|\| calc` | First nonempty alternative. If notepad matches, calc results are not added. |
-| `!title` or `NOT title` | No standalone negation operator is defined by this grammar. Do not use these as an exclusion filter. |
+| `notepad && /report/` | Narrows step by step: first the windows that match notepad, then /report/ among them. |
+| `notepad \|\| calc` | The first nonempty alternative. If notepad matches something, calc results are not added. If not, calc is checked. |
+| `!title` or `NOT title` | There is no negation operator. Do not use these to exclude windows. |
 
-Alternatives are not a union. Operators are processed sequentially; do not assume C# precedence or parentheses. Build from a simple expression and inspect the actual selected window after each change. Negation inside a regex is regex syntax, and still operates within this multi-field matching rule.
+Operators are processed in order. Do not count on parentheses or the usual C# precedence. Start with a simple expression, then add conditions and look at which window is selected after each change. Negation inside a regex is ordinary regex syntax, and the regex is still compared with several fields.
 
 <details>
 <summary>Selector filters and the script API boundary</summary>
 
-The candidate list also depends on the window provider and selector filters. Bracket properties are parsed by that selector rather than treated as ordinary text.
+The candidate list also depends on the window provider and on the filters of the selector, the mechanism that picks the window. The selector parses properties in brackets itself. They are not searched as ordinary text.
 
 | Setting or suffix | Scope |
 | --- | --- |
-| `[type=toplevel]` | Main windows; type=child and type=any are also supported. Results are limited to the supplied window list. |
-| `[ownedBy=external]` / `[ownedBy=any]` | Excludes EyeAuras-owned windows or removes that restriction. Defaults are external and toplevel. |
-| `[visible]` / `[focus]` | These parsed flags do not themselves enable visibility or foreground filtering. |
-| OnlyVisible | A selector property for visible-window filtering; appending `[visible]` is not equivalent. |
-| ProcessName | Use an explicit process filter in a context that supplies one for a process-only restriction. Broad text is not a direct equivalent of AutoHotkey ahk_exe. |
+| `[type=toplevel]` | Picks main windows. type=child and type=any also exist. Results are limited to the window list in use. |
+| `[ownedBy=external]` / `[ownedBy=any]` | Excludes EyeAuras's own windows or lifts that restriction. The defaults are external and toplevel. |
+| `[visible]` / `[focus]` | On their own, these flags do not turn on filtering by visibility or focus. |
+| OnlyVisible | The selector property that turns on the visible-window filter. Adding `[visible]` does not replace it. |
+| ProcessName | To limit the match strictly to a process, you need an explicit process filter in a context that has one. Broad text is not the same as AutoHotkey ahk_exe. |
 
-**Click to select Process** writes the chosen process name as an expression. The ordinary multi-field rules still apply.
+**Click to select Process** writes the name of the chosen process as an expression. It follows the usual rules and is compared with several fields.
 
-In scripts, `IWindowMatcher.FindMatches` handles compound `&&` / `||` expressions. Single-window `IsMatch` and `WindowMatchParams` take a simple expression. This is an API boundary, not a requirement to write a script for the UI selector. For script-side contracts and version selection, start with the [API reference](/en/scripting/api/reference).
+In scripts, `IWindowMatcher.FindMatches` understands compound expressions with `&&` / `||`. `IsMatch` for a single window and `WindowMatchParams` take a simple expression. For the script side, start with the [API reference](/en/scripting/api/reference).
 
 </details>
 
-Use [Window Is Active](/en/triggers/window-is-active) to test the chosen window's foreground state. For pixel searches, configure [capture and region](/en/triggers/images/imagecapturetriggers) separately: a matching title does not prove the captured frame is correct.
+To check whether the chosen window is active, use it in [Window Is Active](/en/triggers/window-is-active). For pixel searches, set up [capture and region](/en/triggers/images/imagecapturetriggers) separately after choosing the window.

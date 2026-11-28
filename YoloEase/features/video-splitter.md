@@ -9,44 +9,42 @@ dateCreated: 2026-05-08T12:30:00.000Z
 ---
 # Extract a small set of PNG frames from your own video
 
-Use a short recording of your test window to prepare images for annotation. YoloEase writes PNGs into project storage and adds their folder as a source; no separate Python or FFmpeg script is needed.
+YoloEase can cut a video into PNG frames by itself. Record a short video of your test window, and YoloEase saves the frames to the project storage and adds their folder as a source. You do not need a separate Python or FFmpeg script.
 
-You need an open project and a video readable by the installed Windows codecs. The picker accepts `.mp4`, `.m4v`, `.mov`, `.avi`, `.mkv`, `.wmv`, `.webm`, `.mpg` and `.mpeg`. An accepted extension does not establish decoding support. Extraction uses Windows Media.
+You need an open project and a video that the installed Windows codecs can read. The picker accepts `.mp4`, `.m4v`, `.mov`, `.avi`, `.mkv`, `.wmv`, `.webm`, `.mpg` and `.mpeg`. An accepted extension can still fail to decode. The video is read through Windows Media.
 
 ## Prepare the first task's frames
 
-1. In **Project**, click **Add Video...** or drop your video onto the source area. Each video opens a separate **Extract frames** window.
-2. Wait for **Reading video metadata...**. If decoding fails, check that file and codec before attempting extraction; training Python components do not provide this decoder.
-3. Set **Frame step = 5** and a short **Range of frames to extract** using the sliders. For a recording with at least **300 frames**, range **0–45** requests **10** frames: `0, 5, …, 45`. A shorter video's slider can cap the step below 5.
+1. In **Project**, click **Add Video...** or drop your video onto the source area. Each video opens its own **Extract frames** window.
+2. Wait for **Reading video metadata...** to finish. If decoding fails, check the file and the codec. The Python training components have nothing to do with this decoder.
+3. Use the sliders to set **Frame step = 5** and a short **Range of frames to extract**. For a recording of at least **300 frames**, the range **0–45** gives **10** frames: `0, 5, …, 45`. On a shorter video the slider may not go up to 5.
 
 ![Extract frames shows a step of 2 for frames 0–243 and an estimate of 122 frames.](/assets/callouts/batch3/en/yolo-extract-frames.png)
 
-The YoloEase 2.0.80 screenshot shows a step of 2 across frames 0–243, giving an estimate of 122 frames. The slider goes up to 4 for this recording. In the current editor these two sliders are in a separate window.
-
-4. Check **You are going to get ~… frames using these settings**, then click **Extract frames**.
-5. On successful completion, the output folder opens and appears as a project source. Inspect several PNGs for readable objects and different states.
-6. Use **Trainer → Refresh**, then create a small task through [data preparation](/en/YoloEase/prepare-data). These are real images, still without annotation until you use the [editor](/en/YoloEase/features/annotation-editor).
+4. Check the hint **You are going to get ~… frames using these settings**, then click **Extract frames**.
+5. When extraction succeeds, the output folder opens and appears as a project source. Open a few PNGs. You want clearly visible objects and different states.
+6. Click **Trainer → Refresh**, then create a small task as described in [data preparation](/en/YoloEase/prepare-data). The frames have no annotation yet. You draw the boxes in the [editor](/en/YoloEase/features/annotation-editor).
 
 | Setting or result | Meaning |
 | --- | --- |
-| `Range of frames to extract` | Zero-based indices. Both bounds are included; the end is selected if the step reaches it. |
-| `Frame step` | Every Nth frame from the chosen start, not seconds. Minimum 1, initial value 5; slider maximum is `max(1, floor(frameCount / 60))`. A step of 1 requests every frame in the range. |
-| Estimated count | For a valid nonempty range, `floor((end − start) / step) + 1`. Existing/name-matched files can reduce the number newly added. |
-| Full range | `0` through `frameCount − 1`. Metadata estimates the count from duration and frame rate rather than decoding every frame first. |
-| `Cancel` or closing | Requests cancellation. Files already written can remain; cancellation is not proof of a complete series or rollback. |
+| `Range of frames to extract` | Frames are counted from 0. Both ends are included. The last frame is taken only if the step lands on it. |
+| `Frame step` | Every Nth frame from the start of the range. It is frames, not seconds. Minimum 1, initial value 5. The slider maximum is `max(1, floor(frameCount / 60))`. A step of 1 takes every frame in the range. |
+| Estimated count | For a valid non-empty range, `floor((end − start) / step) + 1`. Fewer new files may be added if some already exist or match by name. |
+| Full range | `0` to `frameCount − 1`. The frame count is estimated from duration and frame rate. The frames are not all decoded first. |
+| `Cancel` or closing | Cancels extraction. Files already written can stay on disk. The series may be incomplete, and nothing is rolled back. |
 
-Use a smaller range or available step on short recordings. More adjacent frames can mean more duplicates to review. Do not automatically remove menus, pauses or empty backgrounds if the model must distinguish them; review them as negatives or annotate their intended class.
+On a short recording, use a smaller range or whatever step is available. More neighbouring frames means more duplicates to look through. Do not throw away menus, pauses or empty backgrounds without thinking. If the model has to tell them apart, keep them as negative examples or annotate them with the right class.
 
 ## Locate files and understand repeats
 
-The storage path is:
+The frames are saved to:
 
 `local-sources/<video-name>/<start>-<end> x<step>/<video-name> #<index>.png`
 
-The video is not copied wholesale into that PNG folder. Windows Media requests the nearest frame at `index / FPS`; variable frame rate or imprecise metadata can prevent exact frame-number identity.
+The video file itself is not copied there. Windows Media returns the frame nearest to the time `index / FPS`. With a variable frame rate or inexact metadata, the frame may not match its number exactly.
 
-The extractor skips existing files. The window then compares names with project files and removes output files it considers already added. This is name-based deduplication, not a visual-content comparison. Do not reuse identical names for different videos or treat repeated extraction as an independent archive. If nothing remains, the message suggests changing the range or step.
+Files that already exist are skipped. The window then compares names with the project files and deletes the output files it considers already added. The match is by file name, not by image content. So do not give different videos the same name, and do not count on a repeated extraction as a separate archive. If nothing is left, the message suggests changing the range or the step.
 
-A successful new series becomes a source; [source synchronisation](/en/YoloEase/features/data-sources) later supplies working images in `assets/training`. On failure, read the window error and the application-data `logs/` files described in [diagnostics](/en/YoloEase/features/diagnostics). Partial PNGs alone do not establish source addition or success.
+A successful new series becomes a source. [Source synchronisation](/en/YoloEase/features/data-sources) then copies the images to `assets/training`. If extraction fails, read the error in the window and the `logs/` files in the application data folder, as described in [diagnostics](/en/YoloEase/features/diagnostics).
 
-Start with 5–20 varied frames you can review manually. Later use dozens or hundreds only when model suggestions are helpful, and add actual error cases rather than more near-identical frames. Continue with [Trainer](/en/YoloEase/features/trainer).
+Start with 5–20 varied frames that you can check by hand. Move to dozens or hundreds only when the model's suggestions already help. Add real error cases, not more near-identical frames. Continue with [Trainer](/en/YoloEase/features/trainer).

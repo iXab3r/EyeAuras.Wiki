@@ -135,3 +135,38 @@ Use the same structure in Russian pages, with localized column headings such as
 `Настройка` and `Что делает`. When revising an article, remove repeated benefits,
 obvious explanations, and redundant sections; preserve meaningful conditions and
 limitations. Existing article structure may be rewritten to improve clarity.
+
+## Plain language pass
+
+Accepted by the owner on 2026-11-27 with `ru/home.md` as the reference page. The owner's
+complaint about the previous AI rewrite: the text is robotic, over-complicated, hard to read
+and simply longer than it needs to be. Write the way a competent person explains the
+program to a friend.
+
+Rules:
+
+- Say what the thing is and what it does in the first one or two sentences. No marketing openers and no imperative slogans.
+- Short sentences in everyday words. One thought per sentence. If a sentence needs to be read twice, split or rewrite it.
+- Cut everything that does not help the reader do the task: restated benefits, obvious remarks, summaries of what was just said, announcements of what comes next, disclaimers about how the page or screenshots were made.
+- Keep every fact the reader needs: steps, exact UI names, values, limits, warnings, code, tables, links and images. Shorter must not mean less accurate. Never invent behavior.
+- Prefer concrete verbs and examples to abstractions: name the key, the window, the picture.
+- Talk to the reader directly (`вы`, `нажмите`, `берите`). Mild conversational phrasing is welcome; slang, jokes and exclamation marks are not.
+- Introduce a term once in plain words, then use it. Do not stack several new terms into one sentence.
+- No decorative italic captions under screenshots. Alt text is a short plain description.
+- Link text says what the reader gets: `Как собрать макрос`, not `Руководство по макросам`.
+
+Bad, then good:
+
+> Следите за условиями, выполняйте шаги по порядку и стройте логику с ветвлением в одном рабочем пространстве. Скачайте EyeAuras и начните с небольшой задачи, которую хотите автоматизировать.
+
+> EyeAuras — это кликер с компьютерным зрением. Он смотрит на экран и сам нажимает клавиши, двигает мышь, включает звук или пишет вам в Telegram.
+
+> Соберите последовательность с ожиданиями, условиями и повторами. Начните с макроса, если задачу можно описать как «сначала это, затем то».
+
+> «Нажми, подожди, проверь, повтори». Если задачу можно так описать — берите макрос.
+
+> Связывайте узлы, чтобы описать условия, выбор и повторяющуюся работу. Узлы возвращают Success, Failure или Running, а тики продвигают выполнение.
+
+> Это «мозг» бота. Дерево само решает, что делать дальше: проверить условие, выбрать ветку, попробовать ещё раз. Берите его, когда в макросе стало тесно.
+
+Typical robotic patterns to remove: chains of three imperatives or three nouns, `в одном рабочем пространстве`, `позволяет`, `обеспечивает`, `предоставляет возможность`, `данный`, `является`, `осуществляется`, `в рамках`, `при необходимости`, `следует отметить`, participle pile-ups, and semicolon-joined sentences.

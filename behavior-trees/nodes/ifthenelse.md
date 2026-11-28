@@ -9,11 +9,11 @@ dateCreated: 2025-03-30T19:07:24.627Z
 ---
 # Choose one branch after a condition
 
-The behavior-tree IfThenElse uses its first enabled child as Condition, its second as Then and its third as Else. These roles are connected nodes, not fields for arbitrary C# expressions.
+IfThenElse checks a condition once and runs one of two branches. The first child is the condition, the second is the branch for success, the third is the branch for failure. If, Then and Else are roles of the children, not fields for C# expressions.
 
 ## Test both routes without input
 
-In your own loaded behavior tree, set **When Activated → Do nothing**. Add IfThenElse and three Fixed Status nodes, connected left to right:
+In your own loaded behavior tree, turn off automatic execution: **When Activated → Do nothing**. Add IfThenElse and connect three Fixed Status nodes to it, left to right:
 
 ```text
 My Tree
@@ -23,46 +23,44 @@ My Tree
    └─ Fixed Status: Success    ← Else
 ```
 
-1. Set each child's **General → Status** as shown. In IfThenElse, check **General → If**, **Then**, **Else** identify those nodes rather than **not set**.
-2. Click the upper **Tick BT Once**. Condition succeeds, Then returns Failure, and Else is not called. The composite's result is the branch's Failure.
-3. Change Condition to Failure and tick again. Else now runs, returning Success.
+1. Set each child's **General → Status** as shown. In the IfThenElse panel, check **General → If**, **Then**, **Else**. They should show your nodes, not **not set**.
+2. Click the upper **Tick BT Once**. The condition returns Success, Then runs and returns Failure. Else is not called. The result of IfThenElse is Failure: it is the branch's result, not the condition's.
+3. Set the first child to Failure and click **Tick BT Once** again. Now Else runs and the result is Success.
 
-This exposes branch choice before replacing the test nodes with your actual conditions and work. Put a Sequence inside a branch when it needs several required steps.
+Now replace the condition with a real check, and the branches with the actions you need or with a Sequence.
 
 | Role or result | Behaviour |
 | --- | --- |
-| `If` / Condition | First enabled child selects the branch. |
-| `Then` | Second enabled child, after Condition Success. |
-| `Else` | Third enabled child, after Condition Failure. |
-| Condition returns Running | Return Running; neither branch starts yet. |
-| Chosen branch returns Running | Resume that branch next tick without repeating Condition. |
-| Chosen branch completes | Its Success/Failure is the result. A fresh completed pass starts at Condition. |
-| Chosen branch is absent | Failure; a false condition without Else does not become Success. |
+| `If` / Condition | First enabled child. It selects the branch. |
+| `Then` | Second enabled child. Runs after Condition Success. |
+| `Else` | Third enabled child. Runs after Condition Failure. |
+| Condition returns Running | IfThenElse returns Running. Neither branch starts yet. |
+| Chosen branch returns Running | That branch continues on the next tick. Condition is not checked again. |
+| Chosen branch completes | Its Success or Failure becomes the result of IfThenElse. The next pass starts at Condition again. |
+| Chosen branch is absent | Failure. For example, a false condition without Else does not become Success. |
 
-Disabling a child removes it from the enabled list and can shift later roles; it is not equivalent to setting Condition to Failure. With no Condition, execution is misconfigured rather than an ordinary false result. Check the displayed roles.
+If you disable a child, it drops out of the list and the roles of the nodes after it can shift. You cannot set the condition to Failure this way. With no condition the node has nothing to check: fix the structure using the **If** / **Then** / **Else** panel.
 
-When a condition is already checked by an aura, use [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) as **If** and link that aura. To reuse actions already configured in an aura, put [Run Aura](/en/behavior-trees/nodes/execute-aura) in **Then** or **Else** and choose their source aura under **Auras → Links**.
+If an aura already checks the condition, put [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) in the **If** role and link it to that aura. Call ready-made actions through [Run Aura](/en/behavior-trees/nodes/execute-aura) in **Then** or **Else**: under **Auras → Links**, choose the aura where they are set up.
 
 ## Compare with Selector and Sequence
 
-![The earlier IfThenElse editor shows the condition, the branch for Success, and the branch for Failure from left to right.](/assets/callouts/batch2/en/ifthenelse.png)
+![Earlier editor: IfThenElse has three roles from left to right — the condition, the branch for Success and the branch for Failure](/assets/callouts/batch2/en/ifthenelse.png)
 
-`Selector → Sequence(Condition, Then), Else` looks similar, but can try Else after Then fails. IfThenElse does not try another branch after choosing Then.
+`Selector → Sequence(Condition, Then), Else` looks similar, but behaves differently when Then returns Failure: Selector can move on to Else. IfThenElse does not try the other branch after it has chosen Then.
 
-![A similar-looking alternative built with Selector and Sequence](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_ccGKJyQMUxAsLe2c.png)
+![A similar tree built with Selector and Sequence](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_ccGKJyQMUxAsLe2c.png)
 
-An EyeAuras condition can also execute its own single child after Success, producing the earlier compact form:
+An EyeAuras condition can itself pass execution to its single child after Success. So the old example can be written shorter:
 
-![The compact alternative using a condition child](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_pcWHNBqeobgqgrd0.png)
+![The same alternative, shorter: using a condition's child](https://s3.eyeauras.net/media/2025/03/NVIDIA_Overlay_pcWHNBqeobgqgrd0.png)
 
-Choose IfThenElse for one explicit decision, [Sequence](/en/behavior-trees/nodes/sequence) for required steps and [Selector](/en/behavior-trees/nodes/selector) for several alternatives. This is a routing choice, not a claim that one is universally faster.
-
-The Macro template is a different node: it owns **Condition**, **If matched, then** and **Otherwise** blocks, accepting two or three blocks. Its execution contract must not be inferred from this BT node's positional children and Running cursor.
+Use [Sequence](/en/behavior-trees/nodes/sequence) when every step is required, [Selector](/en/behavior-trees/nodes/selector) when you need to go through options, and IfThenElse when there is one explicit decision.
 
 <details>
 <summary>Earlier abstract examples</summary>
 
-These retained sketches illustrate choosing a strategy. Their named checks/actions are placeholders that require your own data sources and implementations, not built-in game integration or ready EyeAuras templates.
+Two sketches of choosing a strategy. The checks and actions are placeholders: you build them yourself from your own data.
 
 ```
 IfThenElse
@@ -77,7 +75,5 @@ IfThenElse
 ├── Then: "Leave the dangerous zone"
 └── Else: "Follow the regular route"
 ```
-
-The same decision structure can use a configured indicator aura in your own application. The earlier images show user-named checks and input reactions; they do not establish that EyeAuras knows target type or danger automatically.
 
 </details>

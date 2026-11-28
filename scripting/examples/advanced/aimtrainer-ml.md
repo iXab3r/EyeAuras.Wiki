@@ -9,14 +9,14 @@ dateCreated: 2025-06-27T21:27:31.399Z
 ---
 # Draw a training target with native ImGui
 
-Draw a box and centre circle around `Tgt` in your own [Target Tracking](https://aimtrainer.io/target-tracking) session, then optionally enable its training click. Unlike [the OSD version](/en/scripting/examples/advanced/aimtracker-ml-ea), this describes shapes again inside every ImGui frame callback.
+This variant draws a box and a circle around the detected `Tgt` target with native ImGui. First check the picture, then turn on movement and clicking in the [Target Tracking](https://aimtrainer.io/target-tracking) trainer if you want. Unlike [the OSD version](/en/scripting/examples/advanced/aimtracker-ml-ea), everything here is drawn again in every ImGui frame callback.
 
-Use desktop Windows EyeAuras with OpenCV/ONNX Runtime and a compatible **EyeAuras.ImGuiSdk 0.1.47** from the [EyeAuras feed](https://packages.eyeauras.net/v3/index.json). It targets .NET 8 Windows and depends on **EyeAuras.ClickableTransparentOverlay 11.5.28**. Do not force the earlier standalone `ImGui.NET 1.91.6.1` reference or another CTO version beside the SDK. `#r` supplies types; `ImGuiContainerExtensions` separately registers its script service.
+You need desktop EyeAuras on Windows with OpenCV/ONNX Runtime and the **EyeAuras.ImGuiSdk 0.1.47** package from the [EyeAuras feed](https://packages.eyeauras.net/v3/index.json). The package targets .NET 8 Windows and depends on **EyeAuras.ClickableTransparentOverlay 11.5.28**. Do not add the earlier standalone `ImGui.NET 1.91.6.1` reference or another CTO version next to the SDK. `#r` gives you the types, and `ImGuiContainerExtensions` separately registers the API in the script container.
 
 ## Turn model output into a box
 
-1. Open your trainer and click **Play**. For the first exercise, use the primary monitor at 100% scale. Match the actual window title in `GetWindow`; the external model and visible target pixels must be available.
-2. Add **C# Script**, paste the whole program into top-level `Script.csx` and let package restore complete. Keep `performInput = false`:
+1. Open Target Tracking and click **Play**. For the first try, keep the browser on the primary monitor at 100% scale. Check that your window title matches `GetWindow`. The linked model must be available and the target must be visible on screen.
+2. Add a **C# Script** action, paste the whole code into `Script.csx` and wait for the package to restore. Run it with `performInput = false` the first time:
 
 ```csharp
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
@@ -86,23 +86,23 @@ using PoeShared.Scaffolding;
 }
 ```
 
-3. Click **Run** and activate your trainer. Purple outlines the window, AliceBlue outlines the predicted target and a red circle marks its centre. No matching `Tgt` means no target box in that frame.
-4. Stop after verifying the box. To add the training click, change `performInput` to `true`, Run again and activate your own trainer. Stop prevents later callback work, waits for an active callback, removes registration and releases resources.
+3. Click **Run** and activate the trainer window. The purple outline is the window, the AliceBlue box is the detected target and the red circle is its centre. If there is no matching `Tgt`, that frame has no target box.
+4. Once you have checked the box, stop the script. If you want the automatic click, set `performInput = true`, click Run again and activate your trainer. Stop blocks further calls, waits for the current frame callback to finish, removes the registration and releases resources.
 
-| Part | Meaning |
+| Part | What happens |
 | --- | --- |
-| `performInput` | Off: draw only. On: add Windows Input with target activation, not universal background clicking. |
-| `AddRenderer` | Invokes the callback on the native-context thread after initialisation. Do not call ImGui drawing APIs from another thread or before that context exists. |
-| `NoActivate = true` | Requests a non-activating shared overlay. The previous Main setting is restored; avoid other owners changing it during this exercise. |
-| `30` / `40` | Confidence/IoU percentages, not speed or successful-click probabilities. |
-| `ToScreen` / `ToWindow` | Screen box for ImGui; window centre for targeted input. No extra manual scaling/translation. |
+| `performInput` | Off: the script only draws and does not move the mouse. On: adds Windows Input, which activates the selected window. |
+| `AddRenderer` | Calls your callback on the native-context thread once the context is initialised. Do not call ImGui drawing APIs earlier or from another thread. |
+| `NoActivate = true` | The native overlay should not activate when shown. This is a shared setting of the Main window, and the previous value is restored afterwards. |
+| `30` / `40` | Confidence and IoU thresholds in percent. |
+| `ToScreen` / `ToWindow` | The box in screen coordinates for ImGui and the centre in window coordinates for input to the window. |
 
-Inference and optional input run synchronously in the callback, so a slow model delays drawing. This is a small teaching example without a separate worker or performance promise. Foreground checks do not pin focus permanently; keep your own training window stable. Stop cannot interrupt an already running inference/input call.
+Detection and input run synchronously inside the frame callback, so a slow model delays drawing. Focus can move to another window between the check and the action, so do not switch away from the trainer. Stop does not interrupt detection or input that has already started.
 
-The original ONNX model detects objects, with input `images` 1×3×640×640 and output `output0` 1×5×8400. Its only class is `Tgt`; do not substitute an ordinary COCO model and expect that class. File metadata records Ultralytics 8.1.13 and AGPL-3.0; consult the [author's terms](https://www.ultralytics.com/license).
+The linked model is an ONNX object detection model. Input is `images` 1×3×640×640, output is `output0` 1×5×8400, and the only class is `Tgt`. It was trained on images of this trainer. The file metadata lists Ultralytics 8.1.13 and AGPL-3.0. See the [author's license terms](https://www.ultralytics.com/license). Do not swap in an ordinary COCO model and expect the same class.
 
-The loader stretches captured pixels to the model input, and its parser scales boxes back to the processed image. `ToScreen`/`ToWindow` then apply capture transforms, so no second manual resize or offset is needed. `Score` 0…1 is a model score, not image-area coverage or a measured probability of a correct click. A model/capture failure is distinct from an empty prediction list.
+The loader stretches the frame to the model input size, and the result parser maps the boxes back to the processed image. `ToScreen`/`ToWindow` then account for the capture region and its transforms, so you do not need to scale the box by hand. `Score` from 0 to 1 is the model's score.
 
-The script leaves execution-provider selection to the host: Default tries available DirectML session options, otherwise CPU. This does not promise recovery from model or inference errors.
+The script leaves the choice of execution provider to the host: Default tries the available DirectML session options and otherwise uses CPU.
 
-The gate waits for the current callback before resources can be released and its flag prevents later work; the registration is removed before settings restoration and API disposal. A stuck callback can delay Stop. Result images are borrowed; do not pass them or shared CV state to `Task.Run` without a separate owner. SDK Main is shared and must not be closed manually. An ordinary helper receives its dependencies and token explicitly. See [ImGui operations](/en/scripting/api/IImGuiExperimentalApi), [script runtime](/en/scripting/api/scripting/runtime), [capture ownership](/en/scripting/api/computer-vision/images) and [CV operations](/en/scripting/api/IComputerVisionExperimentalScriptingApi).
+`gate` keeps CV and ImGui from being released while a frame callback is running. The flag blocks new work, then the registration is removed. Only after that are the settings restored and the APIs disposed. A stuck callback can delay Stop. Result images do not belong to the script, so do not pass them or shared CV state to `Task.Run` without a separate owner. The SDK owns the shared native Main window, so do not close it manually. The global helpers in this example exist only in `Script.csx`: an ordinary class gets its services and token passed in explicitly. See [ImGui operations](/en/scripting/api/IImGuiExperimentalApi), [script runtime](/en/scripting/api/scripting/runtime), [capture ownership](/en/scripting/api/computer-vision/images) and [CV operations](/en/scripting/api/IComputerVisionExperimentalScriptingApi).

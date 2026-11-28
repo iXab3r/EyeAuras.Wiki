@@ -9,10 +9,10 @@ dateCreated: 2024-07-02T14:36:35.228Z
 ---
 # Open a local program from an action
 
-Launch your own Notepad and log the returned process ID. A PID confirms a process resource, not that its editor window is ready for input.
+This script starts Notepad and writes the process ID (PID) to the log.
 
-1. Create a test aura and add **C# Script** under **On Enter**. Start with manual **Run**.
-2. Put this complete program in top-level `Script.csx`. It requires Windows with `notepad.exe` available:
+1. Create a test aura and add **C# Script** under **On Enter**. To begin with, start it by hand with **Run**.
+2. Paste the whole code into top-level `Script.csx`. It needs Windows with `notepad.exe`:
 
 ```csharp
 using System;
@@ -35,25 +35,25 @@ using System.IO;
 }
 ```
 
-3. Click **Run**. Notepad should open and the log reports its PID. Running again sends another launch request; it is not an activate-existing-window command.
-4. Close only your own test window normally when finished. This script does not terminate it automatically.
+3. Click **Run**. Notepad opens and the log shows its PID. Each new Run sends another launch request.
+4. When you no longer need the test window, close it the usual way. The script does not close it.
 
 | Field or result | Meaning |
 | --- | --- |
-| `FileName` | An existing executable. The example obtains the Windows system folder rather than assuming drive `C:`. |
-| `Arguments` | The program's argument string, empty here. Its syntax belongs to that program. |
-| `WorkingDirectory` | Initial child working folder. With `UseShellExecute = false`, it is not the executable search path. |
-| `UseShellExecute = false` | Starts the executable directly. Opening a document through its file association uses a different shell-based route with `true`. |
-| `Process.Id` | ID of the returned process. It can hand work to an existing instance and exit quickly; PID is not ready-UI proof. |
+| `FileName` | A real executable. The example builds the path from the Windows system folder, so it is not tied to drive `C:`. |
+| `Arguments` | The program's argument string. It is empty here. |
+| `WorkingDirectory` | The starting working folder of the new process. With `UseShellExecute = false`, the executable is not searched for there. |
+| `UseShellExecute = false` | Starts the program directly. To open a document in its associated program you need a shell launch, with `true`. |
+| `Process.Id` | ID of the started process. The process can hand the request to an instance that is already running and exit quickly, so a PID does not confirm that the window is ready. |
 
-`using` releases the `Process` component and observation resources; it does not call `Kill`. **Stop** also does not terminate the child: `Process.Start` takes no cancellation token. To wait for exit, place `await process.WaitForExitAsync(cancellationToken)` **inside the block before disposal**. Cancelling that wait still does not terminate the process.
+`using` releases the `Process` object and the resources used to watch it, but it does not call `Kill`. **Stop** does not end the started program either: `Process.Start` takes no cancellation token. To wait for the program to exit, call `await process.WaitForExitAsync(cancellationToken)` **inside the block, before `Process` is disposed**. Cancelling that wait does not end the process either.
 
-If a later step depends on a matching window, use [Window Exists](/en/triggers/window-exists) as a separately configured condition. To bring an already open window forward instead of requesting another launch, use [Win Activate](/en/actions/win-activate); window existence and foreground activation are separate decisions.
+If the next step has to wait for a window, add a separate [Window Exists](/en/triggers/window-exists) condition. To bring an already open window forward instead of starting the program again, use [Win Activate](/en/actions/win-activate).
 
 <details>
 <summary>Short name, another program or a hotkey</summary>
 
-The shortest independent `Script.csx` variant is:
+The shortest `Script.csx` variant:
 
 ```csharp
 using System.Diagnostics;
@@ -63,10 +63,10 @@ using System.Diagnostics;
 }
 ```
 
-An existing full path also works, for example `C:/Windows/system32/notepad.exe` if that file exists on your machine. For your own program or game, supply its real executable, required arguments and working folder; there are no universal arguments for every application.
+Instead of the short name you can pass a full path, for example `C:/Windows/system32/notepad.exe`, if that file exists on your machine. For your own program or game, set its real executable, the arguments it needs and its working folder.
 
-For a hotkey, add **Hotkey Is Active → Hold**, assign a free `F3` and leave the action under **On Enter**. Each new activation requests a launch; releasing the key does not close the child. The earlier name `Click/Hold` does not make this a program-lifetime toggle.
+To start it with a key, add **Hotkey Is Active → Hold**, assign a free `F3` and leave the action under **On Enter**. Each press sends a new launch request. Releasing the key does not close the started process.
 
-See the [historical example](https://eyeauras.net/share/S20240702143616Nj8fr0gCxktL), [Process.Start](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.start?view=net-8.0) and [.NET Close/Dispose source](https://github.com/dotnet/runtime/blob/v8.0.19/src/libraries/System.Diagnostics.Process/src/System/Diagnostics/Process.cs).
+[Ready-made historical example](https://eyeauras.net/share/S20240702143616Nj8fr0gCxktL), [Process.Start](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.start?view=net-8.0), [.NET Close/Dispose source](https://github.com/dotnet/runtime/blob/v8.0.19/src/libraries/System.Diagnostics.Process/src/System/Diagnostics/Process.cs).
 
 </details>

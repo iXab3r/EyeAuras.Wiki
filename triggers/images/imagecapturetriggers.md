@@ -1,6 +1,6 @@
 ---
 title: Image / Text / Color / AI Search
-description: 
+description: Shared capture settings for Image Search, Color Search, Text Search and AI Search.
 published: true
 date: 2024-05-14T11:17:19.122Z
 tags: 
@@ -10,22 +10,20 @@ dateCreated: 2022-12-20T17:43:40.363Z
 
 # Capture the right pixels before searching
 
-Before searching for an icon, color or text, make sure EyeAuras sees the right part of your application. A black frame, a neighboring window or an oversized region can spoil the search before you choose any threshold.
+Before EyeAuras can search for an icon, color or text, it needs a picture of the right part of the window. Open the trigger preview and check what it sees. If the frame is black, shows a neighboring window or covers too large an area, the search will not work, whatever threshold you set.
 
-Image Search, Color Search, Text Search and AI Search share these capture settings. Capture supplies the image; each trigger then analyzes it differently. Sound, input and other reactions are separate aura actions.
+Image Search, Color Search, Text Search and AI Search share these settings.
 
 ## Capture one changing indicator
 
-Open an application with a visible status indicator. The aim here is a preview containing that indicator, without the rest of its panel.
+Say you want to watch a small indicator in an application. First get the preview to show only that indicator, without the rest of its panel.
 
-1. Leave the indicator visible and add **Color Search** to an aura.
-2. Under **Capture settings → Target Window**, select the application. Check the selected window below the expression; use a [matching expression](/en/features/window-matching-expressions) if several windows are eligible.
-3. Set **Image Capture Rate = 5 Frames Per Second** as a starting point for a mostly static indicator.
-4. Expand **Preview captured image**. If the frame is empty or wrong, click **Show more...** and inspect **Capture Source**. Start with **Windows Graphics** when available, or compare the alternatives below.
-5. Set **Crop region → X, Y, Width, Height** to keep the indicator. These values belong to the selected source image, not automatically to desktop coordinates. Follow the preview; **Reset** removes the crop.
-6. Change the indicator in the source application. The same region should change in the preview.
-
-That correct frame is the result of this setup. A visible image alone is not a search match: Active depends on the selected trigger's condition.
+1. Open the application so that the indicator is visible. Add a trigger to an aura, for example **Color Search**.
+2. Under **Capture settings → Target Window**, select the application window. The selected window is shown below the expression. If several windows match, narrow the choice with a [matching expression](/en/features/window-matching-expressions).
+3. Set **Image Capture Rate = 5 Frames Per Second**. That is enough for a mostly static indicator, and you can change it later.
+4. Expand **Preview captured image**. If the frame is empty or wrong, click **Show more...** and check **Capture Source**. Start with **Windows Graphics** if it is available. If that does not help, try the other sources from the table below.
+5. Set **Crop region → X, Y, Width, Height** so that only the indicator stays in the frame. The values are counted from the selected source image, so go by the preview, not by where the window sits on the desktop. **Reset** removes the crop.
+6. Change the indicator in the application. The same spot should change in the preview. Only then pick the color, sample or text to search for.
 
 ## Capture settings
 
@@ -33,49 +31,47 @@ That correct frame is the result of this setup. A visible image alone is not a s
 
 | Setting | Why change it |
 | --- | --- |
-| Target Window | Source of pixels. Narrow multiple matches to the intended window. |
-| Image Capture Rate — formerly Max FPS | Desired capture/analysis rate. 5 FPS is roughly one check per 200 ms; 30 FPS per 33 ms. These are targets, not latency guarantees. |
-| Settings → Max Capture FPS | Shared rate limit; the editor shows MAX … FPS when it constrains a trigger. |
-| Crop region | Restricts the analyzed image. A smaller useful region reduces unrelated candidates and usually work. |
-| Capture Mouse Cursor | Includes the cursor with backends that support it. Usually leave it out of a static icon sample. |
-| Do not capture Title/Borders | Excludes title/borders where the source supports it; recheck the crop afterwards. |
-| Low-latency | Changes frame acquisition behavior. Compare the actual frame and load on your application. |
-| Effects... | Changes captured pixels before analysis, such as resizing or grayscaling. |
+| Target Window | Where the pixels come from. If several windows match, narrow the expression. |
+| Image Capture Rate — formerly Max FPS | How often to capture and analyze a frame. 5 FPS is roughly one check per 200 ms, 30 FPS one per 33 ms. |
+| Settings → Max Capture FPS | Shared rate limit. It can cut a trigger's own rate, and the editor then shows MAX … FPS. |
+| Crop region | The area to analyze. A smaller area usually means less work and fewer stray matches. |
+| Capture Mouse Cursor | Adds the cursor to the frame if the source supports it. For a static icon it is usually better left out. |
+| Do not capture Title/Borders | Removes the title bar and borders where the source supports it. Recheck the crop afterwards. |
+| Low-latency | Changes how frames are acquired. Check the frame and the load on your own application. |
+| Effects... | Processes the frame before analysis, for example resizes it or turns it grayscale. |
 
-The FPS tooltip separates capture, effects and processing time, and shows frame age and output dimensions. A 100 ms operation does not become 33 ms merely because you request 30 FPS. Reduce the region, unnecessary effects or rate first. Preview zoom changes how you view the image; Crop and resize effects change the actual pixels and their coordinates.
+The measured FPS is shown next to the preview. Hover over it: the tooltip lists capture, effects and processing time separately, plus the age of the last frame and the output size. If processing takes 100 ms, asking for 30 FPS will not make it take 33 ms. First reduce the region, turn off effects you do not need or lower the rate. Preview zoom only changes how you see the image. Crop and resize effects change the actual pixels and their coordinates.
 
 ![Crop region fields and measured FPS above the captured image](/assets/callouts/batch1/en/image-capture-region.png)
 
 ## Choose a capture source
 
-Availability depends on Windows, graphics components and the source application. Check correctness before comparing load.
+Which sources are available depends on Windows, the graphics components and the application itself. First check that the frame is right, then compare the load.
 
 | Capture Source | When to try it |
 | --- | --- |
-| Windows Graphics | System window capture. This implementation requires Windows 10 build 19041 or later and a supported Graphics Capture session. |
-| Shared Surface | Obtains the window surface through the graphics subsystem; an alternative if Windows Graphics gives a wrong frame. |
-| Desktop duplication | GPU desktop capture. Overlapping windows can appear in the selected area. |
-| Print Window | Older window capture; hardware-rendered applications may return a blank or incomplete image. |
-| Copy Device Context | GDI window-context copying for compatible ordinary windows. |
-| Copy From Screen | Copies visible screen pixels; window placement and occlusion matter. |
+| Windows Graphics | System window capture. Needs Windows 10 build 19041 or later and a supported Graphics Capture session. |
+| Shared Surface | Takes the window surface through the graphics subsystem. A fallback if Windows Graphics gives a wrong frame. |
+| Desktop duplication | GPU desktop capture. Overlapping windows can end up in the selected area. |
+| Print Window | Older window capture. Hardware-rendered applications may return a blank or incomplete image. |
+| Copy Device Context | Copies the window context through GDI. For ordinary compatible windows. |
+| Copy From Screen | Copies visible screen pixels. Window position and overlapping windows matter. |
 
-There is no universal fastest or lowest-memory ordering for every frame size and environment. Recheck the region after switching methods. Closed, minimized or inaccessible windows are not reliable sources of current pixels. Capture/processing failure can yield Unknown rather than a normal no-match; cancellation is not evidence that the image contains no target.
+After switching sources, check the region and the frame again. Do not expect fresh pixels from a closed, minimized or inaccessible window. If capture or processing fails, the trigger can become Unknown instead of reporting a normal no-match.
 
 <details>
 <summary>Preview, one-shot checks and older Min FPS configurations</summary>
 
 | Control | Meaning |
 | --- | --- |
-| Refresh Once in a search editor | Requests one analysis pass for setup without a high continuous rate. |
-| MIN … FPS (only in Preview) | A minimum rate while preview is open; it can raise the effective rate. Close preview when measuring normal load. |
-| Image as is / w/o debug data / w/o effects | Compare the annotated result, the result without debug marks, and the frame without effects. |
-| from file | Substitutes a file image for preview. Return to the normal source afterwards. |
-| Older Min FPS | Previously described a result-expiry/Unknown mechanism. It is not exposed as that control in the current editor; do not rely on a saved value as a guaranteed freshness timer. |
-
-The preview minimum is not the old Min FPS result lifetime. Request/processing timing and unavailable frames are separate from whether a condition matched.
+| Refresh Once in a search editor | Runs one check. Handy during setup, when you do not need a high continuous rate. |
+| MIN … FPS (only in Preview) | Minimum rate while the preview is open. It can be higher than the trigger's own rate, so close the preview when you measure normal load. |
+| Image as is / w/o debug data / w/o effects | Show the frame with annotations, without debug marks and without effects. |
+| from file | Puts an image from a file into the preview. Switch back to the normal source afterwards. |
+| Older Min FPS | Used to describe how long a result stayed valid before the trigger went Unknown. The current editor has no such field, so do not count on a saved value as a freshness timer. |
 
 </details>
 
-For searches needed only in one mode, use [Enabling Conditions](/en/features/enabling-conditions) on the aura or its folder. An ordinary false trigger does not by itself stop the other capture/search triggers; check normal behavior after leaving the editor preview.
+If a search is needed only in one mode, set [Enabling Conditions](/en/features/enabling-conditions) on the aura or its folder. An ordinary trigger that is false does not stop the other capture and search triggers.
 
-Continue with [Image Search](/en/triggers/images/image-search), [Color Search](/en/triggers/images/color-search), [Text Search](/en/triggers/images/text-search) or [AI Search](/en/triggers/images/ai-search-trigger). Use [Effects](/en/triggers/images/effects) when the pixels themselves need preprocessing.
+Once the source and region are ready, continue with [Image Search](/en/triggers/images/image-search), [Color Search](/en/triggers/images/color-search), [Text Search](/en/triggers/images/text-search) or [AI Search](/en/triggers/images/ai-search-trigger). If the pixels themselves need changing before analysis, add [Effects](/en/triggers/images/effects).

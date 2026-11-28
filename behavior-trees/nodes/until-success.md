@@ -10,14 +10,14 @@ dateCreated: 2024-03-07T23:41:51.969Z
 
 # Until Success — retry a check on the next tick
 
-Use `Until Success` when a sequence should stay at a check until it succeeds. Each call makes **one child attempt**. A child `Failure` becomes `Running`, so the parent can resume here on its next tick. There is no internal retry loop or built-in delay.
+`Until Success` keeps a sequence in place until a check passes. One call of the node is **one attempt** of the child, and the next attempt happens on the next tick. There is no internal retry loop.
 
 ## Wait for a condition you control
 
-Create a separate tree as in [Getting Started](/en/behavior-trees/gettings-started), with `Activation → Is Loaded` and `Execution → When Activated → Do nothing`. Fixed Status supplies every result in this example; no external action is needed.
+Take a separate tree with `Activation → Is Loaded` and `Execution → When Activated → Do nothing`.
 
-1. Through `Add new Node`, add and connect the nodes below. Keep Sequence's children in left-to-right order.
-2. Set the child of Until Success to `General → Status → Failure`. Set the other two Fixed Status nodes to `Success`. Check the linked check in `General → Child` on Until Success.
+1. Through `Add new Node`, add the nodes below and connect them. Sequence's children go left to right.
+2. Set the child of Until Success to `General → Status → Failure`. Set the other two Fixed Status nodes to `Success`. On Until Success, `General → Child` shows the connected check.
 
 ```text
 My Tree
@@ -28,21 +28,21 @@ My Tree
    └─ Fixed Status: Success
 ```
 
-3. Click the upper `Tick BT Once`. The first step succeeds; the check fails, but Until Success and Sequence return `Running`. The final step is not called yet.
-4. Tick again without changing the check. Until Success makes one more attempt. Sequence resumes here instead of repeating its earlier successful step.
-5. Set the check to `Success` and tick again. Until Success succeeds, then Sequence executes the last step. A tick after this completed pass starts Sequence from the beginning.
+3. Click the upper `Tick BT Once`. The first step passes. The check returns Failure, but Until Success and Sequence return `Running`. The last step does not run yet.
+4. Tick again without changing anything. The child of Until Success tries once more. Sequence continues from this place and does not repeat the first step.
+5. Set the check to `Success` and click the button again. Until Success returns Success and Sequence runs the last step. The next tick after completion starts a new Sequence pass.
 
 | Child result | Until Success result |
 | --- | --- |
-| Success | Success; no further retry in this pass |
-| Failure | Running; another attempt on the next call |
-| Running | Running; the child continues under its own execution contract |
+| Success | Success. No more retries are needed in this pass |
+| Failure | Running. A new attempt on the next call |
+| Running | Running. The child continues its work on the next call |
 
-Until Success requires one enabled child; a missing or disabled child is a configuration error. It has no attempt-count or interval setting. For automatic execution, [Root settings](/en/behavior-trees/nodes/root) and the duration of each traversal determine when another tick occurs. Side effects in the retried child may happen again.
+Until Success has no attempt count and no delay. With automatic execution, the rate depends on the [Root settings](/en/behavior-trees/nodes/root) and on how long each pass takes.
 
 <details>
 <summary>Child state and reset</summary>
 
-Until Success does not reset the child after Failure or Success. Timers, composite-node cursors and script continuations follow that child's own contract. Structural reset clears owned execution state; clearing the displayed last status does not. Errors and cancellation do not automatically become another normal retry.
+Until Success does not reset the child after Failure or after Success. This matters for timers, composite nodes and scripts with a saved continuation. A structural reset of the tree clears its state. Clearing the displayed status does not. A child's cancellation or error does not become one more ordinary attempt.
 
 </details>

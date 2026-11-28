@@ -9,11 +9,11 @@ dateCreated: 2025-05-11T15:23:20.489Z
 ---
 # Show toggle state with colour, text and visibility
 
-Make four controls easier to read: the first changes colour, the second changes its icon and text, and the third reveals a fourth button. They use the same real triggers as their hotkeys.
+On a settings panel you want to see at once what is on. Let's make four toggles. The first changes colour, the second changes its icon and text, and the third shows a fourth button. They all work with the same triggers as the hotkeys.
 
-1. Create neighbouring `TargetAura 1` through `TargetAura 4`, each with **Hotkey Is Active → Toggle** and a different free key. Keep them loaded and leave their action lists empty for this exercise.
-2. Create a separate panel aura with **C# Overlay** and **Fixed Value → Is Active**.
-3. Replace the two component files below. Keep the generated `Script.csx` short, without a loop or wait.
+1. Create neighbouring auras `TargetAura 1` to `TargetAura 4`, each with **Hotkey Is Active → Toggle** and its own free key. Keep them loaded. They need no actions.
+2. Create a separate aura for the panel, with **C# Overlay** and **Fixed Value → Is Active**.
+3. Replace the two component files with the code below. Keep the generated `Script.csx` short, with no loop or wait.
 
 ## UserOverlay.cs
 
@@ -117,33 +117,31 @@ public partial class UserOverlay : BlazorReactiveComponent
 </div>
 ```
 
-4. After compilation, turn the first trigger on: its red outline becomes a green fill. The second button changes its icon and text. The third shows the fourth button; clicking it again hides that button.
-5. Toggle the first or second trigger with its hotkey. The styling also updates because the component observes `TriggerValue`.
+4. After compilation, turn the first trigger on. Its red outline becomes a green fill. The second button changes its icon and text. The third shows the fourth button, and a second click hides it again.
+5. Toggle the first or second trigger with its hotkey. The styling updates too, because the component watches `TriggerValue`.
 
 ![Styling approaches in the earlier example](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_BY6C30fWpS.gif)
 
 | Technique | What changes |
 | --- | --- |
-| First button's `Class` | A single `ClassMapper` holds stable predicates. Rendering selects `btn-success` or `btn-outline-danger` from the actual trigger state. |
-| Second button's `ChildContent` | Razor `@if` changes the icon and text inside one `ToggleButton`. |
-| `@if (items[2].IsActive)` | Includes or removes the fourth button. Hiding it does not reset its trigger value. |
-| `d-flex gap-1 flex-column` | Stacks the controls vertically with spacing; the inner `align-self-center` group holds the third and fourth buttons. |
-| `btn`, `btn-success`, `btn-outline-danger`, `alert` | Built-in Bootstrap styles. See the [button documentation](https://getbootstrap.com/docs/5.3/components/buttons/) for variants. |
-| `fa-solid fa-toggle-on` / `fa-toggle-off` | Icons from the host's styling. Adjacent text keeps the meaning clear without relying only on colour or icons. |
+| First button's `Class` | `ClassMapper` is created once. When the button is drawn, its conditions pick `btn-success` or `btn-outline-danger` from the current trigger state. |
+| Second button's `ChildContent` | A Razor `@if` changes the icon and text inside one `ToggleButton`. |
+| `@if (items[2].IsActive)` | Adds the fourth button to the markup or removes it. Hiding the button does not reset its trigger value. |
+| `d-flex gap-1 flex-column` | Stacks the controls in a column with gaps. The inner `align-self-center` group holds the third and fourth buttons. |
+| `btn`, `btn-success`, `btn-outline-danger`, `alert` | Ready-made Bootstrap classes. The variants are in the [button documentation](https://getbootstrap.com/docs/5.3/components/buttons/). |
+| `fa-solid fa-toggle-on` / `fa-toggle-off` | Icons from the styles the window already loads. The text next to them keeps the state clear without relying on colour or an icon alone. |
 
-These two component files need no separate CSS file and change no global theme. `Class`/`class` applies styling to this markup; no JavaScript injection is involved.
+If you need your own colours and sizes that the ready-made classes do not have, start with [inline CSS](/en/scripting/blazor-windows/toggles-styling-inline). When several controls share a growing set of rules, [move them into a project CSS file](/en/scripting/blazor-windows/toggles-styling-cssfile).
 
-For your own colours and dimensions beyond the supplied classes, start with [inline CSS](/en/scripting/blazor-windows/toggles-styling-inline). When several controls share growing rules, [move them into a project CSS file](/en/scripting/blazor-windows/toggles-styling-cssfile); the trigger observation and click handlers stay responsible for state.
-
-`items` holds the resolved trigger references, using paths relative to the panel. `SetActive` writes the selected `TriggerValue`; `WhenAnyValue` observes external changes. All trackers are added before `base.OnInitialized()`. The base owns their subscriptions and releases them on component disposal, not merely when the overlay becomes hidden.
+`items` holds the triggers, found by paths relative to the panel. `SetActive` writes to the chosen `TriggerValue`, and `WhenAnyValue` watches for outside changes. All trackers are added before `base.OnInitialized()`. The base component owns the subscriptions and releases them when the component is disposed.
 
 <details>
 <summary>Choose a different markup branch</summary>
 
-When two states need substantially different markup, use `@if` branches as the second button does. Branches can also contain different complete button markup, but duplicating an entire button just to change one colour is unnecessary. A changed branch does not guarantee that Blazor destroys and recreates a component; its rendering rules determine that lifetime.
+When two states need very different markup, use `@if` branches, as the second button does. A branch can hold a whole button, but there is no need to duplicate a button just to change one colour.
 
-Conditional controls can build a hierarchy of settings, but moving neighbouring controls can make the panel harder to use. Here the hidden fourth button still has its own trigger state.
+With conditional controls you can build nested settings. Keep in mind that controls that jump around make a panel harder to use. Here the hidden fourth button still keeps its own trigger state.
 
-For a source without notifications, the [timer-based panel](/en/scripting/blazor-windows/multiple-toggles) remains an alternative. Do not combine it with property observation merely to update these four buttons.
+For a source without notifications, there is still the [timer-based panel](/en/scripting/blazor-windows/multiple-toggles).
 
 </details>

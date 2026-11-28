@@ -1,6 +1,6 @@
 ---
 title: Home
-description: Explore macros, auras, behavior trees and AI, then build your first automation.
+description: EyeAuras watches the screen and presses keys and moves the mouse for you. Where to start and what to read next.
 published: true
 date: 2026-04-25T12:40:21.080Z
 tags: ai-translated
@@ -9,63 +9,61 @@ dateCreated: 2022-11-15T15:02:45.417Z
 ---
 
 
-# Turn a workflow into automation
+# What is EyeAuras
 
-Watch conditions, run ordered steps and build branching logic in one workspace. [Download EyeAuras](https://eyeauras.net/#downloads) and start with a small task you want to automate.
+EyeAuras is a clicker with computer vision. It watches the screen and, on its own, presses keys, moves the mouse, plays a sound or messages you on Telegram.
 
-![EyeAuras with a populated item tree and the Decision flow editor](/assets/home/showcase-hero.png)
+[Download EyeAuras](https://eyeauras.net/#downloads) and start with one simple task.
 
-*A demo workspace combines imported packs with local examples. Decision flow is selected.*
+![EyeAuras main window with a behavior tree](/assets/home/showcase-hero.png)
 
 ## Three tools
 
-### Macros — steps in order
+Almost any task can be built in one of three ways.
 
-Build a sequence with waits, conditions and repeats. A macro is a good starting point when you can describe the task as “do this, then that”. [Explore macros](/en/macros/getting-started).
+### Macro — steps in order
 
-![Daily routine macro with two Wait steps and Fixed Status](/assets/home/showcase-macro.png)
+“Press, wait, check, repeat.” If you can describe the task like that, use a macro. [How to build a macro](/en/macros/getting-started).
 
-*The local Daily routine example contains waits of 1 second and 500 milliseconds, followed by Fixed Status.*
+![Daily routine macro in the editor](/assets/home/showcase-macro.png)
 
-### Auras — watch and react
+### Aura — watch and react
 
-A trigger contributes to the aura's state. Configure reactions in **On Enter**, **While Active** and **On Exit**, and add an overlay to show information. Try [Fixed Value](/en/triggers/fixed-value) as your first condition.
+An aura keeps checking a condition: is the image found, is the window active, is the key held down. When the condition is met, the aura runs actions: presses a button, plays a sound, shows an overlay.
 
-![Status monitor aura with Fixed Value and Text overlay settings](/assets/home/showcase-aura.png)
+Conditions are called triggers. The simplest one is [Fixed Value](/en/triggers/fixed-value), a good place to start.
 
-*Status monitor uses Fixed Value set to Is NOT Active and a Text overlay configured with “Status: Ready”.*
+![Status monitor aura with a Fixed Value trigger and a Text overlay](/assets/home/showcase-aura.png)
 
-### Behavior trees — checks and branches
+### Behavior tree — complex logic
 
-Connect nodes to express conditions, choices and repeated work. Nodes return **Success**, **Failure** or **Running**; ticks advance execution. [Build your first tree](/en/behavior-trees/gettings-started).
+This is the bot's “brain”. The tree decides what to do next: check a condition, pick a branch, try again. Use it when a macro gets too cramped. [How to build your first tree](/en/behavior-trees/gettings-started).
 
-![Decision flow behavior tree with Sequence, Fixed Status and Wait nodes](/assets/home/showcase-bt.png)
+![A simple behavior tree: Sequence with two nodes](/assets/home/showcase-bt.png)
 
-*The local Decision flow example connects Sequence to Fixed Status and Wait. Activation is set to manual and When Activated to Do nothing.*
+Not sure which one to pick? Here is a [short guide](/en/getting-started/choose-a-tool).
 
-## AI in the workspace
+## AI assistant
 
-Use the AI panel to discuss a task and work with EyeAuras context. Choose a mode and configure an available provider profile; see the [AI Assistant guide](/en/features/ai-assistant).
+EyeAuras has a built-in AI chat. It sees the macro or script you have open, so you can ask what is wrong and how to make it better. [How to set up AI Assistant](/en/features/ai-assistant).
 
-![AI panel before a chat session has been started](/assets/home/showcase-ai.png)
+![AI panel in EyeAuras](/assets/home/showcase-ai.png)
 
-*The panel before starting a session. Model responses require an available provider profile.*
+## Your first macro in a couple of minutes
 
-## Your first macro
+This macro presses nothing. It just waits and finishes, so you can safely see how things work.
 
-Select **Macro** in the left-hand tree, then build a small sequence without keyboard or mouse actions:
+1. Select **Macro** in the tree on the left.
+2. Click the top row of the macro and choose **Execution → When Activated → Do nothing**. Now it only starts manually.
+3. Through **Add new Node**, add two **Wait** nodes and one **Fixed Status** to the **Drag'n'drop instructions here** block, in that order.
+4. Set **Delay** to 1000 ms for the first Wait and 500 ms for the second. For **Fixed Status**, choose **Status → Success**.
+5. Click **Run Macro Once**. After a second and a half the last node shows **Success**: the macro has finished.
 
-1. Select the top root-settings row in the editor. Keep **Activation → Is Loaded** enabled and set **Execution → When Activated → Do nothing** for a manual run.
-2. Through **Add new Node**, add two macro **Wait** nodes and one **Fixed Status** as siblings inside **Drag'n'drop instructions here**, in that order.
-3. Set the waits' **General → Delay** to **1000 ms** and **500 ms**, with randomization off. Set **Fixed Status → General → Status → Success**.
-4. Click **Run Macro Once**. After both waits, the final node and the block should show **Success**.
-
-Continue with the [full macro guide](/en/macros/getting-started) for conditions, loops and calls.
+Conditions, loops and everything else are in the [macro guide](/en/macros/getting-started).
 
 ## What next
 
-- Explore [triggers with Fixed Value](/en/triggers/fixed-value), [actions with Play Sound](/en/actions/play-sound) and [overlays with Text](/en/overlays/text).
-- Choose a complete [recipe](/en/recipes). [C# scripts](/en/scripting/getting-started) add custom logic and interfaces when built-in steps are not enough.
-- Open [FAQ](/en/faq) for common questions or [Known Issues](/en/known-problems) when something behaves differently.
-
-For a particular source or reaction, [choose a tool by task](/en/getting-started/choose-a-tool).
+- [Recipes](/en/recipes) — ready-made solutions for specific tasks.
+- What an aura is made of: the [Fixed Value](/en/triggers/fixed-value) trigger, the [Play Sound](/en/actions/play-sound) action and the [Text](/en/overlays/text) overlay.
+- [C# scripts](/en/scripting/getting-started) — when the built-in blocks are not enough.
+- [FAQ](/en/faq) and [Known Issues](/en/known-problems) — if something goes wrong.

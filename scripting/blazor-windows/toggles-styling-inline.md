@@ -9,12 +9,12 @@ dateCreated: 2025-05-11T15:48:02.521Z
 ---
 # Style a button inside its component
 
-Make a toggle stand out: a lime background, black text and a width of 80% of its panel. CSS changes appearance; C# still changes the trigger.
+Let's make a toggle stand out: a lime button with black text, 80% of the panel wide. CSS changes the look, and C# still switches the trigger.
 
-Use two loaded auras in one folder: `TargetAura` with **Hotkey Is Active → Toggle Trigger state on Click**, and a separate panel with **C# Overlay** and **Fixed Value → Is Active**. Give the trigger a free hotkey and leave its actions empty for this exercise. `./TargetAura` must resolve to your aura with one such trigger. [The first toggle](/en/scripting/blazor-windows/4-toggle-hotkeyisactive) explains that setup.
+You need two loaded auras in one folder. `TargetAura` has **Hotkey Is Active → Toggle Trigger state on Click**. A separate panel aura has **C# Overlay** and **Fixed Value → Is Active**. Give the trigger a free hotkey. It needs no actions. The path `./TargetAura` must lead to your aura with one such trigger. [The first toggle](/en/scripting/blazor-windows/4-toggle-hotkeyisactive) shows how to build the button itself.
 
-1. Replace `UserOverlay.cs` and `UserOverlay.razor` in your C# Overlay with the complete files below. Keep `BlazorDemo` consistent in both; replacing the files removes the old duplicate fields and handlers.
-2. Keep `Script.csx` short, without a wait, for example `Log.Debug("Panel ready");`.
+1. In your C# Overlay, replace `UserOverlay.cs` and `UserOverlay.razor` completely with the files below. `BlazorDemo` must be the same in both. Do not keep the old fields and handlers with the same names.
+2. Keep `Script.csx` short, with no waiting, for example `Log.Debug("Panel ready");`.
 
 ## UserOverlay.cs
 
@@ -75,25 +75,25 @@ public partial class UserOverlay : BlazorReactiveComponent
 </div>
 ```
 
-3. After compilation, click the green button. Its text and the target trigger change state; its colour stays as specified by CSS. The hotkey changes the same trigger.
+3. After compilation, click the green button. Its text and the trigger change state, and its colour stays as set in the CSS. The hotkey changes the same trigger.
 
 ![Green button in the earlier example](https://s3.eyeauras.net/media/2025/05/3UAeooHWHD.png)
 
-| Setting or technique | Scope |
+| Setting or technique | What it affects |
 | --- | --- |
-| `background: lime`, `color: black` | Background and text colour of the matching button. |
-| `width: 80%` | Width relative to its parent area, not the screen. |
-| `.demo-panel .custom-button` | Matches this panel's button without selecting every button in the document. |
-| A Razor `style` element | Declares rules inside the component markup, but they apply in the WebView document. This is not automatic component CSS isolation. |
-| `ToggleButton.Style` | Sets values directly on the visible button, rather than defining a CSS selector. |
-| `btn` | Basic [Bootstrap styling](https://getbootstrap.com/docs/5.3/getting-started/introduction/) supplied by the window. Available classes depend on the host's resources. |
+| `background: lime`, `color: black` | Background and text colour of the button that matches the selector. |
+| `width: 80%` | Width relative to the parent area, not the screen. |
+| `.demo-panel .custom-button` | Selects the button inside this panel. It does not restyle every button in the window. |
+| A Razor `style` element | The rules are written in the component's markup but apply in the whole WebView document. There is no automatic per-component CSS isolation here. |
+| `ToggleButton.Style` | A separate way to set values right on the visible button. It is not the same as a selector in `style`. |
+| `btn` | Basic [Bootstrap styling](https://getbootstrap.com/docs/5.3/getting-started/introduction/) that the window loads. Which classes are available depends on what the window loads. |
 
-`[Inject]` obtains the tree service from the component's host. Script.csx globals are not implicit Razor members. The button reads and writes the actual `TriggerValue`, displaying `null` as off. `WhenAnyValue` also updates it after a hotkey change. Add trackers before `base.OnInitialized()`; the component owns their subscription and disposes it when destroyed, not merely when hidden. Other aura conditions still determine overall activity. See [reactive updates](/en/scripting/blazor-windows/reactive-toggle) for the notification and polling alternatives.
+The button reads and writes the real `TriggerValue` and shows `null` as off. Thanks to `WhenAnyValue` it also updates after a hotkey press. The details and a timer-based variant are in [reactive updates](/en/scripting/blazor-windows/reactive-toggle).
 
 <details>
 <summary>Set values directly without a selector</summary>
 
-In the same component, replace just `ToggleButton` with this fragment and remove the `style` element. Keep the state and handler in `UserOverlay.cs`:
+In the same component you can replace just `ToggleButton` with this fragment and remove the `style` element. The state and handler stay in `UserOverlay.cs`:
 
 ```razor
 <ToggleButton IsChecked="@IsActive" IsCheckedChanged="SetActive"
@@ -102,7 +102,7 @@ In the same component, replace just `ToggleButton` with this fragment and remove
 </ToggleButton>
 ```
 
-A shared class is easier to maintain for several buttons. Layout is a separate choice, as in the earlier row of toggles:
+For several buttons a shared class is easier, because you change the rule in one place. The layout comes from the markup, as in the earlier row of toggles:
 
 ![Earlier toggle row](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_WPu1ZGwKwS.gif)
 
@@ -111,7 +111,7 @@ A shared class is easier to maintain for several buttons. Layout is a separate c
 <details>
 <summary>Add a gradient and hover highlight</summary>
 
-Replace the simple rule inside `style` with this alternative. It keeps the same panel-specific selector and adds a moving highlight on hover:
+You can replace the simple rule inside `style` with the one below. The selector is the same, and it adds a gradient and a moving highlight on hover:
 
 ```css
 .demo-panel .custom-button {
@@ -152,4 +152,4 @@ Replace the simple rule inside `style` with this alternative. It keeps the same 
 
 </details>
 
-When the rules grow, [move them into a CSS file](/en/scripting/blazor-windows/toggles-styling-cssfile).
+When there are many rules, [move them into a CSS file](/en/scripting/blazor-windows/toggles-styling-cssfile).

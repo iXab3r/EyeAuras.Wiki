@@ -10,19 +10,18 @@ dateCreated: 2026-11-10T17:35:11.000Z
 
 # Bundle help text and your own reference image
 
-Keep a small help card with the project so it does not depend on a personal disk path. The script reads packaged text; a Razor component displays that text and your own PNG in one window.
+You can keep a small help card right inside the script project, with no path to a file on your own disk. The script reads the packaged text, and a Razor component shows it next to your PNG.
 
-You need desktop EyeAuras with the script-hosted [Blazor window services and WebView2 Runtime](/en/scripting/blazor-windows/getting-started). Use a **C# Script action**, whose Run can remain active while its window is open. This entry point is not the short setup script of C# Overlay.
+You need desktop EyeAuras with the script-hosted [Blazor window services and WebView2 Runtime](/en/scripting/blazor-windows/getting-started). Use a **C# Script action**: its Run keeps going while the window is open. The short setup script of C# Overlay will not do here.
 
-1. Create your own aura `RecipeHelp` and add **Actions → On Enter → C# Script** for manual Run. In its project, use **New file → Component**, name it `MainWindow`, and replace `MainWindow.razor` below. If that template also created `MainWindow.cs`, remove that generated file from this new project; the complete component here is a single Razor file.
-2. Prepare a UTF-8 file `help.txt` containing the exact text below and an actual non-sensitive reference PNG you own. This Wiki does not supply the image. In the script file tree, choose **Add → Existing File(s)...** to import both as resources. Use **Rename** to give them the project paths `docs/help.txt` and `images/reference.png`.
+1. Create your own aura `RecipeHelp` and add **Actions → On Enter → C# Script**. You will start it by hand with Run. In its project, choose **New file → Component**, name it `MainWindow`, and replace `MainWindow.razor` with the file below. If the template also created `MainWindow.cs`, remove it from the new project: here the whole component is one Razor file.
+2. Prepare a UTF-8 file `help.txt` with the text below and a real reference PNG with no secrets in it that you are allowed to use. In the script file tree, choose **Add → Existing File(s)...**, import both files as resources, and use **Rename** to give them the project paths `docs/help.txt` and `images/reference.png`.
 
-   ![Adding an existing file to the project tree.](/assets/callouts/batch3/en/script-resource-add-file.png)
+   ![Adding an existing file to the project tree](/assets/callouts/batch3/en/script-resource-add-file.png)
 
-   Choose Existing File(s)… here for your help.txt and image.
-3. Replace **Script.csx** with the complete file below. Keep exactly one resource matching each logical path, with the spelling and folder case shown. The component namespace is `RecipeHelp`; it need not equal the generated project's namespace.
-4. Wait for compilation and click **Run**. A window titled **Project reference** should show all three help lines and your supplied image. Resize it: the image keeps its aspect ratio and fits the available width.
-5. Close the window to finish this Run, or click the action's **Stop**. The close wait ends or is cancelled, then the owned window is disposed. A new Run reads the packaged text again.
+3. Replace **Script.csx** with the complete file below. Each logical path must match exactly one resource. Keep the spelling and folder case as shown. The component namespace is `RecipeHelp`. It does not have to match the generated project's namespace.
+4. Wait for compilation and click **Run**. A window titled **Project reference** should show all three help lines and your PNG. When you resize the window, the image keeps its aspect ratio and fits the available width.
+5. To finish the Run, close the window or click the action's **Stop**. A new Run reads the packaged text again.
 
 ## Script.csx
 
@@ -82,12 +81,12 @@ Compare the image below with your own original PNG.
 
 | Part | Responsibility |
 | --- | --- |
-| `IScriptFileProvider` | Borrowed service exposing this project's resources; do not dispose it. |
-| `CreateReadStream()` and `StreamReader` | Owned readers, closed before the window is shown. |
+| `IScriptFileProvider` | The service for this project's resources. It is not yours, so do not dispose it. |
+| `CreateReadStream()` and `StreamReader` | Your own stream and reader. They are closed before the window is shown. |
 | `DataContext = help` | Passes a string explicitly to `BlazorReactiveComponent<string>`. |
-| `images/reference.png` | A relative resource URL served by this script-aware window at its page base URI, not a Windows file path. |
-| `WhenClosed` then `Show()` | Subscribes before showing, then awaits closure inside the window's owning block. |
+| `images/reference.png` | A relative resource URL. This script-aware window serves it from the page base URI. It is not a Windows file path. |
+| `WhenClosed` then `Show()` | Subscribes before the window is shown, and the wait for closing stays inside the `using` block that owns the window. |
 
-The current provider can resolve a unique folder-qualified suffix of an embedded manifest name, such as `ProjectName.docs.help.txt`. Keep resources unambiguous; the actual project namespace contributes to full manifest names, not the component's `@namespace`. If lookup fails, inspect `typeof(MainWindow).Assembly.GetManifestResourceNames()` in the script log and the imported files; [embedded resources](/en/scripting/embedded-resources) explains exact names and export packaging. Direct `Assembly.GetManifestResourceStream` has its own exact-case contract.
+Right now the file provider can find a resource by a unique folder-qualified ending of its manifest name, such as `ProjectName.docs.help.txt`. Make sure the ending does not match two resources at once. The full name includes the project namespace, not the component's `@namespace`. If the file is not found, print `typeof(MainWindow).Assembly.GetManifestResourceNames()` to the script log and check the import. [Embedded resources](/en/scripting/embedded-resources) explains full names and export packaging. Direct `Assembly.GetManifestResourceStream` has its own requirement: the case must match exactly.
 
-Replacing a file on its original disk does not update the packaged bytes. Reimport or replace the resource and recompile. Export/import of the complete project carries its resource content; moving an isolated `.csx` does not. [File-provider reading](/en/scripting/examples/basic/file-provider) covers the separate physical-file option. `Show()` is non-modal. Awaiting closure keeps the window inside this Run's owned scope.
+If you change the original file on disk, the packaged bytes stay the same. Replace the resource or import it again, and recompile the project. Exporting and importing the whole project carries its resources along. Moving a single `.csx` does not. Reading an ordinary file from disk is covered in the [file provider example](/en/scripting/examples/basic/file-provider).

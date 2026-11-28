@@ -9,14 +9,14 @@ dateCreated: 2025-03-23T22:03:55.335Z
 ---
 # Compare two ways to count coloured pixels
 
-Measure the Emgu CV indexer and direct BGR-byte traversal on **the same captured frame**. Both helpers apply the same colour-distance rule. The log provides counts and timings, rather than a promised speedup.
+Let's compare how long it takes to count pixels in two ways: with the Emgu CV indexer and with a direct pass over BGR bytes. Both helpers work on **the same captured frame** and use the same colour-distance rule. The log shows the counts and the timings.
 
-Use desktop EyeAuras with OpenCV, Emgu CV and MiniProfiler, plus your own stationary window showing a coloured image. The SDK dependency versions here are **Emgu 4.9.0.5494** and **MiniProfiler 4.3.8**; do not load a different native Emgu version into that host. All code below belongs to top-level `Script.csx`.
+You need desktop EyeAuras with OpenCV, Emgu CV and MiniProfiler, and your own stationary window with a coloured image. The SDK uses **Emgu 4.9.0.5494** and **MiniProfiler 4.3.8**. Do not load a different native Emgu version into the same host. All the code below goes into top-level `Script.csx`.
 
 ## Make comparable measurements
 
-1. Display your image and leave its window visible. For a nonzero count, choose an actual colour from that image; zero remains a valid result.
-2. Add **C# Script**. Paste **both blocks** into one `Script.csx`: the program first, then the helper methods and struct.
+1. Open your image and keep its window visible. For a nonzero count, set a colour in the code that is really in the image.
+2. Add a **C# Script** action. Paste **both blocks** into one `Script.csx`: the program first, then the helper methods and the struct.
 
 ```csharp
 using System;
@@ -57,7 +57,7 @@ using StackExchange.Profiling;
 }
 ```
 
-The helpers receive the image, colour and similarity explicitly; they do not access script globals.
+The helpers below do not use script globals: they get the image, colour and similarity as parameters.
 
 ```csharp
 static int CountPixelsNaive(Image<Bgr, byte> image, Bgr color, Percentage similarity)
@@ -136,25 +136,25 @@ private readonly record struct BgrByteColor
 }
 ```
 
-3. Click **Run** and select your window. After 10 pairs of measured passes, the log shows frame size, two counts and **Indexer**/**BGR rows** timings in milliseconds. The counts should match; different results invalidate a timing comparison.
-4. Record image/window size, colour, similarity, iterations and environment before repeating. More passes add profiler steps and memory use. Cancel the window picker or use **Stop**, checked between pass pairs.
+3. Click **Run** and select your window. After 10 pairs of passes, the log shows the frame size, two counts and the **Indexer**/**BGR rows** steps with times in milliseconds. The counts should match. If they differ, the timings cannot be compared.
+4. To repeat the experiment later, write down the image and window size, colour, similarity, number of passes and environment. Do not raise the number of passes without need: every pass adds profiler steps and uses memory. You can cancel the window picker. **Stop** is checked between pairs of passes.
 
 | Setting or boundary | What is measured |
 | --- | --- |
-| `frame = image.Copy()` | One owned copy of a captured BGR frame. Capture, effects, copy allocation and disposal sit outside **Indexer**/**BGR rows** timings. |
-| `similarity = 100` | Zero tolerance: all 3 BGR channels match exactly. These helpers use Euclidean distance with tolerance `(1 - similarity) × 255`, not the general Color Search contract. |
-| `iterations = 10` | Ten measured calls per helper after warming both once. Order is fixed; cache, ordering and other load affect serious comparisons. |
-| `image[y, x]` | The Emgu 4.9 indexer calls `cvGet2D` per pixel. |
-| `AsReadOnlySpan2D<byte>()` | Borrows Mat rows with their `Step`. BGR uses 3 bytes per pixel; a 3-byte struct view must not lose padding at row boundaries. |
+| `frame = image.Copy()` | One owned copy of the captured BGR frame. Capture, effects, creating the copy and disposing it are not part of the **Indexer**/**BGR rows** timings. |
+| `similarity = 100` | Zero tolerance: all 3 BGR channels must match exactly. These helpers use Euclidean distance with a tolerance of `(1 - similarity) × 255`. |
+| `iterations = 10` | Ten measured calls of each helper after both are warmed up once. The order is always the same. For a serious comparison, take order, caches and other load into account. |
+| `image[y, x]` | The Emgu 4.9 indexer calls `cvGet2D` for every pixel. |
+| `AsReadOnlySpan2D<byte>()` | Looks at Mat rows it does not own, taking `Step` into account. BGR has 3 bytes per pixel. Rows can end with padding bytes, so do not lose them if you switch to 3-byte structs. |
 
-`ProcessPixels` lends its image only for the callback. Dispose the created `Copy`, then CV, and keep the borrowed row view inside the helper. The synchronous count receives no cancellation token. Logging occurs after the measured steps. This experiment performs no ML, OCR, input or OSD rendering.
+The image in `ProcessPixels` is available only for the duration of the callback. The script disposes the `Copy` it created, then CV. The row view stays inside the helper. The synchronous count gets no cancellation token. Logging is not part of the measured steps.
 
-If the slow part may be capture, effects or search rather than this inner loop, use the [CV pipeline profiling example](/en/scripting/examples/advanced/profiling-cv). Keep the source and region comparable and examine warm-up separately from later passes; that experiment obtains new frames instead of reusing this owned copy.
+If the slow part may be capture, effects or search rather than this inner loop, go to the [CV pipeline profiling example](/en/scripting/examples/advanced/profiling-cv). Compare on the same source and region, and look at warm-up and later passes separately. That example takes a new frame every time instead of one copy.
 
 <details>
 <summary>Read the historical result</summary>
 
-The retained output below was recorded on 23 March 2025 on **DESKTOP-PK81KT3**. It used new frames inside separate `ProcessPixels` calls; **Refresh** included more than the comparison loop. Full hardware, image and load details are absent. Its 397.3 ms and 163.31 ms are not current-host measurements and are not directly comparable to the controlled-frame program above.
+Below is the output from 23 March 2025 on **DESKTOP-PK81KT3**. Back then the helpers were called on new frames inside separate `ProcessPixels` calls, and the **Refresh** measurement included more than the comparison loop.
 
 ```text
 DESKTOP-PK81KT3 at 3/23/2025 4:54:39 PM
@@ -170,6 +170,6 @@ Test1\FindColor CV Profiler 0ms
 >> ProcessPixels - RawPixelsKey { ThreadId = 81 } - Refresh 163.31ms
 ```
 
-SIMD or GPU processing would be a separate experiment, including conversion, transfer and allocation costs. This program does not perform either. See the [Emgu 4.9 indexer source](https://github.com/emgucv/emgucv/blob/4.9.0/Emgu.CV/Core/Image.cs).
+Speeding this up with SIMD or GPU is a separate experiment: you would also have to measure conversion, data transfer and allocation. See the [Emgu 4.9 indexer source](https://github.com/emgucv/emgucv/blob/4.9.0/Emgu.CV/Core/Image.cs).
 
 </details>

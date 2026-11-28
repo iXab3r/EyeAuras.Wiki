@@ -10,15 +10,15 @@ dateCreated: 2025-03-23T22:15:13.718Z
 
 # Port a timed loop with screen-based conditions from UOPilot
 
-The source repeats key sequences while independent deadlines admit less frequent actions. Image and color checks choose recovery branches. In EyeAuras those conditions also come from captured pixels: names such as world, ring and ban are not built-in WoW data.
+The source script presses series of keys in a loop and runs rarer actions on their own timers. Images and colors on the screen tell it when to switch to the re-login branch. In EyeAuras these conditions also come from captured pixels: names such as world, ring and ban are not built-in WoW data.
 
 ## Observe a color count without input
 
-You need EyeAuras with C# Script and computer vision. Show an image with a red RGB 255,0,0 region in a separate window you own. Your own picture is enough; no account or password is needed.
+For the first try you need EyeAuras with C# Script and computer vision. Open a picture with a red RGB 255,0,0 area in a separate window of your own. Any picture you drew yourself will do.
 
-1. Create a separate aura with Fixed Value set to Is NOT Active. Add a `C# Script` action under On Enter and open its editor.
-2. Put this complete program in `Script.csx`, click `Run` and select your own window with the picker.
-3. The log shows a count of matching pixels in the actual capture. An exact red region should give a nonzero count; no match gives 0. This is a count, not an area percentage or probability of an application state.
+1. Create a separate aura with Fixed Value set to Is NOT Active, add a `C# Script` action under On Enter and open its editor.
+2. Paste the whole program below into `Script.csx`, click `Run` and pick your window with the picker.
+3. The log shows how many pixels of that color are in the actual capture. If there is an exact red area, the number is above zero. With no matches it is 0.
 
 ```csharp
 using System.Drawing;
@@ -35,28 +35,28 @@ using EyeAuras.OpenCVAuras.Scripting;
 }
 ```
 
-If the count is unexpected, inspect the selected window and captured color with [Color Search](/en/triggers/images/color-search). The complete port requires the same calibration for every indicator rather than guessing states from filenames.
+If the number is not what you expect, check the window and the real color in its capture with [Color Search](/en/triggers/images/color-search). For the full port below, calibrate every indicator separately in the same way.
 
 ## Preserve the algorithm's structure
 
-| Source element | Port behavior and boundary |
+| Source element | What the port keeps |
 | --- | --- |
-| Repeat 350 | Up to 350 main-body series, then a final sequence and another outer pass |
-| Rapidfire, Buff, tDejunk, tFetch, tHeal, tPet | Independent next-admission deadlines compared with DateTimeOffset.Now; not an exact replacement for UOPilot timer |
-| Send_down / Send_up | Press holds between Down and Up and attempts release in finally; the five-second Backspace hold uses the same path |
-| findcolor | CountPixels with a calibrated color, region and threshold. The integer overload uses Color.FromArgb; UOPilot parameters are not automatically equivalent |
-| FindImage | Rectangle.Empty for absence; use ImageSearchRaw and check Detected.Success before an additional Similarity comparison |
+| Repeat 350 | Up to 350 series of the main body, then a separate final sequence and a new outer pass |
+| Rapidfire, Buff, tDejunk, tFetch, tHeal, tPet | Independent deadlines before which an action is not repeated. In C# they are compared with DateTimeOffset.Now. This is not an exact replacement for the UOPilot timer |
+| Send_down / Send_up | Press with a pause between Down and Up and a key release in finally. The separate five-second Backspace hold goes the same way |
+| findcolor | CountPixels with your own color, region and threshold. The integer color in this overload is read through Color.FromArgb. UOPilot parameters are not converted for you |
+| FindImage | Rectangle.Empty when nothing is found. Where an extra similarity threshold is needed, use ImageSearchRaw and check Detected.Success before Similarity |
 | Regions | Rectangle.FromLTRB for opposite corners, or X/Y/Width/Height for CountPixels |
-| reloger / login / world | Branches driven by prepared screen indicators; sequential searches do not share one atomic frame |
-| Interpreter timing | UOPilot linedelay/EmptyLineDelay and initial startup jitter are not emulated as per-line C# timing; explicit body waits remain separate |
-| YOUR_PASSWORD | Fictional literal only. Text logs part of its argument; this demonstration is not password storage |
+| reloger / login / world | Separate branches driven by prepared screen indicators. The searches run one after another and do not share one frame |
+| Interpreter timing | UOPilot linedelay/EmptyLineDelay and the startup jitter are not reproduced per C# line. The explicit waits in the body stay as they are |
+| YOUR_PASSWORD | A fictional text only. Text writes part of its argument to the log, so the example is not suitable for storing passwords |
 
-Namespace using directives stay above Script.csx's executable block; CV's using var stays inside it. The top-level host supplies GetService, Log, Sleep and cancellationToken. An ordinary class or Razor component requires explicit dependencies and context.
+The using directives stay at the top of Script.csx. The program itself and the CV using var are inside an explicit block. GetService, Log, Sleep and cancellationToken come from the top-level script host. Ordinary classes and Razor components do not get them automatically: pass the dependencies and the token explicitly.
 
 <details>
 <summary>Historical UOPilot source</summary>
 
-These are the original commands, paths, timings and jumps, not an EyeAuras macro file or automatic configuration import. Treat credential-like example text as inert sample data, not account instructions.
+Below are the original commands, paths, timings and jumps.
 
 ```js
 set #win findwindow (1Wow.exe)
@@ -271,7 +271,7 @@ if #login > 3 or #disc > 10 or #world1 > 90
       send_up {Backspace}
       goto login
     else
-      say Dctvgbpltw228         ///// YOUR PASSWORD
+      say YOUR_PASSWORD         ///// YOUR PASSWORD
       wait 500 + random ( 5000 )
       send_down {Enter}
       wait 80 + random ( 150 )
@@ -302,11 +302,13 @@ end_if
 <details>
 <summary>Complete C# Script port</summary>
 
-Prepare an open window matching `1Wow.exe`, your own world.bmp, vopros.bmp, ring.bmp and ban.bmp under `C:\Scripts\GWYN\Image`, calibrated regions/colors, a suitable layout and an available Windows Input backend. For an owned test interface, replace the expression, templates and coordinates. These historical constants are not universal WoW coordinates or evidence of a particular client state.
+You need an open window that matches the `1Wow.exe` expression and your own world.bmp, vopros.bmp, ring.bmp and ban.bmp in `C:\Scripts\GWYN\Image`. You also need rechecked colors and regions, a suitable keyboard layout and available Windows Input. For your own test interface, replace the expression, images and coordinates.
 
-Windows Input activates its target. The expression can match a title, path or process name; narrow [window matching](/en/features/window-matching-expressions) if several windows match. Capture and input use the same window. This complete variant sends actual input, unlike the first program. Keep YOUR_PASSWORD **fictional** in a local demonstration; do not substitute a real secret into logged Text. Recognition can be understood with the read-only program alone.
+Windows Input activates the chosen window. `1Wow.exe` is a broad expression: it is compared with the title, path or process name. If several windows match, narrow the [window expression](/en/features/window-matching-expressions) before you turn input on. Capture and input use the same window.
 
-Put the entire block in the C# action's Script.csx and use Run only after preparing your own controlled target. Stop requests cancellation; the blocking-indicator branch can also return from the script. Body delays use a base value plus Random.Next, whose upper bound is excluded; equivalent random distributions or elapsed timing across engines are not promised.
+Unlike the first try, this variant sends real input. The login branch keeps a **fictional** YOUR_PASSWORD. Do not put a real password there: Text writes part of it to the log.
+
+Paste the whole program into the C# action's Script.csx. Click Run only after you have prepared your own window. The loop runs until you stop Run or until it exits on a recognized indicator. Delays are a base value plus Random.Next, whose upper bound is excluded.
 
 ```csharp
 using System;
@@ -545,10 +547,8 @@ using PoeShared.Scaffolding;
 }
 ```
 
-Deadlines are assigned after their actions, so capture and waiting time also contribute to the real interval. Explicit token checks prevent new iterations after cancellation. Sleep can return early; Press checks the token inside try and then attempts KeyUp in finally for the same target/backend. The synchronous input call receives no script token, so neither Stop nor an elapsed pause guarantees immediate completion. KeyUp can itself fail, and completed effects are not rolled back.
-
-The input variables intentionally alias one context-owned API instance for the same window; do not dispose a borrowed host controller separately. The owned CV accessor is disposed on block exit. ImageSearchRaw exposes detection metadata; Success must be checked before Similarity. Simple ImageSearch rectangles are window-relative and used here as state indicators, not clicks or internal game values.
+Deadlines are set after their actions. Search and waiting take time too, and that time is part of the real interval between presses. After Stop, the explicit token checks keep new iterations from starting. Sleep can return early. Press checks for cancellation inside try and then, in finally, tries to send KeyUp to the same window through the same backend. The input call itself takes no script token, so neither the end of a pause nor Stop guarantees that a call already in progress stops instantly.
 
 </details>
 
-The first observable result is the pixel count from your own window. Assess a full loop only after every indicator has a real prepared source. Call completion is not confirmation that another application processed a key or login. [CV contracts](/en/scripting/api/computer-vision/images) · [Input contracts](/en/scripting/api/ISendInputScriptingApi) · [Script context](/en/scripting/api/scripting/runtime).
+API descriptions: [CV](/en/scripting/api/computer-vision/images), [input](/en/scripting/api/ISendInputScriptingApi), [script context](/en/scripting/api/scripting/runtime).

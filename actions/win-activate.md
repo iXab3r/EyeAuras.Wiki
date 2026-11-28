@@ -1,6 +1,6 @@
 ---
 title: Win Activate
-description: brings a specified window to the foreground, streamlining window management for games, workflows, and automated tasks
+description: Brings the selected window to the foreground.
 published: true
 date: 2023-06-18T14:44:19.937Z
 tags:
@@ -10,30 +10,29 @@ dateCreated: 2023-06-18T14:44:18.831Z
 
 # Win Activate — bring an existing window forward
 
-Win Activate brings a matching window to the foreground. For example, it can return you to Notepad without cycling through windows with Alt+Tab.
+Win Activate brings a window that is already open to the foreground. For example, you can get Notepad back from under other windows without cycling through them with Alt+Tab.
 
-Open your own Notepad window before setting this up. Leave just one instance open for an unambiguous first result.
+Before you set this up, open Notepad and leave just one of its windows open, so there is no confusion.
 
 ## Bring Notepad to the foreground
 
 1. Add **Win Activate** to an aura, for example in **On Enter**.
-2. Open the window list in **Target Window** and select Notepad. Check that the expression identifies the intended window.
+2. Open the window list in **Target Window** and select Notepad. Make sure the window shown next to the expression is the one you want.
 
-   ![Target Window expression field, window picker and matched Demo Workspace window.](/assets/callouts/batch1/en/window-selector.png)
+   ![Target Window field, window picker and the matched Demo Workspace window](/assets/callouts/batch1/en/window-selector.png)
 
-   The shared Target Window selector here matches Demo Workspace. For this exercise, select your Notepad window and check its title in the result row.
 3. If **Timeout** is available, set it to `1000` ms for the activation attempt.
-4. Put another window over Notepad, return to the action editor in EyeAuras and click **Execute** on Win Activate.
+4. Put another window over Notepad. Then go back to the action editor in EyeAuras and click **Execute** on Win Activate.
 
-Notepad should come to the foreground. This manual run checks the selected target and the action. To call it with a key, add [Hotkey Is Active](/en/triggers/hotkey-is-active) to the same aura, choose an unused key and Hold mode. Pressing it then runs On Enter, including Win Activate.
+Notepad should come to the foreground. To call it with a key, add [Hotkey Is Active](/en/triggers/hotkey-is-active) to the same aura, choose an unused key and Hold mode.
 
 ## Settings
 
 | Setting | Effect |
 |---|---|
-| Target Window | Chooses a window using a [window matching expression](/en/features/window-matching-expressions). Start by selecting an existing window from the list. |
-| Timeout | Time allowed for an activation attempt, in milliseconds. It does not wait for a program to launch or guarantee the operation's total duration. |
+| Target Window | Chooses a window by a [window matching expression](/en/features/window-matching-expressions). To start, you can pick an existing window from the list. |
+| Timeout | Time for the activation attempt, in milliseconds. It does not wait for a program to launch. |
 
-Selecting from the list may store a window handle, its temporary identifier. Closing and reopening the program changes it. For a lasting setup, use an appropriate title or process expression and check the matches; a broad expression may pick another window.
+Picking from the list may store the window handle, its temporary identifier. It changes when the program is restarted. For a lasting setup, use a title or process expression and check which windows it finds: an expression that is too broad may pick the wrong window.
 
-Windows can restrict bringing another window to the foreground. If activation has no visible result, check the target first. [Window Exists](/en/triggers/window-exists) tracks whether it is present; [Window Is Active](/en/triggers/window-is-active) checks whether it is in the foreground.
+Windows may not let you bring another program's window to the foreground. If the action did not work, check the selected target first. You can track whether the window exists with [Window Exists](/en/triggers/window-exists), and whether it is in the foreground with [Window Is Active](/en/triggers/window-is-active).

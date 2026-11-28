@@ -7,25 +7,25 @@ tags: behavior trees, AI, triggers, actions, Eye Auras
 editor: markdown
 dateCreated: 2024-03-07T14:06:44.950Z
 ---
-# Build and tick your first behavior tree
+# Your first behavior tree
 
-A behavior tree defines the order of checks and work, including which branch to take when a check fails. Start by observing a sequence, a delay and a final result, without sending input to another application.
+A behavior tree runs steps in order and stops when a condition is not met. Nodes check conditions and do the work. The links between them decide where to go next. This first example presses nothing: you just see the order of steps, a wait and the final status.
 
-You need EyeAuras with the behavior-tree editor available. Create a separate test tree; this example uses **Behavior Tree**, not a macro.
+## Build it and run one pass
 
-## Complete one controlled pass
+You need EyeAuras with the behavior-tree editor. Create a separate tree. A macro will not work for this example, it has to be a **Behavior Tree**.
 
 1. In the aura tree's creation menu, select **New Behavior Tree** and open the new item. Its graph contains an entry named **My Tree**.
-2. Select that entry. Enable **Activation → Is Loaded**, then set **Execution → When Activated → Do nothing**. Automatic execution is disabled; the loaded tree can still be ticked manually.
+2. Select that entry. Enable **Activation → Is Loaded**, then set **Execution → When Activated → Do nothing**. Now the tree does not start on its own, but you can tick it manually.
 3. Use **Add new Node** to add **Sequence**, two **Fixed Status** nodes and **Wait**. You can also drag them from the node palette onto the graph.
 
    ![Node palette beside the behavior tree graph](/assets/callouts/batch1/en/bt-getting-started-palette.png =x600)
 
-   Connect the entry to Sequence and Sequence to its three children. A card placed near a line is not yet connected. Arrange the children left to right as below.
+   New nodes do not run until you connect them. Connect the entry to Sequence, then Sequence to its three children. Arrange the children left to right, as in the diagram below.
 
    ![Output port on My Tree connected to the input port on Sequence](/assets/callouts/batch1/en/bt-getting-started-connection.png)
 
-4. Set both Fixed Status nodes to **General → Status → Success**. Set **Wait → General → Delay = 1500 ms**; turn randomisation off with the shuffle button if Min/Max are shown.
+4. Set both Fixed Status nodes to **General → Status → Success**. Set **Wait → General → Delay = 1500 ms**. If randomisation is on and you see Min/Max, turn it off with the shuffle button.
 
 ```text
 My Tree
@@ -35,86 +35,78 @@ My Tree
    └─ Fixed Status: Success
 ```
 
-5. Click the upper **Tick BT Once**. The first child succeeds; Wait and Sequence return **Running**. The last child has not run.
-6. Wait at least two seconds, then click **the same Tick BT Once** again. Execution resumes at Wait, reaches the last child and returns **Success**.
+5. Click the upper **Tick BT Once**. The first Fixed Status succeeds, and Wait and Sequence return **Running**. The last node has not run yet.
+6. Wait at least two seconds, then click **the same Tick BT Once** again. The tree continues from Wait, reaches the last node and returns **Success**.
 
-The editor shows the last result and tick duration; [Event Viewer](/en/features/event-viewer) records manual execution. Another tick after completion starts a new pass. Earlier nodes' displayed colours can clear on the next tick without replaying their work.
+The editor shows the last result and how long the tick took. [Event Viewer](/en/features/event-viewer) records the manual run. Another tick after the tree has finished starts a new pass. On a new tick, the colour of a node that already ran can clear.
 
 | Result | Meaning |
 | --- | --- |
-| `Success` | This node completed successfully; its parent determines what follows. |
-| `Failure` | This node completed with failure, often an unmet condition rather than a program error. |
-| `Running` | Work is retained for continuation; a later tick may be required. |
-| `not run yet` | No displayed result, or the display was cleared. It is not trigger `Unknown`. |
+| `Success` | The node finished its task successfully. |
+| `Failure` | The condition was not met, or the node finished its task with this result. |
+| `Running` | The node is still working. It may need another tick to finish. |
+| `not run yet` | No result yet. |
 
-Cancellation and exceptions are separate events. Read the error or event message rather than treating every red result as an ordinary false condition. [Nodes](/en/behavior-trees/nodes) explains how parents use child results.
+Red does not always mean a condition was not met, so read the error message. [Nodes](/en/behavior-trees/nodes) explains how parents use the results of their children.
 
-## Read the structure
+## How to read a tree
 
-Graph children are ordered horizontally, left to right; height alone does not set priority. An ordered tree view shows the corresponding nesting and order. [Sequence](/en/behavior-trees/nodes/sequence) requires successful steps, [Selector](/en/behavior-trees/nodes/selector) chooses the first successful alternative, and [IfThenElse](/en/behavior-trees/nodes/ifthenelse) separates one condition from its two branches.
+Children run left to right. Vertical position does not affect the order. An ordered tree view shows the same nesting and order. [Sequence](/en/behavior-trees/nodes/sequence) goes through all the successful steps, [Selector](/en/behavior-trees/nodes/selector) picks the first option that succeeds, and [IfThenElse](/en/behavior-trees/nodes/ifthenelse) separates one condition from its two branches.
 
 ![A general animation of behavior-tree traversal](https://s3.eyeauras.net/media/wiki/behavior-trees/gettings-started/5f3cdb96beee450ca78697a67010b8e9.gif)
 
-The animation comes from [this Russian-language article](https://habr.com/ru/companies/cloud_mts/articles/306214/). Its colour legend is not an EyeAuras status legend. For broader theory, the earlier guide also provided a [behavior-tree search](https://letmegooglethat.com/?q=behavior+tree).
+The animation comes from [this Russian-language article](https://habr.com/ru/companies/cloud_mts/articles/306214/).
 
-Aura triggers supply conditions; actions perform work. A tree gives that work an explicit route instead of requiring a growing web of **On Enter**, **While Active** and **On Exit** links. **Execute Aura** can call a configured aura's actions separately. The [dependency viewer](https://wiki.eyeauras.net/en/overlays/dependencies-viewer) remains useful for inspecting existing relationships; it is not the tree executor.
+A tree does not need the **On Enter**, **While Active** and **On Exit** links of your auras. It sets the order of nodes itself. If you need the actions of an aura you have already set up, call them with **Execute Aura**. This way one clear sequence replaces a tangled web of links. The [dependency viewer](https://wiki.eyeauras.net/en/overlays/dependencies-viewer) is still handy for looking at existing links.
 
 <details>
-<summary>Replace the test nodes with real conditions and reactions</summary>
+<summary>Connect a real condition and a real action</summary>
 
-Once the route is clear, replace the first Fixed Status with **Aura Is Active** linked to your own tested aura, and the final node with the intended reaction. That aura could inspect your indicator through [Color Search](https://wiki.eyeauras.net/en/triggers/images/color-search) or an object through [AI Search](https://wiki.eyeauras.net/en/triggers/images/ai-search-trigger). A tree does not automatically obtain another application's HP.
-
-The earlier example checked an existing aura named `HP is low`. The screenshot shows a different condition: **Aura Is Active** requires the linked aura `Примеры\Сигнал готовности` to be active.
+Once the order is clear, replace the first Fixed Status with **Aura Is Active** linked to your own tested aura, and the last node with the reaction you need. A typical example: an aura named `HP is low` is the condition, and **Key Press** with F1 is the reaction. The aura does the checking itself. For example, it looks for the colour of an indicator through [Color Search](https://wiki.eyeauras.net/en/triggers/images/color-search) or for an object through [AI Search](https://wiki.eyeauras.net/en/triggers/images/ai-search-trigger).
 
 ![Aura Is Active properties with the linked aura and required state](/assets/callouts/batch1/en/bt-getting-started-aura-is-active.png)
 
-The current picker below uses a separate benign aura, `BT signal`, with **Fixed Value → Is NOT Active**. Open **Aura Is Active → General → Links → Edit**, then select that aura. It appears highlighted in the picker and in its linked-items list. This test setup does not reproduce the historical HP or F1 workflow.
+To pick the aura, open **Aura Is Active → General → Links → Edit**.
 
-![Current Links → Edit picker with the benign BT signal aura selected](/assets/wiki-media/m045.png =x600)
+![Links → Edit picker with the BT signal aura selected](/assets/wiki-media/m045.png =x600)
 
-The earlier example used **Key Press** for F1. Set the intended window and input simulator in the folder before running the node.
+The reaction comes after the aura check, for example **Key Press** with F1. Before you run such a node, set the window and the input simulator in the folder.
 
 ![Key Press configured for F1 with a 30 ms delay and no target window set](/assets/callouts/batch1/en/bt-getting-started-key-press.png)
 
-The example used a 250 ms automatic period and an activation condition. Current groups are **Activation** and **Execution**; activation can link your own [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active) aura.
-
-The interval is set to 250 ms here. **Is Loaded** is unchecked, so the tree is idle.
+For the tree to start on its own, set up the **Activation** and **Execution** groups on the entry, for example a 250 ms period. You can link activation to your own [Hotkey Is Active](https://wiki.eyeauras.net/en/triggers/hotkey-is-active) aura.
 
 ![Run periodically selected with a 250 ms tick interval](/assets/callouts/batch1/en/bt-getting-started-root.png)
 
-The current settings view below uses the same benign test setup. **Is Loaded** is checked and **When Activated → Do nothing** is selected. The capture shows the **Activation** and **Execution** groups and the upper **Tick BT Once** button; execution was not run for this capture.
+And these are the settings of the test example with a manual start: **Is Loaded** is checked and **When Activated → Do nothing** is selected.
 
-![Current root settings and manual Tick placement in the benign test setup](/assets/wiki-media/m047.png =x600)
+![Root settings and the manual Tick button in the test example](/assets/wiki-media/m047.png =x600)
 
-A successful condition admitted the action; failure stopped that branch:
+In the test example, **Sequence** has two children: **Aura Is Active** linked to `BT signal` (must be Active) and **Fixed Status: Success**. The signal is set to **Fixed Value → Is Active**, so the aura is Active. One **Tick BT Once** reached the last child and returned Success.
 
-The current captures below use a separate benign manual example. **Sequence** has **Aura Is Active** linked to `BT signal` (must be Active), followed by **Fixed Status: Success**. With **Fixed Value → Is Active** observed on the signal, one upper **Tick BT Once** returned Success and reached the final child. No HP check or input action was reproduced.
+![Successful manual pass through the test sequence](/assets/wiki-media/m048.png =x600)
 
-![Successful manual pass through the current benign sequence](/assets/wiki-media/m048.png =x600)
+Now the same tree built from scratch, with no previous results. `BT signal` is set to **Is NOT Active**. After one **Tick BT Once** the tree, Sequence and the condition returned Failure, and the last child still shows **not run yet**.
 
-For the second capture, a fresh equivalent tree had no previous results. `BT signal` was set to **Is NOT Active** and observed inactive before one **Tick BT Once**. The tree, Sequence and condition returned Failure; the selected final child still shows **not run yet**. Its **General → Status → Success** radio is configuration, not a result of execution.
+![A failed condition leaves the last child of the new tree in not run yet](/assets/wiki-media/m049.png =x600)
 
-![Current failed condition leaves the fresh final child not run yet](/assets/wiki-media/m049.png =x600)
+To keep the reaction from firing too often, put [Cooldown](/en/behavior-trees/nodes/cooldown) before it, for example no more than once per 10 seconds.
 
-[Cooldown](/en/behavior-trees/nodes/cooldown) before the reaction can limit its frequency, such as one execution per 10 seconds. It is a different requirement from waiting before the next step.
+![Cooldown decorator with its child and a 10000 ms interval](/assets/wiki-media/m050.png =x600)
 
-The separate current example below places **Fixed Status child** under **Cooldown**. Selecting the decorator shows **General → Cooldown = 10000 ms** and **Child = Fixed Status child**. This capture records placement and the interval setting only; timing and rate guarantees were not tested.
-
-![Current Cooldown decorator with its child and 10000 ms interval](/assets/wiki-media/m050.png =x600)
-
-These alternatives need their own data source and input configuration. The first no-input example above needs neither. [Root](/en/behavior-trees/nodes/root) explains automatic MainTree execution and shared settings.
+[Root](/en/behavior-trees/nodes/root) explains automatic MainTree execution and shared settings.
 
 </details>
 
 <details>
-<summary>A larger historical configuration</summary>
+<summary>What a large configuration looks like</summary>
 
-The earlier Lineage 2 example combines configured aura checks and actions. It illustrates a larger decision structure, not built-in access to game data:
+This old Lineage 2 tree combined aura checks and action calls. It shows how big a tree can get.
 
-![A historical tree of aura checks and actions](/assets/bt_l2.spoil.old.png)
+![An old tree of aura checks and actions](/assets/bt_l2.spoil.old.png)
 
-The other version delegates work to **Execute Script**. That requires [C# Script context and dependencies](/en/scripting/getting-started), plus the author's implementations of its checks.
+In the other version, part of the work is moved to **Execute Script**. For that you need the [basics of C# scripts](/en/scripting/getting-started) and your own checks in code.
 
-![A historical variant using script nodes](/assets/bt_l2_spoil.png)
+![An old variant using script nodes](/assets/bt_l2_spoil.png)
 
 </details>

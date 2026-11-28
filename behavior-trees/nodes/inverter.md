@@ -9,11 +9,11 @@ dateCreated: 2024-03-07T23:20:14.981Z
 ---
 # Continue when a condition fails
 
-Wrap a check in Inverter when your next step needs its opposite result. It swaps Success and Failure; it does not change the source aura's state.
+Inverter flips its child's result: Failure becomes Success and the other way round. Use it when the next step should run after a check fails, for example when your aura's condition is not met.
 
 ## Inspect the mapping
 
-Use a separate loaded tree with **When Activated → Do nothing**, following [the first example](/en/behavior-trees/gettings-started). Add and connect:
+Take a separate loaded tree with **When Activated → Do nothing** from [the first example](/en/behavior-trees/gettings-started). Add and connect:
 
 ```text
 My Tree
@@ -21,12 +21,12 @@ My Tree
    └─ Fixed Status: Failure
 ```
 
-1. Set Fixed Status to **General → Status → Failure**. In **Inverter → General → Child**, verify that this child is connected.
-2. Click the upper **Tick BT Once**. The child returns Failure; Inverter and the tree return Success.
-3. Change the child to Success and tick again: Inverter returns Failure.
-4. Change it to Running and tick: Running passes through unchanged. Restore a terminal child status and use the same control to complete that route.
+1. Set Fixed Status to **General → Status → Failure**. In **Inverter → General → Child**, check that this is the connected child.
+2. Click the upper **Tick BT Once**. The child returns Failure. Inverter and the tree return Success.
+3. Set the child to Success and tick again. Inverter returns Failure.
+4. Set it to Running and tick again. Running stays Running. To finish, set the child back to Success or Failure and click the same button.
 
-![Failure becoming Success in the earlier editor animation](/assets/eyeauras_exsrmbzxzu.gif)
+![Failure turning into Success in the earlier editor](/assets/eyeauras_exsrmbzxzu.gif)
 
 | Child result | Inverter result |
 | --- | --- |
@@ -34,10 +34,10 @@ My Tree
 | `Failure` | Success. |
 | `Running` | Running. |
 
-Connect one enabled child. With none, execution reports an error rather than another status-table case. Inverter does not turn exceptions or cancellation into a successful check.
+Inverter needs one enabled child. Without it the editor shows an execution error, not one of the results from the table.
 
 ## Use your own condition
 
-Replace Fixed Status with [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) linked to your own aura—for example, one using Window Exists. First check how that node translates Unknown and source errors; inverting its result is not a generic boolean conversion of every aura state.
+If you need the opposite of your own aura's result, replace Fixed Status with [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) linked to that aura. For example, the aura can check that a window is there with Window Exists. Inverter flips **the node's result**, so first look at what the chosen node returns for Unknown and for source errors.
 
-Inside [Sequence](/en/behavior-trees/nodes/sequence), Inverter admits later steps only after child Failure. If the child executes its own continuation, its complete result is inverted. Do not attach an input action to a check if your intent is only to read a condition.
+Inside a [Sequence](/en/behavior-trees/nodes/sequence), this Inverter lets later steps run only after the child's Failure. If the child has its own chain, the result of the whole chain is flipped, not just the first check.

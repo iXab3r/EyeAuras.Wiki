@@ -1,6 +1,6 @@
 ---
 title: Loading Custom TTF Font from Static Class
-description: 
+description: How to read a TTF font in an ordinary class and apply it only to your own ImGui content
 published: true
 date: 2025-10-19T13:51:25.693Z
 tags: imgui, scripting, ai-translated
@@ -9,20 +9,20 @@ dateCreated: 2025-10-17T15:02:40.336Z
 ---
 # Read a TTF through a helper and select it locally
 
-Move byte loading into an ordinary static `FontData` class, while selecting the font only during your own drawing. Unlike [changing the default](/en/scripting/imgui/loading-font), this example does not call `ReplaceFont` or change the shared default selection.
+Here a static `FontData` class reads the font file, and the font is applied only to your own drawing. Unlike [replacing the default font](/en/scripting/imgui/loading-font), this approach does not call `ReplaceFont` and does not change the default font of the shared window.
 
-Use desktop EyeAuras compatible with **EyeAuras.ImGuiSdk 0.1.47**. [Getting started](/en/scripting/imgui/getting-started) explains package reference and service registration; do not mix ImGui versions in one process.
+You need desktop EyeAuras that is compatible with **EyeAuras.ImGuiSdk 0.1.47**. [Getting started](/en/scripting/imgui/getting-started) shows how to reference the package and register the service. Do not mix ImGui versions in one process.
 
-1. Add a real `Roboto-Regular.ttf` to your **C# Script** project as an [embedded resource](/en/scripting/embedded-resources). For Cyrillic text, the TTF itself must contain those glyphs; its filename does not establish coverage.
-2. Find its full manifest name in preparation diagnostics, or temporarily use this `Script.csx` entry point:
+1. Add a real `Roboto-Regular.ttf` to your **C# Script** project as an [embedded resource](/en/scripting/embedded-resources). For Cyrillic text, the file must contain Cyrillic glyphs.
+2. Find the full resource name. It is shown in the project preparation diagnostics. Or run this temporarily in `Script.csx`:
 
 ```csharp
 foreach (var name in typeof(Script).Assembly.GetManifestResourceNames()) Log.Info(name);
 ```
 
-3. Substitute the actual name for `MyScript.Roboto-Regular.ttf` below. A `Fonts` folder can produce `MyScript.Fonts.Roboto-Regular.ttf`. This is a project resource name, not an arbitrary disk path or the helper class's namespace.
+3. In the main program, replace `MyScript.Roboto-Regular.ttf` with the full name you found. For example, a `Fonts` folder gives `MyScript.Fonts.Roboto-Regular.ttf`. This is a project resource name, not a path on disk and not the helper class's namespace.
 
-Create `FontData.cs` with **New file → C# Class** in the same project. The helper receives its file provider explicitly; it does not inherit `GetService` or `cancellationToken` from the script.
+In the same project, create `FontData.cs` with **New file → C# Class**. The class is given the file service explicitly: `GetService` and `cancellationToken` are not available inside it.
 
 ## FontData.cs
 
@@ -92,32 +92,30 @@ using FontDemo;
 }
 ```
 
-4. After compilation, click **Run**. The demo uses your selected font while it is drawn, without assigning the default for other callbacks. Stop removes this registration and the render subscription.
+4. Wait for compilation and click **Run**. The demo window is drawn with your font. **Stop** removes its own font registration and the render subscription.
 
-The earlier resource screenshot shows a static `EmbeddedBinaryData` byte array. This `FontData` reads the embedded resource instead; manual `GCHandle` pinning is unnecessary because AddFont copies the bytes.
-
-![Static TTF byte array in the historical project](https://s3.eyeauras.net/media/2025/10/EyeAuras_SdQBF6VcjL.png)
-![Selected font result](https://s3.eyeauras.net/media/2025/10/EyeAuras_yzz7IrmjnJ.png)
+![Static TTF byte array in the old project](https://s3.eyeauras.net/media/2025/10/EyeAuras_SdQBF6VcjL.png)
+![Result with the selected font](https://s3.eyeauras.net/media/2025/10/EyeAuras_yzz7IrmjnJ.png)
 
 | Part | Responsibility |
 | --- | --- |
-| `FontData.Load(files, manifestName)` | Reads through an explicit dependency. This is the example's helper, not an automatically generated `EmbeddedBinaryData` class. |
-| `byte[]` | Ordinary TTF data. An existing genuine TTF byte array can replace resource reading. |
-| `ImGuiFontSpec font` | Registration local to this Run, not a static native font pointer. |
-| `PushFont(font)` / `PopFont(font)` | A paired temporary selection in the same frame. Both do nothing until the native font is available. |
-| `20`, `Cyrillic` | Explicit size and range; defaults are `16`/`Default`. [Default font loading](/en/scripting/imgui/loading-font) lists other ranges. |
+| `FontData.Load(files, manifestName)` | Reads the bytes through the file service passed to it. This is the example's own class, not an automatically generated `EmbeddedBinaryData`. |
+| `byte[]` | Ordinary TTF data. You do not have to read a resource: you can pass a byte array with a real TTF that you already have. |
+| `ImGuiFontSpec font` | The font registration local to this run. It is not a static pointer to a native font. |
+| `PushFont(font)` / `PopFont(font)` | A pair of calls that select the font temporarily within one frame. Until the native font exists, both do nothing. |
+| `20`, `Cyrillic` | Size and range. By default AddFont uses `16` and `Default`. Other ranges are listed in [default font loading](/en/scripting/imgui/loading-font). |
 
-The static helper creates no context and caches no native pointer or specification. Prepared bytes can be reused; registration and use still belong to a live context on its render thread. `static` does not make a native font valid for every future context after its renderer closes.
+The static method does not create a context and does not cache an `ImFontPtr` or an `ImGuiFontSpec`. You can reuse the bytes you read. But the font must be registered and used for a live context on its render thread.
 
-`AddFont` copies the TTF bytes and returns an `ImGuiFontSpec`, not a ready native `ImFontPtr`. `IsInitialized` means the specification was registered. The dirty atlas is rebuilt after frame handlers, so the first frame can still use the previous font.
+`AddFont` copies the TTF bytes and returns an `ImGuiFontSpec`, not a ready native `ImFontPtr`. `IsInitialized` means the font was registered. The atlas is rebuilt after the current frame's handlers, so the first frame may still show the previous font.
 
-On Stop, the program requests removal of **its own** specification on the render thread and waits for that callback's acknowledgement. It then removes rendering and releases the API. This requires a working frame loop. `RemoveFont` removes the specification, but this implementation intentionally retains the native byte copy. Do not register a font every frame or turn this into an unlimited font-switching loop. API disposal alone does not remove a registration.
+On Stop, the program asks to remove **its own** registration on the render thread and waits until a frame confirms it. Then the renderer is removed and the API is released. This needs a working frame loop. `RemoveFont` removes the registration, but this implementation deliberately keeps the native copy of the TTF bytes. So do not load the font again every frame, and do not use this example to switch fonts endlessly. Disposing the API alone does not remove the registration.
 
-`ReadAllBytes` finishes reading and closes its stream before rendering. Do not dispose the borrowed file service or retain `ImFontPtr` across atlas rebuilds. `AddFont` has no cancellation-token argument: this token stops the script's wait, not native font loading.
+The bytes are read before rendering starts. `ReadAllBytes` closes the stream it opened. The file service is not yours, so do not dispose it. Do not keep an `ImFontPtr` across atlas rebuilds. `AddFont` has no cancellation argument: the token here stops the script's wait and does not interrupt native font loading.
 
 <details>
-<summary>Historical project and package versions</summary>
+<summary>Old project and package versions</summary>
 
-The [historical import](https://eyeauras.net/share/S20251017150654moSdG8zUyQ4D) used 0.1.17 and a different font-loading API. Keep one 0.1.47 reference for this project. 0.1.42 also contains AddFont/ReplaceFont/RemoveFont; that is not a reason to load several versions together. Use the [EyeAuras feed](https://packages.eyeauras.net/v3/index.json) and [operation contract](/en/scripting/api/IImGuiExperimentalApi) to select the matching version.
+The [old import](https://eyeauras.net/share/S20251017150654moSdG8zUyQ4D) used 0.1.17 with a different font-loading API. Keep a single 0.1.47 reference in this project, as in the code above, and do not add the old version next to it. To check the version you chose, use the [EyeAuras feed](https://packages.eyeauras.net/v3/index.json) and the [operation contract](/en/scripting/api/IImGuiExperimentalApi).
 
 </details>

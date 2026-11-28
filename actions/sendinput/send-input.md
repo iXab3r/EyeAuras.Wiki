@@ -1,6 +1,6 @@
 ---
 title: (legacy) Send Input
-description: Migrate a legacy single-input action to Send Sequence without running it twice
+description: A legacy action for one click or key press, and how to move it to Send Sequence.
 published: true
 date: 2024-05-14T09:38:56.650Z
 tags: 
@@ -10,41 +10,39 @@ dateCreated: 2023-06-18T16:03:09.798Z
 
 # Move an old Send Input action to Send Sequence
 
-To keep an old one-key action working, recreate its events in [Send Sequence](/en/actions/sendinput/send-sequence). For example, a legacy **Ctrl+A** should select the contents of your test field once after migration.
+**Send Input is a legacy action type.** It sent one click or one key combination. Add new input with [Send Sequence](/en/actions/sendinput/send-sequence). You can move old actions there too. The result should stay the same: an old **Ctrl+A** still selects the contents of the field and does not fire twice.
 
-**Send Input is a legacy action type.** Use Send Sequence for new input. The image shows its former WPF editor, rather than an extra mode of the current sequence editor.
+The legacy type had its own WPF editor.
 
-![Key is set to Ctrl+Q and Press (Down + Up) is selected.](/assets/callouts/batch3/en/legacy-send-input-event.png)
-
-This older action uses Ctrl+Q. To follow the migration example below, check the Ctrl+A action in your own aura. [Full legacy panel with coordinates and advanced settings](/assets/legacy/eyeauras_vkyrrjgchm.png).
+![Key set to Ctrl+Q and Press (Down + Up) selected in the older editor](/assets/callouts/batch3/en/legacy-send-input-event.png)
 
 ## Migrate one Ctrl+A
 
-You need an existing aura with the old action and your own text field containing sample text. Disable automatic execution while migrating so you can run one action at a time.
+You need an aura with the old action and an ordinary text field with some sample text. Turn off automatic execution of the aura while you migrate, so you can test one action at a time.
 
-1. Note its **Key**, event type and [common options](/en/actions/sendinput/options), especially **Target Window** and **Input Simulator**. A complete legacy press uses **Press (Down+Up)**, rather than Key Down alone.
-2. If the old editor opens, choose **Convert to Send Sequence**. It **inserts a new action after the original**; it does not replace it. Do not execute the whole aura with both enabled.
-3. Open the new action. Check **Ctrl+A Key down → delay → Ctrl+A Key up** and its window and input method under **Advanced input settings**.
-4. If the legacy editor is unavailable or says **This item type is not supported**, add Send Sequence manually. Add A through **Keyboard**, set **Hotkey = Ctrl+A** on both events, and retain their **Key down** and **Key up** directions. Put a delay such as **50 ms** between them.
-5. Focus the sample field and use **Execute** on only the new action. Its text should become selected.
-6. Remove the original action from that aura's list after checking the result. Another run should perform one selection.
+1. Write down its **Key**, event type and [common options](/en/actions/sendinput/options), above all **Target Window** and **Input Simulator**. For a full press the old action must use **Press (Down+Up)**, not Key Down alone.
+2. If the action opens in the old editor, click **Convert to Send Sequence**. It **inserts a new action after the original** and leaves the old one in place. Do not run the whole aura while it contains both.
+3. Open the new Send Sequence. For Ctrl+A it should contain **Ctrl+A Key down → delay → Ctrl+A Key up**. Check the window and input method under **Advanced input settings**.
+4. If the old editor is unavailable or says **This item type is not supported**, add Send Sequence by hand. Add A through **Keyboard** and set **Hotkey** to Ctrl+A in the properties of both events. Keep their **Key down** and **Key up** directions and put a delay between them, for example **50 ms**.
+5. Put the focus in the sample field. Run only the new action with **Execute**. The text in the field should become selected.
+6. After checking, remove the old action from the aura's list. On the next run the selection should happen once.
 
 ## Map the old operation
 
 | Legacy operation | Send Sequence equivalent |
 | --- | --- |
-| Key Press | A matching Key down / Key up pair, with a delay between them |
-| Key Down | A Key down event. Add Delay and the matching Key up for a timed hold |
-| Key Up | Release the same key or combination pressed earlier |
-| Key Press with Location | Mouse Move followed by the key events |
-| Mouse Click | Down and Up for the selected button, with modifiers if required |
+| Key Press | A Key down / Key up pair for the key or combination, with a delay between them |
+| Key Down | Key down only. To hold the key for a while, add Delay and the matching Key up |
+| Key Up | Release of the same key or combination pressed earlier |
+| Key Press with Location | Mouse Move first, then the key events |
+| Mouse Click | A press and release pair for the selected button. Modifiers are supported |
 | Mouse Click with Location | Mouse Move before the button pair |
-| Mouse wheel | A Wheel up or Wheel down step; wheel scrolling is not a held button |
-| Relative movement | An offset from the current cursor, rather than an absolute window point |
-| Link Aura | Linked auras in Mouse Move properties supply a result region; check anchors and the action's target separately |
+| Mouse wheel | A separate Wheel up or Wheel down step. It is scrolling, not a held button |
+| Relative movement | An offset from where the cursor is now. Do not put an absolute window point here |
+| Link Aura | The region link through Linked auras in the Mouse Move properties. Check the anchors and the window separately |
 
-The old key field captured a combination; double-clicking it with a mouse button selected that button. In the current editor, use **Keyboard**, **Numpad**, **Fn**, **Mouse** and **Hotkey** properties. Text steps do not interpret descriptions of key actions.
+In the old key field you set a combination by pressing it. You picked a mouse button by double-clicking the field with that button. The current editor has **Keyboard**, **Numpad**, **Fn**, **Mouse** and the **Hotkey** properties for this.
 
-Conversion carries the movement region, relative mode and related bindings into a separate Mouse Move. Legacy Send Input could obtain a target from that linked region. In Send Sequence, check **Target Window on the action itself**: the [region's coordinates](/en/features/coordinate-system) and input recipient must describe the same window.
+Conversion moves the coordinates, relative mode and movement bindings into a separate Mouse Move. The old Send Input could take its target window from the linked region. In Send Sequence, check **Target Window on the action itself**: the coordinates of the found region and the window that gets the input must belong to the same window. See the [coordinate system](/en/features/coordinate-system) for details.
 
-Down without Up can leave a key held. Keep explicit release events and check **Restore after Action is completed → Key/Button State** as additional cleanup. Background delivery depends on the selected input method, not on the legacy action's name.
+Key Down without a Key Up after it leaves the key held. In the new action, check **Restore after Action is completed → Key/Button State** and still keep an explicit release in the sequence.

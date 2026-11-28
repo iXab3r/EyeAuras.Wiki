@@ -1,6 +1,6 @@
 ---
 title: "Выдать своё состояние только через loopback GET"
-description: "Явно зарегистрируйте неизменяемый снимок и controller, прочитайте локальный GET и остановите хост вместе со скриптом."
+description: "Скрипт отдаёт неизменяемый снимок через controller на 127.0.0.1 и останавливает веб-хост вместе с собой."
 published: true
 date: 2026-11-10T18:20:14.885Z
 tags: recipes, developer
@@ -10,24 +10,24 @@ dateCreated: 2026-11-10T18:20:14.885Z
 
 # Выдать своё состояние только через loopback GET
 
-Прочитайте фиксированное нечувствительное состояние через `http://127.0.0.1:52081/status`. Controller возвращает неизменяемый снимок; команд, изменения аур и удалённого управления здесь нет.
+Скрипт поднимает маленький веб-хост и отдаёт фиксированные несекретные данные по адресу `http://127.0.0.1:52081/status`. Controller возвращает неизменяемый снимок.
 
-Нужен совместимый настольный хост C# с ASP.NET Core Hosting/MVC/Kestrel из [примера controller](/ru/scripting/examples/advanced/web-server-controllers). Директивы `assemblyName:` разрешают сборки хоста, а не устанавливают пакеты. Владение ниже соответствует контракту .NET 8 `RunAsync`. Порт **52081** на вашей машине должен быть свободен.
+Нужен настольный EyeAuras, в хосте C# которого есть ASP.NET Core Hosting/MVC/Kestrel, как в [примере с controller](/ru/scripting/examples/advanced/web-server-controllers). Директивы `assemblyName:` подключают сборки хоста, а не устанавливают пакеты. Порт **52081** на вашей машине должен быть свободен.
 
-1. Создайте редактируемую ауру `RecipeStatus` через **Add new → New Aura → Actions → On Enter → C# Script**. Используйте ручную Run, без автоматической активации.
-2. В дереве проекта выберите **Add new file → C# File** для **StatusSnapshot.cs** и **StatusController.cs**. Полностью замените содержимое файлами ниже, сохранив namespace `RecipeStatus`. Полностью замените и **Script.csx**.
-3. Дождитесь компиляции, нажмите **Run**, проверьте ошибки запуска в **Event Log**. В своём браузере откройте `http://127.0.0.1:52081/status`. Ожидается JSON с `name = RecipeStatus`, `count = 3`; каждый запрос пишет `Read-only recipe status requested`.
-4. Нажмите **Stop**. Ожидаемый `RunAsync(cancellationToken)` запрашивает остановку, дожидается её и освобождает хост, асинхронно при поддержке. После завершения обновление адреса больше не должно получать ответ этого рецепта. Новый Run создаст новый снимок и хост.
+1. Создайте редактируемую ауру `RecipeStatus` через **Add new → New Aura → Actions → On Enter → C# Script**. Запускать будете вручную кнопкой Run, автоматическая активация не нужна.
+2. В дереве проекта через **Add new file → C# File** добавьте **StatusSnapshot.cs** и **StatusController.cs**. Целиком замените их содержимое кодом ниже, namespace `RecipeStatus` оставьте. Так же целиком замените **Script.csx**.
+3. Дождитесь компиляции, нажмите **Run** и проверьте, нет ли ошибок запуска в **Event Log**. Откройте в браузере `http://127.0.0.1:52081/status`. Должен прийти JSON с `name = RecipeStatus`, `count = 3`. Каждый запрос пишет в журнал `Read-only recipe status requested`.
+4. Нажмите **Stop**. В .NET 8 `RunAsync(cancellationToken)` запросит остановку, дождётся её и освободит хост — асинхронно, если это поддерживается. После этого при обновлении страницы ответа от рецепта быть не должно.
 
 | Часть | Назначение |
 | --- | --- |
-| `IPAddress.Loopback`, порт `52081` | Явная привязка IPv4 `127.0.0.1`, не wildcard и не адрес другой машины. |
-| `AddApplicationPart(typeof(StatusController).Assembly)` | Добавляет сборку controller проекта в поиск MVC. |
-| Параметры конструктора | Собственный DI-контейнер ASP.NET получает снимок и logger явно из Script.csx. |
+| `IPAddress.Loopback`, порт `52081` | Хост слушает только IPv4 `127.0.0.1`. |
+| `AddApplicationPart(typeof(StatusController).Assembly)` | Добавляет сборку проекта туда, где MVC ищет controller. |
+| Параметры конструктора | У ASP.NET свой DI-контейнер. Снимок и logger он получает явно из Script.csx. |
 
-В обычном controller нет неявных `Log`, `AuraTree`, `Variables` или token скрипта. Свойства снимка нельзя переназначить через endpoint; значение фиксировано на один Run. Запуск хоста, свободный порт и успешный GET — разные результаты. При ошибке запуска прочтите её, не переходите на wildcard.
+В обычном controller нет неявных `Log`, `AuraTree`, `Variables` и token скрипта. Поменять свойства снимка через endpoint нельзя: значение задаётся один раз на Run. Если запуск упал, прочитайте ошибку и не переходите на wildcard.
 
-Ожидание хоста находится внутри явного блока скрипта. `RunAsync` уже владеет освобождением, поэтому второй конкурирующий путь Dispose не добавлен. Единственный минимальный endpoint без поиска controller показан в [простом сервере](/ru/scripting/examples/advanced/simple-web-server).
+Вариант с одним endpoint и без поиска controller показан в [простом сервере](/ru/scripting/examples/advanced/simple-web-server).
 
 ## StatusSnapshot.cs
 

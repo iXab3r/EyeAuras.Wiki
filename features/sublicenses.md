@@ -1,6 +1,6 @@
 ---
 title: Sublicenses
-description: Pack access keys for paid packs and mini-apps
+description: Access keys for paid packs and mini-apps. How to activate one and how authors set them up
 published: true
 date: 2026-03-24T00:23:40.000Z
 tags: 
@@ -9,47 +9,43 @@ dateCreated: 2024-10-07T20:56:26.145Z
 ---
 # Activate access to the pack you need
 
-A sublicense is an access key for a particular author's pack or mini-app. You can bind a key to your account, inspect its duration and run the corresponding product. It does not grant publication editing rights or access to private source code. A [mini-app example](https://eyeauras.net/share/S20251105201607zPUUkZryl4CY) shows one form such a product can take.
+A sublicense is an access key for one pack or mini-app from a particular author. You bind the key to your account, see how long it lasts in your profile and run the pack. Here is a [mini-app example](https://eyeauras.net/share/S20251105201607zPUUkZryl4CY).
 
-You need a key from that product's author, an EyeAuras account and a server connection. Check the pack name first: one pack's key does not unlock every other pack.
+You need a key from the product's author, an EyeAuras account and a connection to the server. Check the pack name first. A key for one pack does not open the others.
 
 1. Sign in and open [My Account](https://eyeauras.net/my). Enter your unused key in **License key** and click **Activate key**.
-2. Wait for **License key activated.** and the updated license list. An error or a key already assigned elsewhere is not a successful activation.
-3. Find the intended pack and check its duration and state. The application also exposes this information in its profile and pack-access timeline.
-4. Launch the pack as its author instructs. Its logic must request a current license session; a key's presence in the profile alone does not establish permission to continue running.
-5. If access is pending, expired, frozen or occupied by other sessions, read the product's state and message. Reactivating the same key does not extend it or remove a PC binding.
+2. Wait for the **License key activated.** message and the updated license list.
+3. Find the pack in the list and check its duration and state. In the application, you can see this in the profile and on the pack-access timeline.
+4. Launch the pack as its author instructs.
+5. If access is pending, expired, frozen or taken by other sessions, read the state and the message the product shows. Activating the same key again does not extend it or remove a PC binding.
 
-This older image shows activation in the application's profile.
+You can sign in without registering first, using [Key Login](/en/features/keylogin). In the current form it is **Sign in with key → Login with key**.
 
 ![Activating a key in the older application profile](https://s3.eyeauras.net/media/2024/08/EyeAuras_PbHuwp3yIoKuEIHy.png)
 
-For a first sign-in without prior registration, use [Key Login](/en/features/keylogin): **Sign in with key → Login with key** in the current form. The older link below is **I have a key**.
-
-![Older first-sign-in link](https://s3.eyeauras.net/media/2025/03/ShareX_829CnImJUb2PaMYZ.png)
+![The older I have a key link for the first sign-in](https://s3.eyeauras.net/media/2025/03/ShareX_829CnImJUb2PaMYZ.png)
 
 ## Read the conditions and current state
 
 | Condition or state | Meaning |
 | --- | --- |
-| Calendar time | The license's calendar duration continues after activation, including while the application is closed. |
-| Consumed time | Time is consumed while a session lease is active. It is not a timer of how long someone looks at the window. |
-| Maximum sessions | Available logical slots. The author determines whether one session represents a launch, window, resource or another unit of work. |
-| Hardware binding | Slots can be bound to a PC. Switching accounts or re-entering the key does not release a binding. |
-| Pending | A request exists, but access has not yet been granted. Protected work should not start. |
-| Granted | The current lease permits work. The product must also handle later state changes. |
-| Expired / rejected / released | Different reasons for lacking current access. Use the message to distinguish them. |
-
-The timeline relates the pack, license, duration and usage. This image shows an older profile layout.
+| Calendar time | The time runs without a break from activation, even while the application is closed. |
+| Consumed time | Time is spent while a session lease is active. |
+| Maximum sessions | How many logical slots are available. The author decides what counts as a session: a launch, a window, a resource or something else. |
+| Hardware binding | Slots can be bound to a PC. Switching accounts or entering the key again does not release a binding. |
+| Pending | Access has been requested but not granted yet. |
+| Granted | The current lease allows work. |
+| Expired / rejected / released | Three different reasons why there is no access now. Read the message to tell them apart. |
 
 ![Pack licenses and access timeline](https://s3.eyeauras.net/media/2026/03/EyeAuras_vKT0Nhnf8z.png)
 
-User freezes and author freezes are separate operations. The license determines the available actions and remaining change budget; a historical default of one freeze is not a universal rule. Timeline changes are staged and committed with **Apply**. PC unbinding is available only where permitted. A view of already signed grants without management data may omit these controls.
+A freeze by the user and a freeze by the author are separate operations. What you can do and how many changes you have left depends on the terms of your license. On the timeline, you first prepare a change and then commit it with **Apply**. The PC unbind button appears only where unbinding is allowed. If the list shows already signed grants without management data, these controls may be missing.
 
-The author's **Freeze consumed time** pauses consumption in Consumed time mode. It is not a universal pause of calendar expiry. Freezing, expiration and permanent revocation are different states; freezing does not permanently revoke a key. Ask the issuing author about a particular license.
+The author's **Freeze consumed time** pauses spending in Consumed time mode. For questions about a particular key, ask the author who issued it.
 
 ## Authors: configure conditions for new keys
 
-You need your publication and permission to manage it. Open **License settings → Edit** on its page, choose the conditions, save and check the summary. This changes policy; it does not itself issue or sell keys.
+You need your own publication and the right to manage it. On its page, open **License settings → Edit**, choose the conditions and save. Then check the summary.
 
 ![License settings on a pack page](https://s3.eyeauras.net/media/2026/03/msedge_kjbwxZPnYk.png)
 
@@ -57,31 +53,31 @@ You need your publication and permission to manage it. Open **License settings �
 | --- | --- |
 | Time accounting | Calendar time or Consumed time for new keys. |
 | Hardware binding | Whether slots require a PC binding. |
-| Product features for new keys | Features copied into new keys. Shown read-only in this form; managed separately through licensing. |
-| Freeze consumed time | A live switch pausing Consumed time consumption, separate from terms stored in a key. |
-| Issued licenses | Issued keys and their states, not folder editing permissions. |
-| Active leases | Current sessions and technical state, not a complete history of the user's actions. |
+| Product features for new keys | Features that are copied into new keys. This form only shows them. They are managed separately through licensing. |
+| Freeze consumed time | A switch that pauses Consumed time spending right now. |
+| Issued licenses | Issued keys and their states. |
+| Active leases | Current license sessions and their technical state. |
 
-Time accounting, hardware binding and features are copied when a key is generated. Later policy edits do not rewrite those terms on issued keys. Live freeze state is separate.
+Time accounting, hardware binding and features are copied into a key when it is generated. If you change the policy later, keys already issued keep their old terms. The live freeze is a separate case.
 
-The current **License Issue** web form requires administrator access. An ordinary author needs an agreed issuance route through [Contacts](/en/contacts); owning a publication does not provide an administrative issue button. Issuance sets the count, **Duration**, comment and allowed accounting, binding and session overrides. Keys are secrets, not part of the public pack description.
+In the current **License Issue** web form, only an administrator can issue keys. An ordinary author has to arrange a batch through [Contacts](/en/contacts). The form sets the count, **Duration**, a comment and the allowed overrides for accounting, binding and sessions. Keys are secrets and are not part of the public pack description.
 
-A publication link, a portable download and a sublicense are separate things. Ask the author about obtaining keys and product terms; the activation flow does not provide a checkout or payment transaction.
+You cannot buy a key in the activation window. To get a key or learn the product terms, ask the author.
 
 <details>
 <summary>Add sign-in and access checks to your pack or mini-app</summary>
 
-A regular pack can keep the standard EyeAuras profile, key activation and timeline. A custom interface needs to expose the appropriate sign-in route itself. The older profile below shows where the standard UI supplied it.
+A regular pack can use the standard EyeAuras profile, key activation and timeline. A custom interface has to offer sign-in itself.
 
 ![Standard sign-in entry in the older profile](https://s3.eyeauras.net/media/2025/03/ShareX_829CnImJUb2PaMYZ.png)
 
-In a supported EyeAuras Blazor window, this Razor fragment provides the built-in sign-in component:
+This Razor element shows the built-in sign-in in an EyeAuras Blazor window that supports it:
 
 ```razor
 <LoginWidget/>
 ```
 
-For a custom ImGui, WPF or Blazor interface, IEyeHubService exposes sign-in operations. This reference fragment lists **alternative form handlers**, not a sequence to execute together. Values come from your form, not keys saved in distributed source. It uses top-level EyeAuras script context; ordinary helpers receive the service explicitly, and Razor components need their host-provided dependencies.
+In a custom ImGui, WPF or Blazor interface, you can call the sign-in operations of IEyeHubService. The fragment below lists **alternative form handlers**. Do not run them all in a row. Take the values from your form, not from keys saved in the code you distribute. The fragment is written for a top-level EyeAuras script. An ordinary helper class gets the service passed in, and a Razor component gets its dependencies from the host.
 
 ```csharp
 var eyeHub = GetService<IEyeHubService>();
@@ -94,11 +90,11 @@ Log.Info($"Current user: {eyeHub.ActiveLicense.Username}");
 Log.Info($"Connection state: {eyeHub.ConnectionState}");
 ```
 
-**LoginWithLicenseKey** is the key-sign-in operation. **ActivateLicenseKey** attaches an additional key after sign-in. Connection state alone does not prove authentication or product access.
+**LoginWithLicenseKey** signs in with a key. **ActivateLicenseKey** attaches an extra key after sign-in. The connection state alone does not show that the user is signed in or has access to the product.
 
 ### Inspect profile information
 
-These are fragments of an already running EyeAuras script with host services. They describe the local license snapshot, rather than deciding whether a runtime lease is granted.
+The examples below are fragments of a running EyeAuras script, where the host supplies the services. These fields are for diagnostics. Do not use them to decide whether access is granted right now.
 
 ```csharp
 var license = GetService<ILicenseAccessor>();
@@ -111,7 +107,7 @@ Log.Info($"StartsAt: {license.StartsAt}");
 Log.Info($"Roles: {string.Join(", ", license.Roles)}");
 ```
 
-Use stable UserId rather than a display name to associate your own data. With an existing hub service:
+Link your own data to the stable UserId, not to the display name. If you already have the hub service:
 
 ```csharp
 var eyeHub = GetService<IEyeHubService>();
@@ -127,7 +123,7 @@ var license = GetService<ILicenseAccessor>();
 var userId = license.GetAttribute("UserId");
 ```
 
-Sublicense limits and expiry are useful for display, but listing them does not request a session:
+The session limit and expiry from ShareSublicenses are handy to show to the user. Listing them does not request a session:
 
 ```csharp
 var license = GetService<ILicenseAccessor>();
@@ -142,9 +138,9 @@ foreach (var sublicense in license.ShareSublicenses)
 
 ### Request a session and keep it alive
 
-Desktop builds through **9298** have the compatible passive path. Newer clients require an explicit **ISublicenseManager** request. A key can appear in ShareSublicenses without the product having requested its required lease.
+Desktop builds up to and including **9298** had a compatible passive path. In newer clients the pack must request a session itself through **ISublicenseManager**. If you only read ShareSublicenses, the key can be visible in the profile while nobody has requested the lease.
 
-The following complete program runs in **Script.csx inside EyeAuras**. Replace ShareId with your own pack's identifier; the matching key and sign-in are prerequisites. It observes state until **Stop**. It does not launch protected product logic or enforce access for it.
+The first example is a complete program for **Script.csx inside EyeAuras**. Replace ShareId with the identifier of your own pack. The user must already be signed in and have the matching key. The script watches the state until **Stop**. It does not start or block the product's logic.
 
 ```csharp
 using System;
@@ -165,9 +161,9 @@ using EyeAuras.Shared.Sharing;
 }
 ```
 
-All waiting stays **inside** the block. Leaving it disposes the observer first, then the lease, even if Run continues afterwards. For your own protected work, replace the wait with work inside the same block, checking IsGranted and responding to loss of access. Stop cancels the wait; disposal also occurs on an exception. Local cancellation is not confirmation of an immediately freed server slot.
+All the waiting stays **inside** the block. On leaving it, the observer is disposed first and then the lease, even if Run goes on afterwards. For your own protected work, put your code in place of the wait, in the same block. Check IsGranted and react when access is lost. Stop cancels the wait. The objects are also disposed on an exception. Cancelling locally does not confirm that the server freed the slot at once.
 
-This separate reference fragment ties the observer to **ExecutionAnchors**; EyeAuras owns the lease for the current Run. Your awaited work must continue after the fragment, because the fragment itself does not keep Run alive:
+Here is another reference variant. EyeAuras owns the lease for the current Run, and the observer is tied to **ExecutionAnchors**. The fragment itself does not keep Run alive, so your awaited work must continue after it:
 
 ```csharp
 var lease = GetService<ISublicenseManager>()
@@ -189,21 +185,21 @@ lease.WhenChanged()
 
 | Operation or property | What it establishes |
 | --- | --- |
-| Rent | Immediately creates one logical session intent and starts background synchronization. It does not mean access was granted. |
-| IsGranted | The latest known positive grant. Logging a message does not stop the product after access is lost. |
-| Status / Message / LastUpdatedAt | Current diagnostic state, explanation and timestamp. A timestamp is not a new permission. |
-| WhenChanged | Replays current state and reports changes. Pause or stop dependent work on loss of access. |
-| Dispose / leaving the block / end of Run | Ends the local session intent, without confirming immediate server-side release. |
-| Several Rent calls | Several distinct sessions, rather than repeated checks on one lease. |
+| Rent | Creates one logical session at once and starts background synchronization. This does not yet mean access is granted. |
+| IsGranted | The latest known positive grant. Only this allows protected work. Logging a message does not stop the product when access is lost. |
+| Status / Message / LastUpdatedAt | The current diagnostic state, its explanation and a timestamp. |
+| WhenChanged | Reports the current state and then every change. When access is lost, pause or stop the work that depends on it. |
+| Dispose / leaving the block / end of Run | Ends the session locally. It does not confirm that the server released the slot at once. |
+| Several Rent calls | Several separate sessions, not repeated checks of one lease. |
 
-ExecutionAnchors above owns your subscription; the runtime also ties the lease to Run. Do not retain a completed Run's object as permission for a later launch. See the [login and licensing contracts](/en/scripting/api/core/login-and-licensing) for context.
+EyeAuras ties the lease to the current Run, and ExecutionAnchors above owns your subscription. Do not keep the object from a finished Run as permission for the next launch. The full context is in the [login and licensing contracts](/en/scripting/api/core/login-and-licensing).
 
-During a temporary disconnect, an unexpired signed cache can preserve already granted access, including recovery after a crash. This is not a full offline mode: a fresh grant without suitable cached permission may wait for the server. After a crash, the server can temporarily retain the old occupied slot.
+If the connection drops for a short time, access that was already granted can be restored from the signed cache while the cache is valid, including after a crash. This is not a full offline mode. Without a suitable cached permission, a new grant may wait for the server. After a crash, the server can keep the old slot occupied for a while.
 
 ### Pass the state to ordinary auras
 
-A small script can maintain an **IsAuthenticated** aura with **Fixed Value**, or an `isAuthenticated` variable. The rest of the set can use Aura Is Active, enabling conditions or bindings to that state. Update it both on grant and on loss of access; once set to true, it must not remain an old authorization result. See [finding an aura](/en/scripting/examples/basic/find-aura) and [Variables](/en/scripting/variables).
+A small script can keep an **IsAuthenticated** aura with **Fixed Value**, or an `isAuthenticated` variable, up to date. The rest of the pack reads that state through Aura Is Active, enabling conditions or bindings. Update it both when access is granted and when it is lost. See [finding an aura](/en/scripting/examples/basic/find-aura) and [Variables](/en/scripting/variables).
 
-A custom UI, [Private Content](/en/features/permission-model), [Packed Only and Binaries Only](/en/features/packs), and [script protection](/en/features/script-protection) address different exposure and distribution concerns. None replaces requesting a live lease and handling its state, or makes extracted code impossible to inspect.
+A custom UI, [Private Content](/en/features/permission-model), [Packed Only and Binaries Only](/en/features/packs) and [script protection](/en/features/script-protection) each cover a different part of distribution. You still need to request a live lease and handle its state.
 
 </details>

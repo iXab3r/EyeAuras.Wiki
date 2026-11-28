@@ -9,14 +9,14 @@ dateCreated: 2025-06-28T09:04:25.549Z
 ---
 # Label objects in your own image with YOLO11
 
-Draw boxes and class names over your own photograph or training video on the primary screen. **F1** pauses detection; **F2** chooses a region. The script reads pixels, not another application's internal state, and sends no mouse movement or clicks.
+The script draws boxes and class names over your own photograph or training video on the primary screen. **F1** pauses detection. **F2** chooses a region. While the script runs, other programs do not get these two keys.
 
-Use desktop Windows EyeAuras with OpenCV/ONNX Runtime, compatible **EyeAuras.ImGuiSdk 0.1.47** and the available external ONNX model from the code. The [EyeAuras package](https://packages.eyeauras.net/v3/index.json) depends on **EyeAuras.ClickableTransparentOverlay 11.5.28**; do not add a conflicting [ImGui.NET](https://github.com/mellinoe/ImGui.NET) version. Start on the primary monitor at 100% scale.
+You need desktop EyeAuras on Windows with OpenCV/ONNX Runtime, a compatible **EyeAuras.ImGuiSdk 0.1.47** and the ONNX model available at the address in the code. The [EyeAuras package](https://packages.eyeauras.net/v3/index.json) depends on **EyeAuras.ClickableTransparentOverlay 11.5.28**, so do not add a separate [ImGui.NET](https://github.com/mellinoe/ImGui.NET) version next to it. For the first run, use the primary monitor at 100% scale.
 
 ## Select an image and show detections
 
-1. Display a clear photograph you own containing a COCO class such as `person` or `bottle`. Make the object large enough to see. This model is not trained to detect every drawn training target.
-2. Add **C# Script** and paste the full program into top-level `Script.csx`. Allow package restore to finish:
+1. Open a clear photograph of your own with an object of a COCO class such as `person` or `bottle`. Enlarge it so the object is easy to see.
+2. Add **C# Script** and paste the whole program into top-level `Script.csx`. Wait for the package to restore:
 
 ```csharp
 #r "nuget:EyeAuras.ImGuiSdk, 0.1.47"
@@ -175,34 +175,32 @@ public async Task HandleF2(EyeAuras.Shared.Osd.IOsdSelectionService osdSelection
 }
 ```
 
-3. Click **Run**. Purple outlines the capture region; `class (score)` labels accompany retained predictions. The upper-right counter shows ImGui FPS. First use loads and creates the model.
-4. Press **F1** to pause detection, then **F2** to select your photo **within the primary screen**. Escape/right-click cancels selection and retains the old region. F1 resumes detection; **Stop** finishes the script.
+3. Click **Run**. The purple outline is the capture region. The `class (score)` labels are the predictions that were kept. The counter in the upper-right corner shows ImGui FPS. On first use the model is loaded and created.
+4. Press **F1** to pause detection, then **F2** and select your photo **within the primary screen**. Escape or a right-click cancels the selection and keeps the old region. Press F1 again to resume. Click **Stop** to finish.
 
 | Setting or display | Meaning |
 | --- | --- |
-| `IsEnabled = true` | Detection begins on Run; F1 pauses/resumes without ending the script. |
-| `CaptureRegion` | Empty means `ForScreen()`'s primary-screen capture. F2 records a screen rectangle; this does not automatically capture all monitors. |
-| `confidenceThreshold: 30` / `iouThreshold: 40` | CV score/overlap filtering, followed by this program's stricter `Score > 0.7` filter. |
-| `Label.Name` / `Score` | Class and score 0…1. `P1` formats a percentage; it is not a measured probability of correctness. |
-| `result.ToScreen(...)` | Converts processed-image boxes into screen coordinates with the selected region's transform. Do not resize them to 640×640 again. |
-| `FPS` | ImGui frame rate, not separately measured inference throughput or video frame rate. The text still renders while detection is paused. |
-| `NoActivate` | Temporarily changes shared Main's non-activation setting, restored after callback removal. Avoid concurrent owners changing it. |
+| `IsEnabled = true` | Detection is on when you click Run. F1 toggles it without ending the script. |
+| `CaptureRegion` | Empty means the primary screen from `ForScreen()`. F2 stores the screen rectangle you selected here. Other monitors are not captured automatically. |
+| `confidenceThreshold: 30` / `iouThreshold: 40` | The first CV filter, by score and by box overlap. After it the example keeps only `Score > 0.7`. |
+| `Label.Name` / `Score` | The model's class and a score from 0 to 1. `P1` only formats it as a percentage. |
+| `result.ToScreen(...)` | Converts a box from the processed image into screen coordinates, taking the selected region into account. Do not resize it to 640×640 again. |
+| `FPS` | ImGui frame rate. The text keeps rendering while detection is paused. |
+| `NoActivate` | Temporarily changes a shared setting of the native Main window so the overlay does not activate when shown. The old value comes back once the frame callback is removed. |
 
-This specific **YOLO11s detect** file records Ultralytics 8.3.8, 80 COCO classes, input `images` 1×3×640×640 and output `output0` 1×84×8400. It is not a classifier without boxes, a pose model or a detector trained for a particular game. Another file's YOLO name does not establish compatibility: input/output layouts, metadata, parser and installed ONNX execution provider must agree. Metadata records AGPL-3.0; see the author's [terms](https://www.ultralytics.com/license) and [YOLO11 family documentation](https://docs.ultralytics.com/models/yolo11/).
+The example uses one specific **YOLO11s detect** file. Its metadata says Ultralytics 8.3.8, 80 COCO classes, input `images` 1×3×640×640 and output `output0` 1×84×8400. Another model needs matching inputs, outputs, metadata and result parser. The metadata lists the AGPL-3.0 license. The author publishes the [terms](https://www.ultralytics.com/license) and the [YOLO11 family documentation](https://docs.ultralytics.com/models/yolo11/).
 
-The loader stretches selected pixels to the model input; the parser scales boxes back to the processed image, then `ToScreen` applies capture position. Empty suitable predictions leave the region without boxes. A capture/model error is a separate outcome; absence of a box alone is not successful-load proof.
+The loader stretches the selected pixels to the model input size. The parser scales boxes back to the processed image, and `ToScreen` applies its position. If there are no suitable predictions, the region simply stays without boxes.
 
-To investigate a slow detector, use [CV pipeline profiling](/en/scripting/examples/advanced/profiling-cv) with the same model, source and region. Its measured steps distinguish first-use setup from later searches; the ImGui FPS label here cannot identify which CV stage takes time.
+If detection is slow, use [CV pipeline profiling](/en/scripting/examples/advanced/profiling-cv) with the same model, source and region. Its per-step timings separate first-use setup from later searches.
 
-The script leaves execution-provider selection to the host: Default tries available DirectML session options, otherwise CPU. This does not promise recovery from model or inference errors.
+ImGui and ML run on the frame callback thread once the native context exists. Slow inference delays that frame. F1 and F2 change state under a lock, and the callback copies a consistent region. Stop is checked between calls: the token does not interrupt synchronous inference. An open region selection has its own cancellation, and the token is checked after the selection returns.
 
-ImGui and ML run on the native frame thread after context creation. Slow inference delays that frame. F1/F2 update state under a lock and each callback copies a consistent region. Stop is checked between calls, not during synchronous inference. Region selection has its own cancellation; the Run token is checked after selection returns. `SuppressKey = true` intercepts F1/F2 while their handlers are registered, so choose unused keys for your test.
-
-Cleanup sets `renderStopped` under the callback gate, waits for active work and removes its owned registration before restoring Main and disposing CV/ImGui. A stuck callback can delay cleanup. Captured/result images are borrowed and must not be disposed separately or sent to a worker. `Log`, `GetService`, the token and attributed methods are this `Script.csx` host context, not ordinary-class globals. See [ImGui operations](/en/scripting/api/IImGuiExperimentalApi), [script runtime](/en/scripting/api/scripting/runtime), [capture ownership](/en/scripting/api/computer-vision/images) and [CV operations](/en/scripting/api/IComputerVisionExperimentalScriptingApi).
+On Stop, a flag under `renderGate` blocks further work and waits for the current callback to finish. Then the registration is removed, the old setting comes back and the APIs are disposed. Captured and result images are borrowed: do not dispose them separately or pass them to a background thread. `Log`, `GetService` and `cancellationToken` exist only in `Script.csx`. Ordinary classes do not have these globals. See [ImGui operations](/en/scripting/api/IImGuiExperimentalApi), [script runtime](/en/scripting/api/scripting/runtime), [capture ownership](/en/scripting/api/computer-vision/images) and [CV operations](/en/scripting/api/IComputerVisionExperimentalScriptingApi).
 
 <details>
 <summary>Earlier demonstration and another teaching source</summary>
 
-The [earlier demo](https://onelineplayer.com/player?autoplay=true&autopause=false&muted=true&loop=true&url=https%3A%2F%2Fs3.eyeauras.net%2Fmedia%2F2025%2F06%2FEyeAuras_Ysg57Vun9q2Hmuvu.mp4&poster=&time=true&progressBar=true&overlay=true&muteButton=true&fullscreenButton=true&style=light&quality=auto&playButton=true) shows its original image/environment, not a promised FPS on your machine. For another input, use the [training video](https://www.youtube.com/watch?v=rTqg2hEjGdE), select its region and inspect actual classes/boxes. A COCO model need not treat every target in that video as a supported object.
+The [earlier demo](https://onelineplayer.com/player?autoplay=true&autopause=false&muted=true&loop=true&url=https%3A%2F%2Fs3.eyeauras.net%2Fmedia%2F2025%2F06%2FEyeAuras_Ysg57Vun9q2Hmuvu.mp4&poster=&time=true&progressBar=true&overlay=true&muteButton=true&fullscreenButton=true&style=light&quality=auto&playButton=true). For another input, open the [training video](https://www.youtube.com/watch?v=rTqg2hEjGdE), select its region and see which classes and boxes appear.
 
 </details>

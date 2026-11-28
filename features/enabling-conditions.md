@@ -10,40 +10,36 @@ dateCreated: 2023-02-16T20:13:29.512Z
 
 # Enabling Conditions — run a group only when needed
 
-A group of visual checks may only be useful while you are inspecting something. Put the auras in a folder and give that folder **Enabling conditions**. When permission is withdrawn, the child auras stop working, including their ordinary trigger calculations.
+Sometimes a set of reminders or checks is needed only for one task. Put those auras in a folder and give the folder **Enabling conditions**. While the condition is not met, the auras in the folder are off and their ordinary triggers are not calculated.
 
-An ordinary trigger answers “is this aura's condition met?” An enabling condition answers “should this aura run at all?” This can avoid unnecessary image or text searches; it does not supply the data those searches need.
+This is handy, for example, for a group of image and text searches. An ordinary trigger answers “is this aura's condition met?” An enabling condition decides “should this aura run at all?”
 
 ## Hold a key to enable a group of reminders
 
-1. Create a folder named “Inspection mode”. In **Enabling conditions**, add [Hotkey Is Active](/en/triggers/hotkey-is-active), choose an unused F8 key and select **Hold**. Leave this as the only enabling condition for now.
+1. Create a folder named “Inspection mode”. In its **Enabling conditions**, add [Hotkey Is Active](/en/triggers/hotkey-is-active), choose the F8 key if it is free and select **Hold**. Do not add other enabling conditions for now.
 
-   ![Folder Enabling conditions with the Hotkey field and Toggle and Hold modes.](/assets/callouts/batch3/en/folder-hotkey-condition.png)
-
-   In this earlier editor the hotkey is still unassigned and Toggle is selected. Set F8 and choose Hold for the exercise.
+   ![Folder Enabling conditions with the Hotkey field and the Toggle and Hold modes](/assets/callouts/batch3/en/folder-hotkey-condition.png)
 
 2. Inside the folder, create a “Reminder” aura. In its ordinary **Triggers**, add [Fixed Value](/en/triggers/fixed-value) set to **Is Active**.
-3. In **Overlays**, add [Text](/en/overlays/text). Set **Content** to “Check the selected region”, place it on screen and enable **Locked**.
-4. Select an aura outside the folder, switch to your working application, then hold and release F8.
+3. In **Overlays**, add [Text](/en/overlays/text). Set **Content** to “Check the selected region”, place the text on screen and turn on **Locked**.
+4. Select any aura outside the folder and switch to your working application. Hold F8, then release it.
 
-The reminder appears while F8 is held and disappears when released. Its words come from Content; the key controls whether the group is allowed to run.
+While the key is held, the folder lets the aura run and the reminder is visible. Release the key and the reminder disappears.
 
-You can now place a configured [Text Search](/en/triggers/images/text-search) in the same folder. First make sure the search works with the correct source window and region on its own.
+Now you can put a configured [Text Search](/en/triggers/images/text-search) into the same folder. It will work only in this mode. First make sure the search works correctly on its own.
 
-When the whole group is only useful in your chosen foreground window, use [Window Is Active](/en/triggers/window-is-active) in its Enabling conditions instead of the key in this example. If that window check is already configured in another aura, [Aura Is Active](/en/triggers/aura-is-active) lets you reuse its state rather than duplicate the check.
+If the group is needed only in a certain window, replace the key in Enabling conditions with [Window Is Active](/en/triggers/window-is-active). If that window check is already set up in another aura, reuse it through [Aura Is Active](/en/triggers/aura-is-active) instead of creating it again.
 
 ## Choose the scope
 
-| Location | Effect |
+| Location | What it affects |
 | --- | --- |
-| Folder Enabling conditions | Controls its child auras and nested folders. |
-| Aura Enabling Conditions | Controls that aura. |
-| Aura Triggers | Determines Active / Not Active while the aura is allowed to run. A false ordinary trigger does not by itself stop all other trigger calculations. |
+| Folder Enabling conditions | The auras and nested folders inside it. |
+| Aura Enabling Conditions | That one aura. |
+| Aura Triggers | Its Active / Not Active while it is allowed to run. A false trigger does not stop the other triggers from being calculated. |
 
-An empty enabling group adds no restriction. With several conditions, check the combination rule in the group header. An unknown combined result does not grant permission. The object must also be loaded to run.
+If there are no enabling conditions, there is no restriction. If there are several, look at the group header to see how they are combined. When the result is unknown, the aura is not allowed to run. The object must also be loaded.
 
-![The Window Is Active trigger is marked DISABLED, and its tooltip explains that MyFolder is disabled.](/assets/callouts/batch2/en/enabling-folder-disabled.png)
+![The Window Is Active trigger is marked DISABLED, and the tooltip points to the disabled folder MyFolder](/assets/callouts/batch2/en/enabling-folder-disabled.png)
 
-In this earlier editor, hovering over DISABLED shows that the parent folder’s enabling conditions are inactive.
-
-Normally a disabled parent prevents its children's enabling conditions from being evaluated too. There is an editing exception: the selected object can continue evaluating while the EyeAuras window is active. An unlocked overlay also stays visible for placement. Test the restriction after locking the overlay, selecting another object and leaving the editor.
+Normally a disabled parent also stops the enabling conditions of its children from being checked. There is one exception for editing: the object selected in the active EyeAuras window can keep being calculated. So test the restriction with another object selected and your working application in front. An unlocked overlay also stays visible so you can place it. Turn on Locked before you test.

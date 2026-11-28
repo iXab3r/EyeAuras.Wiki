@@ -1,6 +1,6 @@
 ---
 title: Augmentations
-description: Short link to the detailed augmentations page
+description: When augmentations help and where to read the detailed guide
 published: true
 date: 2026-05-08T12:30:00.000Z
 tags: yoloease, machine-learning, ai-translated
@@ -9,24 +9,22 @@ dateCreated: 2026-05-08T12:00:00.000Z
 ---
 # Decide whether your dataset needs image variations
 
-If a first model misses slightly blurred or noisy versions of objects you already annotated, use [the detailed augmentations guide](/en/YoloEase/features/augmentations). This short guide leads to the same **Augmentations** tab and helps you decide whether to use it.
+Augmentations are changed copies of frames you have already annotated: slightly blurred, noisy or rotated. You set them up on the **Augmentations** tab. The full steps are in [the detailed augmentations guide](/en/YoloEase/features/augmentations). This page helps you decide whether you need them.
 
-Start with your own project, a completed annotation task and a baseline training result without effects.
+Start when your project already has a completed annotation task and a first training result without effects.
 
-1. Inspect errors on new real frames. For missing objects or window states, first [add and annotate those images](/en/YoloEase/features/annotation-editor).
-2. For an actual pixel variation, inspect one mild option such as **Box Blur → Radius: 1px** using the [detailed procedure](/en/YoloEase/features/augmentations). Read its saved-image limitation first: the current generator draws coloured annotation contours into the PNG itself.
-3. Check enabled rows before the next [Trainer](/en/YoloEase/features/trainer) cycle. Clear a row's checkbox to exclude it without deleting the setting.
+1. See where the model goes wrong on new real frames. If the objects or window states themselves are missing, first [add and annotate those images](/en/YoloEase/features/annotation-editor).
+2. If the problem really is in the pixels, try one mild effect such as **Box Blur → Radius: 1px**, following the [detailed procedure](/en/YoloEase/features/augmentations). Read its note about saved images first: the current generator draws coloured annotation outlines into the PNG itself.
+3. Before the next [Trainer](/en/YoloEase/features/trainer) cycle, check which rows are enabled. Clearing a row's checkbox leaves it out but keeps its setting.
 
    ![Checked Noise row with 5% in the Properties column.](/assets/callouts/batch3/en/yolo-augmentation-enabled.png)
 
-   Only Noise is enabled in this example. Each pixel has a 5% chance of receiving noise.
-
-You now have a deliberate dataset-preparation choice. Adding a row alone does not change images; variants are produced during dataset construction before training, with the original annotations retained.
+Adding a row does not change any images by itself. The new files are made when the dataset is built before training, and the original annotations are kept.
 
 | Your situation | Next step |
 | --- | --- |
-| No baseline model yet | Leave augmentations empty and obtain a first result. |
-| Need variations of existing annotated frames | Check the generated images and transformed boxes in the detailed guide; do not assume clean output without contours. |
-| Need to transform pixels before every recognition call | Use [EyeAuras effects](/en/triggers/images/effects), consistently for recording and inference. These are a different pipeline. |
+| No baseline model yet | Leave the list empty and get a first result to compare with. |
+| Need variations of existing annotated frames | Check the generated images and transformed boxes as the detailed guide describes. The saved images can contain the drawn outlines. |
+| Need to change the pixels before every recognition call | Use [EyeAuras effects](/en/triggers/images/effects). Set them up the same way for recording and for recognition. This is a separate mechanism. |
 
-For the exported model and the difference between `.pt` and `.onnx`, continue with [YOLO ONNX](/en/YoloEase/features/yolo-onnx).
+The exported model and the difference between `.pt` and `.onnx` are covered in [YOLO ONNX](/en/YoloEase/features/yolo-onnx).

@@ -10,14 +10,14 @@ dateCreated: 2025-07-16T11:25:58.112Z
 
 # List processes through a prepared FPGA source
 
-EyeAuras can access memory through **MemProcFS/LeechCore** and **EyeAuras.Memory.MPFS**. Listing the processes visible to the source is a useful first request before reading a known value in your own test application.
+EyeAuras can read memory through **MemProcFS/LeechCore** and the **EyeAuras.Memory.MPFS** module. For a first check, list the processes the source can see. This shows that data gets through at all. After that you can read a known value from your own test application.
 
-You need a compatible Windows distribution with MPFS loaded, its native libraries, a prepared FPGA source and your own target system. See [preparation and computer roles](/en/dma/getting-started). This is not a capability of an unprepared ordinary PC or a guarantee of access to every process.
+You need a compatible Windows distribution with MPFS loaded and its native libraries, a prepared FPGA source and your own target system. How to prepare everything and which computer does what is described in [preparation and computer roles](/en/dma/getting-started). On an ordinary PC without this hardware it does not work.
 
 ## Make one process-list request
 
-1. Check that MPFS is loaded and the source is prepared for your board and system. The device must be connected where this call opens its acquisition source.
-2. Create a **C# Script** in [EyePad](/en/features/eyepad) and put the complete program in `Script.csx`.
+1. Check that MPFS is loaded and the memory source is prepared for your board and system. The device must be connected to the computer where this call opens the source.
+2. Create a **C# Script** in [EyePad](/en/features/eyepad) and put the whole program in `Script.csx`.
 
 ```csharp
 using EyeAuras.Memory;
@@ -32,39 +32,39 @@ using EyeAuras.Memory.MPFS;
 }
 ```
 
-3. Click **Run** once. Expect a count, PID and name for processes on the **target system** visible to that source. Compare a known test process with that system; an absent process does not establish access to its memory.
-4. The script ends after enumeration. `GetProcesses` returns a copied list and disposes the VMM created for that request. It is a snapshot, not a live list. Initialization or acquisition errors are not successful results.
+3. Click **Run** once. The log shows the count, PIDs and names of the processes on the **target system** that the source can see. Find your test process among them.
+4. After printing the list the script ends. `GetProcesses` returns a copy of the list and closes the VMM created for this request. The list does not update itself. If initialization or reading fails, the request ends with an error, not with an empty result.
 
-`Log` and `cancellationToken` belong to top-level EyeAuras script context; pass dependencies explicitly to ordinary classes. The call is synchronous, so checking the token before it does not instantly cancel native initialization already in progress.
+`Log` and `cancellationToken` are available only in a top-level EyeAuras script. Pass dependencies to ordinary classes explicitly. The call is synchronous: the token is checked before it, but this does not instantly cancel initialization already running inside the native library.
 
 | Choice | Effect |
 | --- | --- |
-| `LCProcess.FPGA()` | Configures the FPGA source; it does not discover every board on a network. |
-| `GetProcesses()` | Returns visible PIDs and names without reading an arbitrary game field. |
-| `ByProcessId(pid)` / `ByProcessName(name)` | Opens a separate process object that you must dispose after use. |
-| `LCProcess.WinPMEM()` / `HyperV()` / `Custom(...)` | Other sources requiring their own setup. A method does not install its driver, enable Hyper-V or select a fallback automatically. |
-| `WithRemote(...)` | Configures a separately prepared remote source, with that source's address and access requirements. |
+| `LCProcess.FPGA()` | Sets up the FPGA source. |
+| `GetProcesses()` | Returns a snapshot of visible PIDs and names. |
+| `ByProcessId(pid)` / `ByProcessName(name)` | Opens a separate process object. Dispose it when you are done. |
+| `LCProcess.WinPMEM()` / `HyperV()` / `Custom(...)` | Other sources. Each needs its own setup. |
+| `WithRemote(...)` | A remote source that is prepared separately. |
 
 ## Follow the source of the data
 
-In the two-computer topology, the target and analysis program run separately. **Game** means the target application and **Bot** means the analysis program in the earlier figure; neither label creates a ready-made game integration.
+In the two-computer setup, the target application and the analysis program run on different machines. Memory is passed through the board.
 
 ![Target application and EyeAuras on separate computers with an FPGA acquisition path](/assets/wiki-media/m072.png)
 
-Two computers: Game is the target and Bot is the analysis program. The FPGA arrows lead into their corresponding computers. [Original SVG diagram](/assets/wiki-media/m072-original.svg).
+Two computers: Game is the target application, Bot is the analysis program. [Original SVG diagram](/assets/wiki-media/m072-original.svg).
 
-In the second topology, the target and EyeAuras run on one computer. Placement alone promises neither invisibility nor bypass of protections or identical performance. Device, firmware, operating-system and DMA-protection limits still apply.
+In the second setup, EyeAuras and the target application are on one computer. Access is limited by the board, its firmware, the operating system and its DMA protection.
 
 ![Target application and EyeAuras on one computer with an FPGA path](/assets/wiki-media/m073.png)
 
-One computer contains both roles; the FPGA and USB-C paths remain separate connections. [Original SVG diagram](/assets/wiki-media/m073-original.svg).
+[Original SVG diagram](/assets/wiki-media/m073-original.svg).
 
-[LeechCore](https://github.com/ufrisk/LeechCore) supplies physical-memory acquisition sources; MemProcFS reconstructs processes and their virtual address spaces. An address passed to `process.Memory` belongs to the opened process. Physical and virtual addresses are not interchangeable simply because the data arrived through DMA. Check device and connection requirements in the author's [FPGA documentation](https://github.com/ufrisk/LeechCore/wiki/Device_FPGA); not every FPGA board, bridge or USB adapter is compatible.
+[LeechCore](https://github.com/ufrisk/LeechCore) gives access to physical memory. MemProcFS rebuilds processes and their virtual address spaces from it. An address in `process.Memory` belongs to the opened process, so it is virtual. You cannot put a physical address there instead, even though the data came through DMA. For compatible hardware and connection requirements, see the author's [FPGA documentation](https://github.com/ufrisk/LeechCore/wiki/Device_FPGA). Not every board or USB adapter will do.
 
 <details>
 <summary>Read a known integer after obtaining its PID and address</summary>
 
-You need the current PID of your own test application, the **absolute virtual address** of its value, and the exact `int` type. Obtain the address from that application or its known layout. This helper is a function, not a program that discovers an address:
+You need the current PID of your own test application, the **absolute virtual address** of the value and the exact `int` type. Take the address from the test application itself or its known layout. The snippet below is a function, not a whole program:
 
 ```csharp
 using System;
@@ -78,10 +78,10 @@ static int ReadKnownInt32(int processId, IntPtr virtualAddress)
 }
 ```
 
-Call it with your own PID and address and compare the result with the known integer. The owned process holds the acquisition resources; its borrowed `process.Memory` must not outlive it. Disposing the reader does not terminate the target application. Prefer `Read<T>` for an ordinary scalar. `Write<T>` is also part of the memory surface, but source support and completeness of writes differ; larger binary transfers need their result checked.
+Call it with your PID and address and compare the result with the known number. `process.Memory` belongs to the process, and you must not use it after the process is disposed. Disposing the process object does not close the target application. Read an ordinary number with `Read<T>`. You can write a known value with `Write<T>`, but whether the write works and completes depends on the source.
 
-For this backend, `process.Memory.BaseAddress` is zero, not an automatically selected game's module base. Use process module information for a module base. An offset such as `0x1C4` does not establish a character's health: layout, type and address belong to a specific target version.
+`process.Memory.BaseAddress` is zero here. It is not the base of a game module. Take the module base from the process module information. An offset such as `0x1C4` is tied to one version of the target: layout, type and address can all change.
 
-The shared high-level memory operations do not make all process-control features portable. Do not assume automatic recovery, arbitrary protected-process access or hot-swapping to `ReadProcessMemory`. See the [Memory API](/en/scripting/api/memory) for operation contracts and the [known-value local example](https://wiki.eyeauras.net/en/scripting/examples/advanced/memory/rpm-read) for an experience without acquisition hardware.
+The high-level memory operations are shared by several access methods, but not all process control carries over between them. There is no automatic switch to `ReadProcessMemory`. Details are in the [Memory API](/en/scripting/api/memory). A simple example without the hardware is the [known-value local example](https://wiki.eyeauras.net/en/scripting/examples/advanced/memory/rpm-read).
 
 </details>

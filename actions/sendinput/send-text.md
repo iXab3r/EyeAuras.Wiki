@@ -1,6 +1,6 @@
 ---
 title: (legacy) Send Text
-description: Enter a prepared note and migrate a legacy Send Text action to a Text step
+description: How to enter prepared text with the Text step in Send Sequence, and how to move an old Send Text action.
 published: true
 date: 2024-05-14T09:38:38.227Z
 tags: 
@@ -10,43 +10,41 @@ dateCreated: 2023-06-18T15:31:49.359Z
 
 # Enter text from a legacy Send Text action
 
-To insert a prepared note, add a **Text** step to [Send Sequence](/en/actions/sendinput/send-sequence). You can fill a draft with `Documents received. Check the attachments.` and leave submission to the reader.
+Prepared text is now entered by the **Text** step in [Send Sequence](/en/actions/sendinput/send-sequence). For example, it can put the note `Documents received. Check the attachments.` into a draft, and you submit it yourself.
 
-The standalone **Send Text** action is legacy. Its old WPF editor and conversion command are separate from the current Text step. This image shows the former delivery options.
+The standalone **Send Text** action is legacy. What remains of it is the old WPF editor and a conversion command.
 
-![Text to send and the selected Control+V paste option in the legacy action.](/assets/callouts/batch3/en/legacy-send-text-method.png)
-
-[Full legacy Send Text panel](/assets/legacy/eyeauras_iejiqhr0ng.png).
+![Text to send and the Control+V paste option in the legacy action](/assets/callouts/batch3/en/legacy-send-text-method.png)
 
 ## Insert a note in your own draft
 
-Use your own editable test form or draft that does not submit automatically. Selecting its window does not select the field inside it.
+Use a test form or draft that does not submit automatically. The field you need must be open for editing. Selecting the window does not select the field inside it.
 
 1. Add **Send Sequence** to an aura. Click **Text** in the sequence toolbar and select the new step.
-2. Enter `Documents received. Check the attachments.` in **Text**, without surrounding quotes.
-3. Set **Send method = Control+V**.
-4. Under **Advanced input settings**, select that application's **Target Window** and **Input Simulator = Windows Input**. Do not add Enter or any submission steps.
-5. Focus the draft field and run **Execute**. It should contain exactly the prepared note. Check it before submitting anything.
+2. In its **Text** field, enter `Documents received. Check the attachments.` with no quotes around it.
+3. Set **Send method** to **Control+V**.
+4. Open **Advanced input settings**, select the application's **Target Window** and set **Input Simulator** to **Windows Input**. Do not add Enter or other submission steps yet.
+5. Put the focus in the draft field and click **Execute**. The field should contain exactly the prepared note. Check it before you submit anything.
 
-Control+V replaces the system clipboard contents and queues a paste keystroke. It does not restore the previous clipboard, and completion of the text step does not confirm that the receiving application has processed the paste.
+Control+V puts the text on the system clipboard and sends the paste shortcut. The previous clipboard contents are not restored. The paste is queued as input, so the end of the text step does not yet mean the application has processed the text.
 
 ## Choose delivery
 
 | Send method | What it sends |
 | --- | --- |
-| Control+V | Copies the text to the clipboard, then sends Ctrl+V to a field that accepts paste |
-| Shift+Insert | Uses the same clipboard with Shift+Insert; choose it when the target accepts that shortcut |
-| Type characters | Converts characters to keys and modifiers. Available keyboard layouts must be able to represent them |
+| Control+V | Copies the text to the clipboard, then sends Ctrl+V. Works for fields that accept an ordinary paste |
+| Shift+Insert | The same clipboard, but with Shift+Insert. Use it when the application accepts that shortcut |
+| Type characters | Turns each character into a key with the right modifiers. Depends on the keyboard layout and on whether the character can be typed with keys |
 
-**Type characters** supports layout detection; this is not a guarantee for arbitrary mixed-language or Unicode text. For such text, first try clipboard paste. Choosing another method does not bypass an application's input restrictions.
+**Type characters** detects the keyboard layout. It may still fail to type arbitrary mixed-language text or characters missing from the available layouts. Mixed text and Unicode are usually easier to paste from the clipboard.
 
-The **Text** field contains literal text, not AutoHotkey commands or a C# string. `Ctrl+A`, `{Enter}` and `\n` do not become a shortcut, an Enter press or a line break. Enter an actual newline in the multiline field, or add a separate Enter key pair through Keyboard. Backslashes, plus signs and braces in ordinary text need no EyeAuras escape syntax.
+The **Text** field holds text as is, not AutoHotkey commands or a C# string. `Ctrl+A`, `{Enter}` and `\n` do not turn into a shortcut, an Enter press or a line break. Type a real line break straight into the multiline field. Add a separate Enter press as key events through Keyboard. You do not need to escape backslashes, plus signs or braces.
 
 ## Convert an existing action
 
-1. In the legacy editor, note **Text**, **Input Method**, target and simulator.
-2. Choose **Convert to Send Sequence** if that editor is available. The new action appears **after** the old one.
-3. Compare the entire new Text value and Send method. **Paste via Clipboard (Ctrl+V)**, **Paste via Clipboard (Shift+Insert)** and **Send Each Character Individually** map to the three options above.
-4. Run only the new action in your test field. Remove the old one after checking, to avoid duplicate insertion. If its editor is unavailable, create Text manually using the first procedure.
+1. In the old Send Text, check **Text**, **Input Method**, the window and the simulator.
+2. If the old editor is available, click **Convert to Send Sequence**. The new action appears **after** the old one, not in its place.
+3. In the new Text step, compare the whole text and the Send method. The old **Paste via Clipboard (Ctrl+V)**, **Paste via Clipboard (Shift+Insert)** and **Send Each Character Individually** are the three options in the table.
+4. Run only the new action in your test field. After checking, remove the old one from the list, or the aura will insert the text twice. If the old editor is unavailable, create Text by hand with the steps above.
 
-[Common options](/en/actions/sendinput/options) select the recipient and delivery mechanism. Windows Input uses the activated window and its current internal focus; neither paste nor character typing guarantees background delivery.
+[Common options](/en/actions/sendinput/options) set where and how the input is delivered. Neither paste nor character typing sends text to a background window: ordinary Windows Input works with the activated window and the current focus inside it.

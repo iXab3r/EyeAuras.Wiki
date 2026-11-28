@@ -10,16 +10,16 @@ dateCreated: 2024-08-29T14:37:33.998Z
 
 # Read a field on your own page with Selenium
 
-Selenium addresses page elements through the browser's DOM. Here a separate Edge session opens a temporary local page, enters `EyeAuras` in one field and reads it back into the EyePad log. No screenshot matching or form submission is needed.
+Selenium works with page elements: it finds a field by name, types text and reads the result from the DOM. No window screenshot or pixel search is needed. In this example a separate Microsoft Edge session opens a temporary local HTML page, types `EyeAuras` into a field and writes that value to the EyePad log.
 
-You need Microsoft Edge and a matching **Microsoft Edge WebDriver** for your Windows environment and architecture. Check the browser version at `edge://settings/help`, download the driver from [Microsoft](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/), and extract it, for example to `C:\Tools\EdgeDriver`. Microsoft requires the [first three version components to match](https://learn.microsoft.com/en-us/microsoft-edge/webdriver/). A Selenium NuGet reference installs neither Edge nor its driver.
+You need Microsoft Edge and a matching **Microsoft Edge WebDriver**. Check the browser version at `edge://settings/help`, download the driver from [Microsoft](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/), and extract it, for example to `C:\Tools\EdgeDriver`. The first three parts of the browser and driver version numbers must match. This is a [Microsoft requirement](https://learn.microsoft.com/en-us/microsoft-edge/webdriver/).
 
 ## Run the local example
 
-1. Create a **C# Script** in [EyePad](/en/features/eyepad). The host needs access to resolve `Selenium.WebDriver 4.24.0` and permission to create a temporary file and start the driver.
-2. Set `driverDirectory` to the directory containing your `msedgedriver.exe`. Paste the whole program into `Script.csx`.
-3. Click `Run`. It creates its own headless Edge session and temporary HTML page; it does not attach to your open tabs or shared browser profile.
-4. Expect `Field value: EyeAuras` in the log. On exit, the owned browser session and driver are disposed and the temporary file is removed.
+1. Create a **C# Script** in [EyePad](/en/features/eyepad).
+2. Paste the whole program into `Script.csx`. Set `driverDirectory` to the folder that holds your `msedgedriver.exe`.
+3. Click `Run`. The script creates a temporary page and a separate Edge session with no visible window. It does not connect to your open tabs or your browser profile.
+4. The log shows `Field value: EyeAuras`. After that the browser session and the driver are closed and the temporary file is deleted.
 
 ```csharp
 #r "nuget: Selenium.WebDriver, 4.24.0"
@@ -55,24 +55,24 @@ using System.IO;
 }
 ```
 
-`Log` and `cancellationToken` are top-level EyeAuras script members. Pass them explicitly if you move the work into an ordinary class. WebDriver commands are synchronous here: a token check between commands does not interrupt a command already waiting for a response. Driver disposal sends Quit for its session; it is not a command to close unrelated Edge windows.
+`Log` and `cancellationToken` belong to the top-level EyeAuras script here. Pass them explicitly if you move the work into an ordinary C# class. Selenium commands are synchronous: a token check between them does not interrupt a WebDriver command that is already waiting for a reply.
 
 | Choice | What it does |
 | --- | --- |
-| `By.Name("demo")` | Finds the element by its `name` attribute. `By.CssSelector` and `By.XPath` are alternatives. |
-| `SendKeys` and `GetAttribute("value")` | Enter text and read the field's value without submitting the page. |
-| `--headless=new` | Runs without a visible browser window. Remove this option to watch your own test page. |
-| `Click()` and `Submit()` | Click a found element or submit a form on your page; these methods do not select the element for you. |
+| `By.Name("demo")` | Finds the element by its `name` attribute. `By.CssSelector` and `By.XPath` also exist. |
+| `SendKeys` and `GetAttribute("value")` | Type text into the found field and read its value. |
+| `--headless=new` | Edge runs with no visible window. Remove this argument if you want to see your test page. |
+| `Click()` and `Submit()` | Click an element or submit a form on your page. |
 
-For a network page, completed navigation does not guarantee that a dynamic element has appeared. Configure an appropriate element wait rather than treating a fixed `Sleep(5000)` as a DOM-readiness check. Multiple drivers can own separate sessions, but still share machine resources, files and processes.
+If a page loads over the network, the end of navigation does not mean every dynamic element is already there. Set up a wait for the element you need. A fixed `Sleep(5000)` is not such a wait.
 
 <details>
 <summary>The earlier WebDriverManager example</summary>
 
-The [original shared example](https://eu.eyeauras.net/share/S20240829142432YXyi4jtEdmlm) opens Bing, locates the `q` field, enters `Selenium C# example` and submits it. Its page selectors and network timing depend on that external site. The local example above gives you control of the page instead.
+The [original example](https://eu.eyeauras.net/share/S20240829142432YXyi4jtEdmlm) uses `Selenium.WebDriver 4.24.0`, `WebDriverManager 2.17.4`, `SharpZipLib 1.4.2` and `AngleSharp 1.1.2`. It opens Bing, finds the `q` field, types `Selenium C# example` and submits the search form.
 
-That version references `Selenium.WebDriver 4.24.0`, `WebDriverManager 2.17.4`, `SharpZipLib 1.4.2` and `AngleSharp 1.1.2`. `SetUpDriver(new WebDriverManager.DriverConfigs.Impl.EdgeConfig())` returns the downloaded driver's binary path. Without an explicit strategy it selects Latest, which need not match your installed browser. `WebDriverManager.Helpers.VersionResolveStrategy.MatchingBrowser` can be supplied as the second argument. Version 2.17.4 uses older Microsoft download addresses; if they are unavailable, prepare the matching driver manually.
+In WebDriverManager 2.17.4, `SetUpDriver(new WebDriverManager.DriverConfigs.Impl.EdgeConfig())` downloads a driver and returns its path. With no strategy given it picks the latest version, which may not match your installed Edge. To match the browser, pass `WebDriverManager.Helpers.VersionResolveStrategy.MatchingBrowser` as the second argument. This library version uses old Microsoft download addresses. If they are unavailable, prepare the driver by hand as described above.
 
-The pinned [EdgeDriver constructor](https://github.com/SeleniumHQ/selenium/blob/selenium-4.24.0/dotnet/src/webdriver/Edge/EdgeDriver.cs), [session disposal](https://github.com/SeleniumHQ/selenium/blob/selenium-4.24.0/dotnet/src/webdriver/WebDriver.cs) and [WebDriverManager download selection](https://github.com/rosolko/WebDriverManager.Net/blob/2.17.4/WebDriverManager/DriverManager.cs) are separate contracts. A constructor that resolves does not establish compatibility with every future Edge release. General [Selenium documentation](https://www.selenium.dev/) and the [Edge product page](https://www.microsoft.com/en-us/edge?ep=657&form=MA13FJ&es=40) cover the browser tooling.
+Sources: [EdgeDriver constructor](https://github.com/SeleniumHQ/selenium/blob/selenium-4.24.0/dotnet/src/webdriver/Edge/EdgeDriver.cs), [session disposal](https://github.com/SeleniumHQ/selenium/blob/selenium-4.24.0/dotnet/src/webdriver/WebDriver.cs), [WebDriverManager download selection](https://github.com/rosolko/WebDriverManager.Net/blob/2.17.4/WebDriverManager/DriverManager.cs), [Selenium documentation](https://www.selenium.dev/), [Edge product page](https://www.microsoft.com/en-us/edge?ep=657&form=MA13FJ&es=40).
 
 </details>

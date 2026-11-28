@@ -9,14 +9,14 @@ dateCreated: 2024-08-15T19:33:14.411Z
 ---
 # Show a live counter above your desktop
 
-Display your own aura's variables near the top of the primary screen. **test4** is set once and **test1** changes about once a second. The table observes the variable container, so this is a live view rather than a log snapshot.
+The script shows a table of your aura's variables near the top of the primary screen. **test4** is set once and **test1** changes about once a second. The table is subscribed to the variable container and updates when values are written.
 
-You need desktop EyeAuras with its UI/scripting modules and WebView2 HTML screen overlay available. No external HTML file, Razor component or NuGet package is required: the program builds the markup. Use a separate aura you own because it writes **test1–test4** there.
+You need desktop EyeAuras with working UI/scripting modules and the WebView2 HTML screen overlay. No external HTML file, Razor component or NuGet package is needed: the code builds the markup. Use a separate aura of your own, because the example writes **test1–test4** into it.
 
-1. Create your aura and add **C# Script** to **On Enter**.
-2. Put the entire program below in top-level **Script.csx**, including the helper class after the executable body.
-3. Click **Run**. A table with test1 and test4 should appear near the primary screen's top centre; test1 should update about once a second.
-4. Click **Stop**. The subscription and created table are released. Variable entries remain on the aura; closing the UI does not delete its data.
+1. Create an aura and add **C# Script** to **On Enter**.
+2. Paste the whole program below into top-level **Script.csx**, including the helper class after the main body.
+3. Click **Run**. A table with test1 and test4 appears at the top centre of the primary screen. The number in test1 changes about once a second.
+4. Click **Stop**. The subscription is removed and the table disappears. The variables stay on the aura.
 
 ```csharp
 using System;
@@ -148,20 +148,20 @@ public sealed class VariablesOnScreenHelper : DisposableReactiveObject
 
 | Part | Purpose |
 | --- | --- |
-| source | The current aura accessor. The program writes into that same owner whose collection the helper observes. A host without a current aura cannot use this path as-is. |
-| Draw(source, "test1", "test4") | Displays those two names. test2 and test3 update but are filtered out. |
-| Draw(source) | Displays all variables on the supplied owner. |
-| Draw(source, canvasBounds, ...) | Uses your own screen rectangle instead of the primary-screen rectangle. |
-| Connect() | Observes container changes, not arbitrary internal property changes on every stored object. |
+| source | The accessor of the current aura. Values are written into it, and the helper reads the collection from it. This does not work in a host without a current aura. |
+| Draw(source, "test1", "test4") | Shows only those two names. test2 and test3 update too, but the filter hides them. |
+| Draw(source) | No name filter: shows all variables of the owner you pass. |
+| Draw(source, canvasBounds, ...) | Uses your own screen rectangle instead of the primary screen. |
+| Connect() | Watches changes of the variable container. It is not a subscription to every field change inside a stored object. |
 
-To display values written by another script, [find the intended aura](/en/scripting/examples/basic/find-aura) and use that same owner as the table’s source. The [Variables example](/en/scripting/examples/basic/variables) explains selecting a shared owner and type; agree the variable names with the writer and include them in the displayed rows.
+To show values written by another script, [find the aura you need](/en/scripting/examples/basic/find-aura) and use that same owner as the table's source. The [Variables example](/en/scripting/examples/basic/variables) explains how to choose a shared owner and type.
 
-The helper takes **IOnScreenCanvasScriptingApi** through its constructor; `GetService<VariablesOnScreenHelper>()` resolves it with that dependency. An ordinary class has no global AuraTree, Variables or Log: the top-level program selects the source and services, then passes them as arguments. Reusing the class in another script requires an explicit reference to its project/aura, not merely a matching class name.
+The helper gets **IOnScreenCanvasScriptingApi** through its constructor. `GetService<VariablesOnScreenHelper>()` creates it with that dependency. An ordinary C# class has no global AuraTree, Variables or Log.
 
-**ExecutionAnchors** owns the helper for this Run and disposes it on completion, cancellation or error. The helper's Anchors owns each drawing lifetime: first unsubscribe, then dispose the HTML object, clear the canvas and dispose it. A canvas's Dispose alone is not a substitute for disposing every child.
+**ExecutionAnchors** belongs to the current Run. It disposes the helper when the run completes, is cancelled or fails. The helper's own Anchors hold what it created. First the variable subscription is closed, then the HTML object, then the canvas is cleared and disposed. Do not count on a single canvas Dispose to clean up every child.
 
-**Sleep(1000)** cooperates with cancellation and the loop checks the token before its next iteration. If you replace the loop with a single write and return, the table is released immediately. Sandbox Anchors would instead live until that sandbox is unloaded.
+**Sleep(1000)** respects cancellation, and the loop checks the token before the next iteration. If you replace the loop with a single write and return from Run right away, the table is released right away too. Ordinary sandbox Anchors would have a different lifetime: until the sandbox is unloaded, not until this run ends.
 
-The provided canvas service owns its Blazor/window scheduling. This helper updates an HTML model, not a Razor component with implicit script globals. A Razor implementation needs its own dependencies and component lifecycle. Names and values are **HtmlEncode**d because **WithHtml** accepts trusted markup.
+To use the class in another script you need an explicit reference to the project or aura it lives in. Names and values are escaped with **HtmlEncode**, because **WithHtml** accepts ready, trusted markup.
 
-Coordinates describe the desktop and primary monitor, not a window attached to the variable source. They do not guarantee all-monitor coverage or identical behaviour across DPI settings. See [script lifetime](/en/scripting/api/scripting/runtime) and the [custom UI guide](/en/overlays/custom-ui) for the separate host concerns.
+The screen canvas uses desktop and primary-monitor coordinates. It is not attached to the window the variables come from. More in [script lifetime](/en/scripting/api/scripting/runtime) and the [custom UI guide](/en/overlays/custom-ui).

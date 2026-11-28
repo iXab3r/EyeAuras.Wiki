@@ -10,15 +10,15 @@ dateCreated: 2025-08-17T08:52:43.668Z
 
 # Mouse Move Rel. — move by an offset
 
-Use `Mouse Move Rel.` for a displacement, not a destination point. Repeating this node adds another displacement. Absolute [Mouse Move](/en/behavior-trees/nodes/MouseMoveAbs) sets a destination anew on each call.
+`Mouse Move Rel.` shifts the pointer by a set distance from where it is now. Each new call shifts it again. Absolute [Mouse Move](/en/behavior-trees/nodes/MouseMoveAbs), by contrast, sets the point anew every time.
 
 ## Set a start point, then move right
 
-Prepare your own separate text-editor window with enough room inside it. Put a test tree in a folder whose `Triggers/Actions/Overlays Defaults` has `Target Window` set to that window and, through `show more...`, `Input Simulator → Windows Input`. Check that the tree's Settings do not override them.
+Open your own text-editor window with enough free room in it. Put the tree in a folder whose `Triggers/Actions/Overlays Defaults` has `Target Window` set to that window and, through `show more...`, `Input Simulator → Windows Input`. Check that the tree's Settings do not set a different window.
 
-1. Keep `Activation → Is Loaded`, `Execution → When Activated → Do nothing`. Add `Sequence`, `Mouse Move` and `Mouse Move Rel.`, with Sequence's children connected left to right.
-2. Set Mouse Move's `General → Mouse Position → X = 200`, `Y = 150`. That point from the visible frame must lie inside your window. Set Mouse Move Rel.'s `General → Offset → X = 40`, `Y = 0`. Leave Randomize at zero on both.
-3. Check `Window` and `Simulator` on both nodes: the same own window and Windows Input. Add no key or mouse-button node.
+1. At the entry set `Activation → Is Loaded`, `Execution → When Activated → Do nothing`. Add `Sequence`, `Mouse Move` and `Mouse Move Rel.`, and connect Sequence's children left to right.
+2. Set Mouse Move's `General → Mouse Position → X = 200`, `Y = 150`. This point is counted from the visible frame and must lie inside your window. Set Mouse Move Rel.'s `General → Offset → X = 40`, `Y = 0`. Leave Randomize at zero on both.
+3. Check `Window` and `Simulator` on both nodes: the same window of yours and Windows Input. The tree must not contain nodes that press anything.
 
 ```text
 My Tree
@@ -27,23 +27,21 @@ My Tree
    └─ Mouse Move Rel.: X=40, Y=0
 ```
 
-4. Click the upper `Tick BT Once` once. The window is activated; the pointer first receives the destination, then a rightward displacement, with no click. [Event Viewer](/en/features/event-viewer) distinguishes requested moves `To` and `By`; Sequence returns Success after normal call completion. The visible pointer movement remains the practical result to check.
+4. Click the upper `Tick BT Once` once. The window comes to the front. The pointer first goes to the set point, then gets a command to shift right. There is no click. [Event Viewer](/en/features/event-viewer) shows the move requests `To` and `By`, and Sequence returns Success after a normal finish.
 
-Repeating this whole tree starts again at the absolute point. Repeating only the relative node keeps shifting the pointer. Actual travel depends on the backend and system mouse settings; X=40 is not a universal guarantee of exactly 40 physical pixels.
+The real length of the shift depends on the input backend and the system mouse settings, so it is not necessarily exactly 40 physical pixels.
 
 ![The Mouse Move Rel. node has both Offset fields at zero.](/assets/callouts/batch3/en/mouse-move-relative-offset.png)
 
-This earlier example starts with a zero offset. Set X to 40 and leave Y at zero for the exercise.
-
 | Setting | Effect |
 | --- | --- |
-| Offset — X | Horizontal displacement: positive right, negative left |
-| Offset — Y | Vertical displacement: positive down, negative up |
-| randomize... → Randomize — X ± / Y ± | Add scatter to the displacement; zero gives a fixed command |
-| Window / Simulator | Inherited target/backend; Windows Input changes the system pointer position |
+| Offset — X | Horizontal shift: positive is right, negative is left |
+| Offset — Y | Vertical shift: positive is down, negative is up |
+| randomize... → Randomize — X ± / Y ± | Adds a random part to the shift. With zeros the shift is always the same |
+| Window / Simulator | The inherited window and input backend. With Windows Input the system pointer moves |
 
 ![Both relative-movement randomization ranges are zero.](/assets/callouts/batch3/en/mouse-move-ranges.png)
 
-With Windows Message API, relative movement starts at the last position sent to **that window through that backend**, not the system pointer. Send an absolute move through the same backend/window first. The target must support the resulting window message; choosing a window does not guarantee universal background input.
+With Windows Message API, relative movement is counted from the last position sent to **that window** through the same backend, not from the system pointer. So first make an absolute move through the same backend to the same window. It sends a window message, and the application has to support it.
 
-This node has no smoothing selector and does not forward the absolute node's smoother choice. Use absolute Mouse Move for a configurable trajectory. On Success it can execute a child and return that result; retained child Running resumes without another displacement. The template is shared by BT and Macro, whose surrounding control-flow rules still differ.
+You cannot choose a smoothing algorithm on this node. If you need a configurable path, use absolute Mouse Move. After a successful shift the node can run its child and return the child's result. If the child returns Running, the next tick continues it without a new shift. The template is shared by BT and Macro.

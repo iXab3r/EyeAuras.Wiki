@@ -10,14 +10,14 @@ dateCreated: 2024-03-07T23:19:06.938Z
 
 # Cooldown — limit how often a successful step repeats
 
-Put work **under** `Cooldown` to start an interval after the child returns `Success`. A call before that interval expires returns `Failure` without calling the child. The first call is admitted immediately.
+`Cooldown` keeps its child from running more often than the interval you set. The countdown starts **after the child returns Success**. Until it runs out, Cooldown returns `Failure` and does not call the child.
 
 ## Admit your check once every five seconds
 
-Use a separate tree with `Activation → Is Loaded` and `Execution → When Activated → Do nothing`. [Getting Started](/en/behavior-trees/gettings-started) covers node creation and connections. A Fixed Status child supplies the result without external work.
+Take a separate tree that you start by hand: `Activation → Is Loaded` and `Execution → When Activated → Do nothing`.
 
 1. Use `Add new Node` to add `Cooldown` and `Fixed Status`. Connect the tree entry to Cooldown, then Cooldown to Fixed Status.
-2. Set the child to `General → Status → Success`. On Cooldown set `General → Cooldown = 5000 ms`, turn off randomization with the shuffle button, and check `Child`.
+2. On Fixed Status choose `General → Status → Success`. On Cooldown set `General → Cooldown = 5000 ms` and turn off randomization with the shuffle button. Check the child's name in `Child`.
 
 ```text
 My Tree
@@ -25,30 +25,28 @@ My Tree
    └─ Fixed Status: Success
 ```
 
-3. Click the upper `Tick BT Once`. The child executes and Cooldown returns `Success`, starting the interval.
-4. Tick again before five seconds have elapsed. Cooldown returns `Failure` and does not call its child. The remaining interval is shown on the node.
-5. After the interval expires, tick again. The child succeeds and starts another interval. Time passing alone does not execute a manually ticked tree.
+3. Click the upper `Tick BT Once`. The child runs, the result is `Success`, and the countdown starts.
+4. Click again before five seconds have passed. Cooldown returns `Failure` and does not call the child. The node shows how much time is left.
+5. When the countdown ends, click again. The child succeeds and starts a new interval.
 
 | Setting or outcome | Effect |
 | --- | --- |
 | Cooldown | Interval after child Success, in milliseconds |
-| Random Min / Max | Sample a new interval after each child Success, for example 4000–6000 ms |
-| Child | The work being limited; group several steps in a child Sequence |
-| Child Success | Return Success and start the interval after the awaited call finishes |
-| Child Failure | Return Failure and clear the active countdown |
-| Child Running | Return Running without starting a new interval |
-| Call during the countdown | Return Failure without calling the child |
+| Random Min / Max | A new interval is picked after each child Success, for example 4000–6000 ms |
+| Child | The work you are limiting. Group several steps in a child Sequence |
+| Child Success | Cooldown returns Success and starts the countdown |
+| Child Failure | Cooldown returns Failure and the countdown is cleared |
+| Child Running | Cooldown returns Running and no new countdown starts |
+| Call during the countdown | Failure, the child is not called |
 
-![This Cooldown is configured for 10,000 ms. The Child field identifies Fixed Status as the node being limited.](/assets/callouts/batch2/en/cooldown.png)
+![Cooldown set to 10,000 ms. The Child field names the Fixed Status child](/assets/callouts/batch2/en/cooldown.png)
 
-The screenshot shows a 10,000 ms interval. Enter 5000 ms in the same field for the exercise above.
-
-After expiry, Cooldown returns the child's new result; expiry does not guarantee Success. It measures elapsed time rather than a wall-clock appointment. Editing the configured duration clears the countdown. Structural reset clears its history and children; clearing displayed statuses does not.
+If you change the Cooldown value, the current countdown is cleared. Clearing the displayed statuses does not cancel the countdown. A structural reset clears both the timer and the children's state.
 
 <details>
-<summary>Placement and conditional examples</summary>
+<summary>Where to put Cooldown in a larger tree</summary>
 
-In a [Selector](/en/behavior-trees/nodes/selector), Cooldown's temporary Failure lets a fallback branch run. The following are abstract adaptations of the skill and healing examples, not ready game integrations. Each named action needs a real configured implementation; the HP check needs your own aura and data source.
+When a branch with Cooldown sits inside a [Selector](/en/behavior-trees/nodes/selector), it returns Failure during the countdown, and Selector takes the fallback branch. This is how you split a rare reaction and a regular one between two Selector children.
 
 ```plaintext
 Selector
@@ -66,6 +64,6 @@ Selector
     └─ Use "Basic Attack"
 ```
 
-Cooldown without a child treats the admitted call as Success and starts its timer. Placing it as a **sibling before** an action therefore starts the interval before that action runs; a later action failure cannot undo it. Nest the action as shown to measure time after its success. [Wait](/en/behavior-trees/nodes/wait) instead pauses the current pass by returning Running.
+Cooldown placed as a **sibling before** an action in a Sequence works differently. With no child of its own, it gets Success right away and starts the countdown before the next step runs. If that step fails, the interval is not undone. To count from the action's success, make the action a child of Cooldown. [Wait](/en/behavior-trees/nodes/wait) does a different job: it pauses the current pass and returns Running.
 
 </details>

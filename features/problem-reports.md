@@ -1,6 +1,6 @@
 ---
 title: Problem reports and receiving archives
-description: What EyeAuras collects and how users and share authors can work with report archives
+description: What data EyeAuras collects and how users and share authors work with report archives
 published: true
 date: 2026-10-13T00:00:00.000Z
 tags: reporting, mini-apps, ai-translated
@@ -9,81 +9,80 @@ dateCreated: 2026-10-11T00:00:00.000Z
 ---
 # Prepare a report that helps reproduce a problem
 
-If an action fails or a mini-app reports an error, save diagnostics from that run: your steps, logs and relevant attachments. For example, an author may need an archive for a repeatable failure while you want to review its contents first. **Save…** creates a local file. **Send** is a separate upload operation.
+If an action failed or a mini-app showed an error, save a report from that run: your steps, the logs and the attachments you choose. **Save…** creates a file on your disk, so you can look at what went into it before you give it to the set's author. Sending is a separate button, **Send**.
 
 ## Save an archive for review
 
-1. After the problem, open **Report a problem** in EyeAuras. It can also open after an exception, or from a mini-app button if its author provides one.
-2. Describe your exact steps, the actual result and what you expected. For example: “After choosing a file I clicked Execute. A log entry appeared, but the file did not open.” Use your own observations. You can edit or clear a prefilled comment.
-3. Select logs from the affected run. If you have restarted since then, include the earlier file containing the problem. Add aura configuration when it is relevant to reproduction.
-4. Review the selected attachments, especially window screenshots and configuration. Click **Save…**, choose your directory and wait for the `.7z` archive to appear in Explorer.
+1. After the problem, open **Report a problem** in EyeAuras. The window can also open by itself after an exception, or from a button in a mini-app if its author added one.
+2. In the comment, write what you did, what happened and what you expected. For example: “After choosing a file I clicked Execute. A log entry appeared, but the file did not open.” If the author prefilled the comment, you can edit or clear it.
+3. Select the logs of the run that failed. If EyeAuras has been restarted since then, you also need the earlier file that contains the error. Add the aura configuration only if it is related to the problem.
+4. Look through the selected attachments, especially window screenshots and configuration. Click **Save…**, choose a folder and wait for the `.7z` archive to appear in Explorer.
 
-   ![Choose Save in the earlier report window to create a local archive.](/assets/callouts/batch2/en/report-save-send.png)
-5. Open the archive for reading and check `comment.txt` and the relevant logs. A file on disk has not been sent to support or the author. Share it only with your chosen recipient through an agreed channel.
+   ![Choose Save in the earlier report window to create a local archive](/assets/callouts/batch2/en/report-save-send.png)
+5. Open the archive and check `comment.txt` and the logs you need. A file on disk has not been sent anywhere. Neither support nor the author has it yet.
 
-Saving and sending use the same prepared diagnostic snapshot. Changing accounts or subscriptions after opening the dialog does not update it. Open a new report dialog to collect a new state.
+**Save…** and **Send** use the same snapshot of diagnostic data. If you changed the account or subscriptions after opening the window, the snapshot is not updated. To collect the new state, open the report window again.
 
 | Button or state | Result |
 | --- | --- |
-| Save… | Prepares the selected archive, saves it locally and opens its location. |
-| Send | Uploads through the configured handler. Standard EyeAuras uses its server; a mini-app can supply another handler. Available only when a handler exists. |
-| Report sent / Report sent successfully | The handler returned a report ID. Keep it for support; this does not mean the author has read the report. |
-| Copy | Copies the sent report ID or current status text, not the archive. It does not send anything. |
-| Cancel | Closes the dialog. Opening or closing it is not evidence of a successful send. |
+| Save… | Prepares the archive and saves it to your disk. Then opens the folder it is in. |
+| Send | Prepares the archive and uploads it through the configured handler. In standard EyeAuras that is the EyeAuras server, and a mini-app can set its own. The button is available only when a handler exists. |
+| Report sent / Report sent successfully | The handler returned a report ID. Keep the ID for your support request. |
+| Copy | Copies the sent report ID or the current status text. |
+| Cancel | Closes the window. |
 
-If you choose **Send**, wait for confirmation and an ID. **Compressing report…** and **Sending report…** are progress states. Sending to EyeAuras does not automatically deliver the report to every author in its subscriptions. If an author asks for the file directly, use the saved archive.
+If you decide to send the report to EyeAuras, click **Send** and wait for the confirmation with an ID. **Compressing report…** and **Sending report…** are not the end yet. A report sent to EyeAuras is not delivered automatically to every author in your subscriptions. If an author asked for the file directly, you need the saved archive.
 
-If a failure followed configuration changes, save the affected run’s report before using [configuration history](/en/features/config-rollback). A restore replaces the working configuration and restarts the application; keeping the archive first lets you investigate the failed state while separately recovering a usable one.
+If the failure appeared after you changed settings, save the report first and only then roll back with [configuration history](/en/features/config-rollback). A restore replaces the working configuration and restarts the application.
 
 ## What is in the archive
 
 | File | Contents and inclusion |
 | --- | --- |
 | `comment.txt` | The final comment, if it is not empty. |
-| `systemInfo.txt` | System and process information, including OS version, Windows username, machine name, paths and command line. Included automatically when collected. |
-| `applicationInfo.txt` | Application, sender, license, startup, tree counts and subscriptions. Required in current EyeAuras clients, independently of selected logs or aura configuration. Older clients may not have it. |
-| `stacktrace.txt` | Exception details when reporting an exception; normally selected when available. A manually opened report may have no exception. |
-| Application `.log` files | Selected logs. Recent files are selected by default; earlier runs can be selected in the dialog. |
-| `EventLog_*.log`, `metrics.txt` and other diagnostics | Windows events, performance information and other files supplied by the host. Availability varies. |
-| `Wnd *.png` / `Screen *.png` | Application-window and desktop screenshots. Window screenshots are selected by default when available; desktop screenshots are not. |
-| `Auras.zip`, configuration files | Selected aura tree/configuration attachments. Aura and configuration attachments are not selected by default. |
+| `systemInfo.txt` | System and process information: OS version, Windows username, machine name, paths and command line. Added automatically when it was collected. |
+| `applicationInfo.txt` | Application, sender, license, startup, tree counts and subscriptions. A required file: current EyeAuras always adds it, whatever logs and auras you select. An older report may not have it. |
+| `stacktrace.txt` | Exception details, if there is an exception. Usually selected when available. A report opened by hand may have no exception. |
+| Application `.log` files | The selected logs. Recent files are selected by default, and earlier ones can be selected in the window. |
+| `EventLog_*.log`, `metrics.txt` and other diagnostics | Windows events, performance figures and other files the application could collect. |
+| `Wnd *.png` / `Screen *.png` | Screenshots of application windows and of the desktop. Available window screenshots are selected by default, desktop screenshots are not. |
+| `Auras.zip`, configuration files | The selected aura tree and settings. Not selected by default. |
 
-The dialog lets you choose optional attachments. Required diagnostic files are included automatically. Review the content before sharing: command lines, startup text, logs, screenshots and selected configuration may contain local paths or data supplied by your scripts.
-
-
-Deselecting configuration does not remove account or subscription information from the required `applicationInfo.txt`.
+The command line, startup text, logs, screenshots and selected auras may contain your local data. If you deselect configuration, the account and subscription information still stays in the required `applicationInfo.txt`.
 
 <details>
 <summary>Diagnostic format and receiving archives as an author</summary>
 
+This section is for an author or support: how to read the archive and where the report ends up on the server.
+
 ## Application information
 
-`applicationInfo.txt` captures the locally available state when the report is prepared. Collection does not sign in, refresh a license or subscriptions, or contact the server.
+`applicationInfo.txt` holds what was known locally when the report was prepared. While collecting it, the application does not sign in, does not refresh the license or subscriptions and does not contact the server.
 
 | Keys | Meaning |
 | --- | --- |
-| `CapturedAtUtc`, `App.*` | Snapshot time, effective application name/version/profile, readiness and uptime. |
-| `User.Id`, `User.Name` | The report sender from the local active-license snapshot. This is separate from share ownership. |
-| `User.License.*` | License type, validity, available start/expiry dates and feature names. This block does not include the license key or full signed license. |
-| `Startup.CommandLine`, `Startup.Config` | Original process command line and raw profile `startup.cfg` text at collection time. The raw text is retained even if the startup parser cannot read it. |
-| `Startup.Parsed.*` | Available effective startup settings, such as EyePad/window/readiness modes, read-only/safe-mode flags and input/run/eval/compile/output options. |
-| `Tree.*` | Counts of folders, auras, behavior trees and enabled items. Behavior trees include macros. No text tree or item-name list is included; use the aura attachment for that. |
-| `Subscriptions.Count`, `Subscriptions.N.*` | Folder ID/path, subscription type, share ID, available revision/name/owner/URI and local-clone flag. Each subscription or clone has its own row. |
-| `UnavailableSections.*` | Sections that could not be collected. Other available data remains in the file. |
+| `CapturedAtUtc`, `App.*` | Snapshot time, the effective application name, version and profile, readiness and uptime. |
+| `User.Id`, `User.Name` | The sender, taken from the local snapshot of the active license. It has nothing to do with share owners. |
+| `User.License.*` | License type, validity, available start and expiry dates and feature names. The license key and the full signed license are not here. |
+| `Startup.CommandLine`, `Startup.Config` | The original process command line and the raw text of the profile's `startup.cfg` at collection time. The raw text is kept even if the startup parser could not read it. |
+| `Startup.Parsed.*` | The available effective startup settings: EyePad, window and readiness modes, read-only and safe-mode flags, input/run/eval/compile/output options. |
+| `Tree.*` | The number of folders, auras, behavior trees and enabled items. Macros count as behavior trees. The tree itself and the list of names are not here. Attach the aura configuration for that. |
+| `Subscriptions.Count`, `Subscriptions.N.*` | Folder ID and path, subscription type, share ID, the available revision, name, owner and URI, and the local-clone flag. Each subscription or clone has its own row. |
+| `UnavailableSections.*` | Sections that could not be collected. The rest of the data is kept. |
 
-The raw `startup.cfg` is read when preparing the report and may differ from the file used at startup. Sender and license fields are diagnostic data, not proof of authentication. A share's presence in the report does not establish that it caused the error.
+The `startup.cfg` text is read when the report is prepared and may differ from the file the application started with.
 
 ### Format and example
 
-The file uses UTF-8 and one `Key=Value` pair per line. Split at the **first** `=`. Keys are case-sensitive. Ignore unknown keys and empty lines, and do not depend on key order.
+The file is UTF-8, with one `Key=Value` pair per line. Split the line at the **first** `=`. Keys are case-sensitive. You can skip unknown keys and empty lines. Do not rely on the order of keys.
 
-Values escape backslash as `\\`, carriage return as `\r`, newline as `\n` and tab as `\t`. Decode once, from left to right; do not repeatedly replace escape sequences. Equals signs and quotes remain literal. Booleans are `true`/`false`, numbers use invariant culture and timestamps use ISO 8601 UTC.
+In values a backslash is written as `\\`, a carriage return as `\r`, a newline as `\n` and a tab as `\t`. Decode once, from left to right, without repeated replacements. Equals signs and quotes are ordinary characters. Booleans are `true`/`false`, numbers use invariant culture and timestamps are ISO 8601 UTC.
 
-`Version=1` corresponds to `IPoeEyeConfigVersioned.Version`. It marks an incompatible format boundary; adding a key does not increment it. `App.Version` is the application version. The central reader currently supports version 1; missing, unreadable or unsupported context does not prevent the base report from being processed, and the original archive is retained.
+`Version=1` corresponds to `IPoeEyeConfigVersioned.Version` and changes only when the format changes incompatibly. A new key does not change it. `App.Version` is the version of the application itself. The central reader currently supports version 1. If the context is missing, unreadable or unsupported, the base report is still processed and the original archive is kept.
 
-Missing values are omitted. An available empty string is `Key=`; an available empty collection is `Prefix.Count=0`. An unavailable collection has no count. Indexed collections start at zero.
+Missing values are left out. An available empty string is written as `Key=`, and an available empty collection as `Prefix.Count=0`. An unavailable collection has no count. Collection indexes start at zero.
 
-Illustrative names and IDs; this is a shortened snapshot:
+Below is a shortened snapshot with made-up names and IDs:
 
 ```text
 Version=1
@@ -125,53 +124,53 @@ UnavailableSections.Count=0
 
 ## Receiving an archive as a share author
 
-Ask the user to save the report and send the original archive with a short reproduction description. A screenshot of the report dialog usually does not contain enough information to diagnose the issue.
+Ask the user to save the report and send you the original archive with a short description of how to reproduce the problem.
 
-The default name is `AppName_version_profile_reportId.7z`, for example:
+The default name looks like `AppName_version_profile_reportId.7z`, for example:
 
 ```text
 DemoMiniApp_1.9.10047.0_release_0123456789abcdef0123456789abcdef.7z
 ```
 
-App names may contain underscores. Keep the original filename and report ID when recording the report. The EyeAuras server also recognizes `.zip` archives with the same naming pattern.
+App names may contain underscores. When you record the report, keep the original filename and the report ID. The EyeAuras server also recognizes `.zip` archives with the same naming pattern.
 
-1. Read `comment.txt` and any `stacktrace.txt` to understand the reported behavior and exception.
-2. Read `applicationInfo.txt`: check the app/version/profile, sender, startup settings and relevant share revision. Use the full subscription list when several shares or clones are present.
-3. Match the problem to the logs from that run. If needed, ask for an archive with the earlier logs or the optional aura configuration included.
-4. Keep the original archive alongside your support ticket. A generated description may shorten long startup text; the archive contains the full collected file.
+1. Read `comment.txt` and `stacktrace.txt`, if there is one, to understand the problem and the exception.
+2. Open `applicationInfo.txt` and check the app, version, profile, sender, startup settings and the relevant share revision. If there are several shares or clones, look at the whole subscription list.
+3. Match the problem to the logs of that run. If there is not enough data, ask for an archive with the earlier logs or with the aura configuration.
+4. Keep the original archive next to your support ticket. A generated description may shorten long startup text, while the archive has the full file.
 
-If `applicationInfo.txt` is absent, continue with the comment, system information and logs. Older reports are valid. Missing user/share/license data should stay unknown rather than being filled with guesses.
+If there is no `applicationInfo.txt`, use the comment, the system information and the logs. If user, share or license data is missing, do not fill it in with guesses.
 
 ## What the central processor records
 
-For EyeAuras reports, the processor uses nonempty `User.Name` first and retains the existing system-info/log fallback. It records these string fields in YouTrack when the corresponding data is available:
+For EyeAuras reports the processor takes a nonempty `User.Name` first. The earlier lookup of the name in system information and logs remains as a fallback. When the data is available, these string fields are filled in YouTrack:
 
 | Field | Source |
 | --- | --- |
-| `External Id` | Report ID from the archive name, used for deduplication within the target project. |
+| `External Id` | Report ID from the archive name. Used to find duplicates in the target project. |
 | `External UserName` | Sender name, with the legacy fallback. |
 | `External AppName` | `App.Name`. |
 | `External UserId` | `User.Id`. |
 | `External ShareId` | The first subscription with a nonempty `ShareId`, in file order. |
-| `External OwnerUserName` | Canonical server owner of that first share/revision, when resolved. |
+| `External OwnerUserName` | The canonical server owner of that first share and its revision, when it could be resolved. |
 
-All subscriptions and clones remain in the description and original file. Only the selected first share is indexed; later shares do not supply a replacement owner or share ID. The client `OwnerUserName` is a local hint, not the canonical server owner. With no revision the server uses the active revision; an unavailable explicit revision is not silently replaced by the active one.
+All subscriptions and clones stay in the description and in the original file. Only the first share is indexed. Later shares do not replace it or its owner. `OwnerUserName` from the client file is a local hint, not the canonical name from the server. If no revision is given, the server uses the active one. If a revision is given explicitly but is unavailable, the active one is not used in its place.
 
-License information, features, tree counts and startup text appear in the description rather than separate search fields. The original archive is attached. Report identity uses the exact report ID across issue states. After mini-app activation it is checked in both EA and MAPS; POE remains separate.
+License information, features, tree counts and startup text go into the description, not into separate search fields. The original archive is attached to the issue. A report is identified by its exact ID, whatever state the issue is in. After mini-app delivery is turned on, the ID is looked up in both EA and MAPS. POE is handled separately.
 
-Ordinary EyeAuras reports go to EA. PoEBane keeps its separate importer and configured project, POE by default. When that importer is disabled, `PoEBane_` archives are skipped. Saved archives can be accepted manually; this workflow does not provide an author retrieval API.
+Ordinary EyeAuras reports go to EA. PoEBane keeps its own importer and its own target project, POE by default. When that importer is disabled, `PoEBane_` archives are skipped. Saved archives can be accepted by hand. This workflow does not provide an API for authors to fetch reports.
 
 ## Mini-app reports in YouTrack
 
-When central mini-app delivery is enabled, new mini-app reports go to **EyeAuras MiniApps (MAPS)**. Older reports remain on their previous route. Pausing this delivery keeps new mini-app archives queued instead of forwarding them to EA.
+When central mini-app delivery is turned on, new mini-app reports go to **EyeAuras MiniApps (MAPS)**. Older reports stay on their previous route. If delivery is paused, new mini-app archives stay in the queue and are not sent to EA.
 
-For the first nonempty ShareId, the server resolves share metadata and creates or reuses a group named `reports-share-ShareId`. The group covers all revisions of that share. A report is visible to internal support and this one group. If the first share cannot be resolved or is absent, it stays internal; a later share does not supply access.
+For the first nonempty ShareId, the server resolves the share's details and creates or reuses a group named `reports-share-ShareId`. The group covers all revisions of that share. The report is visible to internal support and to this one group. If there is no first share or it could not be resolved, the report stays internal. A later share is not used to grant access.
 
-A YouTrack administrator adds the author and their team to the appropriate group. Reported user/owner names do not add people automatically. Group members can work with visible reports and their comments, states and attachments; Processor-owned report/sender/share fields, project and visibility changes are reserved for internal support. Marked replies can be sent to the report sender; restricted internal notes are not broadcast.
+A YouTrack administrator adds the author and their team to the right group. User and owner names from the report do not add anyone automatically. Group members can work with the reports they can see, and with their comments, states and attachments. The fields the processor filled in (report, sender, share), the project and the visibility can only be changed by internal support. Marked replies can be sent to the report's sender. Restricted internal notes are not forwarded.
 
-Access covers the whole report, including its original archive, license diagnostics and any other subscriptions or optional configuration it contains. Share grouping selects who can read the report; it does not remove other data from the archive.
+Access is to the whole report: the original archive, the license details, other subscriptions and any attached configuration.
 
-The processor keeps the report identity across EA and MAPS after activation. Closing an issue or restarting an unfinished import does not create another issue. A saved receipt lets the processor finish attachments on the already published issue.
+After delivery is turned on, the processor recognizes the same report in both EA and MAPS. If an issue was closed or an unfinished import was restarted, no new issue is created. A saved receipt lets the processor finish uploading attachments to the issue that is already published.
 
 
 </details>

@@ -10,13 +10,13 @@ dateCreated: 2024-03-07T23:27:21.079Z
 
 # Comment — explain a part of your tree
 
-Add `Comment` beside a branch to record why it exists. It is a separate note card: it sends no input, checks no condition and does not execute child work.
+`Comment` is a note card that sits beside a branch. It presses nothing, checks nothing and runs nothing. It is there so that a month from now you remember why the branch exists.
 
 ## Label a practice delay
 
-In the graph editor, prepare a separate tree with `Activation → Is Loaded`, `Execution → When Activated → Do nothing` and one `Wait` connected to the entry, with `General → Delay = 1500 ms`, randomization off.
+Take a separate tree with `Activation → Is Loaded` and `Execution → When Activated → Do nothing`. Connect one `Wait` to the entry, with `General → Delay = 1500 ms` and randomization off.
 
-1. Through `Add new Node`, add `Comment` and place it beside Wait. Do not connect it to the branch; the card has no input or output connector.
+1. Through `Add new Node`, add `Comment` and place it beside Wait. Do not connect it. The card has no input or output connector.
 2. In `General → Format`, choose `Markdown`. Enter this in `Comment`:
 
 ```text
@@ -24,21 +24,17 @@ In the graph editor, prepare a separate tree with `Activation → Is Loaded`, `E
 The first tick starts the timer; a later tick after the delay completes Wait.
 ```
 
-3. The card shows the note with a bold first line. Switch to `Format → Text` to display the asterisks literally, useful for documenting exact expressions.
-4. Click the upper `Tick BT Once`: Wait returns Running. After two seconds, tick again for Success. The note has not changed the branch's delay or route.
+3. The card shows the note with a bold first line. If you switch to `Format → Text`, the asterisks stay as plain characters. That is handy for writing down exact expressions.
+4. Click the upper `Tick BT Once`. Wait returns Running. After two seconds, click again and Wait returns Success. The note did not change the branch's delay or route.
 
-![The earlier editor shows Markdown selected, note source on the right, and the rendered Comment card on the left.](/assets/callouts/batch3/en/comment-markdown.png)
-
-In this earlier example, `# Title` and `## Sub-Title` on the right appear as two heading levels on the card.
-
-The current content and format fields are under General:
+![Earlier editor: Markdown is selected, the note source is on the right, the finished Comment card is on the left](/assets/callouts/batch3/en/comment-markdown.png)
 
 | Setting | Display |
 | --- | --- |
-| Comment | Note text saved with the tree |
-| Format — Markdown | Supported Markdown formatting, such as emphasis, links and lists |
-| Format — Text | Plain text; HTML characters are encoded instead of becoming markup |
-| Format — HTML | Content rendered as HTML; Markdown or Text is enough for ordinary notes |
+| Comment | Note text. It is saved with the tree |
+| Format — Markdown | Markdown formatting: emphasis, links, lists and other supported elements |
+| Format — Text | Plain text. HTML characters do not turn into markup |
+| Format — HTML | The text is shown as HTML. Markdown or Text is enough for an ordinary note |
 | Empty text | No comments |
 
-Comment is available in BT and Macro. Placing it beside a node neither connects it nor defines execution order. Connected graph traversal does not pass through this card. If you manually tick Comment itself, its result is `Success` without automation work; this does not validate the note's meaning. Unlike ordinary action and condition nodes, it has no child continuation. Use it for explanations, branch intent and maintenance notes without treating the text as an executable instruction.
+Comment is available in BT and Macro. If you tick Comment itself by hand, it returns `Success` and does nothing.

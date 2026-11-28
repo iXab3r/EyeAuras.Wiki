@@ -10,44 +10,39 @@ dateCreated: 2024-03-07T23:58:44.862Z
 
 # Run Aura — invoke actions you have already configured
 
-Add `Run Aura` to reuse existing aura actions from a behavior tree. The earlier editor called this node `Execute Aura`. It invokes the linked auras' action lists without using their trigger state as an admission condition. Add [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) separately when you need that check.
+`Run Aura` runs, inside a tree, the actions you have already set up in an aura. The earlier editor called this node `Execute Aura`. It ignores the aura's triggers: the actions run even when the aura is inactive. If you need that check, add [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) separately.
 
 ## Run two delays from one inactive aura
 
-Create your own loaded aura named `Reusable pause`. Give it a [Fixed Value](/en/triggers/fixed-value) set to `Is NOT Active`, so normal activation does not run the prepared actions in parallel. Use no input, sound or other external actions in this example.
+You need your own loaded aura named `Reusable pause`, with no input, sound or other external actions. Give it a [Fixed Value](/en/triggers/fixed-value) and leave it on `Is NOT Active`. Then the aura itself will not run these actions in parallel with the tree.
 
-1. Add a [Delay](/en/actions/delay) to `On Enter`: `Delay, ms = 1000`, randomization off. Add another Delay of `2000` ms to `On Exit`; leave `While Active` empty. The aura must contain exactly these two actions.
+1. In the aura, add a [Delay](/en/actions/delay) to `On Enter`: `Delay, ms = 1000`, randomization off. Add a second Delay of `2000` ms to `On Exit`. Leave `While Active` empty. The aura must have no other actions.
 2. Create a separate tree with `Activation → Is Loaded` and `Execution → When Activated → Do nothing`. Through `Add new Node`, add `Run Aura` and connect it to the entry.
-3. Open the node's `General → Auras → Links`, select only `Reusable pause` and confirm. Its link row should show two actions rather than `NO ACTIONS`.
+3. Open the node's `General → Auras → Links`, select only `Reusable pause` and confirm. The link row should show two actions, not `NO ACTIONS`.
 
-   ![The earlier Execute Aura node shows the Sounds link with two actions and the Strategy field above it.](/assets/callouts/batch3/en/run-aura-linked-actions.png)
+   ![The earlier Execute Aura node: the Sounds link has two actions, with the Strategy field above it](/assets/callouts/batch3/en/run-aura-linked-actions.png)
 
-   Sounds has two linked actions in this earlier editor. Its strategy is random. For the two delays, select `run 1-by-1 in order of addition` in that field.
-4. Choose `General → Strategy → run 1-by-1 in order of addition`. Click the upper `Tick BT Once` and await its completion.
+4. In `General → Strategy`, choose `run 1-by-1 in order of addition`. Click the upper `Tick BT Once` and wait for it to finish.
 
-Run Aura calls the On Enter Delay, then the On Exit Delay. Expect roughly three seconds plus execution overhead, visible in the editor's last-tick duration, followed by `Success`. The aura can remain inactive throughout: invoking collections does not simulate aura activation and deactivation.
-
-Look for `Run Aura` in current templates and `Auras → Links` in its editor:
+The node runs both Delays in turn: first the one from On Enter, then the one from On Exit. That takes about three seconds plus a little for the execution itself. The editor shows the duration of the last tick. Run Aura returns `Success`, even though the aura stayed inactive the whole time.
 
 | Setting or source | Effect |
 | --- | --- |
-| Auras → Links | Actions from one or more ordinary linked auras; no fresh trigger evaluation or tree/macro target |
-| Strategy — run 1-by-1 in order of addition | Await each collected action sequentially; this mode does not run them in parallel |
-| Strategy — run one random action | Invoke one action from the pooled actions, not every action of a random aura |
-| On Enter → While Active → On Exit | Collection order inside each aura; While Active is called once per pass, not repeatedly until deactivation |
-| Action count / NO ACTIONS | Check whether the linked aura actually supplies work |
+| Auras → Links | Actions from one or more linked auras. The triggers of those auras are not evaluated |
+| Strategy — run 1-by-1 in order of addition | All collected actions, one after another. The node waits for each one to finish |
+| Strategy — run one random action | One random action from the pooled list of all linked auras, not every action of a random aura |
+| On Enter → While Active → On Exit | The order in which each aura's three action lists are collected. While Active runs once per pass, not in a loop until deactivation |
+| Action count / NO ACTIONS | Shows whether the linked aura has any actions. A link to an aura does not yet mean there is something to run |
 
-For a required order across several auras, use separate Run Aura nodes in a [Sequence](/en/behavior-trees/nodes/sequence). Do not rely on the enumeration order of several links inside one node.
+If several auras must run in a strict order, put separate Run Aura nodes in a [Sequence](/en/behavior-trees/nodes/sequence). Do not rely on the order of links inside one node.
 
 <details>
-<summary>Context, completion and continuation</summary>
+<summary>Context, completion and limits</summary>
 
-These are the original aura action instances with their own context and settings. The tree does not automatically replace their target window, variables or input backend. Configure actual action targets in the source aura. A disabled action can fail the invocation rather than being silently skipped. C# actions still require their normal script host and dependencies; ordinary helper classes do not gain script globals from this node.
+The actions run with the context and settings of their own aura. The tree does not put its own window, variables or input backend into them. Set the target of each real action in the source aura. A disabled action may fail the call with an error instead of being skipped quietly.
 
-The node passes cancellation to actions and awaits their calls under each action's contract. Errors are not failed condition checks, and completed side effects are not rolled back. Success means the calls completed, not independent confirmation of an effect in another application.
+The node passes cancellation to the actions it called and waits for them to finish by their own rules. What has already run is not rolled back. Success means the calls completed, not that everything worked in the other application.
 
-An empty action list can succeed without work in sequential mode; random mode needs a nonempty pool. Unresolved aura models contribute no actions. Verify the count of two for the example. If Run Aura has a child, successful action calls admit that continuation; its Running, Failure or Success becomes the overall result. A retained Running child resumes on the next tick without repeating the action lists first.
-
-This is a bridge to supported actions you already use, such as Send Sequence or Play Sound when deliberately configured for their own targets. It does not depend on future equivalents appearing as tree nodes.
+In sequential mode an empty action list can return Success without doing anything. Random mode needs a nonempty list. If Run Aura has a child, it runs after the calls succeed, and the overall result can become the child's Running, Failure or Success.
 
 </details>

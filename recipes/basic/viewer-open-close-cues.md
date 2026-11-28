@@ -10,20 +10,19 @@ dateCreated: 2026-11-10T16:05:04.371Z
 
 # Notice your viewer opening and closing
 
-Use **Ping** when a Notepad window appears and **Bell** when the last matching window closes. This is useful when a local viewer is opened alongside another task: you can distinguish its arrival from its disappearance without watching the tree.
+**Ping** plays when a Notepad window appears, and **Bell** plays when the last matching window closes. You can tell the two apart by ear while you are busy with something else and not looking at the aura tree.
 
-Prepare your own local text file, such as `EA-Preview.txt`, and use Notepad as its viewer. Keep other Notepad windows closed. You need an available audio output; both sounds are built into the notification selector, so no sound file is required.
+Prepare your own local text file, such as `EA-Preview.txt`, and open it in Notepad. Close the other Notepad windows. You need a working audio output. Both sounds are in the notification list, so you do not need a sound file.
 
 ## Connect the two transitions
 
 1. Right-click an empty area of the tree, choose **New Aura**, and name it **Viewer cues**.
-2. In **Triggers**, click **+**, choose **Window Exists**, and set **Target Window** to `notepad`. Open your text file in Notepad and verify that the selected window information points to that viewer.
-3. In **On Enter**, click **+** and add **Play Sound**. Choose **Ping** in **Audio notification** and set **Volume** to **50%**. The play button beside the selector lets you check the chosen sound and audio output.
+2. In **Triggers**, click **+**, choose **Window Exists**, and set **Target Window** to `notepad`. Open your text file in Notepad and check in the selected window details that the viewer is the one found.
+3. In **On Enter**, click **+** and add **Play Sound**. Choose **Ping** in **Audio notification** and set **Volume** to **50%**. With the speaker button beside the list you can preview the sound and check the audio output at the same time.
 
-   ![Ping sound selector, preview button and volume control.](/assets/callouts/batch3/en/play-sound-preview.png)
+   ![Ping sound selector, preview button and volume control](/assets/callouts/batch3/en/play-sound-preview.png)
 
-   Use the speaker button to preview Ping. The screenshot shows 100% volume; set it to 50% for this exercise.
-4. In **On Exit**, add another **Play Sound**, choose **Bell**, and set **Volume** to **50%**. Leave **While Active** empty: otherwise a reaction placed there can repeat while the window remains present.
+4. In **On Exit**, add another **Play Sound** with **Bell** and **Volume** **50%**. Leave **While Active** empty: an action in that list can repeat while the window exists.
 
 | Action list | Reaction |
 | --- | --- |
@@ -31,9 +30,9 @@ Prepare your own local text file, such as `EA-Preview.txt`, and use Notepad as i
 | While Active | Empty |
 | On Exit | Play Sound → Bell, Volume 50% |
 
-5. Leave the aura enabled and EyeAuras unpaused. Close the whole Notepad window, not just a document tab, and wait until **Window Exists** reads **Not Active**. Reopen your file: the transition to **Active** should produce Ping. Close that window: the transition back to **Not Active** should produce Bell.
-6. Repeat with the viewer left open while you switch applications. Merely losing foreground focus should not produce Bell: **Window Exists** still sees the window.
+5. Keep the aura enabled and EyeAuras unpaused. Close the whole Notepad window, not just a document tab, and wait until **Window Exists** shows **Not Active**. Open your file again: you should hear Ping on the change to **Active**. Close the window: you should hear Bell on the change back to **Not Active**.
+6. Leave the viewer open and switch to another application. Bell should not play: the window lost focus, but **Window Exists** still sees it.
 
-The first cue can occur while you are configuring an already open viewer. Start the comparison from the confirmed **Not Active** state. A second matching window keeps the condition Active even when you close the first; a broad match is not a per-document watcher.
+If the viewer is already open, the first cue can play while you are still setting up. Start the comparison from a confirmed **Not Active** state. If two windows match, the state stays Active after you close the first one: the expression `notepad` is broad and does not watch a single document.
 
-[Window Exists](/en/triggers/window-exists) supplies presence, while the two [Play Sound](/en/actions/play-sound) actions distinguish transitions. If a cue is missing, check its preview, volume and action list. For action-start records, open [Event Viewer](/en/features/event-viewer) with its Aura events enabled before repeating the exercise; an event record is not confirmation that you heard a sound or that the viewer finished loading its document.
+[Window Exists](/en/triggers/window-exists) tells whether the window is there, and the two [Play Sound](/en/actions/play-sound) actions play the cues for the transitions. If a cue is missing, check its preview, volume and action list. To see records of actions starting, open [Event Viewer](/en/features/event-viewer) beforehand, enable its Aura events and repeat the transition.

@@ -1,6 +1,6 @@
 ---
 title: 1. Что такое Blazor и как использовать его в EyeAuras
-description: Краткое руководство по Blazor и его использованию в EyeAuras
+description: Что такое Blazor и как сделать на нём свою панель в EyeAuras
 published: true
 date: 2025-08-17T09:21:21.000Z
 tags: ai-translated
@@ -9,21 +9,21 @@ dateCreated: 2025-05-11T13:31:15.490Z
 ---
 # Своя панель в EyeAuras
 
-Панель с кнопками, счётчиком или настройками можно написать на C# и показать поверх своего рабочего окна. Для первого знакомства достаточно добавить **C# Overlay**: он уже содержит интерактивный счётчик. Отдельный веб-сайт для него не нужен.
+В EyeAuras можно написать на C# свою панель с кнопками, счётчиком или настройками и показать её поверх рабочего окна. Проще всего начать с **C# Overlay**: в нём уже есть готовый счётчик. Отдельный веб-сайт не нужен.
 
-[Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) связывает разметку интерфейса с обработчиками C#. В EyeAuras компонент отображается внутри окна приложения. [Razor](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-8.0) позволяет писать разметку и обращения к C# рядом.
+[Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) связывает разметку интерфейса с обработчиками на C#. В EyeAuras компонент показывается внутри окна приложения. В [Razor](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-8.0) разметка и обращения к C# пишутся рядом.
 
 | Часть | За что отвечает |
 | --- | --- |
-| [HTML](https://www.w3schools.com/html/) | Текст, кнопки и расположение элементов в разметке. |
+| [HTML](https://www.w3schools.com/html/) | Текст, кнопки и расположение элементов. |
 | [CSS](https://www.w3schools.com/html/html_css.asp) | Цвет, размеры, отступы и оформление. |
 | Razor, файл `.razor` | Связывает разметку с данными и событиями компонента. |
-| C#, файл `.cs` | Хранит состояние компонента и выполняет обработчики. Его можно оставить и в блоке `@code` внутри Razor. |
-| `Script.csx` | Точка входа скрипта; это отдельный контекст, а не сам Razor-компонент. |
+| C#, файл `.cs` | Хранит состояние компонента и выполняет обработчики. Этот код можно оставить и в блоке `@code` внутри Razor. |
+| `Script.csx` | Точка входа скрипта. Это отдельный контекст, а не сам Razor-компонент. |
 
 ## Открыть готовый счётчик
 
-1. Создайте собственную тестовую ауру через **Add new → New Aura**.
+1. Создайте тестовую ауру через **Add new → New Aura**.
 
 ![Команда New Aura в меню Inside root folder](/assets/callouts/batch3/ru/blazor-intro-new-aura.png)
 
@@ -31,15 +31,15 @@ dateCreated: 2025-05-11T13:31:15.490Z
 
 ![Пункт C# Overlay (v3, alpha) в меню Overlays прежнего редактора](/assets/callouts/batch3/ru/blazor-intro-overlay.png)
 
-3. Оставьте сгенерированные файлы без изменений. Для постоянной видимости добавьте в эту ауру **Fixed Value** со значением **Is Active** и оставьте ауру загруженной.
+3. Сгенерированные файлы не меняйте. Чтобы панель была видна постоянно, добавьте в эту ауру **Fixed Value** со значением **Is Active** и оставьте ауру загруженной.
 
 ![Редактор и стандартный счётчик](https://s3.eyeauras.net/media/2025/05/NVIDIA_Overlay_UVQrNGj5te.png)
 
-4. Нажмите **Click Me** в появившемся окне. Число на панели увеличивается после каждого нажатия.
+4. Нажмите **Click Me** в появившемся окне. С каждым нажатием число на панели растёт.
 
 ![Нажатия меняют счётчик](https://s3.eyeauras.net/media/2025/05/ltZnDlxcvJ.gif)
 
-Это состояние экземпляра компонента. При его пересоздании счётчик начнётся с нуля; простое скрытие окна не обязательно пересоздаёт компонент.
+Число хранится в самом компоненте. Если компонент создаётся заново, счёт начнётся с нуля.
 
 ## Куда двигаться дальше
 
@@ -50,17 +50,17 @@ dateCreated: 2025-05-11T13:31:15.490Z
 | Переключать свою ауру кнопкой | [Один переключатель](/ru/scripting/blazor-windows/4-toggle-hotkeyisactive). |
 | Создать диалог из действия C# Script и передать ему данные | [Окно из скрипта](/ru/scripting/blazor-windows/getting-started). |
 
-Так выглядит тот же принцип у простого компонента без оформления стандартного шаблона:
+Тот же счётчик без оформления стандартного шаблона:
 
 ![Простой счётчик на Razor](https://s3.eyeauras.net/media/2024/11/msedge_Wvy12LEOv1bGyAOA.gif)
 
 <details>
 <summary>Учебный пакет и дополнительные материалы</summary>
 
-[Скачать примеры](https://tinyurl.com/msfhaupc) можно как отдельный учебный набор. [Tutorial — Blazor Windows, revision 3](https://eyeauras.net/share/S20250511162645vYh4n3mqSLm0/3) относится к EyeAuras **1.7.8354.0**; его файлы и снимки показывают прежний редактор. Для первого опыта в текущем редакторе удобнее начать с нового C# Overlay, как выше.
+[Скачать примеры](https://tinyurl.com/msfhaupc) — отдельный учебный набор. [Tutorial — Blazor Windows, revision 3](https://eyeauras.net/share/S20250511162645vYh4n3mqSLm0/3) сделан для EyeAuras **1.7.8354.0**.
 
-На [CodePen](https://codepen.io/) есть примеры оформления HTML/CSS. Их разметку и стили нужно адаптировать к своему компоненту; пример для браузера сам по себе не создаёт окно EyeAuras.
+На [CodePen](https://codepen.io/) есть примеры оформления на HTML/CSS. Разметку и стили оттуда придётся подогнать под свой компонент.
 
-[Генератор RazorComponentTemplate](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.Blazor.Shared/CodeEditor/Templates/RazorComponentTemplate.cs) создаёт две части компонента с общим namespace. При редактировании имена и namespace должны оставаться согласованными.
+[Генератор RazorComponentTemplate](https://github.com/iXab3r/EyeAuras/blob/20fd3d424d886f6c99b979536a148774d289d110/Sources/EyeAuras.Blazor.Shared/CodeEditor/Templates/RazorComponentTemplate.cs) создаёт две части компонента с общим namespace. Когда редактируете их, следите, чтобы имена и namespace совпадали.
 
 </details>

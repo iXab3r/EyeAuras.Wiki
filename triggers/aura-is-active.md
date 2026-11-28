@@ -10,35 +10,33 @@ dateCreated: 2023-06-18T11:41:10.436Z
 
 # Aura Is Active — combine existing conditions
 
-Suppose a notification should play only when Notepad is open **and** you have enabled a manual switch. Aura Is Active combines those conditions from two separate auras. A third aura observes them and plays the sound.
+Aura Is Active looks at the state of other auras. That lets you build one rule out of several conditions you already have.
+
+Example: a sound should play only when Notepad is open **and** you have turned on a manual switch. Two auras each hold one condition. A third aura links them and plays the sound.
 
 ## Combine a window check and a switch
 
-1. Create “Notepad open” with one [Window Exists](/en/triggers/window-exists). Set **Target Window** to `notepad` and check the matches. This aura needs no actions.
-2. Create “Allow notification” with one [Fixed Value](/en/triggers/fixed-value), initially **Is NOT Active**.
-3. Create “Notification allowed”. Add **Aura Is Active** and use **Links** to select the two previous auras. Leave the required state of both links as Active.
+1. Create an aura called “Notepad open” with one [Window Exists](/en/triggers/window-exists). Set **Target Window** to `notepad` and check the matches. This aura needs no actions.
+2. Create an aura called “Allow notification” with one [Fixed Value](/en/triggers/fixed-value). Choose **Is NOT Active** for now.
+3. Create an aura called “Notification allowed”. Add **Aura Is Active** to it and use **Links** to select the two previous auras. Leave the required state of both links as Active.
 4. Set **Logical operator** to **All must match (AND)**. Add [Play Sound](/en/actions/play-sound) with Ping to **On Enter** and check the volume.
-5. Open Notepad, then set “Allow notification” to Is Active.
+5. Open Notepad. Then set “Allow notification” to Is Active.
 
-Both conditions now match: “Notification allowed” becomes active and plays the sound. Turn off the manual switch or close all matching windows, and the combined aura becomes inactive. The next time both conditions match, the sound plays again.
+Both conditions now match, so “Notification allowed” becomes active and plays the sound. Turn off the switch or close all matching windows, and it becomes inactive. When both conditions match again, the sound plays again.
 
-To keep the combined result visible, add a [Text overlay](/en/overlays/text) to “Notification allowed” and enter your own message in **Content**. It shows while that aura is active; [Common Options](/en/overlays/common-options) covers locking and normal visibility checks outside the editor. The linked auras still only supply the conditions.
+To keep the result on screen, add a [Text overlay](/en/overlays/text) to “Notification allowed” and type your message in **Content**. The text shows while the aura is active. In [Common Options](/en/overlays/common-options) you can lock it and check how it looks outside the editor.
 
-![The trigger’s combination rule is All conditions. Link opens its list of aura references.](/assets/callouts/batch3/en/aura-trigger-links.png)
-
-[Full earlier editor with the linked conditions](https://s3.eyeauras.net/media/2024/05/EyeAuras_83uLM0FmkdR4pgvJ.png).
+![The trigger’s rule is All conditions. The Link button opens the list of linked auras.](/assets/callouts/batch3/en/aura-trigger-links.png)
 
 ## Link settings
 
 | Setting | Effect |
 |---|---|
-| Links | Selects linked auras or folders. Use two specific auras for the first example. |
-| Required state of a link | Selects which state counts as a match. The example requires Active for both links. |
-| Logical operator — All must match (AND) | Requires every link to match. Older editor: All Conditions (AND). |
-| Logical operator — At least one must match (OR) | Requires at least one link to match. Older editor: At Least One (OR). |
+| Links | The list of linked auras. You can link folders too, but pick two specific auras for the first example. |
+| Required state of a link | Which state of the linked aura counts as a match. The example uses Active for both links. |
+| Logical operator — All must match (AND) | Every link must match. Older editor: All Conditions (AND). |
+| Logical operator — At least one must match (OR) | One matching link is enough. Older editor: At Least One (OR). |
 
-With OR, the example allows the notification when Notepad is open **or** the switch is enabled. Keep AND if both are required.
+The trigger only watches the state of linked auras. It does not run their actions. To run an existing chain of actions, use [Execute Actions](/en/actions/execute).
 
-This trigger observes states; it does not call actions in the linked auras. Use [Execute Actions](/en/actions/execute) to call an existing chain.
-
-With no links, Aura Is Active is inactive. A linked aura in Unknown does not satisfy an Active requirement; in AND mode, that uncertainty prevents activation. Build links from source conditions towards the final result, without circular dependencies.
+With no links, Aura Is Active is inactive. A linked aura in Unknown does not count as Active, so in AND mode the combined aura does not activate. Build links from the source conditions towards the final result, and do not close them into a loop.

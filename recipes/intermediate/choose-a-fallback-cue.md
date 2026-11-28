@@ -1,6 +1,6 @@
 ---
 title: "Choose a preferred notification or a fallback sound"
-description: "Use two checked Sequence alternatives under Selector to hear which eligible branch completed."
+description: "Put two checked Sequence branches under a Selector and hear which one completed."
 published: true
 date: 2026-11-10T17:01:45.000Z
 tags: recipes, intermediate
@@ -10,16 +10,16 @@ dateCreated: 2026-11-10T17:01:45.000Z
 
 # Hear which alternative was selected
 
-Play Ping when your preferred check succeeds, otherwise Bell when the fallback check succeeds. If neither qualifies, play nothing. Start with results you set yourself, so the choice is understandable before connecting a real sensor.
+The tree plays Ping if the preferred check succeeds, otherwise Bell if the fallback check succeeds. If neither succeeds, there is no sound. Here you set the check results yourself, so the choice is clear before you connect a real sensor.
 
-You need Behavior Tree templates **Selector**, **Sequence**, **Fixed Status**, **Run Aura**, and an audible output. Use a new sound-only set with EyeAuras unpaused.
+You need Behavior Tree templates **Selector**, **Sequence**, **Fixed Status** and **Run Aura**, and an audio output you can hear. Create a separate set that has only sound in it. EyeAuras must not be paused.
 
 ## Prepare two distinct cues
 
-1. Create **New Aura → Preferred cue**. Add **Triggers → Fixed Value → Is NOT Active**. In **On Enter**, add exactly one **Play Sound**, choose **Audio notification → Ping**, **Volume 50%**, and turn **Play in background** off. Check its preview. Keep While Active, On Exit and Overlays empty.
-2. Create **Fallback cue** the same way, but choose **Bell**. Keep both auras loaded, enabled and inactive: the tree will invoke their actions separately from ordinary activation.
-3. Create **New Behavior Tree**, select **My Tree**, enable **Activation → Is Loaded**, and choose **Execution → When Activated → Do nothing**. Do not add automatic activation links or run the repeat control.
-4. Through **Add new Node**, build this tree. Selector has two Sequence children, Preferred on the left. Each Sequence contains its check first and its Run Aura second. All nodes are enabled; the leaves have no children.
+1. Create **New Aura → Preferred cue**. Add **Triggers → Fixed Value → Is NOT Active**. In **On Enter**, add exactly one **Play Sound**: **Audio notification → Ping**, **Volume 50%**, **Play in background** off. Check the preview. Keep While Active, On Exit and Overlays empty.
+2. Create **Fallback cue** the same way, but choose **Bell**. Keep both auras loaded, enabled and inactive: the tree calls their actions separately.
+3. Create **New Behavior Tree**, select **My Tree**, enable **Activation → Is Loaded** and choose **Execution → When Activated → Do nothing**. Do not add automatic activation and do not start repeat.
+4. Through **Add new Node**, build the tree below. Selector has two Sequence children, with Preferred on the left. In each Sequence the check comes first and Run Aura second. All nodes are enabled, and the leaves have no children.
 
 ```text
 My Tree
@@ -32,24 +32,22 @@ My Tree
       └─ Run Aura: Fallback cue, ordered, 1 action
 ```
 
-5. Set each Fixed Status through **General → Status** as shown. For each Run Aura, open **General → Auras → Links**, select only its cue, verify **1 action**, and choose **Strategy → run 1-by-1 in order of addition**.
+5. Set each Fixed Status through **General → Status** to the value shown in the diagram. For each Run Aura, open **General → Auras → Links**, select only its cue, check that it says **1 action** and choose **Strategy → run 1-by-1 in order of addition**.
 
    ![The linked aura’s action count and the Strategy setting.](/assets/callouts/batch3/en/run-aura-linked-actions.png)
 
-   Sounds has two actions here. In your tree, check each branch separately. Each Run Aura should list one action from its own cue.
-
 ## Change the eligible branch
 
-1. Click the upper **Tick BT Once**. Preferred's check fails; its Ping is skipped. Fallback succeeds, Bell plays and Selector returns **Success**.
-2. Set Preferred's Fixed Status to **Success** and tick again. Ping plays; Selector stops at that successful Sequence and does not play Bell.
-3. Set both checks to **Failure** and tick: Selector returns **Failure**, without either cue. Restore Preferred Failure/Fallback Success for the first result again. Do not change the cue auras' inactive triggers.
+1. Click the upper **Tick BT Once**. Preferred's check fails and its Ping is skipped. Fallback's check succeeds, Bell plays and Selector returns **Success**.
+2. Set Preferred's Fixed Status to **Success** and tick again. Ping plays. Selector stops at that successful Sequence and does not play Bell.
+3. Set both checks to **Failure** and tick. Selector returns **Failure** and neither cue plays. To get the first result again, set Preferred back to Failure and Fallback to Success. Do not switch the cue auras' triggers: they must stay inactive.
 
 | Choice | Why it is needed |
 | --- | --- |
-| Sequence around each check and cue | A successful check directly under Selector would finish the choice before its separate cue |
-| Horizontal left-to-right order | Determines which eligible alternative is tried first |
-| Manual tick after a terminal result | Starts another deliberate pass, so it can play again |
+| Sequence around each check and cue | A check placed directly under Selector would end the choice on success, before its separate cue |
+| Left-to-right order | Decides which eligible alternative is tried first |
+| Manual tick after a terminal result | Starts another pass, so the sound can play again |
 
-[Selector](/en/behavior-trees/nodes/selector) tries another child after Failure; [Sequence](/en/behavior-trees/nodes/sequence) stops before its cue after Failure. [Fixed Status](/en/behavior-trees/nodes/fixed-status) supplies controlled results, and [Run Aura](/en/behavior-trees/nodes/execute-aura) invokes the prepared lists without changing their aura activity.
+[Selector](/en/behavior-trees/nodes/selector) tries the next child after Failure. [Sequence](/en/behavior-trees/nodes/sequence) stops on Failure before reaching its cue. [Fixed Status](/en/behavior-trees/nodes/fixed-status) returns the result you set. [Run Aura](/en/behavior-trees/nodes/execute-aura) calls the prepared action lists and does not change their auras' activity.
 
-If a branch returns Running, Selector resumes that branch on the next tick; it does not automatically preempt it when an earlier alternative becomes eligible. Completed effects are not rolled back. To use actual readiness later, replace a check with childless [Aura Is Active](/en/behavior-trees/nodes/aura-is-active), explicitly link your tested source and choose its expected state. Unknown/errors are not a normal failed preference. This manual example supplies no game data or permanent once-only latch.
+If a branch returns Running, Selector continues that same branch on the next tick. It does not switch by itself, even if an earlier alternative has changed. Effects that already happened are not rolled back. Later you can replace a check with a childless [Aura Is Active](/en/behavior-trees/nodes/aura-is-active): explicitly select your tested aura and its expected state. Unknown and errors are not a normal failure of the preferred branch.

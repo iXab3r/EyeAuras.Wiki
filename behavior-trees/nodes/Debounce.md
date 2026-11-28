@@ -10,35 +10,37 @@ dateCreated: 2025-08-17T08:20:07.721Z
 
 # Debounce — filter brief changes in a check
 
-Use `Debounce` when a sampled check flickers between `Success` and `Failure`. Each direction has its own interval. The node evaluates its child on ticks; `Behavior` controls what the parent receives before the interval has elapsed.
+`Debounce` smooths out a check that flickers between `Success` and `Failure`. It passes the child's result on only after it has held for a set time. The time is set separately for Success and for Failure. What the parent sees while the wait is on depends on the `Behavior` mode.
 
-## Observe both delays
+## See the delay in both directions
 
-Create a separate tree with `Activation → Is Loaded` and `Execution → When Activated → Do nothing`, as in [Getting Started](/en/behavior-trees/gettings-started). Use one Fixed Status as a controlled condition instead of an external sensor.
+Create your own tree with `Activation → Is Loaded` and `Execution → When Activated → Do nothing`, as in [Getting Started](/en/behavior-trees/gettings-started). Connect one Fixed Status to Debounce. You will switch the condition with it by hand, without an external sensor.
 
 1. Add `Debounce` and `Fixed Status`. Connect the tree entry → Debounce → Fixed Status.
-2. Set the child to `General → Status → Success`. On Debounce choose `General → Behavior → Wait until Stabilizes`, set `Activation Timeout = 2000 ms` and `Deactivation Timeout = 3000 ms`, with randomization off for both.
-3. Click the upper `Tick BT Once`. The child succeeds but Debounce returns `Running`. Wait at least three seconds and tick again: Debounce returns `Success`.
-4. Change the child to `Failure` and tick: Debounce returns Running. Wait at least four seconds and tick again: its result becomes `Failure`.
+2. Set the child to `General → Status → Success`. On Debounce choose `General → Behavior → Wait until Stabilizes`, then set `Activation Timeout = 2000 ms` and `Deactivation Timeout = 3000 ms`. Turn randomization off for both.
+3. Click the upper `Tick BT Once`. The child returns Success, and Debounce returns `Running`. Wait at least three seconds and tick again: Debounce returns `Success`.
+4. Change the child to `Failure` and tick: Debounce returns Running again. Wait at least four seconds and tick again: the result becomes `Failure`.
 
-The earlier screenshot calls the group `Blocking Behavior`; its current label is `Behavior`. The two mode names and timeout fields remain useful:
+In the screenshot the group is still called `Blocking Behavior`. Now it is `Behavior`.
 
 ![In the earlier Debounce editor, the wait mode sits above separate Success and Failure timeouts. Both are set to 0 ms here.](/assets/callouts/batch2/en/debounce.png)
 
 | Setting | Effect |
 | --- | --- |
-| Behavior — Wait until Stabilizes | Return Running while the current terminal result is pending; this waits in this branch, not every aura |
-| Behavior — Return immediately | Return the opposite terminal result while pending, then the current child result |
+| Behavior — Wait until Stabilizes | Until the time for the current Success or Failure is up, the node returns Running. Only this branch waits, auras do not stop |
+| Behavior — Return immediately | Until the time is up, the node returns the opposite result. After that, the child's current result |
 | Activation Timeout | Delay for Success, in milliseconds |
 | Deactivation Timeout | Delay for Failure, in milliseconds |
-| Random Min / Max | Sample an interval when that direction starts, not on every tick |
-| Child | One enabled check |
+| Random Min / Max | The value is picked once, at the start of the interval, not on every tick |
+| Child | One child to check |
 
-To filter an already configured indicator, use [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) as the child and link its aura. Choose [Wait](/en/behavior-trees/nodes/wait) for a fixed pause before continuing, or [Cooldown](/en/behavior-trees/nodes/cooldown) for an interval after successful work; those solve different timing tasks.
+To smooth the state of an indicator you have already set up, connect [Aura Is Active](/en/behavior-trees/nodes/aura-is-active) as the child and link its aura. If you need a plain pause before the next step, use [Wait](/en/behavior-trees/nodes/wait). If you need a break after successful work, use [Cooldown](/en/behavior-trees/nodes/cooldown).
 
-## Return immediately is not the last confirmed state
+## What Return immediately means
 
-| Child observation | Result in Return immediately |
+In this mode the parent gets an answer right away and can move on. The node does not keep a "last confirmed state":
+
+| Child result | Debounce result in Return immediately |
 | --- | --- |
 | Success, Activation still pending | Failure |
 | Success, Activation elapsed | Success |
@@ -46,15 +48,13 @@ To filter an already configured indicator, use [Aura Is Active](/en/behavior-tre
 | Failure, Deactivation elapsed | Failure |
 | Running | Running in either mode |
 
-For a door sensor, this can reject a brief opening before admitting Success, and apply a separate delay when it closes. The sensor must supply an actual sampled condition; Debounce does not discover doors or changes by itself.
-
 <details>
-<summary>Timing, re-entry and reset</summary>
+<summary>How the time is counted</summary>
 
-The first Success starts Activation and clears Deactivation; the first Failure does the reverse. Repeated equal results keep the same interval, including after it has elapsed. A zero interval passes the terminal result immediately.
+The first Success starts the Activation countdown and clears Deactivation. The first Failure does the reverse. If the result repeats, the countdown that has started keeps going. With a zero interval the result passes right away.
 
-Debounce does not observe the child between ticks. A missed flicker is invisible. Running passes through without clearing either timer: elapsed time continues, so this does not prove uninterrupted Success during Running. Returning a terminal result does not itself restart the timer on the next entry.
+Debounce does not watch the child between ticks. It will not notice a brief flicker that falls between two ticks. Running is passed on right away and does not clear the countdown: time keeps going.
 
-Changing the configured duration does not recompute an interval already sampled. The new duration applies when that direction next starts. Structural reset clears both timers; clearing displayed statuses does not. A missing enabled child is treated as Success, so connect the real check before relying on the result. Cancellation and execution errors remain separate from the two timed terminal results.
+If you change the duration during a countdown, the current interval is not recalculated. The new value applies the next time the countdown starts. A structural reset clears both timers. Clearing the colour and the last status does not. Without a child, the node works as if it got Success.
 
 </details>

@@ -10,42 +10,40 @@ dateCreated: 2025-08-17T08:56:58.706Z
 
 # Key Press — send one gesture to your own window
 
-Use `Key Press` for one keyboard key, modifier combination, mouse button or supported wheel event. This is input delivery, not a test of what the user is holding. Start by selecting text in a separate local draft.
+`Key Press` sends a key, a combination with modifiers, a mouse button or a supported wheel event. In the example below it selects text with one combination.
 
-## Select your draft's text
+## Select text in your own draft
 
-Open your own text-editor window with two nonsecret lines. Click in its text so a caret is visible. Use this draft rather than a chat, submission form or command prompt.
+Open a local text editor in a separate window, with a draft that has no secrets in it. Type two lines and click in the text so the caret is there. Do not use a chat, a submission form or a command prompt for this example.
 
-1. Put a separate tree in your own folder. In the folder's `Triggers/Actions/Overlays Defaults`, enable `Target Window` and choose the exact draft window. Through `show more...`, enable `Input Simulator` and select `Windows Input`.
-2. Keep `Activation → Is Loaded` and `Execution → When Activated → Do nothing`. Check [default properties](/en/features/default-properties): local tree `Settings` must not override the intended window or backend.
+1. Create a separate folder and put your tree in it. In the folder's `Triggers/Actions/Overlays Defaults`, enable `Target Window` and choose exactly the draft window. Through `show more...`, enable `Input Simulator` and select `Windows Input`.
+2. At the tree entry keep `Activation → Is Loaded` and `Execution → When Activated → Do nothing`. Check the [default properties](/en/features/default-properties): the tree's local `Settings` must not set a different window or input backend.
 3. Add `Key Press` and connect it to the entry. Choose `General → Keys → Ctrl+A`, `Delay = 30 ms`, randomization off, and `Input → Press and release`.
-4. Check the read-only `Window` and `Simulator` fields in the same group. They must show the draft and Windows Input. Do not run with `not set`, `not found` or another target.
-5. Click the upper `Tick BT Once` once. Windows Input activates the selected window and sends the gesture. Expect the text to become selected and the node to return Success. Recheck the target before repeating.
-
-The example below shows F1 with the target window still unset. For the draft exercise, select Ctrl+A and verify the recipient before ticking the tree.
+4. At the bottom of the same group check the read-only `Window` and `Simulator` fields. They must show the draft window and Windows Input. Do not run the example if you see `not set`, `not found` or another window.
+5. Click the upper `Tick BT Once` once. Windows Input brings the selected window to the front and sends the combination. The text in the editor becomes selected and the node finishes with Success. Before you repeat, make sure the window is still the same.
 
 ![Key Press configured for F1 with a 30 ms delay and no target window set](/assets/callouts/batch1/en/bt-getting-started-key-press.png)
 
 | Setting | Effect |
 | --- | --- |
-| Keys | One main key with Ctrl, Alt or Shift; also mouse buttons and wheel events. Not a long-sequence command string |
-| Delay | Pause after individual keyboard events, including Down and Up in a normal Press; not a node-repeat interval |
-| Random Min / Max | Select event delays within the configured range |
-| Input — Press and release | Send main-key Down then Up, with selected modifiers pressed and released around it |
-| Input — Press and hold | Send Down, leaving the key and selected modifiers held |
-| Input — Release | Send Up for the main key and selected modifiers |
-| Window / Simulator | Resolved inherited target and backend, not separate editable selectors on this node |
+| Keys | One main key with the modifiers Ctrl, Alt, Shift. You can also choose a mouse button or the wheel. A long sequence does not fit here |
+| Delay | Pause after each keyboard event that is sent. A normal Press has two: Down and Up. This is not a repeat period for the whole node |
+| Random Min / Max | Pauses are picked at random between the two limits instead of one value |
+| Input — Press and release | Press and release the main key. The selected modifiers are pressed and released too |
+| Input — Press and hold | Send Down and leave the key and modifiers held |
+| Input — Release | Send Up for the main key and modifiers |
+| Window / Simulator | Show the inherited window and input backend. They cannot be edited on the node itself |
 
-For wheel gestures, Input is hidden and the chosen scroll direction is sent. Backend support differs: Windows Message API does not support wheel scrolling. Target Window alone does not guarantee background delivery; see [input options](/en/actions/sendinput/options).
+For the wheel, the Input group is hidden: the node sends a scroll in the chosen direction. Not every input backend supports the mouse and the wheel. For example, Windows Message API cannot scroll. A selected Target Window does not mean input always reaches a background window, because input methods work differently. See [input options](/en/actions/sendinput/options).
 
 <details>
 <summary>Holding, cancellation and several steps</summary>
 
-A timed hold needs separate steps with the same Keys, window and backend: `Press and hold → Wait → Release`. Delay within Key Press is not a substitute for the hold duration. If traversal stops before Release, it will not run. Stop, cancellation or disposing a controller does not universally release held keys. Even a single Press may be cancelled between its events.
+To hold a key for a set time you need three steps with the same Keys, window and backend: `Press and hold → Wait → Release`. Delay inside Key Press does not set the hold duration. If the run stops before Release, that step does not happen. Stop, cancellation or disposing the object will not release the keys by themselves, so plan the release in your own tree. Even if a Press is interrupted between its events, some of the events have already been sent.
 
-The controller may skip Down for a physically held key, but still sends Up. It does not restore every prior modifier state; avoid manually holding unrelated keys during the draft example. Plan explicit release for input your own flow holds.
+Build a longer sequence from several Key Press nodes in a [Sequence](/en/behavior-trees/nodes/sequence). Another way is [Run Aura](/en/behavior-trees/nodes/execute-aura) with a ready [Send Sequence](/en/actions/sendinput/send-sequence) action. To type text straight from a node, use [Send Text](/en/behavior-trees/nodes/SendText).
 
-For a longer sequence, connect several Key Press nodes in a [Sequence](/en/behavior-trees/nodes/sequence), or use [Run Aura](/en/behavior-trees/nodes/execute-aura) with a configured [Send Sequence](/en/actions/sendinput/send-sequence) action. A paste gesture requires your own prepared clipboard. In the older example below, `Key Press Delay` corresponds to `Delay` and `Input Type` to `Input`.
+An older example. `Key Press Delay` is now `Delay`, and `Input Type` is now `Input`:
 
 ```
 KeyPress
@@ -55,6 +53,6 @@ Key Press Delay: 30 ms
 Input Type: Press and release
 ```
 
-To supply text from the node, use [Send Text](/en/behavior-trees/nodes/SendText). After successful input, Key Press can execute a child and return its result. A retained Running child resumes on the next tick without repeating the gesture. The same template exists in Macro, but surrounding order follows macro control flow. Success confirms call completion, not that the target processed the input.
+After a successful press, Key Press can run a connected child and return its result. If the child returns Running, the next tick continues it and does not press the key again. The template is the same in Macro, but there the macro sets the order of the next steps, not a BT Sequence. Success only means the input was sent. Look at the target window to see whether it worked.
 
 </details>

@@ -1,6 +1,6 @@
 ---
 title: AI Assistant
-description: Built-in AI chat in EyeAuras with OpenAI and OpenAI-compatible profiles, EyeAuras Gateway, Agent Guidance, MCP, and help with documentation and scripts
+description: How to start a chat, choose a model connection and set up AI Assistant
 published: true
 date: 2026-04-21T22:30:00.000Z
 tags: ai, assistant, gateway, ai-translated, mcp, guidance
@@ -8,103 +8,106 @@ editor: markdown
 dateCreated: 2026-03-29T00:00:00.000Z
 ---
 
-# Ask AI Assistant about an EyeAuras task
+# AI Assistant
 
-AI Assistant is the chat in the **AI** tab. Use it to find a setting, locate documentation or discuss a script. A connection profile selects the model, server and credentials. Start with a documentation question and check the cited article before using proposed code.
+AI Assistant is the chat in the **AI** tab. Ask it how to set something up in EyeAuras, have it find an article, or go through a script with it. For the chat to work, you need to choose a connection profile for a model.
 
-You need a build with the AI tab and an available model connection. The feature is evolving; an answer can be wrong even when it sounds confident. For project-editing conversations and separate coding threads, see [AI Codex Coding Assistant](/en/features/ai-codex-coding-assistant).
+The feature is still changing. Answers and code can contain mistakes, so check them before you use them. For chats that edit a project, see [AI Codex Coding Assistant](/en/features/ai-codex-coding-assistant).
 
-## Ask a question without requesting changes
+## How to start
 
-1. Open **AI**, select **Chat**, and choose an available profile. Use **Manage Profiles** to inspect its endpoint, model and key reference.
-2. For your own OpenAI connection, enter your configured key or its environment-variable reference in **API Key**. Do not paste a secret into a chat question. A resolved key or `Ready`/`Key Available` status does not test the server, model access or account limits.
-3. Keep **Docs Knowledge Base** enabled in **Show Settings**. For this first documentation question, leave **IDE Context** off; it is a separate opt-in to workspace context, not a switch that disables every connected tool.
-4. Click **Start Session**. Ask: “Which trigger and overlay show my own text only while a chosen window is active? Find the wiki articles and explain the fields. Do not change settings or files.” Include your build number for version-specific questions.
-5. Open the cited articles and compare their labels with your configuration. Expect an explanation and relevant links, not evidence that a workflow ran on your computer. For a later script question, provide a small non-secret snippet and the complete error text, then review any proposed change before applying it.
+1. Open **AI**, select **Chat** and choose a profile. The profile sets the model, the server address and the way you sign in.
+2. If you need your own key, open **Manage Profiles** and enter it in **API Key**. You can enter an environment variable instead. Do not paste a key into the chat itself, and do not attach sensitive images or files.
+3. Click **Start Session**.
+4. Ask a specific question, for example: “Which trigger and overlay show my own text only while a chosen window is active?” If you are sorting out an error, add its full text and your EyeAuras version.
 
-For that window-state question, compare [Window Is Active](/en/triggers/window-is-active) with [Enabling Conditions](/en/features/enabling-conditions). An ordinary trigger checks the aura’s condition; an enabling condition decides whether its work may run at all. Use a [Text overlay](/en/overlays/text) for a visible result while checking the answer, before adding input.
+A `Ready` or `Key Available` status only means the key was found. It does not check the server, access to the model or account limits.
 
-![The earlier AI tab with EyeAuras AiGateway selected and a Start Session button in the middle of the panel.](/assets/callouts/batch2/en/assistant-start-session.png)
+If your question is about the active window, compare [Window Is Active](/en/triggers/window-is-active) with [Enabling Conditions](/en/features/enabling-conditions). While you check the answer, show a [Text overlay](/en/overlays/text) first and add input later.
 
-The April 2026 interface shows the selected connection profile in the upper right. Click Start Session to open the chat.
+![AI tab: the EyeAuras AiGateway profile is selected, Start Session is in the middle](/assets/callouts/batch2/en/assistant-start-session.png)
 
-## Choose the connection you actually have
+## Which profile to choose
 
-| Profile | Prerequisites and scope |
+| Profile | Connection |
 | --- | --- |
-| OpenAI | Your authorized API connection and an available model. Start with a suitable installed template; model names in templates are not current access guarantees. |
-| EyeAuras Gateway | EyeAuras-hosted endpoint `https://eu.openai.eyeauras.net` with **API Key** `%EYEAURAS_TOKEN%`. It uses an available authenticated EyeAuras account token; service access and limits still apply. |
-| Ollama | Your already running local server, **Endpoint** `http://localhost:11434/v1`, **API Type** `ChatCompletions`, and an installed **Model Id**. The earlier `llama3` example only works when that model is present. This adapter does not normally require a provider key. |
-| Another compatible server | Its supported protocol, endpoint, model and credentials. An OpenAI-compatible name does not establish every feature or API family. |
+| OpenAI | Your own API key. Take the profile from a template. Costs depend on your account with the provider. |
+| EyeAuras Gateway | The EyeAuras server. **API Key** is `%EYEAURAS_TOKEN%`, **Endpoint** is `https://eu.openai.eyeauras.net`. It uses the token of your EyeAuras account. |
+| Ollama | A model on your own computer. Start Ollama, set **Endpoint** to `http://localhost:11434/v1`, **API Type** to `ChatCompletions` and put the name of an installed model, such as `llama3`, in **Model Id**. A key is normally not needed. |
+| Another compatible server | Its address, model name and key, if the server asks for one. |
 
-Gateway is optional. The earlier alpha announcement offered access through the community and discussed future limits/refills; do not treat that announcement as a current free allowance or commercial entitlement. Check the service response and [support contacts](/en/contacts) for access questions. Your own direct provider connection remains a separate choice.
+You do not have to use Gateway. For questions about access to it, see [support contacts](/en/contacts).
 
-![Earlier Gateway profile example](https://s3.eyeauras.net/media/2026/04/EyeAuras_eSthNpc63A.png =x600)
+![Gateway profile](https://s3.eyeauras.net/media/2026/04/EyeAuras_eSthNpc63A.png =x600)
 
-![Earlier Gateway chat example](https://s3.eyeauras.net/media/2026/04/EyeAuras_SD8w4Ut06Q.png =x600)
+![Chat through Gateway](https://s3.eyeauras.net/media/2026/04/EyeAuras_SD8w4Ut06Q.png =x600)
 
-| Manage Profiles field | What it controls |
+The **Manage Profiles** window:
+
+| Setting | What it does |
 | --- | --- |
-| `Name` | Profile name shown in the list, such as OpenAI, Gateway or Ollama local. |
-| `API Key` | Literal credential or key reference. A literal is stored in the profile; an environment reference leaves the secret in that environment. |
-| `Endpoint` | Provider API base address. Use the relevant template or your compatible server's documented address. |
-| `Model Id` | Identifier understood by that server. Historical examples such as `gpt-5.4`, `gpt-5.4-mini` or `llama3` are not interchangeable model capabilities or availability promises. |
-| `API Type` | `Responses` or `ChatCompletions`, selecting a corresponding installed adapter. The server must implement that family. |
-| `Reasoning Effort` | A request hint supported only by the selected adapter/model. Keep a compatible template value rather than assuming all levels map identically. |
-| `Max Context Tokens` | Advertised context size used for local tracking; it does not enlarge the model's actual limit. |
-| `Function Calling` | Exposes registered tools when the model and connection support them, including documentation lookup. It does not register every EyeAuras service or grant unlimited access. |
+| `Name` | Profile name in the list. For example, OpenAI or Ollama local. |
+| `API Key` | An access key or an environment variable. A key typed here is stored in the profile. |
+| `Endpoint` | API address. For OpenAI keep the one from the template. For another server enter its address. |
+| `Model Id` | Model name at the provider, such as `gpt-5.4`, `gpt-5.4-mini` or `llama3`. Start with the value from the template. |
+| `API Type` | `Responses` or `ChatCompletions`, whichever the server supports. |
+| `Reasoning Effort` | How much effort the model puts into thinking over the answer. To begin with, keep the value from the template. |
+| `Max Context Tokens` | Context size. EyeAuras uses it to show how full the context is. It does not change the model's own limit. |
+| `Function Calling` | Gives the model EyeAuras tools, including documentation search. Usually best left on. |
 
-![The earlier Gateway profile uses gpt-5.4-mini under Model Id and Responses under API Type.](/assets/callouts/batch3/en/assistant-profile-fields.png)
+![Gateway profile: gpt-5.4-mini in Model Id and Responses in API Type](/assets/callouts/batch3/en/assistant-profile-fields.png)
 
-In the April 2026 Gateway example the fields show gpt-5.4-mini and Responses. Use a model available to your connection.
-
-An environment reference can be entered as in the original example:
+An environment variable in **API Key** looks like this:
 
 ```text
 %OPENAI_API_KEY%
 ```
 
-The local `ChatCompletions` connector supports OpenAI, Azure OpenAI, Ollama and compatible endpoints. The Anthropic-labelled route needs an OpenAI-compatible proxy here; it is not native Anthropic protocol support. The installed Responses transport does not wire Azure OpenAI Responses. Check that specific adapter before copying a working profile between modes. [OpenAI's API reference](https://developers.openai.com/api/reference/responses/overview) describes the external protocol, not all features implemented by an installed EyeAuras build.
+`ChatCompletions` works with OpenAI, Azure OpenAI, Ollama and compatible servers. Anthropic models need an OpenAI-compatible proxy. `Responses` does not work with Azure OpenAI. The protocol itself is described in [OpenAI's API reference](https://developers.openai.com/api/reference/responses/overview).
 
-Streamed replies, image content and tool rounds also depend on the adapter and model. They are not enabled merely by selecting a provider label. For the initial question, text and documentation are sufficient; do not attach sensitive images or files.
+Streaming, images and tools also depend on the model and the API type.
 
-## Understand context and tools
+## Context and tools
 
-The active chat session holds its conversation and profile context. **IDE Context** connects the current EyePad workspace through the host's available tools; it does not make every window, aura or file an implicit global. Read-only intent in a prompt is not a security boundary. Connected tools can have side effects under their configured policy; review their scope and resulting changes rather than assuming every invocation requests approval or every model can edit or compile.
+A chat session keeps its own conversation and profile. **IDE Context** in **Show Settings** also gives the model the current EyePad workspace. It is off until you turn it on.
 
-Use the chat's cancellation control for an unwanted response; switching views is not evidence that work stopped. A suggested script still needs its actual host, imports, registered services and resource lifetime. Top-level `Log`, `AuraTree` and `Variables` do not become ordinary C# or Razor globals because an AI answer used them. [Scripting practices](/en/scripting/best-practices) explains those distinctions.
+Connected tools can change things even if you asked the model only to look. Review what it did.
 
-Codex is a separate runtime/thread mode. Ordinary Chat history is not automatically its thread history. In this integration, Codex browser login remains `Unavailable` outside the test path and the adapter declines escalation requests; independent Codex documentation does not enable those features inside EyeAuras.
+To stop an answer you do not want, use the cancel button in the chat. Switching to another view does not stop it.
+
+Top-level script names such as `Log`, `AuraTree` and `Variables` are not available in ordinary C# classes or Razor components, even if an AI answer uses them there. See [scripting practices](/en/scripting/best-practices).
+
+Codex is a separate mode with its own threads. It does not see the history of the ordinary **Chat**. Browser login for Codex shows `Unavailable` in EyeAuras.
 
 <details>
 <summary>Show Settings</summary>
 
-![Earlier AI settings window](https://s3.eyeauras.net/media/2026/04/EyeAuras_rFFX1fryIO.png =x600)
+![AI settings window](https://s3.eyeauras.net/media/2026/04/EyeAuras_rFFX1fryIO.png =x600)
 
-| Setting | Purpose |
+For an ordinary chat you usually do not need to change these.
+
+| Setting | What it does |
 | --- | --- |
-| `Docs Knowledge Base` | Makes the configured documentation available to chat and MCP retrieval. Answers still need source checking. |
-| `Docs Repository` / `Docs Path` | Documentation repository and its local cache directory. They are not the canonical API implementation. |
-| `Artifact Store` | Allows artifact storage where supported by the backend and host. |
-| `MCP Port` / `Enable MCP On Startup` | Local helper endpoint and automatic startup setting. |
-| `Enable Browser Automation` / `Browser Debug Port` | Enables the host's browser tools and selects a debug port. Restart EyeAuras after changing browser automation. This does not grant access to arbitrary browsers. |
-
-For an ordinary documentation question, leave the cache and browser settings alone. A knowledge base supplies information, not automatic verification that code compiled or ran.
+| `Docs Knowledge Base` | Connects the documentation to the AI chat and MCP. |
+| `Docs Repository` / `Docs Path` | Documentation repository and the folder of its local cache. |
+| `Artifact Store` | Lets the chat save artifacts if the server supports it. |
+| `MCP Port` / `Enable MCP On Startup` | MCP server port and whether it starts automatically. |
+| `Enable Browser Automation` / `Browser Debug Port` | Turns on browser tools and sets the debug port. Restart EyeAuras after changing browser automation. |
 
 </details>
 
-## Prepare Agent Guidance for an external agent
+## Agent Guidance
 
-Agent Guidance packages EyeAuras documentation, examples, SDK notes and MCP status for an external coding tool such as Codex, Claude Code or Cursor. It does not install that tool or replace your project rules.
+Agent Guidance collects EyeAuras documentation, examples, SDK notes and MCP status into one folder for an external agent such as Codex, Claude Code or Cursor. It does not install the agent.
 
 1. Open **AI → Show Settings → Agent Guidance** and click **Rebuild**.
-2. Use **Open Guidance Pack** to inspect the folder, or **Export Guidance Pack** to save an archive.
-3. Use **Add to C# Project** or **Add to Solution** to copy it beside the selected project. For a solution, EyeAuras attempts to find a C# project with the solution's name.
-4. Direct the external agent to the generated folder and its `AGENTS.md` entry point. Configure any supported MCP connection separately.
+2. Open the result with **Open Guidance Pack** or save it as an archive with **Export Guidance Pack**.
+3. To add it to a project, click **Add to C# Project** or **Add to Solution**. For a solution, EyeAuras looks for a C# project with the same name as the solution.
+4. Point the agent to the copied folder and the `AGENTS.md` inside it.
 
-![Agent Guidance showing Rebuild and the timestamp of a prepared guidance snapshot.](/assets/callouts/batch3/en/assistant-guidance-rebuild.png)
+![Agent Guidance: the Rebuild button and the time the guidance snapshot was prepared](/assets/callouts/batch3/en/assistant-guidance-rebuild.png)
 
-The pack contains its own `AGENTS.md`, `README.md`, `manifest.json`, `mcp-status.json` and `docs/`. The managed destination is:
+The pack contains `AGENTS.md`, `README.md`, `manifest.json`, `mcp-status.json` and `docs/`. In the project it goes here:
 
 ```text
 generated/ai
@@ -112,19 +115,19 @@ generated/ai
 
 ![Guidance Pack actions](https://s3.eyeauras.net/media/2026/04/EyeAuras_R4JvFSFixc.png =x600)
 
-Repeated **Add to C# Project / Add to Solution** replaces that directory completely. Keep your own files elsewhere. Your project's existing `AGENTS.md` remains separate and is not overwritten. Rebuild after changing MCP state so the pack contains current connection metadata.
+When you add the pack again, this folder is replaced completely, so keep your own files elsewhere. The project's existing `AGENTS.md` is not overwritten.
 
-![Earlier guidance folder layout](https://s3.eyeauras.net/media/2026/04/EyeAuras_pW0O4jRT9q.png =x600)
+![Guidance folder layout](https://s3.eyeauras.net/media/2026/04/EyeAuras_pW0O4jRT9q.png =x600)
 
-The optional local MCP helper gives a connected client registered context tools; it is not automatic access to all application objects. A portable guidance archive supplies documents, while a live endpoint requires its own running host and permissions.
+If the agent needs to query a running EyeAuras, turn on MCP. After you turn MCP on or off, click **Rebuild** again to update the pack.
 
 ## If the session does not start
 
-| Symptom | Next check |
+| Symptom | What to check |
 | --- | --- |
-| `Unavailable` or missing key | Check the reference and environment value. Gateway requires an available authenticated EyeAuras token; key readiness is not a successful model request. |
-| Connection error | Check endpoint and network access. For Ollama, check your own local server. |
-| Model or API error | Compare Model Id, API Type and supported features. Keep the full non-secret error text. |
-| A plausible but incorrect answer | Ask for its source, specify build and task, and compare the actual article/API contract before using the suggestion. |
+| `Unavailable` or missing key | Check **API Key** and the value of the environment variable, if you used one. Gateway needs an available EyeAuras token. |
+| Connection error | Check **Endpoint** and the network. For Ollama, make sure the local server is running. |
+| Model or API error | Compare **Model Id** and **API Type** with your provider's settings. |
+| An answer that sounds right but is wrong | Ask for the source, give your build and task, and check the article before you use the answer. |
 
-You do not need Gateway specifically or necessarily an OpenAI account: an available compatible local/server connection is another route. Access, model availability and costs belong to the chosen service. For help outside the app, use [Discord Bot](/en/features/discord-bot). For a project, continue with [Codex](/en/features/ai-codex-coding-assistant), [scripting basics](/en/scripting/getting-started) and [best practices](/en/scripting/best-practices).
+Related pages: [Codex](/en/features/ai-codex-coding-assistant), [Discord Bot](/en/features/discord-bot), [scripting basics](/en/scripting/getting-started) and [scripting practices](/en/scripting/best-practices).

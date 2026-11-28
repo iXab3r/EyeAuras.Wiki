@@ -9,12 +9,14 @@ dateCreated: 2024-02-24T00:47:33.928Z
 ---
 # Move the cursor once, without clicking
 
-Select your own stable test window and move the real cursor to the centre of its outer frame. The program sends no mouse button event. You need desktop EyeAuras, its on-screen window picker and available **Windows Input**. Keep the window still and do not run the example while dragging anything.
+This script moves the real cursor to the centre of a window you pick. It does not click.
 
-1. Create your own aura and add a **C# Script** action to **On Enter**.
-2. Put the complete program below in top-level **Script.csx**.
-3. Click **Run** and select your test window. Escape or right-click cancels the picker.
-4. The cursor should move to its frame centre. The log records the requested window, not an acknowledgement that another application processed an event.
+You need desktop EyeAuras, its on-screen window picker and available **Windows Input**. Use your own test window, keep it still and do not run the example while you are dragging something.
+
+1. Create an aura and add a **C# Script** action to **On Enter**.
+2. Paste the whole code below into top-level **Script.csx**.
+3. Click **Run** and pick your test window. Escape or a right-click cancels the picker.
+4. The cursor moves to the centre of the window frame, and the log names the requested window.
 
 ```csharp
 using EyeAuras.Roxy.Api;
@@ -37,14 +39,14 @@ try
 finally { input.TargetWindow = previousTarget; }
 ```
 
-**DwmFrameBounds** supplies the frame width and height. With a non-null **TargetWindow**, the standard controller activates that window and adds its frame origin to the relative point. This is not a client-area centre, WPF DIP conversion or a background move. The program restores the previous target in finally.
+**DwmFrameBounds** gives the width and height of the window frame. When **TargetWindow** is not null, the standard controller activates that window and adds the origin of its frame to the point you pass. So this is the centre of the frame, not of the client area. No WPF DIP conversion is applied, and the window does not stay in the background. The script puts the previous target back in finally.
 
 ## Use the original primary-screen example
 
-To use primary-monitor desktop coordinates instead, [import the original example](https://eu.eyeauras.net/share/S202402240046520BBKcR6QKL07) or configure this separate alternative:
+For the centre of the primary monitor in screen coordinates, [import the original example](https://eu.eyeauras.net/share/S202402240046520BBKcR6QKL07) or build this other variant:
 
-1. Add [Hotkey Is Active](/en/triggers/hotkey-is-active) to your own aura: **F3**, **Hold**.
-2. Add **C# Script** to **On Enter** and replace the previous program with:
+1. Add [Hotkey Is Active](/en/triggers/hotkey-is-active) to your aura: **F3**, **Hold**.
+2. Add **C# Script** to **On Enter** and replace the previous code with:
 
 ```csharp
 using EyeAuras.Roxy.Api;
@@ -60,17 +62,17 @@ cancellationToken.ThrowIfCancellationRequested();
 sendInputApi.MouseMoveTo(screenSize.Width / 2, screenSize.Height / 2);
 ```
 
-3. In your own test workspace, press and release F3. The log should show the primary monitor size and the cursor should move once to its centre. Another separate press repeats the movement; there is no click.
+3. Press and release F3. The log shows the primary monitor size and the cursor moves to its centre. Each new press moves it again. There is no click.
 
-| Choice | Coordinate contract |
+| Choice | What it means here |
 | --- | --- |
-| Windows Input | Explicit simulator selection. Unavailable input is an error, not proof of movement. |
-| TargetWindow = null | The supplied point is already in desktop screen coordinates. |
-| PrimaryMonitorSize | Only the primary monitor, whose origin is (0, 0). Its centre is not the whole virtual desktop's centre. |
-| MouseMoveTo | Absolute destination; MouseMoveBy would be a displacement from the current position. |
+| Windows Input | The input simulator, chosen explicitly. If it is unavailable you get an error, not a move. |
+| TargetWindow = null | The point is already in screen coordinates. |
+| PrimaryMonitorSize | The primary monitor only. Its origin is (0, 0). Its centre is not the centre of the whole virtual desktop. |
+| MouseMoveTo | An absolute position. MouseMoveBy would shift the cursor from where it is now. |
 
-For a destination supplied by visual search, start with the [Image Search example](/en/scripting/examples/basic/image-search), which distinguishes a window-relative result from raw bounds converted to screen coordinates. Choose the corresponding [coordinate domain](/en/features/coordinate-system) before sending the point; the monitor-centre formula is not a conversion of a found rectangle.
+If the point comes from a search, start with the [Image Search example](/en/scripting/examples/basic/image-search). It shows a window-relative result and raw bounds converted to screen coordinates separately. Pick the matching [coordinate system](/en/features/coordinate-system) before you send the point.
 
-Do not substitute window dimensions into the screen formula without changing its coordinate context. Use the API's frame/monitor values directly; do not add another guessed DPI factor. Hold produces a new On Enter on each press/release cycle. With Toggle, the second cycle turns the aura off instead.
+Do not put a window size into the screen formula. Use the frame and monitor values from the API as they are, without an extra DPI factor. In Hold mode each press and release gives a new On Enter. In Toggle mode the second press would turn the aura off instead.
 
-Both programs use the top-level host's **GetService**, **Log** and token; ordinary helpers receive dependencies explicitly. The service is borrowed. Token checks happen before movement, but the synchronous move takes no Run token and gives no target-application acknowledgement. See [input contracts](/en/scripting/api/ISendInputScriptingApi) and [coordinate systems](/en/features/coordinate-system).
+Both scripts use **GetService**, **Log** and the token of the top-level script. Ordinary helper classes get their dependencies passed in. You do not need to dispose the service. The token is checked before the move, but the move itself is synchronous: it takes no Run token and returns no confirmation from the application. More in the [input API](/en/scripting/api/ISendInputScriptingApi).

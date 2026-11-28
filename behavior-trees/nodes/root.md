@@ -9,56 +9,52 @@ dateCreated: 2024-03-07T14:51:42.386Z
 ---
 # Control when the main tree runs
 
-Root stores the tree container's loading, activation and execution settings. It is not removable like an ordinary child. The graph entry **My Tree** belongs to one executable tree; a container can hold several.
+Root is the tree's container. It holds the shared settings: whether the tree is loaded, what condition starts it and how often it runs. You cannot remove it like an ordinary child. One Root can hold several trees. **My Tree** on the graph is the entry of one tree, not the whole container.
 
 | Object | What it selects |
 | --- | --- |
-| Root container | Loading, activation, period, shared settings and contained trees. |
-| Selected tree | What you are editing and what the upper **Tick BT Once** runs. |
-| MainTree | The starred tree used for automatic execution. Selecting another tab does not change it. |
+| Root container | Loading, activation, period, shared settings and the set of trees. |
+| Selected tree | The tree you are editing now and run with the upper **Tick BT Once**. |
+| MainTree | The starred tree. It runs automatically. Opening another tab does not change it. |
 
 ## Enable periodic ticks with your own condition
 
-First complete the [no-input example](/en/behavior-trees/gettings-started) manually. Also create your own aura named `BT enabled` with one [Fixed Value](/en/triggers/fixed-value), no actions, initially **Is NOT Active**.
+First build a separate tree from the [no-input example](/en/behavior-trees/gettings-started) and run it by hand. You also need your own aura named `BT enabled` with one [Fixed Value](/en/triggers/fixed-value) and no actions. Leave it on **Is NOT Active** to start with.
 
-1. Select the intended tree in the upper selector, then select its **My Tree** entry to show container settings.
-2. In **General → Is Main**, check **This Tree is the Main one**. Otherwise click **Make this Tree the Main one**. The selector's star identifies automatic entry.
+1. Open the tree you need in the upper selector. Select its **My Tree** entry, and the shared settings appear.
+2. **General → Is Main** should say **This Tree is the Main one**. If it does not, click **Make this Tree the Main one**. The star in the selector marks the tree that runs automatically.
 3. Enable **Activation → Is Loaded**. Click **activate when Aura Activated...**, then select `BT enabled` in **Enabling Condition → Links**.
 4. Set **Execution → When Activated → Run periodically**, with **Tick every = 250 ms**.
 
-   Here the interval is configured, but **Is Loaded** is still off and **Ticking** reads **Idle**.
-
    ![The root set to a 250 ms periodic tick with Is Loaded unchecked](/assets/callouts/batch1/en/bt-getting-started-root.png)
 
-5. Change your aura to **Is Active**. When activation and global pause permit work, **Ticking...** appears and MainTree receives ticks. Return the aura to **Is NOT Active** to stop automatic ticks.
+5. Switch your aura to **Is Active**. If activation and the global pause permit work, **Ticking...** appears and MainTree receives ticks. To stop automatic ticks, switch the aura back to **Is NOT Active**.
 
-The observable result is MainTree execution when allowed, and **Idle** when disallowed. **Pause Everything if Active** in EyeAuras window settings can pause automatic work while its main window is active. Account for that setting when observing your own tree; do not change unrelated configurations to make this example run.
+If **Pause Everything if Active** is on in the EyeAuras window settings, automatic work is paused while the main window is active. Move focus away from EyeAuras and watch how your tree behaves.
 
-![The earlier root settings and MainTree selection interface](https://s3.eyeauras.net/media/2025/08/EyeAuras_vs6Z34YfZ2.png)
-
-The earlier **Activation Conditions**/**Activation Settings** groups correspond to current **Activation**/**Execution**. Main-window activation pauses work only when the relevant global pause setting applies.
+![The earlier root settings and MainTree selection](https://s3.eyeauras.net/media/2025/08/EyeAuras_vs6Z34YfZ2.png)
 
 | Setting or state | Behaviour |
 | --- | --- |
-| `Is Loaded` | Admits execution. Unload rejects new ticks, requests cancellation, then resets execution after active work drains; the saved graph/data remain. |
-| `Enabling Condition` | Linked auras gate automatic activation. No links and no triggers means **manual**, not permanent automatic permission. |
-| `activate when Key Pressed...` | Adds **Hotkey Is Active** to this container; configure its gesture/mode separately. |
-| `Do nothing` | No automatic calls. A loaded selected tree can still be ticked manually. |
-| `Run once` | One tick when IsActive changes from false to true, not a loop until a Running result completes. |
-| `Run periodically` | Repeated ticks of MainTree while conditions permit. |
-| `Tick every` | Delay after processing a periodic tick. Work duration affects the interval; this is not a fixed-FPS guarantee. |
-| `Ticking` / `Idle` | Current permission and idle reason, not the last node's execution result. |
+| `Is Loaded` | Permits execution. On unload, new ticks are rejected and running ones get a cancellation request. After they finish, the execution state is reset. The graph and saved data remain. |
+| `Enabling Condition` | Linked auras permit automatic start. With no links and no triggers the mode is **manual**, not “always allowed”. |
+| `activate when Key Pressed...` | Adds a **Hotkey Is Active** trigger to this container. Set its gesture and mode in its own editor. |
+| `Do nothing` | No automatic calls. You can still tick a loaded selected tree by hand. |
+| `Run once` | One tick when IsActive changes from false to true. It is not a loop until Running completes. |
+| `Run periodically` | MainTree is ticked again and again while the conditions are met. |
+| `Tick every` | The pause after a periodic tick has been processed, not a fixed-FPS guarantee. The real interval also includes the time the nodes take. |
+| `Ticking` / `Idle` | Whether periodic ticks are going now, and why not. This is not the last node's result. |
 
-Folder conditions, loading and pause also matter. Read the idle explanation, such as **manual**, **paused**, **no main tree** or **no nodes to run**. An empty tree supplies no useful automatic work.
+Folder conditions, loading and the pause also affect execution. When you see **Idle**, read the explanation, such as **manual**, **paused**, **no main tree** or **no nodes to run**.
 
 <details>
 <summary>Manual entry, stopping and reset</summary>
 
-The upper **Tick BT Once** ticks the selected tree. **Run** in a node's footer ticks that selected node. Manual entry can bypass automatic activation conditions, but still requires loading. Use a separate no-input tree for these experiments.
+The upper **Tick BT Once** runs the **selected tree** once. **Run** in a node's footer runs the **selected node**. A manual call can bypass the automatic activation conditions, so try it on a separate tree without input. **Is Loaded** is required here too.
 
-The adjacent repeat control issues manual ticks until stopped; **Stop** cancels the call issued by that panel, not all trees. Do not mix entrypoints on an unfinished route: another caller can receive Failure while the first retains its continuation.
+The repeat button next to it keeps issuing manual ticks until you stop them. **Stop** cancels the call started from this panel, not all trees. Do not mix manual and automatic runs of an unfinished tree: the other caller can get Failure while the first one still holds its continuation.
 
-**Reset node status** clears the displayed result, not timers or execution cursors. Stopping automatic ticks is not a full reset either. Unload requests cleanup after active work finishes; code that ignores cancellation can delay it. There is no universal instant interruption.
+**Reset node status** clears the displayed result, but not the timers or the route. Stopping automatic ticks is not a full reset of all nodes either. Unload requests a full cleanup after the current work finishes. An action that ignores cancellation can delay it.
 
 </details>
 
@@ -67,12 +63,12 @@ The adjacent repeat control issues manual ticks until stopped; **Stop** cancels 
 
 | Field or group | Purpose |
 | --- | --- |
-| `Settings → Target Window` | Shared target for nodes that consume it, not a guarantee of background input. |
-| `Settings → show more...` | Module-provided defaults such as **Input Simulator**. See [default properties](/en/features/default-properties) for binding/inheritance. |
-| `Advanced → Is Shared` | Exposes the selected tree as a reusable node. |
-| `Advanced → References → Links` | Shared classes/declarations from linked projects. Local values in `Script.csx` do not become another tree's global variables. |
-| Selector's `New Behavior Tree` | Add another executable tree to this container, then explicitly choose Main for automatic use. |
+| `Settings → Target Window` | The shared target window for the nodes that use it. It is not a permission for background input. |
+| `Settings → show more...` | More shared properties from connected modules, such as **Input Simulator**. Inheritance and bindings are covered in [default properties](/en/features/default-properties). |
+| `Advanced → Is Shared` | The selected tree can be reused as a separate node. |
+| `Advanced → References → Links` | Shared classes and other declarations from linked projects. Declarations outside `Script.csx` can be shared. Local values in `Script.csx` do not become another tree's global variables. |
+| Selector's `New Behavior Tree` | Adds another tree to this container. To make it run automatically, set it as Main separately. |
 
-Graph and nested-list configurations share MainTree and execution rules. This guide does not require a mode switch that may be absent from your toolbar.
+The tree is shown as a graph or as a nested list, depending on what is saved in the configuration.
 
 </details>

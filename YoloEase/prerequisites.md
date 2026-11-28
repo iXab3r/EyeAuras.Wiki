@@ -1,6 +1,6 @@
 ---
 title: Prerequisites
-description: How to prepare Python, PyTorch, and GPU support with YoloEase
+description: How to check and install Python, PyTorch and GPU support in YoloEase
 published: true
 date: 2026-05-08T12:00:00.000Z
 tags: yoloease, machine-learning, ai-translated
@@ -9,62 +9,58 @@ dateCreated: 2023-10-29T18:35:33.765Z
 ---
 # Prepare YoloEase for local training
 
-Check that YoloEase can run its managed Python environment and YOLO CLI before preparing a training job. The result here is a set of passing prerequisite checks, not a trained model.
+Here you check that YoloEase can run its own Python and YOLO. At the end, every required check on the **Prerequisites** tab should pass.
 
-Use **YoloEase 2 for Windows x64**, from the [author's releases](https://github.com/iXab3r/YoloEase/releases/). It is a separate .NET 8 Windows application, not a C# Script action inside EyeAuras. Its managed Python does not use your global `PATH` or require replacing your system Python.
+You need **YoloEase 2 for Windows x64** from the [author's releases](https://github.com/iXab3r/YoloEase/releases/). It is a separate .NET 8 Windows application, not a C# Script action inside EyeAuras. YoloEase installs its own Python. It does not use your global `PATH` and leaves your system Python alone.
 
 | Requirement | What it is needed for |
 | --- | --- |
-| Writable application-data and project folders | Environment files, logs, images and training results. Start with a local folder your account can write to. |
-| Permission to create symbolic links | Local dataset preparation and base-weight linking use them. Resolve a Windows permission error before training. |
-| Internet for the initial setup | Python, packages and missing base weights may be downloaded. |
-| Free space on the relevant disks | Packages, extracted environments, images and successive runs need separate space; there is no fixed total installation size. |
-| CPU; optionally a compatible NVIDIA GPU | CPU training is supported. CUDA requires a suitable driver and CUDA actually available in PyTorch. |
+| Write access to the application-data folder and your project folder | Environment files, logs, images and training results go there. Start with a local folder your account can write to. |
+| Permission to create symbolic links | Local dataset preparation and base-weight linking use them. If Windows refuses to create links, fix the permissions before training. |
+| Internet for the first setup | YoloEase may download Python, packages and missing base weights. |
+| Free disk space | Packages, the environment, images and each training run take space separately. There is no fixed total size. |
+| CPU; a compatible NVIDIA GPU is optional | You can train on the CPU. CUDA works only with a suitable driver and when PyTorch reports CUDA as available. |
 
 ## Check and install the required components
 
-1. Open YoloEase, create or open your own `.yeproj`, and select **Prerequisites**.
-2. Click **Check all**. Expand a failed row to read its actual path, detected version and error.
+1. Open YoloEase, create or open your own `.yeproj` and select **Prerequisites**.
+2. Click **Check all**. Expand a failed row to see its path, detected version and error.
 
-![Managed Python 3.11 is marked Missing, with Python environment Blocked and Install missing at the top.](/assets/callouts/batch3/en/yolo-prerequisites-missing.png)
+![Managed Python 3.11 is marked Missing, with Python environment Blocked and Install missing at the top](/assets/callouts/batch3/en/yolo-prerequisites-missing.png)
 
-Local paths in the check output are hidden.
+3. Click **Install missing** and wait until it finishes. This installs the components YoloEase manages, but not a graphics driver.
+4. If needed, click **Check all** again. The required checks should pass. **GPU driver helper** and **GPU acceleration** are informational, so you can still train on the CPU without a GPU.
 
-3. Click **Install missing** and wait for the operation to finish. This prepares application-managed dependencies; it does not install a graphics driver.
-4. Run **Check all** again if needed. The required checks should pass. **GPU driver helper** and **GPU acceleration** are informational: a missing GPU does not prevent the CPU route.
-
-![All ready in the summary and Ready next to Managed Python 3.11.](/assets/callouts/batch3/en/yolo-prerequisites-ready.png)
+![All ready in the summary and Ready next to Managed Python 3.11](/assets/callouts/batch3/en/yolo-prerequisites-ready.png)
 
 | Check | What it checks or prepares |
 | --- | --- |
-| `Managed Python 3.11` | A dedicated CPython 3.11.9 archive, verified by SHA256. |
-| `Python environment` | A virtual environment under application data, shared by this YoloEase installation rather than one system Python per project. |
+| `Managed Python 3.11` | YoloEase's own CPython 3.11.9 archive, verified by SHA256. |
+| `Python environment` | A virtual environment in the application-data folder. There is one for the whole YoloEase installation, not one per project. |
 | `Package installer` | `pip`, `wheel` and `setuptools` in that environment. |
-| `GPU driver helper` | Adapter and driver information. **Open help** opens guidance; bulk installation does not install drivers. |
-| `PyTorch runtime` | CPU or CUDA packages. This source line selects `torch 2.11.0` and `torchvision 0.26.0`, with CUDA 13.0 wheels for a suitable NVIDIA driver. |
-| `Python packages` | Ultralytics, OpenCV, NumPy, Matplotlib, Shapely, ONNX and ONNX Runtime. Several versions are not pinned; the installed check output matters. |
-| `Yolo CLI` | Whether `yolo checks` can run in the managed environment. |
-| `GPU acceleration` | Whether PyTorch can actually use CUDA, beyond merely finding an adapter. |
+| `GPU driver helper` | The adapters found and driver information. **Open help** opens guidance. **Install missing** does not install drivers. |
+| `PyTorch runtime` | The CPU or CUDA build of PyTorch. This version uses `torch 2.11.0` and `torchvision 0.26.0`, with CUDA 13.0 wheels when the NVIDIA driver is suitable. |
+| `Python packages` | Ultralytics, OpenCV, NumPy, Matplotlib, Shapely, ONNX and ONNX Runtime. Several versions are not pinned, so look at the check output for what is installed. |
+| `Yolo CLI` | Whether `yolo checks` runs in the managed environment. |
+| `GPU acceleration` | Whether PyTorch can really use CUDA. |
 
-Continue with [your project and images](/en/YoloEase/prepare-data). Passing these checks establishes environment readiness; it does not establish video-codec support, model accuracy or training speed.
+Next, go to [your project and images](/en/YoloEase/prepare-data).
 
 <details>
 <summary>Environment paths and installation errors</summary>
 
-The application-data folder contains `tools/python-3.11`, `tools/venv`, `tools/downloads` and `tools/logs`. Read the check output for the full paths on your installation. Project images and models are stored separately, alongside the `.yeproj`.
+The application-data folder contains `tools/python-3.11`, `tools/venv`, `tools/downloads` and `tools/logs`. The check output shows the full paths on your machine. Project images and models are stored separately, next to the `.yeproj`.
 
 | Control | Effect |
 | --- | --- |
-| `Check at startup` | Runs prerequisite checks at startup, without starting training or loading your model. |
-| `Copy all` | Copies diagnostic output; it sends nothing. Review local paths and other details before sharing it. |
-| `Clear all` | Clears the displayed output, without deleting Python or the project. |
+| `Check at startup` | Runs the checks when YoloEase starts. |
+| `Copy all` | Copies the diagnostic output. Before you share it, look through the paths and other details in it. |
+| `Clear all` | Clears the output shown. It does not delete Python or the project. |
 
-For an installation failure, use the error in the affected row. For example, **No space left on device** calls for space on the indicated filesystem, then **Clear all** and **Install missing**. A failed package download and an unsupported GPU driver need different remedies.
+If installation stops, read the error in the row that failed. For example, on **No space left on device**, free space on the disk it names, click **Clear all** and then **Install missing** again.
 
-![PyTorch installation failure in YoloEase 2.0.80 with No space left on device at the end of the error.](/assets/callouts/batch3/en/yolo-install-disk-error.png)
+![PyTorch installation failure in YoloEase 2.0.80 with No space left on device at the end of the error](/assets/callouts/batch3/en/yolo-install-disk-error.png)
 
-Log lines containing local paths are hidden.
-
-The managed toolchain described here is present in the YoloEase 2.0.90 source line. Check the versions and CPU/CUDA selection reported by your build instead of substituting newer package versions by name. See [YOLO ONNX](/en/YoloEase/features/yolo-onnx) and [diagnostics](/en/YoloEase/features/diagnostics).
+This page describes the toolchain of YoloEase 2.0.90. Go by the versions and the CPU/CUDA choice that your build reports. More in [YOLO ONNX](/en/YoloEase/features/yolo-onnx) and [diagnostics](/en/YoloEase/features/diagnostics).
 
 </details>

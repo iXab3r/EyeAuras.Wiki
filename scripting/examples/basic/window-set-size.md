@@ -9,10 +9,10 @@ dateCreated: 2025-10-19T13:28:14.334Z
 ---
 # Resize a selected window
 
-Request a new size for an already open window. For the first test, open your own empty Notepad in normal windowed mode and leave only one matching window. The script requests an outer size of `800 × 600`, without typing into or moving it.
+The script asks Windows to resize a window that is already open. For the example, open an empty Notepad in normal windowed mode and leave only one such window. The script requests an outer size of `800 × 600`.
 
-1. Add **C# Script** to your own test aura. Paste the complete code into `Script.csx`; the functions are local to this script, not built-in commands or an ordinary helper class.
-2. Keep `"notepad.exe"` for Notepad. For another window you own, change the [matching expression](/en/features/window-matching-expressions) after checking that it selects the one intended window.
+1. Add **C# Script** to your aura and paste the whole code into `Script.csx`. The functions belong to this script. They are not built-in API methods or a separate ordinary class.
+2. For Notepad, keep the call with `"notepad.exe"`. For another window, change the [matching expression](/en/features/window-matching-expressions) and first check that it finds exactly the one window you want.
 
 ```csharp
 using System;
@@ -57,19 +57,17 @@ private void SetTargetWindowSize(Size newSize, string targetWindowExpression = n
 }
 ```
 
-3. Click **Run**. Inspect the visible resize and the log's target, request, native return value and measured outer bounds. A missing window produces a separate message, not a successful resize.
-4. Change the request to, for example, `1000, 700` and run it again for the same test window.
+3. Click **Run**. Notepad should change size. The log shows the window, the requested size, the call result and the outer bounds that were read back.
+4. Change the size in the call, for example to `1000, 700`, and run the script again for the same window.
 
 | Parameter or result | Meaning |
 | --- | --- |
-| `width`, `height` or `Size` | Dimensions passed to native `SetWindowPos`. Both local-function overloads are included. |
-| `targetWindowExpression` | Explicit selector. If empty, reads `default.WindowSelector.TargetWindow` from the available variable hierarchy. |
-| Folder/BT `TargetWindow` | Supplies that expression for the call without a third argument. Configure it first; this script does not create it. |
-| `accepted` | The native wrapper's return value, not a measurement of final geometry. |
-| `GetWindowRect` | HWND outer bounds, including Windows frames. These differ from client bounds and visible `DwmFrameBounds`. |
+| `width`, `height` or `Size` | The size passed to native `SetWindowPos`. The script keeps both overloads of the local function. |
+| `targetWindowExpression` | An explicit matching expression. If it is empty, the function reads `default.WindowSelector.TargetWindow` from the available variable hierarchy. |
+| Folder/BT `TargetWindow` | Where the expression comes from when you call without the third argument. Set it up beforehand: the script does not create it. |
+| `accepted` | The result of the wrapper around the native request. It does not measure the final geometry. |
+| `GetWindowRect` | Outer bounds of the HWND, including Windows frames. They differ from the client area and from the visible `DwmFrameBounds` frame. |
 
-`SetWindowSize` uses no-move, no-Z-order and no-activation flags. It does not convert DPI or promise an `800 × 600` client area: native coordinates depend on the process's DPI context. The target can constrain resizing or remain maximised, so compare the visible result with the returned bounds.
+`SetWindowSize` does not change the window's position, Z-order or activation. It does not convert DPI, and the client area will not necessarily be `800 × 600`: native coordinates depend on the process's DPI context. The application can limit its size or stay maximised, so compare what you see with the bounds that were read back.
 
-The factory is borrowed from the host; the created selector is disposed on leaving the function, without closing the selected window. Cancellation is checked before the call, but the native resize itself receives no token. Moving a window requires a different native call and its own parameters; resizing is not a movement command.
-
-See [coordinate systems](/en/features/coordinate-system) and the [versioned API reference](/en/scripting/api/reference) for the window contracts used by your host.
+More: [coordinate systems](/en/features/coordinate-system) and the [versioned API reference](/en/scripting/api/reference).
